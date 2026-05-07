@@ -11,8 +11,33 @@ interface VNDBCharacter {
   id: string
   name: string
   original: string
-  image: string
-  role: string // main, primary, side
+  aliases?: string[]
+  description?: string
+  image?: { url: string } | string
+  blood_type?: string
+  birthday?: number[] // [month, day]
+  age?: number | string
+  gender?: string[]
+  height?: number | string
+  weight?: number | string
+  bust?: number | string
+  waist?: number | string
+  hips?: number | string
+  cup?: string
+  trait?: Array<{
+    id: string
+    name: string
+    group_id: string
+    group_name: string
+    spoiler: number
+  }>
+  vns?: Array<{
+    id: string
+    title: string
+    role: string // main, primary, side, appears
+    spoiler: number
+  }>
+  role?: string // main, primary, side (from va relation)
 }
 
 interface VNDBProducer {
@@ -110,7 +135,7 @@ class VNDBClient {
     try {
       const data = await this.sendRequest("vn", {
         filters: ["id", "=", id],
-        fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,va.character.id,va.character.name,va.character.original",
+        fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.trait.id,va.character.trait.name,va.character.trait.group_id,va.character.trait.group_name,va.character.trait.spoiler,va.character.role",
       })
       
       if (!data.results || data.results.length === 0) {
@@ -156,6 +181,8 @@ class VNDBClient {
     original?: string
     image?: string
     vndbId: string
+    type?: string
+    description?: string
   } | null> {
     try {
       console.log("[VNDB] 开始获取随机 galgame 创作者...")
@@ -189,6 +216,8 @@ class VNDBClient {
         original: producer.original,
         image: undefined, // producer API 不返回 image
         vndbId: producer.id.replace("p", ""),
+        type: producer.type,
+        description: producer.description,
       }
     } catch (error) {
       console.error("[VNDB] Failed to fetch random creator:", error)
@@ -325,6 +354,112 @@ class VNDBClient {
       }
     } catch (error) {
       console.error("Failed to auto-fill from VNDB:", error)
+      return null
+    }
+  }
+
+  /**
+   * 获取随机游戏角色
+   */
+  async getRandomCharacter(): Promise<{
+    id: string
+    name: string
+    original?: string
+    image?: string
+    role?: string
+    gender?: string[]
+    age?: number | string
+    birthday?: number[]
+    bloodType?: string
+    height?: number | string
+    weight?: number | string
+    bust?: number | string
+    waist?: number | string
+    hips?: number | string
+    cup?: string
+    description?: string
+    aliases?: string[]
+    traits?: Array<{ name: string; groupName: string }>
+    vnTitle?: string
+  } | null> {
+    try {
+      console.log("[VNDB] 开始获取随机游戏角色...")
+      
+      // 搜索热门角色（通过搜索知名VN获取角色）
+      const popularSearches = ["fate", "clannad", "steins", "muv-luv", "grisaia", "little busters", "rewrite", "angel beats", "danganronpa", "zero escape"]
+      const randomSearch = popularSearches[Math.floor(Math.random() * popularSearches.length)]
+      
+      const vnData = await this.sendRequest("vn", {
+        filters: ["search", "=", randomSearch],
+        fields: "id,title,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.trait.id,va.character.trait.name,va.character.trait.group_id,va.character.trait.group_name,va.character.trait.spoiler,va.character.role",
+        results: 5,
+        sort: "rating",
+        reverse: true,
+      })
+
+      const vns = vnData.results || []
+      if (vns.length === 0) {
+        console.log("[VNDB] 未找到VN数据")
+        return null
+      }
+
+      // 收集所有角色
+      const allCharacters: Array<{ character: any; vnTitle: string }> = []
+      for (const vn of vns) {
+        if (vn.va) {
+          for (const va of vn.va) {
+            if (va.character) {
+              allCharacters.push({ character: va.character, vnTitle: vn.title })
+            }
+          }
+        }
+      }
+
+      if (allCharacters.length === 0) {
+        console.log("[VNDB] 未找到角色数据")
+        return null
+      }
+
+      // 随机选择一个角色
+      const randomIndex = Math.floor(Math.random() * allCharacters.length)
+      const { character, vnTitle } = allCharacters[randomIndex]
+
+      console.log(`[VNDB] 选中角色: ${character.name} (ID: ${character.id})`)
+
+      // 处理图片URL
+      let imageUrl: string | undefined
+      if (character.image?.url) {
+        imageUrl = character.image.url
+      }
+
+      // 处理特征
+      const traits = character.trait
+        ?.filter((t: any) => t.spoiler === 0)
+        .map((t: any) => ({ name: t.name, groupName: t.group_name })) || []
+
+      return {
+        id: character.id,
+        name: character.name || "未知角色",
+        original: character.original,
+        image: imageUrl,
+        role: character.role,
+        gender: character.gender,
+        age: character.age,
+        birthday: character.birthday,
+        bloodType: character.blood_type,
+        height: character.height,
+        weight: character.weight,
+        bust: character.bust,
+        waist: character.waist,
+        hips: character.hips,
+        cup: character.cup,
+        description: character.description,
+        aliases: character.aliases,
+        traits,
+        vnTitle,
+      }
+    } catch (error) {
+      console.error("[VNDB] Failed to fetch random character:", error)
       return null
     }
   }

@@ -140,33 +140,33 @@ export function TopNav() {
             }
           }}
           className={cn(
-            "fixed top-0 left-4 z-[60] flex h-14 w-14 items-center justify-center border-b border-r transition-all btn-spring lg:left-4 lg:h-16 lg:w-16",
+            "fixed top-0 left-4 z-[60] flex h-12 w-12 items-center justify-center border-b border-r transition-all btn-spring lg:top-0 lg:left-[max(calc((100vw-1240px)/2),0px)] lg:h-14 lg:w-14",
             theme === "dark"
-              ? "border-white/[0.05] bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-300"
-              : "border-black/[0.05] bg-white/85 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800"
+              ? "border-white/[0.05] bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
+              : "border-black/[0.05] bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"
           )}
           style={{
             backdropFilter: 'blur(24px)',
           }}
         >
-          <MessageSquare className="h-[22px] w-[22px] lg:h-[26px] lg:w-[26px]" strokeWidth={2.2} />
+          <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
         </button>
 
-        {/* 主容器 */}
-        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[76px] pr-4 lg:ml-[max(calc((100vw-1200px)/2),0px)] lg:px-4">
+        {/* 主容器 - 与页面内容容器对齐 */}
+        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[68px] pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
 
           {/* 三条杠菜单 - 第一个位置 */}
           <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full transition-all btn-spring lg:h-12 lg:w-12",
+                "flex h-9 w-9 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11",
                 theme === "dark" 
-                  ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-300"
-                  : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-800"
+                  ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
+                  : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
               )}
             >
-              <Menu className="h-[22px] w-[22px] lg:h-[26px] lg:w-[26px]" strokeWidth={2.2} />
+              <Menu className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
             </button>
             {menuOpen && (
               <div className={cn(
@@ -208,21 +208,21 @@ export function TopNav() {
           {/* 右侧 */}
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full transition-all lg:h-12 lg:w-12",
+              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11",
               theme === "dark" 
-                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-300"
-                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-800"
+                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
+                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
             )}>
-              <Search className="h-[22px] w-[22px] lg:h-[26px] lg:w-[26px]" strokeWidth={2.2} />
+              <Search className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />
             </Link>
 
             <button onClick={toggleTheme} className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full transition-all lg:h-12 lg:w-12",
+              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11",
               theme === "dark" 
-                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-300"
-                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-800"
+                ? "text-zinc-500 hover:bg-white/[0.06] hover:text-zinc-400"
+                : "text-zinc-500 hover:bg-black/[0.04] hover:text-zinc-600"
             )}>
-              {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[26px] lg:w-[26px]" strokeWidth={2.2} /> : <Moon className="h-[22px] w-[22px] lg:h-[26px] lg:w-[26px]" strokeWidth={2.2} />}
+              {theme === "light" ? <Sun className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} /> : <Moon className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.2} />}
             </button>
 
             {user ? (
@@ -230,7 +230,7 @@ export function TopNav() {
                 <button
                   onClick={() => setUserOpen(v => !v)}
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-11 lg:w-11",
+                    "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10",
                     theme === "dark" 
                       ? "ring-white/10 hover:ring-white/25"
                       : "ring-black/10 hover:ring-black/25"

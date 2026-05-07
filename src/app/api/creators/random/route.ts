@@ -16,6 +16,8 @@ export async function GET() {
         nameJa: vndbCreator.original || vndbCreator.name,
         avatar: vndbCreator.image || "",
         vndbId: vndbCreator.vndbId,
+        type: vndbCreator.type || "individual",
+        description: vndbCreator.description || "",
         source: "vndb",
       })
     }

@@ -86,6 +86,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
@@ -533,6 +534,11 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ── 亮色模式文字对比度增强 ── */
+.light .text-zinc-100,
+.light .text-zinc-200 {
+  color: #18181b !important; /* zinc-900，白色文字在亮色模式下变为深色 */
+}
+
 .light .text-zinc-400,
 .light .text-zinc-500 {
   color: #27272a !important; /* zinc-800，确保亮色模式下清晰可读 */

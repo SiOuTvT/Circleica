@@ -1,7 +1,7 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
-import { PlaceholderPreviewBtn, RandomCreatorBtn } from "@/components/random-game-btn"
+import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-game-btn"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
@@ -79,8 +79,8 @@ export default async function HomePage({
             {/* 随机人物按钮 */}
             <RandomCreatorBtn />
             
-            {/* 占位预览按钮 */}
-            <PlaceholderPreviewBtn />
+            {/* 随机角色按钮 */}
+            <RandomCharacterBtn />
           </div>
         </div>
 
