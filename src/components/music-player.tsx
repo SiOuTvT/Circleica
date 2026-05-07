@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
 import { Play, Pause, SkipBack, SkipForward, Music2, Volume2, VolumeX } from "lucide-react"
@@ -77,7 +77,7 @@ export function MusicPlayer() {
         {/* 进度条 */}
         {expanded && (
           <div className="h-0.5 w-full cursor-pointer bg-zinc-800" onClick={handleSeek}>
-            <div className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-gradient-to-r from-blue-500 to-blue-500 transition-all" style={{ width: `${progress}%` }} />
           </div>
         )}
 
@@ -87,7 +87,7 @@ export function MusicPlayer() {
             onClick={() => setExpanded(v => !v)}
             className={cn(
               "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
-              playing ? "text-pink-400" : "text-zinc-500 hover:text-zinc-300"
+              playing ? "text-blue-400" : "text-zinc-500 hover:text-zinc-300"
             )}
           >
             <Music2 className={cn("h-4 w-4", playing && "animate-pulse")} strokeWidth={1.5} />

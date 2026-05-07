@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import React from "react"
@@ -86,7 +86,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                 <tr key={u.id} className="hover:bg-zinc-800/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-pink-500 to-purple-500">
+                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-500">
                         {u.avatar
                           ? <Image src={u.avatar} alt="" width={28} height={28} className="h-full w-full object-cover" />
                           : <div className="flex h-full w-full items-center justify-center text-xs font-bold text-white">{u.username[0].toUpperCase()}</div>}
@@ -99,7 +99,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                     收藏 {u._count.favorites} · 评论 {u._count.comments} · 签到 {u._count.checkIns}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-pink-500/15 text-pink-400" : "bg-zinc-800 text-zinc-500"}`}>
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-blue-500/15 text-blue-400" : "bg-zinc-800 text-zinc-500"}`}>
                       {u.role === "ADMIN" ? "管理员" : "用户"}
                     </span>
                   </td>

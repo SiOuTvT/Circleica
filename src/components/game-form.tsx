@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -141,11 +141,11 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
         </div>
         <div className="flex flex-wrap gap-4">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
-            <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-pink-500" />
+            <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
             NSFW 内容
           </label>
           <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
-            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-pink-500" />
+            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
             立即发布
           </label>
         </div>

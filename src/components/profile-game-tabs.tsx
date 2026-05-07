@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Image from "next/image"
@@ -46,7 +46,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
       {faveGame && (
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-pink-400 to-purple-400" />
+            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
             本命游戏
           </h2>
           <Link href={`/games/${faveGame.id}`}

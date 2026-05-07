@@ -1,8 +1,9 @@
-import { notFound } from "next/navigation"
+import { prisma } from "@/lib/prisma"
+import { vndbClient } from "@/lib/vndb"
+import { Database, ExternalLink, Globe } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { prisma } from "@/lib/prisma"
-import { Globe, ExternalLink } from "lucide-react"
+import { notFound } from "next/navigation"
 
 const ROLE_LABEL: Record<string, string> = {
   scenario:   "脚本",
@@ -16,6 +17,13 @@ const ROLE_LABEL: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  if (id.startsWith("vndb-")) {
+    const vndbId = id.replace("vndb-", "")
+    const producer = await vndbClient.getProducer(vndbId)
+    return { title: producer ? `${producer.original || producer.name} · 同人游戏站` : "创作者" }
+  }
+
   const c = await prisma.creator.findUnique({ where: { id }, select: { name: true, nameJa: true } })
   return { title: c ? `${c.nameJa || c.name} · 同人游戏站` : "创作者" }
 }
@@ -23,6 +31,104 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function CreatorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
+  // VNDB 创作者：直接从 VNDB 获取数据
+  if (id.startsWith("vndb-")) {
+    const vndbId = id.replace("vndb-", "")
+    const producer = await vndbClient.getProducer(vndbId)
+    if (!producer) notFound()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const p = producer!
+
+    return (
+      <div>
+        {/* Hero */}
+        <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+          {p.image?.url ? (
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+              <Image src={p.image.url} alt={p.name} fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+              {(p.original || p.name)[0]}
+            </div>
+          )}
+
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-baseline gap-3 mb-3">
+              <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{p.original || p.name}</h1>
+              {p.original && p.name !== p.original && (
+                <span className="text-base text-zinc-500 light:text-zinc-400">{p.name}</span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
+                {p.type === "individual" ? "个人创作者" : "社团/公司"}
+              </span>
+              {p.developed && p.developed.length > 0 && (
+                <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
+                  {p.developed.length} 部作品
+                </span>
+              )}
+            </div>
+
+            {p.description && (
+              <p className="mb-4 text-sm leading-relaxed text-zinc-400 light:text-zinc-600 line-clamp-5">
+                {p.description.replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1")}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <a href={`https://vndb.org/p${vndbId}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
+                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* 参与作品 */}
+        {p.developed && p.developed.length > 0 ? (
+          <section>
+            <h2 className="mb-5 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
+              参与作品
+              <span className="ml-2 text-xs font-normal text-zinc-500 light:text-zinc-400">共 {p.developed.length} 部</span>
+            </h2>
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+              {p.developed.map((vn: { id: string; title: string; image?: { url: string }; rating?: number }) => (
+                <a key={vn.id} href={`https://vndb.org/${vn.id}`} target="_blank" rel="noopener noreferrer"
+                  className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:-translate-y-1.5 hover:ring-white/[0.14] light:hover:ring-black/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] light:hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+                  <div className="relative" style={{ aspectRatio: "4/5" }}>
+                    {vn.image?.url ? (
+                      <Image src={vn.image.url} alt={vn.title} fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.08]"
+                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/60 to-transparent light:from-white/95 light:via-white/60 p-2.5">
+                      <p className="line-clamp-2 text-[11px] font-medium leading-tight text-zinc-100 light:text-zinc-900">{vn.title}</p>
+                      {vn.rating && (
+                        <p className="mt-1 text-[10px] text-zinc-500 light:text-zinc-400">⭐ {(vn.rating / 10).toFixed(1)}</p>
+                      )}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <div className="py-16 text-center rounded-2xl bg-zinc-900/50 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+            <p className="text-sm text-zinc-600 light:text-zinc-400">暂无关联游戏</p>
+            <p className="mt-2 text-xs text-zinc-700 light:text-zinc-300">该创作者可能还未添加作品</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // 本地数据库创作者
   const creator = await prisma.creator.findUnique({
     where: { id },
     include: {
@@ -45,60 +151,62 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
   const uniqueGames = [...new Map(publishedGames.map(g => [g.game.id, g.game])).values()]
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div>
       {/* Hero */}
-      <div className="mb-6 flex items-start gap-6 rounded-2xl bg-zinc-900 p-6 ring-1 ring-white/[0.06]">
+      <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
         {creator.avatar ? (
-          <Image src={creator.avatar} alt={creator.name} width={96} height={96}
-            className="h-24 w-24 shrink-0 rounded-full object-cover ring-2 ring-white/10" />
+          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+            <Image src={creator.avatar} alt={creator.name} fill
+              className="object-cover" />
+          </div>
         ) : (
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-3xl font-bold text-white ring-2 ring-white/10">
+          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
             {(creator.nameJa || creator.name)[0]}
           </div>
         )}
 
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-baseline gap-2 mb-2">
-            <h1 className="text-2xl font-bold text-zinc-100">{creator.nameJa || creator.name}</h1>
+          <div className="flex flex-wrap items-baseline gap-3 mb-3">
+            <h1 className="text-3xl font-bold text-zinc-100 light:text-zinc-900">{creator.nameJa || creator.name}</h1>
             {creator.nameJa && creator.name !== creator.nameJa && (
-              <span className="text-sm text-zinc-500">{creator.name}</span>
+              <span className="text-base text-zinc-500 light:text-zinc-400">{creator.name}</span>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-2 mb-4">
             {[...new Set(publishedGames.map(g => g.role))].map(role => (
-              <span key={role} className="rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-400 ring-1 ring-white/[0.06]">
+              <span key={role} className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
                 {ROLE_LABEL[role] ?? role}
               </span>
             ))}
-            <span className="rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-500 ring-1 ring-white/[0.06]">
+            <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-sky-500/20 px-3 py-1 text-xs font-medium text-blue-400 ring-1 ring-blue-500/30">
               {uniqueGames.length} 部作品
             </span>
           </div>
 
           {creator.bio && (
-            <p className="mb-3 text-sm leading-relaxed text-zinc-400 line-clamp-4">
+            <p className="mb-4 text-sm leading-relaxed text-zinc-400 light:text-zinc-600 line-clamp-5">
               {creator.bio.replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1")}
             </p>
           )}
 
           <div className="flex flex-wrap gap-2">
             {creator.vndbId && (
-              <a href={`https://vndb.org/${creator.vndbId}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />VNDB
+              <a href={`https://vndb.org/p${creator.vndbId}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
+                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
               </a>
             )}
             {creator.twitterUrl && (
               <a href={creator.twitterUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-sky-400">
-                <ExternalLink className="h-3 w-3" strokeWidth={1.5} />Twitter / X
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-sky-500/20 hover:text-sky-400">
+                <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} />Twitter / X
               </a>
             )}
             {creator.wikipediaUrl && (
               <a href={creator.wikipediaUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
-                <Globe className="h-3 w-3" strokeWidth={1.5} />Wikipedia
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
+                <Globe className="h-3.5 w-3.5" strokeWidth={2} />Wikipedia
               </a>
             )}
           </div>
@@ -108,29 +216,35 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
       {/* 参与作品 */}
       {uniqueGames.length > 0 ? (
         <section>
-          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-200">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-pink-400 to-purple-400" />
+          <h2 className="mb-5 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
             参与作品
+            <span className="ml-2 text-xs font-normal text-zinc-500 light:text-zinc-400">共 {uniqueGames.length} 部</span>
           </h2>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+          <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
             {uniqueGames.map(game => {
               const roles = publishedGames
                 .filter(g => g.game.id === game.id)
                 .map(g => ROLE_LABEL[g.role] ?? g.role)
               return (
                 <Link key={game.id} href={`/games/${game.id}`}
-                  className="group overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-white/[0.06] transition-all hover:-translate-y-1 hover:ring-white/[0.12] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+                  className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:-translate-y-1.5 hover:ring-white/[0.14] light:hover:ring-black/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] light:hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
                   <div className="relative" style={{ aspectRatio: "4/5" }}>
                     {game.coverImage ? (
                       <Image src={game.coverImage} alt={game.title} fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
-                        sizes="(max-width: 640px) 33vw, 16vw" />
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.08]"
+                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-zinc-800 text-zinc-600 text-xs">无封面</div>
+                      <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
                     )}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/90 to-transparent p-2">
-                      <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200">{game.title}</p>
-                      <p className="mt-0.5 text-[9px] text-zinc-500">{roles.join(" · ")}</p>
+                    {game.isNsfw && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/60 backdrop-blur-[2px]">
+                        <span className="rounded border border-red-500/40 bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400">R18</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/95 via-zinc-950/60 to-transparent light:from-white/95 light:via-white/60 p-2.5">
+                      <p className="line-clamp-2 text-[11px] font-medium leading-tight text-zinc-100 light:text-zinc-900">{game.title}</p>
+                      <p className="mt-1 text-[10px] text-zinc-500 light:text-zinc-400">{roles.join(" · ")}</p>
                     </div>
                   </div>
                 </Link>
@@ -139,7 +253,10 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
           </div>
         </section>
       ) : (
-        <p className="py-12 text-center text-sm text-zinc-600">暂无关联游戏</p>
+        <div className="py-16 text-center rounded-2xl bg-zinc-900/50 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+          <p className="text-sm text-zinc-600 light:text-zinc-400">暂无关联游戏</p>
+          <p className="mt-2 text-xs text-zinc-700 light:text-zinc-300">该创作者可能还未添加作品</p>
+        </div>
       )}
     </div>
   )

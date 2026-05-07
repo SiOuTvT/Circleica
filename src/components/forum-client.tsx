@@ -1,71 +1,76 @@
-"use client"
+﻿"use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import { MessageSquare, Heart, Plus, X, Send, ChevronLeft, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, X } from "lucide-react"
+import Image from "next/image"
+import { useMemo, useRef, useState } from "react"
+import { RichTextContent } from "./rich-text-content"
+import { RichTextEditor } from "./rich-text-editor"
 
-interface ForumUser { id: string; username: string; avatar: string }
-interface Post {
-  id: string; title: string; content: string; imageUrl: string
-  likeCount: number; isSolved: boolean; createdAt: string
-  user: ForumUser; commentCount: number
-}
-interface Comment {
-  id: string; content: string; imageUrl: string
-  likeCount: number; createdAt: string; user: ForumUser
-}
-
-function Avatar({ user, size = 8 }: { user: ForumUser; size?: number }) {
-  if (user.avatar) return <Image src={user.avatar} alt={user.username} width={size * 4} height={size * 4} className={`h-${size} w-${size} rounded-full object-cover`} />
-  return (
-    <div className={`flex h-${size} w-${size} shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-[11px] font-bold text-white`}>
-      {user.username[0].toUpperCase()}
-    </div>
-  )
-}
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
-}
+interface User { id: string; username: string; avatar: string }
+interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
+interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; createdAt: string; user: User; comments?: Comment[] }
 
 const FILTER_TABS = [
-  { key: "all",      label: "全部" },
-  { key: "unsolved", label: "未解决" },
-  { key: "solved",   label: "已解决" },
+  { key: "all" as const, label: "全部" },
+  { key: "unsolved" as const, label: "未解决" },
+  { key: "solved" as const, label: "已解决" },
 ]
 
+// 表情列表
+const EMOJI_LIST = [
+  "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
+  "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
+  "👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯",
+]
+
+function Avatar({ user, size = 6 }: { user: User; size?: number }) {
+  const s = `h-${size} w-${size}`
+  if (user.avatar) return <Image src={user.avatar} alt={user.username} width={size * 4} height={size * 4} className={`${s} rounded-full object-cover shrink-0`} />
+  return <div className={`${s} rounded-full bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0`}>{user.username[0].toUpperCase()}</div>
+}
+
+function fmtDate(d: string) {
+  const date = new Date(d)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  if (diff < 60_000) return "刚刚"
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}分钟前`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}小时前`
+  return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
+}
+
 export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
-  initialPosts: Post[]
-  isLoggedIn: boolean
-  currentUser: { id: string; name: string; image: string } | null
+  initialPosts: Post[]; isLoggedIn: boolean; currentUser?: User | null
 }) {
-  const [posts, setPosts]           = useState(initialPosts)
-  const [filter, setFilter]         = useState("all")
+  const [posts, setPosts] = useState(initialPosts)
+  const [filter, setFilter] = useState<"all" | "unsolved" | "solved">("all")
   const [activePost, setActivePost] = useState<(Post & { comments: Comment[] }) | null>(null)
-  const [loadingPost, setLoadingPost] = useState(false)
-  const [showNew, setShowNew]       = useState(false)
-  const [newTitle, setNewTitle]     = useState("")
+  const [showNew, setShowNew] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
   const [newContent, setNewContent] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [loadingPost, setLoadingPost] = useState(false)
   const [commentText, setCommentText] = useState("")
+  const [commentImageFile, setCommentImageFile] = useState<File | null>(null)
+  const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
+  const [showCommentEmoji, setShowCommentEmoji] = useState(false)
+  const commentInputRef = useRef<HTMLInputElement>(null)
 
-  const filteredPosts = posts.filter(p => {
-    if (filter === "solved")   return p.isSolved
-    if (filter === "unsolved") return !p.isSolved
-    return true
-  })
+  const filteredPosts = useMemo(() => {
+    if (filter === "all") return posts
+    return posts.filter(p => filter === "solved" ? p.isSolved : !p.isSolved)
+  }, [posts, filter])
 
   async function openPost(id: string) {
-    setLoadingPost(true); setActivePost(null)
-    const res  = await fetch(`/api/forum/posts/${id}`)
-    const data = await res.json()
-    setActivePost(data); setLoadingPost(false)
+    setLoadingPost(true)
+    const res = await fetch(`/api/forum/posts/${id}`)
+    if (res.ok) setActivePost(await res.json())
+    setLoadingPost(false)
   }
 
   async function likePost(id: string) {
-    if (!isLoggedIn) return
-    const res  = await fetch(`/api/forum/posts/${id}/like`, { method: "POST" })
+    const res = await fetch(`/api/forum/posts/${id}/like`, { method: "POST" })
     const data = await res.json()
     setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data.likeCount } : x))
     if (activePost?.id === id) setActivePost(p => p && { ...p, likeCount: data.likeCount })
@@ -101,16 +106,50 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
 
   async function submitComment(e: React.FormEvent) {
     e.preventDefault()
-    if (!commentText.trim() || !activePost) return
+    if (!commentText.trim() && !commentImageFile) return
+    if (!activePost) return
     const fd = new FormData()
     fd.append("content", commentText.trim())
+    if (commentImageFile) fd.append("image", commentImageFile)
     const res  = await fetch(`/api/forum/posts/${activePost.id}/comments`, { method: "POST", body: fd })
     const data = await res.json()
-    if (res.ok) { setActivePost(p => p && { ...p, comments: [...p.comments, data] }); setCommentText("") }
+    if (res.ok) { 
+      setActivePost(p => p && { ...p, comments: [...p.comments, data] })
+      setCommentText("")
+      setCommentImagePreview(null)
+      setCommentImageFile(null)
+      setShowCommentEmoji(false)
+    }
+  }
+
+  function handleCommentImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !file.type.startsWith("image/")) return
+    if (file.size > 5 * 1024 * 1024) { alert("图片大小不能超过 5MB"); return }
+    setCommentImageFile(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => setCommentImagePreview(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  function insertCommentEmoji(emoji: string) {
+    const input = commentInputRef.current
+    if (input) {
+      const start = input.selectionStart ?? commentText.length
+      const end = input.selectionEnd ?? commentText.length
+      const newText = commentText.slice(0, start) + emoji + commentText.slice(end)
+      setCommentText(newText)
+      setTimeout(() => {
+        input.selectionStart = input.selectionEnd = start + emoji.length
+        input.focus()
+      }, 0)
+    } else {
+      setCommentText(commentText + emoji)
+    }
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div>
       {/* 页头 */}
       <div className="mb-4 flex items-center justify-between">
         <div>
@@ -148,7 +187,8 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
             <p className="py-16 text-center text-sm text-zinc-600">暂无帖子</p>
           )}
           {filteredPosts.map(post => (
-            <button key={post.id} onClick={() => openPost(post.id)}
+            <button key={post.id} 
+              onClick={() => openPost(post.id)}
               className={cn(
                 "w-full rounded-xl bg-zinc-900 p-4 text-left ring-1 transition-all hover:bg-zinc-800",
                 activePost?.id === post.id ? "ring-zinc-600" : "ring-white/[0.06] hover:ring-white/10"
@@ -187,14 +227,20 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
           {!loadingPost && activePost && (
             <PostDetail post={activePost} isLoggedIn={isLoggedIn} currentUserId={currentUser?.id}
               commentText={commentText} setCommentText={setCommentText}
+              commentImagePreview={commentImagePreview}
+              showCommentEmoji={showCommentEmoji} setShowCommentEmoji={setShowCommentEmoji}
+              commentInputRef={commentInputRef}
+              onInsertEmoji={insertCommentEmoji}
               onLikePost={() => likePost(activePost.id)}
               onLikeComment={likeComment} onSubmitComment={submitComment}
-              onToggleSolve={() => toggleSolve(activePost.id)} />
+              onToggleSolve={() => toggleSolve(activePost.id)}
+              onCommentImage={handleCommentImage}
+              onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }} />
           )}
         </div>
       </div>
 
-      {/* 移动端全屏 */}
+      {/* 移动端全屏详情 */}
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-3">
@@ -207,9 +253,15 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
           <div className="flex-1 overflow-y-auto p-4">
             <PostDetail post={activePost} isLoggedIn={isLoggedIn} currentUserId={currentUser?.id}
               commentText={commentText} setCommentText={setCommentText}
+              commentImagePreview={commentImagePreview}
+              showCommentEmoji={showCommentEmoji} setShowCommentEmoji={setShowCommentEmoji}
+              commentInputRef={commentInputRef}
+              onInsertEmoji={insertCommentEmoji}
               onLikePost={() => likePost(activePost.id)}
               onLikeComment={likeComment} onSubmitComment={submitComment}
-              onToggleSolve={() => toggleSolve(activePost.id)} />
+              onToggleSolve={() => toggleSolve(activePost.id)}
+              onCommentImage={handleCommentImage}
+              onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }} />
           </div>
         </div>
       )}
@@ -217,22 +269,26 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
       {/* 发帖弹窗 */}
       {showNew && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-zinc-900 p-6 ring-1 ring-white/[0.06]">
+          <div className="w-full max-w-2xl rounded-2xl bg-zinc-900 p-6 ring-1 ring-white/[0.06]">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-zinc-100">发布新帖</h2>
-              <button onClick={() => setShowNew(false)} className="text-zinc-500 hover:text-zinc-300">
+              <h2 className="text-base font-semibold text-zinc-200">发布新帖</h2>
+              <button onClick={() => setShowNew(false)} className="text-zinc-500 hover:text-zinc-300 transition-colors">
                 <X className="h-4 w-4" strokeWidth={1.5} />
               </button>
             </div>
-            <form onSubmit={submitPost} className="space-y-3">
+            <form onSubmit={submitPost} className="space-y-4">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
-                className="w-full rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all" />
-              <textarea value={newContent} onChange={e => setNewContent(e.target.value)}
-                placeholder="详细描述你的需求…" rows={5} required
-                className="w-full resize-none rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all" />
+                className="w-full rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-white/[0.12] transition-all" />
+              
+              <RichTextEditor
+                content={newContent}
+                onChange={setNewContent}
+                placeholder="详细描述你的需求… 支持富文本格式和图片上传"
+              />
+              
               <button type="submit" disabled={submitting}
-                className="gradient-accent w-full rounded-xl py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
+                className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-blue-500 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
                 {submitting ? "发布中…" : "发 布"}
               </button>
             </form>
@@ -243,18 +299,26 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser }: {
   )
 }
 
-function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentText, onLikePost, onLikeComment, onSubmitComment, onToggleSolve }: {
+function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentText, commentImagePreview, showCommentEmoji, setShowCommentEmoji, commentInputRef, onInsertEmoji, onLikePost, onLikeComment, onSubmitComment, onToggleSolve, onCommentImage, onRemoveCommentImage }: {
   post: Post & { comments: Comment[] }
   isLoggedIn: boolean
   currentUserId?: string
   commentText: string
   setCommentText: (v: string) => void
+  commentImagePreview: string | null
+  showCommentEmoji: boolean
+  setShowCommentEmoji: (v: boolean) => void
+  commentInputRef: React.RefObject<HTMLInputElement | null>
+  onInsertEmoji: (emoji: string) => void
   onLikePost: () => void
   onLikeComment: (id: string) => void
   onSubmitComment: (e: React.FormEvent) => void
   onToggleSolve: () => void
+  onCommentImage: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onRemoveCommentImage: () => void
 }) {
   const isAuthor = currentUserId === post.user.id
+  const commentFileRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="rounded-2xl bg-zinc-900 ring-1 ring-white/[0.06] overflow-hidden">
@@ -263,7 +327,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentTe
           <Avatar user={post.user} size={8} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-zinc-200">{post.user.username}</p>
-            <p className="text-[10px] text-zinc-600">{fmtDate(post.createdAt)}</p>
+            <p className="text-[10px] text-zinc-500">{fmtDate(post.createdAt)}</p>
           </div>
           {post.isSolved && (
             <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
@@ -272,13 +336,15 @@ function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentTe
           )}
         </div>
 
-        <h2 className="mb-2 text-base font-bold text-zinc-100">{post.title}</h2>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">{post.content}</p>
+        <h2 className="mb-3 text-base font-bold text-zinc-100">{post.title}</h2>
+        
+        <RichTextContent html={post.content} />
+        
         {post.imageUrl && <Image src={post.imageUrl} alt="" width={480} height={320} className="mt-3 rounded-xl object-cover" />}
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-pink-400 disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-blue-400 disabled:opacity-40">
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
@@ -287,7 +353,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentTe
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
                   ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-zinc-800 text-zinc-400 ring-white/[0.06] hover:text-emerald-400"
+                  : "bg-zinc-800 text-zinc-400 ring-white/[0.06] hover:text-zinc-200"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               {post.isSolved ? "取消已解决" : "标记已解决"}
@@ -297,7 +363,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentTe
       </div>
 
       <div className="border-t border-white/[0.06] p-5">
-        <p className="mb-3 text-xs font-semibold text-zinc-500">评论 {post.comments.length}</p>
+        <p className="mb-3 text-xs font-semibold text-zinc-400">评论 {post.comments.length}</p>
         <div className="mb-4 max-h-64 space-y-3 overflow-y-auto">
           {post.comments.length === 0 && <p className="text-xs text-zinc-600">还没有评论~</p>}
           {post.comments.map(c => (
@@ -308,25 +374,79 @@ function PostDetail({ post, isLoggedIn, currentUserId, commentText, setCommentTe
                   <span className="text-xs font-medium text-zinc-300">{c.user.username}</span>
                   <span className="text-[10px] text-zinc-600">{fmtDate(c.createdAt)}</span>
                 </div>
-                <p className="text-xs leading-relaxed text-zinc-400">{c.content}</p>
+                <p className="text-xs leading-relaxed text-zinc-400 break-words">{c.content}</p>
+                {c.imageUrl && (
+                  <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 block max-w-[200px]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-white/[0.06] max-h-32 hover:ring-white/10 transition-all" />
+                  </a>
+                )}
                 <button onClick={() => onLikeComment(c.id)} disabled={!isLoggedIn}
-                  className="mt-1 flex items-center gap-1 text-[10px] text-zinc-600 transition-colors hover:text-pink-400 disabled:opacity-40">
-                  <Heart className="h-2.5 w-2.5" strokeWidth={1.5} />{c.likeCount}
+                  className="mt-1 flex items-center gap-1 text-[10px] text-zinc-600 transition-colors hover:text-blue-400 disabled:opacity-40">
+                  <Heart className="h-2.5 w-2.5" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                 </button>
               </div>
             </div>
           ))}
         </div>
         {isLoggedIn ? (
-          <form onSubmit={onSubmitComment} className="flex gap-2">
-            <input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-              className="flex-1 rounded-xl bg-zinc-800 px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all" />
-            <button type="submit" className="flex items-center gap-1 rounded-xl bg-zinc-800 px-3 py-2 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
-              <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </button>
-          </form>
+          <div>
+            {/* 图片预览 */}
+            {commentImagePreview && (
+              <div className="mb-2 relative inline-block group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10" />
+                <button type="button" onClick={onRemoveCommentImage}
+                  className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-700 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
+                  <X className="h-2.5 w-2.5" strokeWidth={2} />
+                </button>
+              </div>
+            )}
+            <form onSubmit={onSubmitComment} className="flex gap-2 items-center">
+              <div className="relative flex items-center gap-1">
+                <button type="button" onClick={() => commentFileRef.current?.click()}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300 shrink-0"
+                  title="上传图片">
+                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </button>
+                <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={onCommentImage} />
+                
+                <div className="relative">
+                  <button type="button" onClick={() => setShowCommentEmoji(!showCommentEmoji)}
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0",
+                      showCommentEmoji ? "bg-zinc-800 text-blue-400" : "text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    )}
+                    title="表情">
+                    <Smile className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  </button>
+                  {showCommentEmoji && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowCommentEmoji(false)} />
+                      <div className="absolute bottom-10 left-0 z-50 w-64 rounded-xl bg-zinc-900 p-3 ring-1 ring-white/10 shadow-2xl">
+                        <div className="grid grid-cols-10 gap-1">
+                          {EMOJI_LIST.map((emoji) => (
+                            <button key={emoji} type="button" onClick={() => onInsertEmoji(emoji)}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-base hover:bg-zinc-800 transition-colors active:scale-90">
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
+                className="flex-1 rounded-xl bg-zinc-800 px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-white/[0.12] transition-all" />
+              <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
+                className="flex items-center gap-1 rounded-xl bg-zinc-800 px-3 py-2 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200 disabled:opacity-40">
+                <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </button>
+            </form>
+          </div>
         ) : (
-          <p className="text-xs text-zinc-600"><a href="/login" className="text-pink-400 hover:text-pink-300">登录</a>后发表评论</p>
+          <p className="text-xs text-zinc-500"><a href="/login" className="text-blue-400 hover:text-blue-300">登录</a>后发表评论</p>
         )}
       </div>
     </div>

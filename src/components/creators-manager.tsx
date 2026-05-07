@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Image from "next/image"
@@ -165,7 +165,7 @@ export function CreatorsManager({ initialCreators }: { initialCreators: Creator[
               {c.avatar ? (
                 <Image src={c.avatar} alt={c.name} width={36} height={36} className="h-9 w-9 shrink-0 rounded-full object-cover" />
               ) : (
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-sm font-bold text-white">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-sm font-bold text-white">
                   {(c.nameJa || c.name)[0]}
                 </div>
               )}

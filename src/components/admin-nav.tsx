@@ -1,9 +1,10 @@
-"use client"
+﻿"use client"
 
+import { cn } from "@/lib/utils"
+import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Tag, UserCircle2, Users, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Gamepad2, Tag, Megaphone, ArrowLeft, Music, Users, UserCircle2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 const items = [
   { icon: LayoutDashboard, label: "仪表盘",   href: "/admin" },
@@ -17,31 +18,91 @@ const items = [
 
 export function AdminNav() {
   const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="border-b border-white/[0.06] bg-zinc-900">
-      <div className="mx-auto flex max-w-6xl items-center gap-1 px-5 py-2">
-        <Link href="/" className="mr-3 flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-          前台
-        </Link>
-        <div className="h-4 w-px bg-zinc-800 mr-2" />
-        {items.map(({ icon: Icon, label, href }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors",
-              pathname === href
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-300"
-            )}
-          >
-            <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-            {label}
+    <>
+      {/* 桌面端导航栏 */}
+      <nav className="sticky top-0 z-40 hidden h-14 border-b border-border bg-background/95 backdrop-blur-xl md:block">
+        <div className="mx-auto flex h-full max-w-[1300px] items-center gap-1 px-6 lg:ml-[max(calc((100vw-1200px)/2),0px)]">
+          <Link href="/" className="mr-3 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-all">
+            <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+            前台
           </Link>
-        ))}
-      </div>
-    </div>
+          <div className="h-5 w-px bg-border mr-1" />
+          {items.map(({ icon: Icon, label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all whitespace-nowrap",
+                pathname === href
+                  ? "bg-accent text-foreground ring-1 ring-border"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+            >
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </nav>
+
+      {/* 手机端顶部栏 */}
+      <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-xl md:hidden">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          <Menu className="h-6 w-6" strokeWidth={2.5} />
+        </button>
+        <span className="text-sm font-semibold text-foreground">管理后台</span>
+        <Link href="/" className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground">
+          <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
+        </Link>
+      </nav>
+
+      {/* 手机端侧边栏遮罩 */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+
+      {/* 手机端侧边栏 */}
+      <aside className={cn(
+        "fixed left-0 top-0 z-50 h-full w-64 bg-background shadow-xl transition-transform duration-300 ease-out md:hidden",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex h-14 items-center justify-between border-b border-border px-4">
+          <span className="text-sm font-semibold text-foreground">管理后台</span>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-5 w-5" strokeWidth={2.5} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-1 p-3">
+          {items.map(({ icon: Icon, label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setSidebarOpen(false)}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all",
+                pathname === href
+                  ? "bg-gradient-to-r from-blue-500/20 to-blue-500/20 text-blue-400 ring-1 ring-blue-500/30"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+            >
+              <Icon className="h-6 w-6 shrink-0" strokeWidth={2.5} />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </aside>
+    </>
   )
 }

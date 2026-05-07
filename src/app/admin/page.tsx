@@ -1,8 +1,8 @@
+import { AdminCharts } from "@/components/admin-charts"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { Eye, Gamepad2, Plus, Tag, Users } from "lucide-react"
 import Link from "next/link"
-import { Gamepad2, Tag, Users, Eye, Plus } from "lucide-react"
-import { AdminCharts } from "@/components/admin-charts"
 
 function getLast14Days() {
   return Array.from({ length: 14 }, (_, i) => {
@@ -49,21 +49,21 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-lg font-bold text-zinc-100">仪表盘</h1>
-        <Link href="/admin/games/new" className="flex items-center gap-1.5 rounded-xl bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white">
-          <Plus className="h-4 w-4" strokeWidth={1.5} />新增游戏
+        <Link href="/admin/games/new" className="flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white w-fit">
+          <Plus className="h-5 w-5" strokeWidth={2} />新增游戏
         </Link>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* 统计卡片 - 放大版 */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map(({ icon: Icon, label, value, sub, href }) => (
-          <Link key={label} href={href} className="rounded-xl bg-zinc-900 p-4 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-800 hover:ring-white/10">
-            <Icon className="mb-2 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-            <p className="text-2xl font-bold text-zinc-100">{value}</p>
-            <p className="text-xs font-medium text-zinc-400">{label}</p>
-            <p className="mt-0.5 text-[10px] text-zinc-600">{sub}</p>
+          <Link key={label} href={href} className="rounded-2xl bg-card p-6 ring-1 ring-border transition-all hover:bg-accent/50 hover:ring-ring">
+            <Icon className="mb-3 h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+            <p className="text-3xl font-bold text-foreground">{value}</p>
+            <p className="mt-2 text-sm font-medium text-foreground">{label}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
           </Link>
         ))}
       </div>
@@ -80,13 +80,13 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {/* 最近添加 */}
-        <div className="rounded-xl bg-zinc-900 p-4 ring-1 ring-white/[0.06]">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-300">最近添加</h2>
-          <div className="space-y-2">
+        <div className="rounded-2xl bg-card p-6 ring-1 ring-border">
+          <h2 className="mb-4 text-base font-semibold text-foreground">最近添加</h2>
+          <div className="space-y-3">
             {recentGames.map(g => (
               <div key={g.id} className="flex items-center justify-between">
-                <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-zinc-400 hover:text-zinc-200 transition-colors">{g.title}</Link>
-                <span className={`ml-2 shrink-0 rounded px-1.5 py-0.5 text-[10px] ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-500"}`}>
+                <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
+                <span className={`ml-2 shrink-0 rounded px-2 py-1 text-xs ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
                   {g.isPublished ? "已发布" : "草稿"}
                 </span>
               </div>
@@ -95,14 +95,14 @@ export default async function AdminDashboard() {
         </div>
 
         {/* 热门游戏 */}
-        <div className="rounded-xl bg-zinc-900 p-4 ring-1 ring-white/[0.06]">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-300">浏览最多</h2>
-          <div className="space-y-2">
+        <div className="rounded-2xl bg-card p-6 ring-1 ring-border">
+          <h2 className="mb-4 text-base font-semibold text-foreground">浏览最多</h2>
+          <div className="space-y-3">
             {topGames.map((g, i) => (
-              <div key={g.id} className="flex items-center gap-2">
-                <span className="w-4 shrink-0 text-xs text-zinc-600">{i + 1}</span>
-                <Link href={`/games/${g.id}`} className="flex-1 truncate text-sm text-zinc-400 hover:text-zinc-200 transition-colors">{g.title}</Link>
-                <span className="shrink-0 text-xs text-zinc-600">{g.viewCount} 次</span>
+              <div key={g.id} className="flex items-center gap-3">
+                <span className="w-5 shrink-0 text-sm text-muted-foreground">{i + 1}</span>
+                <Link href={`/games/${g.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
+                <span className="shrink-0 text-sm text-muted-foreground">{g.viewCount} 次</span>
               </div>
             ))}
           </div>

@@ -110,7 +110,7 @@ export default async function SearchPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
+    <div className="space-y-5">
       {/* 搜索框 */}
       <SearchBar defaultValue={q} />
 

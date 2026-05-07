@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
 import { ForumClient } from "@/components/forum-client"
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export const metadata = { title: "求档区 · 同人游戏站" }
 
@@ -32,7 +32,7 @@ export default async function ForumPage() {
     <ForumClient
       initialPosts={initialPosts}
       isLoggedIn={!!session?.user}
-      currentUser={session?.user ? { id: session.user.id!, name: session.user.name ?? "", image: session.user.image ?? "" } : null}
+      currentUser={session?.user ? { id: session.user.id!, username: session.user.name ?? "", avatar: session.user.image ?? "" } : null}
     />
   )
 }

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useTransition } from "react"
 import { GameCard, type GameCardData } from "@/components/game-card"
-import { Loader2, ChevronDown } from "lucide-react"
+import { ChevronDown, Loader2 } from "lucide-react"
+import { useState, useTransition } from "react"
 
 interface Props {
   initialGames: GameCardData[]
@@ -21,45 +21,50 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
 
   function loadMore() {
     startTransition(async () => {
-      const params = new URLSearchParams()
-      params.set("page", String(page + 1))
-      params.set("limit", "24")
-      if (q)   params.set("q",    q)
-      if (tag && tag !== "全部") params.set("tag", tag)
-      if (nsfw) params.set("nsfw", "1")
+      try {
+        const params = new URLSearchParams()
+        params.set("page", String(page + 1))
+        params.set("limit", "24")
+        if (q)   params.set("q",    q)
+        if (tag && tag !== "全部") params.set("tag", tag)
+        if (nsfw) params.set("nsfw", "1")
 
-      const res  = await fetch(`/api/games?${params}`)
-      const data = await res.json()
-      setGames(prev => [...prev, ...data.games])
-      setPage(p => p + 1)
+        const res  = await fetch(`/api/games?${params}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        setGames(prev => [...prev, ...data.games])
+        setPage(p => p + 1)
+      } catch (err) {
+        console.error("加载更多游戏失败:", err)
+      }
     })
   }
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {games.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </div>
 
       {hasMore && (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <button
             onClick={loadMore}
             disabled={pending}
-            className="flex items-center gap-2 rounded-xl bg-zinc-900 px-6 py-2.5 text-sm text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-800 hover:text-zinc-200 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-card/60 px-6 py-3 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground disabled:opacity-50"
           >
             {pending
-              ? <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />加载中…</>
-              : <><ChevronDown className="h-4 w-4" strokeWidth={1.5} />加载更多（还有 {total - games.length} 个）</>
+              ? <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />加载中…</>
+              : <><ChevronDown className="h-5 w-5" strokeWidth={2.5} />加载更多（还有 {total - games.length} 个）</>
             }
           </button>
         </div>
       )}
 
       {!hasMore && games.length > 0 && (
-        <p className="mt-6 text-center text-xs text-zinc-700">— 已加载全部 {total} 个游戏 —</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">— 已加载全部 {total} 个游戏 —</p>
       )}
     </>
   )

@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { prisma } from "@/lib/prisma"
 
@@ -73,7 +73,7 @@ export default async function CreatorsPage({
                   <Image src={c.avatar} alt={c.name} width={64} height={64}
                     className="h-16 w-16 rounded-full object-cover ring-2 ring-white/10 transition-all group-hover:ring-white/20" />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-2xl font-bold text-white ring-2 ring-white/10">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-500 text-2xl font-bold text-white ring-2 ring-white/10">
                     {(c.nameJa || c.name)[0]}
                   </div>
                 )}

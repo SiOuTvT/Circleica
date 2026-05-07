@@ -1,8 +1,8 @@
-"use client"
+﻿"use client"
 
-import { useState } from "react"
-import { Heart, Gamepad2, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AlertTriangle, Heart } from "lucide-react"
+import { useState } from "react"
 
 interface Props {
   gameId: string
@@ -61,12 +61,12 @@ export function GameDetailActions({ gameId, isFav: initFav, favCount: initCount,
         className={cn(
           "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ring-1 transition-all",
           isFav
-            ? "bg-pink-500/10 text-pink-400 ring-pink-500/30 hover:bg-pink-500/15"
+            ? "bg-blue-500/10 text-blue-400 ring-blue-500/30 hover:bg-blue-500/15"
             : "bg-zinc-800 text-zinc-400 ring-white/[0.06] hover:bg-zinc-700 hover:text-zinc-200",
           !isLoggedIn && "cursor-not-allowed opacity-50"
         )}
       >
-        <Heart className={cn("h-4 w-4", isFav && "fill-pink-400")} strokeWidth={1.5} />
+        <Heart className={cn("h-4 w-4", isFav && "fill-blue-400")} strokeWidth={1.5} />
         {isFav ? "已收藏" : "收藏"}
         <span className="text-xs opacity-60">{favCount}</span>
       </button>

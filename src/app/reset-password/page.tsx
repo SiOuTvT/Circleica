@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Suspense } from "react"
 import { useState, useEffect } from "react"
@@ -61,7 +61,7 @@ function ResetForm() {
           <XCircle className="mx-auto mb-4 h-12 w-12 text-red-400" strokeWidth={1.5} />
           <h1 className="text-lg font-bold text-zinc-100">链接无效或已过期</h1>
           <p className="mt-2 text-sm text-zinc-500">重置链接有效期为1小时，请重新申请。</p>
-          <Link href="/forgot-password" className="mt-6 block text-sm text-pink-400 hover:text-pink-300 transition-colors">重新申请</Link>
+          <Link href="/forgot-password" className="mt-6 block text-sm text-blue-400 hover:text-blue-300 transition-colors">重新申请</Link>
         </div>
       )}
       {status === "valid" && !done && (

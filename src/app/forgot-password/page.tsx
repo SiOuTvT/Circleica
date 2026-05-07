@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
               <p className="mt-3 text-xs text-zinc-600">
                 没收到？请联系管理员手动重置。
               </p>
-              <Link href="/login" className="mt-6 block text-sm text-pink-400 hover:text-pink-300 transition-colors">
+              <Link href="/login" className="mt-6 block text-sm text-blue-400 hover:text-blue-300 transition-colors">
                 返回登录
               </Link>
             </div>

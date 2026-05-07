@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
-import { User, FileText, Loader2, ArrowLeft, Camera, Lock, Eye, EyeOff } from "lucide-react"
+import { ImageUpload } from "@/components/image-upload"
+import { ArrowLeft, Eye, EyeOff, FileText, Loader2, Lock, User } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 interface Props {
   user: { id: string; username: string; bio: string; avatar: string; banner: string }
@@ -12,12 +12,10 @@ interface Props {
 
 export function ProfileEditForm({ user }: Props) {
   const router = useRouter()
-  const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const [username, setUsername]     = useState(user.username)
   const [bio, setBio]               = useState(user.bio)
-  const [avatarUrl, setAvatarUrl]   = useState(user.avatar)
-  const [avatarPreview, setAvatarPreview] = useState(user.avatar)
+  const [avatarData, setAvatarData] = useState(user.avatar)
   const [oldPassword, setOldPassword]   = useState("")
   const [newPassword, setNewPassword]   = useState("")
   const [showOld, setShowOld]       = useState(false)
@@ -26,32 +24,17 @@ export function ProfileEditForm({ user }: Props) {
   const [error, setError]           = useState("")
   const [success, setSuccess]       = useState("")
 
-  // 头像本地预览（上传前）
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => setAvatarPreview(ev.target?.result as string)
-    reader.readAsDataURL(file)
-  }
-
-  // 头像：选择后直接用 base64 存储，不依赖外部上传服务
-  async function uploadAvatar(): Promise<string | null> {
-    const file = avatarInputRef.current?.files?.[0]
-    if (!file) return avatarUrl
-
-    // 限制 2MB
+  // 头像：选择后直接用 base64 存储
+  function handleAvatarFile(file: File) {
     if (file.size > 2 * 1024 * 1024) {
       setError("头像图片不能超过 2MB")
-      return avatarUrl
+      return
     }
-
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onload = (ev) => resolve(ev.target?.result as string ?? avatarUrl)
-      reader.onerror = () => resolve(avatarUrl)
-      reader.readAsDataURL(file)
-    })
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setAvatarData(ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -65,7 +48,6 @@ export function ProfileEditForm({ user }: Props) {
     }
 
     setSaving(true)
-    const finalAvatar = await uploadAvatar()
 
     const res = await fetch("/api/profile/edit", {
       method: "POST",
@@ -73,7 +55,7 @@ export function ProfileEditForm({ user }: Props) {
       body: JSON.stringify({
         username: username.trim(),
         bio: bio.trim(),
-        avatar: finalAvatar,
+        avatar: avatarData,
         oldPassword: oldPassword || undefined,
         newPassword: newPassword || undefined,
       }),
@@ -83,7 +65,6 @@ export function ProfileEditForm({ user }: Props) {
 
     if (!res.ok) { setError(data.error); return }
     setSuccess("保存成功！")
-    setAvatarUrl(finalAvatar ?? "")
     setOldPassword("")
     setNewPassword("")
     setTimeout(() => router.push(`/profile/${user.id}`), 800)
@@ -102,28 +83,18 @@ export function ProfileEditForm({ user }: Props) {
       {success && <div className="mb-4 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-400 ring-1 ring-emerald-500/20">{success}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 头像上传 */}
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="h-16 w-16 overflow-hidden rounded-full bg-gradient-to-br from-pink-500 to-purple-500 ring-2 ring-white/10">
-              {avatarPreview
-                ? <img src={avatarPreview} alt="头像" className="h-full w-full object-cover" />
-                : <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white">{username[0]?.toUpperCase()}</div>
-              }
-            </div>
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-700 ring-2 ring-zinc-900 transition-colors hover:bg-zinc-600"
-            >
-              <Camera className="h-3 w-3 text-zinc-300" strokeWidth={1.5} />
-            </button>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-zinc-300">头像</p>
-            <p className="text-xs text-zinc-600">点击相机图标上传，支持 JPG/PNG/WebP，最大 2MB</p>
-          </div>
-          <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+        {/* 头像上传 - 拖拽+裁剪 */}
+        <div>
+          <p className="mb-2 text-sm font-medium text-zinc-300">头像</p>
+        <ImageUpload
+          value={avatarData}
+          onFileSelect={handleAvatarFile}
+          aspectRatio={1}
+          maxSizeMB={5}
+          shape="circle"
+          placeholder="上传头像"
+        />
+          <p className="mt-1.5 text-[10px] text-zinc-600">支持 JPG/PNG/WebP，最大 2MB，可拖动调整位置和缩放</p>
         </div>
 
         {/* 用户名 */}

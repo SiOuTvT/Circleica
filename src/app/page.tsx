@@ -1,14 +1,14 @@
-import { Suspense } from "react"
-import Link from "next/link"
-import { prisma } from "@/lib/prisma"
+import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
-import { AnnounceSwiper } from "@/components/announce-swiper"
-import { RandomGameBtn } from "@/components/random-game-btn"
+import { PlaceholderPreviewBtn, RandomCreatorBtn } from "@/components/random-game-btn"
+import { prisma } from "@/lib/prisma"
+import Link from "next/link"
+import { Suspense } from "react"
 
 function GameGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )
@@ -43,7 +43,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   ])
 
   if (!games.length) {
-    return <div className="py-20 text-center text-sm text-zinc-600">暂无游戏资源，管理员快去添加吧~</div>
+    return <div className="py-20 text-center text-sm text-muted-foreground">暂无游戏资源，管理员快去添加吧~</div>
   }
 
   const mapped = games.map(g => ({ ...g, tags: g.tags.map(t => t.tag) }))
@@ -77,28 +77,51 @@ export default async function HomePage({
   return (
     <div className="flex flex-col gap-5">
 
-      {/* 顶部双栏：左侧留白 + 右侧公告轮播 */}
-      <div className="flex gap-4" style={{ height: 200 }}>
-        <div className="hidden w-56 shrink-0 md:block" />
-        <div className="flex-1 overflow-hidden">
-          {announcements.length > 0
-            ? <AnnounceSwiper announcements={announcements} />
-            : <div className="h-full w-full animate-pulse rounded-2xl bg-zinc-900" />
-          }
+      {/* Hero Section：响应式布局 */}
+      {/* 桌面端：左侧按钮 + 右侧公告（对齐用户头像右侧）；手机端：公告在上，按钮在下横排 */}
+      <div className="flex flex-col lg:grid lg:grid-cols-[auto_1fr] gap-6 lg:gap-4 items-start">
+        
+        {/* 左侧功能区（手机端显示在下面）*/}
+        <div className="order-2 lg:order-1 flex flex-col justify-end min-h-[auto] lg:min-h-[220px]">
+          {/* 横向排列两个功能按钮（手机端），桌面端纵向 */}
+          <div className="flex flex-row lg:flex-col gap-3 w-fit">
+            {/* 随机人物按钮 */}
+            <RandomCreatorBtn />
+            
+            {/* 占位预览按钮 */}
+            <PlaceholderPreviewBtn />
+          </div>
+        </div>
+
+        {/* 右侧公告区（手机端显示在最上面）*/}
+        <div className="lg:col-span-1 order-1 lg:order-2 w-full">
+          <div className="rounded-2xl bg-card/60 backdrop-blur-sm ring-1 ring-border relative overflow-hidden"
+            style={{
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)',
+            }}
+          >
+            {/* 顶部高光边 */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent z-10" />
+            
+            {announcements.length > 0
+              ? <AnnounceSwiper announcements={announcements} />
+              : <div className="h-full min-h-[180px] sm:min-h-[200px] lg:min-h-[220px] w-full animate-pulse rounded-2xl bg-muted" />
+            }
+          </div>
         </div>
       </div>
 
       {/* 标签筛选 */}
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {allTags.map((tag) => (
           <Link
             key={tag}
             href={`/?tag=${encodeURIComponent(tag)}${q ? `&q=${encodeURIComponent(q)}` : ""}${nsfw ? "&nsfw=1" : ""}`}
             className={[
-              "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-all",
+              "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200",
               activeTag === tag
-                ? "bg-pink-500 text-white"
-                : "border border-white/[0.08] bg-zinc-900 text-zinc-500 hover:border-white/[0.14] hover:text-zinc-300",
+                ? "bg-accent text-foreground ring-1 ring-border"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/60",
             ].join(" ")}
           >
             {tag}
@@ -108,14 +131,11 @@ export default async function HomePage({
 
       {/* 游戏网格 */}
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-200">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-wide text-foreground">
             {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
           </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-600">共 {total} 个游戏</span>
-            <RandomGameBtn />
-          </div>
+          <span className="text-sm text-muted-foreground">{total} 个</span>
         </div>
         <Suspense fallback={<GameGridSkeleton />}>
           <GameGridServer tag={activeTag} q={q} nsfw={nsfw} />

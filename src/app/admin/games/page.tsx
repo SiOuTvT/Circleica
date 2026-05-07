@@ -1,8 +1,8 @@
+import { AdminGameDeleteBtn } from "@/components/admin-game-delete-btn"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { Download, Pencil, Plus, Search } from "lucide-react"
 import Link from "next/link"
-import { Plus, Pencil, Download, Search } from "lucide-react"
-import { AdminGameDeleteBtn } from "@/components/admin-game-delete-btn"
 
 export default async function AdminGamesPage({
   searchParams,
@@ -41,30 +41,31 @@ export default async function AdminGamesPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div>
           <h1 className="text-lg font-bold text-zinc-100">游戏管理</h1>
           <p className="text-xs text-zinc-500 mt-0.5">共 {total} 个游戏</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索游戏…"
-              className="rounded-xl bg-zinc-800 pl-8 pr-4 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 w-48" />
+              className="rounded-xl bg-zinc-800 pl-9 pr-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 w-full sm:w-48" />
           </form>
           <Link
             href="/admin/games/import"
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white"
+            className="flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white"
           >
-            <Download className="h-4 w-4" strokeWidth={1.5} />
-            VNDB 导入
+            <Download className="h-5 w-5" strokeWidth={2} />
+            <span className="hidden sm:inline">VNDB 导入</span>
+            <span className="sm:hidden">导入</span>
           </Link>
           <Link
             href="/admin/games/new"
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white"
+            className="flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white"
           >
-            <Plus className="h-4 w-4" strokeWidth={1.5} />
-            新增游戏
+            <Plus className="h-5 w-5" strokeWidth={2} />
+            新增
           </Link>
         </div>
       </div>
@@ -111,9 +112,9 @@ export default async function AdminGamesPage({
                   <div className="flex items-center justify-end gap-2">
                     <Link
                       href={`/admin/games/${g.id}`}
-                      className="flex items-center gap-1 rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200"
+                      className="flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-2 text-sm text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200"
                     >
-                      <Pencil className="h-3 w-3" strokeWidth={1.5} />编辑
+                      <Pencil className="h-4 w-4" strokeWidth={2} />编辑
                     </Link>
                     <AdminGameDeleteBtn id={g.id} title={g.title} />
                   </div>

@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import Image from "next/image"
 import { prisma } from "@/lib/prisma"
 import { ChevronRight } from "lucide-react"
@@ -39,7 +39,7 @@ export default async function CollectionsPage() {
         <section key={originalWork}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-pink-400 to-purple-400" />
+              <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
               <h2 className="text-base font-bold text-zinc-100">{originalWork}</h2>
               <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-500 ring-1 ring-white/[0.06]">
                 {list.length} 个游戏

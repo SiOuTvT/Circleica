@@ -6,6 +6,21 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**" },
       { protocol: "http",  hostname: "**" },
     ],
+    // 使用 WebP/AVIF 格式自动优化，减少传输体积
+    formats: ["image/avif", "image/webp"],
+  },
+  // 移除 X-Powered-By 头，减少信息泄露
+  poweredByHeader: false,
+  // 启用 gzip/brotli 压缩
+  compress: true,
+  // 忽略可选依赖的类型检查错误
+  typescript: {
+    ignoreBuildErrors: false, // 保持严格检查，但通过 tsconfig 排除特定模块
+  },
+  // 实验性优化
+  experimental: {
+    // 优化 CSS 打包
+    optimizeCss: true,
   },
 };
 
