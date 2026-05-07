@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { buildGameSearchFilter } from "@/lib/filters"
+import { withRateLimit } from "@/lib/middleware"
+import { rateLimits } from "@/lib/rate-limit"
 
-export async function GET(req: NextRequest) {
+async function handleGamesList(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const q = searchParams.get("q")?.trim() || ""
   const tag = searchParams.get("tag")?.trim() || ""
@@ -11,20 +13,12 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(60, parseInt(searchParams.get("limit") || "24"))
   const skip = (page - 1) * limit
 
-  const where: Prisma.GameWhereInput = {
-    isPublished: true,
-    ...(nsfw ? {} : { isNsfw: false }),
-    ...(q && {
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { originalWork: { contains: q, mode: "insensitive" } },
-        { tags: { some: { tag: { name: { contains: q, mode: "insensitive" } } } } },
-      ],
-    }),
-    ...(tag && {
-      tags: { some: { tag: { name: tag } } },
-    }),
+  // 限制搜索词长度，避免性能问题
+  if (q.length > 100) {
+    return NextResponse.json({ error: "搜索词过长" }, { status: 400 })
   }
+
+  const where = buildGameSearchFilter({ q, tag, nsfw })
 
   const [games, total] = await Promise.all([
     prisma.game.findMany({
@@ -55,3 +49,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ games: data, total, page, limit })
 }
+
+export const GET = (req: NextRequest) =>
+  withRateLimit(handleGamesList, rateLimits.search, "games-list")(req)

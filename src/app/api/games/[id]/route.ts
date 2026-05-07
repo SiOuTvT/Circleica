@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { getGameNsfwFilter } from "@/lib/filters"
+import { logger } from "@/lib/logger"
 
 export async function GET(
   req: NextRequest,
@@ -14,12 +16,13 @@ export async function GET(
     where: {
       id,
       isPublished: true,
-      ...(nsfw ? {} : { isNsfw: false }),
+      ...getGameNsfwFilter(nsfw),
     },
     include: {
       tags: { select: { tag: { select: { name: true, color: true } } } },
       comments: {
         orderBy: { createdAt: "desc" },
+        take: 50, // 限制评论数量
         include: {
           user: { select: { id: true, username: true, avatar: true } },
         },
@@ -27,10 +30,14 @@ export async function GET(
     },
   })
 
-  if (!game) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  if (!game) return NextResponse.json({ error: "游戏不存在或已下架" }, { status: 404 })
 
-  // 增加浏览量（fire and forget）
-  prisma.game.update({ where: { id }, data: { viewCount: { increment: 1 } } }).catch(() => {})
+  // 增加浏览量（使用 logger 记录错误）
+  prisma.game
+    .update({ where: { id }, data: { viewCount: { increment: 1 } } })
+    .catch((err) => {
+      logger.game.error('Failed to increment view count', err, { gameId: id })
+    })
 
   let isFav = false
   let playStatus: string | null = null
@@ -56,7 +63,7 @@ export async function GET(
     where: {
       id: { not: id },
       isPublished: true,
-      ...(nsfw ? {} : { isNsfw: false }),
+      ...getGameNsfwFilter(nsfw),
       tags: { some: { tag: { name: { in: tagIds } } } },
     },
     take: 4,

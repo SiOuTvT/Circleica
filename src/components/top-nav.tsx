@@ -56,15 +56,14 @@ export function TopNav() {
     setTheme(t)
     document.documentElement.classList.toggle("light", t === "light")
 
-    const nsfwVal = getCookie("nsfw_status") === "1" || localStorage.getItem("nsfw_status") === "1"
+    const nsfwVal = getCookie("nsfw_status") === "1"
     setNsfw(nsfwVal)
 
+    // 签到状态完全依赖后端，不再使用 localStorage
     fetch("/api/checkin")
       .then(r => r.json())
       .then(data => setCheckedIn(data.checkedIn))
-      .catch(() => {
-        setCheckedIn(localStorage.getItem("checkin_date") === new Date().toDateString())
-      })
+      .catch(() => setCheckedIn(false))
   }, [])
 
   // 点击外部关闭下拉，用 mousedown 避免与 click 冲突
@@ -103,7 +102,6 @@ export function TopNav() {
       .then(data => {
         if (data.ok || data.alreadyDone) {
           setCheckedIn(true)
-          localStorage.setItem("checkin_date", new Date().toDateString())
         }
       })
       .catch(() => {})

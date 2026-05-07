@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // 速率限制：每分钟最多10条评论
@@ -67,3 +67,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   })
 }
+
+export const POST = (req: NextRequest, context: { params: Promise<{ id: string }> }) =>
+  withRateLimit(
+    (r) => handleComment(r, context),
+    rateLimits.comment,
+    "comment"
+  )(req)

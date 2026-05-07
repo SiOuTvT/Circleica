@@ -29,6 +29,8 @@ model User {
   ratings       GameRating[]
   accounts      Account[]
   sessions      Session[]
+
+  @@index([role])
 }
 
 model Account {
@@ -80,6 +82,11 @@ model Game {
   ratings       GameRating[]
   creators      GameCreator[]
   logs          GameLog[]
+
+  @@index([isPublished, isNsfw, createdAt])
+  @@index([isPublished, createdAt])
+  @@index([title])
+  @@index([vndbId])
 }
 
 model Tag {
@@ -107,6 +114,9 @@ model Comment {
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([gameId, createdAt])
+  @@index([userId])
 }
 
 model Favorite {
@@ -176,6 +186,9 @@ model Creator {
   wikipediaUrl String       @default("")
   createdAt   DateTime      @default(now())
   games       GameCreator[]
+
+  @@index([vndbId])
+  @@index([name])
 }
 
 model GameCreator {
@@ -230,6 +243,9 @@ model ForumPost {
   createdAt DateTime       @default(now())
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  ForumComment[]
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model ForumComment {
@@ -242,4 +258,7 @@ model ForumComment {
   createdAt DateTime  @default(now())
   post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([userId])
 }

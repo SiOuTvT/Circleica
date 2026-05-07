@@ -15,17 +15,7 @@ function GameGridSkeleton() {
 }
 
 async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: boolean }) {
-  const where = {
-    isPublished: true,
-    ...(nsfw ? {} : { isNsfw: false }),
-    ...(q && {
-      OR: [
-        { title:        { contains: q, mode: "insensitive" as const } },
-        { originalWork: { contains: q, mode: "insensitive" as const } },
-      ],
-    }),
-    ...(tag && tag !== "全部" && { tags: { some: { tag: { name: tag } } } }),
-  }
+  const where = buildGameSearchFilter({ q, tag, nsfw })
 
   const [games, total] = await Promise.all([
     prisma.game.findMany({

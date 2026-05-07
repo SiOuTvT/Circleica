@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
+/**
+ * 简单的 HTML 转义函数，防止 XSS 攻击
+ */
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  }
+  return text.replace(/[&<>"']/g, (m) => map[m])
+}
+
 export async function GET() {
   const posts = await prisma.forumPost.findMany({
     orderBy: { createdAt: "desc" },
@@ -35,8 +49,16 @@ export async function POST(req: NextRequest) {
   const content = (fd.get("content") as string)?.trim()
   if (!title || !content) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
 
+  // 限制长度
+  if (title.length > 100) return NextResponse.json({ error: "标题不能超过100字" }, { status: 400 })
+  if (content.length > 5000) return NextResponse.json({ error: "内容不能超过5000字" }, { status: 400 })
+
+  // XSS 防护：转义 HTML
+  const sanitizedTitle = escapeHtml(title)
+  const sanitizedContent = escapeHtml(content)
+
   const post = await prisma.forumPost.create({
-    data: { userId: session.user.id, title, content },
+    data: { userId: session.user.id, title: sanitizedTitle, content: sanitizedContent },
     include: {
       user: { select: { id: true, username: true, avatar: true } },
       _count: { select: { comments: true } },
