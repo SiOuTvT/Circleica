@@ -1,4 +1,5 @@
 import { RefreshCreatorBtn } from "@/components/refresh-creator-btn"
+import { TranslatableDescription } from "@/components/translatable-description"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
 import { Database, ExternalLink, Globe } from "lucide-react"
@@ -82,9 +83,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
             </div>
 
             {p.description && (
-              <p className="mb-4 text-sm leading-relaxed text-zinc-400 light:text-zinc-600 line-clamp-5">
-                {p.description.replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1")}
-              </p>
+              <TranslatableDescription text={p.description} className="mb-4 line-clamp-5" />
             )}
 
             <div className="flex flex-wrap gap-2">
@@ -104,15 +103,15 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
               参与作品
               <span className="ml-2 text-xs font-normal text-zinc-500 light:text-zinc-400">共 {p.developed.length} 部</span>
             </h2>
-            <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {p.developed.map((vn: { id: string; title: string; image?: { url: string }; rating?: number }) => (
                 <a key={vn.id} href={`https://vndb.org/${vn.id}`} target="_blank" rel="noopener noreferrer"
                   className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:-translate-y-1.5 hover:ring-white/[0.14] light:hover:ring-black/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] light:hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
-                  <div className="relative" style={{ aspectRatio: "4/5" }}>
+                  <div className="relative" style={{ aspectRatio: "3/4" }}>
                     {vn.image?.url ? (
                       <Image src={vn.image.url} alt={vn.title} fill
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.08]"
-                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw" />
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
                     )}
@@ -196,9 +195,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
           </div>
 
           {creator.bio && (
-            <p className="mb-4 text-sm leading-relaxed text-zinc-400 light:text-zinc-600 line-clamp-5">
-              {creator.bio.replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1")}
-            </p>
+            <TranslatableDescription text={creator.bio} className="mb-4 line-clamp-5" />
           )}
 
           <div className="flex flex-wrap gap-2">
@@ -232,7 +229,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
             参与作品
             <span className="ml-2 text-xs font-normal text-zinc-500 light:text-zinc-400">共 {uniqueGames.length} 部</span>
           </h2>
-          <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {uniqueGames.map(game => {
               const roles = publishedGames
                 .filter(g => g.game.id === game.id)
@@ -240,11 +237,11 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
               return (
                 <Link key={game.id} href={`/games/${game.id}`}
                   className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:-translate-y-1.5 hover:ring-white/[0.14] light:hover:ring-black/[0.14] hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)] light:hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
-                  <div className="relative" style={{ aspectRatio: "4/5" }}>
+                  <div className="relative" style={{ aspectRatio: "3/4" }}>
                     {game.coverImage ? (
                       <Image src={game.coverImage} alt={game.title} fill
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.08]"
-                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 16vw" />
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
                     )}

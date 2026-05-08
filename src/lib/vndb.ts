@@ -283,7 +283,7 @@ class VNDBClient {
       
       const data = await this.sendRequest("producer", {
         filters: ["id", "=", randomId],
-        fields: "id,name,original,description,type",
+        fields: "id,name,original,description,type,image.url",
         results: 1,
       })
       
@@ -302,7 +302,7 @@ class VNDBClient {
         id: producer.id,
         name: producer.name || "未知创作者",
         original: producer.original,
-        image: undefined,
+        image: producer.image?.url,
         vndbId: producer.id.replace("p", ""),
         type: producer.type,
         description: producer.description,
@@ -336,7 +336,7 @@ class VNDBClient {
         // 获取创作者基本信息
         const data = await this.sendRequest("producer", {
           filters: ["id", "=", `p${vndbId}`],
-          fields: "id,name,original,type,description",
+          fields: "id,name,original,type,description,image.url",
           results: 1,
         })
 

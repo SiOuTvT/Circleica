@@ -4,6 +4,7 @@ import { Loader2, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { TranslatableDescription } from "./translatable-description"
 
 interface CharacterData {
   id: string
@@ -156,9 +157,7 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
             角色简介
           </h2>
           <div className="rounded-2xl bg-zinc-900/50 light:bg-zinc-100 p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-            <p className="text-sm leading-relaxed text-zinc-300 light:text-zinc-600 whitespace-pre-line">
-              {character.description.replace(/\[.*?\]/g, "").trim()}
-            </p>
+            <TranslatableDescription text={character.description.replace(/\[.*?\]/g, "").trim()} />
           </div>
         </section>
       )}

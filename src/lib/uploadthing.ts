@@ -1,5 +1,5 @@
-import { createUploadthing, type FileRouter } from "uploadthing/next"
 import { auth } from "@/lib/auth"
+import { createUploadthing, type FileRouter } from "uploadthing/next"
 
 const f = createUploadthing()
 
@@ -13,6 +13,17 @@ export const ourFileRouter = {
     })
     .onUploadComplete(async ({ metadata, file }) => {
       return { url: file.ufsUrl, userId: metadata.userId }
+    }),
+
+  // 通用图片上传：用于公告封面、游戏截图等，最大 8MB
+  imageUploader: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(async () => {
+      const session = await auth()
+      if (!session?.user?.id) throw new Error("未登录")
+      return { userId: session.user.id }
+    })
+    .onUploadComplete(async ({ file }) => {
+      return { url: file.ufsUrl }
     }),
 
   // 音乐上传：管理员专用，最大 32MB

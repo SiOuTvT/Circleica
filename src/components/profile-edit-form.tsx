@@ -1,10 +1,14 @@
 "use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import type { OurFileRouter } from "@/lib/uploadthing"
 import { ArrowLeft, Eye, EyeOff, FileText, Loader2, Lock, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { genUploader } from "uploadthing/client"
+
+const { uploadFiles } = genUploader<OurFileRouter>()
 
 interface Props {
   user: { id: string; username: string; bio: string; avatar: string; banner: string }
@@ -24,17 +28,14 @@ export function ProfileEditForm({ user }: Props) {
   const [error, setError]           = useState("")
   const [success, setSuccess]       = useState("")
 
-  // 头像：选择后直接用 base64 存储
-  function handleAvatarFile(file: File) {
+  // 头像：使用 UploadThing 上传
+  async function handleAvatarUpload(file: File): Promise<string> {
     if (file.size > 2 * 1024 * 1024) {
-      setError("头像图片不能超过 2MB")
-      return
+      throw new Error("头像图片不能超过 2MB")
     }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setAvatarData(ev.target?.result as string)
-    }
-    reader.readAsDataURL(file)
+    const res = await uploadFiles("avatar", { files: [file] })
+    if (!res?.[0]?.url) throw new Error("上传失败")
+    return res[0].url
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -88,7 +89,8 @@ export function ProfileEditForm({ user }: Props) {
           <p className="mb-2 text-sm font-medium text-zinc-300">头像</p>
         <ImageUpload
           value={avatarData}
-          onFileSelect={handleAvatarFile}
+          onChange={setAvatarData}
+          uploadFunction={handleAvatarUpload}
           aspectRatio={1}
           maxSizeMB={5}
           shape="circle"

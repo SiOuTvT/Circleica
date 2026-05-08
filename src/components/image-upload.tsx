@@ -1,8 +1,12 @@
 ﻿"use client"
 
+import type { OurFileRouter } from "@/lib/uploadthing"
 import { cn } from "@/lib/utils"
 import { Upload, X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { genUploader } from "uploadthing/client"
+
+const { uploadFiles } = genUploader<OurFileRouter>()
 
 interface ImageUploadProps {
   value?: string
@@ -59,18 +63,20 @@ export function ImageUpload({
       setIsUploading(true)
       try {
         if (uploadFunction) {
+          // 使用自定义上传函数
           const url = await uploadFunction(file)
           onChange?.(url)
         } else if (onFileSelect) {
+          // 外部处理文件选择（如头像裁剪）
           onFileSelect(file)
         } else {
-          // 没有自定义上传函数时，直接用 data URL 作为值
-          const dataUrl = await new Promise<string>((resolve) => {
-            const r = new FileReader()
-            r.onload = (ev) => resolve(ev.target?.result as string)
-            r.readAsDataURL(file)
-          })
-          onChange?.(dataUrl)
+          // 使用 UploadThing 上传
+          const res = await uploadFiles("imageUploader", { files: [file] })
+          if (res?.[0]?.url) {
+            onChange?.(res[0].url)
+          } else {
+            throw new Error("上传失败：未返回 URL")
+          }
         }
       } catch (err) {
         console.error("上传失败:", err)

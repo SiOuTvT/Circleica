@@ -153,7 +153,7 @@ export function TopNav() {
         </button>
 
         {/* 主容器 - 与页面内容容器对齐 */}
-        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[68px] pr-4 lg:pl-[72px] lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
+        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[68px] pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
 
           {/* 三条杠菜单 - 第一个位置 */}
           <div ref={menuRef} className="relative">
