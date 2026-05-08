@@ -35,6 +35,14 @@ const roleMap: Record<string, string> = {
   appears: "出场角色",
 }
 
+const genderMap: Record<string, string> = {
+  m: "男",
+  f: "女",
+  b: "双性",
+  i: "无性别",
+  "": "未知",
+}
+
 export function CharacterDetailClient({ character }: { character: CharacterData }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -95,7 +103,7 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
           {/* 基本信息 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4 text-sm">
             {character.gender && character.gender.length > 0 && (
-              <div><span className="text-zinc-500 light:text-zinc-400">性别: </span><span className="text-zinc-200 light:text-zinc-700">{character.gender.join(", ")}</span></div>
+              <div><span className="text-zinc-500 light:text-zinc-400">性别: </span><span className="text-zinc-200 light:text-zinc-700">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
             )}
             {character.age && (
               <div><span className="text-zinc-500 light:text-zinc-400">年龄: </span><span className="text-zinc-200 light:text-zinc-700">{character.age}</span></div>

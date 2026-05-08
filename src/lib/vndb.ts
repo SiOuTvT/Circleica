@@ -80,30 +80,56 @@ class VNDBClient {
   private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
 
   /**
-   * 发送 HTTP POST 请求到 VNDB API
+   * 发送 HTTP POST 请求到 VNDB API（带重试机制）
    */
-  private async sendRequest(endpoint: string, data: any): Promise<any> {
+  private async sendRequest(endpoint: string, data: any, retries = 3): Promise<any> {
     const url = `${this.baseUrl}/${endpoint}`
     console.log("[VNDB] 发送 HTTP 请求:", url)
     
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "FangameNext/1.0",
-      },
-      body: JSON.stringify(data),
-    })
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "User-Agent": "FangameNext/1.0",
+          },
+          body: JSON.stringify(data),
+          signal: AbortSignal.timeout(15000), // 15秒超时
+        })
 
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => "unknown")
-      console.error(`[VNDB] HTTP error body:`, errorBody)
-      throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText} - ${errorBody}`)
+        if (!response.ok) {
+          const errorBody = await response.text().catch(() => "unknown")
+          console.error(`[VNDB] HTTP error body:`, errorBody)
+          // 400 错误不重试（参数问题）
+          if (response.status === 400) {
+            throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText} - ${errorBody}`)
+          }
+          throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText}`)
+        }
+
+        const result = await response.json()
+        console.log("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
+        return result
+      } catch (error: any) {
+        const isTimeout = error?.code === 'ETIMEDOUT' || error?.code === 'UND_ERR_CONNECT_TIMEOUT' || error?.name === 'TimeoutError'
+        const isLastAttempt = attempt === retries
+        
+        if (isLastAttempt) {
+          console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, error.message)
+          throw error
+        }
+        
+        if (isTimeout || error?.message?.includes('fetch failed')) {
+          const delay = attempt * 1000 // 递增延迟: 1s, 2s
+          console.log(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
+          await new Promise(r => setTimeout(r, delay))
+        } else {
+          throw error // 非网络错误直接抛出
+        }
+      }
     }
-
-    const result = await response.json()
-    console.log("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
-    return result
+    throw new Error("VNDB request failed after all retries")
   }
 
   /**
@@ -283,7 +309,7 @@ class VNDBClient {
       
       const data = await this.sendRequest("producer", {
         filters: ["id", "=", randomId],
-        fields: "id,name,original,description,type,image.url",
+        fields: "id,name,original,description,type",
         results: 1,
       })
       
@@ -336,7 +362,7 @@ class VNDBClient {
         // 获取创作者基本信息
         const data = await this.sendRequest("producer", {
           filters: ["id", "=", `p${vndbId}`],
-          fields: "id,name,original,type,description,image.url",
+          fields: "id,name,original,type,description",
           results: 1,
         })
 
