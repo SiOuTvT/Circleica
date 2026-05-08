@@ -140,7 +140,7 @@ export function TopNav() {
             }
           }}
           className={cn(
-            "fixed top-0 left-4 z-[60] flex h-12 w-12 items-center justify-center border-b border-r transition-all btn-spring lg:top-0 lg:left-[max(calc((100vw-1240px)/2),0px)] lg:h-14 lg:w-14",
+            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center border-b border-r transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14",
             theme === "dark"
               ? "border-white/[0.05] bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
               : "border-black/[0.05] bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"

@@ -1,3 +1,4 @@
+import { RefreshCreatorBtn } from "@/components/refresh-creator-btn"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
 import { Database, ExternalLink, Globe } from "lucide-react"
@@ -35,7 +36,15 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
   if (id.startsWith("vndb-")) {
     const vndbId = id.replace("vndb-", "")
     const producer = await vndbClient.getProducer(vndbId)
-    if (!producer) notFound()
+    if (!producer) {
+      return (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <p className="text-lg font-semibold text-zinc-200 light:text-zinc-800 mb-2">创作者信息加载失败</p>
+          <p className="text-sm text-zinc-500 light:text-zinc-400 mb-6">VNDB 数据暂时不可用，请稍后重试</p>
+          <RefreshCreatorBtn />
+        </div>
+      )
+    }
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const p = producer!
 
@@ -124,6 +133,8 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
             <p className="mt-2 text-xs text-zinc-700 light:text-zinc-300">该创作者可能还未添加作品</p>
           </div>
         )}
+
+        <RefreshCreatorBtn />
       </div>
     )
   }
@@ -258,6 +269,8 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
           <p className="mt-2 text-xs text-zinc-700 light:text-zinc-300">该创作者可能还未添加作品</p>
         </div>
       )}
+
+      <RefreshCreatorBtn />
     </div>
   )
 }
