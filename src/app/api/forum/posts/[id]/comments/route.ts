@@ -1,44 +1,29 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { badRequest, created, tooManyRequests, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { prisma } from "@/lib/prisma"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
+import { sanitizeString } from "@/lib/sanitize"
+import { NextRequest } from "next/server"
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // 速率限制：每分钟最多10条评论
-  const rateLimit = await checkRateLimit(RATE_LIMITS.comment)
+  const rateLimit = await checkRateLimit(rateLimits.comment)
   if (!rateLimit.success) {
-    return NextResponse.json(
-      { error: "请求过于频繁，请稍后再试" },
-      { 
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": String(rateLimit.limit),
-          "X-RateLimit-Remaining": String(rateLimit.remaining),
-          "X-RateLimit-Reset": String(rateLimit.reset),
-        },
-      }
-    )
+    return tooManyRequests("请求过于频繁，请稍后再试")
   }
 
   const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
+  if (!session?.user?.id) return unauthorized()
   const { id: postId } = await params
 
   const fd = await req.formData()
-  const content = (fd.get("content") as string)?.trim()
-  if (!content) return NextResponse.json({ error: "内容不能为空" }, { status: 400 })
+  const content = sanitizeString((fd.get("content") as string)?.trim())
+  if (!content) return badRequest("内容不能为空")
 
   const comment = await prisma.forumComment.create({
     data: { postId, userId: session.user.id, content },
     include: { user: { select: { id: true, username: true, avatar: true } } },
   })
 
-  return NextResponse.json({ ...comment, createdAt: comment.createdAt.toISOString() }, { 
-    status: 201,
-    headers: {
-      "X-RateLimit-Limit": String(rateLimit.limit),
-      "X-RateLimit-Remaining": String(rateLimit.remaining),
-      "X-RateLimit-Reset": String(rateLimit.reset),
-    },
-  })
+  return created({ ...comment, createdAt: comment.createdAt.toISOString() })
 }

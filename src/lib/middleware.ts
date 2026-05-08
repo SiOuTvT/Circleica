@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getRateLimit, getClientIP, RateLimitConfig } from "./rate-limit"
+import { getClientIP, getRateLimit, RateLimitConfig } from "./rate-limit"
 
 /**
  * 为 API 路由添加速率限制
@@ -16,7 +16,7 @@ export function withRateLimit(
     const ip = getClientIP(req)
     const key = `${keyPrefix}:${ip}`
 
-    const limit = getRateLimit(key, config)
+    const limit = await getRateLimit(key, config)
 
     if (!limit.allowed) {
       return NextResponse.json(

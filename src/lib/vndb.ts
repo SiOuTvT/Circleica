@@ -5,7 +5,10 @@
  * 
  * 使用 HTTP API (api.vndb.org/kana)
  * 因为服务器防火墙阻止了 TCP 端口 19535
+ * 
+ * 缓存策略：优先使用 Redis（Upstash），未配置时降级为内存缓存
  */
+import { cache, cached, cacheKey } from "./redis"
 
 interface VNDBCharacter {
   id: string
@@ -74,8 +77,7 @@ interface VNDBSearchResult {
 class VNDBClient {
   // 使用 HTTP API endpoint
   private baseUrl = "https://api.vndb.org/kana"
-  private cache = new Map<string, { data: any; timestamp: number }>()
-  private CACHE_TTL = 24 * 60 * 60 * 1000 // 24小时缓存
+  private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
 
   /**
    * 发送 HTTP POST 请求到 VNDB API
@@ -94,7 +96,9 @@ class VNDBClient {
     })
 
     if (!response.ok) {
-      throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText}`)
+      const errorBody = await response.text().catch(() => "unknown")
+      console.error(`[VNDB] HTTP error body:`, errorBody)
+      throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText} - ${errorBody}`)
     }
 
     const result = await response.json()
@@ -106,18 +110,15 @@ class VNDBClient {
    * 搜索视觉小说
    */
   async searchVisualNovels(query: string, limit = 10): Promise<VNDBSearchResult> {
-    const cacheKey = `vn_search_${query}_${limit}`
-    const cached = this.getCached(cacheKey)
-    if (cached) return cached
-
+    const key = cacheKey("vndb", "vn_search", query, limit)
     try {
-      const data = await this.sendRequest("vn", {
-        filters: ["search", "=", query],
-        fields: "id,title,alttitle,rating,image.url",
-        results: limit,
-      })
-      this.setCached(cacheKey, data)
-      return data
+      return await cached(key, async () => {
+        return await this.sendRequest("vn", {
+          filters: ["search", "=", query],
+          fields: "id,title,alttitle,rating,image.url",
+          results: limit,
+        })
+      }, this.CACHE_TTL)
     } catch (error) {
       console.error("VNDB search failed:", error)
       throw error
@@ -128,22 +129,20 @@ class VNDBClient {
    * 获取视觉小说详情
    */
   async getVisualNovel(id: string): Promise<VNDBVisualNovel | null> {
-    const cacheKey = `vn_detail_${id}`
-    const cached = this.getCached(cacheKey)
-    if (cached) return cached
-
+    const key = cacheKey("vndb", "vn_detail", id)
     try {
-      const data = await this.sendRequest("vn", {
-        filters: ["id", "=", id],
-        fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.trait.id,va.character.trait.name,va.character.trait.group_id,va.character.trait.group_name,va.character.trait.spoiler,va.character.role",
-      })
-      
-      if (!data.results || data.results.length === 0) {
-        return null
-      }
-      
-      this.setCached(cacheKey, data.results[0])
-      return data.results[0]
+      return await cached(key, async () => {
+        const data = await this.sendRequest("vn", {
+          filters: ["id", "=", id],
+          fields: "id,title,alttitle,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.traits.id,va.character.traits.name,va.character.traits.group_id,va.character.traits.group_name,va.character.traits.spoiler",
+        })
+        
+        if (!data.results || data.results.length === 0) {
+          return null
+        }
+        
+        return data.results[0]
+      }, this.CACHE_TTL)
     } catch (error) {
       console.error("Failed to fetch VN details:", error)
       return null
@@ -154,18 +153,15 @@ class VNDBClient {
    * 搜索创作者（个人）
    */
   async searchProducers(query: string, limit = 10): Promise<VNDBSearchResult> {
-    const cacheKey = `producer_search_${query}_${limit}`
-    const cached = this.getCached(cacheKey)
-    if (cached) return cached
-
+    const key = cacheKey("vndb", "producer_search", query, limit)
     try {
-      const data = await this.sendRequest("producer", {
-        filters: ["search", "=", query],
-        fields: "id,name,original,description,type",
-        results: limit,
-      })
-      this.setCached(cacheKey, data)
-      return data
+      return await cached(key, async () => {
+        return await this.sendRequest("producer", {
+          filters: ["search", "=", query],
+          fields: "id,name,original,description,type",
+          results: limit,
+        })
+      }, this.CACHE_TTL)
     } catch (error) {
       console.error("VNDB producer search failed:", error)
       throw error
@@ -173,7 +169,8 @@ class VNDBClient {
   }
 
   /**
-   * 获取随机 galgame 创作者（脚本家、画师、音乐人等，不限于同人）
+   * 获取随机 galgame 创作者（脚本家、画师、音乐人等）
+   * 使用多个搜索关键词获取更多创作者
    */
   async getRandomDoujinCreator(): Promise<{
     id: string
@@ -187,22 +184,44 @@ class VNDBClient {
     try {
       console.log("[VNDB] 开始获取随机 galgame 创作者...")
       
-      // 获取个人类型的创作者（脚本家、画师、音乐人等 galgame 相关创作者）
-      // 注意：VNDB producer API 不支持 sort 和 image 字段
+      // 使用多个搜索关键词获取更多创作者
+      const searchTerms = [
+        "key", "type-moon", "yuzusoft", "smee", "alette", "nana", "aselia",
+        "fate", "clannad", "muv-luv", "grisaia", "rewrite", "little busters",
+        "august", "hook", "frontwing", "minori", "purple", "ensemble",
+        "sprite", "tone work", "saga planets", "candy", "lump of sugar",
+        "narcissu", "planetarian", "ever17", "remember11", "steins",
+        "utsuge", "nakige", "eroge", "galge", "bishoujo",
+      ]
+      
+      // 随机选一个搜索词
+      const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)]
+      console.log(`[VNDB] 使用搜索词: "${randomTerm}"`)
+      
       const data = await this.sendRequest("producer", {
-        filters: ["search", "=", "visual novel"],
+        filters: ["search", "=", randomTerm],
         fields: "id,name,original,description,type",
-        results: 50,
+        results: 100,
       })
       
-      const producers = data.results || []
+      let producers = data.results || []
 
       if (producers.length === 0) {
-        console.log("[VNDB] 未找到创作者数据")
-        return null
+        // 如果搜索词没结果，用更通用的词
+        console.log("[VNDB] 搜索词无结果，尝试通用搜索...")
+        const fallbackData = await this.sendRequest("producer", {
+          filters: ["search", "=", "game"],
+          fields: "id,name,original,description,type",
+          results: 100,
+        })
+        producers = fallbackData.results || []
+        if (producers.length === 0) {
+          console.log("[VNDB] 未找到创作者数据")
+          return null
+        }
       }
 
-      console.log(`[VNDB] 获取到 ${producers.length} 个 galgame 创作者，随机选择一个...`)
+      console.log(`[VNDB] 获取到 ${producers.length} 个创作者，随机选择一个...`)
 
       // 随机选择一个
       const randomIndex = Math.floor(Math.random() * producers.length)
@@ -214,7 +233,7 @@ class VNDBClient {
         id: producer.id,
         name: producer.name || "未知创作者",
         original: producer.original,
-        image: undefined, // producer API 不返回 image
+        image: undefined,
         vndbId: producer.id.replace("p", ""),
         type: producer.type,
         description: producer.description,
@@ -242,40 +261,38 @@ class VNDBClient {
       rating?: number
     }>
   } | null> {
-    const cacheKey = `producer_detail_${vndbId}`
-    const cached = this.getCached(cacheKey)
-    if (cached) return cached
-
+    const key = cacheKey("vndb", "producer_detail", vndbId)
     try {
-      // 获取创作者基本信息
-      const data = await this.sendRequest("producer", {
-        filters: ["id", "=", `p${vndbId}`],
-        fields: "id,name,original,type,description",
-        results: 1,
-      })
-
-      if (!data.results || data.results.length === 0) {
-        return null
-      }
-
-      const producer = data.results[0]
-
-      // 通过搜索该创作者名称获取其开发的VN
-      try {
-        const vnData = await this.sendRequest("vn", {
-          filters: ["search", "=", producer.name],
-          fields: "id,title,rating,image.url",
-          results: 10,
-          sort: "rating",
-          reverse: true,
+      return await cached(key, async () => {
+        // 获取创作者基本信息
+        const data = await this.sendRequest("producer", {
+          filters: ["id", "=", `p${vndbId}`],
+          fields: "id,name,original,type,description",
+          results: 1,
         })
-        producer.developed = vnData.results || []
-      } catch {
-        producer.developed = []
-      }
 
-      this.setCached(cacheKey, producer)
-      return producer
+        if (!data.results || data.results.length === 0) {
+          return null
+        }
+
+        const producer = data.results[0]
+
+        // 通过搜索该创作者名称获取其开发的VN
+        try {
+          const vnData = await this.sendRequest("vn", {
+            filters: ["search", "=", producer.name],
+            fields: "id,title,rating,image.url",
+            results: 10,
+            sort: "rating",
+            reverse: true,
+          })
+          producer.developed = vnData.results || []
+        } catch {
+          producer.developed = []
+        }
+
+        return producer
+      }, this.CACHE_TTL)
     } catch (error) {
       console.error("Failed to fetch producer details:", error)
       return null
@@ -391,7 +408,7 @@ class VNDBClient {
       
       const vnData = await this.sendRequest("vn", {
         filters: ["search", "=", randomSearch],
-        fields: "id,title,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.trait.id,va.character.trait.name,va.character.trait.group_id,va.character.trait.group_name,va.character.trait.spoiler,va.character.role",
+        fields: "id,title,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.traits.id,va.character.traits.name,va.character.traits.group_id,va.character.traits.group_name,va.character.traits.spoiler",
         results: 5,
         sort: "rating",
         reverse: true,
@@ -433,7 +450,7 @@ class VNDBClient {
       }
 
       // 处理特征
-      const traits = character.trait
+      const traits = character.traits
         ?.filter((t: any) => t.spoiler === 0)
         .map((t: any) => ({ name: t.name, groupName: t.group_name })) || []
 
@@ -477,44 +494,10 @@ class VNDBClient {
   }
 
   /**
-   * 获取缓存数据
-   */
-  private getCached(key: string): any | null {
-    const cached = this.cache.get(key)
-    if (!cached) return null
-
-    const now = Date.now()
-    if (now - cached.timestamp > this.CACHE_TTL) {
-      this.cache.delete(key)
-      return null
-    }
-
-    return cached.data
-  }
-
-  /**
-   * 设置缓存
-   */
-  private setCached(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-    })
-
-    // 限制缓存大小
-    if (this.cache.size > 1000) {
-      const oldestKey = this.cache.keys().next().value
-      if (oldestKey) {
-        this.cache.delete(oldestKey)
-      }
-    }
-  }
-
-  /**
    * 清除所有缓存
    */
-  clearCache(): void {
-    this.cache.clear()
+  async clearCache(): Promise<void> {
+    await cache.clear()
   }
 }
 

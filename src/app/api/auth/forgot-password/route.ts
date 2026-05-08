@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import crypto from "crypto"
-import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   // 速率限制：每小时最多3次密码重置请求
-  const rateLimit = await checkRateLimit(RATE_LIMITS.passwordReset)
+  const rateLimit = await checkRateLimit(rateLimits.passwordReset)
   if (!rateLimit.success) {
     return NextResponse.json(
       { error: "请求过于频繁，请稍后再试" },

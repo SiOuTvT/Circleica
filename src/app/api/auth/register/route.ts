@@ -1,36 +1,29 @@
+import { badRequest, conflict, created, handleZodError, serverError } from "@/lib/api-response"
 import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
+import { parseBody, registerSchema } from "@/lib/validations"
 import bcrypt from "bcryptjs"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 
 async function handleRegister(req: NextRequest) {
+  const parsed = await parseBody(req, registerSchema)
+  if (!parsed.success) {
+    if (parsed.error) return handleZodError(parsed.error)
+    return badRequest(parsed.message)
+  }
+
+  const { username, email, password } = parsed.data
+
   try {
-    const { username, email, password } = await req.json()
-
-    if (!username || !email || !password)
-      return NextResponse.json({ error: "请填写所有必填项" }, { status: 400 })
-    if (password.length < 6)
-      return NextResponse.json({ error: "密码至少6位" }, { status: 400 })
-
-    // 验证邮箱格式
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email))
-      return NextResponse.json({ error: "邮箱格式不正确" }, { status: 400 })
-
-    // 验证用户名格式（只允许字母、数字、下划线，3-20字符）
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
-    if (!usernameRegex.test(username))
-      return NextResponse.json({ error: "用户名只能包含字母、数字和下划线，长度3-20个字符" }, { status: 400 })
-
     const exists = await prisma.user.findFirst({
       where: { OR: [{ username }, { email }] },
     })
     if (exists) {
       const field = exists.username === username ? "用户名" : "邮箱"
       logger.auth.warn(`Registration attempt with duplicate ${field}`, { username, email })
-      return NextResponse.json({ error: `${field}已被占用` }, { status: 409 })
+      return conflict(`${field}已被占用`)
     }
 
     const hashed = await bcrypt.hash(password, 10)
@@ -39,10 +32,10 @@ async function handleRegister(req: NextRequest) {
       select: { id: true, username: true, email: true },
     })
 
-    return NextResponse.json(user, { status: 201 })
+    return created(user)
   } catch (error) {
     logger.auth.error("Registration error", error)
-    return NextResponse.json({ error: "注册失败，请稍后再试" }, { status: 500 })
+    return serverError("注册失败，请稍后再试")
   }
 }
 

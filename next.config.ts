@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -24,6 +25,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false, // 保持严格检查，但通过 tsconfig 排除特定模块
   },
+  // Turbopack 配置 - 使用默认项目根目录（不要硬编码路径，否则服务器部署会出错）
   // 实验性优化
   experimental: {
     // 优化 CSS 打包
@@ -31,4 +33,23 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Sentry 构建时配置
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  
+  // 仅在有 auth token 时上传 sourcemap
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  
+  // 上传 sourcemap 的目录
+  widenClientFileUpload: true,
+  
+  // 上传后删除 sourcemap
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+  
+  // tunnel 路由，绕过广告拦截器
+  tunnelRoute: "/api/sentry/tunnel",
+});
