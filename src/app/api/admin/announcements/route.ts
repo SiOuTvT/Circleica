@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 import { getAdminSession } from "@/lib/admin"
+import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server"
 
 // 公开接口 - 获取最新公告（用于导航栏显示）
 export async function GET(req: NextRequest) {
@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
       id: true,
       title: true,
       content: true,
+      imageUrl: true,
       link: true,
       createdAt: true,
     }
@@ -30,10 +31,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { title, content, link } = await req.json()
+  const { title, content, imageUrl, link } = await req.json()
   if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
   const ann = await prisma.announcement.create({
-    data: { title: title.trim(), content: content.trim(), link: link?.trim() ?? "" },
+    data: { title: title.trim(), content: content.trim(), imageUrl: imageUrl?.trim() ?? "", link: link?.trim() ?? "" },
   })
   return NextResponse.json(ann, { status: 201 })
 }

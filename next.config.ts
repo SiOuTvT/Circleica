@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.ufs.sh" },
       // VNDB (视觉小说数据库)
       { protocol: "https", hostname: "static.vndb.org" },
+      { protocol: "https", hostname: "t.vndb.org" },
       // 本地开发允许 localhost
       ...(process.env.NODE_ENV === "development"
         ? [{ protocol: "http" as const, hostname: "localhost" }]
