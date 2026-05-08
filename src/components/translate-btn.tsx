@@ -14,14 +14,17 @@ export function TranslateBtn({ text, onTranslated }: { text: string; onTranslate
   async function translate() {
     setLoading(true)
     try {
-      // 使用 Google Translate 免费 API
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(text.slice(0, 5000))}`
-      const res = await fetch(url)
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text.slice(0, 5000) }),
+      })
       const data = await res.json()
-      const translated = data[0]?.map((s: string[]) => s[0]).join("") || ""
-      if (translated) {
-        onTranslated(translated)
+      if (data.translated) {
+        onTranslated(data.translated)
         setDone(true)
+      } else {
+        console.error("翻译失败:", data.error)
       }
     } catch (err) {
       console.error("翻译失败:", err)

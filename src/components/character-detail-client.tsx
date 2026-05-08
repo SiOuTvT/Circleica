@@ -60,13 +60,13 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
+      <div className="mb-8 flex flex-col sm:flex-row items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] light:ring-black/[0.08] shadow-xl">
         {character.image ? (
-          <div className="relative h-36 w-28 shrink-0 overflow-hidden rounded-xl ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+          <div className="relative h-64 w-48 sm:h-80 sm:w-56 shrink-0 overflow-hidden rounded-xl ring-2 ring-white/10 light:ring-black/10 shadow-lg mx-auto sm:mx-0">
             <Image src={character.image} alt={character.name} fill className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-36 w-28 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-4xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg">
+          <div className="flex h-64 w-48 sm:h-80 sm:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-white/10 light:ring-black/10 shadow-lg mx-auto sm:mx-0">
             {(character.original || character.name)[0]}
           </div>
         )}
