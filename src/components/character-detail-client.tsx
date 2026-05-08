@@ -4,7 +4,7 @@ import { Loader2, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { TranslatableDescription } from "./translatable-description"
+import { TranslateBtn } from "./translate-btn"
 
 interface CharacterData {
   id: string
@@ -46,6 +46,8 @@ const genderMap: Record<string, string> = {
 export function CharacterDetailClient({ character }: { character: CharacterData }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [translated, setTranslated] = useState<string | null>(null)
+  const [showOriginal, setShowOriginal] = useState(false)
 
   async function refresh() {
     setLoading(true)
@@ -158,17 +160,31 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
       )}
 
       {/* 描述 */}
-      {character.description && (
-        <section className="mb-6">
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400" />
-            角色简介
-          </h2>
-          <div className="rounded-2xl bg-zinc-900/50 light:bg-zinc-100 p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-            <TranslatableDescription text={character.description.replace(/\[.*?\]/g, "").trim()} />
-          </div>
-        </section>
-      )}
+      {character.description && (() => {
+        const cleaned = character.description.replace(/\[.*?\]/g, "").replace(/\[url=[^\]]*\]([^[]*)\[\/url\]/g, "$1").trim()
+        return (
+          <section className="mb-6">
+            <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
+              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400" />
+              角色简介
+              {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
+              {translated && (
+                <button
+                  onClick={() => setShowOriginal(!showOriginal)}
+                  className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900"
+                >
+                  {showOriginal ? "查看翻译" : "查看原文"}
+                </button>
+              )}
+            </h2>
+            <div className="rounded-2xl bg-zinc-900/50 light:bg-zinc-100 p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+              <p className="text-sm leading-relaxed text-zinc-400 light:text-zinc-600 whitespace-pre-line">
+                {translated && !showOriginal ? translated : cleaned}
+              </p>
+            </div>
+          </section>
+        )
+      })()}
 
       {/* 换一个按钮 */}
       <div className="mt-8 flex justify-center">

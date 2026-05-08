@@ -3,13 +3,33 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    console.log("=== 开始获取随机创作者（VNDB） ===")
+    console.log("=== 开始获取随机创作者（VNDB Staff） ===")
     
+    const staff = await vndbClient.getRandomStaffMember()
+    
+    if (staff) {
+      console.log("✓ 从 VNDB 获取到创作者:", staff.name, "ID:", staff.vndbId, "角色:", staff.roles)
+      
+      return NextResponse.json({
+        id: `vndb-${staff.vndbId}`,
+        name: staff.name,
+        nameJa: staff.original || staff.name,
+        avatar: "",
+        vndbId: staff.vndbId,
+        type: "staff",
+        description: staff.description || "",
+        gender: staff.gender || "",
+        roles: staff.roles,
+        vns: staff.vns,
+        source: "vndb",
+      })
+    }
+
+    // 降级到 producer
+    console.log("Staff 获取失败，降级到 producer...")
     const vndbCreator = await vndbClient.getRandomDoujinCreator()
     
     if (vndbCreator) {
-      console.log("✓ 从 VNDB 获取到创作者:", vndbCreator.name, "ID:", vndbCreator.vndbId)
-      
       return NextResponse.json({
         id: `vndb-${vndbCreator.vndbId}`,
         name: vndbCreator.name,
