@@ -1,6 +1,6 @@
+import { TagsManager } from "@/components/tags-manager"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { TagsManager } from "@/components/tags-manager"
 
 export const metadata = { title: "标签管理 · 管理后台" }
 
@@ -14,7 +14,7 @@ export default async function AdminTagsPage() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <h1 className="text-lg font-bold text-zinc-100">标签管理</h1>
+      <h1 className="text-lg font-bold text-foreground">标签管理</h1>
       <TagsManager initialTags={initialTags} />
     </div>
   )

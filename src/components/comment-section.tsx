@@ -158,8 +158,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              "rounded-2xl bg-zinc-900/80 ring-1 transition-all overflow-hidden",
-              isDragging ? "ring-blue-500/50 bg-blue-500/5" : "ring-white/[0.06] focus-within:ring-white/[0.12]"
+              "rounded-2xl bg-zinc-900/80 light:bg-zinc-100 ring-1 transition-all overflow-hidden",
+              isDragging ? "ring-blue-500/50 bg-blue-500/5 light:bg-blue-500/5" : "ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-white/[0.12] light:focus-within:ring-black/[0.12]"
             )}
           >
             {/* 图片预览 */}
@@ -208,7 +208,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
                 {showEmoji && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowEmoji(false)} />
-                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-zinc-900 p-3 ring-1 ring-white/10 shadow-2xl">
+                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-zinc-900 light:bg-white p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
                       {EMOJI_CATEGORIES.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
                           <p className="mb-1.5 text-[10px] font-medium text-zinc-600">{cat.name}</p>

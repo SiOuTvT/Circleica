@@ -50,8 +50,8 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-lg font-bold text-zinc-100">仪表盘</h1>
-        <Link href="/admin/games/new" className="flex items-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-700 hover:text-white w-fit">
+        <h1 className="text-lg font-bold text-foreground">仪表盘</h1>
+        <Link href="/admin/games/new" className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground w-fit">
           <Plus className="h-5 w-5" strokeWidth={2} />新增游戏
         </Link>
       </div>
@@ -70,7 +70,7 @@ export default async function AdminDashboard() {
 
       {/* 趋势图表（最近14天） */}
       <div>
-        <p className="mb-3 text-xs font-medium text-zinc-500">最近 14 天趋势</p>
+        <p className="mb-3 text-xs font-medium text-muted-foreground">最近 14 天趋势</p>
         <AdminCharts
           gamesByDay={toChartData(newGames)}
           usersByDay={toChartData(newUsers)}

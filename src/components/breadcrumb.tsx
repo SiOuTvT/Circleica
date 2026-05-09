@@ -3,10 +3,10 @@
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useBreadcrumb } from "./breadcrumb-context"
 
 const ROUTE_NAMES: Record<string, string> = {
   games: "游戏",
-  creators: "创作者",
   forum: "求档中心",
   collections: "精选合集",
   profile: "用户",
@@ -23,13 +23,13 @@ const ROUTE_NAMES: Record<string, string> = {
 
 export function Breadcrumb() {
   const pathname = usePathname()
+  const { dynamicLabels } = useBreadcrumb()
   
   // 首页不显示面包屑
   if (pathname === "/") return null
   
   const segments = pathname.split("/").filter(Boolean)
   
-  // 只有一级路径且不是动态参数时才显示
   const crumbs: { label: string; href: string }[] = []
   let currentPath = ""
   
@@ -37,9 +37,18 @@ export function Breadcrumb() {
     const seg = segments[i]
     currentPath += `/${seg}`
     
-    // 跳过动态参数段（CUID、UUID、MongoDB ObjectId 等）
-    const isDynamicParam = /^[a-z0-9]{20,}$/i.test(seg) || /^[0-9a-f]{8}-/.test(seg) || seg === "[id]"
-    if (isDynamicParam) continue
+    // 检查是否是动态参数段
+    const isDynamicParam = /^[a-z0-9]{20,}$/i.test(seg) || /^[0-9a-f]{8}-/.test(seg)
+    
+    if (isDynamicParam) {
+      // 尝试从上下文获取动态标签
+      const dynamicLabel = dynamicLabels[seg]
+      if (dynamicLabel) {
+        crumbs.push({ label: dynamicLabel, href: currentPath })
+      }
+      // 如果没有动态标签，跳过该段（不显示ID）
+      continue
+    }
     
     const label = ROUTE_NAMES[seg] || seg
     crumbs.push({ label, href: currentPath })

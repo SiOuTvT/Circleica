@@ -74,7 +74,7 @@ export function ProfileEditForm({ user }: Props) {
   const fieldCls = "flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all"
 
   return (
-    <div className="rounded-2xl bg-zinc-900 p-6 ring-1 ring-white/[0.06]">
+    <div className="rounded-2xl bg-zinc-900 light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
       <Link href={`/profile/${user.id}`} className="mb-5 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />返回主页
       </Link>

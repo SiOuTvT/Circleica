@@ -61,7 +61,6 @@ export function GameCard({ game }: { game: GameCardData }) {
       <Link
         href={`/games/${game.id}`}
         className="group relative block overflow-hidden rounded-[14px] card-spring"
-        style={{ aspectRatio: "5/6" }}
       >
         {/* 内发光边框层 */}
         <div className="absolute inset-0 rounded-[14px] pointer-events-none z-10"
@@ -80,8 +79,8 @@ export function GameCard({ game }: { game: GameCardData }) {
           }}
         />
         
-        {/* 封面区（上方 60%） */}
-        <div className="absolute inset-0 bottom-[40%] overflow-hidden bg-muted">
+        {/* 封面区（固定高度） */}
+        <div className="relative w-full overflow-hidden bg-muted" style={{ paddingBottom: "60%" }}>
           {game.coverImage && !imgError ? (
             <Image
               src={game.coverImage}
@@ -103,8 +102,8 @@ export function GameCard({ game }: { game: GameCardData }) {
           )}
         </div>
 
-        {/* 信息条（下方 40%） - 手机端和桌面端显示相同内容 */}
-        <div className="absolute inset-x-0 bottom-0 flex h-[40%] flex-col justify-center gap-1.5 sm:gap-2 bg-card px-2 sm:px-3 py-2 sm:py-2.5">
+        {/* 信息条（自适应高度） - 手机端和桌面端显示相同内容 */}
+        <div className="flex flex-col gap-1.5 sm:gap-2 bg-card px-2 sm:px-3 py-2 sm:py-2.5">
           <p className="line-clamp-2 text-[13px] sm:text-[15px] font-bold leading-snug text-card-foreground">{game.title}</p>
           <div className="flex flex-wrap gap-1 sm:gap-1.5">
             {game.tags.slice(0, 2).map((tag) => (
@@ -186,12 +185,12 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[14px] bg-card" style={{ aspectRatio: "5/6" }}>
+        <div className="overflow-hidden rounded-[14px] bg-card">
       {/* 封面区域 */}
-      <div className="h-[60%] w-full skeleton-shimmer" />
+      <div className="w-full skeleton-shimmer" style={{ paddingBottom: "60%" }} />
       
       {/* 信息区域 - 形状匹配真实内容 */}
-      <div className="h-[40%] bg-card px-2.5 py-2 space-y-2">
+      <div className="bg-card px-2.5 py-2 space-y-2">
         {/* 标题 - 两行 */}
         <div className="space-y-1.5">
           <div className="h-3 w-full rounded skeleton-shimmer" />

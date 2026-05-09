@@ -1,4 +1,5 @@
 import { CommentSection } from "@/components/comment-section"
+import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import { GameDetailActions } from "@/components/game-detail-actions"
 import { GameRating } from "@/components/game-rating"
 import { auth } from "@/lib/auth"
@@ -87,7 +88,8 @@ export default async function GameDetailPage({
   })
 
   return (
-    <div className="mx-auto max-w-[1300px] lg:ml-[max(calc((100vw-1200px)/2),0px)]">
+    <div>
+      <GameBreadcrumb gameId={id} gameTitle={game.title} />
       {/* Hero 封面区 */}
       <div className="relative mb-6 overflow-hidden rounded-2xl bg-zinc-900 light:bg-zinc-100" style={{ minHeight: 280 }}>
         {game.coverImage && (

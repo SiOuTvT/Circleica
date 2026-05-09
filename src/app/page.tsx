@@ -1,10 +1,8 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
-import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-game-btn"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { prisma } from "@/lib/prisma"
-import Link from "next/link"
 import { Suspense } from "react"
 
 function GameGridSkeleton() {
@@ -106,41 +104,12 @@ export default async function HomePage({
       <div className="flex flex-col lg:grid lg:grid-cols-[auto_1fr] gap-3 sm:gap-6 lg:gap-4 items-start">
         
         {/* 左侧功能区（手机端显示在下面）*/}
-        <div className="order-2 lg:order-1 flex flex-col justify-end min-h-[auto] lg:min-h-[220px]">
-          {/* 横向排列两个功能按钮（手机端），桌面端纵向 */}
-          <div className="flex flex-row lg:flex-col gap-3 w-fit">
-            {/* 随机人物按钮 */}
-            <RandomCreatorBtn />
-            
-            {/* 随机角色按钮 */}
-            <RandomCharacterBtn />
-          </div>
-        </div>
-
         {/* 右侧公告区（手机端显示在最上面）*/}
         {announcements.length > 0 && (
           <div className="lg:col-span-1 order-1 lg:order-2 w-full">
             <AnnounceSwiper announcements={announcements} />
           </div>
         )}
-      </div>
-
-      {/* 标签筛选 */}
-      <div className="flex flex-wrap gap-2">
-        {allTags.map((tag) => (
-          <Link
-            key={tag}
-            href={`/?tag=${encodeURIComponent(tag)}${q ? `&q=${encodeURIComponent(q)}` : ""}${nsfw ? "&nsfw=1" : ""}`}
-            className={[
-              "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200",
-              activeTag === tag
-                ? "bg-accent text-foreground ring-1 ring-border"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent/60",
-            ].join(" ")}
-          >
-            {tag}
-          </Link>
-        ))}
       </div>
 
       {/* 游戏网格 */}

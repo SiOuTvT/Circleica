@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { cn } from "@/lib/utils"
-import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Tag, UserCircle2, Users, X } from "lucide-react"
+import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Tag, Users, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -10,7 +10,6 @@ const items = [
   { icon: LayoutDashboard, label: "仪表盘",   href: "/admin" },
   { icon: Gamepad2,        label: "游戏管理",  href: "/admin/games" },
   { icon: Tag,             label: "标签管理",  href: "/admin/tags" },
-  { icon: UserCircle2,     label: "创作者管理", href: "/admin/creators" },
   { icon: Megaphone,       label: "公告管理",  href: "/admin/announcements" },
   { icon: Music,           label: "音乐管理",  href: "/admin/music" },
   { icon: Users,           label: "用户管理",  href: "/admin/users" },

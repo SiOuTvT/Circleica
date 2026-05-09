@@ -1,6 +1,6 @@
+import { GameForm } from "@/components/game-form"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { GameForm } from "@/components/game-form"
 
 export const metadata = { title: "新增游戏 · 管理后台" }
 
@@ -12,7 +12,7 @@ export default async function NewGamePage() {
   ])
   return (
     <div className="max-w-2xl">
-      <h1 className="mb-6 text-lg font-bold text-zinc-100">新增游戏</h1>
+      <h1 className="mb-6 text-lg font-bold text-foreground">新增游戏</h1>
       <GameForm tags={tags} creators={creators} />
     </div>
   )

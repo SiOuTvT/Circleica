@@ -23,7 +23,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   const [error, setError] = useState("")
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const inputCls = "w-full rounded-xl bg-zinc-800 px-4 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all"
+  const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
 
   async function addAnn(e: React.FormEvent) {
     e.preventDefault()
@@ -58,15 +58,15 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   return (
     <div className="space-y-4">
       {/* 新增表单 */}
-      <div className="rounded-2xl bg-zinc-900 p-5 ring-1 ring-white/[0.06]">
-        <h2 className="mb-4 text-sm font-semibold text-zinc-200">发布公告</h2>
+      <div className="rounded-2xl bg-card p-5 ring-1 ring-border">
+        <h2 className="mb-4 text-sm font-semibold text-foreground">发布公告</h2>
         {error && <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</p>}
         <form onSubmit={addAnn} className="space-y-3">
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="公告标题 *" required className={inputCls} />
           
           {/* 富文本编辑器 */}
           <div>
-            <p className="mb-1.5 text-xs text-zinc-500">公告内容 *</p>
+            <p className="mb-1.5 text-xs text-muted-foreground">公告内容 *</p>
             <RichTextEditor
               content={content}
               onChange={setContent}
@@ -76,7 +76,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
           {/* 封面图片 */}
           <div>
-            <p className="mb-1.5 text-xs text-zinc-500">封面图片（选填）</p>
+            <p className="mb-1.5 text-xs text-muted-foreground">封面图片（选填）</p>
           <ImageUpload
             value={imageUrl}
             onChange={setImageUrl}
@@ -96,39 +96,39 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       </div>
 
       {/* 公告列表 */}
-      <div className="rounded-2xl bg-zinc-900 ring-1 ring-white/[0.06] overflow-hidden">
-        <div className="border-b border-white/[0.06] px-4 py-3">
-          <p className="text-xs text-zinc-500">共 {anns.length} 条公告</p>
+      <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+        <div className="border-b border-border px-4 py-3">
+          <p className="text-xs text-muted-foreground">共 {anns.length} 条公告</p>
         </div>
-        <div className="divide-y divide-white/[0.04]">
-          {anns.length === 0 && <p className="px-4 py-8 text-center text-sm text-zinc-600">暂无公告</p>}
+        <div className="divide-y divide-border">
+          {anns.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">暂无公告</p>}
           {anns.map((ann) => (
-            <div key={ann.id} className="px-4 py-3 hover:bg-zinc-800/50 transition-colors">
+            <div key={ann.id} className="px-4 py-3 hover:bg-accent/50 transition-colors">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-zinc-800 text-zinc-500 ring-white/[0.06]"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-border"}`}>
                       {ann.isActive ? "展示中" : "已隐藏"}
                     </span>
-                    <span className="text-xs font-medium text-zinc-300 truncate">{ann.title}</span>
+                    <span className="text-xs font-medium text-foreground truncate">{ann.title}</span>
                   </div>
                   {/* 内容预览：折叠时显示纯文本，展开时显示富文本 */}
                   {expandedId === ann.id ? (
                     <RichTextContent html={ann.content} />
                   ) : (
-                    <p className="text-xs text-zinc-500 line-clamp-2">{stripHtml(ann.content)}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{stripHtml(ann.content)}</p>
                   )}
                   {ann.imageUrl && (
                     <div className="mt-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={ann.imageUrl} alt="" className="h-16 rounded-lg object-cover ring-1 ring-white/[0.06]" />
+                      <img src={ann.imageUrl} alt="" className="h-16 rounded-lg object-cover ring-1 ring-border" />
                     </div>
                   )}
                   <div className="mt-1.5 flex items-center gap-2">
-                    <p className="text-[10px] text-zinc-700">{new Date(ann.createdAt).toLocaleDateString("zh-CN")}</p>
+                    <p className="text-[10px] text-muted-foreground">{new Date(ann.createdAt).toLocaleDateString("zh-CN")}</p>
                     {ann.content.length > 100 && (
                       <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
-                        className="flex items-center gap-0.5 text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors">
+                        className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
                         {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                         {expandedId === ann.id ? "收起" : "展开"}
                       </button>
@@ -137,11 +137,11 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                   <button onClick={() => toggleActive(ann.id, ann.isActive)}
-                    className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-700 hover:text-zinc-300">
+                    className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     {ann.isActive ? <EyeOff className="h-5 w-5" strokeWidth={2} /> : <Eye className="h-5 w-5" strokeWidth={2} />}
                   </button>
                   <button onClick={() => deleteAnn(ann.id)}
-                    className="rounded-lg p-1.5 text-zinc-600 transition-colors hover:bg-red-500/10 hover:text-red-400">
+                    className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-400">
                     <Trash2 className="h-5 w-5" strokeWidth={2} />
                   </button>
                 </div>

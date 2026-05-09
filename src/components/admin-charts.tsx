@@ -1,9 +1,15 @@
 "use client"
 
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar
-} from "recharts"
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis, YAxis
+} from "recharts";
 
 interface StatPoint { date: string; value: number }
 
@@ -37,10 +43,10 @@ function ChartCard({ title, data, color, type }: {
   const total = data.reduce((s, d) => s + d.value, 0)
 
   return (
-    <div className="rounded-xl bg-zinc-900 p-4 ring-1 ring-white/[0.06]">
+    <div className="rounded-xl bg-card p-4 ring-1 ring-border">
       <div className="mb-3 flex items-baseline justify-between">
-        <p className="text-xs font-medium text-zinc-400">{title}</p>
-        <p className="text-lg font-bold text-zinc-100">{total}</p>
+        <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        <p className="text-lg font-bold text-foreground">{total}</p>
       </div>
       <ResponsiveContainer width="100%" height={80}>
         {type === "bar"

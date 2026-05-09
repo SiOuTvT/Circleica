@@ -1,7 +1,7 @@
-﻿import { requireAdmin } from "@/lib/admin"
-import { VNDBImportManager } from "@/components/vndb-import-manager"
-import Link from "next/link"
+﻿import { VNDBImportManager } from "@/components/vndb-import-manager"
+import { requireAdmin } from "@/lib/admin"
 import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 export const metadata = { title: "VNDB 导入 · 管理后台" }
 
@@ -13,7 +13,7 @@ export default async function VNDBImportPage() {
       <div className="flex items-center gap-3">
         <Link
           href="/admin/games"
-          className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2} />
           返回游戏管理
@@ -21,17 +21,17 @@ export default async function VNDBImportPage() {
       </div>
 
       <div>
-        <h1 className="text-lg font-bold text-zinc-100">VNDB 批量导入</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h1 className="text-lg font-bold text-foreground">VNDB 批量导入</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           从 VNDB 自动导入同人视觉小说数据，系统会验证作品信息并创建草稿。
         </p>
       </div>
 
       <VNDBImportManager />
 
-      <div className="rounded-xl bg-zinc-900/50 p-5 ring-1 ring-white/[0.06]">
-        <h3 className="mb-3 text-sm font-semibold text-zinc-200">使用说明</h3>
-        <ul className="space-y-2 text-xs text-zinc-500">
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <h3 className="mb-3 text-sm font-semibold text-foreground">使用说明</h3>
+        <ul className="space-y-2 text-xs text-muted-foreground">
           <li className="flex items-start gap-2">
             <span className="text-blue-400 mt-0.5">•</span>
             <span>输入 VNDB 视觉小说 ID（纯数字），可以在 VNDB 网站 URL 中找到，例如 vndb.org/v<strong>12345</strong></span>

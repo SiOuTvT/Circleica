@@ -28,11 +28,14 @@ export default async function ForumPage() {
     commentCount: p._count.comments,
   }))
 
+  const isAdmin = (session?.user as { role?: string })?.role === "admin"
+
   return (
     <ForumClient
       initialPosts={initialPosts}
       isLoggedIn={!!session?.user}
       currentUser={session?.user ? { id: session.user.id!, username: session.user.name ?? "", avatar: session.user.image ?? "" } : null}
+      isAdmin={isAdmin}
     />
   )
 }

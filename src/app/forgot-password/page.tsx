@@ -1,8 +1,8 @@
 ﻿"use client"
 
-import { useState } from "react"
+import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react"
 import Link from "next/link"
-import { ArrowLeft, Mail, Loader2, CheckCircle2 } from "lucide-react"
+import { useState } from "react"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState("")
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
           返回登录
         </Link>
 
-        <div className="rounded-2xl bg-zinc-900 p-8 ring-1 ring-white/[0.06]">
+        <div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
           {sent ? (
             <div className="text-center">
               <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />

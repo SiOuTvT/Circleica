@@ -1,8 +1,8 @@
 ﻿"use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Plus, Trash2, Loader2 } from "lucide-react"
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface Tag { id: string; name: string; color: string }
 interface Creator { id: string; name: string; nameJa: string; avatar: string }
@@ -85,8 +85,8 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
     router.refresh()
   }
 
-  const inputCls = "w-full rounded-xl bg-zinc-800 px-4 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all"
-  const labelCls = "mb-1.5 block text-xs font-medium text-zinc-400"
+  const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+  const labelCls = "mb-1.5 block text-xs font-medium text-muted-foreground"
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -95,8 +95,8 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
       )}
 
       {/* 基本信息 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] space-y-4">
-        <h2 className="text-sm font-semibold text-zinc-300">基本信息</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
 
         <div>
           <label className={labelCls}>游戏名称 *</label>
@@ -115,10 +115,10 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
           <input value={coverImage} onChange={(e) => setCoverImage(e.target.value)} placeholder="https://..." className={inputCls} />
           {coverImage && (
             <div className="mt-2 flex items-start gap-3">
-              <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-lg bg-zinc-800" style={{ aspectRatio: "4/5" }}>
+              <div className="relative h-24 w-[76px] shrink-0 overflow-hidden rounded-lg bg-secondary" style={{ aspectRatio: "4/5" }}>
                 <img src={coverImage} alt="封面预览" className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
               </div>
-              <p className="mt-1 text-[11px] text-zinc-600">封面预览</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">封面预览</p>
             </div>
           )}
         </div>
@@ -129,22 +129,22 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
       </div>
 
       {/* 状态设置 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] space-y-4">
-        <h2 className="text-sm font-semibold text-zinc-300">状态设置</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        <h2 className="text-sm font-semibold text-foreground">状态设置</h2>
         <div className="flex flex-wrap gap-2">
           {STATUS_OPTIONS.map((s) => (
             <button key={s} type="button" onClick={() => setStatus(s)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${status === s ? "bg-zinc-700 text-zinc-100 ring-zinc-600" : "bg-zinc-800 text-zinc-500 ring-white/[0.06] hover:text-zinc-300"}`}>
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${status === s ? "bg-secondary text-foreground ring-ring" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"}`}>
               {s}
             </button>
           ))}
         </div>
         <div className="flex flex-wrap gap-4">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
             <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
             NSFW 内容
           </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
             <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
             立即发布
           </label>
@@ -152,8 +152,8 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
       </div>
 
       {/* 标签 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06]">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-300">标签</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <h2 className="mb-3 text-sm font-semibold text-foreground">标签</h2>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
@@ -162,76 +162,76 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
               {tag.name}
             </button>
           ))}
-          {tags.length === 0 && <p className="text-xs text-zinc-600">暂无标签，请先在标签管理中创建</p>}
+          {tags.length === 0 && <p className="text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
         </div>
       </div>
 
       {/* 创作者 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-300">创作者</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">创作者</h2>
         {gameCreators.map((gc, i) => (
           <div key={i} className="flex gap-2">
             <select
               value={gc.creatorId}
               onChange={e => setGameCreators(p => p.map((x, idx) => idx === i ? { ...x, creatorId: e.target.value } : x))}
-              className="flex-1 rounded-xl bg-zinc-800 px-3 py-2.5 text-sm text-zinc-200 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600">
+              className="flex-1 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring">
               <option value="">选择创作者</option>
               {creators.map(c => <option key={c.id} value={c.id}>{c.nameJa || c.name}</option>)}
             </select>
             <select
               value={gc.role}
               onChange={e => setGameCreators(p => p.map((x, idx) => idx === i ? { ...x, role: e.target.value } : x))}
-              className="w-28 shrink-0 rounded-xl bg-zinc-800 px-3 py-2.5 text-sm text-zinc-200 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600">
+              className="w-28 shrink-0 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring">
               <option value="">职位</option>
               {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
             <button type="button" onClick={() => setGameCreators(p => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-zinc-800 px-2.5 text-zinc-500 ring-1 ring-white/[0.06] hover:text-red-400 transition-colors">
+              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>
         ))}
         <button type="button" onClick={() => setGameCreators(p => [...p, { creatorId: "", role: "" }])}
-          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加创作者
         </button>
-        {creators.length === 0 && <p className="text-xs text-zinc-600">请先在创作者管理中添加创作者</p>}
+        {creators.length === 0 && <p className="text-xs text-muted-foreground">请先在创作者管理中添加创作者</p>}
       </div>
 
       {/* 下载链接 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-300">下载链接</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">下载链接</h2>
         {dlLinks.map((dl, i) => (
           <div key={i} className="flex gap-2">
             <input value={dl.label} onChange={(e) => updateDl(i, "label", e.target.value)} placeholder="标签（如：百度网盘）" className={`${inputCls} w-36 shrink-0`} />
             <input value={dl.url} onChange={(e) => updateDl(i, "url", e.target.value)} placeholder="下载地址 URL" className={inputCls} />
             <button type="button" onClick={() => setDlLinks((p) => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-zinc-800 px-2.5 text-zinc-500 ring-1 ring-white/[0.06] hover:text-red-400 transition-colors">
+              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>
         ))}
         <button type="button" onClick={() => setDlLinks((p) => [...p, { label: "", url: "" }])}
-          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加链接
         </button>
       </div>
 
       {/* 截图 */}
-      <div className="rounded-xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-300">截图 URL</h2>
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">截图 URL</h2>
         {screenshots.map((src, i) => (
           <div key={i} className="flex gap-2">
             <input value={src} onChange={(e) => setScreenshots((p) => p.map((s, idx) => idx === i ? e.target.value : s))}
               placeholder="截图 URL" className={inputCls} />
             <button type="button" onClick={() => setScreenshots((p) => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-zinc-800 px-2.5 text-zinc-500 ring-1 ring-white/[0.06] hover:text-red-400 transition-colors">
+              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>
         ))}
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
-          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加截图
         </button>
       </div>
@@ -244,7 +244,7 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>
         <button type="button" onClick={() => router.back()}
-          className="rounded-xl bg-zinc-800 px-6 py-2.5 text-sm text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
+          className="rounded-xl bg-secondary px-6 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
           取消
         </button>
       </div>

@@ -1,9 +1,9 @@
-import { Suspense } from "react"
-import Link from "next/link"
-import { prisma } from "@/lib/prisma"
 import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { SearchBar } from "@/components/search-bar"
-import { ArrowUpDown, TrendingUp, Clock, Heart } from "lucide-react"
+import { prisma } from "@/lib/prisma"
+import { ArrowUpDown, Clock, Heart, TrendingUp } from "lucide-react"
+import Link from "next/link"
+import { Suspense } from "react"
 
 type SortKey = "newest" | "popular" | "mostFaved"
 
@@ -122,7 +122,7 @@ export default async function SearchPage({
             "rounded-full px-3 py-1 text-xs font-medium transition-all",
             !tag
               ? "bg-zinc-700 text-zinc-100 ring-1 ring-zinc-600"
-              : "bg-zinc-900 text-zinc-500 ring-1 ring-white/[0.06] hover:bg-zinc-800 hover:text-zinc-300",
+              : "bg-zinc-900 light:bg-zinc-100 text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06] hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-700",
           ].join(" ")}
         >
           全部

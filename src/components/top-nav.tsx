@@ -13,7 +13,6 @@ import {
   ShieldAlert,
   Sun,
   User,
-  UserCircle2,
   X
 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
@@ -24,7 +23,6 @@ import { useEffect, useRef, useState } from "react"
 const MENU_ITEMS = [
   { icon: Layers,       label: "精选合集", href: "/collections" },
   { icon: FileQuestion, label: "求档中心", href: "/forum" },
-  { icon: UserCircle2,  label: "创作者",   href: "/creators" },
 ]
 
 function getCookie(name: string) {

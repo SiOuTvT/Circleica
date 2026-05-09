@@ -1,10 +1,9 @@
 ﻿"use client"
 
-import { Suspense } from "react"
-import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { CheckCircle2, Eye, EyeOff, Loader2, Lock, XCircle } from "lucide-react"
 import Link from "next/link"
-import { Lock, Loader2, CheckCircle2, XCircle, Eye, EyeOff } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
 
 function ResetForm() {
   const searchParams  = useSearchParams()
@@ -49,7 +48,7 @@ function ResetForm() {
   const fieldCls = "flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all"
 
   return (
-    <div className="rounded-2xl bg-zinc-900 p-8 ring-1 ring-white/[0.06]">
+    <div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
       {status === "loading" && (
         <div className="flex flex-col items-center gap-3 py-8">
           <Loader2 className="h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} />
@@ -106,7 +105,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Suspense fallback={<div className="rounded-2xl bg-zinc-900 p-8 ring-1 ring-white/[0.06]"><Loader2 className="mx-auto h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} /></div>}>
+        <Suspense fallback={<div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]"><Loader2 className="mx-auto h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} /></div>}>
           <ResetForm />
         </Suspense>
       </div>

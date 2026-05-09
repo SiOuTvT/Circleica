@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Trash2, Loader2 } from "lucide-react"
+import { Loader2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function AdminGameDeleteBtn({ id, title }: { id: string; title: string }) {
   const router = useRouter()
@@ -20,7 +20,7 @@ export function AdminGameDeleteBtn({ id, title }: { id: string; title: string })
   if (confirming) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="text-xs text-zinc-400">确认删除？</span>
+        <span className="text-xs text-muted-foreground">确认删除？</span>
         <button
           onClick={handleDelete}
           disabled={loading}
@@ -30,7 +30,7 @@ export function AdminGameDeleteBtn({ id, title }: { id: string; title: string })
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className="rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-500 ring-1 ring-white/[0.06] hover:text-zinc-300"
+          className="rounded-lg bg-secondary px-2.5 py-1.5 text-xs text-muted-foreground ring-1 ring-border hover:text-foreground"
         >
           取消
         </button>
@@ -42,7 +42,7 @@ export function AdminGameDeleteBtn({ id, title }: { id: string; title: string })
     <button
       onClick={() => setConfirming(true)}
       title={`删除 ${title}`}
-      className="flex items-center gap-1 rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-500 ring-1 ring-white/[0.06] transition-all hover:bg-red-500/10 hover:text-red-400"
+      className="flex items-center gap-1 rounded-lg bg-secondary px-2.5 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:bg-red-500/10 hover:text-red-400"
     >
       <Trash2 className="h-3 w-3" strokeWidth={1.5} />
     </button>

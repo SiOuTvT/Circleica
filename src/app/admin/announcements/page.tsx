@@ -19,7 +19,7 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <h1 className="text-lg font-bold text-zinc-100">公告管理</h1>
+      <h1 className="text-lg font-bold text-foreground">公告管理</h1>
       <AnnouncementsManager initialAnns={initial} />
     </div>
   )
