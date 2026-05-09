@@ -34,17 +34,16 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   ])
 
   if (!games.length) {
-    // 展示示例占位卡片（带图片和信息）
     const sampleTitles = ["星之梦", "Clannad", "Fate/stay night", "Rewrite", "Little Busters!", "Angel Beats!", "Kanon", "Air"]
-    const sampleCovers = [
-      "https://picsum.photos/seed/game1/400/480",
-      "https://picsum.photos/seed/game2/400/480",
-      "https://picsum.photos/seed/game3/400/480",
-      "https://picsum.photos/seed/game4/400/480",
-      "https://picsum.photos/seed/game5/400/480",
-      "https://picsum.photos/seed/game6/400/480",
-      "https://picsum.photos/seed/game7/400/480",
-      "https://picsum.photos/seed/game8/400/480",
+    const sampleDescs = [
+      "Key社经典催泪作品，讲述了一个机器人与少女在末日废墟中的短暂相遇与离别的故事。",
+      "以家族与爱情为主题的长篇视觉小说，描绘了冈崎朋也与古河渚之间感人至深的人生旅程。",
+      "TYPE-MOON的传奇之作，围绕圣杯战争展开的壮阔奇幻冒险，拥有多个令人难忘的故事线。",
+      "Key社又一力作，以「Rewrite」为主题，讲述了的的少年在超自然力量与日常之间的抉择。",
+      "以友情与青春为主题的群像剧，直枝理树与Little Busters的伙伴们共同经历的欢笑与泪水。",
+      "死后世界的少年少女们组成SSS战团反抗命运的感人故事，融合了战斗、喜剧与催泪元素。",
+      "Key社催泪三部曲之一，月宫亚由与相的祐一在雪之小镇重逢的冬日恋爱物语。",
+      "Key社催泪三部曲之二，国崎往人与神尾观铃之间跨越千年的翼人传说。",
     ]
     const sampleTags = [
       [{ name: "催泪", color: "#FF8FAB" }, { name: "治愈", color: "#FFB3C6" }],
@@ -59,14 +58,14 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     const placeholderGames = Array.from({ length: 8 }).map((_, i) => ({
       id: `placeholder-${i}`,
       title: sampleTitles[i],
-      coverImage: sampleCovers[i],
-      description: "这是一款精彩的同人游戏作品",
+      coverImage: "",
+      description: sampleDescs[i],
       tags: sampleTags[i],
-      favoriteCount: Math.floor(Math.random() * 200) + 10,
-      viewCount: Math.floor(Math.random() * 2000) + 100,
+      favoriteCount: 0,
+      viewCount: 0,
       isNsfw: false,
-      status: i % 3 === 0 ? "完结" : "连载中",
-      createdAt: new Date().toISOString(),
+      status: "",
+      createdAt: "",
     }))
     return <GameGridClient initialGames={placeholderGames} total={0} tag={tag} q={q} nsfw={nsfw} />
   }

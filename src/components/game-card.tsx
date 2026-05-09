@@ -1,6 +1,6 @@
 "use client"
 
-import { Eye, Heart } from "lucide-react"
+import { Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -19,24 +19,14 @@ export interface GameCardData {
   createdAt?: Date | string
 }
 
-const STATUS_CLS: Record<string, string> = {
-  完结:   "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  连载中: "bg-sky-500/20 text-sky-300 border-sky-500/30",
-  已弃坑: "bg-red-500/20 text-red-300 border-red-500/30",
-}
-
-function isNew(createdAt?: Date | string) {
-  if (!createdAt) return false
-  return Date.now() - new Date(createdAt).getTime() < 7 * 86400_000
-}
-
 export function GameCard({ game }: { game: GameCardData }) {
   const router = useRouter()
   const [showPreview, setShowPreview] = useState(false)
   const [previewPos, setPreviewPos]   = useState<"left" | "right">("right")
+  const [imgError, setImgError]       = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const isPlaceholder = !game.title
+  const isPlaceholder = game.id.startsWith("placeholder-")
 
   function handleMouseEnter() {
     if (isPlaceholder) return
@@ -132,30 +122,24 @@ export function GameCard({ game }: { game: GameCardData }) {
         
         {/* 封面区（上方 60%） */}
         <div className="absolute inset-0 bottom-[40%] overflow-hidden bg-muted">
-          {game.coverImage ? (
+          {game.coverImage && !imgError ? (
             <Image
               src={game.coverImage}
               alt={game.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              onError={() => setImgError(true)}
+              unoptimized
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">暂无封面</div>
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
+              <ImageOff className="w-8 h-8" strokeWidth={1} />
+            </div>
           )}
 
           {game.isNsfw && (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/65 backdrop-blur-[6px] transition-opacity duration-300 group-hover:opacity-0">
-              <span className="rounded-full border border-red-500/30 bg-red-500/20 px-2.5 py-0.5 text-[10px] font-bold text-red-300 backdrop-blur-sm">NSFW</span>
-            </div>
-          )}
-          {isNew(game.createdAt) && (
-            <span className="absolute left-2 top-2 rounded-full border border-amber-500/30 bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 backdrop-blur-sm">NEW</span>
-          )}
-          {game.status && (
-            <span className={`absolute right-2 top-2 rounded-full border px-2.5 py-0.5 text-[10px] font-bold backdrop-blur-sm ${STATUS_CLS[game.status] ?? "bg-zinc-800/20 text-zinc-400 border-zinc-500/30"}`}>
-              {game.status}
-            </span>
+            <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[8px] transition-opacity duration-300 group-hover:opacity-0" />
           )}
         </div>
 
@@ -181,7 +165,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       </Link>
 
       {/* Hover 预览弹窗 - 仅桌面端显示 */}
-      {showPreview && (
+      {showPreview && !isPlaceholder && (
         <div
           onMouseEnter={() => {
             if (timerRef.current) clearTimeout(timerRef.current)
@@ -232,11 +216,6 @@ export function GameCard({ game }: { game: GameCardData }) {
               <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
                 <Heart className="h-3.5 w-3.5" strokeWidth={2} />{game.favoriteCount}
               </span>
-              {game.status && (
-                <span className={`ml-auto rounded px-2 py-0.5 text-[11px] font-medium ${STATUS_CLS[game.status] ?? "bg-zinc-800 text-zinc-400"}`}>
-                  {game.status}
-                </span>
-              )}
             </div>
           </div>
         </div>

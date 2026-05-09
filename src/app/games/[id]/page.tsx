@@ -3,7 +3,7 @@ import { GameDetailActions } from "@/components/game-detail-actions"
 import { GameRating } from "@/components/game-rating"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Calendar, Download, ExternalLink, Eye } from "lucide-react"
+import { Calendar, CheckCircle2, Clock, Download, ExternalLink, Eye, XCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -137,6 +137,19 @@ export default async function GameDetailPage({
               <p className="text-base text-zinc-300 light:text-zinc-700">原作：{game.originalWork}</p>
             )}
             <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-400 light:text-zinc-600">
+              {game.status && (
+                <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  game.status === "完结" ? "bg-emerald-500/15 text-emerald-400" :
+                  game.status === "连载中" ? "bg-sky-500/15 text-sky-400" :
+                  game.status === "已弃坑" ? "bg-red-500/15 text-red-400" :
+                  "bg-zinc-500/15 text-zinc-400"
+                }`}>
+                  {game.status === "完结" ? <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} /> :
+                   game.status === "连载中" ? <Clock className="h-3.5 w-3.5" strokeWidth={2} /> :
+                   game.status === "已弃坑" ? <XCircle className="h-3.5 w-3.5" strokeWidth={2} /> : null}
+                  {game.status}
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
                 {game.viewCount} 次浏览
