@@ -48,8 +48,13 @@ export function GameCard({ game }: { game: GameCardData }) {
     }, 250) // 降低到 250ms，更快响应
   }
 
-  function handleMouseLeave() {
+  function handleMouseLeave(e: React.MouseEvent) {
     if (timerRef.current) clearTimeout(timerRef.current)
+    // 检查鼠标是否移到了预览弹窗上（relatedTarget 是鼠标移到的元素）
+    const relatedTarget = e.relatedTarget as HTMLElement | null
+    if (relatedTarget && cardRef.current?.contains(relatedTarget)) {
+      return // 鼠标还在卡片/预览区域内，不隐藏
+    }
     setShowPreview(false)
   }
 
@@ -141,8 +146,16 @@ export function GameCard({ game }: { game: GameCardData }) {
       {/* Hover 预览弹窗 - 增强视觉效果 */}
       {showPreview && (
         <div
+          onMouseEnter={() => {
+            // 鼠标进入预览弹窗时，取消隐藏定时器
+            if (timerRef.current) clearTimeout(timerRef.current)
+          }}
+          onMouseLeave={() => {
+            // 鼠标离开预览弹窗时，隐藏预览
+            setShowPreview(false)
+          }}
           className={[
-            "pointer-events-none absolute top-0 z-50 w-64 overflow-hidden rounded-2xl bg-popover/98 backdrop-blur-xl modal-enter",
+            "absolute top-0 z-50 w-64 overflow-hidden rounded-2xl bg-popover/98 backdrop-blur-xl modal-enter",
             previewPos === "right" ? "left-[calc(100%+12px)]" : "right-[calc(100%+12px)]",
           ].join(" ")}
           style={{

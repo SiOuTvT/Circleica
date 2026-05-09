@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
@@ -16,6 +16,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
   const [scrollY, setScrollY] = useState(0)
+  const [imgError, setImgError] = useState(false)
 
   // 监听滚动，实现视差效果
   useEffect(() => {
@@ -35,23 +36,39 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
     return () => clearInterval(t)
   }, [len, next])
 
+  // 切换公告时重置图片错误状态
+  useEffect(() => {
+    setImgError(false)
+  }, [cur])
+
   if (!len) return null
 
   const ann = announcements[cur]
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[180px] sm:h-[200px] lg:h-[220px] w-full overflow-hidden rounded-2xl">
+    <div className="relative h-[220px] sm:h-[260px] lg:h-[280px] w-full max-w-[66.667%] overflow-hidden rounded-2xl">
       {/* 背景图 - 视差滚动效果 */}
       <div className="absolute inset-0 bg-zinc-900">
-        {ann.imageUrl && (
+        {ann.imageUrl && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            key={ann.imageUrl}
             src={ann.imageUrl}
             alt=""
+            crossOrigin="anonymous"
             className="h-full w-full object-cover transition-all duration-700 ease-in-out"
-            style={{ transform: `translateY(${scrollY * 0.3}px) scale(1.1)` }}
+            style={{ transform: `translateY(${scrollY * 0.15}px) scale(1.1)` }}
+            onError={() => {
+              console.error("[AnnounceSwiper] 图片加载失败:", ann.imageUrl)
+              setImgError(true)
+            }}
+            onLoad={() => setImgError(false)}
           />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+            <ImageIcon className="h-12 w-12 text-zinc-700" strokeWidth={1} />
+          </div>
         )}
       </div>
       {/* 遮罩 */}
