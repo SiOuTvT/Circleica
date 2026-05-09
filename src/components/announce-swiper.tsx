@@ -4,6 +4,11 @@ import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
+/** 去除 HTML 标签，返回纯文本 */
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
+}
+
 interface Ann {
   id: string
   title: string
@@ -47,7 +52,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[220px] sm:h-[260px] lg:h-[280px] w-full max-w-[66.667%] overflow-hidden rounded-2xl">
+    <div className="relative h-[220px] sm:h-[260px] lg:h-[280px] w-full max-w-[66.667%] ml-auto overflow-hidden rounded-2xl">
       {/* 背景图 - 视差滚动效果 */}
       <div className="absolute inset-0 bg-zinc-900">
         {ann.imageUrl && !imgError ? (
@@ -71,9 +76,8 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           </div>
         )}
       </div>
-      {/* 遮罩 */}
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent" />
-      {ann.imageUrl && <div className="absolute inset-0 bg-zinc-950/40" />}
+      {/* 遮罩 - 仅底部渐变，保留图片原始色彩 */}
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent" />
 
       {/* 内容链接（z-0，在按钮下层） */}
       <Link
@@ -82,11 +86,11 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-0 flex flex-col justify-end p-5 sm:p-6"
       >
-        <strong className="text-base sm:text-lg font-bold leading-snug text-white line-clamp-1">
+        <strong className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug text-white line-clamp-1">
           {ann.title}
         </strong>
-        <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-white/80 line-clamp-2">
-          {ann.content.slice(0, 100)}{ann.content.length > 100 ? "…" : ""}
+        <p className="mt-1.5 text-sm sm:text-base leading-relaxed text-white/80 line-clamp-2">
+          {stripHtml(ann.content).slice(0, 100)}{stripHtml(ann.content).length > 100 ? "…" : ""}
         </p>
         <span className="mt-2 text-xs font-medium text-white/70">
           {ann.link ? "点击跳转 →" : "查看公告 →"}

@@ -34,7 +34,18 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   ])
 
   if (!games.length) {
-    return <div className="py-20 text-center text-sm text-muted-foreground">暂无游戏资源，管理员快去添加吧~</div>
+    // 展示占位卡片预览
+    const placeholderGames = [
+      { id: "demo-1", title: "东方Project · 绯想天", coverImage: "", description: "经典弹幕射击同人游戏，体验华丽的弹幕艺术", tags: [{ name: "弹幕", color: "#f472b6" }, { name: "东方", color: "#a78bfa" }], favoriteCount: 128, viewCount: 2048, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-2", title: "月姬 -A piece of blue glass moon-", coverImage: "", description: "TYPE-MOON经典视觉小说重制版", tags: [{ name: "视觉小说", color: "#60a5fa" }, { name: "剧情", color: "#34d399" }], favoriteCount: 256, viewCount: 4096, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-3", title: "寒蝉鸣泣之时", coverImage: "", description: "悬疑推理同人游戏，揭开雏见泽的真相", tags: [{ name: "悬疑", color: "#f87171" }, { name: "推理", color: "#fbbf24" }], favoriteCount: 89, viewCount: 1536, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-4", title: "Fate/stay night REMASTERED", coverImage: "", description: "命运之夜，圣杯战争的开幕", tags: [{ name: "视觉小说", color: "#60a5fa" }, { name: "战斗", color: "#fb923c" }], favoriteCount: 512, viewCount: 8192, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-5", title: "海猫鸣泣之时", coverImage: "", description: "寒蝉续作，魔女与推理的对决", tags: [{ name: "悬疑", color: "#f87171" }, { name: "推理", color: "#fbbf24" }], favoriteCount: 67, viewCount: 1024, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-6", title: "UNDERTALE 同人 · 黄色命运", coverImage: "", description: "UNDERTALE粉丝自制冒险RPG", tags: [{ name: "RPG", color: "#4ade80" }, { name: "冒险", color: "#38bdf8" }], favoriteCount: 203, viewCount: 3200, isNsfw: false, status: "连载中", createdAt: new Date().toISOString() },
+      { id: "demo-7", title: "东方地灵殿 · 精灵幻想", coverImage: "", description: "探索地底世界的弹幕冒险", tags: [{ name: "弹幕", color: "#f472b6" }, { name: "东方", color: "#a78bfa" }], favoriteCount: 95, viewCount: 1800, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+      { id: "demo-8", title: "尸体派对 · 同人续作", coverImage: "", description: "恐怖冒险同人游戏，天神小学的诅咒", tags: [{ name: "恐怖", color: "#ef4444" }, { name: "冒险", color: "#38bdf8" }], favoriteCount: 45, viewCount: 890, isNsfw: false, status: "完结", createdAt: new Date().toISOString() },
+    ]
+    return <GameGridClient initialGames={placeholderGames} total={placeholderGames.length} tag={tag} q={q} nsfw={nsfw} />
   }
 
   const mapped = games.map((g: any) => ({ ...g, tags: g.tags.map((t: any) => t.tag) }))

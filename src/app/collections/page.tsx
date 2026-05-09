@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
+export const dynamic = "force-dynamic"
 export const metadata = { title: "精选合集 · 同人游戏站" }
 
 export default async function CollectionsPage() {
