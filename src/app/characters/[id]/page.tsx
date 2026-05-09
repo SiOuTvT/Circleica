@@ -14,5 +14,5 @@ export default async function CharacterPage({ params }: { params: Promise<{ id: 
   const character = await vndbClient.getCharacterDetail(id)
   if (!character) notFound()
 
-  return <CharacterDetailClient character={character} />
+  return <CharacterDetailClient character={character} vndbId={id} />
 }

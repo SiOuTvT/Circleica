@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, Home } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -12,8 +12,13 @@ const ROUTE_NAMES: Record<string, string> = {
   profile: "用户",
   search: "搜索",
   login: "登录",
+  register: "注册",
   admin: "管理后台",
   characters: "角色",
+  announcements: "公告",
+  "forgot-password": "找回密码",
+  import: "导入",
+  comments: "评论",
 }
 
 export function Breadcrumb() {
@@ -45,8 +50,8 @@ export function Breadcrumb() {
 
   return (
     <nav className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
-      <Link href="/" className="flex items-center gap-1 transition-colors hover:text-foreground">
-        <Home className="h-3.5 w-3.5" strokeWidth={2} />
+      <Link href="/" className="transition-colors hover:text-foreground">
+        首页
       </Link>
       {crumbs.map((crumb, i) => (
         <span key={crumb.href} className="flex items-center gap-1.5">

@@ -164,8 +164,7 @@ export function GameCard({ game }: { game: GameCardData }) {
           <p className="line-clamp-2 text-[13px] sm:text-[15px] font-bold leading-snug text-card-foreground">{game.title}</p>
           <div className="flex flex-wrap gap-1 sm:gap-1.5">
             {game.tags.slice(0, 2).map((tag) => (
-              <span key={tag.name} className="rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-medium"
-                style={{ color: tag.color, background: `${tag.color}18`, boxShadow: `0 0 0 1px ${tag.color}20` }}>
+              <span key={tag.name} className="rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20">
                 {tag.name}
               </span>
             ))}
@@ -217,8 +216,7 @@ export function GameCard({ game }: { game: GameCardData }) {
                 {game.tags.map((tag) => (
                   <button
                     key={tag.name}
-                    className="pointer-events-auto rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-opacity hover:opacity-70"
-                    style={{ color: tag.color, background: `${tag.color}20`, boxShadow: `0 0 0 1px ${tag.color}20` }}
+                    className="pointer-events-auto rounded-full px-2.5 py-0.5 text-[12px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20 transition-opacity hover:opacity-70"
                     onClick={(e) => { e.preventDefault(); router.push(`/search?tag=${encodeURIComponent(tag.name)}`) }}
                   >
                     {tag.name}

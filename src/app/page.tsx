@@ -34,17 +34,38 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   ])
 
   if (!games.length) {
-    // 展示空占位卡片预览（纯视觉占位，无具体游戏信息）
+    // 展示示例占位卡片（带图片和信息）
+    const sampleTitles = ["星之梦", "Clannad", "Fate/stay night", "Rewrite", "Little Busters!", "Angel Beats!", "Kanon", "Air"]
+    const sampleCovers = [
+      "https://picsum.photos/seed/game1/400/480",
+      "https://picsum.photos/seed/game2/400/480",
+      "https://picsum.photos/seed/game3/400/480",
+      "https://picsum.photos/seed/game4/400/480",
+      "https://picsum.photos/seed/game5/400/480",
+      "https://picsum.photos/seed/game6/400/480",
+      "https://picsum.photos/seed/game7/400/480",
+      "https://picsum.photos/seed/game8/400/480",
+    ]
+    const sampleTags = [
+      [{ name: "催泪", color: "#FF8FAB" }, { name: "治愈", color: "#FFB3C6" }],
+      [{ name: "校园", color: "#FF8FAB" }, { name: "恋爱", color: "#FFB3C6" }],
+      [{ name: "奇幻", color: "#FF8FAB" }, { name: "战斗", color: "#FFB3C6" }],
+      [{ name: "催泪", color: "#FF8FAB" }, { name: "校园", color: "#FFB3C6" }],
+      [{ name: "日常", color: "#FF8FAB" }, { name: "友情", color: "#FFB3C6" }],
+      [{ name: "催泪", color: "#FF8FAB" }, { name: "奇幻", color: "#FFB3C6" }],
+      [{ name: "恋爱", color: "#FF8FAB" }, { name: "催泪", color: "#FFB3C6" }],
+      [{ name: "治愈", color: "#FF8FAB" }, { name: "奇幻", color: "#FFB3C6" }],
+    ]
     const placeholderGames = Array.from({ length: 8 }).map((_, i) => ({
       id: `placeholder-${i}`,
-      title: "",
-      coverImage: "",
-      description: "",
-      tags: [] as { name: string; color: string }[],
-      favoriteCount: 0,
-      viewCount: 0,
+      title: sampleTitles[i],
+      coverImage: sampleCovers[i],
+      description: "这是一款精彩的同人游戏作品",
+      tags: sampleTags[i],
+      favoriteCount: Math.floor(Math.random() * 200) + 10,
+      viewCount: Math.floor(Math.random() * 2000) + 100,
       isNsfw: false,
-      status: "",
+      status: i % 3 === 0 ? "完结" : "连载中",
       createdAt: new Date().toISOString(),
     }))
     return <GameGridClient initialGames={placeholderGames} total={0} tag={tag} q={q} nsfw={nsfw} />
@@ -100,15 +121,7 @@ export default async function HomePage({
         {/* 右侧公告区（手机端显示在最上面）*/}
         {announcements.length > 0 && (
           <div className="lg:col-span-1 order-1 lg:order-2 w-full">
-            <div className="rounded-2xl bg-card/60 backdrop-blur-sm ring-1 ring-border relative overflow-hidden"
-              style={{
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)',
-              }}
-            >
-              {/* 顶部高光边 */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent z-10" />
-              <AnnounceSwiper announcements={announcements} />
-            </div>
+            <AnnounceSwiper announcements={announcements} />
           </div>
         )}
       </div>

@@ -92,7 +92,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <a href={`https://vndb.org/s${vndbId}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
-                  <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
+                  <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB · s{vndbId}
                 </a>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               <a href={`https://vndb.org/p${vndbId}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
-                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
+                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB · p{vndbId}
               </a>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
             {creator.vndbId && (
               <a href={`https://vndb.org/p${creator.vndbId}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900">
-                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB
+                <Database className="h-3.5 w-3.5" strokeWidth={2} />VNDB · p{creator.vndbId}
               </a>
             )}
             {creator.twitterUrl && (

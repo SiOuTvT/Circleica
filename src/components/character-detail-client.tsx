@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2, RefreshCw } from "lucide-react"
+import { Database, Loader2, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -43,7 +43,7 @@ const genderMap: Record<string, string> = {
   "": "未知",
 }
 
-export function CharacterDetailClient({ character }: { character: CharacterData }) {
+export function CharacterDetailClient({ character, vndbId }: { character: CharacterData; vndbId?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [translated, setTranslated] = useState<string | null>(null)
@@ -91,14 +91,20 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
 
           <div className="flex flex-wrap gap-2 mb-4">
             {character.role && (
-              <span className="rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-3 py-1 text-xs font-medium text-purple-400 ring-1 ring-purple-500/30">
+              <span className="rounded-full bg-pink-400/15 px-3 py-1 text-xs font-medium text-pink-400 ring-1 ring-pink-400/25">
                 {roleMap[character.role] || character.role}
               </span>
             )}
             {character.vnTitle && (
-              <span className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08]">
+              <span className="rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20">
                 {character.vnTitle}
               </span>
+            )}
+            {vndbId && (
+              <a href={`https://vndb.org/${vndbId}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20 transition-all hover:bg-pink-400/20 hover:text-pink-200">
+                <Database className="h-3 w-3" strokeWidth={2} />VNDB · {vndbId}
+              </a>
             )}
           </div>
 
@@ -132,7 +138,7 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
             <div className="mb-3">
               <div className="flex flex-wrap gap-1.5">
                 {character.aliases.slice(0, 8).map((alias, i) => (
-                  <span key={i} className="rounded-full bg-zinc-800/80 light:bg-zinc-100 px-2.5 py-0.5 text-[11px] text-zinc-400 light:text-zinc-500 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+              <span key={i} className="rounded-full bg-pink-400/10 px-2.5 py-0.5 text-[11px] text-pink-300 ring-1 ring-pink-400/20">
                     {alias}
                   </span>
                 ))}
@@ -146,12 +152,12 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
       {character.traits && character.traits.length > 0 && (
         <section className="mb-6">
           <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400" />
+            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
             角色特征
           </h2>
           <div className="flex flex-wrap gap-2">
             {character.traits.map((trait, i) => (
-              <span key={i} className="rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-3 py-1 text-xs font-medium text-purple-300 light:text-purple-600 ring-1 ring-purple-500/20">
+              <span key={i} className="rounded-full bg-pink-400/10 px-3 py-1 text-xs font-medium text-pink-300 ring-1 ring-pink-400/20">
                 {trait.name}
               </span>
             ))}
@@ -165,8 +171,8 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
         return (
           <section className="mb-6">
             <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-zinc-200 light:text-zinc-800">
-              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-purple-400 to-pink-400" />
-              角色简介
+            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
+            角色简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
               {translated && (
                 <button
@@ -191,7 +197,7 @@ export function CharacterDetailClient({ character }: { character: CharacterData 
         <button
           onClick={refresh}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-6 py-3 text-sm font-medium text-purple-300 light:text-purple-600 ring-1 ring-purple-500/30 transition-all hover:from-purple-500/30 hover:to-pink-500/30 hover:text-purple-200 light:hover:text-purple-700 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-pink-400/15 px-6 py-3 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition-all hover:bg-pink-400/25 hover:text-pink-200 disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           换一个角色
