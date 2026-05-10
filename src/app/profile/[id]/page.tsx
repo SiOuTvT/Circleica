@@ -1,3 +1,5 @@
+import { AvatarFrame } from "@/components/avatar-frame"
+import { AvatarFrameSelector } from "@/components/avatar-frame-selector"
 import { ProfileGameTabs } from "@/components/profile-game-tabs"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -83,21 +85,23 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         <div className="p-4 sm:p-6">
           {/* 头像 + 信息 + 按钮 横向布局 */}
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
-            {/* 头像 */}
+            {/* 头像（带头像框） */}
             <div className={cn(
               "flex shrink-0 justify-center sm:justify-start",
               user.banner ? "-mt-16 sm:-mt-12" : ""
             )}>
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.username} className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-cover ring-4 ring-card shadow-lg" />
-              ) : (
-                <div 
-                  className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl text-3xl sm:text-4xl font-bold text-white ring-4 ring-card shadow-lg"
-                  style={{ backgroundColor: getRandomAvatarColor(user.username) }}
-                >
-                  {user.username[0].toUpperCase()}
-                </div>
-              )}
+              <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={96}>
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.username} className="h-full w-full object-cover rounded-full" />
+                ) : (
+                  <div
+                    className="flex h-full w-full items-center justify-center rounded-full text-3xl sm:text-4xl font-bold text-white"
+                    style={{ backgroundColor: getRandomAvatarColor(user.username) }}
+                  >
+                    {user.username[0].toUpperCase()}
+                  </div>
+                )}
+              </AvatarFrame>
             </div>
 
             {/* 用户信息 */}
@@ -129,6 +133,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 <Link href="/profile/edit#password" className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground">
                   <KeyRound className="h-3.5 w-3.5" strokeWidth={2} />修改密码
                 </Link>
+                <AvatarFrameSelector
+                  currentFrame={(user as any).avatarFrame || "none"}
+                  userImage={user.avatar}
+                  userName={user.username}
+                />
               </div>
             )}
           </div>

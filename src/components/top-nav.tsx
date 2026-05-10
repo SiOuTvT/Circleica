@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { AvatarFrame } from "@/components/avatar-frame"
 import { cn } from "@/lib/utils"
 import {
   CalendarCheck,
@@ -36,7 +37,7 @@ function setCookie(name: string, value: string) {
 export function TopNav() {
   const router = useRouter()
   const { data: session } = useSession()
-  const user = session?.user
+  const user = session?.user as any
 
   const [menuOpen, setMenuOpen]   = useState(false)
   const [userOpen, setUserOpen]   = useState(false)
@@ -201,10 +202,12 @@ export function TopNav() {
                     "ring-zinc-500/30 hover:ring-zinc-400/50"
                   )}
                 >
-                  {user.image
-                    ? <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover" />
-                    : <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
-                  }
+                  <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
+                    {user.image
+                      ? <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
+                      : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
+                    }
+                  </AvatarFrame>
                 </button>
 
                 {userOpen && (

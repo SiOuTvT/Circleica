@@ -359,68 +359,55 @@ class VNDBClient {
       image?: string
     }>
   } | null> {
-    try {
-      console.log("[VNDB] 开始获取随机 staff 创作者...")
-      
-      const searchTerms = ["あ", "か", "さ", "た", "な", "は", "ま", "や", "ら", "わ", "い", "き", "し", "ち", "に", "ひ", "み", "り", "う", "く", "す", "つ", "ぬ", "ふ", "む", "ゆ", "る", "え", "お", "け", "こ", "せ", "そ", "て", "と", "ね", "の", "へ", "ほ", "め", "も", "よ", "れ", "ろ", "を", "ん"]
-      const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)]
-      
-      const data = await this.sendRequest("staff", {
-        filters: ["search", "=", randomTerm],
-        fields: "id,name,original,description,gender,vns.id,vns.title,vns.original,vns.role,vns.rating",
-        results: 25,
-      })
-      
-      const staffList = (data.results || []).filter((s: any) => s.vns && s.vns.length > 0)
-      if (staffList.length === 0) {
-        console.log("[VNDB] 未找到 staff 数据")
-        return null
-      }
-      
-      const staff = staffList[Math.floor(Math.random() * staffList.length)]
-      console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id})`)
-      
-      // 批量获取 VN 封面图
-      const vnIds = (staff.vns || []).map((vn: any) => vn.id)
-      const vnImages: Record<string, string> = {}
-      if (vnIds.length > 0) {
-        try {
-          const vnData = await this.sendRequest("vn", {
-            filters: ["id", "=", vnIds],
-            fields: "id,image.url",
-            results: vnIds.length,
-          })
-          for (const vn of vnData.results || []) {
-            if (vn.image?.url) vnImages[vn.id] = vn.image.url
+    const searchTerms = [
+      "あ", "か", "さ", "た", "な", "は", "ま", "や", "ら", "わ",
+      "い", "き", "し", "ち", "に", "ひ", "み", "り",
+      "う", "く", "す", "つ", "ぬ", "ふ", "む", "ゆ", "る",
+      "え", "お", "け", "こ", "せ", "そ", "て", "と", "ね", "の",
+      // 也加入一些常见英文名字做搜索
+      "a", "s", "m", "k", "t", "n", "h", "r", "y", "w"
+    ]
+    
+    // 打乱顺序，尝试最多 3 个不同的搜索词
+    const shuffled = [...searchTerms].sort(() => Math.random() - 0.5)
+    const attempts = shuffled.slice(0, 3)
+    
+    for (const term of attempts) {
+      try {
+        console.log(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
+        
+        const data = await this.sendRequest("staff", {
+          filters: ["search", "=", term],
+          fields: "id,name,original,description,gender",
+          results: 25,
+        })
+        
+        const staffList = (data.results || []).filter((s: any) => s.id)
+        if (staffList.length > 0) {
+          const staff = staffList[Math.floor(Math.random() * staffList.length)]
+          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id})`)
+          
+          return {
+            id: staff.id,
+            name: staff.name,
+            original: staff.original,
+            description: staff.description,
+            gender: staff.gender,
+            vndbId: staff.id.replace("s", ""),
+            roles: [],
+            vns: [],
           }
-        } catch { /* ignore image fetch errors */ }
+        }
+        
+        console.log(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
+      } catch (error) {
+        console.warn(`[VNDB] 关键词 "${term}" 搜索失败:`, error instanceof Error ? error.message : error)
+        // 继续尝试下一个关键词
       }
-      
-      const roles = [...new Set((staff.vns || []).map((vn: any) => vn.role))] as string[]
-      
-      const vns = (staff.vns || []).map((vn: any) => ({
-        id: vn.id,
-        title: vn.title,
-        original: vn.original,
-        role: vn.role,
-        rating: vn.rating,
-        image: vnImages[vn.id] || "",
-      }))
-      
-      return {
-        id: staff.id,
-        name: staff.name,
-        original: staff.original,
-        description: staff.description,
-        gender: staff.gender,
-        vndbId: staff.id.replace("s", ""),
-        roles,
-        vns,
-      }
-    } catch (error) {
-      console.error("[VNDB] Failed to fetch random staff:", error)
-      return null
     }
+    
+    console.warn("[VNDB] 所有搜索关键词均未获取到 staff 数据")
+    return null
   }
 
   /**
@@ -448,40 +435,13 @@ class VNDBClient {
       return await cached(key, async () => {
         const data = await this.sendRequest("staff", {
           filters: ["id", "=", `s${vndbId}`],
-          fields: "id,name,original,description,gender,vns.id,vns.title,vns.original,vns.role,vns.rating",
+          fields: "id,name,original,description,gender",
           results: 1,
         })
         
         if (!data.results || data.results.length === 0) return null
         
         const staff = data.results[0]
-        
-        // 批量获取 VN 封面图
-        const vnIds = (staff.vns || []).map((vn: any) => vn.id)
-        const vnImages: Record<string, string> = {}
-        if (vnIds.length > 0) {
-          try {
-            const vnData = await this.sendRequest("vn", {
-              filters: ["id", "=", vnIds],
-              fields: "id,image.url",
-              results: vnIds.length,
-            })
-            for (const vn of vnData.results || []) {
-              if (vn.image?.url) vnImages[vn.id] = vn.image.url
-            }
-          } catch { /* ignore image fetch errors */ }
-        }
-        
-        const roles = [...new Set((staff.vns || []).map((vn: any) => vn.role))] as string[]
-        
-        const vns = (staff.vns || []).map((vn: any) => ({
-          id: vn.id,
-          title: vn.title,
-          original: vn.original,
-          role: vn.role,
-          rating: vn.rating,
-          image: vnImages[vn.id] || "",
-        }))
         
         return {
           id: staff.id,
@@ -490,8 +450,8 @@ class VNDBClient {
           description: staff.description,
           gender: staff.gender,
           vndbId: staff.id.replace("s", ""),
-          roles,
-          vns,
+          roles: [],
+          vns: [],
         }
       }, this.CACHE_TTL)
     } catch (error) {

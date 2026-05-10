@@ -1,8 +1,8 @@
-import NextAuth from "next-auth"
-import Credentials from "next-auth/providers/credentials"
+import { prisma } from "@/lib/prisma"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
+import NextAuth from "next-auth"
+import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -41,23 +41,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id    = user.id
         token.name  = user.name
         token.image = user.image
+        // 从数据库读取头像框
+        const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
+        token.avatarFrame = (dbUser as any)?.avatarFrame ?? "none"
       }
-      // 用户更新头像后手动刺新 session
-      if (trigger === "update" && session?.image) {
-        token.image = session.image
+      // 用户更新后刷新 session
+      if (trigger === "update" && session) {
+        if (session.image) token.image = session.image
+        if (session.avatarFrame) token.avatarFrame = session.avatarFrame
       }
       return token
     },
     session({ session, token }) {
       if (token) {
-        session.user.id    = token.id as string
-        session.user.name  = token.name
-        session.user.image = token.image as string | null
+        session.user.id          = token.id as string
+        session.user.name        = token.name
+        session.user.image       = token.image as string | null
+        ;(session.user as any).avatarFrame = (token as any).avatarFrame ?? "none"
       }
       return session
     },

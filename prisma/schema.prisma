@@ -14,6 +14,7 @@ model User {
   email         String         @unique
   password      String
   avatar        String         @default("")
+  avatarFrame   String         @default("none")
   banner        String         @default("")
   bio           String         @default("")
   role          String         @default("USER")
