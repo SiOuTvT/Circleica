@@ -127,7 +127,7 @@ export function TopNav() {
         )} />
         
         {/* 论坛按钮 - 固定在左侧留白区域（容器外）*/}
-          <button
+        <button
           onClick={() => {
             // 手机端：直接跳转到求档中心页面
             if (window.innerWidth < 1024) {
@@ -138,10 +138,10 @@ export function TopNav() {
             }
           }}
           className={cn(
-            "fixed top-0 left-0 z-[60] flex h-12 w-12 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+            "fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
             theme === "dark"
               ? "bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
-              : "bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-600"
+              : "bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-400"
           )}
           style={{
             backdropFilter: 'blur(24px)',
@@ -161,13 +161,11 @@ export function TopNav() {
             <button
               onClick={() => setMenuOpen(v => !v)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                theme === "dark" 
-                  ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
-                  : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
+                "flex h-11 w-11 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+                "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
               )}
             >
-              <Menu className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+              <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </button>
             {menuOpen && (
               <div className={cn(
@@ -201,21 +199,17 @@ export function TopNav() {
           {/* 右侧 */}
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-              theme === "dark" 
-                ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
-                : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
+              "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+              "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
             )}>
-              <Search className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+              <Search className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </Link>
 
             <button onClick={toggleTheme} className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-              theme === "dark" 
-                ? "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-300"
-                : "text-zinc-600 hover:bg-black/[0.04] hover:text-zinc-800"
+              "flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+              "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
             )}>
-              {theme === "light" ? <Sun className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
+              {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 
             {user ? (
@@ -223,10 +217,8 @@ export function TopNav() {
                 <button
                   onClick={() => setUserOpen(v => !v)}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                    theme === "dark" 
-                      ? "ring-white/10 hover:ring-white/25"
-                      : "ring-black/10 hover:ring-black/25"
+                    "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-1 transition-all lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+                    "ring-zinc-500/20 hover:ring-zinc-500/40"
                   )}
                 >
                   {user.image
@@ -323,9 +315,7 @@ export function TopNav() {
               <div className="ml-1">
                 <Link href="/login" className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                  theme === "dark"
-                    ? "text-zinc-400 hover:text-zinc-200"
-                    : "text-zinc-600 hover:text-zinc-900"
+                  "text-zinc-500 hover:text-zinc-400"
                 )}>
                   登录
                 </Link>
