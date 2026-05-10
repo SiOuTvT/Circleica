@@ -139,15 +139,11 @@ export function TopNav() {
           }}
           className={cn(
             "fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all btn-spring lg:top-0 lg:left-0 lg:h-14 lg:w-14 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-            theme === "dark"
-              ? "bg-zinc-950/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
-              : "bg-white/85 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-400"
+            "bg-zinc-900/85 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-400"
           )}
           style={{
             backdropFilter: 'blur(24px)',
-            boxShadow: theme === "dark"
-              ? '0 0 0 1px rgba(255,255,255,0.04), 1px 0 0 rgba(255,255,255,0.04), 0 1px 0 rgba(255,255,255,0.04)'
-              : '0 0 0 1px rgba(0,0,0,0.04), 1px 0 0 rgba(0,0,0,0.04), 0 1px 0 rgba(0,0,0,0.04)',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 1px 0 0 rgba(255,255,255,0.04), 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
