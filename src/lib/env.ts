@@ -22,10 +22,27 @@ const envSchema = z.object({
     .optional()
     .default("http://localhost:3000"),
 
-  // UploadThing
-  UPLOADTHING_TOKEN: z
+  // Cloudflare R2 (S3 兼容文件存储)
+  R2_ACCOUNT_ID: z
     .string()
-    .min(1, "UPLOADTHING_TOKEN 不能为空"),
+    .min(1, "R2_ACCOUNT_ID 不能为空")
+    .optional(),
+  R2_ACCESS_KEY_ID: z
+    .string()
+    .min(1, "R2_ACCESS_KEY_ID 不能为空")
+    .optional(),
+  R2_SECRET_ACCESS_KEY: z
+    .string()
+    .min(1, "R2_SECRET_ACCESS_KEY 不能为空")
+    .optional(),
+  R2_BUCKET_NAME: z
+    .string()
+    .min(1, "R2_BUCKET_NAME 不能为空")
+    .optional(),
+  R2_PUBLIC_URL: z
+    .string()
+    .url("R2_PUBLIC_URL 必须是有效的 URL")
+    .optional(),
 
   // Upstash Redis（可选，不配置时使用内存缓存）
   UPSTASH_REDIS_REST_URL: z
@@ -81,7 +98,6 @@ function validateEnv() {
       DATABASE_URL: process.env.DATABASE_URL || "",
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "dev-secret-placeholder-min-32-chars-long",
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
-      UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN || "",
       UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
       UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
       SENTRY_DSN: process.env.SENTRY_DSN,

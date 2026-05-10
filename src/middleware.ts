@@ -8,7 +8,7 @@ function buildCSP(nonce: string): string {
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https: http:`,
     `font-src 'self' data:`,
-    `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.uploadthing.com https://*.uploadthing.io https://api.uploadthing.com`,
+    `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

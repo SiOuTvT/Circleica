@@ -1,59 +1,73 @@
 import { auth } from "@/lib/auth"
-import crypto from "crypto"
-import { mkdir, writeFile } from "fs/promises"
-import { NextRequest, NextResponse } from "next/server"
-import path from "path"
+import { NextResponse } from "next/server"
 
-export async function POST(req: NextRequest) {
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB for base64 storage
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/avif",
+  "image/svg+xml",
+]
+
+/**
+ * 文件上传 API
+ * 将图片转为 base64 data URI 存储，零配置，不需要任何外部服务
+ * 适合少量图片场景（公告图、头像等，< 20 张）
+ */
+export async function POST(request: Request) {
   try {
-    // 验证登录
     const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "未登录" }, { status: 401 })
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "请先登录" }, { status: 401 })
     }
 
-    const formData = await req.formData()
+    const formData = await request.formData()
     const file = formData.get("file") as File | null
 
     if (!file) {
-      return NextResponse.json({ error: "未选择文件" }, { status: 400 })
+      return NextResponse.json({ error: "未找到文件" }, { status: 400 })
     }
 
     // 验证文件类型
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ error: "只能上传图片文件" }, { status: 400 })
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: `不支持的文件类型: ${file.type}。支持: JPEG, PNG, GIF, WebP` },
+        { status: 400 }
+      )
     }
 
-    // 验证文件大小 (最大 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "文件大小不能超过 10MB" }, { status: 400 })
+    // 验证文件大小
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `文件太大: ${(file.size / 1024 / 1024).toFixed(1)}MB，最大 2MB` },
+        { status: 400 }
+      )
     }
 
-    // 生成唯一文件名
-    const ext = file.name.split(".").pop() || "jpg"
-    const hash = crypto.randomBytes(8).toString("hex")
-    const timestamp = Date.now()
-    const fileName = `${timestamp}-${hash}.${ext}`
+    // 转为 base64 data URI
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const base64 = buffer.toString("base64")
+    const dataUri = `data:${file.type};base64,${base64}`
 
-    // 按年月分目录
-    const now = new Date()
-    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
-    const uploadDir = path.join(process.cwd(), "public", "uploads", yearMonth)
+    console.log(`✓ 图片已转为 base64: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`)
 
-    // 确保目录存在
-    await mkdir(uploadDir, { recursive: true })
-
-    // 写入文件
-    const filePath = path.join(uploadDir, fileName)
-    const bytes = await file.arrayBuffer()
-    await writeFile(filePath, Buffer.from(bytes))
-
-    // 返回可访问的 URL
-    const url = `/uploads/${yearMonth}/${fileName}`
-
-    return NextResponse.json({ url })
+    return NextResponse.json({
+      url: dataUri,
+      key: `base64-${Date.now()}`,
+      size: file.size,
+      type: file.type,
+    })
   } catch (error) {
     console.error("上传失败:", error)
-    return NextResponse.json({ error: "上传失败，请重试" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "上传失败",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

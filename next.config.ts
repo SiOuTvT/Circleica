@@ -4,9 +4,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // UploadThing CDN (文件上传服务)
-      { protocol: "https", hostname: "utfs.io" },
-      { protocol: "https", hostname: "*.ufs.sh" },
+      // Cloudflare R2 (图片/文件存储)
+      // 如果你绑定了自定义域名到 R2 bucket，填入对应域名
+      { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
+      // 如果 R2_PUBLIC_URL 使用的是自定义域名（如 assets.example.com），
+      // 请在此处添加对应的 remotePattern：
+      // { protocol: "https", hostname: "assets.example.com" },
       // VNDB (视觉小说数据库)
       { protocol: "https", hostname: "static.vndb.org" },
       { protocol: "https", hostname: "t.vndb.org" },
