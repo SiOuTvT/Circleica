@@ -42,7 +42,7 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "1fr" }}>
         {games.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}

@@ -44,7 +44,9 @@ async function SearchResults({
     take: 60,
     select: {
       id: true, title: true, coverImage: true, status: true,
-      isNsfw: true, favoriteCount: true, viewCount: true, createdAt: true,
+      isNsfw: true, favoriteCount: true, viewCount: true,
+      downloadCount: true, platform: true, language: true, fileSize: true,
+      updatedAt: true, createdAt: true,
       description: true,
       tags: { select: { tag: { select: { name: true, color: true } } } },
     },
@@ -68,9 +70,9 @@ async function SearchResults({
   return (
     <>
       <p className="mb-4 text-xs text-zinc-600">找到 {games.length} 个结果</p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" style={{ gridAutoRows: "1fr" }}>
         {games.map((game) => (
-          <GameCard key={game.id} game={{ ...game, tags: game.tags.map((t) => t.tag) }} />
+          <GameCard key={game.id} game={{ ...game, tags: game.tags.map((t: any) => t.tag) }} />
         ))}
       </div>
     </>
@@ -79,7 +81,7 @@ async function SearchResults({
 
 function ResultsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" style={{ gridAutoRows: "1fr" }}>
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )

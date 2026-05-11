@@ -1,10 +1,9 @@
 "use client"
 
-import { Eye, Heart, ImageOff } from "lucide-react"
+import { Calendar, Download, Eye, Globe, HardDrive, Heart, ImageOff, Monitor } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 export interface GameCardData {
   id: string
@@ -14,199 +13,164 @@ export interface GameCardData {
   tags: { name: string; color: string }[]
   favoriteCount: number
   viewCount?: number
+  downloadCount?: number
+  platform?: string
+  language?: string
+  fileSize?: string
+  updatedAt?: Date | string
+  createdAt?: Date | string
   isNsfw: boolean
   status: string
-  createdAt?: Date | string
+}
+
+/* ─── 薄荷青标签 ─── */
+function MintTag({ icon, text }: { icon: React.ReactNode; text: string }) {
+  if (!text) return null
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[10px] font-medium leading-none"
+      style={{
+        backgroundColor: "rgba(167, 243, 208, 0.15)",
+        color: "rgb(5, 150, 105)",
+      }}
+    >
+      {icon}
+      {text}
+    </span>
+  )
+}
+
+/* ─── 格式化日期 ─── */
+function formatDate(d?: Date | string): string {
+  if (!d) return ""
+  const date = typeof d === "string" ? new Date(d) : d
+  if (isNaN(date.getTime())) return ""
+  return date.toISOString().slice(0, 10)
 }
 
 export function GameCard({ game }: { game: GameCardData }) {
-  const router = useRouter()
-  const [showPreview, setShowPreview] = useState(false)
-  const [previewPos, setPreviewPos]   = useState<"left" | "right">("right")
-  const [imgError, setImgError]       = useState(false)
-  const cardRef = useRef<HTMLDivElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  function handleMouseEnter() {
-    timerRef.current = setTimeout(() => {
-      if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect()
-        setPreviewPos(rect.left > window.innerWidth / 2 ? "left" : "right")
-      }
-      setShowPreview(true)
-    }, 250)
-  }
+  const [imgError, setImgError] = useState(false)
+  const [showDesc, setShowDesc] = useState(false)
 
-  function handleMouseLeave(e: React.MouseEvent) {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    const relatedTarget = e.relatedTarget as HTMLElement | null
-    if (relatedTarget && cardRef.current?.contains(relatedTarget)) {
-      return
-    }
-    setShowPreview(false)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
+  const viewStr = game.viewCount != null ? String(game.viewCount) : ""
+  const dlStr = game.downloadCount != null ? String(game.downloadCount) : ""
+  const favStr = game.favoriteCount != null ? String(game.favoriteCount) : ""
+  const dateStr = formatDate(game.updatedAt || game.createdAt)
 
   return (
-    <div
-      ref={cardRef}
-      className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <Link
+      href={`/games/${game.id}`}
+      className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/10 transition-transform duration-300 hover:-translate-y-1 active:scale-[0.98]"
+      style={{
+        background: "hsl(var(--card))",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)",
+      }}
+      onMouseEnter={() => setShowDesc(true)}
+      onMouseLeave={() => setShowDesc(false)}
     >
-      <Link
-        href={`/games/${game.id}`}
-        className="group relative block overflow-hidden rounded-[14px] card-spring"
-      >
-        {/* 内发光边框层 */}
-        <div className="absolute inset-0 rounded-[14px] pointer-events-none z-10"
-          style={{
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3)',
-          }} 
-        />
-        
-        {/* 背景层 */}
-        <div className="absolute inset-0 bg-card rounded-[14px]" />
-        
-        {/* 投影层 */}
-        <div className="absolute inset-0 rounded-[14px] transition-all duration-300 group-hover:shadow-[0_2px_4px_rgba(0,0,0,0.1),0_8px_16px_rgba(0,0,0,0.15),0_16px_32px_rgba(0,0,0,0.2)]"
-          style={{
-            boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.1)',
-          }}
-        />
-        
-        {/* 封面区（固定高度） */}
-        <div className="relative w-full overflow-hidden bg-muted" style={{ paddingBottom: "60%" }}>
-          {game.coverImage && !imgError ? (
-            <Image
-              src={game.coverImage}
-              alt={game.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              onError={() => setImgError(true)}
-              unoptimized
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
-              <ImageOff className="w-8 h-8" strokeWidth={1} />
-            </div>
-          )}
+      {/* ─── 封面图 60% ─── */}
+      <div className="relative w-full" style={{ paddingBottom: "80%" }}>
+        {game.coverImage && !imgError ? (
+          <Image
+            src={game.coverImage}
+            alt={game.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            onError={() => setImgError(true)}
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
+            <ImageOff className="w-10 h-10" strokeWidth={1} />
+          </div>
+        )}
 
-          {game.isNsfw && (
-            <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[8px] transition-opacity duration-300 group-hover:opacity-0" />
-          )}
+        {/* NSFW 遮罩 */}
+        {game.isNsfw && (
+          <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[8px] transition-opacity duration-300 group-hover:opacity-0" />
+        )}
+
+        {/* 悬停时简介 overlay（磨砂玻璃） */}
+        {game.description && showDesc && (
+          <div className="absolute inset-0 flex items-end p-3 bg-black/40 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <p className="text-[11px] leading-relaxed text-white/80 line-clamp-4">
+              {game.description}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ─── 文字信息区 40% ─── */}
+      <div className="flex flex-1 flex-col px-3 py-3 sm:px-4 sm:py-4 gap-0">
+
+        {/* 第一层 · 标题 (40%) */}
+        <div className="flex items-center min-h-0 flex-shrink-0 mb-2">
+          <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug text-foreground line-clamp-2">
+            {game.title}
+          </h3>
         </div>
 
-        {/* 信息条（自适应高度） - 手机端和桌面端显示相同内容 */}
-        <div className="flex flex-col gap-1.5 sm:gap-2 bg-card px-2 sm:px-3 py-2 sm:py-2.5">
-          <p className="line-clamp-2 text-[13px] sm:text-[15px] font-bold leading-snug text-card-foreground">{game.title}</p>
-          <div className="flex flex-wrap gap-1 sm:gap-1.5">
-            {game.tags.slice(0, 2).map((tag) => (
-              <span key={tag.name} className="rounded-full px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20">
-                {tag.name}
-              </span>
-            ))}
+        {/* 第二层 · 人气数据 (20%) - 薄荷青标签 */}
+        {(viewStr || dlStr || favStr) && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {viewStr && <MintTag icon={<Eye className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={viewStr} />}
+            {dlStr && <MintTag icon={<Download className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={dlStr} />}
+            {favStr && <MintTag icon={<Heart className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={favStr} />}
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
-              <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.viewCount ?? 0}
-            </span>
-            <span className="flex items-center gap-0.5 sm:gap-1 text-[11px] sm:text-[12px] text-muted-foreground">
-              <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />{game.favoriteCount}
-            </span>
+        )}
+
+        {/* 第三层 · 硬核参数 (25%) - 薄荷青标签 */}
+        {(game.platform || game.language || game.fileSize) && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {game.platform && <MintTag icon={<Monitor className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.platform} />}
+            {game.language && <MintTag icon={<Globe className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.language} />}
+            {game.fileSize && <MintTag icon={<HardDrive className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.fileSize} />}
           </div>
-        </div>
-      </Link>
+        )}
 
-      {/* Hover 预览弹窗 - 仅桌面端显示 */}
-      {showPreview && (
-        <div
-          onMouseEnter={() => {
-            if (timerRef.current) clearTimeout(timerRef.current)
-          }}
-          onMouseLeave={() => {
-            setShowPreview(false)
-          }}
-          className={[
-            "absolute top-0 z-50 w-64 overflow-hidden rounded-2xl bg-popover/98 backdrop-blur-xl modal-enter hidden lg:block",
-            previewPos === "right" ? "left-[calc(100%+12px)]" : "right-[calc(100%+12px)]",
-          ].join(" ")}
-          style={{
-            boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-          }}
-        >
-          {game.coverImage && (
-            <div className="relative h-32 w-full overflow-hidden">
-              <Image src={game.coverImage} alt={game.title} fill className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-popover/80 to-transparent" />
-            </div>
-          )}
+        {/* 弹性留白 */}
+        <div className="flex-1" />
 
-          <div className="p-3 space-y-2">
-            <p className="text-lg font-bold text-popover-foreground leading-snug">{game.title}</p>
-
-            {game.description && (
-              <p className="text-[13px] leading-relaxed text-muted-foreground line-clamp-3">{game.description}</p>
-            )}
-
-            {game.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {game.tags.map((tag) => (
-                  <button
-                    key={tag.name}
-                    className="pointer-events-auto rounded-full px-2.5 py-0.5 text-[12px] font-medium text-pink-400 bg-pink-400/10 ring-1 ring-pink-400/20 transition-opacity hover:opacity-70"
-                    onClick={(e) => { e.preventDefault(); router.push(`/search?tag=${encodeURIComponent(tag.name)}`) }}
-                  >
-                    {tag.name}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 pt-1.5 divider-subtle">
-              <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
-                <Eye className="h-3.5 w-3.5" strokeWidth={2} />{game.viewCount ?? 0}
-              </span>
-              <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
-                <Heart className="h-3.5 w-3.5" strokeWidth={2} />{game.favoriteCount}
-              </span>
-            </div>
+        {/* 第四层 · 底部日期 (15%) - 贴底 */}
+        {dateStr && (
+          <div className="flex items-center gap-1 mt-auto pt-1">
+            <Calendar className="w-[9px] h-[9px] text-foreground/20" strokeWidth={2} />
+            <span className="text-[10px] text-foreground/30">{dateStr}</span>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Link>
   )
 }
 
 export function GameCardSkeleton() {
   return (
-        <div className="overflow-hidden rounded-[14px] bg-card">
+    <div className="flex flex-col overflow-hidden rounded-[32px] border border-white/10 bg-card">
       {/* 封面区域 */}
-      <div className="w-full skeleton-shimmer" style={{ paddingBottom: "60%" }} />
-      
-      {/* 信息区域 - 形状匹配真实内容 */}
-      <div className="bg-card px-2.5 py-2 space-y-2">
-        {/* 标题 - 两行 */}
+      <div className="w-full skeleton-shimmer" style={{ paddingBottom: "80%" }} />
+
+      {/* 信息区域 */}
+      <div className="flex flex-1 flex-col px-3 py-3 sm:px-4 sm:py-4 gap-2">
+        {/* 标题 */}
         <div className="space-y-1.5">
-          <div className="h-3 w-full rounded skeleton-shimmer" />
-          <div className="h-3 w-4/5 rounded skeleton-shimmer" />
+          <div className="h-3.5 w-full rounded skeleton-shimmer" />
+          <div className="h-3.5 w-3/5 rounded skeleton-shimmer" />
         </div>
-        
-        {/* 标签 - 两个小圆角 */}
-        <div className="flex gap-1">
-          <div className="h-2.5 w-12 rounded-full skeleton-shimmer" />
-          <div className="h-2.5 w-10 rounded-full skeleton-shimmer" />
+        {/* 人气标签 */}
+        <div className="flex gap-1.5">
+          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
+          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
+          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
         </div>
-        
-        {/* 统计数据 - 图标+数字 */}
-        <div className="flex gap-3 pt-0.5">
-          <div className="h-2.5 w-8 rounded skeleton-shimmer" />
-          <div className="h-2.5 w-8 rounded skeleton-shimmer" />
+        {/* 参数标签 */}
+        <div className="flex gap-1.5">
+          <div className="h-[18px] w-8 rounded-full skeleton-shimmer" />
+          <div className="h-[18px] w-12 rounded-full skeleton-shimmer" />
+          <div className="h-[18px] w-14 rounded-full skeleton-shimmer" />
+        </div>
+        {/* 日期 */}
+        <div className="mt-auto pt-1">
+          <div className="h-2.5 w-16 rounded skeleton-shimmer" />
         </div>
       </div>
     </div>

@@ -71,7 +71,11 @@ model Game {
   isNsfw        Boolean      @default(false)
   vndbId        String       @default("")
   viewCount     Int          @default(0)
+  downloadCount Int          @default(0)
   favoriteCount Int          @default(0)
+  platform      String       @default("")
+  language      String       @default("")
+  fileSize      String       @default("")
   isPublished   Boolean      @default(true)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
