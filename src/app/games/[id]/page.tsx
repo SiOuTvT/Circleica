@@ -1,12 +1,8 @@
 import { CommentSection } from "@/components/comment-section"
 import { GameBreadcrumb } from "@/components/game-breadcrumb"
-import { GameDetailActions } from "@/components/game-detail-actions"
-import { GameRating } from "@/components/game-rating"
+import { GameDetailClient } from "@/components/game-detail-client"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Calendar, CheckCircle2, Clock, Download, ExternalLink, Eye, XCircle } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -90,246 +86,261 @@ export default async function GameDetailPage({
   return (
     <div>
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
-      {/* Hero 封面区 */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl bg-zinc-900 light:bg-zinc-100" style={{ minHeight: 280 }}>
-        {game.coverImage && (
-          <>
-            {/* 模糊背景 */}
-            <div
-              className="absolute inset-0 scale-110"
-              style={{
-                backgroundImage: `url(${game.coverImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                filter: "blur(28px) brightness(0.35)",
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/30 to-transparent light:from-zinc-100/90 light:via-zinc-100/30" />
-          </>
-        )}
-        <div className="relative z-10 flex gap-6 p-6">
-          {/* 封面图 */}
-          <div
-            className="hidden shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10 sm:block"
-            style={{ width: 160, aspectRatio: "4/5" }}
-          >
-            {game.coverImage ? (
-              <Image src={game.coverImage} alt={game.title} width={160} height={200} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-zinc-800 text-zinc-600 text-xs">暂无封面</div>
-            )}
-          </div>
 
-          {/* 信息 */}
-          <div className="flex flex-col justify-end gap-3 py-2">
-            <div className="flex flex-wrap gap-1.5">
+      {/* 全宽封面 Banner — 16:9, 0px 圆角 */}
+      {game.coverImage && (
+        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          <img
+            src={game.coverImage}
+            alt={game.title}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        </div>
+      )}
+
+      {/* 容器 — 移动端单栏, PC 端 65/35 分栏 */}
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-8 lg:grid lg:grid-cols-[65%_35%] lg:gap-10 lg:px-8">
+
+        {/* ─── 左侧详情列 (移动端 100%, PC 65%) ─── */}
+        <div className="min-w-0">
+
+          {/* 标题 */}
+          <h1
+            className="font-extrabold leading-tight text-foreground"
+            style={{ fontSize: "24px", marginTop: "20px" }}
+          >
+            {game.title}
+          </h1>
+          {game.originalWork && (
+            <p className="mt-1 text-sm text-muted-foreground">原作：{game.originalWork}</p>
+          )}
+
+          {/* 信息带 — SFW + 标签 + 统计 */}
+          <div className="mt-4 space-y-3">
+            {/* SFW 纯文本 */}
+            <span
+              className="inline-block text-sm font-semibold"
+              style={{ color: "#80F3FF" }}
+            >
+              {game.isNsfw ? "NSFW" : "SFW"}
+            </span>
+
+            {/* 标签 — flex-wrap, 1px 细边框, 自动换行 */}
+            <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
-                <Link
+                <span
                   key={tag.name}
-                  href={`/search?tag=${encodeURIComponent(tag.name)}`}
-                  className="rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-opacity hover:opacity-80"
-                  style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}40` }}
+                  className="inline-block rounded-full px-3 py-1 text-xs font-medium"
+                  style={{
+                    color: tag.color,
+                    background: "transparent",
+                    border: `1px solid ${tag.color}60`,
+                  }}
                 >
                   {tag.name}
-                </Link>
+                </span>
               ))}
             </div>
-            <h1 className="text-3xl font-bold leading-tight text-white light:text-zinc-900">{game.title}</h1>
-            {game.originalWork && (
-              <p className="text-base text-zinc-300 light:text-zinc-700">原作：{game.originalWork}</p>
-            )}
-            <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-400 light:text-zinc-600">
+
+            {/* 统计数据 — 灰字小样 */}
+            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               {game.status && (
-                <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  game.status === "完结" ? "bg-emerald-500/15 text-emerald-400" :
-                  game.status === "连载中" ? "bg-sky-500/15 text-sky-400" :
-                  game.status === "已弃坑" ? "bg-red-500/15 text-red-400" :
-                  "bg-zinc-500/15 text-zinc-400"
-                }`}>
-                  {game.status === "完结" ? <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} /> :
-                   game.status === "连载中" ? <Clock className="h-3.5 w-3.5" strokeWidth={2} /> :
-                   game.status === "已弃坑" ? <XCircle className="h-3.5 w-3.5" strokeWidth={2} /> : null}
-                  {game.status}
-                </span>
+                <span>{game.status}</span>
               )}
-              <span className="flex items-center gap-1">
-                <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
-                {game.viewCount} 次浏览
-              </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" strokeWidth={1.5} />
-                {new Date(game.createdAt).toLocaleDateString("zh-CN")}
-              </span>
+              <span>{game.viewCount} 次浏览</span>
+              <span>{game.favoriteCount} 收藏</span>
+              <span>{new Date(game.createdAt).toLocaleDateString("zh-CN")}</span>
               {game.vndbId && (
                 <a
                   href={`https://vndb.org/v${game.vndbId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-sky-400 hover:text-sky-300 transition-colors"
+                  className="hover:underline"
+                  style={{ color: "#80F3FF" }}
                 >
-                  VNDB <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                  VNDB
                 </a>
               )}
             </div>
           </div>
+
+          {/* Tab 导航 + 内容区 — 客户端组件 */}
+          <GameDetailClient
+            description={game.description}
+            screenshots={screenshots}
+            creators={game.creators.map(gc => ({
+              id: gc.creator.id,
+              name: gc.creator.name,
+              nameJa: gc.creator.nameJa,
+              avatar: gc.creator.avatar,
+              role: gc.role,
+            }))}
+            logs={game.logs.map(l => ({
+              id: l.id,
+              content: l.content,
+              createdAt: l.createdAt.toISOString(),
+            }))}
+          />
+
+          {/* 评论区 */}
+          <div className="mt-8">
+            <CommentSection
+              gameId={id}
+              comments={game.comments.map((c) => ({
+                id: c.id,
+                content: c.content,
+                imageUrl: c.imageUrl,
+                likeCount: c.likeCount,
+                createdAt: c.createdAt.toISOString(),
+                user: c.user,
+              }))}
+              isLoggedIn={!!session?.user}
+              currentUserId={session?.user?.id}
+            />
+          </div>
+
+          {/* 相关游戏 */}
+          {related.length > 0 && (
+            <section className="mt-8">
+              <h2 className="mb-3 text-sm font-semibold text-foreground">相关游戏</h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {related.map((g) => (
+                  <a key={g.id} href={`/games/${g.id}`} className="group overflow-hidden rounded-xl transition-all hover:-translate-y-0.5" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+                    <div className="relative" style={{ aspectRatio: "4/3" }}>
+                      {g.coverImage ? (
+                        <img src={g.coverImage} alt={g.title} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">暂无封面</div>
+                      )}
+                    </div>
+                    <p className="truncate px-2.5 py-2 text-xs text-muted-foreground group-hover:text-foreground transition-colors">{g.title}</p>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-      </div>
 
-      {/* 操作按钮区 */}
-      <GameDetailActions
-        gameId={id}
-        isFav={isFav}
-        favCount={game.favoriteCount}
-        playStatus={playStatus}
-        reportCount={reportCount}
-        isLoggedIn={!!session?.user}
-      />
+        {/* ─── 右侧资源栏 (PC 35%, 移动端隐藏) ─── */}
+        <aside className="hidden lg:block">
+          <div
+            className="sticky rounded-2xl p-6 space-y-5"
+            style={{
+              top: "40px",
+              background: "hsl(var(--card))",
+              border: "1px solid hsl(var(--border))",
+            }}
+          >
+            {/* 封面缩略图 */}
+            {game.coverImage && (
+              <div className="overflow-hidden rounded-xl" style={{ aspectRatio: "4/5" }}>
+                <img src={game.coverImage} alt={game.title} className="h-full w-full object-cover" />
+              </div>
+            )}
 
-      {/* 创作者 */}
-      {game.creators.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-zinc-100 light:text-zinc-900">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            创作者
-          </h2>
-          <div className="flex flex-wrap gap-3">
-            {game.creators.map(gc => (
-              <Link key={`${gc.creatorId}-${gc.role}`} href={`/creators/${gc.creatorId}`}
-                className="flex items-center gap-2.5 rounded-xl bg-zinc-900 light:bg-white px-3 py-2 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800 light:hover:bg-zinc-50 hover:ring-white/10 light:hover:ring-black/10">
-                {gc.creator.avatar ? (
-                  <Image src={gc.creator.avatar} alt={gc.creator.name} width={28} height={28} className="h-7 w-7 rounded-full object-cover" />
-                ) : (
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-sky-400 text-xs font-bold text-white">
-                    {(gc.creator.nameJa || gc.creator.name)[0]}
+            {/* 文件大小 — 全站唯一出现处 */}
+            {game.fileSize && (
+              <div className="text-center">
+                <span className="text-xs text-muted-foreground">文件大小</span>
+                <p className="mt-1 text-lg font-bold text-foreground">{game.fileSize}</p>
+              </div>
+            )}
+
+            {/* 运行参数 */}
+            {(game.platform || game.language) && (
+              <div className="space-y-2">
+                {game.platform && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">平台</span>
+                    <span className="text-foreground">{game.platform}</span>
                   </div>
                 )}
-                <div>
-                  <p className="text-sm font-medium text-zinc-100 light:text-zinc-900">{gc.creator.nameJa || gc.creator.name}</p>
-                  <p className="text-xs text-zinc-400 light:text-zinc-500">{{ scenario:"脚本", art:"原画", chardesign:"角色设计", director:"导演", music:"音乐", songs:"主题曲" }[gc.role] ?? gc.role}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 评分 */}
-      <div className="mb-6">
-        <GameRating gameId={id} isLoggedIn={!!session?.user} />
-      </div>
-
-      {/* 简介 */}
-      {game.description && (
-        <section className="mb-6">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-zinc-100 light:text-zinc-900">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            游戏简介
-          </h2>
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-zinc-300 light:text-zinc-700">
-            {game.description}
-          </p>
-        </section>
-      )}
-
-      {/* 下载地址 */}
-      {downloadLinks.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-zinc-100 light:text-zinc-900">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            下载地址
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {downloadLinks.map((dl, i) => (
-              <a
-                key={i}
-                href={dl.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg bg-zinc-800 light:bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-200 light:text-zinc-700 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:ring-white/10 light:hover:ring-black/10 active:scale-[0.98]"
-              >
-                <Download className="h-4 w-4" strokeWidth={1.5} />
-                {dl.label || "点击下载"}
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 截图 */}
-      {screenshots.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-zinc-100 light:text-zinc-900">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            游戏截图
-          </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {screenshots.map((src, i) => (
-              <a key={i} href={src} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-xl ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:ring-white/10 light:hover:ring-black/10">
-                <Image src={src} alt={`截图 ${i + 1}`} width={600} height={400} className="w-full object-cover" />
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 更新日志 */}
-      {game.logs.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-200 light:text-zinc-800">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            更新日志
-          </h2>
-          <div className="space-y-2">
-            {game.logs.map(log => (
-              <div key={log.id} className="flex items-start gap-3 rounded-xl bg-zinc-900 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
-                <span className="mt-0.5 shrink-0 text-[10px] text-zinc-600 light:text-zinc-400">
-                  {new Date(log.createdAt).toLocaleDateString("zh-CN")}
-                </span>
-                <p className="text-sm text-zinc-400 light:text-zinc-600">{log.content}</p>
+                {game.language && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">语言</span>
+                    <span className="text-foreground">{game.language}</span>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            )}
 
-      {/* 评论区（Client Component） */}
-      <CommentSection
-        gameId={id}
-        comments={game.comments.map((c) => ({
-          id: c.id,
-          content: c.content,
-          imageUrl: c.imageUrl,
-          likeCount: c.likeCount,
-          createdAt: c.createdAt.toISOString(),
-          user: c.user,
-        }))}
-        isLoggedIn={!!session?.user}
-        currentUserId={session?.user?.id}
-      />
+            {/* 统计 */}
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-xl bg-secondary p-3">
+                <p className="text-lg font-bold text-foreground">{game.viewCount}</p>
+                <p className="text-[11px] text-muted-foreground">浏览</p>
+              </div>
+              <div className="rounded-xl bg-secondary p-3">
+                <p className="text-lg font-bold text-foreground">{game.favoriteCount}</p>
+                <p className="text-[11px] text-muted-foreground">收藏</p>
+              </div>
+            </div>
 
-      {/* 相关游戏 */}
-      {related.length > 0 && (
-        <section className="mt-8">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-200 light:text-zinc-800">
-            <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-sky-400" />
-            相关游戏
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {related.map((g) => (
-              <Link key={g.id} href={`/games/${g.id}`} className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:-translate-y-0.5 hover:ring-white/10 light:hover:ring-black/10">
-                <div className="relative" style={{ aspectRatio: "4/3" }}>
-                  {g.coverImage ? (
-                    <Image src={g.coverImage} alt={g.title} fill className="object-cover transition-transform group-hover:scale-[1.03]" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">暂无封面</div>
-                  )}
-                </div>
-                <p className="truncate px-2.5 py-2 text-xs text-zinc-400 light:text-zinc-700 group-hover:text-zinc-200 light:group-hover:text-zinc-900 transition-colors">{g.title}</p>
-              </Link>
-            ))}
+            {/* 下载按钮 — 薄荷青实色填充 */}
+            {downloadLinks.length > 0 && (
+              <div className="space-y-2">
+                {downloadLinks.map((dl, i) => (
+                  <a
+                    key={i}
+                    href={dl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: "#80F3FF" }}
+                  >
+                    {dl.label || "下载"}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* 创作者 */}
+            {game.creators.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-muted-foreground">创作者</h3>
+                {game.creators.map(gc => (
+                  <a
+                    key={`${gc.creatorId}-${gc.role}`}
+                    href={`/creators/${gc.creatorId}`}
+                    className="flex items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-secondary"
+                  >
+                    {gc.creator.avatar ? (
+                      <img src={gc.creator.avatar} alt={gc.creator.name} className="h-7 w-7 rounded-full object-cover" />
+                    ) : (
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #80F3FF, #06b6d4)" }}>
+                        {(gc.creator.nameJa || gc.creator.name)[0]}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{gc.creator.nameJa || gc.creator.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {{ scenario:"脚本", art:"原画", chardesign:"角色设计", director:"导演", music:"音乐", songs:"主题曲" }[gc.role] ?? gc.role}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* 操作按钮 */}
+            <div className="flex gap-2 pt-2">
+              <a
+                href="#comments"
+                className="flex-1 rounded-xl bg-secondary py-2.5 text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                评论 ({game.comments.length})
+              </a>
+              <button
+                className="flex-1 rounded-xl py-2.5 text-xs font-medium text-black transition-opacity hover:opacity-90"
+                style={{ backgroundColor: isFav ? "#80F3FF" : "hsl(var(--secondary))", color: isFav ? "#000" : "hsl(var(--muted-foreground))" }}
+              >
+                {isFav ? "已收藏" : "收藏"}
+              </button>
+            </div>
           </div>
-        </section>
-      )}
+        </aside>
+      </div>
     </div>
   )
 }

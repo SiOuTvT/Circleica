@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
 import { getAdminSession } from "@/lib/admin"
+import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server"
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   const body = await req.json()
-  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators } = body
+  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, platform, language, fileSize } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
 
@@ -43,6 +43,9 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",
       isPublished: isPublished !== false,
+      platform: platform ?? "",
+      language: language ?? "",
+      fileSize: fileSize ?? "",
       tags: tagIds?.length
         ? { create: tagIds.map((tagId: string) => ({ tag: { connect: { id: tagId } } })) }
         : undefined,

@@ -28,6 +28,7 @@ interface Props {
     coverImage: string; screenshots: string[]; downloadLinks: DownloadLink[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]; gameCreators: GameCreatorEntry[]
+    platform: string; language: string; fileSize: string
   }
 }
 
@@ -49,6 +50,9 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
   const [isPublished, setIsPublished]  = useState(initialData?.isPublished ?? true)
   const [selectedTags, setSelectedTags]= useState<string[]>(initialData?.tagIds ?? [])
   const [gameCreators, setGameCreators]= useState<GameCreatorEntry[]>(initialData?.gameCreators ?? [])
+  const [platform, setPlatform]      = useState(initialData?.platform ?? "")
+  const [language, setLanguage]      = useState(initialData?.language ?? "")
+  const [fileSize, setFileSize]      = useState(initialData?.fileSize ?? "")
   const [saving, setSaving]            = useState(false)
   const [error, setError]              = useState("")
 
@@ -72,6 +76,7 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
       status, isNsfw, vndbId, isPublished,
       tagIds: selectedTags,
       gameCreators: gameCreators.filter(gc => gc.creatorId && gc.role),
+      platform, language, fileSize,
     }
 
     const res = await fetch(
@@ -125,6 +130,25 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
         <div>
           <label className={labelCls}>VNDB ID</label>
           <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+        </div>
+      </div>
+
+      {/* 运行参数 */}
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        <h2 className="text-sm font-semibold text-foreground">运行参数</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label className={labelCls}>平台</label>
+            <input value={platform} onChange={(e) => setPlatform(e.target.value)} placeholder="如：PC / Android" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>语言</label>
+            <input value={language} onChange={(e) => setLanguage(e.target.value)} placeholder="如：汉化 / 生肉" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>大小</label>
+            <input value={fileSize} onChange={(e) => setFileSize(e.target.value)} placeholder="如：2.5 GB / 350 MB" className={inputCls} />
+          </div>
         </div>
       </div>
 

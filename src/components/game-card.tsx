@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Download, Eye, Globe, HardDrive, Heart, ImageOff, Monitor } from "lucide-react"
+import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -23,22 +23,6 @@ export interface GameCardData {
   status: string
 }
 
-/* ─── 薄荷青标签 ─── */
-function MintTag({ icon, text }: { icon: React.ReactNode; text: string }) {
-  if (!text) return null
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[10px] font-medium leading-none"
-      style={{
-        backgroundColor: "rgba(167, 243, 208, 0.15)",
-        color: "rgb(5, 150, 105)",
-      }}
-    >
-      {icon}
-      {text}
-    </span>
-  )
-}
-
 /* ─── 格式化日期 ─── */
 function formatDate(d?: Date | string): string {
   if (!d) return ""
@@ -47,97 +31,119 @@ function formatDate(d?: Date | string): string {
   return date.toISOString().slice(0, 10)
 }
 
+/* ─── 格式化数字 ─── */
+function fmtNum(n?: number): string {
+  if (n == null) return ""
+  if (n >= 10000) return (n / 10000).toFixed(1) + "w"
+  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
+  return String(n)
+}
+
 export function GameCard({ game }: { game: GameCardData }) {
   const [imgError, setImgError] = useState(false)
-  const [showDesc, setShowDesc] = useState(false)
 
-  const viewStr = game.viewCount != null ? String(game.viewCount) : ""
-  const dlStr = game.downloadCount != null ? String(game.downloadCount) : ""
-  const favStr = game.favoriteCount != null ? String(game.favoriteCount) : ""
+  const viewStr = fmtNum(game.viewCount)
+  const dlStr = fmtNum(game.downloadCount)
+  const favStr = fmtNum(game.favoriteCount)
   const dateStr = formatDate(game.updatedAt || game.createdAt)
+
+  /* 收集参数标签 */
+  const params: { icon: React.ReactNode; text: string }[] = []
+  if (game.platform) params.push({ icon: <span>🖥</span>, text: game.platform })
+  if (game.language) params.push({ icon: <span>🌐</span>, text: game.language })
+  if (game.fileSize) params.push({ icon: <span>💾</span>, text: game.fileSize })
 
   return (
     <Link
       href={`/games/${game.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/10 transition-transform duration-300 hover:-translate-y-1 active:scale-[0.98]"
+      className="group flex flex-col overflow-hidden rounded-2xl transition-transform duration-200 hover:-translate-y-1"
       style={{
         background: "hsl(var(--card))",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+        border: "1px solid hsl(var(--border))",
       }}
-      onMouseEnter={() => setShowDesc(true)}
-      onMouseLeave={() => setShowDesc(false)}
     >
-      {/* ─── 封面图 60% ─── */}
-      <div className="relative w-full" style={{ paddingBottom: "80%" }}>
-        {game.coverImage && !imgError ? (
-          <Image
-            src={game.coverImage}
-            alt={game.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-            onError={() => setImgError(true)}
-            unoptimized
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
-            <ImageOff className="w-10 h-10" strokeWidth={1} />
-          </div>
-        )}
-
-        {/* NSFW 遮罩 */}
-        {game.isNsfw && (
-          <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[8px] transition-opacity duration-300 group-hover:opacity-0" />
-        )}
-
-        {/* 悬停时简介 overlay（磨砂玻璃） */}
-        {game.description && showDesc && (
-          <div className="absolute inset-0 flex items-end p-3 bg-black/40 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <p className="text-[11px] leading-relaxed text-white/80 line-clamp-4">
-              {game.description}
-            </p>
-          </div>
-        )}
+      {/* ─── 封面图 50% ─── */}
+      <div className="relative w-full" style={{ height: "50%" }}>
+        <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+          {game.coverImage && !imgError ? (
+            <Image
+              src={game.coverImage}
+              alt={game.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+              onError={() => setImgError(true)}
+              unoptimized
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
+              <ImageOff className="w-10 h-10" strokeWidth={1} />
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ─── 文字信息区 40% ─── */}
-      <div className="flex flex-1 flex-col px-3 py-3 sm:px-4 sm:py-4 gap-0">
+      {/* ─── 文字区 50% ─── */}
+      <div className="flex flex-1 flex-col p-6">
 
-        {/* 第一层 · 标题 (40%) */}
-        <div className="flex items-center min-h-0 flex-shrink-0 mb-2">
-          <h3 className="text-[14px] sm:text-[15px] font-bold leading-snug text-foreground line-clamp-2">
+        {/* 标题层 (40%) */}
+        <div className="flex-[40] flex items-start min-h-0">
+          <h3 className="text-[22px] font-extrabold leading-tight text-foreground line-clamp-2">
             {game.title}
           </h3>
         </div>
 
-        {/* 第二层 · 人气数据 (20%) - 薄荷青标签 */}
+        {/* 人气数据层 (15%) — 纯文字+极简图标，中灰 12px，无背景色 */}
         {(viewStr || dlStr || favStr) && (
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            {viewStr && <MintTag icon={<Eye className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={viewStr} />}
-            {dlStr && <MintTag icon={<Download className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={dlStr} />}
-            {favStr && <MintTag icon={<Heart className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={favStr} />}
+          <div className="flex-[15] flex items-center gap-4">
+            {viewStr && (
+              <span className="flex items-center gap-1 text-xs text-neutral-400">
+                <Eye className="w-3 h-3" strokeWidth={2} />
+                {viewStr}
+              </span>
+            )}
+            {dlStr && (
+              <span className="flex items-center gap-1 text-xs text-neutral-400">
+                <Download className="w-3 h-3" strokeWidth={2} />
+                {dlStr}
+              </span>
+            )}
+            {favStr && (
+              <span className="flex items-center gap-1 text-xs text-neutral-400">
+                <Heart className="w-3 h-3" strokeWidth={2} />
+                {favStr}
+              </span>
+            )}
           </div>
         )}
 
-        {/* 第三层 · 硬核参数 (25%) - 薄荷青标签 */}
-        {(game.platform || game.language || game.fileSize) && (
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            {game.platform && <MintTag icon={<Monitor className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.platform} />}
-            {game.language && <MintTag icon={<Globe className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.language} />}
-            {game.fileSize && <MintTag icon={<HardDrive className="w-[10px] h-[10px]" strokeWidth={2.5} />} text={game.fileSize} />}
+        {/* 核心参数层 (30%) — 冰氧薄荷胶囊标签 */}
+        {params.length > 0 && (
+          <div className="flex-[30] flex flex-wrap items-center gap-2">
+            {params.map((p, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm"
+                style={{
+                  backgroundColor: "rgba(200, 242, 228, 0.4)",
+                  color: "#065F46",
+                  fontSize: "14px",
+                }}
+              >
+                {p.icon}
+                {p.text}
+              </span>
+            ))}
           </div>
         )}
 
-        {/* 弹性留白 */}
-        <div className="flex-1" />
-
-        {/* 第四层 · 底部日期 (15%) - 贴底 */}
-        {dateStr && (
-          <div className="flex items-center gap-1 mt-auto pt-1">
-            <Calendar className="w-[9px] h-[9px] text-foreground/20" strokeWidth={2} />
-            <span className="text-[10px] text-foreground/30">{dateStr}</span>
-          </div>
-        )}
+        {/* 日期收尾层 (15%) — 11px 极淡灰，贴底 */}
+        <div className="flex-[15] flex items-end">
+          {dateStr && (
+            <span className="text-[11px] text-neutral-300">{dateStr}</span>
+          )}
+        </div>
       </div>
     </Link>
   )
@@ -145,32 +151,34 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-[32px] border border-white/10 bg-card">
-      {/* 封面区域 */}
-      <div className="w-full skeleton-shimmer" style={{ paddingBottom: "80%" }} />
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
+      {/* 封面 50% */}
+      <div className="w-full skeleton-shimmer" style={{ height: "50%" }}>
+        <div className="w-full" style={{ paddingBottom: "100%" }} />
+      </div>
 
-      {/* 信息区域 */}
-      <div className="flex flex-1 flex-col px-3 py-3 sm:px-4 sm:py-4 gap-2">
+      {/* 文字区 50% */}
+      <div className="flex flex-1 flex-col p-6 gap-3">
         {/* 标题 */}
-        <div className="space-y-1.5">
-          <div className="h-3.5 w-full rounded skeleton-shimmer" />
-          <div className="h-3.5 w-3/5 rounded skeleton-shimmer" />
+        <div className="flex-[40] space-y-2">
+          <div className="h-6 w-full rounded skeleton-shimmer" />
+          <div className="h-6 w-3/5 rounded skeleton-shimmer" />
         </div>
-        {/* 人气标签 */}
-        <div className="flex gap-1.5">
-          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
-          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
-          <div className="h-[18px] w-10 rounded-full skeleton-shimmer" />
+        {/* 人气 */}
+        <div className="flex-[15] flex gap-4">
+          <div className="h-4 w-12 rounded skeleton-shimmer" />
+          <div className="h-4 w-12 rounded skeleton-shimmer" />
+          <div className="h-4 w-12 rounded skeleton-shimmer" />
         </div>
-        {/* 参数标签 */}
-        <div className="flex gap-1.5">
-          <div className="h-[18px] w-8 rounded-full skeleton-shimmer" />
-          <div className="h-[18px] w-12 rounded-full skeleton-shimmer" />
-          <div className="h-[18px] w-14 rounded-full skeleton-shimmer" />
+        {/* 参数 */}
+        <div className="flex-[30] flex gap-2">
+          <div className="h-7 w-16 rounded-full skeleton-shimmer" />
+          <div className="h-7 w-14 rounded-full skeleton-shimmer" />
+          <div className="h-7 w-18 rounded-full skeleton-shimmer" />
         </div>
         {/* 日期 */}
-        <div className="mt-auto pt-1">
-          <div className="h-2.5 w-16 rounded skeleton-shimmer" />
+        <div className="flex-[15] flex items-end">
+          <div className="h-3 w-20 rounded skeleton-shimmer" />
         </div>
       </div>
     </div>
