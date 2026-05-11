@@ -125,7 +125,7 @@ export default async function GameDetailPage({
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className="inline-block text-sm font-semibold"
-                style={{ color: "#80F3FF" }}
+                style={{ color: "var(--clr-blue)" }}
               >
                 {game.isNsfw ? "NSFW" : "SFW"}
               </span>
@@ -134,7 +134,7 @@ export default async function GameDetailPage({
                   key={i}
                   className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                   style={{
-                    color: "#80F3FF",
+                    color: "var(--clr-blue)",
                     background: "transparent",
                     border: "1px solid rgba(128, 243, 255, 0.35)",
                   }}
@@ -146,15 +146,15 @@ export default async function GameDetailPage({
 
             {/* 人气数据 — 小图标 UI，和游戏卡片一样 */}
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#5EC4B6" }}>
+              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground/70">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                 {game.viewCount}
               </span>
-              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#5EC4B6" }}>
+              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground/70">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 {game.downloadCount}
               </span>
-              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#5EC4B6" }}>
+              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground/70">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                 {game.favoriteCount}
               </span>
@@ -165,7 +165,7 @@ export default async function GameDetailPage({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs font-medium hover:underline"
-                  style={{ color: "#80F3FF" }}
+                  style={{ color: "var(--clr-blue)" }}
                 >
                   VNDB
                 </a>
@@ -246,7 +246,7 @@ export default async function GameDetailPage({
               </div>
             </div>
 
-            {/* 下载按钮 — #80F3FF 实色填充 */}
+            {/* 下载按钮 — 主题色实色填充 */}
             {downloadLinks.length > 0 && (
               <div className="space-y-2">
                 {downloadLinks.map((dl, i) => (
@@ -256,7 +256,7 @@ export default async function GameDetailPage({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: "#80F3FF" }}
+                    style={{ backgroundColor: "var(--clr-blue)" }}
                   >
                     {dl.label || "下载"}
                   </a>
@@ -279,7 +279,7 @@ export default async function GameDetailPage({
                     ) : (
                       <div
                         className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
-                        style={{ background: "linear-gradient(135deg, #C8F2E4, #5EC4B6)" }}
+                        style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
                       >
                         {(c.nameJa || c.name)[0]}
                       </div>

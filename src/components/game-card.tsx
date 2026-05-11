@@ -60,7 +60,7 @@ export function GameCard({ game }: { game: GameCardData }) {
         background: "hsl(var(--card))",
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         border: "1px solid hsl(var(--border))",
-        aspectRatio: "2 / 3",
+        aspectRatio: "3 / 4",
       }}
     >
       {/* ─── 封面 50% ─── */}
@@ -94,39 +94,34 @@ export function GameCard({ game }: { game: GameCardData }) {
           </h3>
         </div>
 
-        {/* 人气数据 (20%) — 薄荷青，更明显 */}
+        {/* 人气数据 (20%) — 灰色，低调 */}
         <div className="flex-[20] flex items-center gap-3 sm:gap-4">
           {viewStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
-              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-medium text-muted-foreground/70">
+              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
-              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-medium text-muted-foreground/70">
+              <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="flex items-center gap-1 text-xs sm:text-sm font-semibold" style={{ color: "#5EC4B6" }}>
-              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+            <span className="flex items-center gap-1 text-xs sm:text-sm font-medium text-muted-foreground/70">
+              <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
               {favStr}
             </span>
           )}
         </div>
 
-        {/* 标签 (30%) — 薄荷青胶囊，自动换行，不溢出 */}
+        {/* 标签 (30%) — 灰色胶囊，自动换行 */}
         <div className="flex-[30] flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-0 overflow-hidden">
           {paramTags.map((tag, i) => (
             <span
               key={i}
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0"
-              style={{
-                color: "#5EC4B6",
-                backgroundColor: "rgba(94, 196, 182, 0.12)",
-                border: "1px solid rgba(94, 196, 182, 0.25)",
-              }}
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium shrink-0 bg-secondary text-muted-foreground/80"
             >
               {tag}
             </span>

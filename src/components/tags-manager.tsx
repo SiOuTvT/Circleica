@@ -5,12 +5,9 @@ import { useState } from "react";
 
 interface Tag { id: string; name: string; color: string; gameCount: number }
 
-const PRESET_COLORS = ["#a78bfa","#f472b6","#5EC4B6","#34d399","#fb923c","#facc15","#f87171","#818cf8"]
-
 export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
   const [tags, setTags] = useState(initialTags)
   const [name, setName] = useState("")
-  const [color, setColor] = useState("#a78bfa")
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState("")
 
@@ -21,7 +18,7 @@ export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
     const res = await fetch("/api/admin/tags", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), color }),
+      body: JSON.stringify({ name: name.trim(), color: "theme" }),
     })
     const data = await res.json()
     setAdding(false)
@@ -49,22 +46,11 @@ export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
             required
             className="w-full rounded-xl bg-zinc-800 px-4 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all"
           />
-          {/* 颜色预设 */}
-          <div className="flex flex-wrap gap-2">
-            {PRESET_COLORS.map((c) => (
-              <button key={c} type="button" onClick={() => setColor(c)}
-                className={`h-6 w-6 rounded-full transition-all ${color === c ? "ring-2 ring-offset-2 ring-offset-zinc-900 ring-white/40 scale-110" : "opacity-70 hover:opacity-100"}`}
-                style={{ background: c }} />
-            ))}
-            <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
-              className="h-6 w-6 cursor-pointer rounded-full border-0 bg-transparent p-0" title="自定义颜色" />
-          </div>
           {/* 预览 */}
           {name && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-zinc-500">预览：</span>
-              <span className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                style={{ color, background: `${color}18`, outline: `1px solid ${color}40` }}>
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-secondary text-muted-foreground/80">
                 {name}
               </span>
             </div>
@@ -89,9 +75,7 @@ export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
           {tags.map((tag) => (
             <div key={tag.id} className="flex items-center justify-between px-4 py-3 hover:bg-zinc-800/50 transition-colors">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 rounded-full shrink-0" style={{ background: tag.color }} />
-                <span className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}40` }}>
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-secondary text-muted-foreground/80">
                   {tag.name}
                 </span>
                 <span className="text-xs text-zinc-600">{tag.gameCount} 个游戏</span>

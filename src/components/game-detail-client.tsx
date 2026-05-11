@@ -71,7 +71,7 @@ export function GameDetailClient({
 
   return (
     <div className="mt-6">
-      {/* ─── Tab 导航 — 三按钮平分宽度, 选中 #80F3FF 下划线 ─── */}
+      {/* ─── Tab 导航 — 三按钮平分宽度, 选中主题色下划线 ─── */}
       <div className="flex border-b border-border">
         {(
           [
@@ -85,14 +85,14 @@ export function GameDetailClient({
             onClick={() => setTab(t.key)}
             className="relative flex-1 py-3 text-sm font-medium transition-colors"
             style={{
-              color: tab === t.key ? "#80F3FF" : "hsl(var(--muted-foreground))",
+              color: tab === t.key ? "var(--clr-blue)" : "hsl(var(--muted-foreground))",
             }}
           >
             {t.label}
             {tab === t.key && (
               <span
                 className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full"
-                style={{ backgroundColor: "#80F3FF" }}
+                style={{ backgroundColor: "var(--clr-blue)" }}
               />
             )}
           </button>
@@ -149,7 +149,7 @@ export function GameDetailClient({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: "#80F3FF" }}
+                    style={{ backgroundColor: "var(--clr-blue)" }}
                   >
                     <Download className="w-4 h-4" strokeWidth={2.5} />
                     {dl.label || "下载"}
@@ -166,7 +166,7 @@ export function GameDetailClient({
               disabled={!isLoggedIn}
               className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium transition-all disabled:opacity-50"
               style={{
-                backgroundColor: fav ? "#80F3FF" : "hsl(var(--secondary))",
+                backgroundColor: fav ? "var(--clr-blue)" : "hsl(var(--secondary))",
                 color: fav ? "#000" : "hsl(var(--muted-foreground))",
               }}
             >
@@ -199,7 +199,7 @@ export function GameDetailClient({
                         <div
                           className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
                           style={{
-                            background: "linear-gradient(135deg, #C8F2E4, #5EC4B6)",
+                            background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))",
                           }}
                         >
                           {(c.nameJa || c.name)[0]}

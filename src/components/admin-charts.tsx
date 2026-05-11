@@ -32,7 +32,7 @@ export function AdminCharts({ gamesByDay, usersByDay, commentsByDay }: Props) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <ChartCard title="新增游戏" data={gamesByDay} color="#f472b6" type="bar" />
       <ChartCard title="新增用户" data={usersByDay} color="#a78bfa" type="line" />
-      <ChartCard title="新增评论" data={commentsByDay} color="#5EC4B6" type="bar" />
+      <ChartCard title="新增评论" data={commentsByDay} color="#22D3EE" type="bar" />
     </div>
   )
 }
