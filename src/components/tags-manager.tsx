@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Trash2, Loader2 } from "lucide-react"
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 interface Tag { id: string; name: string; color: string; gameCount: number }
 
-const PRESET_COLORS = ["#a78bfa","#f472b6","#38bdf8","#34d399","#fb923c","#facc15","#f87171","#818cf8"]
+const PRESET_COLORS = ["#a78bfa","#f472b6","#7EDCBA","#34d399","#fb923c","#facc15","#f87171","#818cf8"]
 
 export function TagsManager({ initialTags }: { initialTags: Tag[] }) {
   const [tags, setTags] = useState(initialTags)

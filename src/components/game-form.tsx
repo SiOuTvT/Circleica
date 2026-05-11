@@ -6,35 +6,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface Tag { id: string; name: string; color: string }
-interface Creator { id: string; name: string; nameJa: string; avatar: string }
 interface DownloadLink { label: string; url: string }
-interface GameCreatorEntry { creatorId: string; role: string }
-
-const ROLE_OPTIONS = [
-  { value: "scenario",   label: "脚本" },
-  { value: "art",        label: "原画" },
-  { value: "chardesign", label: "角色设计" },
-  { value: "director",   label: "导演" },
-  { value: "music",      label: "音乐" },
-  { value: "songs",      label: "主题曲" },
-]
 
 interface Props {
   tags: Tag[]
-  creators: Creator[]
   gameId?: string
   initialData?: {
     title: string; originalWork: string; description: string
     coverImage: string; screenshots: string[]; downloadLinks: DownloadLink[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
-    tagIds: string[]; gameCreators: GameCreatorEntry[]
+    tagIds: string[]
     platform: string; language: string; fileSize: string
   }
 }
 
-const STATUS_OPTIONS = ["完结", "连载中", "已弃坑"]
-
-export function GameForm({ tags, creators, gameId, initialData }: Props) {
+export function GameForm({ tags, gameId, initialData }: Props) {
   const router = useRouter()
   const isEdit = !!gameId
 
@@ -44,12 +30,10 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
   const [coverImage, setCoverImage]     = useState(initialData?.coverImage ?? "")
   const [screenshots, setScreenshots]  = useState<string[]>(initialData?.screenshots ?? [])
   const [dlLinks, setDlLinks]          = useState<DownloadLink[]>(initialData?.downloadLinks ?? [{ label: "", url: "" }])
-  const [status, setStatus]            = useState(initialData?.status ?? "完结")
   const [isNsfw, setIsNsfw]            = useState(initialData?.isNsfw ?? false)
   const [vndbId, setVndbId]            = useState(initialData?.vndbId ?? "")
   const [isPublished, setIsPublished]  = useState(initialData?.isPublished ?? true)
   const [selectedTags, setSelectedTags]= useState<string[]>(initialData?.tagIds ?? [])
-  const [gameCreators, setGameCreators]= useState<GameCreatorEntry[]>(initialData?.gameCreators ?? [])
   const [platform, setPlatform]      = useState(initialData?.platform ?? "")
   const [language, setLanguage]      = useState(initialData?.language ?? "")
   const [fileSize, setFileSize]      = useState(initialData?.fileSize ?? "")
@@ -73,9 +57,8 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
       title, originalWork, description, coverImage,
       screenshots: screenshots.filter(Boolean),
       downloadLinks: dlLinks.filter((d) => d.url.trim()),
-      status, isNsfw, vndbId, isPublished,
+      isNsfw, vndbId, isPublished,
       tagIds: selectedTags,
-      gameCreators: gameCreators.filter(gc => gc.creatorId && gc.role),
       platform, language, fileSize,
     }
 
@@ -152,17 +135,9 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
         </div>
       </div>
 
-      {/* 状态设置 */}
+      {/* 发布设置 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-        <h2 className="text-sm font-semibold text-foreground">状态设置</h2>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_OPTIONS.map((s) => (
-            <button key={s} type="button" onClick={() => setStatus(s)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${status === s ? "bg-secondary text-foreground ring-ring" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"}`}>
-              {s}
-            </button>
-          ))}
-        </div>
+        <h2 className="text-sm font-semibold text-foreground">发布设置</h2>
         <div className="flex flex-wrap gap-4">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
             <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-blue-500" />
@@ -188,38 +163,6 @@ export function GameForm({ tags, creators, gameId, initialData }: Props) {
           ))}
           {tags.length === 0 && <p className="text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
         </div>
-      </div>
-
-      {/* 创作者 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">创作者</h2>
-        {gameCreators.map((gc, i) => (
-          <div key={i} className="flex gap-2">
-            <select
-              value={gc.creatorId}
-              onChange={e => setGameCreators(p => p.map((x, idx) => idx === i ? { ...x, creatorId: e.target.value } : x))}
-              className="flex-1 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring">
-              <option value="">选择创作者</option>
-              {creators.map(c => <option key={c.id} value={c.id}>{c.nameJa || c.name}</option>)}
-            </select>
-            <select
-              value={gc.role}
-              onChange={e => setGameCreators(p => p.map((x, idx) => idx === i ? { ...x, role: e.target.value } : x))}
-              className="w-28 shrink-0 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring">
-              <option value="">职位</option>
-              {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-            </select>
-            <button type="button" onClick={() => setGameCreators(p => p.filter((_, idx) => idx !== i))}
-              className="shrink-0 rounded-xl bg-secondary px-2.5 text-muted-foreground ring-1 ring-border hover:text-red-400 transition-colors">
-              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        ))}
-        <button type="button" onClick={() => setGameCreators(p => [...p, { creatorId: "", role: "" }])}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加创作者
-        </button>
-        {creators.length === 0 && <p className="text-xs text-muted-foreground">请先在创作者管理中添加创作者</p>}
       </div>
 
       {/* 下载链接 */}

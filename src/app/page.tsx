@@ -8,7 +8,7 @@ import { Suspense } from "react"
 
 function GameGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4" style={{ gridAutoRows: "1fr" }}>
+    <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )
@@ -27,7 +27,6 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true, platform: true, language: true, fileSize: true,
         updatedAt: true, createdAt: true,
-        description: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
       },
     }),

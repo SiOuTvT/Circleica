@@ -59,11 +59,11 @@ html, body {
   --radius:        0.75rem;
 
   /* 点缀色 — 温暖的琥珀+天蓝双色系 */
-  --primary:          #38bdf8; /* sky-400 */
+  --primary:          #7EDCBA; /* 薄荷青 */
   --primary-foreground: #0a0a0c;
-  --clr-blue:   #38bdf8;
-  --clr-sky:    #7dd3fc;
-  --clr-glow:   rgba(56, 189, 248, 0.12);
+  --clr-blue:   #7EDCBA;
+  --clr-sky:    #C8F2E4;
+  --clr-glow:   rgba(126, 220, 186, 0.12);
   --clr-warm:   #f59e0b; /* 琥珀色点缀 */
 }
 
@@ -85,7 +85,7 @@ html, body {
   --accent-foreground: #000000;
   --destructive:   #ef4444;
   --ring:          #a1a1aa;
-  --primary:       #0284c7; /* sky-600 */
+  --primary:       #5BC9A0; /* 薄荷青-亮色版 */
   --primary-foreground: #ffffff;
 }
 
@@ -530,19 +530,19 @@ html, body {
 /* ── 焦点环 - 品牌色光晕 ── */
 *:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2), 
-              0 0 0 4px rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 0 2px rgba(126, 220, 186, 0.2), 
+              0 0 0 4px rgba(126, 220, 186, 0.08);
   border-radius: inherit;
 }
 
 .light *:focus-visible {
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2), 
-              0 0 0 4px rgba(2, 132, 199, 0.08);
+  box-shadow: 0 0 0 2px rgba(91, 201, 160, 0.2), 
+              0 0 0 4px rgba(91, 201, 160, 0.08);
 }
 
 /* ── 全局选区颜色 - 品牌色 ── */
 ::selection {
-  background: rgba(56, 189, 248, 0.25);
+  background: rgba(126, 220, 186, 0.25);
   color: inherit;
 }
 
@@ -555,8 +555,8 @@ a {
 /* ── 输入框聚焦 - 温暖光晕 ── */
 input:focus, textarea:focus, select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12), 0 0 20px rgba(56, 189, 248, 0.06);
-  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 0 3px rgba(126, 220, 186, 0.12), 0 0 20px rgba(126, 220, 186, 0.06);
+  border-color: rgba(126, 220, 186, 0.25);
 }
 
 /* ── 亮色模式文字对比度增强 ── */

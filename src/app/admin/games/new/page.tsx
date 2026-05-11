@@ -13,7 +13,7 @@ export default async function NewGamePage() {
   return (
     <div className="max-w-2xl">
       <h1 className="mb-6 text-lg font-bold text-foreground">新增游戏</h1>
-      <GameForm tags={tags} creators={creators} />
+      <GameForm tags={tags} />
     </div>
   )
 }

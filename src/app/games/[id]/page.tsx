@@ -1,4 +1,3 @@
-import { CommentSection } from "@/components/comment-section"
 import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import { GameDetailClient } from "@/components/game-detail-client"
 import { auth } from "@/lib/auth"
@@ -48,7 +47,6 @@ export default async function GameDetailPage({
       creators: {
         include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
       },
-      logs: { orderBy: { createdAt: "desc" }, take: 10 },
     },
   })
 
@@ -60,36 +58,38 @@ export default async function GameDetailPage({
   const tags = game.tags.map((t) => t.tag)
   const screenshots: string[] = JSON.parse(game.screenshots || "[]")
   const downloadLinks: { label: string; url: string }[] = JSON.parse(game.downloadLinks || "[]")
-  const reportCount = await prisma.gameReport.count({ where: { gameId: id } })
 
   let isFav = false
-  let playStatus: string | null = null
   if (session?.user?.id) {
-    const [fav, ps] = await Promise.all([
-      prisma.favorite.findUnique({ where: { userId_gameId: { userId: session.user.id, gameId: id } } }),
-      prisma.playStatus.findUnique({ where: { userId_gameId: { userId: session.user.id, gameId: id } } }),
-    ])
+    const fav = await prisma.favorite.findUnique({
+      where: { userId_gameId: { userId: session.user.id, gameId: id } },
+    })
     isFav = !!fav
-    playStatus = ps?.status ?? null
   }
 
-  const related = await prisma.game.findMany({
-    where: {
-      id: { not: id },
-      isPublished: true,
-      tags: { some: { tag: { name: { in: tags.map((t) => t.name) } } } },
-    },
-    take: 4,
-    select: { id: true, title: true, coverImage: true, isNsfw: true },
-  })
+  /* 收集平台/语言标签（不包含文件大小） */
+  const paramTags: string[] = []
+  if (game.platform) paramTags.push(game.platform)
+  if (game.language) paramTags.push(game.language)
+
+  const creators = game.creators.map((gc) => ({
+    id: gc.creator.id,
+    name: gc.creator.name,
+    nameJa: gc.creator.nameJa,
+    avatar: gc.creator.avatar,
+    role: gc.role,
+  }))
 
   return (
     <div>
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
 
-      {/* 全宽封面 Banner — 16:9, 0px 圆角 */}
+      {/* ─── 全宽封面 Banner — 16:9, 底部 12px 圆角 ─── */}
       {game.coverImage && (
-        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/9" }}>
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ aspectRatio: "16/9", borderRadius: "0 0 12px 12px" }}
+        >
           <img
             src={game.coverImage}
             alt={game.title}
@@ -99,13 +99,16 @@ export default async function GameDetailPage({
         </div>
       )}
 
-      {/* 容器 — 移动端单栏, PC 端 65/35 分栏 */}
-      <div className="mx-auto w-full max-w-[1440px] px-4 py-8 lg:grid lg:grid-cols-[65%_35%] lg:gap-10 lg:px-8">
+      {/* ─── 容器 — 移动端单栏纵向, PC 端 65/35 分栏 ─── */}
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:py-8 lg:grid lg:grid-cols-[65%_35%] lg:gap-10 lg:px-8">
 
-        {/* ─── 左侧详情列 (移动端 100%, PC 65%) ─── */}
+        {/* ════════════════════════════════════════════
+            左侧详情列 (移动端 100%, PC 65%)
+            顺序：标题 > 信息带 > Tab > 内容
+        ════════════════════════════════════════════ */}
         <div className="min-w-0">
 
-          {/* 标题 */}
+          {/* 标题 — 24px, margin-top 20px */}
           <h1
             className="font-extrabold leading-tight text-foreground"
             style={{ fontSize: "24px", marginTop: "20px" }}
@@ -116,47 +119,52 @@ export default async function GameDetailPage({
             <p className="mt-1 text-sm text-muted-foreground">原作：{game.originalWork}</p>
           )}
 
-          {/* 信息带 — SFW + 标签 + 统计 */}
-          <div className="mt-4 space-y-3">
-            {/* SFW 纯文本 */}
-            <span
-              className="inline-block text-sm font-semibold"
-              style={{ color: "#80F3FF" }}
-            >
-              {game.isNsfw ? "NSFW" : "SFW"}
-            </span>
-
-            {/* 标签 — flex-wrap, 1px 细边框, 自动换行 */}
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
+          {/* 信息带 — SFW + 标签（同一行, wrap）+ 统计（下一行） */}
+          <div className="mt-4 space-y-2">
+            {/* SFW 纯文本 + 标签（紧跟, 不换行, wrap 自动换行） */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className="inline-block text-sm font-semibold"
+                style={{ color: "#80F3FF" }}
+              >
+                {game.isNsfw ? "NSFW" : "SFW"}
+              </span>
+              {paramTags.map((tag, i) => (
                 <span
-                  key={tag.name}
-                  className="inline-block rounded-full px-3 py-1 text-xs font-medium"
+                  key={i}
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                   style={{
-                    color: tag.color,
+                    color: "#80F3FF",
                     background: "transparent",
-                    border: `1px solid ${tag.color}60`,
+                    border: "1px solid rgba(128, 243, 255, 0.35)",
                   }}
                 >
-                  {tag.name}
+                  {tag}
                 </span>
               ))}
             </div>
 
-            {/* 统计数据 — 灰字小样 */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-              {game.status && (
-                <span>{game.status}</span>
-              )}
-              <span>{game.viewCount} 次浏览</span>
-              <span>{game.favoriteCount} 收藏</span>
-              <span>{new Date(game.createdAt).toLocaleDateString("zh-CN")}</span>
+            {/* 人气数据 — 小图标 UI，和游戏卡片一样 */}
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#7EDCBA" }}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                {game.viewCount}
+              </span>
+              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#7EDCBA" }}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                {game.downloadCount}
+              </span>
+              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#7EDCBA" }}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                {game.favoriteCount}
+              </span>
+              {/* VNDB 链接 */}
               {game.vndbId && (
                 <a
                   href={`https://vndb.org/v${game.vndbId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="text-xs font-medium hover:underline"
                   style={{ color: "#80F3FF" }}
                 >
                   VNDB
@@ -165,64 +173,32 @@ export default async function GameDetailPage({
             </div>
           </div>
 
-          {/* Tab 导航 + 内容区 — 客户端组件 */}
+          {/* Tab 导航 + 内容区 */}
           <GameDetailClient
             description={game.description}
             screenshots={screenshots}
-            creators={game.creators.map(gc => ({
-              id: gc.creator.id,
-              name: gc.creator.name,
-              nameJa: gc.creator.nameJa,
-              avatar: gc.creator.avatar,
-              role: gc.role,
+            downloadLinks={downloadLinks}
+            creators={creators}
+            comments={game.comments.map((c) => ({
+              id: c.id,
+              content: c.content,
+              imageUrl: c.imageUrl,
+              likeCount: c.likeCount,
+              createdAt: c.createdAt.toISOString(),
+              user: c.user,
             }))}
-            logs={game.logs.map(l => ({
-              id: l.id,
-              content: l.content,
-              createdAt: l.createdAt.toISOString(),
-            }))}
+            isLoggedIn={!!session?.user}
+            currentUserId={session?.user?.id}
+            gameId={id}
+            isFav={isFav}
+            favCount={game.favoriteCount}
           />
-
-          {/* 评论区 */}
-          <div className="mt-8">
-            <CommentSection
-              gameId={id}
-              comments={game.comments.map((c) => ({
-                id: c.id,
-                content: c.content,
-                imageUrl: c.imageUrl,
-                likeCount: c.likeCount,
-                createdAt: c.createdAt.toISOString(),
-                user: c.user,
-              }))}
-              isLoggedIn={!!session?.user}
-              currentUserId={session?.user?.id}
-            />
-          </div>
-
-          {/* 相关游戏 */}
-          {related.length > 0 && (
-            <section className="mt-8">
-              <h2 className="mb-3 text-sm font-semibold text-foreground">相关游戏</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {related.map((g) => (
-                  <a key={g.id} href={`/games/${g.id}`} className="group overflow-hidden rounded-xl transition-all hover:-translate-y-0.5" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
-                    <div className="relative" style={{ aspectRatio: "4/3" }}>
-                      {g.coverImage ? (
-                        <img src={g.coverImage} alt={g.title} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">暂无封面</div>
-                      )}
-                    </div>
-                    <p className="truncate px-2.5 py-2 text-xs text-muted-foreground group-hover:text-foreground transition-colors">{g.title}</p>
-                  </a>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
 
-        {/* ─── 右侧资源栏 (PC 35%, 移动端隐藏) ─── */}
+        {/* ════════════════════════════════════════════
+            右侧资源栏 (PC 35%, 移动端隐藏)
+            Sticky, 卡片式背景
+        ════════════════════════════════════════════ */}
         <aside className="hidden lg:block">
           <div
             className="sticky rounded-2xl p-6 space-y-5"
@@ -232,13 +208,6 @@ export default async function GameDetailPage({
               border: "1px solid hsl(var(--border))",
             }}
           >
-            {/* 封面缩略图 */}
-            {game.coverImage && (
-              <div className="overflow-hidden rounded-xl" style={{ aspectRatio: "4/5" }}>
-                <img src={game.coverImage} alt={game.title} className="h-full w-full object-cover" />
-              </div>
-            )}
-
             {/* 文件大小 — 全站唯一出现处 */}
             {game.fileSize && (
               <div className="text-center">
@@ -277,7 +246,7 @@ export default async function GameDetailPage({
               </div>
             </div>
 
-            {/* 下载按钮 — 薄荷青实色填充 */}
+            {/* 下载按钮 — #80F3FF 实色填充 */}
             {downloadLinks.length > 0 && (
               <div className="space-y-2">
                 {downloadLinks.map((dl, i) => (
@@ -296,48 +265,35 @@ export default async function GameDetailPage({
             )}
 
             {/* 创作者 */}
-            {game.creators.length > 0 && (
+            {creators.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-xs font-semibold text-muted-foreground">创作者</h3>
-                {game.creators.map(gc => (
+                {creators.map((c) => (
                   <a
-                    key={`${gc.creatorId}-${gc.role}`}
-                    href={`/creators/${gc.creatorId}`}
+                    key={`${c.id}-${c.role}`}
+                    href={`/creators/${c.id}`}
                     className="flex items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-secondary"
                   >
-                    {gc.creator.avatar ? (
-                      <img src={gc.creator.avatar} alt={gc.creator.name} className="h-7 w-7 rounded-full object-cover" />
+                    {c.avatar ? (
+                      <img src={c.avatar} alt={c.name} className="h-7 w-7 rounded-full object-cover" />
                     ) : (
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #80F3FF, #06b6d4)" }}>
-                        {(gc.creator.nameJa || gc.creator.name)[0]}
+                      <div
+                        className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
+                        style={{ background: "linear-gradient(135deg, #C8F2E4, #7EDCBA)" }}
+                      >
+                        {(c.nameJa || c.name)[0]}
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-foreground">{gc.creator.nameJa || gc.creator.name}</p>
+                      <p className="text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
                       <p className="text-[11px] text-muted-foreground">
-                        {{ scenario:"脚本", art:"原画", chardesign:"角色设计", director:"导演", music:"音乐", songs:"主题曲" }[gc.role] ?? gc.role}
+                        {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
                       </p>
                     </div>
                   </a>
                 ))}
               </div>
             )}
-
-            {/* 操作按钮 */}
-            <div className="flex gap-2 pt-2">
-              <a
-                href="#comments"
-                className="flex-1 rounded-xl bg-secondary py-2.5 text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                评论 ({game.comments.length})
-              </a>
-              <button
-                className="flex-1 rounded-xl py-2.5 text-xs font-medium text-black transition-opacity hover:opacity-90"
-                style={{ backgroundColor: isFav ? "#80F3FF" : "hsl(var(--secondary))", color: isFav ? "#000" : "hsl(var(--muted-foreground))" }}
-              >
-                {isFav ? "已收藏" : "收藏"}
-              </button>
-            </div>
           </div>
         </aside>
       </div>

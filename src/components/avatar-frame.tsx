@@ -64,8 +64,8 @@ function SlimeFrameSVG({ size }: { size: number }) {
       <defs>
         {/* 淡蓝色光圈渐变 */}
         <linearGradient id="slime-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.7" />
+          <stop offset="0%" stopColor="#7EDCBA" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#C8F2E4" stopOpacity="0.7" />
           <stop offset="100%" stopColor="#818cf8" stopOpacity="0.9" />
         </linearGradient>
         {/* 光圈发光效果 */}
@@ -83,7 +83,7 @@ function SlimeFrameSVG({ size }: { size: number }) {
       {/* 主光圈边框 */}
       <circle cx="50" cy="50" r="47" fill="none" stroke="url(#slime-glow)" strokeWidth="2.5" />
       {/* 内层细边 */}
-      <circle cx="50" cy="50" r="45" fill="none" stroke="#38bdf8" strokeWidth="0.5" opacity="0.5" />
+      <circle cx="50" cy="50" r="45" fill="none" stroke="#7EDCBA" strokeWidth="0.5" opacity="0.5" />
 
       {/* 右上角史莱姆角色 - 参考转生成史莱姆那档事的史莱姆 */}
       <g transform="translate(72, 8) scale(0.32)">
@@ -118,7 +118,7 @@ function SlimeFrameSVG({ size }: { size: number }) {
       </g>
 
       {/* 一些小气泡装饰 */}
-      <circle cx="82" cy="32" r="1.5" fill="#38bdf8" opacity="0.5">
+      <circle cx="82" cy="32" r="1.5" fill="#7EDCBA" opacity="0.5">
         <animate attributeName="cy" values="32;28;32" dur="3s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.5;0.2;0.5" dur="3s" repeatCount="indefinite" />
       </circle>
@@ -204,13 +204,13 @@ function AuroraFrameSVG({ size }: { size: number }) {
       <defs>
         <linearGradient id="aurora-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#34d399">
-            <animate attributeName="stop-color" values="#34d399;#38bdf8;#a78bfa;#34d399" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="stop-color" values="#34d399;#7EDCBA;#a78bfa;#34d399" dur="6s" repeatCount="indefinite" />
           </stop>
-          <stop offset="50%" stopColor="#38bdf8">
-            <animate attributeName="stop-color" values="#38bdf8;#a78bfa;#34d399;#38bdf8" dur="6s" repeatCount="indefinite" />
+          <stop offset="50%" stopColor="#7EDCBA">
+            <animate attributeName="stop-color" values="#7EDCBA;#a78bfa;#34d399;#7EDCBA" dur="6s" repeatCount="indefinite" />
           </stop>
           <stop offset="100%" stopColor="#a78bfa">
-            <animate attributeName="stop-color" values="#a78bfa;#34d399;#38bdf8;#a78bfa" dur="6s" repeatCount="indefinite" />
+            <animate attributeName="stop-color" values="#a78bfa;#34d399;#7EDCBA;#a78bfa" dur="6s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
       </defs>

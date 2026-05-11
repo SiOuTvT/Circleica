@@ -8,10 +8,10 @@ import { useCallback, useRef, useState } from "react"
 interface Comment {
   id: string
   content: string
-  imageUrl: string
+  imageUrl?: string | null
   likeCount: number
   createdAt: string
-  user: { id: string; username: string; avatar: string }
+  user: { id: string; username: string; avatar: string | null }
 }
 
 interface Props {
