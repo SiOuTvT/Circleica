@@ -55,10 +55,10 @@ export function GameCard({ game }: { game: GameCardData }) {
   return (
     <Link
       href={`/games/${game.id}`}
-      className="group block overflow-hidden rounded-2xl transition-transform duration-200 hover:-translate-y-1"
+      className="group block overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
       style={{
         background: "hsl(var(--card))",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06)",
         border: "1px solid hsl(var(--border))",
         aspectRatio: "3 / 4",
       }}
@@ -89,13 +89,13 @@ export function GameCard({ game }: { game: GameCardData }) {
 
         {/* 标题 (40%) — 大字，加粗 */}
         <div className="flex-[40] flex items-start min-h-0">
-          <h3 className="text-sm sm:text-base font-bold leading-snug text-foreground line-clamp-2">
+          <h3 className="text-base sm:text-lg font-bold leading-snug text-foreground line-clamp-2">
             {game.title}
           </h3>
         </div>
 
         {/* 人气数据 (20%) — 灰色，低调 */}
-        <div className="flex-[20] flex items-center gap-3 sm:gap-4">
+        <div className="flex-[16] flex items-center gap-3 sm:gap-4">
           {viewStr && (
             <span className="flex items-center gap-1 text-xs sm:text-sm font-medium text-muted-foreground/70">
               <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={2} />
@@ -116,8 +116,8 @@ export function GameCard({ game }: { game: GameCardData }) {
           )}
         </div>
 
-        {/* 标签 (30%) — 主题青色胶囊，自动换行 */}
-        <div className="flex-[30] flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-0 overflow-hidden">
+        {/* 标签 (34%) — 主题青色胶囊，自动换行 */}
+        <div className="flex-[34] flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-0 overflow-hidden">
           {paramTags.map((tag, i) => (
             <span
               key={i}
@@ -150,12 +150,12 @@ export function GameCardSkeleton() {
           <div className="h-4 w-full rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
         </div>
-        <div className="flex-[20] flex gap-3">
+        <div className="flex-[16] flex gap-3">
           <div className="h-4 w-10 rounded skeleton-shimmer" />
           <div className="h-4 w-10 rounded skeleton-shimmer" />
           <div className="h-4 w-10 rounded skeleton-shimmer" />
         </div>
-        <div className="flex-[30] flex flex-wrap gap-1.5">
+        <div className="flex-[34] flex flex-wrap gap-1.5">
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
           <div className="h-5 w-12 rounded-full skeleton-shimmer" />
           <div className="h-5 w-16 rounded-full skeleton-shimmer" />
