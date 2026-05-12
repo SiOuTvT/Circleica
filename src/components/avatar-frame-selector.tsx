@@ -6,12 +6,8 @@ import { useSession } from "next-auth/react"
 import { useState, useTransition } from "react"
 
 const FRAMES = [
-  { id: "none",       label: "无边框",   desc: "经典简洁",      color: "from-zinc-500/20 to-zinc-600/10" },
-  { id: "slime",      label: "史莱姆",   desc: "QQ弹弹的绿色", color: "from-emerald-500/20 to-green-500/10" },
-  { id: "sakura",     label: "樱花",     desc: "粉色花瓣飘落", color: "from-pink-500/20 to-rose-500/10" },
-  { id: "starlight",  label: "星光",     desc: "星辰闪烁",     color: "from-blue-500/20 to-indigo-500/10" },
-  { id: "aurora",     label: "极光",     desc: "幻彩流光",     color: "from-violet-500/20 to-fuchsia-500/10" },
-  { id: "flame",      label: "烈焰",     desc: "燃烧的火焰",   color: "from-orange-500/20 to-red-500/10" },
+  { id: "none",  label: "无边框", desc: "经典简洁",      color: "from-zinc-500/20 to-zinc-600/10" },
+  { id: "slime", label: "史莱姆", desc: "可爱蓝色史莱姆趴在右上角", color: "from-sky-500/20 to-blue-500/10" },
 ]
 
 export function AvatarFrameSelector({
@@ -40,7 +36,6 @@ export function AvatarFrameSelector({
         body: JSON.stringify({ frame: frameId }),
       })
       if (res.ok) {
-        // Update session so nav bar reflects the change
         startTransition(async () => {
           await update({ avatarFrame: frameId })
         })
@@ -62,7 +57,7 @@ export function AvatarFrameSelector({
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
           <div
-            className="mx-4 w-full max-w-lg rounded-2xl bg-card ring-1 ring-border overflow-hidden"
+            className="mx-4 w-full max-w-md rounded-2xl bg-card ring-1 ring-border overflow-hidden"
             style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}
             onClick={e => e.stopPropagation()}
           >
@@ -74,7 +69,7 @@ export function AvatarFrameSelector({
             <div className="p-5">
               {/* Preview */}
               <div className="mb-5 flex justify-center">
-                <AvatarFrame frameId={selected} size={96}>
+                <AvatarFrame frameId={selected} size={80}>
                   {userImage ? (
                     <img src={userImage} alt={userName} className="h-full w-full object-cover rounded-full" />
                   ) : (
@@ -86,32 +81,32 @@ export function AvatarFrameSelector({
               </div>
 
               {/* Grid */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {FRAMES.map(f => (
                   <button
                     key={f.id}
                     onClick={() => handleSelect(f.id)}
                     disabled={saving}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition-all",
+                      "flex flex-col items-center gap-2 rounded-xl p-4 ring-1 transition-all",
                       selected === f.id
                         ? "ring-primary bg-primary/10"
                         : "ring-border bg-secondary/50 hover:bg-accent hover:ring-primary/30",
                       saving && "opacity-50 cursor-wait"
                     )}
                   >
-                    <AvatarFrame frameId={f.id} size={48}>
+                    <AvatarFrame frameId={f.id} size={56}>
                       {userImage ? (
                         <img src={userImage} alt="" className="h-full w-full object-cover rounded-full" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">
+                        <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-sm font-bold text-white">
                           {userName[0].toUpperCase()}
                         </div>
                       )}
                     </AvatarFrame>
                     <div className="text-center">
-                      <div className="text-xs font-medium text-foreground">{f.label}</div>
-                      <div className="text-[10px] text-muted-foreground">{f.desc}</div>
+                      <div className="text-sm font-medium text-foreground">{f.label}</div>
+                      <div className="text-[11px] text-muted-foreground">{f.desc}</div>
                     </div>
                   </button>
                 ))}

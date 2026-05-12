@@ -32,6 +32,10 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         const res  = await fetch(`/api/games?${params}`)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
+        if (!Array.isArray(data?.games)) {
+          console.error("API 返回格式异常:", data)
+          return
+        }
         setGames(prev => [...prev, ...data.games])
         setPage(p => p + 1)
       } catch (err) {

@@ -56,18 +56,21 @@ export function buildGameSearchFilter(options: {
     ...getGameNsfwFilter(nsfw),
   }
 
-  // 搜索关键词
+  // 标签筛选（精确匹配，作为顶层 AND 条件）
+  if (tag && tag !== "全部") {
+    where.tags = { some: { tag: { name: tag } } }
+  }
+
+  // 搜索关键词（当已指定标签时，不在 OR 中重复搜索 tags，避免冲突）
   if (q) {
     where.OR = [
       { title: { contains: q, mode: "insensitive" } },
       { originalWork: { contains: q, mode: "insensitive" } },
-      { tags: { some: { tag: { name: { contains: q, mode: "insensitive" } } } } },
+      // 仅在未指定精确标签时，才将关键词模糊匹配加入 tags 搜索
+      ...(tag && tag !== "全部"
+        ? []
+        : [{ tags: { some: { tag: { name: { contains: q, mode: "insensitive" } } } } }]),
     ]
-  }
-
-  // 标签筛选
-  if (tag && tag !== "全部") {
-    where.tags = { some: { tag: { name: tag } } }
   }
 
   return where

@@ -1,13 +1,15 @@
+import sanitize from "sanitize-html"
+
 /**
  * 输入清理工具
  * 用于清理用户输入，防止 XSS 和注入攻击
  */
 
 /**
- * 清理 HTML 标签，防止 XSS
+ * 清理 HTML 标签，防止 XSS（使用 sanitize-html 确保安全）
  */
 export function stripHtml(input: string): string {
-  return input.replace(/<[^>]*>/g, "")
+  return sanitize(input, { allowedTags: [], allowedAttributes: {} })
 }
 
 /**
