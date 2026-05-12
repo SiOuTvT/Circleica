@@ -1,8 +1,8 @@
 ﻿"use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 interface Game { id: string; title: string; coverImage: string; isNsfw: boolean }
 interface PlayStatusGame { game: Game; status: string }
@@ -45,21 +45,21 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
       {/* 本命游戏 */}
       {faveGame && (
         <section>
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-300">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
             <span className="h-4 w-0.5 rounded-full bg-gradient-to-b from-blue-400 to-blue-400" />
             本命游戏
           </h2>
           <Link href={`/games/${faveGame.id}`}
-            className="flex items-center gap-3 rounded-xl bg-zinc-900 p-3 ring-1 ring-white/[0.06] transition-all hover:bg-zinc-800 hover:ring-white/10">
+            className="flex items-center gap-3 rounded-xl bg-secondary p-3 ring-1 ring-border transition-all hover:bg-accent">
             {faveGame.coverImage ? (
               <Image src={faveGame.coverImage} alt={faveGame.title} width={56} height={70}
                 className="h-[70px] w-[56px] rounded-lg object-cover shrink-0" />
             ) : (
-              <div className="h-[70px] w-[56px] shrink-0 rounded-lg bg-zinc-800" />
+              <div className="h-[70px] w-[56px] shrink-0 rounded-lg bg-muted" />
             )}
             <div>
-              <p className="font-semibold text-zinc-200">{faveGame.title}</p>
-              {faveGame.originalWork && <p className="mt-0.5 text-xs text-zinc-500">{faveGame.originalWork}</p>}
+              <p className="font-semibold text-foreground">{faveGame.title}</p>
+              {faveGame.originalWork && <p className="mt-0.5 text-xs text-muted-foreground">{faveGame.originalWork}</p>}
             </div>
           </Link>
         </section>
@@ -73,12 +73,12 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
               className={[
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                 activeTab === tab.key
-                  ? "bg-zinc-800 text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-300",
+                  ? "bg-secondary text-foreground ring-1 ring-border font-semibold"
+                  : "text-muted-foreground hover:text-foreground",
               ].join(" ")}>
               {tab.label}
               {counts[tab.key] > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${activeTab === tab.key ? "bg-zinc-700 text-zinc-300" : "bg-zinc-800 text-zinc-600"}`}>
+                <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${activeTab === tab.key ? "bg-accent text-foreground" : "bg-muted text-muted-foreground"}`}>
                   {counts[tab.key]}
                 </span>
               )}
@@ -87,23 +87,23 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
         </div>
 
         {games.length === 0 ? (
-          <p className="py-8 text-center text-sm text-zinc-600">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             {activeTab === "fav" ? "还没有收藏任何游戏~" : `还没有「${TABS.find(t => t.key === activeTab)?.label}」的游戏`}
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {games.slice(0, 12).map(g => (
               <Link key={g.id} href={`/games/${g.id}`}
-                className="group overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-white/[0.06] transition-all hover:-translate-y-0.5 hover:ring-white/10">
+                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition-all hover:-translate-y-0.5 hover:ring-primary/30">
                 <div className="relative" style={{ aspectRatio: "4/5" }}>
                   {g.coverImage ? (
                     <Image src={g.coverImage} alt={g.title} fill
                       className="object-cover transition-transform group-hover:scale-[1.04]" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 text-zinc-600 text-xs">无封面</div>
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs">无封面</div>
                   )}
                 </div>
-                <p className="truncate px-2 py-1.5 text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                <p className="truncate px-2 py-1.5 text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">
                   {g.title}
                 </p>
               </Link>

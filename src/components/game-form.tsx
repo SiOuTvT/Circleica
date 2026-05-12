@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { ImageUpload } from "@/components/image-upload";
-import { Loader2, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -126,35 +126,74 @@ export function GameForm({ tags, gameId, initialData }: Props) {
   const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
   const labelCls = "mb-1.5 block text-xs font-medium text-muted-foreground"
 
-  /* 通用多选标签渲染器 */
-  function renderMultiSelect(label: string, options: string[], selected: string[], setSelected: (v: string[]) => void) {
+  /* 通用多选标签渲染器 — 下拉选择控件 */
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+
+  function renderMultiSelect(label: string, options: string[], selected: string[], setSelected: (v: string[]) => void, id: string) {
+    const isOpen = openDropdown === id
     return (
-      <div>
+      <div className="relative">
         <label className={labelCls}>{label}</label>
-        {/* 已选标签 */}
-        <div className="flex flex-wrap gap-1.5 mb-2 min-h-[28px]">
-          {selected.map(s => (
-            <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium transition-all duration-200">
-              {s}
-              <button type="button" onClick={() => setSelected(selected.filter(v => v !== s))} className="hover:text-red-400 transition-colors duration-200">
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-        {/* 选项列表 */}
-        <div className="flex flex-wrap gap-1.5">
-          {options.map(opt => (
-            <button key={opt} type="button" onClick={() => toggleMultiSelect(selected, setSelected, opt)}
-              className={`rounded-full px-3 py-1 text-xs font-medium ring-1 transition-all duration-200 ${
-                selected.includes(opt)
-                  ? "bg-primary/15 text-primary ring-primary/30"
-                  : "bg-secondary text-muted-foreground ring-border opacity-60 hover:opacity-100"
-              }`}>
-              {opt}
-            </button>
-          ))}
-        </div>
+        {/* 选择框 */}
+        <button
+          type="button"
+          onClick={() => setOpenDropdown(isOpen ? null : id)}
+          className="w-full rounded-xl bg-secondary px-4 py-2.5 text-left text-sm ring-1 ring-border outline-none focus:ring-ring transition-all"
+        >
+          <div className="flex flex-wrap items-center gap-1.5 min-h-[20px]">
+            {selected.length === 0 ? (
+              <span className="text-muted-foreground/50">点击选择{label}…</span>
+            ) : (
+              selected.map(s => (
+                <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
+                  {s}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); setSelected(selected.filter(v => v !== s)) }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setSelected(selected.filter(v => v !== s)) } }}
+                    className="hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </span>
+                </span>
+              ))
+            )}
+            <ChevronDown className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+          </div>
+        </button>
+        {/* 下拉选项 */}
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+            <div className="absolute z-50 mt-1 w-full rounded-xl bg-popover p-1.5 shadow-xl ring-1 ring-border max-h-60 overflow-y-auto">
+              {options.map(opt => {
+                const checked = selected.includes(opt)
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => toggleMultiSelect(selected, setSelected, opt)}
+                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                      checked
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                      checked
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background"
+                    }`}>
+                      {checked && "✓"}
+                    </span>
+                    {opt}
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -202,8 +241,8 @@ export function GameForm({ tags, gameId, initialData }: Props) {
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-5">
         <h2 className="text-sm font-semibold text-foreground">运行参数</h2>
 
-        {renderMultiSelect("平台", PLATFORM_OPTIONS, selectedPlatforms, setSelectedPlatforms)}
-        {renderMultiSelect("语言", LANGUAGE_OPTIONS, selectedLanguages, setSelectedLanguages)}
+        {renderMultiSelect("平台", PLATFORM_OPTIONS, selectedPlatforms, setSelectedPlatforms, "platform")}
+        {renderMultiSelect("语言", LANGUAGE_OPTIONS, selectedLanguages, setSelectedLanguages, "language")}
 
         {/* 文件大小：多行追加 */}
         <div>

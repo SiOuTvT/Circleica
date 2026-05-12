@@ -1,5 +1,6 @@
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
+import { ThemeScript } from "@/components/theme-script"
 import type { Metadata, Viewport } from "next"
 import "./globals.css"
 
@@ -17,7 +18,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" className="h-full antialiased">
+    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-full bg-background text-foreground">
         <Providers>
           <LayoutWrapper>

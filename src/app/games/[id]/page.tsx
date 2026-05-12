@@ -243,17 +243,35 @@ export default async function GameDetailPage({
 
             {/* 运行参数 */}
             {(platformTags.length > 0 || languageTags.length > 0) && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {platformTags.length > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">平台</span>
-                    <span className="text-foreground">{platformTags.join("、")}</span>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">平台</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {platformTags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-border bg-secondary text-secondary-foreground"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {languageTags.length > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">语言</span>
-                    <span className="text-foreground">{languageTags.join("、")}</span>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">语言</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {languageTags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-border bg-secondary text-secondary-foreground"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

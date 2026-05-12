@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { cn } from "@/lib/utils"
-import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Tag, Users, X } from "lucide-react"
+import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Palette, Tag, Users, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -13,6 +13,7 @@ const items = [
   { icon: Megaphone,       label: "公告管理",  href: "/admin/announcements" },
   { icon: Music,           label: "音乐管理",  href: "/admin/music" },
   { icon: Users,           label: "用户管理",  href: "/admin/users" },
+  { icon: Palette,         label: "主题设置",  href: "/admin/theme" },
 ]
 
 export function AdminNav() {

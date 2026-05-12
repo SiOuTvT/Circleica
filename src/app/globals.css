@@ -559,18 +559,44 @@ input:focus, textarea:focus, select:focus {
   border-color: rgba(56, 189, 248, 0.25);
 }
 
-/* ── 亮色模式文字对比度增强 ── */
-.light .text-zinc-100,
+/* ═══════════════════════════════════════════════════════
+   亮色模式全面对比度修复
+   规则：深色背景 → 浅色背景，浅色文字 → 深色文字
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 背景色：深色 zinc → 浅色 ── */
+.light .bg-zinc-900,
+.light .bg-zinc-900\/95,
+.light .bg-zinc-900\/80,
+.light .bg-zinc-900\/50 {
+  background-color: #ffffff !important;
+}
+
+.light .bg-zinc-800 {
+  background-color: #f4f4f5 !important; /* zinc-100 */
+}
+
+.light .bg-zinc-800\/80,
+.light .bg-zinc-800\/60,
+.light .bg-zinc-800\/50,
+.light .bg-zinc-800\/30 {
+  background-color: rgba(244, 244, 245, 0.8) !important;
+}
+
+.light .bg-zinc-700 {
+  background-color: #e4e4e7 !important; /* zinc-200 */
+}
+
+.light .bg-zinc-950\/80 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── 文字色：浅色 zinc → 深色 ── */
+.light .text-zinc-100 {
+  color: #18181b !important; /* zinc-900 */
+}
+
 .light .text-zinc-200 {
-  color: #18181b !important; /* zinc-900，白色文字在亮色模式下变为深色 */
-}
-
-.light .text-zinc-400,
-.light .text-zinc-500 {
-  color: #27272a !important; /* zinc-800，确保亮色模式下清晰可读 */
-}
-
-.light .text-zinc-600 {
   color: #18181b !important; /* zinc-900 */
 }
 
@@ -578,15 +604,143 @@ input:focus, textarea:focus, select:focus {
   color: #3f3f46 !important; /* zinc-700 */
 }
 
-/* 亮色模式下 muted-foreground 确保足够对比 */
-.light .text-muted-foreground {
+.light .text-zinc-400 {
+  color: #52525b !important; /* zinc-600 */
+}
+
+.light .text-zinc-500 {
   color: #3f3f46 !important; /* zinc-700 */
 }
 
-/* 亮色模式下 placeholder 文字 */
+.light .text-zinc-600 {
+  color: #27272a !important; /* zinc-800 */
+}
+
+/* ── 边框/描边：白色描边 → 黑色描边 ── */
+.light .ring-white\/\[0\.06\] {
+  --tw-ring-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .ring-white\/\[0\.08\] {
+  --tw-ring-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .ring-white\/10 {
+  --tw-ring-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .ring-white\/\[0\.04\] {
+  --tw-ring-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.light .border-white\/\[0\.06\] {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .border-white\/\[0\.08\] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── hover 状态修复 ── */
+.light .hover\:bg-zinc-800:hover {
+  background-color: #e4e4e7 !important; /* zinc-200 */
+}
+
+.light .hover\:bg-zinc-700:hover {
+  background-color: #d4d4d8 !important; /* zinc-300 */
+}
+
+.light .hover\:bg-zinc-800\/50:hover {
+  background-color: rgba(228, 228, 231, 0.5) !important;
+}
+
+.light .hover\:bg-zinc-800\/60:hover {
+  background-color: rgba(228, 228, 231, 0.6) !important;
+}
+
+.light .hover\:text-zinc-100:hover {
+  color: #18181b !important;
+}
+
+.light .hover\:text-zinc-200:hover {
+  color: #18181b !important;
+}
+
+.light .hover\:text-zinc-300:hover {
+  color: #27272a !important;
+}
+
+.light .hover\:ring-white\/10:hover {
+  --tw-ring-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .hover\:ring-white\/\[0\.12\]:hover {
+  --tw-ring-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── focus 状态修复 ── */
+.light .focus-within\:ring-white\/\[0\.12\]:focus-within {
+  --tw-ring-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── 渐变背景修复 ── */
+.light .from-zinc-900 {
+  --tw-gradient-from: #ffffff !important;
+}
+
+.light .via-zinc-900 {
+  --tw-gradient-via: #ffffff !important;
+}
+
+.light .to-zinc-800\/50 {
+  --tw-gradient-to: rgba(244, 244, 245, 0.5) !important;
+}
+
+/* ── placeholder 文字 ── */
 .light input::placeholder,
 .light textarea::placeholder {
-  color: #71717a; /* zinc-500 */
+  color: #71717a !important; /* zinc-500 */
+}
+
+/* ── placeholder 类修复 ── */
+.light .placeholder\:text-zinc-600::placeholder {
+  color: #71717a !important; /* zinc-500 */
+}
+
+.light .placeholder\:text-zinc-500::placeholder {
+  color: #52525b !important; /* zinc-600 */
+}
+
+/* ── border-t / border-b 分割线修复 ── */
+.light .border-zinc-700 {
+  border-color: #e4e4e7 !important;
+}
+
+/* ── focus:ring 修复 ── */
+.light .focus\:ring-zinc-600:focus {
+  --tw-ring-color: #d4d4d8 !important;
+}
+
+.light .focus\:ring-white\/\[0\.12\]:focus {
+  --tw-ring-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ── disabled 状态 ── */
+.light .disabled\:opacity-40:disabled {
+  opacity: 0.4;
+}
+
+.light .disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+
+/* ── prose 富文本亮色修复 ── */
+.light .prose-headings\:text-zinc-200 :is(:where(h1, h2, h3, h4, h5, h6):not(:where([class~="not-prose"], [class~="not-prose"] *))) {
+  color: #18181b !important;
 }
 
 /* ── 电脑端按钮和图标加大 ── */
