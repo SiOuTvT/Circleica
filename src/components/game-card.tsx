@@ -60,7 +60,7 @@ export function GameCard({ game }: { game: GameCardData }) {
         background: "hsl(var(--card))",
         boxShadow: "0 2px 8px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06)",
         border: "1px solid hsl(var(--border))",
-        aspectRatio: "3 / 4",
+        aspectRatio: "3 / 3.2",
       }}
     >
       {/* ─── 封面 50% ─── */}
@@ -141,7 +141,7 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="block overflow-hidden rounded-2xl border border-border bg-card" style={{ aspectRatio: "2 / 3" }}>
+    <div className="block overflow-hidden rounded-2xl border border-border bg-card" style={{ aspectRatio: "3 / 3.2" }}>
       {/* 封面 50% */}
       <div className="w-full skeleton-shimmer" style={{ height: "50%" }} />
       {/* 内容 50% */}
