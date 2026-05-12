@@ -360,32 +360,48 @@ class VNDBClient {
     }>
   } | null> {
     const searchTerms = [
-      "あ", "か", "さ", "た", "な", "は", "ま", "や", "ら", "わ",
-      "い", "き", "し", "ち", "に", "ひ", "み", "り",
-      "う", "く", "す", "つ", "ぬ", "ふ", "む", "ゆ", "る",
-      "え", "お", "け", "こ", "せ", "そ", "て", "と", "ね", "の",
+      "あ", "か", "さ", "た", "な", "は", "ma", "ら", "わ",
+      "い", "き", "shi", "chi", "に", "hi", "mi", "ri",
+      "う", "く", "su", "tsu", "nu", "fu", "mu", "yu", "ru",
+      "え", "お", "ke", "ko", "se", "so", "te", "to", "ne", "no",
       // 也加入一些常见英文名字做搜索
       "a", "s", "m", "k", "t", "n", "h", "r", "y", "w"
     ]
     
-    // 打乱顺序，尝试最多 3 个不同的搜索词
+    // 打乱顺序，尝试最多 5 个不同的搜索词（增加命中率）
     const shuffled = [...searchTerms].sort(() => Math.random() - 0.5)
-    const attempts = shuffled.slice(0, 3)
+    const attempts = shuffled.slice(0, 5)
     
     for (const term of attempts) {
       try {
         console.log(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
         
+        // 带 vns 数据获取，以过滤掉 0 作品的创作者
         const data = await this.sendRequest("staff", {
           filters: ["search", "=", term],
-          fields: "id,name,original,description,gender",
+          fields: "id,name,original,description,gender,vns.role,vns.title",
           results: 25,
         })
         
         const staffList = (data.results || []).filter((s: any) => s.id)
         if (staffList.length > 0) {
-          const staff = staffList[Math.floor(Math.random() * staffList.length)]
-          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id})`)
+          // 优先选择有作品的 staff（降低 0 作品概率）
+          const withWorks = staffList.filter((s: any) => s.vns && s.vns.length > 0)
+          const pool = withWorks.length > 0 ? withWorks : staffList
+          
+          const staff = pool[Math.floor(Math.random() * pool.length)]
+          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
+          
+          // 提取角色职责和关联作品
+          const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
+          const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
+            id: v.id || "",
+            title: v.title || "",
+            original: v.original || "",
+            role: v.role || "",
+            rating: v.rating,
+            image: v.image?.url,
+          }))
           
           return {
             id: staff.id,
@@ -394,8 +410,8 @@ class VNDBClient {
             description: staff.description,
             gender: staff.gender,
             vndbId: staff.id.replace("s", ""),
-            roles: [],
-            vns: [],
+            roles,
+            vns,
           }
         }
         

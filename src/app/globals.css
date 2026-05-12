@@ -813,3 +813,17 @@ input:focus, textarea:focus, select:focus {
     height: 26px;
   }
 }
+
+/* ── 随机发现按钮 - 亮色模式 hover 文字可读性 ── */
+.light .random-discover-btn:hover {
+  color: #18181b !important; /* zinc-900 */
+  background-color: #e4e4e7 !important; /* zinc-200 */
+}
+
+.light .random-discover-btn:hover svg {
+  color: #18181b !important;
+}
+
+.light .random-discover-btn:hover span {
+  color: #18181b !important;
+}
