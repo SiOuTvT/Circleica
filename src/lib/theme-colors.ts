@@ -63,6 +63,10 @@ export function applyThemeColor(hex: string) {
     root.style.setProperty("--sidebar-primary-foreground", "#f0f0f2")
     root.style.setProperty("--accent", darkenHex(hex, 0.7))
     root.style.setProperty("--accent-foreground", lightenHex(hex, 0.4))
+    // Update accent color variables used across the site
+    root.style.setProperty("--clr-blue", primaryDark)
+    root.style.setProperty("--clr-sky", lightenHex(hex, 0.25))
+    root.style.setProperty("--clr-glow", `${hex}1F`)
   } else {
     // Light mode: use the color as-is
     root.style.setProperty("--primary", hex)
@@ -74,5 +78,9 @@ export function applyThemeColor(hex: string) {
     root.style.setProperty("--sidebar-primary-foreground", fg)
     root.style.setProperty("--accent", lightenHex(hex, 0.8))
     root.style.setProperty("--accent-foreground", darkenHex(hex, 0.5))
+    // Update accent color variables used across the site
+    root.style.setProperty("--clr-blue", darkenHex(hex, 0.2))
+    root.style.setProperty("--clr-sky", lightenHex(hex, 0.15))
+    root.style.setProperty("--clr-glow", `${hex}1F`)
   }
 }

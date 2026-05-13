@@ -225,7 +225,7 @@ export function GameForm({ tags, gameId, initialData }: Props) {
           <ImageUpload
             value={coverImage}
             onChange={(url) => setCoverImage(url)}
-            aspectRatio={4 / 5}
+            aspectRatio={3 / 4}
             maxSizeMB={5}
             placeholder="上传游戏封面"
             className="max-w-[200px]"
@@ -349,7 +349,7 @@ export function GameForm({ tags, gameId, initialData }: Props) {
                     setScreenshots((p) => p.map((s, idx) => idx === i ? url : s))
                   }
                 }}
-                aspectRatio={16 / 9}
+                aspectRatio={16 / 10}
                 maxSizeMB={5}
                 placeholder="上传截图"
               />

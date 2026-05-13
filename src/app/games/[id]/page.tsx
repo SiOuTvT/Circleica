@@ -1,3 +1,4 @@
+import { GalleryHero } from "@/components/gallery-hero"
 import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import { GameDetailClient } from "@/components/game-detail-client"
 import { auth } from "@/lib/auth"
@@ -102,18 +103,14 @@ export default async function GameDetailPage({
     <div>
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
 
-      {/* ─── 全宽封面 Banner — 16:9, 底部 12px 圆角 ─── */}
+      {/* ─── 第一层：视觉暴击区 — 左侧封面 30% + 右侧联动画廊 70% ─── */}
       {game.coverImage && (
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "16/9", borderRadius: "0 0 12px 12px" }}
-        >
-          <img
-            src={game.coverImage}
-            alt={game.title}
-            className="h-full w-full object-cover"
+        <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 sm:px-8 lg:pt-6">
+          <GalleryHero
+            coverImage={game.coverImage}
+            gameTitle={game.title}
+            screenshots={screenshots}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         </div>
       )}
 

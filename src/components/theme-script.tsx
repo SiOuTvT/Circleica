@@ -32,11 +32,18 @@ export function ThemeScript() {
         var hex = '#' + color;
         var isDark = root.classList.contains('dark');
         if (isDark) {
-          root.style.setProperty('--primary', darken(hex, 0.15));
-          root.style.setProperty('--ring', darken(hex, 0.15));
+          var primaryDark = darken(hex, 0.15);
+          root.style.setProperty('--primary', primaryDark);
+          root.style.setProperty('--ring', primaryDark);
+          root.style.setProperty('--clr-blue', primaryDark);
+          root.style.setProperty('--clr-sky', lighten(hex, 0.25));
+          root.style.setProperty('--clr-glow', hex + '1F');
         } else {
           root.style.setProperty('--primary', hex);
           root.style.setProperty('--ring', hex);
+          root.style.setProperty('--clr-blue', darken(hex, 0.2));
+          root.style.setProperty('--clr-sky', lighten(hex, 0.15));
+          root.style.setProperty('--clr-glow', hex + '1F');
           var lum = 0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255);
           root.style.setProperty('--primary-foreground', lum > 0.6 ? '#18181b' : '#ffffff');
         }

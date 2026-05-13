@@ -47,9 +47,9 @@ html, body {
   --popover:       #1a1a1f;
   --popover-foreground: #f0f0f2;
   --muted:         #222228; /* 更柔和的muted */
-  --muted-foreground: #9a9aa8; /* 灰调小字，昼夜模式都清晰可辨 */
-  --border:        rgba(255, 255, 255, 0.10); /* 明确的边框分隔线 */
-  --input:         rgba(255, 255, 255, 0.08);
+  --muted-foreground: #a8a8b8; /* 加亮灰调小字，确保可读 */
+  --border:        rgba(255, 255, 255, 0.12); /* 明确的边框分隔线 */
+  --input:         rgba(255, 255, 255, 0.10);
   --secondary:     #1e1e21;
   --secondary-foreground: #f0f0f2;
   --accent:        #1e1e21;
@@ -75,13 +75,13 @@ html, body {
   --card-foreground: #000000;
   --popover:       #ffffff;
   --popover-foreground: #000000;
-  --muted:         #f4f4f5;
-  --muted-foreground: #3f3f46; /* zinc-700，亮色主题更高对比度 */
-  --border:        rgba(0, 0, 0, 0.06);
-  --input:         rgba(0, 0, 0, 0.08);
-  --secondary:     #f4f4f5;
+  --muted:         #f0f0f2;
+  --muted-foreground: #2a2a30; /* 深灰色，亮色主题下高对比 */
+  --border:        rgba(0, 0, 0, 0.10);
+  --input:         rgba(0, 0, 0, 0.10);
+  --secondary:     #f0f0f2;
   --secondary-foreground: #000000;
-  --accent:        #f4f4f5;
+  --accent:        #f0f0f2;
   --accent-foreground: #000000;
   --destructive:   #ef4444;
   --ring:          #a1a1aa;
@@ -99,32 +99,49 @@ html, body {
     font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
     /* 平滑主题切换 - 500ms 过渡 */
     transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-    /* 优化排版 - 杂志风格 */
+    /* 优化排版 */
     line-height: 1.7;
     letter-spacing: 0.01em;
-    /* 微纹理背景 - 温暖的噪点纹理 */
+    font-weight: 450; /* 整体加粗一点，不要默认300/400太细 */
+    /* 微纹理背景 */
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-    /* 微妙的径向渐变，增加空间感 */
     background-attachment: fixed;
   }
 
-  /* 电脑端字体稍微加大 */
+  /* 电脑端字体加大 */
   @media (min-width: 1024px) {
+    body {
+      font-size: 16px;
+    }
+  }
+  /* 移动端也不要太小 */
+  @media (max-width: 767px) {
     body {
       font-size: 15px;
     }
   }
   
-  /* 标题行高更紧凑 */
+  /* 标题加粗，不要单薄 */
   h1, h2, h3, h4, h5, h6 {
     line-height: 1.3;
     letter-spacing: -0.01em;
+    font-weight: 700;
   }
   
   /* 段落增加呼吸感 */
   p {
     line-height: 1.8;
     letter-spacing: 0.015em;
+  }
+
+  /* 全局小字强制加粗 - 解决小字太淡太细问题 */
+  small, .text-xs, .text-sm {
+    font-weight: 500;
+  }
+
+  /* muted-foreground 也要加粗一点 */
+  .text-muted-foreground {
+    font-weight: 500;
   }
   
   /* 所有使用 CSS 变量的元素都添加过渡 */
@@ -276,6 +293,40 @@ html, body {
 /* ── 点缀渐变（只用于小面积） ── */
 .gradient-accent {
   background: linear-gradient(135deg, var(--clr-blue), var(--clr-sky));
+}
+
+/* ── 主题色对比度保护 - 确保主题色文字在任何背景上可读 ── */
+/* 深色模式下主题色文字（背景是深色） */
+:root .text-primary {
+  color: var(--clr-blue);
+  /* 确保足够的亮度 */
+  text-shadow: 0 0 8px color-mix(in srgb, var(--clr-blue) 30%, transparent);
+}
+
+:root .bg-primary {
+  background-color: var(--primary);
+}
+
+/* 深色模式下 primary 按钮文字用深色背景配白色/深色文字 */
+:root .text-primary-foreground {
+  color: var(--primary-foreground);
+}
+
+/* 亮色模式下主题色文字加强对比 */
+.light .text-primary {
+  color: var(--clr-blue);
+  text-shadow: none;
+  font-weight: 600;
+}
+
+/* 带主题色背景的元素，文字必须是白色或深色确保可读 */
+.bg-primary,
+.bg-\[var\(--clr-blue\)\] {
+  color: #ffffff;
+}
+
+.light .bg-primary {
+  color: var(--primary-foreground);
 }
 
 /* ── 精致微动效 - 内敛克制 ── */

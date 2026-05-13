@@ -71,12 +71,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeColorState(color)
     applyColor(color)
     localStorage.setItem(STORAGE_KEY, color)
-    // Persist to server (admin only, but safe to call)
-    fetch("/api/admin/site-settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ themeColor: color }),
-    }).catch(() => {})
+    // Note: server persistence is handled by admin theme page with confirm button
   }, [applyColor])
 
   const currentPreset = THEME_PRESETS.find((p) => p.color.toLowerCase() === themeColor.toLowerCase()) ?? null

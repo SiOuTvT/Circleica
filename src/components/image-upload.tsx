@@ -43,7 +43,7 @@ async function getCroppedImg(
   ctx.putImageData(data, 0, 0)
 
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.92)
+    canvas.toBlob((blob) => resolve(blob!), "image/webp", 0.92)
   })
 }
 
@@ -148,7 +148,7 @@ export function ImageUpload({
     setIsCropping(true)
     try {
       const croppedBlob = await getCroppedImg(cropSrc, croppedAreaPixels, rotation)
-      const croppedFile = new File([croppedBlob], "cropped.jpg", { type: "image/jpeg" })
+      const croppedFile = new File([croppedBlob], "cropped.webp", { type: "image/webp" })
 
       // 如果是头像裁剪模式
       if (onFileSelect) {
@@ -240,11 +240,11 @@ export function ImageUpload({
   if (cropSrc) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-        <div className="relative mx-4 w-full max-w-lg rounded-2xl bg-zinc-900 p-5 ring-1 ring-white/10 shadow-2xl">
-          <h3 className="mb-4 text-sm font-semibold text-zinc-200">裁剪图片</h3>
+        <div className="relative mx-4 w-full max-w-lg rounded-2xl p-5 shadow-2xl" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+          <h3 className="mb-4 text-sm font-semibold text-foreground">裁剪图片</h3>
 
           {/* 裁剪区域 */}
-          <div className="relative h-72 w-full overflow-hidden rounded-xl bg-zinc-800">
+          <div className="relative h-72 w-full overflow-hidden rounded-xl" style={{ background: "hsl(var(--muted))" }}>
             <Cropper
               image={cropSrc}
               crop={crop}
@@ -262,7 +262,7 @@ export function ImageUpload({
           <div className="mt-4 space-y-3">
             {/* 缩放 */}
             <div className="flex items-center gap-3">
-              <ZoomOut className="h-4 w-4 shrink-0 text-zinc-500" />
+              <ZoomOut className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
                 type="range"
                 min={1}
@@ -270,14 +270,15 @@ export function ImageUpload({
                 step={0.01}
                 value={zoom}
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-700 accent-purple-500"
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted"
+                style={{ accentColor: "var(--clr-blue)" }}
               />
-              <ZoomIn className="h-4 w-4 shrink-0 text-zinc-500" />
+              <ZoomIn className="h-4 w-4 shrink-0 text-muted-foreground" />
             </div>
 
             {/* 旋转 */}
             <div className="flex items-center gap-3">
-              <RotateCw className="h-4 w-4 shrink-0 text-zinc-500" />
+              <RotateCw className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
                 type="range"
                 min={0}
@@ -285,9 +286,10 @@ export function ImageUpload({
                 step={1}
                 value={rotation}
                 onChange={(e) => setRotation(Number(e.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-700 accent-purple-500"
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted"
+                style={{ accentColor: "var(--clr-blue)" }}
               />
-              <span className="w-8 text-right text-[10px] text-zinc-500">{rotation}°</span>
+              <span className="w-8 text-right text-[10px] text-muted-foreground">{rotation}°</span>
             </div>
           </div>
 
@@ -296,7 +298,7 @@ export function ImageUpload({
             <button
               type="button"
               onClick={handleCropCancel}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               取消
             </button>
@@ -304,7 +306,8 @@ export function ImageUpload({
               type="button"
               onClick={handleCropConfirm}
               disabled={isCropping}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
+              className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ backgroundColor: "var(--clr-blue)" }}
             >
               {isCropping ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
