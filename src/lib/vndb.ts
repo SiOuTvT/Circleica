@@ -80,6 +80,11 @@ class VNDBClient {
   private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
   private dispatcher: any = null
   private proxyInitialized = false
+  
+  // 熔断器：当 VNDB 不可达时快速失败，避免长时间阻塞
+  private circuitBroken = false
+  private circuitBrokenUntil = 0
+  private CIRCUIT_BREAK_DURATION = 5 * 60 * 1000 // 5分钟
 
   /**
    * 初始化代理（延迟加载，避免 import 失败影响启动）
@@ -105,9 +110,15 @@ class VNDBClient {
   }
 
   /**
-   * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持）
+   * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  private async sendRequest(endpoint: string, data: any, retries = 3): Promise<any> {
+  private async sendRequest(endpoint: string, data: any, retries = 2): Promise<any> {
+    // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
+    if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
+      console.log("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
+      throw new Error("VNDB API 不可达（熔断器已触发）")
+    }
+    
     await this.initProxy()
     
     const url = `${this.baseUrl}/${endpoint}`
@@ -122,7 +133,7 @@ class VNDBClient {
             "User-Agent": "FangameNext/1.0",
           },
           body: JSON.stringify(data),
-          signal: AbortSignal.timeout(30000), // 30秒超时（代理可能更慢）
+          signal: AbortSignal.timeout(10000), // 10秒超时
         }
         // undici 的 ProxyAgent 需要通过 dispatcher 参数传递
         if (this.dispatcher) {
@@ -149,11 +160,17 @@ class VNDBClient {
         
         if (isLastAttempt) {
           console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, error.message)
+          // 触发熔断器：网络不可达时，后续请求快速失败
+          if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
+            this.circuitBroken = true
+            this.circuitBrokenUntil = Date.now() + this.CIRCUIT_BREAK_DURATION
+            console.log(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
+          }
           throw error
         }
         
-        if (isTimeout || error?.message?.includes('fetch failed')) {
-          const delay = attempt * 1000 // 递增延迟: 1s, 2s
+        if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
+          const delay = attempt * 500 // 递增延迟: 500ms
           console.log(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
           await new Promise(r => setTimeout(r, delay))
         } else {
