@@ -1,5 +1,6 @@
 "use client"
 
+import { getRandomProducer, getRandomStaff } from "@/lib/vndb-client"
 import { Loader2, Sparkles, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -11,27 +12,28 @@ export function RandomCreatorBtn() {
   async function go() {
     setLoading(true)
     try {
-      // 随机创作者（真人）- 直接从 VNDB 获取
-      const res  = await fetch("/api/creators/random", {
-        cache: "no-store",
-      })
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        throw new Error(`API 请求失败: ${res.status} - ${errorData.error || '未知错误'}`)
+      // 优先尝试 staff（个人创作者：脚本家、画师、音乐人）
+      // 直接在浏览器端调用 VNDB API，绕过服务器网络限制
+      let creator: any = await getRandomStaff()
+      
+      if (!creator) {
+        // Fallback: 尝试 producer（团体/公司创作者）
+        console.log("[Random] Staff 未获取到，尝试 producer...")
+        creator = await getRandomProducer()
       }
 
-      const data = await res.json()
-
-      if (data.id) {
-        router.push(`/creators/${data.id}`)
-      } else if (data.error) {
-        alert(`获取失败: ${data.error}`)
+      if (creator && creator.vndbId) {
+        // 保存到服务器数据库（不阻塞导航）
+        fetch("/api/creators/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(creator),
+        }).catch(() => {})
+        
+        router.push(`/creators/${creator.vndbId}`)
       } else {
-        // 没有创作者，随机游戏
-        const res2  = await fetch("/api/games/random", {
-          cache: "no-store",
-        })
+        // 都没获取到，随机跳到一个游戏
+        const res2 = await fetch("/api/games/random", { cache: "no-store" })
         const data2 = await res2.json()
         if (data2.id) {
           router.push(`/games/${data2.id}`)
@@ -70,21 +72,19 @@ export function RandomCharacterBtn() {
   async function go() {
     setLoading(true)
     try {
-      const res = await fetch("/api/characters/random", {
-        cache: "no-store",
-      })
+      // 直接在浏览器端调用 VNDB API
+      const { getRandomCharacter } = await import("@/lib/vndb-client")
+      const character = await getRandomCharacter()
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        throw new Error(`API 请求失败: ${res.status} - ${errorData.error || '未知错误'}`)
-      }
-
-      const data = await res.json()
-
-      if (data.id) {
-        router.push(`/characters/${data.id}`)
-      } else if (data.error) {
-        alert(`获取失败: ${data.error}`)
+      if (character && character.vndbId) {
+        // 保存到服务器数据库（不阻塞导航）
+        fetch("/api/characters/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(character),
+        }).catch(() => {})
+        
+        router.push(`/characters/${character.vndbId}`)
       } else {
         alert("暂无角色数据，请稍后重试")
       }
