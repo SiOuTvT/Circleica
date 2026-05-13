@@ -204,7 +204,7 @@ export function TopNav() {
                 >
                   <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
                     {user.image
-                      ? <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
+                      ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
                       : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                     }
                   </AvatarFrame>
@@ -229,7 +229,7 @@ export function TopNav() {
                     )}>
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-white/10">
                         {user.image
-                          ? <img src={user.image} alt="" className="h-full w-full object-cover" />
+                          ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${Date.now()}`} alt="" className="h-full w-full object-cover" />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
                       <span className={cn(

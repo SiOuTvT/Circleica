@@ -41,7 +41,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
   const games = currentGames[activeTab] ?? []
 
   return (
-    <div className="space-y-4">
+    <div className="p-5 sm:p-6 space-y-4">
       {/* 本命游戏 */}
       {faveGame && (
         <section>
@@ -94,8 +94,8 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {games.slice(0, 12).map(g => (
               <Link key={g.id} href={`/games/${g.id}`}
-                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition-all hover:-translate-y-0.5 hover:ring-primary/30">
-                <div className="relative" style={{ aspectRatio: "4/5" }}>
+                className="group overflow-hidden rounded-xl bg-secondary/50 ring-1 ring-border transition-all hover:-translate-y-0.5 hover:ring-primary/30">
+                <div className="relative" style={{ aspectRatio: "3/4" }}>
                   {g.coverImage ? (
                     <Image src={g.coverImage} alt={g.title} fill
                       className="object-cover transition-transform group-hover:scale-[1.04]" />
