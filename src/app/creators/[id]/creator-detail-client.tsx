@@ -1,7 +1,7 @@
 "use client"
 
 import { TranslateBtn } from "@/components/translate-btn"
-import { Database, Loader2, RefreshCw, User } from "lucide-react"
+import { Database, Loader2, RefreshCw, Star, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -169,20 +169,27 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               <Link
                 key={vn.id}
                 href={`/games?vndb=${vn.id}`}
-                className="group"
+                className="group overflow-hidden rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:-translate-y-1 hover:ring-white/[0.12] light:hover:ring-black/[0.12] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
               >
-                <div className="relative aspect-[2/3] overflow-hidden rounded-lg ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all group-hover:ring-white/[0.12] light:group-hover:ring-black/[0.12] group-hover:scale-[1.02]">
+                <div className="relative" style={{ aspectRatio: "4/5" }}>
                   {vn.image ? (
-                    <Image src={vn.image} alt={vn.title} fill className="object-cover" sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw" />
+                    <Image src={vn.image} alt={vn.title} fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
+                      sizes="(max-width: 640px) 33vw, 16vw" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-2xl font-bold text-indigo-300">
-                      {vn.title[0]}
-                    </div>
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">无封面</div>
                   )}
+                  {vn.rating ? (
+                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-amber-400 backdrop-blur-sm">
+                      <Star className="h-2.5 w-2.5" strokeWidth={2} />
+                      {formatRating(vn.rating)}
+                    </div>
+                  ) : null}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/90 to-transparent p-2">
+                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200">{vn.original || vn.title}</p>
+                    <p className="mt-0.5 text-[9px] text-zinc-500">{roleLabelMap[vn.role] || vn.role}</p>
+                  </div>
                 </div>
-                <p className="mt-1.5 line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200 light:text-zinc-800 group-hover:text-white light:group-hover:text-zinc-900 transition-colors">
-                  {vn.original || vn.title}
-                </p>
               </Link>
             ))}
           </div>
