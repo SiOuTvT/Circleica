@@ -102,36 +102,20 @@ export function GameDetailClient({
       {/* ─── 内容区 ─── */}
       <div className="pt-6">
 
-        {/* ═══ 游戏简介 — 纯文字 + 截图画报式单列展示 ═══ */}
+        {/* ═══ 游戏简介 — 纯文字排版，图片已移至顶部橱窗 ═══ */}
         {tab === "intro" && (
-          <div className="space-y-6">
-            {/* 简介文字 */}
+          <div>
             {description ? (
               <div
-                className="text-sm leading-relaxed text-muted-foreground"
+                className="prose prose-sm prose-invert max-w-none text-muted-foreground leading-relaxed"
+                style={{
+                  fontSize: "14px",
+                  lineHeight: "1.85",
+                }}
                 dangerouslySetInnerHTML={{ __html: description }}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">暂无简介</p>
-            )}
-
-            {/* 截图 — 一行一张, 像画报一样往下滑 */}
-            {screenshots.length > 0 && (
-              <div className="flex flex-col gap-4">
-                {screenshots.map((s, i) => (
-                  <div
-                    key={i}
-                    className="w-full overflow-hidden rounded-xl"
-                    style={{ border: "1px solid hsl(var(--border))" }}
-                  >
-                    <img
-                      src={s}
-                      alt={`截图 ${i + 1}`}
-                      className="w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
             )}
           </div>
         )}

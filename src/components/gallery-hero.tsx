@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 interface GalleryHeroProps {
@@ -9,29 +9,21 @@ interface GalleryHeroProps {
   screenshots: string[]
 }
 
+/**
+ * 精简橱窗 — 350px 锁高
+ * 左侧: 3:4 竖向封面 (~262px)
+ * 右侧: 16:10 大图截图 + 底部方形缩略图联动条
+ * 截图画廊与封面完全隔离
+ */
 export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const thumbnailBarRef = useRef<HTMLDivElement>(null)
 
-  // Combine cover + screenshots for gallery (cover is always first)
-  const galleryImages = [coverImage, ...screenshots]
+  // Only screenshots for gallery — NO cover image
+  const galleryImages = screenshots.length > 0 ? screenshots : []
   const hasMultipleImages = galleryImages.length > 1
-
-  // Auto-rotate every 5s
-  const startAutoPlay = useCallback(() => {
-    if (!hasMultipleImages) return
-    stopAutoPlay()
-    timerRef.current = setInterval(() => {
-      setIsTransitioning(true)
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % galleryImages.length
-        return next
-      })
-      setTimeout(() => setIsTransitioning(false), 300)
-    }, 5000)
-  }, [hasMultipleImages, galleryImages.length])
 
   const stopAutoPlay = useCallback(() => {
     if (timerRef.current) {
@@ -39,6 +31,14 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
       timerRef.current = null
     }
   }, [])
+
+  const startAutoPlay = useCallback(() => {
+    if (!hasMultipleImages || isPaused) return
+    stopAutoPlay()
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % galleryImages.length)
+    }, 4000)
+  }, [hasMultipleImages, isPaused, stopAutoPlay, galleryImages.length])
 
   useEffect(() => {
     startAutoPlay()
@@ -48,14 +48,14 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
   // Navigate
   const goTo = useCallback(
     (index: number) => {
-      if (index === activeIndex || isTransitioning) return
-      setIsTransitioning(true)
+      if (index === activeIndex) return
       setActiveIndex(index)
-      setTimeout(() => setIsTransitioning(false), 300)
-      // Reset auto-play timer on manual interaction
-      startAutoPlay()
+      // Reset timer on manual interaction
+      if (!isPaused) {
+        startAutoPlay()
+      }
     },
-    [activeIndex, isTransitioning, startAutoPlay]
+    [activeIndex, isPaused, startAutoPlay]
   )
 
   const goPrev = useCallback(() => {
@@ -66,6 +66,16 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
     goTo((activeIndex + 1) % galleryImages.length)
   }, [activeIndex, galleryImages.length, goTo])
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrev()
+      if (e.key === "ArrowRight") goNext()
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [goPrev, goNext])
+
   // Scroll active thumbnail into view
   useEffect(() => {
     if (!thumbnailBarRef.current) return
@@ -75,17 +85,19 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
     }
   }, [activeIndex])
 
-  const activeImage = galleryImages[activeIndex] || coverImage
+  const activeImage = galleryImages[activeIndex]
+  const SHOWCASE_HEIGHT = 350
+  const COVER_WIDTH = 262
 
-  return (
-    <div className="flex w-full" style={{ gap: "0" }}>
-      {/* ═══ 左侧封面 (30%) ═══ */}
+  // No screenshots case — show only cover
+  if (galleryImages.length === 0) {
+    return (
       <div
-        className="relative shrink-0 overflow-hidden"
+        className="relative w-full overflow-hidden"
         style={{
-          width: "30%",
-          aspectRatio: "3/4",
-          borderRadius: "12px 0 0 12px",
+          height: `${SHOWCASE_HEIGHT}px`,
+          borderRadius: "14px",
+          background: "hsl(var(--card))",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -95,44 +107,63 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
           className="h-full w-full object-cover"
           draggable={false}
         />
-        {/* Subtle right-edge gradient for seam blending */}
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="flex w-full overflow-hidden"
+      style={{
+        height: `${SHOWCASE_HEIGHT}px`,
+        borderRadius: "14px",
+        background: "hsl(var(--card))",
+        border: "1px solid hsl(var(--border))",
+      }}
+    >
+      {/* ═══ 左侧封面 — 3:4 比例 ═══ */}
+      <div
+        className="relative shrink-0 overflow-hidden"
+        style={{
+          width: `${COVER_WIDTH}px`,
+          height: "100%",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={coverImage}
+          alt={gameTitle}
+          className="h-full w-full object-cover"
+          draggable={false}
+        />
+        {/* Soft right edge blend */}
         <div
-          className="absolute inset-y-0 right-0 w-8"
+          className="absolute inset-y-0 right-0 w-12"
           style={{
-            background: "linear-gradient(to right, transparent, hsl(var(--background)))",
+            background: "linear-gradient(to right, transparent, hsl(var(--card)))",
           }}
         />
       </div>
 
-      {/* ═══ 右侧画廊 (70%) ═══ */}
-      <div
-        className="relative flex flex-col overflow-hidden"
-        style={{
-          width: "70%",
-          borderRadius: "0 12px 12px 0",
-          background: "hsl(var(--card))",
-        }}
-      >
-        {/* ── 大图展示位 (70% of right height) ── */}
-        <div className="relative" style={{ flex: "7" }}>
-          {/* Main image with transition */}
-          <div className="absolute inset-0 overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              key={activeIndex}
-              src={activeImage}
-              alt={`${gameTitle} - 截图 ${activeIndex + 1}`}
-              className="h-full w-full object-cover animate-fade-in"
-              style={{
-                animation: "galleryFadeIn 0.3s ease-in-out",
-              }}
-              draggable={false}
-            />
-          </div>
+      {/* ═══ 右侧截图画廊 ═══ */}
+      <div className="relative flex flex-1 flex-col min-w-0">
+        {/* ── 大图展示区 (~70%) ── */}
+        <div className="relative flex-1 min-h-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={activeIndex}
+            src={activeImage}
+            alt={`${gameTitle} - 截图 ${activeIndex + 1}`}
+            className="h-full w-full object-cover"
+            style={{
+              animation: "showcaseFadeIn 0.35s ease-out",
+            }}
+            draggable={false}
+          />
 
-          {/* Gradient overlay at bottom for smooth transition */}
+          {/* Bottom gradient overlay for readability */}
           <div
-            className="absolute inset-x-0 bottom-0 h-16"
+            className="absolute inset-x-0 bottom-0 h-12"
             style={{
               background: "linear-gradient(to top, hsl(var(--card)), transparent)",
             }}
@@ -144,108 +175,128 @@ export function GalleryHero({ coverImage, gameTitle, screenshots }: GalleryHeroP
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); goPrev() }}
-                onMouseEnter={stopAutoPlay}
-                onMouseLeave={startAutoPlay}
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
                 style={{
-                  background: "hsl(var(--background) / 0.6)",
+                  background: "hsl(var(--background) / 0.65)",
                   color: "var(--clr-blue)",
                   border: "1px solid hsl(var(--border))",
                 }}
+                aria-label="上一张"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); goNext() }}
-                onMouseEnter={stopAutoPlay}
-                onMouseLeave={startAutoPlay}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-110 opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
                 style={{
-                  background: "hsl(var(--background) / 0.6)",
+                  background: "hsl(var(--background) / 0.65)",
                   color: "var(--clr-blue)",
                   border: "1px solid hsl(var(--border))",
                 }}
+                aria-label="下一张"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </>
           )}
 
-          {/* Image counter badge */}
-          {hasMultipleImages && (
-            <div
-              className="absolute right-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold backdrop-blur-md"
+          {/* Counter + Pause/Play button */}
+          <div className="absolute right-2.5 top-2.5 flex items-center gap-1.5">
+            {hasMultipleImages && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsPaused((p) => {
+                    const next = !p
+                    if (next) stopAutoPlay()
+                    else {
+                      startAutoPlay()
+                    }
+                    return next
+                  })
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 hover:scale-105"
+                style={{
+                  background: "hsl(var(--background) / 0.65)",
+                  color: "hsl(var(--foreground))",
+                  border: "1px solid hsl(var(--border))",
+                }}
+                aria-label={isPaused ? "继续轮播" : "暂停轮播"}
+              >
+                {isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+              </button>
+            )}
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums backdrop-blur-md"
               style={{
-                background: "hsl(var(--background) / 0.7)",
+                background: "hsl(var(--background) / 0.65)",
                 color: "hsl(var(--foreground))",
                 border: "1px solid hsl(var(--border))",
               }}
             >
-              {activeIndex + 1} / {galleryImages.length}
-            </div>
-          )}
+              {activeIndex + 1}/{galleryImages.length}
+            </span>
+          </div>
         </div>
 
-        {/* ── 缩略图条 (30% of right height) ── */}
-        {hasMultipleImages && (
+        {/* ── 缩略图条 (~30%, ~65px) ── */}
+        <div
+          className="shrink-0 relative"
+          style={{
+            height: "65px",
+            borderTop: "1px solid hsl(var(--border) / 0.5)",
+          }}
+        >
           <div
-            className="relative"
-            style={{
-              flex: "3",
-              borderTop: "1px solid hsl(var(--border))",
-            }}
+            ref={thumbnailBarRef}
+            className="flex h-full items-center gap-1.5 overflow-x-auto px-2.5 scrollbar-hide"
+            style={{ scrollBehavior: "smooth" }}
           >
-            <div
-              ref={thumbnailBarRef}
-              className="flex h-full items-center gap-2 overflow-x-auto px-3 py-2 scrollbar-hide"
-              style={{
-                scrollBehavior: "smooth",
-              }}
-            >
-              {galleryImages.map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => goTo(i)}
-                  onMouseEnter={stopAutoPlay}
-                  onMouseLeave={startAutoPlay}
-                  className="relative shrink-0 overflow-hidden transition-all duration-300"
-                  style={{
-                    height: "100%",
-                    aspectRatio: "16/10",
-                    borderRadius: "6px",
-                    border: i === activeIndex
-                      ? "2px solid var(--clr-blue)"
-                      : "2px solid transparent",
-                    opacity: i === activeIndex ? 1 : 0.5,
-                    transform: i === activeIndex ? "scale(1.02)" : "scale(1)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img}
-                    alt={`缩略图 ${i + 1}`}
-                    className="h-full w-full object-cover"
-                    draggable={false}
-                  />
-                  {/* Dim overlay for inactive thumbnails */}
-                  {i !== activeIndex && (
-                    <div className="absolute inset-0 bg-black/20 transition-opacity duration-300 hover:opacity-0" />
-                  )}
-                </button>
-              ))}
-            </div>
+            {galleryImages.map((img, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => goTo(i)}
+                className="relative shrink-0 overflow-hidden transition-all duration-200"
+                style={{
+                  height: "50px",
+                  width: "50px",
+                  borderRadius: "6px",
+                  border: i === activeIndex
+                    ? `2px solid var(--clr-blue)`
+                    : "2px solid transparent",
+                  opacity: i === activeIndex ? 1 : 0.45,
+                  transform: i === activeIndex ? "scale(1.05)" : "scale(1)",
+                  boxShadow: i === activeIndex
+                    ? `0 0 8px var(--clr-blue)40`
+                    : "none",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img}
+                  alt={`缩略图 ${i + 1}`}
+                  className="h-full w-full object-cover"
+                  draggable={false}
+                />
+                {/* Dim overlay for inactive */}
+                {i !== activeIndex && (
+                  <div className="absolute inset-0 bg-black/15 transition-opacity duration-200 hover:opacity-0" />
+                )}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* CSS Animation keyframes injected via style tag */}
+      {/* Global styles */}
       <style jsx global>{`
-        @keyframes galleryFadeIn {
+        @keyframes showcaseFadeIn {
           from {
             opacity: 0;
-            transform: scale(1.02);
+            transform: scale(1.015);
           }
           to {
             opacity: 1;

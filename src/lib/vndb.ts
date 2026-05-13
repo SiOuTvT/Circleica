@@ -427,14 +427,28 @@ class VNDBClient {
         
         const data = await this.sendRequest("staff", {
           filters: ["search", "=", term],
-          fields: "id,name,original,description,gender",
+          fields: "id,name,original,description,gender,vns.role,vns.title,vns.id",
           results: 25,
         })
         
         const staffList = (data.results || []).filter((s: any) => s.id)
         if (staffList.length > 0) {
-          const staff = staffList[Math.floor(Math.random() * staffList.length)]
-          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id})`)
+          // 优先选择有作品的 staff
+          const withWorks = staffList.filter((s: any) => s.vns && s.vns.length > 0)
+          const pool = withWorks.length > 0 ? withWorks : staffList
+          
+          const staff = pool[Math.floor(Math.random() * pool.length)]
+          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
+          
+          const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
+          const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
+            id: v.id || "",
+            title: v.title || "",
+            original: v.original || "",
+            role: v.role || "",
+            rating: v.rating,
+            image: v.image?.url,
+          }))
           
           return {
             id: staff.id,
@@ -443,8 +457,8 @@ class VNDBClient {
             description: staff.description,
             gender: staff.gender,
             vndbId: staff.id.replace("s", ""),
-            roles: [],
-            vns: [],
+            roles,
+            vns,
           }
         }
         
@@ -667,8 +681,10 @@ class VNDBClient {
     const key = cacheKey("vndb", "char_detail", charId)
     try {
       return await cached(key, async () => {
+        // 确保 character ID 有 "c" 前缀（VNDB 格式）
+        const fullCharId = charId.startsWith("c") ? charId : `c${charId}`
         const data = await this.sendRequest("character", {
-          filters: ["id", "=", charId],
+          filters: ["id", "=", fullCharId],
           fields: "id,name,original,aliases,description,image.url,blood_type,birthday,age,gender,height,weight,bust,waist,hips,cup,traits.id,traits.name,traits.group_id,traits.group_name,traits.spoiler,vns.id,vns.title,vns.role,vns.spoiler",
           results: 1,
         })
