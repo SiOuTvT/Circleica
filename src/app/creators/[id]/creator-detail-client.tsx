@@ -164,30 +164,32 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
             <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
             参与作品
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {creator.vns.map(vn => (
               <Link
                 key={vn.id}
                 href={`/games?vndb=${vn.id}`}
-                className="flex items-center gap-4 rounded-xl bg-zinc-900/50 light:bg-zinc-100 p-4 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800/80 light:hover:bg-zinc-200/80 hover:ring-white/[0.12] light:hover:ring-black/[0.12] group"
+                className="group overflow-hidden rounded-xl bg-zinc-900/50 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800/80 light:hover:bg-zinc-200/80 hover:ring-white/[0.12] light:hover:ring-black/[0.12] hover:scale-[1.02]"
               >
+                {/* 封面图 */}
                 {vn.image ? (
-                  <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-lg">
-                    <Image src={vn.image} alt={vn.title} fill className="object-cover" />
+                  <div className="relative w-full overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                    <Image src={vn.image} alt={vn.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                   </div>
                 ) : (
-                  <div className="flex h-20 w-14 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-lg font-bold text-indigo-300">
+                  <div className="flex w-full items-center justify-center bg-gradient-to-br from-indigo-500/30 to-purple-500/30 text-3xl font-bold text-indigo-300" style={{ aspectRatio: "3/4" }}>
                     {vn.title[0]}
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
+                {/* 信息 */}
+                <div className="p-3">
                   <p className="text-sm font-medium text-zinc-200 light:text-zinc-800 truncate group-hover:text-white light:group-hover:text-zinc-900 transition-colors">
                     {vn.original || vn.title}
                   </p>
                   {vn.original && vn.title !== vn.original && (
-                    <p className="text-xs text-zinc-500 truncate mt-0.5">{vn.title}</p>
+                    <p className="text-[11px] text-zinc-500 truncate mt-0.5">{vn.title}</p>
                   )}
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <span className="text-[11px] text-indigo-400/80">
                       {roleLabelMap[vn.role] || vn.role}
                     </span>
