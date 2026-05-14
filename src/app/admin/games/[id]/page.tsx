@@ -27,6 +27,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
     screenshots: JSON.parse(game.screenshots || "[]"),
     downloadLinks: JSON.parse(game.downloadLinks || "[]"),
     tagIds: game.tags.map((t) => t.tag.id),
+    releaseDate: game.releaseDate ? game.releaseDate.toISOString().slice(0, 10) : undefined,
   }
 
   return (
