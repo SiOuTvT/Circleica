@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { cn } from "@/lib/utils"
-import { ArrowLeft, Gamepad2, LayoutDashboard, Megaphone, Menu, Music, Palette, Tag, Users, X } from "lucide-react"
+import { ArrowLeft, CalendarCheck, Flag, Gamepad2, Heart, LayoutDashboard, Megaphone, Menu, MessageSquare, Music, Palette, PenTool, Tag, UserPlus, Users, X } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -10,8 +10,14 @@ const items = [
   { icon: LayoutDashboard, label: "仪表盘",   href: "/admin" },
   { icon: Gamepad2,        label: "游戏管理",  href: "/admin/games" },
   { icon: Tag,             label: "标签管理",  href: "/admin/tags" },
+  { icon: PenTool,         label: "创作者管理", href: "/admin/creators" },
   { icon: Megaphone,       label: "公告管理",  href: "/admin/announcements" },
   { icon: Music,           label: "音乐管理",  href: "/admin/music" },
+  { icon: MessageSquare,   label: "论坛管理",  href: "/admin/forum" },
+  { icon: Flag,            label: "举报管理",  href: "/admin/reports" },
+  { icon: CalendarCheck,   label: "签到记录",  href: "/admin/checkins" },
+  { icon: Heart,           label: "收藏数据",  href: "/admin/favorites" },
+  { icon: UserPlus,        label: "关注关系",  href: "/admin/follows" },
   { icon: Users,           label: "用户管理",  href: "/admin/users" },
   { icon: Palette,         label: "主题设置",  href: "/admin/theme" },
 ]

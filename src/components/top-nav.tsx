@@ -137,7 +137,7 @@ export function TopNav() {
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
 
-        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-3 pl-[68px] pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
+        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-1 pl-14 pr-2 sm:gap-3 sm:pl-[68px] sm:pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
 
           <div ref={menuRef} className="relative">
             <button

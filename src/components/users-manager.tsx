@@ -1,9 +1,8 @@
 ﻿"use client"
 
-import { useState } from "react"
-import React from "react"
+import { KeyRound, Link2, Loader2, Shield, ShieldOff } from "lucide-react"
 import Image from "next/image"
-import { Shield, ShieldOff, KeyRound, Loader2, Link2 } from "lucide-react"
+import React, { useState } from "react"
 
 interface UserItem {
   id: string; username: string; email: string; role: string
@@ -57,22 +56,22 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
 
       {/* 重置链接弹窗 */}
       {resetLink && (
-        <div className="rounded-xl bg-zinc-800 p-4 ring-1 ring-white/[0.06] space-y-2">
-          <p className="text-xs font-medium text-zinc-300">重置链接（24小时有效）</p>
+        <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-2">
+          <p className="text-xs font-medium text-foreground">重置链接（24小时有效）</p>
           <div className="flex items-center gap-2">
-            <input readOnly value={resetLink} className="flex-1 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] outline-none" />
+            <input readOnly value={resetLink} className="flex-1 rounded-lg bg-muted px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border outline-none" />
             <button onClick={() => { navigator.clipboard.writeText(resetLink); flash("已复制") }}
-              className="rounded-lg bg-zinc-700 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-600">复制</button>
-            <button onClick={() => setResetLink(null)} className="text-zinc-600 hover:text-zinc-400 text-xs">关闭</button>
+              className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-secondary-foreground hover:bg-accent">复制</button>
+            <button onClick={() => setResetLink(null)} className="text-muted-foreground hover:text-foreground text-xs">关闭</button>
           </div>
-          <p className="text-[10px] text-zinc-600">将此链接发给用户，点击后可设置新密码</p>
+          <p className="text-[10px] text-muted-foreground">将此链接发给用户，点击后可设置新密码</p>
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-white/[0.06]">
+      <div className="overflow-hidden rounded-xl bg-card ring-1 ring-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.06] text-left text-xs text-zinc-500">
+            <tr className="border-b border-border text-left text-xs text-muted-foreground">
               <th className="px-4 py-3 font-medium">用户</th>
               <th className="hidden px-4 py-3 font-medium sm:table-cell">邮箱</th>
               <th className="hidden px-4 py-3 font-medium md:table-cell">数据</th>
@@ -80,10 +79,10 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
               <th className="px-4 py-3 font-medium text-right">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-border">
             {users.map(u => (
               <React.Fragment key={u.id}>
-                <tr key={u.id} className="hover:bg-zinc-800/50 transition-colors">
+                <tr key={u.id} className="hover:bg-accent/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-500">
@@ -91,30 +90,30 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                           ? <Image src={u.avatar} alt="" width={28} height={28} className="h-full w-full object-cover" />
                           : <div className="flex h-full w-full items-center justify-center text-xs font-bold text-white">{u.username[0].toUpperCase()}</div>}
                       </div>
-                      <span className="font-medium text-zinc-200">{u.username}</span>
+                      <span className="font-medium text-foreground">{u.username}</span>
                     </div>
                   </td>
-                  <td className="hidden px-4 py-3 text-xs text-zinc-500 sm:table-cell">{u.email}</td>
-                  <td className="hidden px-4 py-3 text-xs text-zinc-600 md:table-cell">
+                  <td className="hidden px-4 py-3 text-xs text-muted-foreground sm:table-cell">{u.email}</td>
+                  <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
                     收藏 {u._count.favorites} · 评论 {u._count.comments} · 签到 {u._count.checkIns}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-blue-500/15 text-blue-400" : "bg-zinc-800 text-zinc-500"}`}>
+                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${u.role === "ADMIN" ? "bg-blue-500/15 text-blue-400" : "bg-muted text-muted-foreground"}`}>
                       {u.role === "ADMIN" ? "管理员" : "用户"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1.5">
                       <button onClick={() => { setResetId(resetId === u.id ? null : u.id); setNewPwd("") }}
-                        className="flex items-center gap-1 rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
+                        className="flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
                         <KeyRound className="h-3 w-3" strokeWidth={1.5} />重置密码
                       </button>
                       <button onClick={() => generateResetLink(u.id)}
-                        className="flex items-center gap-1 rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
+                        className="flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
                         <Link2 className="h-3 w-3" strokeWidth={1.5} />生成链接
                       </button>
                       <button onClick={() => toggleRole(u.id, u.role)}
-                        className="flex items-center gap-1 rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.06] transition-all hover:text-zinc-200">
+                        className="flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
                         {u.role === "ADMIN"
                           ? <ShieldOff className="h-3 w-3" strokeWidth={1.5} />
                           : <Shield className="h-3 w-3" strokeWidth={1.5} />}
@@ -124,19 +123,19 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                   </td>
                 </tr>
                 {resetId === u.id && (
-                  <tr key={`${u.id}-reset`} className="bg-zinc-800/30">
+                  <tr key={`${u.id}-reset`} className="bg-accent/30">
                     <td colSpan={5} className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-500 shrink-0">新密码：</span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-muted-foreground shrink-0">新密码：</span>
                         <input value={newPwd} onChange={e => setNewPwd(e.target.value)}
                           placeholder="至少6位" type="password"
-                          className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600" />
+                          className="flex-1 min-w-[120px] rounded-lg bg-muted px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
                         <button onClick={() => resetPassword(u.id)} disabled={saving || !newPwd}
-                          className="flex items-center gap-1 rounded-lg bg-zinc-700 px-3 py-1.5 text-xs text-zinc-200 transition-all hover:bg-zinc-600 disabled:opacity-50">
+                          className="flex items-center gap-1 rounded-lg bg-secondary px-3 py-1.5 text-xs text-secondary-foreground transition-all hover:bg-accent disabled:opacity-50">
                           {saving && <Loader2 className="h-3 w-3 animate-spin" strokeWidth={1.5} />}
                           确认
                         </button>
-                        <button onClick={() => setResetId(null)} className="text-xs text-zinc-600 hover:text-zinc-400">取消</button>
+                        <button onClick={() => setResetId(null)} className="text-xs text-muted-foreground hover:text-foreground">取消</button>
                       </div>
                     </td>
                   </tr>

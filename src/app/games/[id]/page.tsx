@@ -114,26 +114,49 @@ export default async function GameDetailPage({
   else if (diffDays < 365) timeAgo = `${Math.floor(diffDays / 30)}个月前发布`
   else timeAgo = `${Math.floor(diffDays / 365)}年前发布`
 
+  // JSON-LD 结构化数据
+  const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": game.title,
+    "description": game.description?.slice(0, 300) || `${game.originalWork || ""} 同人游戏`,
+    "image": game.coverImage || undefined,
+    "url": `${BASE}/games/${id}`,
+    "applicationCategory": "Game",
+    "genre": tags.map(t => t.name).join(", "),
+    "datePublished": game.createdAt.toISOString(),
+    "dateModified": game.updatedAt.toISOString(),
+    "interactionStatistic": [
+      { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": game.favoriteCount },
+      { "@type": "InteractionCounter", "interactionType": "https://schema.org/ViewAction", "userInteractionCount": game.viewCount },
+    ],
+    ...(primaryCreator ? { "author": { "@type": "Organization", "name": primaryCreator.name } } : {}),
+  }
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
       ═══════════════════════════════════════════════ */}
       <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 sm:px-8 lg:pt-6">
-        <div className="grid gap-5 lg:grid-cols-[38%_1fr]">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr]">
 
           {/* ─── 左侧垂直双叠片 ─── */}
-          <div className="flex flex-col" style={{ height: "520px" }}>
+          <div className="flex flex-col" style={{ minHeight: "400px" }}>
 
             {/* 上卡片：封面 3:2 = 320px */}
             <div
-              className="relative overflow-hidden flex-1"
+              className="relative overflow-hidden flex-1 min-h-[220px] sm:min-h-[280px]"
               style={{
                 borderRadius: "16px",
                 boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)",
-                minHeight: 0,
               }}
             >
               {game.coverImage ? (

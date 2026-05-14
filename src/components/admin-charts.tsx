@@ -19,12 +19,20 @@ interface Props {
   commentsByDay: StatPoint[]
 }
 
-const TOOLTIP_STYLE = {
+const TOOLTIP_STYLE_DARK = {
   backgroundColor: "#18181b",
   border: "1px solid rgba(255,255,255,0.08)",
   borderRadius: "8px",
   fontSize: "12px",
   color: "#a1a1aa",
+}
+
+const TOOLTIP_STYLE_LIGHT = {
+  backgroundColor: "#ffffff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: "8px",
+  fontSize: "12px",
+  color: "#3f3f46",
 }
 
 export function AdminCharts({ gamesByDay, usersByDay, commentsByDay }: Props) {
@@ -41,6 +49,10 @@ function ChartCard({ title, data, color, type }: {
   title: string; data: StatPoint[]; color: string; type: "line" | "bar"
 }) {
   const total = data.reduce((s, d) => s + d.value, 0)
+  const isDark = typeof document !== "undefined" && !document.documentElement.classList.contains("light")
+  const tooltipStyle = isDark ? TOOLTIP_STYLE_DARK : TOOLTIP_STYLE_LIGHT
+  const gridStroke = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.06)"
+  const tickFill = isDark ? "#52525b" : "#71717a"
 
   return (
     <div className="rounded-xl bg-card p-4 ring-1 ring-border">
@@ -51,17 +63,17 @@ function ChartCard({ title, data, color, type }: {
       <ResponsiveContainer width="100%" height={80}>
         {type === "bar"
           ? <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#52525b" }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 9, fill: "#52525b" }} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: tickFill }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: tickFill }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: gridStroke }} />
               <Bar dataKey="value" fill={color} radius={[3, 3, 0, 0]} opacity={0.85} />
             </BarChart>
           : <LineChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#52525b" }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 9, fill: "#52525b" }} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: tickFill }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: tickFill }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} dot={false} />
             </LineChart>
         }

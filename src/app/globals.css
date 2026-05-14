@@ -359,6 +359,11 @@ html, body {
   animation: subtle-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* 页面级淡入过渡 */
+.animate-page-in {
+  animation: subtle-in 0.35s ease-out both;
+}
+
 .spring-bounce:hover {
   /* 移除弹跳动画，改用 CSS transition */
 }
