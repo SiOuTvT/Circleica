@@ -67,18 +67,27 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
 
       {/* Tab 切换 */}
       <section>
-        <div className="mb-3 flex items-center gap-1">
+        <div className="mb-3 inline-flex gap-1 rounded-xl p-1"
+          style={{ backgroundColor: "var(--tab-trough)" }}>
           {TABS.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={[
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
-                activeTab === tab.key
-                  ? "bg-secondary text-foreground ring-1 ring-border font-semibold"
-                  : "text-muted-foreground hover:text-foreground",
-              ].join(" ")}>
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
+              style={{
+                backgroundColor: activeTab === tab.key ? "var(--tab-active)" : "transparent",
+                color: activeTab === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",
+                boxShadow: activeTab === tab.key ? "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)" : "none",
+                fontWeight: activeTab === tab.key ? 700 : 500,
+              }}
+              onMouseEnter={(e) => { if (activeTab !== tab.key) e.currentTarget.style.color = "var(--tab-hover-text)" }}
+              onMouseLeave={(e) => { if (activeTab !== tab.key) e.currentTarget.style.color = "var(--tab-inactive-text)" }}
+            >
               {tab.label}
               {counts[tab.key] > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[9px] ${activeTab === tab.key ? "bg-accent text-foreground" : "bg-muted text-muted-foreground"}`}>
+                <span className="rounded-full px-1.5 py-0.5 text-[9px]"
+                  style={{
+                    backgroundColor: activeTab === tab.key ? "var(--tab-trough)" : "var(--muted)",
+                    color: activeTab === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",
+                  }}>
                   {counts[tab.key]}
                 </span>
               )}

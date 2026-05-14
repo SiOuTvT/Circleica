@@ -30,8 +30,22 @@ model User {
   ratings       GameRating[]
   accounts      Account[]
   sessions      Session[]
+  following     Follow[]       @relation("following")
+  followers     Follow[]       @relation("followers")
 
   @@index([role])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Account {
@@ -77,6 +91,9 @@ model Game {
   language      String       @default("")
   fileSize      String       @default("")
   isPublished   Boolean      @default(true)
+  releaseDate   DateTime?
+  gameDuration  String       @default("")
+  studioName    String       @default("")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   tags          GameTag[]

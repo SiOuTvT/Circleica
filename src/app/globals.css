@@ -37,25 +37,25 @@ html, body {
   --radius-lg: calc(var(--radius) * 1.5);
 }
 
-/* ── 深色主题（默认） ── */
+/* ── 深色主题（默认）— 深邃宇宙黑 ── */
 :root {
-  /* Zinc 色阶作为基础 - 更有层次感 */
-  --background:    #0a0a0c; /* 最深的页面底色 */
-  --foreground:    #f0f0f2; /* 略带暖白，减少刺眼 */
-  --card:          #1a1a1f; /* 比背景明显亮，确保卡片独立分层 */
-  --card-foreground: #f0f0f2;
-  --popover:       #1a1a1f;
-  --popover-foreground: #f0f0f2;
-  --muted:         #222228; /* 更柔和的muted */
-  --muted-foreground: #a8a8b8; /* 加亮灰调小字，确保可读 */
-  --border:        rgba(255, 255, 255, 0.12); /* 明确的边框分隔线 */
-  --input:         rgba(255, 255, 255, 0.10);
-  --secondary:     #1e1e21;
-  --secondary-foreground: #f0f0f2;
-  --accent:        #1e1e21;
-  --accent-foreground: #f0f0f2;
+  /* 深空黑基调 — 纯净、沉浸、高级 */
+  --background:    #000000; /* 纯黑底色，OLED 级别深邃 */
+  --foreground:    #e8e8ec; /* 冷白文字，清晰锐利 */
+  --card:          #111114; /* 微亮浮层，保留层次 */
+  --card-foreground: #e8e8ec;
+  --popover:       #111114;
+  --popover-foreground: #e8e8ec;
+  --muted:         #1a1a1e; /* 低调灰色底 */
+  --muted-foreground: #9898a8; /* 适中灰字 */
+  --border:        rgba(255, 255, 255, 0.10); /* 细腻分隔线 */
+  --input:         rgba(255, 255, 255, 0.08);
+  --secondary:     #151518;
+  --secondary-foreground: #e8e8ec;
+  --accent:        #151518;
+  --accent-foreground: #e8e8ec;
   --destructive:   #f87171;
-  --ring:          #3f3f46;
+  --ring:          #2a2a30;
   --radius:        0.75rem;
 
   /* 点缀色 — 天空青色，高级质感 */
@@ -65,28 +65,42 @@ html, body {
   --clr-sky:    #7DD3FC;
   --clr-glow:   rgba(56, 189, 248, 0.12);
   --clr-warm:   #f59e0b; /* 琥珀色点缀 */
+
+  /* ── 统一 Tab 切换组件色 ── */
+  --tab-trough:     #151518;           /* 底槽色，比背景略亮 */
+  --tab-active:     #27272b;           /* 选中方块色，明确区分 */
+  --tab-active-text:#f0f0f4;           /* 选中文字：亮白 */
+  --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
+  --tab-hover-text: #a1a1aa;           /* 悬停提亮 */
 }
 
-/* ── 亮色主题 ── */
+/* ── 亮色主题 — 纯白明亮 ── */
 :root.light, .light {
-  --background:    #fafafa;
-  --foreground:    #000000; /* 纯黑色，更清晰 */
-  --card:          #ffffff;
-  --card-foreground: #000000;
+  --background:    #ffffff; /* 纯白底色 */
+  --foreground:    #111111; /* 接近纯黑文字，避免刺眼纯黑 */
+  --card:          #ffffff; /* 纯白卡片 */
+  --card-foreground: #111111;
   --popover:       #ffffff;
-  --popover-foreground: #000000;
-  --muted:         #f0f0f2;
-  --muted-foreground: #2a2a30; /* 深灰色，亮色主题下高对比 */
-  --border:        rgba(0, 0, 0, 0.10);
-  --input:         rgba(0, 0, 0, 0.10);
-  --secondary:     #f0f0f2;
-  --secondary-foreground: #000000;
-  --accent:        #f0f0f2;
-  --accent-foreground: #000000;
+  --popover-foreground: #111111;
+  --muted:         #f5f5f7; /* 微灰 muted */
+  --muted-foreground: #52525b; /* 中灰，确保可读 */
+  --border:        rgba(0, 0, 0, 0.08); /* 极淡分割线 */
+  --input:         rgba(0, 0, 0, 0.08);
+  --secondary:     #f5f5f7;
+  --secondary-foreground: #111111;
+  --accent:        #f5f5f7;
+  --accent-foreground: #111111;
   --destructive:   #ef4444;
-  --ring:          #a1a1aa;
-  --primary:       #0284C7; /* sky-600 - 亮色版，天空青 */
+  --ring:          #d4d4d8;
+  --primary:       #0284C7; /* sky-600 */
   --primary-foreground: #ffffff;
+
+  /* ── 统一 Tab 切换组件色（亮色主题） ── */
+  --tab-trough:     #f0f0f3;           /* 底槽：极浅灰 */
+  --tab-active:     #ffffff;           /* 选中方块：纯白 */
+  --tab-active-text:#111111;           /* 选中文字：深色 */
+  --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
+  --tab-hover-text: #3f3f46;           /* 悬停提亮 */
 }
 
 @layer base {

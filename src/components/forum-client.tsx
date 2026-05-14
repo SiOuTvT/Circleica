@@ -182,18 +182,24 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
         )}
       </div>
 
-      {/* 筛选 tab */}
-      <div className="mb-4 flex gap-1">
+      {/* 筛选 tab — 统一凹槽 + 圆角活动方块 */}
+      <div className="mb-4 inline-flex gap-1 rounded-xl p-1"
+        style={{ backgroundColor: "var(--tab-trough)" }}>
         {FILTER_TABS.map(tab => (
           <button key={tab.key} onClick={() => setFilter(tab.key)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
-              filter === tab.key 
-                ? "bg-zinc-800 light:bg-zinc-200 text-zinc-100 light:text-zinc-900" 
-                : "text-zinc-500 light:text-zinc-400 hover:text-zinc-300 light:hover:text-zinc-700"
-            )}>
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
+            style={{
+              backgroundColor: filter === tab.key ? "var(--tab-active)" : "transparent",
+              color: filter === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",
+              boxShadow: filter === tab.key ? "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)" : "none",
+              fontWeight: filter === tab.key ? 700 : 500,
+            }}
+            onMouseEnter={(e) => { if (filter !== tab.key) e.currentTarget.style.color = "var(--tab-hover-text)" }}
+            onMouseLeave={(e) => { if (filter !== tab.key) e.currentTarget.style.color = "var(--tab-inactive-text)" }}
+          >
             {tab.label}
-            <span className="ml-1.5 text-[10px] text-zinc-600 light:text-zinc-400">
+            <span className="ml-1.5 text-[10px]"
+              style={{ color: filter === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)", opacity: 0.6 }}>
               {tab.key === "all" ? posts.length : tab.key === "solved" ? posts.filter(p => p.isSolved).length : posts.filter(p => !p.isSolved).length}
             </span>
           </button>

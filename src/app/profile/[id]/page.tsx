@@ -1,11 +1,12 @@
 import { AvatarFrame } from "@/components/avatar-frame"
 import { AvatarFrameSelector } from "@/components/avatar-frame-selector"
-import { ProfileGameTabs } from "@/components/profile-game-tabs"
-import { ProfileMedals } from "@/components/profile-medals"
+import { FollowButton } from "@/components/follow-button"
+import { ProfileContentTabs } from "@/components/profile-content-tabs"
+import { ProfileMedalModal } from "@/components/profile-medal-modal"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getRandomAvatarColor } from "@/lib/utils"
-import { Calendar, Gamepad2, Heart, KeyRound, MessageSquare, Pencil, Star, TrendingUp } from "lucide-react"
+import { KeyRound, Pencil, Star } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -47,49 +48,64 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         orderBy: { createdAt: "desc" },
         include: { game: { select: { id: true, title: true } } },
       },
+      _count: {
+        select: {
+          followers: true,
+          following: true,
+        }
+      }
     },
   })
 
   if (!user) notFound()
 
   const userRank = await prisma.user.count({ where: { createdAt: { lte: user.createdAt } } })
-  // Filter out private favorites
   const favGames = user.favorites.map((f) => f.game)
   const allFavGames = user.favorites.map(f => f.game)
   const { lv, label } = calcLevel(allFavGames.length, user.playStatuses.length, user.comments.length)
   const playStatusGames = user.playStatuses.map(p => ({ game: p.game, status: p.status }))
   const isSelf = session?.user?.id === id
 
+  // Check if current user follows this user
+  let isFollowing = false
+  if (session?.user?.id && !isSelf) {
+    const existing = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: session.user.id,
+          followingId: id,
+        }
+      }
+    })
+    isFollowing = !!existing
+  }
+
   const faveGame = user.faveGameId
     ? await prisma.game.findUnique({ where: { id: user.faveGameId }, select: { id: true, title: true, coverImage: true, originalWork: true } })
     : null
-
-  const statItems = [
-    { icon: Heart,        value: allFavGames.length,          label: "收藏" },
-    { icon: MessageSquare, value: user.comments.length,       label: "评论" },
-    { icon: Gamepad2,     value: user.playStatuses.length,    label: "玩过" },
-  ]
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
       {/* 4:6 双栏布局 */}
       <div className="flex flex-col lg:flex-row gap-6">
 
-        {/* ====== 左侧名片区 40% ====== */}
-        <aside className="w-full lg:w-[40%] lg:shrink-0">
-          <div className="rounded-3xl bg-card ring-1 ring-border overflow-hidden"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)' }}>
+        {/* ====== 左侧 40%：双层卡片 ====== */}
+        <aside className="w-full lg:w-[40%] lg:shrink-0 flex flex-col gap-4">
+
+          {/* 上层大卡 - 身份区 */}
+          <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden"
+            style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)' }}>
 
             {/* Banner */}
             {user.banner && (
-              <div className="h-28 w-full bg-cover bg-center sm:h-36" style={{ backgroundImage: `url(${user.banner})` }} />
+              <div className="h-24 w-full bg-cover bg-center sm:h-32" style={{ backgroundImage: `url(${user.banner})` }} />
             )}
 
-            <div className="p-6 flex flex-col items-center text-center">
+            <div className="p-5 flex flex-col items-center text-center">
 
-              {/* 圆形头像 - 居中，尺寸适中 */}
-              <div className={user.banner ? "-mt-16 mb-4" : "mb-4"}>
-                <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={100}>
+              {/* 圆形头像 */}
+              <div className={user.banner ? "-mt-14 mb-3" : "mb-3"}>
+                <AvatarFrame frameId={(user as any).avatarFrame || "none"} size={88}>
                   {user.avatar ? (
                     <img
                       src={`${user.avatar}${user.avatar.includes('?') ? '&' : '?'}t=${Date.now()}`}
@@ -98,7 +114,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     />
                   ) : (
                     <div
-                      className="flex h-full w-full items-center justify-center rounded-full text-4xl font-bold text-white"
+                      className="flex h-full w-full items-center justify-center rounded-full text-3xl font-bold text-white"
                       style={{ backgroundColor: getRandomAvatarColor(user.username) }}
                     >
                       {user.username[0].toUpperCase()}
@@ -107,125 +123,111 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </AvatarFrame>
               </div>
 
-              {/* 用户名 */}
-              <h1 className="text-xl font-bold text-foreground tracking-tight">{user.username}</h1>
+              {/* ID */}
+              <h1 className="text-lg font-bold text-foreground tracking-tight">{user.username}</h1>
 
-              {/* 等级 */}
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Star className="h-3.5 w-3.5 text-violet-400" strokeWidth={2} />
-                <span>LV.{lv} · {label}</span>
+              {/* 等级标签 */}
+              <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-violet-500/10 px-3 py-0.5 text-xs text-violet-400">
+                <Star className="h-3 w-3" strokeWidth={2} />
+                LV.{lv} · {label}
               </div>
 
-              {/* 简介 */}
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+              {/* 个人签名 */}
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-2">
                 {user.bio || "这个人很懒，什么都没留下。"}
               </p>
 
-              {/* 横向数据栏 */}
-              <div className="mt-5 flex items-center justify-center gap-6 sm:gap-8">
-                {statItems.map(({ icon: Icon, value, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
-                      <span className="text-lg font-bold text-foreground">{value}</span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground">{label}</span>
-                  </div>
-                ))}
+              {/* 社交行1：关注 / 粉丝 */}
+              <div className="mt-4 flex items-center justify-center gap-8">
+                <div className="flex flex-col items-center">
+                  <span className="text-lg font-bold text-foreground">{user._count.following}</span>
+                  <span className="text-[11px] text-muted-foreground">关注</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-lg font-bold text-foreground">{user._count.followers}</span>
+                  <span className="text-[11px] text-muted-foreground">粉丝</span>
+                </div>
               </div>
 
-              {/* 元信息 */}
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" strokeWidth={1.5} />
-                  第 {userRank} 位成员
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Calendar className="h-3 w-3" strokeWidth={1.5} />
-                  {new Date(user.createdAt).toLocaleDateString("zh-CN")} 加入
-                </span>
+              {/* 社交行2：收藏 / 评论 / 玩过 */}
+              <div className="mt-3 flex items-center justify-center gap-6">
+                <div className="flex flex-col items-center">
+                  <span className="text-base font-bold text-foreground">{allFavGames.length}</span>
+                  <span className="text-[11px] text-muted-foreground">收藏</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-base font-bold text-foreground">{user.comments.length}</span>
+                  <span className="text-[11px] text-muted-foreground">评论</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-base font-bold text-foreground">{user.playStatuses.length}</span>
+                  <span className="text-[11px] text-muted-foreground">玩过</span>
+                </div>
               </div>
 
-              {/* 功能按钮 */}
-              {isSelf && (
-                <div className="mt-5 flex flex-wrap justify-center gap-2">
-                  <Link href="/profile/edit" className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground">
-                    <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑资料
-                  </Link>
-                  <Link href="/profile/edit#password" className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground">
-                    <KeyRound className="h-3.5 w-3.5" strokeWidth={2} />修改密码
-                  </Link>
-                  <AvatarFrameSelector
-                    currentFrame={(user as any).avatarFrame || "none"}
-                    userImage={user.avatar}
-                    userName={user.username}
-                  />
+              {/* 关注按钮（非本人时显示） */}
+              {!isSelf && session?.user && (
+                <div className="mt-4">
+                  <FollowButton targetUserId={id} initialFollowing={isFollowing} />
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* 下层小卡 - 功能区 */}
+          <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden"
+            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)' }}>
+
+            <div className="p-4">
+              {/* 入站序号 + 加入日期 */}
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-3 px-1">
+                <span>第 {userRank} 位成员</span>
+                <span>{new Date(user.createdAt).toLocaleDateString("zh-CN")} 加入</span>
+              </div>
+
+              {/* 编辑资料 / 修改密码 / 更换头像框（仅本人） */}
+              {isSelf && (
+                <div className="flex flex-col gap-2">
+                  <Link href="/profile/edit" className="flex items-center gap-2.5 rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary">
+                    <Pencil className="h-4 w-4 text-muted-foreground" strokeWidth={2} />编辑资料
+                  </Link>
+                  <Link href="/profile/edit#password" className="flex items-center gap-2.5 rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary">
+                    <KeyRound className="h-4 w-4 text-muted-foreground" strokeWidth={2} />修改密码
+                  </Link>
+                  <div className="rounded-xl bg-secondary/60 px-4 py-2.5">
+                    <AvatarFrameSelector
+                      currentFrame={(user as any).avatarFrame || "none"}
+                      userImage={user.avatar}
+                      userName={user.username}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 勋章墙按钮 */}
+              <div className="mt-3">
+                <ProfileMedalModal
+                  favCount={allFavGames.length}
+                  playCount={user.playStatuses.length}
+                  commentCount={user.comments.length}
+                  totalLevel={lv}
+                />
+              </div>
             </div>
           </div>
         </aside>
 
-        {/* ====== 右侧内容区 60% ====== */}
-        <main className="w-full lg:w-[60%] space-y-6">
-
-          {/* 勋章系统 - 仅展示已获得 */}
-          <div className="rounded-3xl bg-card ring-1 ring-border overflow-hidden"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)' }}>
-            <ProfileMedals
-              favCount={allFavGames.length}
-              playCount={user.playStatuses.length}
-              commentCount={user.comments.length}
-              totalLevel={lv}
-            />
-          </div>
-
-          {/* 游戏收藏 / 足迹 */}
-          <div className="rounded-3xl bg-card ring-1 ring-border overflow-hidden"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)' }}>
-            <ProfileGameTabs
+        {/* ====== 右侧 60%：内容实验室 ====== */}
+        <main className="w-full lg:w-[60%]">
+          <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden"
+            style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)' }}>
+            <ProfileContentTabs
               faveGame={faveGame ?? null}
               favGames={favGames}
               playStatusGames={playStatusGames}
+              comments={user.comments}
             />
           </div>
-
-          {/* 个人动态 - Workflow 足迹流 */}
-          <section className="rounded-3xl bg-card ring-1 ring-border overflow-hidden"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04)' }}>
-            <div className="p-5 sm:p-6">
-              <h2 className="mb-5 flex items-center gap-3 text-base font-semibold text-foreground">
-                <span className="h-5 w-1 rounded-full bg-gradient-to-b from-primary to-purple-400" />
-                个人动态
-              </h2>
-              {user.comments.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-10 text-center">暂无动态记录</p>
-              ) : (
-                <div className="relative space-y-0 pl-8">
-                  <div className="absolute left-[13px] top-2 bottom-2 w-px bg-border" />
-                  {user.comments.slice(0, 15).map((c) => (
-                    <div key={c.id} className="relative pb-6 last:pb-0">
-                      <div className="absolute -left-6 top-1.5 h-5 w-5 rounded-full border-2 border-primary/40 bg-card flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-primary/60" />
-                      </div>
-                      <div className="rounded-2xl bg-secondary/50 p-4 ring-1 ring-border">
-                        <p className="text-[11px] text-muted-foreground mb-1.5">
-                          {new Date(c.createdAt).toLocaleDateString("zh-CN")}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          评论了{" "}
-                          <Link href={`/games/${c.game.id}`} className="text-primary hover:text-primary/80 transition-colors font-medium">
-                            《{c.game.title}》
-                          </Link>
-                        </p>
-                        <p className="mt-1.5 line-clamp-2 text-sm text-foreground/80 leading-relaxed">{c.content}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
         </main>
       </div>
     </div>
