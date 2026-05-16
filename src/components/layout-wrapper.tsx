@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isAdmin = pathname.startsWith("/admin")
+  const isAdminRoute = pathname.startsWith("/admin")
 
   return (
     <BreadcrumbProvider>
@@ -19,14 +19,20 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       >
         跳到主要内容
       </a>
-      {!isAdmin && <TopNav />}
-      <main id="main-content" role="main" className={!isAdmin ? "pt-14 min-h-screen" : "min-h-screen"}>
-        <div className={!isAdmin ? "w-full px-3 py-3 sm:px-5 sm:py-4" : ""}>
-          {!isAdmin && <Breadcrumb />}
-          {children}
-        </div>
+      {!isAdminRoute && <TopNav />}
+      <main id="main-content" role="main" className={isAdminRoute ? "min-h-screen" : "pt-14 min-h-screen"}>
+        {isAdminRoute ? (
+          /* 管理后台：全屏无边距，由 admin/layout.tsx 自行处理 */
+          children
+        ) : (
+          /* 前台页面：居中容器，与顶部导航栏左右边缘对齐 */
+          <div className="mx-auto w-full max-w-[1300px] px-3 py-3 sm:px-5 sm:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6">
+            <Breadcrumb />
+            {children}
+          </div>
+        )}
       </main>
-      {!isAdmin && <MusicPlayer />}
+      {!isAdminRoute && <MusicPlayer />}
     </BreadcrumbProvider>
   )
 }
