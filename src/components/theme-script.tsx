@@ -6,13 +6,18 @@ export function ThemeScript() {
   const script = `
     (function() {
       try {
-        var color = localStorage.getItem('site-theme-color');
+        var raw = localStorage.getItem('site-theme-settings');
+        var settings = raw ? JSON.parse(raw) : null;
+        var color = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
         if (!color) return;
         color = color.replace('#', '');
         var r = parseInt(color.substring(0, 2), 16);
         var g = parseInt(color.substring(2, 4), 16);
         var b = parseInt(color.substring(4, 6), 16);
         var root = document.documentElement;
+        var radius = settings ? settings.themeRadius : 12;
+        var shadowIntensity = settings ? settings.themeShadowIntensity : 50;
+        var alpha = settings ? settings.themeAlpha : 15;
         
         function darken(hex, amt) {
           hex = hex.replace('#', '');
@@ -32,21 +37,31 @@ export function ThemeScript() {
         var hex = '#' + color;
         var isDark = root.classList.contains('dark');
         if (isDark) {
-          var primaryDark = darken(hex, 0.15);
+          var primaryDark = darken(hex, 0.05);
           root.style.setProperty('--primary', primaryDark);
           root.style.setProperty('--ring', primaryDark);
+          root.style.setProperty('--accent', lighten(hex, 0.15));
           root.style.setProperty('--clr-blue', primaryDark);
-          root.style.setProperty('--clr-sky', lighten(hex, 0.25));
+          root.style.setProperty('--clr-sky', lighten(hex, 0.2));
           root.style.setProperty('--clr-glow', hex + '1F');
         } else {
           root.style.setProperty('--primary', hex);
           root.style.setProperty('--ring', hex);
+          root.style.setProperty('--accent', lighten(hex, 0.45));
           root.style.setProperty('--clr-blue', darken(hex, 0.2));
           root.style.setProperty('--clr-sky', lighten(hex, 0.15));
           root.style.setProperty('--clr-glow', hex + '1F');
           var lum = 0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255);
           root.style.setProperty('--primary-foreground', lum > 0.6 ? '#18181b' : '#ffffff');
         }
+        // Common variables
+        root.style.setProperty('--clr-warm', '#f59e0b');
+        root.style.setProperty('--theme-radius', radius + 'px');
+        root.style.setProperty('--theme-shadow-intensity', (shadowIntensity / 100).toString());
+        root.style.setProperty('--theme-alpha', (alpha / 100).toString());
+        root.style.setProperty('--theme-r', r.toString());
+        root.style.setProperty('--theme-g', g.toString());
+        root.style.setProperty('--theme-b', b.toString());
       } catch(e) {}
     })();
   `

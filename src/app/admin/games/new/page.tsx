@@ -11,7 +11,7 @@ export default async function NewGamePage() {
     prisma.creator.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, nameJa: true, avatar: true } }),
   ])
   return (
-    <div className="max-w-2xl">
+    <div className="w-full">
       <h1 className="mb-6 text-lg font-bold text-foreground">新增游戏</h1>
       <GameForm tags={tags} />
     </div>

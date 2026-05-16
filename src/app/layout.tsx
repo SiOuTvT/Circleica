@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <ThemeScript />
       </head>
-        <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-full bg-background text-foreground">
         <NextTopLoader
           color="var(--primary)"
           initialPosition={0.08}

@@ -5,15 +5,19 @@ import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-interface Tag { id: string; name: string; color: string }
+import { parseFileSizes, parseStringArray } from "@/lib/parse-utils";
+
+interface Tag { id: string; name: string; color: string; groupId?: string | null }
+interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
 interface DownloadLink { label: string; url: string }
-interface FileSizeEntry { value: string; unit: "MB" | "GB" }
+type FileSizeEntry = { value: string; unit: "MB" | "GB" }
 
 const LANGUAGE_OPTIONS = ["简体中文", "繁体中文", "日文", "英文", "韩文", "其他"]
 const PLATFORM_OPTIONS = ["PC", "安卓直装", "模拟器", "Linux", "MacOS", "网页版"]
 
 interface Props {
   tags: Tag[]
+  tagGroups?: TagGroup[]
   gameId?: string
   initialData?: {
     title: string; originalWork: string; description: string
@@ -25,29 +29,14 @@ interface Props {
   }
 }
 
-/* 解析旧的纯文本格式为数组 */
-function parseStringArray(raw: string): string[] {
-  if (!raw) return []
-  try { const p = JSON.parse(raw); if (Array.isArray(p)) return p } catch {}
-  return raw.split(/[,，/、]/).map(s => s.trim()).filter(Boolean)
-}
-
 function parseFileSizeArray(raw: string): FileSizeEntry[] {
-  if (!raw) return []
-  try {
-    const p = JSON.parse(raw)
-    if (Array.isArray(p)) return p.map(e => ({ value: String(e.value ?? ""), unit: (e.unit === "MB" ? "MB" : "GB") as "MB" | "GB" }))
-  } catch {}
-  // 旧格式兼容: "1.25 GB / 700 MB"
-  const parts = raw.split(/[/、,，]/).map(s => s.trim()).filter(Boolean)
-  return parts.map(part => {
-    const m = part.match(/([\d.]+)\s*(MB|GB)/i)
-    if (m) return { value: m[1], unit: (m[2].toUpperCase() as "MB" | "GB") }
-    return { value: part, unit: "GB" as const }
-  })
+  return parseFileSizes(raw).map(e => ({
+    value: e.value,
+    unit: (e.unit === "MB" ? "MB" : "GB") as "MB" | "GB",
+  }))
 }
 
-export function GameForm({ tags, gameId, initialData }: Props) {
+export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
   const router = useRouter()
   const isEdit = !!gameId
 
@@ -237,7 +226,7 @@ export function GameForm({ tags, gameId, initialData }: Props) {
           <ImageUpload
             value={coverImage}
             onChange={(url) => setCoverImage(url)}
-            aspectRatio={3 / 4}
+            aspectRatio={3 / 2}
             maxSizeMB={5}
             placeholder="上传游戏封面"
             className="max-w-[200px]"
@@ -341,7 +330,7 @@ export function GameForm({ tags, gameId, initialData }: Props) {
         </div>
       </div>
 
-      {/* 标签 — 带搜索和复选框 */}
+      {/* 标签 — 带搜索和复选框，按标签组分类 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border">
         <h2 className="mb-3 text-sm font-semibold text-foreground">标签</h2>
         {/* 搜索框 */}
@@ -372,30 +361,89 @@ export function GameForm({ tags, gameId, initialData }: Props) {
             })}
           </div>
         )}
-        {/* 复选框列表 */}
-        <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg bg-secondary/50 p-2">
-          {tags
-            .filter(tag => !tagSearch || tag.name.toLowerCase().includes(tagSearch.toLowerCase()))
-            .map((tag) => {
-              const checked = selectedTags.includes(tag.id)
-              return (
-                <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
-                  }`}>
-                  <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
-                    checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
-                  }`}>
-                    {checked && "✓"}
-                  </span>
-                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: tag.color }} />
-                  {tag.name}
-                </button>
-              )
-            })}
-          {tags.filter(tag => !tagSearch || tag.name.toLowerCase().includes(tagSearch.toLowerCase())).length === 0 && (
-            <p className="px-3 py-2 text-xs text-muted-foreground">没有匹配的标签</p>
-          )}
+        {/* 按标签组分类显示 */}
+        <div className="max-h-72 overflow-y-auto space-y-3 rounded-lg bg-secondary/50 p-3">
+          {(() => {
+            const searchLower = tagSearch.toLowerCase()
+            // 已分组的标签
+            const grouped = tagGroups
+              .map(g => ({
+                ...g,
+                tags: g.tags.filter(t => !searchLower || t.name.toLowerCase().includes(searchLower)),
+              }))
+              .filter(g => g.tags.length > 0)
+            // 未分组的标签
+            const ungrouped = tags.filter(t => {
+              const inGroup = tagGroups.some(g => g.tags.some(gt => gt.id === t.id))
+              const matchesSearch = !searchLower || t.name.toLowerCase().includes(searchLower)
+              return !inGroup && matchesSearch
+            })
+
+            if (grouped.length === 0 && ungrouped.length === 0) {
+              return <p className="px-3 py-2 text-xs text-muted-foreground">没有匹配的标签</p>
+            }
+
+            return (
+              <>
+                {grouped.map(group => (
+                  <div key={group.id}>
+                    <div className="flex items-center gap-2 mb-1.5 px-1">
+                      <div className="h-2 w-2 rounded-full" style={{ background: group.color }} />
+                      <span className="text-xs font-semibold text-muted-foreground">{group.name}</span>
+                    </div>
+                    <div className="space-y-0.5 pl-1">
+                      {group.tags.map((tag) => {
+                        const checked = selectedTags.includes(tag.id)
+                        return (
+                          <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
+                            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                              checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
+                            }`}>
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                              checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                            }`}>
+                              {checked && "✓"}
+                            </span>
+                            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: tag.color }} />
+                            {tag.name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+                {ungrouped.length > 0 && (
+                  <div>
+                    {grouped.length > 0 && (
+                      <div className="flex items-center gap-2 mb-1.5 px-1">
+                        <div className="h-2 w-2 rounded-full bg-muted-foreground/40" />
+                        <span className="text-xs font-semibold text-muted-foreground">未分组</span>
+                      </div>
+                    )}
+                    <div className="space-y-0.5 pl-1">
+                      {ungrouped.map((tag) => {
+                        const checked = selectedTags.includes(tag.id)
+                        return (
+                          <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
+                            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                              checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
+                            }`}>
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
+                              checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"
+                            }`}>
+                              {checked && "✓"}
+                            </span>
+                            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: tag.color }} />
+                            {tag.name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            )
+          })()}
         </div>
         {tags.length === 0 && <p className="mt-2 text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
       </div>

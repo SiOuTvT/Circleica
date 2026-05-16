@@ -111,11 +111,23 @@ model Game {
   @@index([vndbId])
 }
 
+model TagGroup {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @default("")
+  color       String   @default("#7c8a9e")
+  tags        Tag[]
+  createdAt   DateTime @default(now())
+}
+
 model Tag {
-  id    String    @id @default(cuid())
-  name  String    @unique
-  color String    @default("#a78bfa")
-  games GameTag[]
+  id      String    @id @default(cuid())
+  name    String    @unique
+  color   String    @default("#a78bfa")
+  groupId String?
+  group   TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  games   GameTag[]
+  @@index([groupId])
 }
 
 model GameTag {

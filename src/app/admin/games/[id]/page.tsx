@@ -10,7 +10,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
   await requireAdmin()
   const { id } = await params
 
-  const [game, tags] = await Promise.all([
+  const [game, tags, tagGroups] = await Promise.all([
     prisma.game.findUnique({
       where: { id },
       include: {
@@ -18,6 +18,10 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
       },
     }),
     prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tagGroup.findMany({
+      orderBy: { name: "asc" },
+      include: { tags: { orderBy: { name: "asc" } } },
+    }),
   ])
 
   if (!game) notFound()
@@ -31,9 +35,9 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="w-full space-y-5">
       <h1 className="text-lg font-bold text-foreground">编辑游戏</h1>
-      <GameForm tags={tags} initialData={gameData} gameId={id} />
+      <GameForm tags={tags} tagGroups={tagGroups} initialData={gameData} gameId={id} />
       <GameLogManager gameId={id} />
     </div>
   )

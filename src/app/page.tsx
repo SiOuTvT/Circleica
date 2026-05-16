@@ -37,7 +37,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} />
   }
 
-  const mapped = games.map((g: any) => ({ ...g, tags: g.tags.map((t: any) => t.tag) }))
+  const mapped = games.map((g) => ({ ...g, tags: g.tags.map((t) => t.tag) }))
 
   return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} />
 }

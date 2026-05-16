@@ -8,7 +8,7 @@ export default async function AdminMusicPage() {
   await requireAdmin()
   const music = await prisma.music.findMany({ orderBy: { createdAt: "desc" } })
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="w-full space-y-4">
       <h1 className="text-lg font-bold text-foreground">音乐管理</h1>
       <MusicManager initialMusic={music} />
     </div>

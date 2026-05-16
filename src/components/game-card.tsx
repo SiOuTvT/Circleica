@@ -1,5 +1,6 @@
 "use client"
 
+import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -30,32 +31,6 @@ function formatDate(d?: Date | string): string {
   return date.toISOString().slice(0, 10)
 }
 
-/* ─── 解析 JSON 数组（兼容旧格式纯文本） ─── */
-function parseArr(raw?: string): string[] {
-  if (!raw) return []
-  try {
-    const p = JSON.parse(raw)
-    if (Array.isArray(p)) return p.filter(Boolean).map(String)
-  } catch {}
-  return raw.split(/[,，/、]/).map(s => s.trim()).filter(Boolean)
-}
-
-interface FileSizeEntry { value: string; unit: string }
-function parseFileSizes(raw?: string): FileSizeEntry[] {
-  if (!raw) return []
-  try {
-    const p = JSON.parse(raw)
-    if (Array.isArray(p)) return p.filter(e => e.value)
-  } catch {}
-  // 旧格式: "1.25 GB / 700 MB"
-  const parts = raw.split(/[/、,，]/).map(s => s.trim()).filter(Boolean)
-  return parts.map(part => {
-    const m = part.match(/([\d.]+)\s*(MB|GB)/i)
-    if (m) return { value: m[1], unit: m[2].toUpperCase() }
-    return { value: part, unit: "GB" }
-  })
-}
-
 /* ─── 格式化数字 ─── */
 function fmtNum(n?: number): string {
   if (n == null) return ""
@@ -73,8 +48,8 @@ export function GameCard({ game }: { game: GameCardData }) {
   const dateStr = formatDate(game.updatedAt || game.createdAt)
 
   /* 收集平台/语言标签 */
-  const platformTags = parseArr(game.platform)
-  const languageTags = parseArr(game.language)
+  const platformTags = parseStringArray(game.platform)
+  const languageTags = parseStringArray(game.language)
   const paramTags = [...platformTags, ...languageTags]
   const fileSizes = parseFileSizes(game.fileSize)
 

@@ -85,7 +85,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     : null
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="w-full py-6">
       {/* 4:6 双栏布局 */}
       <div className="flex flex-col lg:flex-row gap-6">
 

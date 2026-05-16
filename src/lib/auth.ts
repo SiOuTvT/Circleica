@@ -49,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // 从数据库读取头像框（容错处理，避免列不存在时崩溃）
         try {
           const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
-          token.avatarFrame = (dbUser as any)?.avatarFrame ?? "none"
+          token.avatarFrame = dbUser?.avatarFrame ?? "none"
         } catch {
           token.avatarFrame = "none"
         }
@@ -58,16 +58,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name
         if (session.image) token.image = session.image
-        if ((session as any).avatarFrame) token.avatarFrame = (session as any).avatarFrame
+        if (session.avatarFrame) token.avatarFrame = session.avatarFrame
       }
       return token
     },
     session({ session, token }) {
       if (token) {
         session.user.id          = token.id as string
-        session.user.name        = token.name
+        session.user.name        = token.name ?? ""
         session.user.image       = token.image as string | null
-        ;(session.user as any).avatarFrame = (token as any).avatarFrame ?? "none"
+        session.user.avatarFrame = token.avatarFrame ?? "none"
       }
       return session
     },

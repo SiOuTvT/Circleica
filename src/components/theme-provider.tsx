@@ -1,83 +1,120 @@
 "use client"
 
-import { applyThemeColor, THEME_PRESETS, type ThemePreset } from "@/lib/theme-colors"
+import { applyThemeColor } from "@/lib/theme-colors"
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
 
-interface ThemeContextType {
+export interface FullThemeSettings {
   themeColor: string
-  setThemeColor: (color: string) => void
-  presets: ThemePreset[]
-  currentPreset: ThemePreset | null
+  themeRadius: number
+  themeShadowIntensity: number
+  themeAlpha: number
 }
 
-const ThemeContext = createContext<ThemeContextType>({
+interface ThemeContextType {
+  settings: FullThemeSettings
+  setColor: (color: string) => void
+  setRadius: (r: number) => void
+  setShadowIntensity: (v: number) => void
+  setAlpha: (v: number) => void
+  applyAll: (s: FullThemeSettings) => void
+}
+
+const DEFAULT_SETTINGS: FullThemeSettings = {
   themeColor: "#38BDF8",
-  setThemeColor: () => {},
-  presets: THEME_PRESETS,
-  currentPreset: null,
+  themeRadius: 12,
+  themeShadowIntensity: 50,
+  themeAlpha: 15,
+}
+
+const STORAGE_KEY = "site-theme-settings"
+
+const ThemeContext = createContext<ThemeContextType>({
+  settings: DEFAULT_SETTINGS,
+  setColor: () => {},
+  setRadius: () => {},
+  setShadowIntensity: () => {},
+  setAlpha: () => {},
+  applyAll: () => {},
 })
 
-export function useThemeColor() {
+export function useThemeSettings() {
   return useContext(ThemeContext)
 }
 
-const STORAGE_KEY = "site-theme-color"
+// Legacy compat
+export function useThemeColor() {
+  const { settings, setColor } = useThemeSettings()
+  return { themeColor: settings.themeColor, setThemeColor: setColor, presets: [], currentPreset: null }
+}
+
+function doApply(s: FullThemeSettings) {
+  applyThemeColor(s.themeColor, s.themeRadius, s.themeShadowIntensity, s.themeAlpha)
+}
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeColor, setThemeColorState] = useState("#38BDF8")
+  const [settings, setSettings] = useState<FullThemeSettings>(DEFAULT_SETTINGS)
   const [loaded, setLoaded] = useState(false)
-
-  // Apply color to CSS variables
-  const applyColor = useCallback((color: string) => {
-    applyThemeColor(color)
-  }, [])
 
   // Fetch from server on mount
   useEffect(() => {
-    // First try localStorage for instant display
-    const cached = localStorage.getItem(STORAGE_KEY)
-    if (cached) {
-      setThemeColorState(cached)
-      applyColor(cached)
-    }
+    // Try localStorage for instant display
+    try {
+      const cached = localStorage.getItem(STORAGE_KEY)
+      if (cached) {
+        const parsed = JSON.parse(cached) as FullThemeSettings
+        setSettings(parsed)
+        doApply(parsed)
+      }
+    } catch {}
 
-    // Then fetch from server for authoritative value
+    // Fetch authoritative value
     fetch("/api/site-settings")
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         if (data.themeColor) {
-          setThemeColorState(data.themeColor)
-          applyColor(data.themeColor)
-          localStorage.setItem(STORAGE_KEY, data.themeColor)
+          const s: FullThemeSettings = {
+            themeColor: data.themeColor,
+            themeRadius: data.themeRadius ?? 12,
+            themeShadowIntensity: data.themeShadowIntensity ?? 50,
+            themeAlpha: data.themeAlpha ?? 15,
+          }
+          setSettings(s)
+          doApply(s)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
         }
       })
       .catch(() => {})
       .finally(() => setLoaded(true))
-  }, [applyColor])
+  }, [])
 
-  // Also re-apply when dark/light mode toggles
+  // Re-apply on dark/light toggle
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      applyColor(themeColor)
-    })
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
+    const observer = new MutationObserver(() => doApply(settings))
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
     return () => observer.disconnect()
-  }, [themeColor, applyColor])
+  }, [settings])
 
-  const setThemeColor = useCallback((color: string) => {
-    setThemeColorState(color)
-    applyColor(color)
-    localStorage.setItem(STORAGE_KEY, color)
-    // Note: server persistence is handled by admin theme page with confirm button
-  }, [applyColor])
+  const updateAndApply = useCallback((patch: Partial<FullThemeSettings>) => {
+    setSettings(prev => {
+      const next = { ...prev, ...patch }
+      doApply(next)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
 
-  const currentPreset = THEME_PRESETS.find((p) => p.color.toLowerCase() === themeColor.toLowerCase()) ?? null
+  const setColor = useCallback((c: string) => updateAndApply({ themeColor: c }), [updateAndApply])
+  const setRadius = useCallback((r: number) => updateAndApply({ themeRadius: r }), [updateAndApply])
+  const setShadowIntensity = useCallback((v: number) => updateAndApply({ themeShadowIntensity: v }), [updateAndApply])
+  const setAlpha = useCallback((v: number) => updateAndApply({ themeAlpha: v }), [updateAndApply])
+  const applyAll = useCallback((s: FullThemeSettings) => {
+    setSettings(s)
+    doApply(s)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
+  }, [])
 
   return (
-    <ThemeContext.Provider value={{ themeColor, setThemeColor, presets: THEME_PRESETS, currentPreset }}>
+    <ThemeContext.Provider value={{ settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll }}>
       {children}
     </ThemeContext.Provider>
   )

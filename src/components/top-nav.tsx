@@ -37,7 +37,7 @@ function setCookie(name: string, value: string) {
 export function TopNav() {
   const router = useRouter()
   const { data: session } = useSession()
-  const user = session?.user as any
+  const user = session?.user
 
   const [menuOpen, setMenuOpen]   = useState(false)
   const [userOpen, setUserOpen]   = useState(false)

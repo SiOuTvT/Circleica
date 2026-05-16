@@ -16,7 +16,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   if (!ann) notFound()
 
   return (
-    <div className="mx-auto max-w-2xl py-4">
+    <div className="w-full py-4">
       <Link href="/" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         返回首页
