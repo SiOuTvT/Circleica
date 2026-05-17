@@ -1,6 +1,10 @@
-import { GameForm } from "@/components/game-form"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import dynamic from "next/dynamic"
+
+const GameForm = dynamic(() => import("@/components/game-form").then(m => ({ default: m.GameForm })), {
+  loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted" />,
+})
 
 export const metadata = { title: "新增游戏 · 管理后台" }
 

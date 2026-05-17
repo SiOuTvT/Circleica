@@ -135,14 +135,14 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
       ═══════════════════════════════════════════════ */}
-      <div className="pt-4 lg:pt-6">
+      <div className="pt-2 sm:pt-4 lg:pt-6 overflow-hidden">
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr]">
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
           <div
             className="flex flex-col"
             style={{
-              height: "520px",
+              minHeight: "auto",
               borderRadius: "16px",
               background: "hsl(var(--card))",
               border: "1px solid hsl(var(--border))",
@@ -151,7 +151,7 @@ export default async function GameDetailPage({
             }}
           >
             {/* ①号位：封面图 3:2，左右留内边距 */}
-            <div className="px-5 pt-5 pb-2 shrink-0">
+            <div className="px-3 sm:px-5 pt-3 sm:pt-5 pb-2 shrink-0">
               <div
                 className="relative overflow-hidden"
                 style={{
@@ -199,7 +199,7 @@ export default async function GameDetailPage({
             </div>
 
             {/* ②号位：创作者/数据区，紧凑排列 */}
-            <div className="flex flex-col justify-between flex-1 px-5 pb-4 pt-2 min-h-0">
+            <div className="flex flex-col justify-between flex-1 px-3 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0">
 
               {/* 作者信息 */}
               <div className="flex items-center gap-3">
@@ -291,7 +291,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           下方内容区 — Tab 式详情
       ═══════════════════════════════════════════════ */}
-      <div className="py-8">
+      <div className="py-4 sm:py-6 lg:py-8">
           <GameDetailClient
             description={game.description ?? ""}
             screenshots={screenshots}

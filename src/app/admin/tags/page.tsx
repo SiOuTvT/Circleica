@@ -1,7 +1,14 @@
-import { TagGroupsManager } from "@/components/tag-groups-manager"
-import { TagsManager } from "@/components/tags-manager"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import dynamic from "next/dynamic"
+
+const TagGroupsManager = dynamic(() => import("@/components/tag-groups-manager").then(m => ({ default: m.TagGroupsManager })), {
+  loading: () => <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />)}</div>,
+})
+
+const TagsManager = dynamic(() => import("@/components/tags-manager").then(m => ({ default: m.TagsManager })), {
+  loading: () => <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 animate-pulse rounded-xl bg-muted" />)}</div>,
+})
 
 export const metadata = { title: "标签管理 · 管理后台" }
 

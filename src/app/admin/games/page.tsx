@@ -1,8 +1,12 @@
-import { AdminGameDeleteBtn } from "@/components/admin-game-delete-btn"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Download, Pencil, Plus, Search } from "lucide-react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
+
+const AdminGameDeleteBtn = dynamic(() => import("@/components/admin-game-delete-btn").then(m => ({ default: m.AdminGameDeleteBtn })), {
+  loading: () => <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />,
+})
 
 export default async function AdminGamesPage({
   searchParams,

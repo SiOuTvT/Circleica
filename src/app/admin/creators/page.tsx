@@ -1,78 +1,81 @@
-"use client"
+import { requireAdmin } from "@/lib/admin"
+import { prisma } from "@/lib/prisma"
+import { PenTool, Plus, Search } from "lucide-react"
+import dynamic from "next/dynamic"
+import Link from "next/link"
 
-import { ChevronLeft, ChevronRight, PenTool, Search, Trash2 } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
-import { toast } from "sonner"
+const CreatorDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.CreatorDeleteBtn })), {
+  loading: () => <div className="h-8 w-8 animate-pulse rounded-lg bg-muted" />,
+})
 
-interface Creator {
-  id: string
-  name: string
-  nameJa: string
-  avatar: string
-  bio: string
-  gender: string
-  vndbId: string
-  createdAt: string
-  _count?: { games: number }
-}
+export const metadata = { title: "创作者管理 · 管理后台" }
 
-export default function AdminCreatorsPage() {
-  const [creators, setCreators] = useState<Creator[]>([])
-  const [total, setTotal] = useState(0)
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
+export default async function AdminCreatorsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; q?: string }>
+}) {
+  await requireAdmin()
+  const sp = await searchParams
+  const page = Math.max(1, parseInt(sp.page || "1"))
+  const q = sp.q?.trim() ?? ""
   const limit = 20
+  const skip = (page - 1) * limit
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    const params = new URLSearchParams({ page: String(page) })
-    if (search) params.set("search", search)
-    const res = await fetch(`/api/admin/creators?${params}`)
-    const data = await res.json()
-    setCreators(data.creators || [])
-    setTotal(data.total || 0)
-    setLoading(false)
-  }, [page, search])
+  const where = q ? {
+    OR: [
+      { name: { contains: q, mode: "insensitive" as const } },
+      { nameJa: { contains: q, mode: "insensitive" as const } },
+      { vndbId: { contains: q, mode: "insensitive" as const } },
+    ]
+  } : {}
 
-  useEffect(() => { load() }, [load])
-
-  const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/admin/creators/${id}`, { method: "DELETE" })
-    if (res.ok) { toast.success("已删除"); load() }
-    else toast.error("删除失败")
-  }
+  const [creators, total] = await Promise.all([
+    prisma.creator.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip, take: limit,
+      select: {
+        id: true, name: true, nameJa: true, avatar: true,
+        gender: true, vndbId: true, createdAt: true,
+        _count: { select: { games: true } },
+      },
+    }),
+    prisma.creator.count({ where }),
+  ])
 
   const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <PenTool className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">创作者管理</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {total} 位创作者
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <PenTool className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">创作者管理</h1>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            {total} 位创作者
+          </span>
+        </div>
+        <Link
+          href="/admin/creators/new"
+          className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+        >
+          <Plus className="h-5 w-5" strokeWidth={2} />
+          新增
+        </Link>
       </div>
 
-      <div className="relative max-w-sm">
+      <form method="get" className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
-          type="text"
+          name="q"
+          defaultValue={q}
           placeholder="搜索创作者..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
           className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/50"
         />
-      </div>
+      </form>
 
-      {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
-          ))}
-        </div>
-      ) : creators.length === 0 ? (
+      {creators.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
           <PenTool className="h-12 w-12 text-muted-foreground/40" />
           <p className="text-muted-foreground">暂无创作者</p>
@@ -106,15 +109,7 @@ export default function AdminCreatorsPage() {
                   {new Date(creator.createdAt).toLocaleDateString("zh-CN")}
                 </p>
               </div>
-              <div className="flex items-center gap-1 opacity-0 transition-all group-hover:opacity-100">
-                <button
-                  onClick={() => handleDelete(creator.id)}
-                  className="rounded-lg p-2 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
-                  title="删除"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+              <CreatorDeleteBtn id={creator.id} />
             </div>
           ))}
         </div>
@@ -122,21 +117,19 @@ export default function AdminCreatorsPage() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:opacity-40"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="px-3 text-sm text-muted-foreground">{page} / {totalPages}</span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:opacity-40"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <Link
+              key={p}
+              href={`/admin/creators?page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+              className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                p === page
+                  ? "bg-accent text-foreground"
+                  : "bg-card text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              {p}
+            </Link>
+          ))}
         </div>
       )}
     </div>

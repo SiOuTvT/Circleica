@@ -1,7 +1,11 @@
-﻿import { VNDBImportManager } from "@/components/vndb-import-manager"
-import { requireAdmin } from "@/lib/admin"
+﻿import { requireAdmin } from "@/lib/admin"
 import { ArrowLeft } from "lucide-react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
+
+const VNDBImportManager = dynamic(() => import("@/components/vndb-import-manager").then(m => ({ default: m.VNDBImportManager })), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted" />,
+})
 
 export const metadata = { title: "VNDB 导入 · 管理后台" }
 

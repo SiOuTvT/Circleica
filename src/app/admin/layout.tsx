@@ -1,5 +1,29 @@
-import { AdminNav } from "@/components/admin-nav"
 import { requireAdmin } from "@/lib/admin"
+import dynamic from "next/dynamic"
+
+const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ default: m.AdminNav })), {
+  loading: () => (
+    <>
+      {/* 桌面端骨架 */}
+      <aside className="fixed left-0 top-0 z-40 hidden h-full w-[220px] flex-col border-r border-border bg-card/95 md:flex">
+        <div className="flex h-14 items-center border-b border-border px-3">
+          <div className="h-8 w-24 animate-pulse rounded-lg bg-muted" />
+        </div>
+        <nav className="flex-1 px-2 py-2 space-y-1">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-10 animate-pulse rounded-lg bg-muted" />
+          ))}
+        </nav>
+      </aside>
+      {/* 手机端骨架 */}
+      <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 md:hidden">
+        <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
+        <div className="h-5 w-20 animate-pulse rounded bg-muted" />
+        <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
+      </nav>
+    </>
+  ),
+})
 
 export const metadata = { title: "管理后台 · 同人游戏站" }
 

@@ -222,7 +222,7 @@ export function AdminNav() {
       {/* ═══════════ 手机端遮罩 ═══════════ */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-200 md:hidden",
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         onClick={() => setMobileOpen(false)}
@@ -231,7 +231,7 @@ export function AdminNav() {
       {/* ═══════════ 手机端侧边栏 ═══════════ */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-full w-[260px] flex-col bg-card shadow-2xl transition-transform duration-300 ease-out md:hidden",
+          "fixed left-0 top-0 z-50 flex h-full w-[260px] flex-col bg-card shadow-2xl transition-transform duration-200 ease-out md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

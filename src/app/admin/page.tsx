@@ -1,8 +1,12 @@
-import { AdminChartsWrapper } from "@/components/admin-charts-wrapper"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Eye, Gamepad2, Plus, Tag, Users } from "lucide-react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
+
+const AdminChartsWrapper = dynamic(() => import("@/components/admin-charts-wrapper").then(m => ({ default: m.AdminChartsWrapper })), {
+  loading: () => <div className="h-40 animate-pulse rounded-xl bg-muted" />,
+})
 
 function getLast14Days() {
   return Array.from({ length: 14 }, (_, i) => {

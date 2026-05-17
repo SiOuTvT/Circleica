@@ -20,13 +20,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         跳到主要内容
       </a>
       {!isAdminRoute && <TopNav />}
-      <main id="main-content" role="main" className={isAdminRoute ? "min-h-screen" : "pt-14 min-h-screen"}>
+      <main id="main-content" role="main" className={isAdminRoute ? "min-h-screen overflow-x-hidden" : "pt-14 min-h-screen overflow-x-hidden"}>
         {isAdminRoute ? (
           /* 管理后台：全屏无边距，由 admin/layout.tsx 自行处理 */
           children
         ) : (
           /* 前台页面：居中容器，与顶部导航栏左右边缘对齐 */
-          <div className="mx-auto w-full max-w-[1300px] px-3 py-3 sm:px-5 sm:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6">
+          <div className="mx-auto w-full max-w-[1300px] px-3 py-3 sm:px-5 sm:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6 min-w-0">
             <Breadcrumb />
             {children}
           </div>

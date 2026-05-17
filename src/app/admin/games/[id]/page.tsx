@@ -1,8 +1,15 @@
-import { GameForm } from "@/components/game-form"
-import { GameLogManager } from "@/components/game-log-manager"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import dynamic from "next/dynamic"
 import { notFound } from "next/navigation"
+
+const GameForm = dynamic(() => import("@/components/game-form").then(m => ({ default: m.GameForm })), {
+  loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted" />,
+})
+
+const GameLogManager = dynamic(() => import("@/components/game-log-manager").then(m => ({ default: m.GameLogManager })), {
+  loading: () => <div className="h-32 animate-pulse rounded-xl bg-muted" />,
+})
 
 export const metadata = { title: "编辑游戏 · 管理后台" }
 
