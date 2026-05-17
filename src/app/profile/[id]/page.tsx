@@ -82,13 +82,13 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="h-[100dvh] overflow-hidden max-w-full -mx-3 -my-3 sm:-mx-5 sm:-my-4 lg:-ml-[max(calc((100vw-1240px)/2),0px)] lg:-mr-6 lg:px-0">
+    <div>
       <BreadcrumbSetter segment={id} label={user.username} />
-      {/* 4:6 双栏布局 — 全视口锁定 */}
-      <div className="flex h-full lg:flex-row flex-col min-w-0">
+      {/* 4:6 双栏布局 */}
+      <div className="flex lg:flex-row flex-col min-w-0">
 
-        {/* ====== 左侧 40%：用户信息（独立滚动） ====== */}
-        <aside className="w-full lg:w-[40%] lg:shrink-0 overflow-y-auto overscroll-contain px-3 py-3 sm:px-5 sm:py-4 lg:px-6 lg:py-5 profile-scroll-area min-w-0">
+        {/* ====== 左侧 40%：用户信息 ====== */}
+        <aside className="w-full lg:w-[40%] lg:shrink-0 min-w-0">
           <div className="flex flex-col gap-4">
 
             {/* 上层大卡 - 身份区 */}
@@ -217,9 +217,9 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           </div>
         </aside>
 
-        {/* ====== 右侧 60%：内容 Tab（组件内部独立滚动） ====== */}
-        <main className="w-full lg:w-[60%] lg:shrink-0 flex flex-col min-h-0">
-          <div className="flex-1 rounded-none lg:rounded-l-2xl bg-card ring-0 lg:ring-1 lg:ring-border overflow-hidden flex flex-col min-h-0"
+        {/* ====== 右侧 60%：内容 Tab ====== */}
+        <main className="w-full lg:w-[60%] lg:shrink-0 flex flex-col lg:ml-4 mt-4 lg:mt-0 min-w-0">
+          <div className="flex-1 rounded-2xl bg-card ring-1 ring-border overflow-hidden"
             style={{ boxShadow: 'none' }}>
             <ProfileContentTabs
               favGames={favGames}
