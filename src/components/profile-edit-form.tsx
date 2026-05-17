@@ -73,6 +73,13 @@ export function ProfileEditForm({ user }: Props) {
       image: data.avatar || avatarData,
     })
 
+    // 触发自定义事件，通知其他组件头像已更新
+    window.dispatchEvent(
+      new CustomEvent("profile-updated", {
+        detail: { image: data.avatar || avatarData, name: data.username || username.trim() },
+      }),
+    )
+
     setSuccess("保存成功！")
     setOldPassword("")
     setNewPassword("")

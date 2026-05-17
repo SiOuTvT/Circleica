@@ -36,7 +36,7 @@ function setCookie(name: string, value: string) {
 
 export function TopNav() {
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, update: updateSession } = useSession()
   const user = session?.user
 
   const [menuOpen, setMenuOpen]   = useState(false)
@@ -45,6 +45,8 @@ export function TopNav() {
   const [theme, setTheme]         = useState<"dark" | "light">("dark")
   const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
+  // 用于强制头像重新渲染的版本号
+  const [avatarVersion, setAvatarVersion] = useState(0)
 
   const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
@@ -63,6 +65,17 @@ export function TopNav() {
       .then(data => setCheckedIn(data.checkedIn))
       .catch(() => setCheckedIn(false))
   }, [])
+
+  // 监听头像更新事件
+  useEffect(() => {
+    function handleProfileUpdated() {
+      setAvatarVersion(v => v + 1)
+      // 同步刷新 session 数据
+      updateSession()
+    }
+    window.addEventListener("profile-updated", handleProfileUpdated)
+    return () => window.removeEventListener("profile-updated", handleProfileUpdated)
+  }, [updateSession])
 
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {
@@ -139,15 +152,17 @@ export function TopNav() {
 
         <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-1 pl-14 pr-2 sm:gap-3 sm:pl-[68px] sm:pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
 
-          <div ref={menuRef} className="relative">
+        <div ref={menuRef} className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
               className={cn(
-                "flex h-11 w-11 items-center justify-center rounded-full transition-all btn-spring lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
-                "text-zinc-500 hover:bg-zinc-500/10 hover:text-zinc-400"
+                "group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-all btn-spring focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40",
+                "text-zinc-500 hover:text-zinc-400"
               )}
             >
-              <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+              {/* Hover circle: centered on icon, overflows left for visual balance */}
+              <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-zinc-500/10 opacity-0 transition-opacity group-hover:opacity-100" />
+              <Menu className="relative z-10 h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </button>
             {menuOpen && (
               <div className={cn(
@@ -202,9 +217,9 @@ export function TopNav() {
                     "ring-zinc-500/30 hover:ring-zinc-400/50"
                   )}
                 >
-                  <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
+                    <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
                     {user.image
-                      ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
+                      ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
                       : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                     }
                   </AvatarFrame>
@@ -229,7 +244,7 @@ export function TopNav() {
                     )}>
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-white/10">
                         {user.image
-                          ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${Date.now()}`} alt="" className="h-full w-full object-cover" />
+                          ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt="" className="h-full w-full object-cover" />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
                       <span className={cn(

@@ -134,7 +134,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
       ═══════════════════════════════════════════════ */}
-      <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 sm:px-8 lg:pt-6">
+      <div className="pt-4 lg:pt-6">
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr]">
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
@@ -285,7 +285,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           下方内容区 — Tab 式详情
       ═══════════════════════════════════════════════ */}
-      <div className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-8">
+      <div className="py-8">
           <GameDetailClient
             description={game.description}
             screenshots={screenshots}
