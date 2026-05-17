@@ -5,6 +5,7 @@
 
 const VNDB_BASE = "https://api.vndb.org/kana"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function vndbPost(endpoint: string, data: any, retries = 2): Promise<any> {
   const url = `${VNDB_BASE}/${endpoint}`
   
@@ -61,7 +62,6 @@ export async function getRandomStaff() {
   
   for (const term of attempts) {
     try {
-      console.log(`[VNDB Client] 尝试搜索 staff，关键词: "${term}"`)
       
       const data = await vndbPost("staff", {
         filters: ["search", "=", term],
@@ -76,7 +76,6 @@ export async function getRandomStaff() {
         const pool = withWorks.length > 0 ? withWorks : staffList
         
         const staff = pool[Math.floor(Math.random() * pool.length)]
-        console.log(`[VNDB Client] 选中 staff: ${staff.name} (作品数: ${staff.vns?.length || 0})`)
         
         const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
         const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
@@ -206,7 +205,6 @@ export async function getRandomProducer() {
   ]
 
   const randomId = knownIds[Math.floor(Math.random() * knownIds.length)]
-  console.log(`[VNDB Client] 直接获取创作者: ${randomId}`)
   
   const data = await vndbPost("producer", {
     filters: ["id", "=", randomId],
@@ -234,7 +232,6 @@ export async function getRandomProducer() {
  * 获取随机角色（客户端）
  */
 export async function getRandomCharacter() {
-  console.log("[VNDB Client] 开始获取随机游戏角色...")
   
   const popularSearches = ["fate", "clannad", "steins", "muv-luv", "grisaia", "little busters", "rewrite", "angel beats", "danganronpa", "zero escape"]
   const randomSearch = popularSearches[Math.floor(Math.random() * popularSearches.length)]
@@ -250,6 +247,7 @@ export async function getRandomCharacter() {
   const vns = vnData.results || []
   if (vns.length === 0) return null
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allCharacters: Array<{ character: any; vnTitle: string }> = []
   for (const vn of vns) {
     if (vn.va) {

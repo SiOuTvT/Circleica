@@ -4,6 +4,7 @@ import { Database, Loader2, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 import { TranslateBtn } from "./translate-btn"
 
 interface CharacterData {
@@ -58,10 +59,10 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
       if (data.id) {
         router.push(`/characters/${data.id}`)
       } else {
-        alert("暂无角色数据，请稍后重试")
+        toast.error("暂无角色数据，请稍后重试")
       }
     } catch {
-      alert("获取失败，请稍后重试")
+      toast.error("获取失败，请稍后重试")
     } finally {
       setLoading(false)
     }

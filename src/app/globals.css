@@ -125,15 +125,13 @@ html, body {
   body {
     @apply bg-background text-foreground;
     font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-    /* 平滑主题切换 - 500ms 过渡 */
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+    /* 平滑主题切换 - 仅对 body 自身生效 */
+    transition: background-color 0.3s ease, color 0.3s ease;
     /* 优化排版 */
     line-height: 1.7;
     letter-spacing: 0.01em;
     font-weight: 450; /* 整体加粗一点，不要默认300/400太细 */
-    /* 微纹理背景 */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-    background-attachment: fixed;
+    /* 微纹理背景已移除 — feTurbulence SVG filter 在移动端渲染代价高，且 opacity 0.025 几乎不可见 */
   }
 
   /* 电脑端字体加大 */
@@ -172,42 +170,54 @@ html, body {
     font-weight: 500;
   }
   
-  /* 所有使用 CSS 变量的元素都添加过渡 */
+  /* 主题色过渡 — 仅在主题切换时触发，非常驻动画 */
   .bg-background,
   .bg-card,
   .bg-popover,
   .bg-muted,
   .bg-secondary,
-  .bg-accent,
+  .bg-accent {
+    transition: background-color 0.3s ease;
+  }
   .text-foreground,
   .text-card-foreground,
   .text-popover-foreground,
   .text-muted-foreground,
   .text-secondary-foreground,
-  .text-accent-foreground,
+  .text-accent-foreground {
+    transition: color 0.3s ease;
+  }
   .border-border,
-  .border-input,
-  .ring-ring {
-    transition: background-color 0.5s ease, 
-                color 0.5s ease, 
-                border-color 0.5s ease,
-                box-shadow 0.5s ease;
+  .border-input {
+    transition: border-color 0.3s ease;
   }
 }
 
 /* ── 毛玻璃工具类 - 温润高级质感 ── */
 .glass {
-  background: rgba(20, 20, 22, 0.65);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(20, 20, 22, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.03);
   position: relative;
-  transition: all 0.25s ease-out;
+  transition: background-color 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+/* 高性能设备才启用毛玻璃（桌面端） */
+@media (min-width: 1024px) {
+  .glass {
+    background: rgba(20, 20, 22, 0.80);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-heavy {
+    background: rgba(10, 10, 12, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
 }
 
 .light .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
@@ -254,13 +264,11 @@ html, body {
 }
 
 .glass-heavy {
-  background: rgba(10, 10, 12, 0.75);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  background: rgba(10, 10, 12, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.04);
   position: relative;
-  transition: all 0.25s ease-out;
+  transition: background-color 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out;
 }
 
 .light .glass-heavy {
@@ -384,7 +392,7 @@ html, body {
 
 /* 按钮 - 精致悬浮 */
 .btn-spring {
-  transition: all 0.2s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .btn-spring:hover {
@@ -398,7 +406,7 @@ html, body {
 
 /* 卡片 - 优雅悬浮 */
 .card-spring {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   background-image: radial-gradient(
     ellipse at top left,
     rgba(255, 255, 255, 0.025) 0%,
@@ -571,6 +579,39 @@ html, body {
 
 .sidebar-exit {
   animation: slide-left 0.2s ease-in;
+}
+
+/* ── 尊重用户减少动画偏好 ── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer,
+  .spring-in,
+  .animate-page-in,
+  .fade-in,
+  .fade-out,
+  .slide-up,
+  .slide-down,
+  .slide-left,
+  .slide-right,
+  .fade-slide-up,
+  .fade-slide-down,
+  .fade-slide-left,
+  .fade-slide-right,
+  .modal-enter,
+  .sidebar-enter,
+  .sidebar-exit {
+    animation: none !important;
+  }
+  .btn-spring,
+  .card-spring {
+    transition: none !important;
+  }
+  .btn-spring:hover {
+    transform: none;
+  }
+  .card-spring:hover,
+  .game-card:hover {
+    transform: none;
+  }
 }
 
 /* ── 滚动条美化 - 细而精致 ── */
@@ -884,6 +925,27 @@ input:focus, textarea:focus, select:focus {
 /* ── 亮色模式下卡片日期：浅灰 ── */
 .light .game-card-date {
   color: #71717a;
+}
+
+/* ═══ 移动端交互优化 ═══ */
+
+/* 小按钮触摸区域至少 44x44px（WCAG / Apple HIG） */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* 允许内联小按钮用 padding 补偿而非硬撑尺寸 */
+  .inline-flex.items-center.justify-center.rounded-lg {
+    padding: 8px;
+  }
+}
+
+/* 移动端 safe-area 保护 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  main {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* ── 电脑端按钮和图标加大 ── */

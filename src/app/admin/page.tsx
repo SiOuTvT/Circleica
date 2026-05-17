@@ -1,4 +1,4 @@
-import { AdminCharts } from "@/components/admin-charts"
+import { AdminChartsWrapper } from "@/components/admin-charts-wrapper"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Eye, Gamepad2, Plus, Tag, Users } from "lucide-react"
@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
       {/* 趋势图表（最近14天） */}
       <div>
         <p className="mb-3 text-xs font-medium text-muted-foreground">最近 14 天趋势</p>
-        <AdminCharts
+        <AdminChartsWrapper
           gamesByDay={toChartData(newGames)}
           usersByDay={toChartData(newUsers)}
           commentsByDay={toChartData(newComments)}

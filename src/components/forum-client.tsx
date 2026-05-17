@@ -55,6 +55,8 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   const [commentImageFile, setCommentImageFile] = useState<File | null>(null)
   const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
   const [showCommentEmoji, setShowCommentEmoji] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<{ message: string; onConfirm: () => void } | null>(null)
+  const [imageError, setImageError] = useState<string | null>(null)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
   const filteredPosts = useMemo(() => {
@@ -93,21 +95,29 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   }
 
   async function deletePost(id: string) {
-    if (!confirm("确定要删除这个帖子吗？")) return
-    const res = await fetch(`/api/forum/posts/${id}`, { method: "DELETE" })
-    if (res.ok) {
-      setPosts(p => p.filter(x => x.id !== id))
-      setActivePost(null)
-    }
+    setConfirmAction({
+      message: "确定要删除这个帖子吗？",
+      onConfirm: async () => {
+        const res = await fetch(`/api/forum/posts/${id}`, { method: "DELETE" })
+        if (res.ok) {
+          setPosts(p => p.filter(x => x.id !== id))
+          setActivePost(null)
+        }
+      },
+    })
   }
 
   async function deleteComment(id: string) {
-    if (!confirm("确定要删除这条评论吗？")) return
-    const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-    if (res.ok) {
-      setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
-      setPosts(p => p.map(x => x.id === activePost?.id ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
-    }
+    setConfirmAction({
+      message: "确定要删除这条评论吗？",
+      onConfirm: async () => {
+        const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
+        if (res.ok) {
+          setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
+          setPosts(p => p.map(x => x.id === activePost?.id ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
+        }
+      },
+    })
   }
 
   async function submitPost(e: React.FormEvent) {
@@ -143,7 +153,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
   function handleCommentImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !file.type.startsWith("image/")) return
-    if (file.size > 5 * 1024 * 1024) { alert("图片大小不能超过 5MB"); return }
+    if (file.size > 5 * 1024 * 1024) { setImageError("图片大小不能超过 5MB"); setTimeout(() => setImageError(null), 3000); return }
     setCommentImageFile(file)
     const reader = new FileReader()
     reader.onload = (ev) => setCommentImagePreview(ev.target?.result as string)
@@ -293,6 +303,28 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
               onCommentImage={handleCommentImage}
               onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }} />
           </div>
+        </div>
+      )}
+
+      {/* 确认弹窗 */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-zinc-900 light:bg-white p-5 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+            <p className="mb-4 text-sm text-zinc-300 light:text-zinc-700">{confirmAction.message}</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setConfirmAction(null)}
+                className="rounded-lg px-4 py-2 text-sm text-zinc-400 light:text-zinc-600 hover:bg-zinc-800 light:hover:bg-zinc-100 transition-colors">取消</button>
+              <button onClick={() => { confirmAction.onConfirm(); setConfirmAction(null) }}
+                className="rounded-lg bg-red-500/80 px-4 py-2 text-sm text-white hover:bg-red-500 transition-colors">确认</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 图片错误提示 */}
+      {imageError && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-red-500/90 px-4 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+          {imageError}
         </div>
       )}
 

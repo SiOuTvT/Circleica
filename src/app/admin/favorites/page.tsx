@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Heart, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface Favorite {
   id: string
@@ -29,13 +30,13 @@ export default function AdminFavoritesPage() {
   useEffect(() => { load() }, [load])
 
   const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这条收藏记录吗？")) return
     const res = await fetch("/api/admin/favorites", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     })
-    if (res.ok) load()
+    if (res.ok) { toast.success("已删除"); load() }
+    else toast.error("删除失败")
   }
 
   const totalPages = Math.ceil(total / limit)

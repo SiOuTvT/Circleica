@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, PenTool, Search, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface Creator {
   id: string
@@ -37,9 +38,9 @@ export default function AdminCreatorsPage() {
   useEffect(() => { load() }, [load])
 
   const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这个创作者吗？")) return
     const res = await fetch(`/api/admin/creators/${id}`, { method: "DELETE" })
-    if (res.ok) load()
+    if (res.ok) { toast.success("已删除"); load() }
+    else toast.error("删除失败")
   }
 
   const totalPages = Math.ceil(total / limit)

@@ -2,6 +2,7 @@
 
 import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 interface TagInGroup {
   id: string
@@ -74,9 +75,9 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("确定删除此标签组？组内标签不会被删除，但会变为未分组。")) return
     const res = await fetch(`/api/admin/tag-groups/${id}`, { method: "DELETE" })
-    if (res.ok) setGroups(prev => prev.filter(g => g.id !== id))
+    if (res.ok) { setGroups(prev => prev.filter(g => g.id !== id)); toast.success("已删除") }
+    else toast.error("删除失败")
   }
 
   const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"

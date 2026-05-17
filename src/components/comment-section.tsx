@@ -51,6 +51,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -58,7 +59,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return
     if (file.size > 5 * 1024 * 1024) {
-      alert("图片大小不能超过 5MB")
+      setSubmitError("图片大小不能超过 5MB")
       return
     }
     setSelectedFile(file)
@@ -119,26 +120,39 @@ export function CommentSection({ gameId, comments: init, isLoggedIn }: Props) {
     e.preventDefault()
     if (!content.trim() && !selectedFile) return
     setSubmitting(true)
+    setSubmitError(null)
     const fd = new FormData()
     fd.append("content", content.trim())
     if (selectedFile) fd.append("image", selectedFile)
 
-    const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
-    if (res.ok) {
-      const c = await res.json()
-      setComments((prev) => [c, ...prev])
-      setContent("")
-      removePreview()
-      setShowEmoji(false)
+    try {
+      const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
+      if (res.ok) {
+        const c = await res.json()
+        setComments((prev) => [c, ...prev])
+        setContent("")
+        removePreview()
+        setShowEmoji(false)
+      } else {
+        const err = await res.json().catch(() => ({ error: "发送失败" }))
+        setSubmitError(err.error || "发送失败")
+      }
+    } catch {
+      setSubmitError("网络错误，请重试")
+    } finally {
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   async function likeComment(commentId: string) {
-    const res = await fetch(`/api/comments/${commentId}/like`, { method: "POST" })
-    if (res.ok) {
-      const data = await res.json()
-      setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: data.count } : c))
+    try {
+      const res = await fetch(`/api/comments/${commentId}/like`, { method: "POST" })
+      if (res.ok) {
+        const data = await res.json()
+        setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: data.count } : c))
+      }
+    } catch {
+      // silent fail for like
     }
   }
 

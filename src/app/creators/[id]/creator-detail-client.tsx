@@ -6,6 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 
 interface CreatorData {
   id: string
@@ -59,10 +60,10 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
       if (data.id) {
         router.push(`/creators/${data.id}`)
       } else {
-        alert("暂无创作者数据，请稍后重试")
+        toast.error("暂无创作者数据，请稍后重试")
       }
     } catch {
-      alert("获取失败，请稍后重试")
+      toast.error("获取失败，请稍后重试")
     } finally {
       setLoading(false)
     }

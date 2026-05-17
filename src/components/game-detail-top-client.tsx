@@ -18,14 +18,20 @@ export function GameDetailTopClient({
 }) {
   const [fav, setFav] = useState(isFav)
   const [favCnt, setFavCnt] = useState(favCount)
+  const [loading, setLoading] = useState(false)
 
   async function toggleFav() {
-    if (!isLoggedIn) return
-    const res = await fetch(`/api/games/${gameId}/favorite`, { method: "POST" })
-    if (res.ok) {
-      const data = await res.json()
-      setFav(data.isFav)
-      setFavCnt(data.count)
+    if (!isLoggedIn || loading) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/favorite`, { method: "POST" })
+      if (res.ok) {
+        const data = await res.json()
+        setFav(data.isFav)
+        setFavCnt(data.count)
+      }
+    } finally {
+      setLoading(false)
     }
   }
 

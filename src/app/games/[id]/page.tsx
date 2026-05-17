@@ -1,11 +1,12 @@
 import { GameBreadcrumb } from "@/components/game-breadcrumb"
-import { GameDetailClient } from "@/components/game-detail-client"
+import GameDetailClient from "@/components/game-detail-client"
 import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { GameGallery } from "@/components/game-gallery"
 import { auth } from "@/lib/auth"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { cookies } from "next/headers"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -127,7 +128,7 @@ export default async function GameDetailPage({
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c').replace(/>/g, '\\u003e') }}
       />
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
 
@@ -161,12 +162,15 @@ export default async function GameDetailPage({
               >
                 {game.coverImage ? (
                   <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={game.coverImage}
                       alt={game.title}
-                      className="h-full w-full object-cover"
+                      fill
+                      className="object-cover"
                       draggable={false}
+                      sizes="(max-width: 1024px) 100vw, 38vw"
+                      priority
+                      quality={80}
                     />
                     {/* 底部渐变遮罩显示标题 */}
                     <div
@@ -200,11 +204,13 @@ export default async function GameDetailPage({
               {/* 作者信息 */}
               <div className="flex items-center gap-3">
                 {primaryCreator?.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={primaryCreator.avatar}
                     alt={primaryCreator.name}
-                    className="h-9 w-9 rounded-full object-cover shrink-0"
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover shrink-0"
+                    loading="lazy"
                   />
                 ) : (
                   <div
@@ -287,7 +293,7 @@ export default async function GameDetailPage({
       ═══════════════════════════════════════════════ */}
       <div className="py-8">
           <GameDetailClient
-            description={game.description}
+            description={game.description ?? ""}
             screenshots={screenshots}
             downloadLinks={downloadLinks}
             creators={creators}
@@ -307,13 +313,13 @@ export default async function GameDetailPage({
             fileSizes={fileSizes}
             platformTags={platformTags}
             languageTags={languageTags}
-            gameTags={game.tags.map((gt) => ({ name: gt.tag.name, color: gt.tag.color }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: t.color }))}
             viewCount={game.viewCount}
             downloadCount={game.downloadCount}
-            vndbId={game.vndbId || undefined}
+            vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
-            gameDuration={game.gameDuration || undefined}
-            studioName={game.studioName || undefined}
+            gameDuration={game.gameDuration ?? undefined}
+            studioName={game.studioName ?? undefined}
           />
       </div>
     </div>

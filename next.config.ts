@@ -2,15 +2,6 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config, { isServer }) => {
-    // Resolve vue to the same copy for both client and server
-    // This prevents duplicate Vue instances which would break Naive UI
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      vue: "vue/dist/vue.esm-bundler.js",
-    };
-    return config;
-  },
   images: {
     remotePatterns: [
       // Cloudflare R2 (图片/文件存储)

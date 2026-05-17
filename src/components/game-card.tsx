@@ -74,7 +74,7 @@ export function GameCard({ game }: { game: GameCardData }) {
             onError={() => setImgError(true)}
             loading="lazy"
             decoding="async"
-            unoptimized
+            quality={75}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">

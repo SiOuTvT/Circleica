@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, MessageSquare, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 interface ForumPost {
   id: string
@@ -33,13 +34,13 @@ export default function AdminForumPage() {
   useEffect(() => { load() }, [load])
 
   const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这个帖子吗？所有评论也会被删除。")) return
     const res = await fetch("/api/admin/forum", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     })
-    if (res.ok) load()
+    if (res.ok) { toast.success("已删除"); load() }
+    else toast.error("删除失败")
   }
 
   const totalPages = Math.ceil(total / limit)

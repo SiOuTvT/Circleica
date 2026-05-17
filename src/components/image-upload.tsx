@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { Crop, RotateCw, Upload, X, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Cropper from "react-easy-crop"
+import { toast } from "sonner"
 
 /** 从 canvas 裁剪区域生成 Blob */
 function createImage(url: string): Promise<HTMLImageElement> {
@@ -107,11 +108,11 @@ export function ImageUpload({
   const handleFile = useCallback(
     (file: File) => {
       if (!file.type.startsWith("image/")) {
-        alert("请选择图片文件")
+        toast.error("请选择图片文件")
         return
       }
       if (file.size > maxSizeMB * 1024 * 1024) {
-        alert(`图片大小不能超过 ${maxSizeMB}MB`)
+        toast.error(`图片大小不能超过 ${maxSizeMB}MB`)
         return
       }
 
@@ -183,13 +184,13 @@ export function ImageUpload({
         }
       } catch (err) {
         console.error("上传失败:", err)
-        alert("上传失败，请重试")
+        toast.error("上传失败，请重试")
         setPreview(value || null)
       }
       setIsUploading(false)
     } catch (err) {
       console.error("裁剪失败:", err)
-      alert("裁剪失败，请重试")
+      toast.error("裁剪失败，请重试")
     }
     setIsCropping(false)
     setCropSrc(null)

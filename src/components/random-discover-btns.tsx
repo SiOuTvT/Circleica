@@ -4,6 +4,7 @@ import { getRandomProducer, getRandomStaff } from "@/lib/vndb-client"
 import { Loader2, Sparkles, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export function RandomCreatorBtn() {
   const router  = useRouter()
@@ -14,11 +15,11 @@ export function RandomCreatorBtn() {
     try {
       // 优先尝试 staff（个人创作者：脚本家、画师、音乐人）
       // 直接在浏览器端调用 VNDB API，绕过服务器网络限制
-      let creator: any = await getRandomStaff()
+      let creator: { vndbId?: string; [key: string]: unknown } | null = await getRandomStaff()
       
       if (!creator) {
         // Fallback: 尝试 producer（团体/公司创作者）
-        console.log("[Random] Staff 未获取到，尝试 producer...")
+        // Staff 未获取到，尝试 producer
         creator = await getRandomProducer()
       }
 
@@ -38,12 +39,12 @@ export function RandomCreatorBtn() {
         if (data2.id) {
           router.push(`/games/${data2.id}`)
         } else {
-          alert("暂无可推荐的内容")
+          toast.error("暂无可推荐的内容")
         }
       }
     } catch (error) {
       console.error("Random selection error:", error)
-      alert(`随机选择失败: ${error instanceof Error ? error.message : '未知错误'}`)
+      toast.error(`随机选择失败: ${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setLoading(false)
     }
@@ -86,11 +87,11 @@ export function RandomCharacterBtn() {
         
         router.push(`/characters/${character.vndbId}`)
       } else {
-        alert("暂无角色数据，请稍后重试")
+        toast.error("暂无角色数据，请稍后重试")
       }
     } catch (error) {
       console.error("Random character error:", error)
-      alert(`随机角色获取失败: ${error instanceof Error ? error.message : '未知错误'}`)
+      toast.error(`随机角色获取失败: ${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setLoading(false)
     }

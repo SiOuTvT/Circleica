@@ -1,3 +1,4 @@
+import { revalidateTag, unstable_cache } from "next/cache"
 import { prisma } from "./prisma"
 
 export interface SiteSettings {
@@ -14,21 +15,25 @@ const DEFAULT_SETTINGS: SiteSettings = {
   themeAlpha: 15,
 }
 
-export async function getSiteSettings(): Promise<SiteSettings> {
-  try {
-    const result = await prisma.$queryRaw`SELECT * FROM "SiteSetting" WHERE key = 'theme' LIMIT 1` as { key: string, value: string }[]
-    if (result.length > 0) {
-      try {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(result[0].value) }
-      } catch {
-        return DEFAULT_SETTINGS
+export const getSiteSettings = unstable_cache(
+  async (): Promise<SiteSettings> => {
+    try {
+      const result = await prisma.$queryRaw`SELECT * FROM "SiteSetting" WHERE key = 'theme' LIMIT 1` as { key: string, value: string }[]
+      if (result.length > 0) {
+        try {
+          return { ...DEFAULT_SETTINGS, ...JSON.parse(result[0].value) }
+        } catch {
+          return DEFAULT_SETTINGS
+        }
       }
+      return DEFAULT_SETTINGS
+    } catch {
+      return DEFAULT_SETTINGS
     }
-    return DEFAULT_SETTINGS
-  } catch {
-    return DEFAULT_SETTINGS
-  }
-}
+  },
+  ["site-settings"],
+  { tags: ["site-settings"], revalidate: 3600 }
+)
 
 export async function updateSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
   const current = await getSiteSettings()
@@ -49,5 +54,6 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
     `
   }
   
+  revalidateTag("site-settings", "soft")
   return updated
 }

@@ -23,6 +23,7 @@ import {
   Upload
 } from "lucide-react"
 import { useCallback, useRef, useState } from "react"
+import { toast } from "sonner"
 
 interface RichTextEditorProps {
   content?: string
@@ -87,11 +88,11 @@ export function RichTextEditor({
   const uploadFile = useCallback(
     async (file: File) => {
       if (!file.type.startsWith("image/")) {
-        alert("请选择图片文件")
+        toast.error("请选择图片文件")
         return
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert("图片大小不能超过 5MB")
+        toast.error("图片大小不能超过 5MB")
         return
       }
 
@@ -108,7 +109,7 @@ export function RichTextEditor({
         }
       } catch (error) {
         console.error("图片上传失败:", error)
-        alert("图片上传失败")
+        toast.error("图片上传失败")
       } finally {
         setUploading(false)
       }

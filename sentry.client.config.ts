@@ -16,13 +16,8 @@ Sentry.init({
   // 调试模式
   debug: false,
   
-  // 集成
-  integrations: [
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  // 集成 - 不加载 replay 以减少 bundle 体积
+  integrations: [],
   
   // 忽略常见非错误
   ignoreErrors: [

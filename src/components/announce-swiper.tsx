@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Link from "next/link"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 /** 去除 HTML 标签，返回纯文本 */
 function stripHtml(html: string): string {
@@ -20,13 +20,23 @@ interface Ann {
 export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
-  const [scrollY, setScrollY] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [imgError, setImgError] = useState(false)
 
-  // 监听滚动，实现视差效果
+  // 监听滚动，实现视差效果（用 ref + rAF 避免高频 setState）
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      setScrollY(window.scrollY)
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(() => {
+          const img = scrollRef.current?.querySelector('img')
+          if (img) {
+            img.style.transform = `translateY(${window.scrollY * 0.15}px) scale(1.1)`
+          }
+          ticking = false
+        })
+      }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
@@ -63,7 +73,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             alt=""
             crossOrigin="anonymous"
             className="h-full w-full object-cover transition-all duration-700 ease-in-out"
-            style={{ transform: `translateY(${scrollY * 0.15}px) scale(1.1)` }}
+            style={{ transform: `scale(1.1)` }}
             onError={() => {
               console.error("[AnnounceSwiper] 图片加载失败:", ann.imageUrl)
               setImgError(true)

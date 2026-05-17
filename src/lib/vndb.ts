@@ -95,7 +95,7 @@ class VNDBClient {
 
     const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
     if (!proxyUrl) {
-      console.log("[VNDB] 未配置代理，直连 API")
+      console.debug("[VNDB] 未配置代理，直连 API")
       return
     }
 
@@ -103,7 +103,7 @@ class VNDBClient {
       // @ts-ignore - undici 是 Node.js 内置模块，运行时可用
       const undici = await import("undici")
       this.dispatcher = new undici.ProxyAgent(proxyUrl)
-      console.log("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+      console.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
     } catch (e) {
       console.warn("[VNDB] 无法加载 undici ProxyAgent，将使用直连:", e)
     }
@@ -115,14 +115,14 @@ class VNDBClient {
   private async sendRequest(endpoint: string, data: any, retries = 2): Promise<any> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
-      console.log("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
+      console.debug("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
       throw new Error("VNDB API 不可达（熔断器已触发）")
     }
     
     await this.initProxy()
     
     const url = `${this.baseUrl}/${endpoint}`
-    console.log("[VNDB] 发送 HTTP 请求:", url)
+    console.debug("[VNDB] 发送 HTTP 请求:", url)
     
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -152,7 +152,7 @@ class VNDBClient {
         }
 
         const result = await response.json()
-        console.log("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
+        console.debug("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
         return result
       } catch (error: any) {
         const isTimeout = error?.code === 'ETIMEDOUT' || error?.code === 'UND_ERR_CONNECT_TIMEOUT' || error?.name === 'TimeoutError'
@@ -164,14 +164,14 @@ class VNDBClient {
           if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
             this.circuitBroken = true
             this.circuitBrokenUntil = Date.now() + this.CIRCUIT_BREAK_DURATION
-            console.log(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
+            console.debug(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
           }
           throw error
         }
         
         if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED') {
           const delay = attempt * 500 // 递增延迟: 500ms
-          console.log(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
+          console.debug(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
           await new Promise(r => setTimeout(r, delay))
         } else {
           throw error // 非网络错误直接抛出
@@ -257,7 +257,7 @@ class VNDBClient {
     description?: string
   } | null> {
     try {
-      console.log("[VNDB] 开始获取随机 galgame 创作者...")
+      console.debug("[VNDB] 开始获取随机 galgame 创作者...")
       
       // 直接通过 ID 获取随机创作者（避免搜索 API 不稳定）
       const knownIds = [
@@ -354,7 +354,7 @@ class VNDBClient {
       ]
 
       const randomId = knownIds[Math.floor(Math.random() * knownIds.length)]
-      console.log(`[VNDB] 直接获取创作者: ${randomId}`)
+      console.debug(`[VNDB] 直接获取创作者: ${randomId}`)
       
       const data = await this.sendRequest("producer", {
         filters: ["id", "=", randomId],
@@ -365,13 +365,13 @@ class VNDBClient {
       const producers = data.results || []
 
       if (producers.length === 0) {
-        console.log("[VNDB] 未找到创作者数据")
+        console.debug("[VNDB] 未找到创作者数据")
         return null
       }
 
       const producer = producers[0]
 
-      console.log(`[VNDB] 选中创作者: ${producer.name} (ID: ${producer.id})`)
+      console.debug(`[VNDB] 选中创作者: ${producer.name} (ID: ${producer.id})`)
 
       return {
         id: producer.id,
@@ -423,7 +423,7 @@ class VNDBClient {
     
     for (const term of attempts) {
       try {
-        console.log(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
+        console.debug(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
         
         const data = await this.sendRequest("staff", {
           filters: ["search", "=", term],
@@ -438,7 +438,7 @@ class VNDBClient {
           const pool = withWorks.length > 0 ? withWorks : staffList
           
           const staff = pool[Math.floor(Math.random() * pool.length)]
-          console.log(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
+          console.debug(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
           
           const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
           const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
@@ -462,7 +462,7 @@ class VNDBClient {
           }
         }
         
-        console.log(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
+        console.debug(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
       } catch (error) {
         console.warn(`[VNDB] 关键词 "${term}" 搜索失败:`, error instanceof Error ? error.message : error)
         // 继续尝试下一个关键词
@@ -751,7 +751,7 @@ class VNDBClient {
     vnTitle?: string
   } | null> {
     try {
-      console.log("[VNDB] 开始获取随机游戏角色...")
+      console.debug("[VNDB] 开始获取随机游戏角色...")
       
       // 搜索热门角色（通过搜索知名VN获取角色）
       const popularSearches = ["fate", "clannad", "steins", "muv-luv", "grisaia", "little busters", "rewrite", "angel beats", "danganronpa", "zero escape"]
@@ -767,7 +767,7 @@ class VNDBClient {
 
       const vns = vnData.results || []
       if (vns.length === 0) {
-        console.log("[VNDB] 未找到VN数据")
+        console.debug("[VNDB] 未找到VN数据")
         return null
       }
 
@@ -784,7 +784,7 @@ class VNDBClient {
       }
 
       if (allCharacters.length === 0) {
-        console.log("[VNDB] 未找到角色数据")
+        console.debug("[VNDB] 未找到角色数据")
         return null
       }
 
@@ -792,7 +792,7 @@ class VNDBClient {
       const randomIndex = Math.floor(Math.random() * allCharacters.length)
       const { character, vnTitle } = allCharacters[randomIndex]
 
-      console.log(`[VNDB] 选中角色: ${character.name} (ID: ${character.id})`)
+      console.debug(`[VNDB] 选中角色: ${character.name} (ID: ${character.id})`)
 
       // 处理图片URL
       let imageUrl: string | undefined

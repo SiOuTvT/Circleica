@@ -121,10 +121,10 @@ export function TopNav() {
   return (
     <>
       <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
+"fixed top-0 left-0 right-0 z-50 transition-colors duration-300",
         theme === "dark"
-          ? "bg-zinc-950 backdrop-blur-xl"
-          : "bg-white backdrop-blur-xl"
+          ? "bg-zinc-950/95 backdrop-blur-sm"
+          : "bg-white/95 backdrop-blur-sm"
       )}
         style={{
           boxShadow: theme === "dark"
@@ -334,7 +334,7 @@ export function TopNav() {
       )}
 
       <aside className={cn(
-        "fixed top-14 z-40 flex h-[calc(100vh-3.5rem)] flex-col backdrop-blur-2xl transition-all duration-300 ease-out",
+        "fixed top-14 z-40 flex h-[calc(100vh-3.5rem)] flex-col backdrop-blur-sm transition-all duration-300 ease-out",
         "lg:left-0 lg:translate-x-0",
         forumOpen ? "lg:w-[240px]" : "lg:w-0 lg:border-r-0 lg:overflow-hidden",
         "left-0 w-full",

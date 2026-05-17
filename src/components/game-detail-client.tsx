@@ -1,7 +1,7 @@
 "use client"
 
 import { BookOpen, Building2, Calendar, Clock, Download, ExternalLink, Gamepad2, Heart, Monitor } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { CommentSection } from "./comment-section"
 
 type Creator = {
@@ -40,7 +40,7 @@ const MLD = {
   textPurple: "#8b84a0",               /* 灰紫字 */
 }
 
-export function GameDetailClient({
+export default function GameDetailClient({
   description,
   screenshots,
   downloadLinks,
@@ -86,6 +86,8 @@ export function GameDetailClient({
   const [tab, setTab] = useState<"intro" | "resource" | "comments">("intro")
   const [fav, setFav] = useState(isFav)
   const [favCnt, setFavCnt] = useState(favCount)
+  const [favPending, setFavPending] = useState(false)
+  const favAbortRef = useRef<AbortController | null>(null)
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -104,15 +106,39 @@ export function GameDetailClient({
     slider.style.transform = `translateX(${btnRect.left - containerRect.left - 4}px)` // 4 = p-1 padding
   }, [tab])
 
-  async function toggleFav() {
-    if (!isLoggedIn) return
-    const res = await fetch(`/api/games/${gameId}/favorite`, { method: "POST" })
-    if (res.ok) {
-      const data = await res.json()
-      setFav(data.isFav)
-      setFavCnt(data.count)
+  const toggleFav = useCallback(async () => {
+    if (!isLoggedIn || favPending) return
+    setFavPending(true)
+
+    // Abort previous request
+    if (favAbortRef.current) favAbortRef.current.abort()
+    const controller = new AbortController()
+    favAbortRef.current = controller
+
+    // Optimistic update
+    const prevFav = fav
+    const prevCnt = favCnt
+    setFav(!prevFav)
+    setFavCnt(prevFav ? prevCnt - 1 : prevCnt + 1)
+
+    try {
+      const res = await fetch(`/api/games/${gameId}/favorite`, { method: "POST", signal: controller.signal })
+      if (res.ok) {
+        const data = await res.json()
+        if (!controller.signal.aborted) {
+          setFav(data.isFav)
+          setFavCnt(data.count)
+        }
+      }
+    } catch {
+      if (!controller.signal.aborted) {
+        setFav(prevFav)
+        setFavCnt(prevCnt)
+      }
+    } finally {
+      if (!controller.signal.aborted) setFavPending(false)
     }
-  }
+  }, [isLoggedIn, favPending, fav, favCnt, gameId])
 
   // Split gameTags by category (use tag.color to differentiate)
   const genreTags = gameTags?.filter(t => t.color === "#818cf8" || t.color === "#a78bfa") ?? []

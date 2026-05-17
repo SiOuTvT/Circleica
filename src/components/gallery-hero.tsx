@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 interface GalleryHeroProps {
@@ -94,14 +95,18 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   return (
     <div className="group relative h-full w-full overflow-hidden">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         key={activeIndex}
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-        className="h-full w-full object-cover"
+        fill
+        className="object-cover"
         style={{ animation: "heroFadeIn 0.35s ease-out" }}
         draggable={false}
+        sizes="(max-width: 1024px) 100vw, 62vw"
+        quality={80}
+        priority={activeIndex === 0}
+        loading={activeIndex === 0 ? undefined : "lazy"}
       />
 
       {/* 底部渐变遮罩 */}
@@ -209,12 +214,16 @@ export function GalleryStrip({
             boxShadow: i === activeIndex ? `0 0 10px var(--clr-blue)50` : "none",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={img}
             alt={`${gameTitle} 缩略图 ${i + 1}`}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             draggable={false}
+            sizes="128px"
+            quality={50}
+            loading="lazy"
+            decoding="async"
           />
           {i !== activeIndex && (
             <div className="absolute inset-0 bg-black/20 transition-opacity duration-200 hover:opacity-0" />
