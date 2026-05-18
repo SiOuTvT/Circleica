@@ -175,7 +175,7 @@ main > * {
     /* 优化排版 */
     line-height: 1.7;
     letter-spacing: 0.01em;
-    font-weight: 450; /* 整体加粗一点，不要默认300/400太细 */
+    font-weight: 400;
     /* 微纹理背景已移除 — feTurbulence SVG filter 在移动端渲染代价高，且 opacity 0.025 几乎不可见 */
   }
 
@@ -192,11 +192,24 @@ main > * {
     }
   }
   
-  /* 标题加粗，不要单薄 */
-  h1, h2, h3, h4, h5, h6 {
-    line-height: 1.3;
-    letter-spacing: -0.01em;
+  /* 标题层级 — 克制、不抢视觉 */
+  h1 {
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     font-weight: 700;
+  }
+  h2 {
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  h3, h4 {
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  h5, h6 {
+    line-height: 1.35;
+    font-weight: 500;
   }
   
   /* 段落增加呼吸感 */
@@ -205,15 +218,6 @@ main > * {
     letter-spacing: 0.015em;
   }
 
-  /* 全局小字强制加粗 - 解决小字太淡太细问题 */
-  small, .text-xs, .text-sm {
-    font-weight: 500;
-  }
-
-  /* muted-foreground 也要加粗一点 */
-  .text-muted-foreground {
-    font-weight: 500;
-  }
   
   /* 主题色过渡 — 仅在主题切换时触发，非常驻动画 */
   .bg-background,

@@ -174,7 +174,7 @@ export default function GameDetailClient({
                 className="relative z-10 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors duration-300"
                 style={{
                   color: tab === t.key ? "var(--tab-active-text, hsl(var(--foreground)))" : "var(--tab-inactive-text, hsl(var(--muted-foreground)))",
-                  fontWeight: tab === t.key ? 700 : 500,
+                  fontWeight: tab === t.key ? 600 : 500,
                 }}
               >
                 {t.label}
@@ -216,7 +216,7 @@ export default function GameDetailClient({
                         className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
                         style={{ backgroundColor: "var(--clr-blue)" }}
                       >
-                        <Download className="w-4 h-4" strokeWidth={2.5} />
+                        <Download className="w-4 h-4" strokeWidth={2} />
                         {dl.label || "下载"}
                       </a>
                     ))}
@@ -301,7 +301,7 @@ export default function GameDetailClient({
                 <Calendar className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: MLD.text }} strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1 min-w-0">
                   <span className="text-xs font-medium shrink-0" style={{ color: MLD.text }}>发售日期：</span>
-                  <span className="text-xs font-bold text-foreground">{releaseDate}</span>
+                  <span className="text-xs font-semibold text-foreground">{releaseDate}</span>
                 </div>
               </div>
             )}

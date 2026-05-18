@@ -71,11 +71,11 @@ export function GameCard({ game }: { game: GameCardData }) {
       </div>
 
       {/* ─── 内容区：三层积木，flex-1 拉伸 ─── */}
-      <div className="flex flex-col px-2.5 py-2.5 sm:px-3.5 sm:py-2.5 flex-1 min-h-0">
+      <div className="flex flex-col px-3 py-2.5 sm:px-3.5 sm:py-2.5 flex-1 min-h-0">
 
         {/* 第一层：游戏名称（flex-grow 吸收多余空白） */}
         <div className="flex items-start min-h-0 flex-1">
-          <h3 className="game-card-title text-[15px] sm:text-[15px] font-bold leading-snug line-clamp-2">
+          <h3 className="game-card-title text-[15px] sm:text-[15px] font-semibold leading-snug line-clamp-2">
             {game.title}
           </h3>
         </div>
@@ -134,7 +134,7 @@ export function GameCardSkeleton() {
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
-      <div className="flex flex-col px-2.5 py-2 sm:px-3.5 sm:py-2.5 flex-1 gap-1.5">
+      <div className="flex flex-col px-3 py-2.5 sm:px-3.5 sm:py-2.5 flex-1 gap-1.5">
         <div className="flex-1 space-y-1.5">
           <div className="h-4 w-full rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
