@@ -1,13 +1,21 @@
 import { prisma } from "@/lib/prisma"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcryptjs"
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
+// 注意：不使用 PrismaAdapter。
+// PrismaAdapter 用于 OAuth provider（GitHub/Google 等）需要数据库存储 account/session 的场景。
+// 我们只用 Credentials + JWT 策略，不需要 Adapter。
+// 使用 Adapter 配合 JWT 策略会导致 NextAuth 尝试创建数据库 session 记录并设置额外的 cookies，
+// 增加请求头大小，最终触发 HTTP 431 错误。
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  // 不使用 adapter，纯 Credentials + JWT
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 天
+  },
   pages: {
     signIn: "/login",
   },
@@ -35,7 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           name: user.username,
           email: user.email,
-          image: user.avatar || null,
         }
       },
     }),
@@ -46,7 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id    = user.id
         token.name  = user.name
         token.image = user.image
-        // 从数据库读取头像框（容错处理，避免列不存在时崩溃）
+        // 从数据库读取头像框（容错处理）
         try {
           const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
           token.avatarFrame = dbUser?.avatarFrame ?? "none"
