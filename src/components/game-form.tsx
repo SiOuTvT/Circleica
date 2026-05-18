@@ -124,10 +124,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       const data = await res.json()
       if (!res.ok) { setVndbError(data.error ?? "拉取失败"); return }
 
-      // 自动填充字段
+      // 自动填充字段（所有字段均可手动修改）
       if (data.title) setTitle(data.title)
-      if (data.originalWork) setOriginalWork(data.originalWork)
-      // 日文名填入原作字段（originalWork）
       if (data.japaneseName) setOriginalWork(data.japaneseName)
       if (data.englishName) setEnglishName(data.englishName)
       if (data.aliases) setAliases(data.aliases)
