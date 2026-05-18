@@ -6,8 +6,7 @@ module.exports = {
       args: "start",
       cwd: "/www/wwwroot/fangame",
       interpreter: "node",
-      // 增大 HTTP 头大小限制（默认 8KB 太小，NextAuth JWT + CSP 容易超限）
-      node_args: "--max-http-header-size=16384",
+      exec_mode: "fork",  // Next.js 不需要 PM2 cluster 模式
       instances: 1,
       autorestart: true,
       watch: false,
@@ -15,6 +14,8 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        // 通过 NODE_OPTIONS 增大 HTTP 头限制，比 node_args 更可靠
+        NODE_OPTIONS: "--max-http-header-size=16384",
       },
     },
   ],
