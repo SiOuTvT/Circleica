@@ -71,7 +71,6 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt=""
-            crossOrigin="anonymous"
             className="h-full w-full object-cover transition-all duration-700 ease-in-out"
             style={{ transform: `scale(1.1)` }}
             onError={() => {
