@@ -380,6 +380,26 @@ main > * {
   background: linear-gradient(135deg, var(--clr-blue), var(--clr-sky));
 }
 
+/* ── 主题色 opacity 修正：Tailwind bg-primary/10 等用 CSS 变量时 opacity 修饰符不生效，手动覆盖 ── */
+:root .bg-primary\/10 {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.light .bg-primary\/10 {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+:root .bg-primary\/20 {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.light .bg-primary\/20 {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+:root .ring-primary\/20 {
+  --tw-ring-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.light .ring-primary\/20 {
+  --tw-ring-color: color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
 /* ── 主题色对比度保护 - 确保主题色文字在任何背景上可读 ── */
 /* 深色模式下主题色文字（背景是深色） */
 :root .text-primary {
