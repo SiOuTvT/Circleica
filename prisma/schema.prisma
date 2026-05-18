@@ -94,6 +94,8 @@ model Game {
   releaseDate   DateTime?
   gameDuration  String       @default("")
   studioName    String       @default("")
+  englishName   String       @default("")
+  aliases       String       @default("")
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   tags          GameTag[]

@@ -186,6 +186,9 @@ export default async function GameDetailPage({
                         {game.originalWork && (
                           <p className="mt-0.5 text-[11px] text-white/70">原作：{game.originalWork}</p>
                         )}
+                        {game.englishName && (
+                          <p className="mt-0.5 text-[10px] text-white/50">{game.englishName}</p>
+                        )}
                       </div>
                     </div>
                   </>

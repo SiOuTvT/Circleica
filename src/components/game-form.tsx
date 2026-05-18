@@ -1,11 +1,11 @@
 ﻿"use client"
 
-import { ImageUpload } from "@/components/image-upload";
-import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { ImageUpload } from "@/components/image-upload"
+import { ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useRef, useState } from "react"
 
-import { parseFileSizes, parseStringArray } from "@/lib/parse-utils";
+import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
@@ -26,6 +26,7 @@ interface Props {
     tagIds: string[]
     platform: string; language: string; fileSize: string
     releaseDate?: string; gameDuration?: string; studioName?: string
+    englishName?: string; aliases?: string
   }
 }
 
@@ -36,9 +37,13 @@ function parseFileSizeArray(raw: string): FileSizeEntry[] {
   }))
 }
 
-export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
+export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, initialData }: Props) {
   const router = useRouter()
   const isEdit = !!gameId
+
+  // 标签列表（可被 VNDB 拉取动态扩展）
+  const [tags, setTags] = useState<Tag[]>(initialTags)
+  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups)
 
   const [title, setTitle]               = useState(initialData?.title ?? "")
   const [originalWork, setOriginalWork] = useState(initialData?.originalWork ?? "")
@@ -64,9 +69,17 @@ export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
   const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
   const [gameDuration, setGameDuration] = useState(initialData?.gameDuration ?? "")
   const [studioName, setStudioName] = useState(initialData?.studioName ?? "")
+  const [englishName, setEnglishName] = useState(initialData?.englishName ?? "")
+  const [aliases, setAliases] = useState(initialData?.aliases ?? "")
 
   // 标签搜索
   const [tagSearch, setTagSearch] = useState("")
+
+  // VNDB 拉取
+  const [vndbLoading, setVndbLoading] = useState(false)
+  const [vndbError, setVndbError] = useState("")
+  const [vndbSuccess, setVndbSuccess] = useState("")
+  const vndbInputRef = useRef<HTMLInputElement>(null)
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
@@ -93,6 +106,78 @@ export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
     setDlLinks((prev) => prev.map((dl, idx) => idx === i ? { ...dl, [field]: val } : dl))
   }
 
+  /* ── VNDB 一键拉取 ── */
+  async function handleVndbFetch() {
+    const id = vndbInputRef.current?.value?.trim()
+    if (!id) { setVndbError("请输入 VNDB 编号"); return }
+
+    setVndbLoading(true)
+    setVndbError("")
+    setVndbSuccess("")
+
+    try {
+      const res = await fetch("/api/admin/vndb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vndbId: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setVndbError(data.error ?? "拉取失败"); return }
+
+      // 自动填充字段
+      if (data.title) setTitle(data.title)
+      if (data.originalWork) setOriginalWork(data.originalWork)
+      // 日文名填入原作字段（originalWork）
+      if (data.japaneseName) setOriginalWork(data.japaneseName)
+      if (data.englishName) setEnglishName(data.englishName)
+      if (data.aliases) setAliases(data.aliases)
+      if (data.description) setDescription(data.description)
+      if (data.studioName) setStudioName(data.studioName)
+
+      // 发售日期
+      if (data.releaseDate) {
+        // VNDB 返回格式可能是 "2023-04-28" 或 "2023-04" 或 null
+        const dateStr = data.releaseDate.substring(0, 10)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          setReleaseDate(dateStr)
+        }
+      }
+
+      // 标签：合并到已有标签列表 + 选中
+      if (data.tagIds?.length) {
+        setSelectedTags(prev => {
+          const merged = new Set([...prev, ...data.tagIds])
+          return Array.from(merged)
+        })
+
+        // 如果 VNDB 返回了新标签信息，添加到本地标签列表
+        if (data.tagNames?.length) {
+          setTags(prev => {
+            const existingIds = new Set(prev.map(t => t.id))
+            const newOnes = data.tagNames
+              .filter((t: { id: string }) => !existingIds.has(t.id))
+              .map((t: { id: string; name: string }) => ({
+                id: t.id,
+                name: t.name,
+                color: "#6b7280",
+                groupId: null as string | null,
+              }))
+            return [...prev, ...newOnes]
+          })
+        }
+      }
+
+      // 同步更新 VNDB ID
+      setVndbId(id)
+      setVndbSuccess("VNDB 数据拉取成功！所有字段均可手动修改。")
+
+    } catch (err) {
+      setVndbError(`拉取出错: ${(err as Error).message}`)
+    } finally {
+      setVndbLoading(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
@@ -110,6 +195,8 @@ export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
       releaseDate: releaseDate || null,
       gameDuration,
       studioName,
+      englishName,
+      aliases,
     }
 
     const res = await fetch(
@@ -205,17 +292,63 @@ export function GameForm({ tags, tagGroups = [], gameId, initialData }: Props) {
         <div className="rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
 
+      {/* ── VNDB 一键拉取 ── */}
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">VNDB 数据拉取</h2>
+        <p className="text-xs text-muted-foreground">输入 VNDB 编号，一键拉取游戏数据自动填充表单。所有拉取的字段均可手动修改。</p>
+        <div className="flex gap-2 items-start">
+          <div className="flex-1">
+            <div className="flex gap-2">
+              <input
+                ref={vndbInputRef}
+                defaultValue={vndbId}
+                placeholder="输入 VNDB 编号，如：v12345 或 12345"
+                className={inputCls}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleVndbFetch() } }}
+              />
+              <button
+                type="button"
+                onClick={handleVndbFetch}
+                disabled={vndbLoading}
+                className="shrink-0 flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-blue-700 disabled:opacity-60"
+              >
+                {vndbLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
+                ) : (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9" /></svg>
+                )}
+                {vndbLoading ? "拉取中…" : "一键拉取"}
+              </button>
+            </div>
+          </div>
+        </div>
+        {vndbError && (
+          <div className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-400 ring-1 ring-red-500/20">{vndbError}</div>
+        )}
+        {vndbSuccess && (
+          <div className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400 ring-1 ring-green-500/20">{vndbSuccess}</div>
+        )}
+      </div>
+
       {/* 基本信息 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
 
         <div>
-          <label className={labelCls}>游戏名称 *</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="游戏名称" required className={inputCls} />
+          <label className={labelCls}>主推名称（前台卡片展示） *</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>原作</label>
-          <input value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="如：东方Project" className={inputCls} />
+          <label className={labelCls}>日文官方原名</label>
+          <input value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>英文官方名称</label>
+          <input value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>搜索别名库（逗号分隔，用于搜索匹配）</label>
+          <textarea value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称，用逗号隔开…" rows={2} className={`${inputCls} resize-none`} />
         </div>
         <div>
           <label className={labelCls}>简介</label>

@@ -31,6 +31,8 @@ async function SearchResults({
       OR: [
         { title:        { contains: q, mode: "insensitive" as const } },
         { originalWork: { contains: q, mode: "insensitive" as const } },
+        { englishName:  { contains: q, mode: "insensitive" as const } },
+        { aliases:      { contains: q, mode: "insensitive" as const } },
         { description:  { contains: q, mode: "insensitive" as const } },
         { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
       ],
