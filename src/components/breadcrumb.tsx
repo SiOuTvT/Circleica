@@ -146,20 +146,20 @@ export function Breadcrumb() {
   if (specialCrumbs !== null) {
     if (specialCrumbs.length === 0) return null
     return (
-      <nav className="mb-4 flex items-center gap-1.5 overflow-x-auto text-sm whitespace-nowrap" aria-label="面包屑导航">
+      <nav className="mb-4 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
         >
           首页
         </Link>
         {specialCrumbs.map((crumb) => (
-          <span key={crumb.href} className="flex shrink-0 items-center gap-1.5">
+          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
             <ChevronRight
-              className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40"
+              className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/40"
               strokeWidth={2}
             />
-            <span className="font-semibold leading-none text-foreground">
+            <span className="inline-flex items-center font-semibold leading-none text-foreground">
               {crumb.label}
             </span>
           </span>
@@ -203,29 +203,29 @@ export function Breadcrumb() {
   if (crumbs.length === 0) return null
 
   return (
-    <nav className="mb-4 flex items-center gap-1.5 overflow-x-auto text-sm whitespace-nowrap" aria-label="面包屑导航">
+    <nav className="mb-4 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
       <Link
         href="/"
-        className="shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
       >
         首页
       </Link>
       {crumbs.map((crumb, i) => {
         const isLast = i === crumbs.length - 1
         return (
-          <span key={crumb.href} className="flex shrink-0 items-center gap-1.5">
+          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
             <ChevronRight
-              className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40"
+              className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/40"
               strokeWidth={2}
             />
             {isLast ? (
-              <span className="font-semibold leading-none text-foreground">
+              <span className="inline-flex items-center font-semibold leading-none text-foreground">
                 {crumb.label}
               </span>
             ) : (
               <Link
                 href={crumb.href}
-                className="leading-none text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center leading-none text-muted-foreground transition-colors hover:text-foreground"
               >
                 {crumb.label}
               </Link>
