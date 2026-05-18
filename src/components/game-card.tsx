@@ -130,7 +130,7 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-card" style={{ boxShadow: '0 6px 20px rgba(0,0,0,0.4), 1px solid rgba(255,255,255,0.08)' }}>
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-card" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.06)' }}>
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}

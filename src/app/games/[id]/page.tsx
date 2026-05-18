@@ -146,7 +146,7 @@ export default async function GameDetailPage({
               borderRadius: "16px",
               background: "hsl(var(--card))",
               border: "1px solid hsl(var(--border))",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
               overflow: "hidden",
             }}
           >
@@ -154,10 +154,9 @@ export default async function GameDetailPage({
             <div className="px-2.5 sm:px-5 pt-2.5 sm:pt-5 pb-2 shrink-0 min-w-0">
               <div
                 className="relative overflow-hidden w-full"
-                style={{
+                  style={{
                   aspectRatio: "3 / 2",
                   borderRadius: "12px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.18), 0 1px 6px rgba(0,0,0,0.08)",
                 }}
               >
                 {game.coverImage ? (
@@ -240,11 +239,11 @@ export default async function GameDetailPage({
                   {paramTags.slice(0, 4).map((tag, i) => (
                     <span
                       key={i}
-                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
-                      style={{
+                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
+                    style={{
                         color: "var(--clr-blue)",
-                        background: "transparent",
-                        border: "1px solid rgba(128, 243, 255, 0.25)",
+                        background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08)",
+                        border: "none",
                       }}
                     >
                       {tag}

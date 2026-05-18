@@ -380,8 +380,6 @@ main > * {
 /* 深色模式下主题色文字（背景是深色） */
 :root .text-primary {
   color: var(--clr-blue);
-  /* 确保足够的亮度 */
-  text-shadow: 0 0 8px color-mix(in srgb, var(--clr-blue) 30%, transparent);
 }
 
 :root .bg-primary {
@@ -460,8 +458,8 @@ main > * {
 }
 
 .card-spring:hover {
-  transform: translateY(-4px) scale(1.005);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .card-spring:active {
@@ -697,17 +695,18 @@ main > * {
   scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
 
-/* ── 焦点环 - 品牌色光晕 ── */
+/* ── 焦点环 - 简洁聚焦指示 ── */
 *:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.2),
-              0 0 0 4px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
+  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
+  outline-offset: 2px;
+  box-shadow: none;
   border-radius: inherit;
 }
 
 .light *:focus-visible {
-  box-shadow: 0 0 0 2px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.2), 
-              0 0 0 4px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
+  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 /* ── 全局选区颜色 - 品牌色 ── */
@@ -722,10 +721,10 @@ a {
   transition: text-decoration-color 0.2s ease;
 }
 
-/* ── 输入框聚焦 - 温暖光晕 ── */
+/* ── 输入框聚焦 - 克制聚焦环 ── */
 input:focus, textarea:focus, select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12), 0 0 20px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.06);
+  box-shadow: 0 0 0 2px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.15);
   border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
 }
 
@@ -917,25 +916,22 @@ input:focus, textarea:focus, select:focus {
    游戏卡片 - 深色/亮色模式精细化（3D 实体悬浮感）
    ═══════════════════════════════════════════════════════ */
 
-/* ── 卡片整体：悬浮实体感 ── */
+/* ── 卡片整体：克制的层次感 ── */
 .game-card {
   transform: translateY(0);
-  /* 核心：背景必须比纯黑底色 #000 明亮，拉开层级 */
   background: #18181b;
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.50),
-    0 4px 12px rgba(0,0,0,0.30),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+    0 2px 8px rgba(0,0,0,0.25),
+    0 1px 3px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .game-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow:
-    0 16px 48px rgba(0,0,0,0.55),
-    0 6px 16px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.12);
+    0 8px 24px rgba(0,0,0,0.35),
+    0 2px 8px rgba(0,0,0,0.20);
+  border-color: rgba(255,255,255,0.10);
 }
 
 /* ── 卡片标题：深色模式高亮白 ── */
@@ -952,19 +948,17 @@ input:focus, textarea:focus, select:focus {
 .light .game-card {
   background: #ffffff;
   box-shadow:
-    0 8px 24px rgba(0,0,0,0.10),
-    0 2px 6px rgba(0,0,0,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.08);
+    0 2px 8px rgba(0,0,0,0.06),
+    0 1px 3px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
 .light .game-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow:
-    0 14px 40px rgba(0,0,0,0.14),
-    0 4px 10px rgba(0,0,0,0.08),
-    inset 0 1px 0 rgba(255,255,255,1);
-  border-color: rgba(0,0,0,0.12);
+    0 8px 20px rgba(0,0,0,0.10),
+    0 2px 6px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.10);
 }
 
 /* ── 亮色模式下卡片标题：深色 ── */
