@@ -70,7 +70,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       </div>
 
       {/* ─── 内容区：自然流式 ─── */}
-      <div className="flex flex-col flex-1 px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5">
+      <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3.5 sm:pb-5">
 
         {/* 标题：自然换行 */}
         <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-relaxed">

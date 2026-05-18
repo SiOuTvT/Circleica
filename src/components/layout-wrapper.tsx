@@ -26,7 +26,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           children
         ) : (
           /* 前台页面：居中容器，与顶部导航栏左右边缘对齐 */
-          <div className="mx-auto w-full max-w-[1300px] px-3 py-3 sm:px-5 sm:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6 min-w-0">
+          <div className="mx-auto w-full max-w-[1300px] px-2 py-2 sm:px-5 sm:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6 min-w-0">
             <Breadcrumb />
             {children}
           </div>
