@@ -67,9 +67,10 @@ export function ProfileEditForm({ user }: Props) {
 
     if (!res.ok) { setError(data.error); return }
 
-    // 只更新 session 中的用户名（不能把 base64 头像放入 JWT cookie，否则会超出 cookie 大小限制导致网站崩溃）
+    // 更新 session 中的用户名和头像 URL（头像是上传后的普通 URL，不是 base64，可以安全放入 JWT cookie）
     await updateSession({
       name: data.username || username.trim(),
+      image: data.avatar || avatarData,
     })
 
     // 触发自定义事件，通知导航栏头像已更新（传递头像 URL，由 TopNav 本地存储）
