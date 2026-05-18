@@ -14,6 +14,8 @@ interface CacheClient {
   del(key: string): Promise<void>
   has(key: string): Promise<boolean>
   clear(): Promise<void>
+  /** 原子递增并返回新值，key 不存在时从 0 开始 */
+  incr(key: string, ttlSeconds?: number): Promise<number>
 }
 
 // ============ Redis 实现 ============
@@ -88,6 +90,20 @@ class RedisCache implements CacheClient {
     // 建议使用 key 前缀 + SCAN
     console.warn("Redis clear() not implemented for Upstash - use key prefixes and del()")
   }
+
+  async incr(key: string, ttlSeconds?: number): Promise<number> {
+    try {
+      const result = await this.request(`/incr/${encodeURIComponent(key)}`)
+      const count = result.result as number
+      // 首次递增时设置过期（count === 1 表示刚创建）
+      if (count === 1 && ttlSeconds) {
+        await this.request(`/expire/${encodeURIComponent(key)}/${ttlSeconds}`)
+      }
+      return count
+    } catch {
+      return 0
+    }
+  }
 }
 
 // ============ 内存缓存实现 ============
@@ -149,6 +165,25 @@ class MemoryCache implements CacheClient {
 
   async clear(): Promise<void> {
     this.store.clear()
+  }
+
+  async incr(key: string, ttlSeconds?: number): Promise<number> {
+    const entry = this.store.get(key)
+    if (!entry || (entry.expiresAt && Date.now() > entry.expiresAt)) {
+      // 新建或已过期
+      if (this.store.size >= this.maxSize) {
+        const firstKey = this.store.keys().next().value
+        if (firstKey) this.store.delete(firstKey)
+      }
+      this.store.set(key, {
+        value: 1,
+        expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : null,
+      })
+      return 1
+    }
+    const newVal = (entry.value as number) + 1
+    entry.value = newVal
+    return newVal
   }
 }
 

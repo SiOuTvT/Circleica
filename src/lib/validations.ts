@@ -19,7 +19,7 @@ export const registerSchema = z.object({
     .max(255, "邮箱过长"),
   password: z
     .string()
-    .min(6, "密码至少 6 位")
+    .min(8, "密码至少 8 位")
     .max(128, "密码过长"),
 })
 
@@ -49,7 +49,7 @@ export const resetPasswordSchema = z.object({
   token: z.string().min(1, "重置令牌不能为空"),
   password: z
     .string()
-    .min(6, "密码至少 6 位")
+    .min(8, "密码至少 8 位")
     .max(128, "密码过长"),
 })
 

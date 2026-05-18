@@ -69,19 +69,11 @@ async function redisRateLimit(key: string, config: RateLimitConfig): Promise<{
   const windowSec = Math.ceil(config.windowMs / 1000)
 
   try {
-    // 使用 cache 接口实现限流
-    const current = await cache.get<number>(redisKey) ?? 0
-    const newCount = current + 1
+    // 使用原子 INCR 操作，避免竞态条件
+    const newCount = await cache.incr(redisKey, windowSec)
 
     if (newCount > config.maxRequests) {
       return { allowed: false, remaining: 0, resetTime: now + config.windowMs }
-    }
-
-    // 首次请求设置 TTL，后续请求保持原 TTL
-    if (current === 0) {
-      await cache.set(redisKey, newCount, windowSec)
-    } else {
-      await cache.set(redisKey, newCount, windowSec)
     }
 
     return {

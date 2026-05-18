@@ -21,9 +21,9 @@ async function handleRegister(req: NextRequest) {
       where: { OR: [{ username }, { email }] },
     })
     if (exists) {
-      const field = exists.username === username ? "用户名" : "邮箱"
-      logger.auth.warn(`Registration attempt with duplicate ${field}`, { username, email })
-      return conflict(`${field}已被占用`)
+      const maskedEmail = email.replace(/(.{2}).*(@.*)/, "$1***$2")
+      logger.auth.warn("Registration attempt with duplicate account", { username, email: maskedEmail })
+      return conflict("用户名或邮箱已被使用")
     }
 
     const hashed = await bcrypt.hash(password, 10)

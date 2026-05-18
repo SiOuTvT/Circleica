@@ -67,13 +67,12 @@ export function ProfileEditForm({ user }: Props) {
 
     if (!res.ok) { setError(data.error); return }
 
-    // 更新 session 以同步导航栏的头像和用户名
+    // 只更新 session 中的用户名（不能把 base64 头像放入 JWT cookie，否则会超出 cookie 大小限制导致网站崩溃）
     await updateSession({
       name: data.username || username.trim(),
-      image: data.avatar || avatarData,
     })
 
-    // 触发自定义事件，通知其他组件头像已更新
+    // 触发自定义事件，通知导航栏头像已更新（传递头像 URL，由 TopNav 本地存储）
     window.dispatchEvent(
       new CustomEvent("profile-updated", {
         detail: { image: data.avatar || avatarData, name: data.username || username.trim() },
@@ -83,7 +82,7 @@ export function ProfileEditForm({ user }: Props) {
     setSuccess("保存成功！")
     setOldPassword("")
     setNewPassword("")
-    // 强制刷新页面以确保所有组件更新头像
+    // 刷新页面以确保服务器端渲染的头像也更新
     setTimeout(() => {
       router.refresh()
       router.push(`/profile/${user.id}`)

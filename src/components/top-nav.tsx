@@ -47,6 +47,8 @@ export function TopNav() {
   const [checkedIn, setCheckedIn] = useState(false)
   // 用于强制头像重新渲染的版本号
   const [avatarVersion, setAvatarVersion] = useState(0)
+  // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie）
+  const [localAvatar, setLocalAvatar] = useState<string | null>(null)
 
   const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
@@ -68,14 +70,16 @@ export function TopNav() {
 
   // 监听头像更新事件
   useEffect(() => {
-    function handleProfileUpdated() {
+    function handleProfileUpdated(e: Event) {
+      const detail = (e as CustomEvent).detail
+      if (detail?.image) {
+        setLocalAvatar(detail.image)
+      }
       setAvatarVersion(v => v + 1)
-      // 同步刷新 session 数据
-      updateSession()
     }
     window.addEventListener("profile-updated", handleProfileUpdated)
     return () => window.removeEventListener("profile-updated", handleProfileUpdated)
-  }, [updateSession])
+  }, [])
 
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {
@@ -218,8 +222,8 @@ export function TopNav() {
                   )}
                 >
                     <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
-                    {user.image
-                      ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
+                    {(localAvatar || user.image)
+                      ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" />
                       : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                     }
                   </AvatarFrame>
@@ -243,8 +247,8 @@ export function TopNav() {
                       theme === "dark" ? "border-b border-white/[0.06]" : "border-b border-black/[0.06]"
                     )}>
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-white/10">
-                        {user.image
-                          ? <img src={`${user.image}${user.image.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt="" className="h-full w-full object-cover" />
+                        {(localAvatar || user.image)
+                          ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt="" className="h-full w-full object-cover" />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
                       <span className={cn(

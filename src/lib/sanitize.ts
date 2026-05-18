@@ -1,4 +1,4 @@
-import sanitize from "sanitize-html"
+import DOMPurify from "isomorphic-dompurify"
 
 /**
  * 输入清理工具
@@ -6,10 +6,10 @@ import sanitize from "sanitize-html"
  */
 
 /**
- * 清理 HTML 标签，防止 XSS（使用 sanitize-html 确保安全）
+ * 清理 HTML 标签，防止 XSS（使用 DOMPurify 确保安全）
  */
 export function stripHtml(input: string): string {
-  return sanitize(input, { allowedTags: [], allowedAttributes: {} })
+  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] })
 }
 
 /**
@@ -44,12 +44,6 @@ export function sanitizeFilename(filename: string): string {
     .slice(0, 255) // 限制长度
 }
 
-/**
- * 转义 SQL 特殊字符（辅助函数，实际应使用参数化查询）
- */
-export function escapeSql(input: string): string {
-  return input.replace(/['"\\;%]/g, "")
-}
 
 /**
  * 验证并清理 URL
