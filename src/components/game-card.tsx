@@ -38,7 +38,6 @@ export function GameCard({ game }: { game: GameCardData }) {
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
 
-  /* 收集平台/语言标签 */
   const platformTags = parseStringArray(game.platform)
   const languageTags = parseStringArray(game.language)
   const paramTags = [...platformTags, ...languageTags]
@@ -47,16 +46,16 @@ export function GameCard({ game }: { game: GameCardData }) {
   return (
     <Link
       href={`/games/${game.id}`}
-      className="game-card group block overflow-hidden rounded-2xl transition-all duration-300"
+      className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
     >
-      {/* ─── 封面：固定比例 ─── */}
+      {/* ─── 封面：更矮，更克制 ─── */}
       <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
         {game.coverImage && !imgError ? (
           <Image
             src={game.coverImage}
             alt={game.title}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             onError={() => setImgError(true)}
             loading="lazy"
@@ -65,64 +64,67 @@ export function GameCard({ game }: { game: GameCardData }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
-            <ImageOff className="w-10 h-10" strokeWidth={1} />
+            <ImageOff className="w-8 h-8" strokeWidth={1} />
           </div>
         )}
       </div>
 
-      {/* ─── 内容区：三层积木，flex-1 拉伸 ─── */}
-      <div className="flex flex-col px-3 py-2.5 sm:px-3.5 sm:py-2.5 flex-1 min-h-0">
+      {/* ─── 内容区：自然流式 ─── */}
+      <div className="flex flex-col flex-1 px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5">
 
-        {/* 第一层：游戏名称（flex-grow 吸收多余空白） */}
-        <div className="flex items-start min-h-0 flex-1">
-          <h3 className="game-card-title text-[15px] sm:text-[15px] font-semibold leading-snug line-clamp-2">
-            {game.title}
-          </h3>
-        </div>
+        {/* 标题：自然换行 */}
+        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-relaxed">
+          {game.title}
+        </h3>
 
-        {/* 第二层：核心数据 */}
-        <div className="flex items-center gap-2.5 sm:gap-3 pt-1.5">
+        {/* 弹性留白 */}
+        <div className="flex-1 min-h-3" />
+
+        {/* 数据行 */}
+        <div className="flex items-center gap-3.5 mt-2.5">
           {viewStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-xs font-medium">
-              <Eye className="w-3.5 h-3.5 sm:w-3 sm:h-3" strokeWidth={2} />
+            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
+              <Eye className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-xs font-medium">
-              <Download className="w-3.5 h-3.5 sm:w-3 sm:h-3" strokeWidth={2} />
+            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
+              <Download className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs sm:text-xs font-medium">
-              <Heart className="w-3.5 h-3.5 sm:w-3 sm:h-3" strokeWidth={2} />
+            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
+              <Heart className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
               {favStr}
             </span>
           )}
         </div>
 
-        {/* 第三层：标签组 — 钉在底部 */}
-        <div className="flex flex-wrap items-center gap-1 sm:gap-1 pt-1.5">
-          {paramTags.map((tag, i) => (
-            <span
-              key={`p-${i}`}
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-[11px] font-medium shrink-0 bg-primary/10 text-primary"
-            >
-              {tag}
-            </span>
-          ))}
-          {fileSizes.length > 0 && (
-            <span className="inline-flex items-center gap-0.5 text-[11px] sm:text-[11px] shrink-0">
-              {fileSizes.map((fs, i) => (
-                <span key={`fs-${i}`} className="flex items-center">
-                  <span className="font-medium text-primary">{fs.value} {fs.unit}</span>
-                  {i < fileSizes.length - 1 && <span className="mx-0.5 text-muted-foreground/40">/</span>}
-                </span>
-              ))}
-            </span>
-          )}
-        </div>
+        {/* 标签区域 */}
+        {(paramTags.length > 0 || fileSizes.length > 0) && (
+          <div className="flex flex-wrap items-center gap-2 sm:gap-1.5 mt-3">
+            {paramTags.map((tag, i) => (
+              <span
+                key={`p-${i}`}
+                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs sm:text-[11px] font-normal shrink-0 bg-muted text-muted-foreground"
+              >
+                {tag}
+              </span>
+            ))}
+            {fileSizes.length > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-xs sm:text-[11px] shrink-0 text-foreground">
+                {fileSizes.map((fs, i) => (
+                  <span key={`fs-${i}`} className="flex items-center">
+                    <span>{fs.value} {fs.unit}</span>
+                    {i < fileSizes.length - 1 && <span className="mx-0.5 text-muted-foreground/40">/</span>}
+                  </span>
+                ))}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   )
@@ -130,23 +132,24 @@ export function GameCard({ game }: { game: GameCardData }) {
 
 export function GameCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-card" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/50">
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
-      <div className="flex flex-col px-3 py-2.5 sm:px-3.5 sm:py-2.5 flex-1 gap-1.5">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col flex-1 px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5 gap-2">
+        <div className="space-y-1.5">
           <div className="h-4 w-full rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
         </div>
-        <div className="flex gap-3">
-          <div className="h-3 w-10 rounded skeleton-shimmer" />
-          <div className="h-3 w-10 rounded skeleton-shimmer" />
-          <div className="h-3 w-10 rounded skeleton-shimmer" />
+        <div className="flex-1 min-h-3" />
+        <div className="flex gap-3.5 mt-2.5">
+          <div className="h-4 w-11 rounded skeleton-shimmer" />
+          <div className="h-4 w-11 rounded skeleton-shimmer" />
+          <div className="h-4 w-11 rounded skeleton-shimmer" />
         </div>
-        <div className="flex flex-wrap gap-1">
-          <div className="h-4 w-14 rounded-full skeleton-shimmer" />
-          <div className="h-4 w-12 rounded-full skeleton-shimmer" />
+        <div className="flex flex-wrap gap-2 mt-1">
+          <div className="h-5 w-16 rounded-full skeleton-shimmer" />
+          <div className="h-5 w-14 rounded-full skeleton-shimmer" />
         </div>
       </div>
     </div>
