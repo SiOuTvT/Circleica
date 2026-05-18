@@ -914,20 +914,28 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ═══════════════════════════════════════════════════════
-   游戏卡片 - 深色/亮色模式精细化
+   游戏卡片 - 深色/亮色模式精细化（3D 实体悬浮感）
    ═══════════════════════════════════════════════════════ */
 
-/* ── 卡片整体：悬浮浮起 + 阴影加深 ── */
+/* ── 卡片整体：悬浮实体感 ── */
 .game-card {
   transform: translateY(0);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: hsl(var(--card));
+  /* 深色模式：高光切边 + 深邃悬浮暗影 */
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.50),
+    0 4px 12px rgba(0,0,0,0.30),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .game-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-5px);
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.55),
+    0 6px 16px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
 }
 
 /* ── 卡片标题：深色模式高亮白 ── */
@@ -935,25 +943,27 @@ input:focus, textarea:focus, select:focus {
   color: #f5f5f7;
 }
 
-/* ── 卡片统计：深色模式低亮度灰 ── */
+/* ── 卡片统计：烟灰调 ── */
 .game-card-stat {
   color: #8b8b9a;
 }
 
-/* ── 卡片日期：深色模式更淡灰 ── */
-.game-card-date {
-  color: #6b6b7a;
-}
-
-/* ── 亮色模式下卡片覆盖 ── */
+/* ── 亮色模式下卡片 ── */
 .light .game-card {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+  background: hsl(var(--card));
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.10),
+    0 2px 6px rgba(0,0,0,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.9);
   border: 1px solid rgba(0,0,0,0.08);
 }
 
 .light .game-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+  transform: translateY(-5px);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,0.14),
+    0 4px 10px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,1);
   border-color: rgba(0,0,0,0.12);
 }
 
@@ -965,11 +975,6 @@ input:focus, textarea:focus, select:focus {
 /* ── 亮色模式下卡片统计：中灰 ── */
 .light .game-card-stat {
   color: #52525b;
-}
-
-/* ── 亮色模式下卡片日期：浅灰 ── */
-.light .game-card-date {
-  color: #71717a;
 }
 
 /* ═══ 移动端交互优化 ═══ */
