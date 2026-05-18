@@ -62,7 +62,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl">
+    <div className="relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-zinc-900">
       {/* 背景图 - 视差滚动效果 */}
       <div className="absolute inset-0 bg-zinc-900">
         {ann.imageUrl && !imgError ? (

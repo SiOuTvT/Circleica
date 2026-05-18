@@ -184,7 +184,7 @@ export function ImageUpload({
         }
       } catch (err) {
         console.error("上传失败:", err)
-        toast.error("上传失败，请重试")
+        toast.error(err instanceof Error ? err.message : "上传失败，请重试")
         setPreview(value || null)
       }
       setIsUploading(false)

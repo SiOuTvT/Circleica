@@ -28,8 +28,8 @@ export function ProfileEditForm({ user }: Props) {
 
   // 头像：使用自建上传 API
   async function handleAvatarUpload(file: File): Promise<string> {
-    if (file.size > 2 * 1024 * 1024) {
-      throw new Error("头像图片不能超过 2MB")
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("头像图片不能超过 5MB")
     }
     const formData = new FormData()
     formData.append("file", file)
@@ -115,7 +115,7 @@ export function ProfileEditForm({ user }: Props) {
           shape="circle"
           placeholder="上传头像"
         />
-          <p className="mt-1.5 text-[10px] text-zinc-600">支持 JPG/PNG/WebP，最大 2MB，可拖动调整位置和缩放</p>
+          <p className="mt-1.5 text-[10px] text-zinc-600">支持 JPG/PNG/WebP，最大 5MB，可拖动调整位置和缩放</p>
         </div>
 
         {/* 用户名 */}

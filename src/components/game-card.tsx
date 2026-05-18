@@ -69,19 +69,16 @@ export function GameCard({ game }: { game: GameCardData }) {
         )}
       </div>
 
-      {/* ─── 内容区：自然流式 ─── */}
-      <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3.5 sm:pb-5">
+      {/* ─── 内容区：均匀分布 ─── */}
+      <div className="flex flex-col flex-1 justify-between px-2 pt-2 pb-3 sm:px-4 sm:pt-3.5 sm:pb-5">
 
         {/* 标题：自然换行 */}
         <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-relaxed">
           {game.title}
         </h3>
 
-        {/* 弹性留白 */}
-        <div className="flex-1 min-h-3" />
-
         {/* 数据行 */}
-        <div className="flex items-center gap-3.5 mt-2.5">
+        <div className="flex items-center gap-3.5">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
               <Eye className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
@@ -136,18 +133,17 @@ export function GameCardSkeleton() {
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
-      <div className="flex flex-col flex-1 px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5 gap-2">
+      <div className="flex flex-col flex-1 justify-between px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5">
         <div className="space-y-1.5">
           <div className="h-4 w-full rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
         </div>
-        <div className="flex-1 min-h-3" />
-        <div className="flex gap-3.5 mt-2.5">
+        <div className="flex gap-3.5">
           <div className="h-4 w-11 rounded skeleton-shimmer" />
           <div className="h-4 w-11 rounded skeleton-shimmer" />
           <div className="h-4 w-11 rounded skeleton-shimmer" />
         </div>
-        <div className="flex flex-wrap gap-2 mt-1">
+        <div className="flex flex-wrap gap-2">
           <div className="h-5 w-16 rounded-full skeleton-shimmer" />
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
         </div>
