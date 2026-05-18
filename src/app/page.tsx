@@ -8,7 +8,7 @@ import { Suspense } from "react"
 
 function GameGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+    <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )

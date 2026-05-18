@@ -920,8 +920,8 @@ input:focus, textarea:focus, select:focus {
 /* ── 卡片整体：悬浮实体感 ── */
 .game-card {
   transform: translateY(0);
-  background: hsl(var(--card));
-  /* 深色模式：高光切边 + 深邃悬浮暗影 */
+  /* 核心：背景必须比纯黑底色 #000 明亮，拉开层级 */
+  background: #18181b;
   box-shadow:
     0 10px 30px rgba(0,0,0,0.50),
     0 4px 12px rgba(0,0,0,0.30),
@@ -943,14 +943,14 @@ input:focus, textarea:focus, select:focus {
   color: #f5f5f7;
 }
 
-/* ── 卡片统计：烟灰调 ── */
+/* ── 卡片统计：中性灰，确保深色模式清晰可读 ── */
 .game-card-stat {
-  color: #8b8b9a;
+  color: #a1a1aa;
 }
 
 /* ── 亮色模式下卡片 ── */
 .light .game-card {
-  background: hsl(var(--card));
+  background: #ffffff;
   box-shadow:
     0 8px 24px rgba(0,0,0,0.10),
     0 2px 6px rgba(0,0,0,0.06),

@@ -46,7 +46,7 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
         {games.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
