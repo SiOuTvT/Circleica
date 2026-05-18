@@ -72,9 +72,9 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl" style={{ backgroundColor: isLight ? '#f4f4f5' : '#09090b' }}>
+    <div className="relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-black">
       {/* 背景图 - 始终铺满整个容器 */}
-      <div className="absolute inset-0" style={{ backgroundColor: isLight ? '#f4f4f5' : '#09090b' }}>
+      <div className="absolute inset-0">
         {ann.imageUrl && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -98,11 +98,6 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           </div>
         )}
       </div>
-      {/* 遮罩 - 仅底部渐变，保留图片原始色彩 */}
-      <div className={isLight
-        ? "absolute inset-0 bg-gradient-to-t from-zinc-200/90 via-transparent to-transparent"
-        : "absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"
-      } />
 
       {/* 内容链接（z-0，在按钮下层） */}
       <Link
