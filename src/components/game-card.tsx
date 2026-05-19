@@ -69,53 +69,54 @@ export function GameCard({ game }: { game: GameCardData }) {
         )}
       </div>
 
-      {/* ─── 内容区：Grid 三行 + 弹性中间行 ─── */}
-      {/* title / spacer(弹性) / stats / tags */}
-      {/* 当标题换行时，spacer 自动收缩，stats 和 tags 位置不变 → 间距由 spacer 统一承担 */}
-      <div className="game-card-body flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+      {/* ─── 内容区 ─── */}
+      <div className="game-card-body flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4">
         {/* 第1行：游戏名称 */}
-        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-snug">
+        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-snug line-clamp-2">
           {game.title}
         </h3>
 
-        {/* 弹性间距：默认 min-h 等于行距，标题换行时自动压缩 */}
+        {/* 弹性间距：保证 title 和 stats 之间至少 10px */}
         <div className="game-card-spacer" />
 
         {/* 第2行：数据 */}
-        <div className="game-card-stats flex items-center gap-3">
+        <div className="game-card-stats flex items-center gap-3 flex-shrink-0">
           {viewStr && (
-            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+            <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
               <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+            <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
               <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+            <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
               <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {favStr}
             </span>
           )}
         </div>
 
+        {/* 弹性间距：保证 stats 和 tags 之间也至少 10px */}
+        <div className="game-card-spacer" />
+
         {/* 第3行：标签 */}
         {(paramTags.length > 0 || fileSizes.length > 0) && (
-          <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+          <div className="game-card-tags flex flex-wrap items-center gap-1.5 flex-shrink-0">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-[10px] font-medium shrink-0 bg-primary/10 text-primary"
+                className="game-card-tag inline-flex items-center rounded-md px-2.5 py-1 text-xs sm:text-[11px] font-medium shrink-0"
               >
                 {tag}
               </span>
             ))}
             {fileSizes.length > 0 && (
-              <span className="inline-flex items-center gap-0.5 text-[11px] sm:text-[10px] shrink-0 text-muted-foreground">
+              <span className="inline-flex items-center gap-0.5 text-xs sm:text-[11px] shrink-0 text-muted-foreground">
                 {fileSizes.map((fs, i) => (
                   <span key={`fs-${i}`} className="flex items-center">
                     <span>{fs.value} {fs.unit}</span>
