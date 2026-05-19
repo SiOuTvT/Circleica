@@ -99,24 +99,19 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         )}
       </div>
 
-      {/* 内容链接（z-0，在按钮下层）— 用半透明底条，不遮挡图片 */}
+      {/* 内容链接（z-0，在按钮下层）— 纯文字，无遮罩 */}
       <Link
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="absolute inset-0 z-0 flex flex-col justify-end"
+        className="absolute inset-0 z-0 flex flex-col justify-end p-3 sm:p-5 lg:p-6"
       >
-        <div className="w-full bg-black/50 px-3 py-1.5 backdrop-blur-sm sm:bg-black/40 sm:px-5 sm:py-3 lg:px-6 lg:py-4">
-          <strong className="text-sm font-bold leading-snug text-white line-clamp-1 sm:text-xl lg:text-2xl">
-            {ann.title}
-          </strong>
-          <p className="mt-1 hidden text-sm leading-relaxed text-white/80 line-clamp-2 sm:block sm:text-base">
-            {stripHtml(ann.content).slice(0, 100)}{stripHtml(ann.content).length > 100 ? "…" : ""}
-          </p>
-          <span className="mt-0.5 hidden text-xs font-medium text-white/70 sm:inline">
-            {ann.link ? "点击跳转 →" : "查看公告 →"}
-          </span>
-        </div>
+        <strong className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug text-white line-clamp-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+          {ann.title}
+        </strong>
+        <p className="mt-1.5 text-sm sm:text-base leading-relaxed text-white line-clamp-2 drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+          {stripHtml(ann.content).slice(0, 100)}{stripHtml(ann.content).length > 100 ? "…" : ""}
+        </p>
       </Link>
 
       {/* 翻页按钮（z-10，在 Link 上层） */}
