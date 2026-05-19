@@ -72,7 +72,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
 
   return (
-    <div className="relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-black">
+    <div className={`relative h-[215px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl ${isLight ? "bg-zinc-100" : "bg-zinc-900"}`}>
       {/* 背景图 - 始终铺满整个容器 */}
       <div className="absolute inset-0">
         {ann.imageUrl && !imgError ? (
