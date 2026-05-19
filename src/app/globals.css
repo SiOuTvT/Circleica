@@ -977,6 +977,14 @@ input:focus, textarea:focus, select:focus {
 .light .game-card-stat {
   color: #71717a;
 }
+/* 游戏卡片标签 — 白天模式下强制使用主题色 */
+.light .game-card .bg-primary\/10 {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.light .game-card .text-primary {
+  color: var(--primary);
+  text-shadow: none;
+}
 
 /* ═══ 移动端交互优化 ═══ */
 
