@@ -995,32 +995,16 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* ── 游戏卡片标签样式 ── */
+/* ── 游戏卡片标签样式 — 跟随动态主题色 ── */
+/* --clr-blue 由 theme-colors.ts 动态设置，深色/白天模式各自有正确值 */
 .game-card-tag {
-  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
-  color: var(--primary);
-  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
+  color: var(--clr-blue);
+  border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
   transition: background-color 0.2s;
 }
 .game-card-tag:hover {
-  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
-}
-
-/* 深色模式标签：背景更深，文字用亮主题色 */
-:root .game-card-tag {
-  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
-  color: var(--clr-sky);
-  border-color: color-mix(in srgb, var(--primary) 25%, transparent);
-}
-
-/* 白天模式标签：与深色模式一致，使用天空青色 */
-.light .game-card-tag {
-  background-color: color-mix(in srgb, var(--clr-blue) 12%, transparent);
-  color: var(--clr-blue);
-  border-color: color-mix(in srgb, var(--clr-blue) 25%, transparent);
-}
-.light .game-card-tag:hover {
-  background-color: color-mix(in srgb, var(--clr-blue) 20%, transparent);
+  background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
 }
 
 /* ═══ 移动端交互优化 ═══ */
