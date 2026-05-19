@@ -977,6 +977,24 @@ input:focus, textarea:focus, select:focus {
 .light .game-card-stat {
   color: #71717a;
 }
+
+/* ── 游戏卡片内容区布局 ── */
+/* 三行结构：title → spacer → stats → tags */
+/* spacer 在默认情况（不换行）下提供固定行距；当标题换行时自动收缩 */
+.game-card-body {
+  gap: 0; /* 行距由 spacer 和 mt 控制，不用 flex gap */
+}
+.game-card-spacer {
+  flex: 1 1 0%;
+  min-height: 0;
+  /* 默认行距 = 10px，标题不换行时 spacer 撑开到至少 10px */
+  height: 10px;
+}
+@media (min-width: 640px) {
+  .game-card-spacer {
+    height: 12px;
+  }
+}
 /* 游戏卡片标签 — 白天模式下强制使用主题色 */
 .light .game-card .bg-primary\/10 {
   background-color: color-mix(in srgb, var(--primary) 10%, transparent);

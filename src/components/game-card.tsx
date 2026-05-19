@@ -48,7 +48,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       href={`/games/${game.id}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
     >
-      {/* ─── 封面：更矮，更克制 ─── */}
+      {/* ─── 封面：比例固定 ─── */}
       <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
         {game.coverImage && !imgError ? (
           <Image
@@ -69,52 +69,53 @@ export function GameCard({ game }: { game: GameCardData }) {
         )}
       </div>
 
-      {/* ─── 内容区：均匀分布 ─── */}
-      <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3.5 sm:pb-5">
-
-        {/* 标题：自然换行 */}
-        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-relaxed">
+      {/* ─── 内容区：Grid 三行 + 弹性中间行 ─── */}
+      {/* title / spacer(弹性) / stats / tags */}
+      {/* 当标题换行时，spacer 自动收缩，stats 和 tags 位置不变 → 间距由 spacer 统一承担 */}
+      <div className="game-card-body flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+        {/* 第1行：游戏名称 */}
+        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-snug">
           {game.title}
         </h3>
 
-        {/* 弹性留白：当数据行换行时，卡片高度自适应拉伸 */}
-        <div className="flex-1 min-h-2" />
+        {/* 弹性间距：默认 min-h 等于行距，标题换行时自动压缩 */}
+        <div className="game-card-spacer" />
 
-        {/* 数据行 */}
-        <div className="flex items-center gap-3.5 mt-2">
+        {/* 第2行：数据 */}
+        <div className="game-card-stats flex items-center gap-3">
           {viewStr && (
-            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
-              <Eye className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
+            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {viewStr}
             </span>
           )}
           {dlStr && (
-            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
-              <Download className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
+            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {dlStr}
             </span>
           )}
           {favStr && (
-            <span className="game-card-stat flex items-center gap-1.5 text-sm sm:text-[13px] font-normal">
-              <Heart className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} />
+            <span className="game-card-stat flex items-center gap-1 text-[13px] sm:text-xs font-normal">
+              <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} />
               {favStr}
             </span>
           )}
         </div>
 
-        {/* 标签区域 */}
+        {/* 第3行：标签 */}
         {(paramTags.length > 0 || fileSizes.length > 0) && (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-1.5 mt-3">
+          <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs sm:text-[11px] font-normal shrink-0 bg-primary/10 text-primary"
+                className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] sm:text-[10px] font-medium shrink-0 bg-primary/10 text-primary"
               >
                 {tag}
               </span>
             ))}
             {fileSizes.length > 0 && (
-              <span className="inline-flex items-center gap-0.5 text-xs sm:text-[11px] shrink-0 text-foreground">
+              <span className="inline-flex items-center gap-0.5 text-[11px] sm:text-[10px] shrink-0 text-muted-foreground">
                 {fileSizes.map((fs, i) => (
                   <span key={`fs-${i}`} className="flex items-center">
                     <span>{fs.value} {fs.unit}</span>
@@ -136,18 +137,15 @@ export function GameCardSkeleton() {
       {/* 封面 */}
       <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
-      <div className="flex flex-col flex-1 px-3.5 pt-3 pb-4 sm:px-4 sm:pt-3.5 sm:pb-5">
-        <div className="space-y-1.5">
-          <div className="h-4 w-full rounded skeleton-shimmer" />
-          <div className="h-4 w-3/5 rounded skeleton-shimmer" />
+      <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+        <div className="h-4 w-full rounded skeleton-shimmer" />
+        <div className="game-card-spacer" />
+        <div className="flex gap-3">
+          <div className="h-3.5 w-11 rounded skeleton-shimmer" />
+          <div className="h-3.5 w-11 rounded skeleton-shimmer" />
+          <div className="h-3.5 w-11 rounded skeleton-shimmer" />
         </div>
-        <div className="flex-1 min-h-2" />
-        <div className="flex gap-3.5 mt-2">
-          <div className="h-4 w-11 rounded skeleton-shimmer" />
-          <div className="h-4 w-11 rounded skeleton-shimmer" />
-          <div className="h-4 w-11 rounded skeleton-shimmer" />
-        </div>
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap gap-1.5 mt-2.5">
           <div className="h-5 w-16 rounded-full skeleton-shimmer" />
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
         </div>
