@@ -221,8 +221,7 @@ export default function NotificationsClient({
   })
 
   return (
-    <div className="min-h-screen bg-black light:bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link
@@ -423,7 +422,6 @@ export default function NotificationsClient({
             </button>
           </div>
         )}
-      </div>
     </div>
   )
 }

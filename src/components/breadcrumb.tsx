@@ -146,7 +146,7 @@ export function Breadcrumb() {
   if (specialCrumbs !== null) {
     if (specialCrumbs.length === 0) return null
     return (
-    <nav className="mb-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
+      <nav className="mb-4 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
         <Link
           href="/"
           className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
@@ -154,9 +154,9 @@ export function Breadcrumb() {
           首页
         </Link>
         {specialCrumbs.map((crumb) => (
-          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-1 leading-none">
+          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-2 leading-none">
             <ChevronRight
-              className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/40"
+              className="h-4 w-4 shrink-0 self-center text-muted-foreground/40"
               strokeWidth={2}
             />
             <span className="inline-flex items-center font-medium leading-none text-muted-foreground">
@@ -203,7 +203,7 @@ export function Breadcrumb() {
   if (crumbs.length === 0) return null
 
   return (
-    <nav className="mb-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
+    <nav className="mb-4 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
       <Link
         href="/"
         className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
@@ -213,9 +213,9 @@ export function Breadcrumb() {
       {crumbs.map((crumb, i) => {
         const isLast = i === crumbs.length - 1
         return (
-          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-1 leading-none">
+          <span key={crumb.href} className="inline-flex shrink-0 items-center gap-2 leading-none">
             <ChevronRight
-              className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/40"
+              className="h-4 w-4 shrink-0 self-center text-muted-foreground/40"
               strokeWidth={2}
             />
             {isLast ? (
