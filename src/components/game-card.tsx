@@ -50,7 +50,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
     >
       {/* ─── 封面：比例固定 ─── */}
-      <div className="relative w-full" style={{ aspectRatio: "3 / 4" }}>
+      <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
         {game.coverImage && !imgError ? (
           <Image
             src={game.coverImage}
@@ -139,7 +139,7 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/50">
       {/* 封面 */}
-      <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 4" }} />
+      <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
       {/* 内容 */}
       <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
         <div className="h-4 w-full rounded skeleton-shimmer" />

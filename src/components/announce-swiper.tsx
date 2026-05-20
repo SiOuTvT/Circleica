@@ -64,7 +64,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
 
   return (
     <div
-      className="relative h-[240px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-zinc-900 light:bg-zinc-100"
+      className="relative h-[320px] sm:h-[295px] lg:h-[315px] w-full lg:max-w-[66.667%] lg:ml-auto overflow-hidden rounded-2xl bg-zinc-900 light:bg-zinc-100"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

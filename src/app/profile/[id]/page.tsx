@@ -92,8 +92,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
       {/* 双栏布局：左窄右宽，两侧等高 */}
       <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0">
 
-        {/* ====== 左侧：用户信息（移动端在下方显示） ====== */}
-        <aside className="w-full lg:w-[320px] lg:shrink-0 min-w-0 order-2 lg:order-none">
+        {/* ====== 左侧：用户信息（移动端在上方显示） ====== */}
+        <aside className="w-full lg:w-[320px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
 
             {/* 上层主卡片 - 身份区 */}
@@ -226,8 +226,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           </div>
         </aside>
 
-        {/* ====== 右侧：内容 Tab（移动端在上方显示，方便快速访问） ====== */}
-        <main className="w-full lg:w-[calc(100%-336px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-1 lg:order-none">
+        {/* ====== 右侧：内容 Tab（移动端在下方显示） ====== */}
+        <main className="w-full lg:w-[calc(100%-336px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
           <div className="flex-1 rounded-2xl bg-card ring-1 ring-border overflow-y-auto"
             style={{ boxShadow: 'none', maxHeight: 'calc(100vh - 120px)' }}>
             <ProfileContentTabs

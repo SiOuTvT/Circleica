@@ -58,3 +58,25 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
+
+// DELETE /api/notifications - 删除通知
+export async function DELETE(req: NextRequest) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 })
+  }
+
+  const { ids } = await req.json()
+
+  if (ids && Array.isArray(ids) && ids.length > 0) {
+    await prisma.notification.deleteMany({
+      where: { id: { in: ids }, userId: session.user.id },
+    })
+  } else {
+    await prisma.notification.deleteMany({
+      where: { userId: session.user.id },
+    })
+  }
+
+  return NextResponse.json({ ok: true })
+}
