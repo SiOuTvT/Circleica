@@ -15,7 +15,7 @@ module.exports = {
         NODE_ENV: "production",
         PORT: 3000,
         // 通过 NODE_OPTIONS 增大 HTTP 头限制，比 node_args 更可靠
-        NODE_OPTIONS: "--max-http-header-size=16384",
+        NODE_OPTIONS: "--max-http-header-size=32768",
       },
     },
   ],

@@ -43,8 +43,30 @@ async function getCroppedImg(
   canvas.height = pixelCrop.height
   ctx.putImageData(data, 0, 0)
 
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!), "image/webp", 0.92)
+  // 优先 WebP，失败则 fallback 到 JPEG
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob)
+        } else {
+          // WebP 失败，fallback 到 JPEG
+          canvas.toBlob(
+            (jpegBlob) => {
+              if (jpegBlob) {
+                resolve(jpegBlob)
+              } else {
+                reject(new Error("图片处理失败：canvas 无法生成图片"))
+              }
+            },
+            "image/jpeg",
+            0.92
+          )
+        }
+      },
+      "image/webp",
+      0.92
+    )
   })
 }
 
@@ -149,7 +171,8 @@ export function ImageUpload({
     setIsCropping(true)
     try {
       const croppedBlob = await getCroppedImg(cropSrc, croppedAreaPixels, rotation)
-      const croppedFile = new File([croppedBlob], "cropped.webp", { type: "image/webp" })
+      const ext = croppedBlob.type === "image/jpeg" ? "jpg" : "webp"
+      const croppedFile = new File([croppedBlob], `cropped.${ext}`, { type: croppedBlob.type })
 
       // 如果是头像裁剪模式
       if (onFileSelect) {
