@@ -3,6 +3,27 @@ import bcrypt from "bcryptjs"
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
+// 全局类型声明：扩展 JWT 和 Session 类型
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+      name: string
+      email?: string | null
+      image?: string | null
+      avatarFrame: string
+    }
+  }
+}
+
+declare module "next-auth" {
+  interface JWT {
+    id?: string
+    name?: string
+    image?: string | null
+  }
+}
+
 // 注意：不使用 PrismaAdapter。
 // PrismaAdapter 用于 OAuth provider（GitHub/Google 等）需要数据库存储 account/session 的场景。
 // 我们只用 Credentials + JWT 策略，不需要 Adapter。
@@ -54,28 +75,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id    = user.id
         token.name  = user.name
         token.image = user.image
-        // 从数据库读取头像框（容错处理）
-        try {
-          const dbUser = await prisma.user.findUnique({ where: { id: user.id! } })
-          token.avatarFrame = dbUser?.avatarFrame ?? "none"
-        } catch {
-          token.avatarFrame = "none"
-        }
+        // 注意：avatarFrame 不放入 JWT，避免 cookie 过大触发 431 错误
+        // 改为在 session 回调中实时查询数据库
       }
       // 用户更新后刷新 session
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name
         if (session.image) token.image = session.image
-        if (session.avatarFrame) token.avatarFrame = session.avatarFrame
       }
       return token
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       if (token) {
-        session.user.id          = token.id as string
-        session.user.name        = token.name ?? ""
-        session.user.image       = token.image as string | null
-        session.user.avatarFrame = token.avatarFrame ?? "none"
+        session.user.id    = token.id as string
+        session.user.name  = token.name ?? ""
+        session.user.image = token.image as string | null
+        // 实时从数据库读取 avatarFrame，避免存入 JWT 增大 cookie
+        try {
+          if (token.id) {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: token.id as string },
+              select: { avatarFrame: true },
+            })
+            session.user.avatarFrame = dbUser?.avatarFrame ?? "none"
+          } else {
+            session.user.avatarFrame = "none"
+          }
+        } catch {
+          session.user.avatarFrame = "none"
+        }
       }
       return session
     },
