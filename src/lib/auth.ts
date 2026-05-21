@@ -36,6 +36,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 天
   },
+  // 更换 cookie 名称：旧 cookie 中残留了过大的 JWT 数据导致 431 错误
+  // 使用新名称后浏览器会自动创建全新的、更小的 cookie
+  cookies: {
+    sessionToken: {
+      name: "fangame-session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: false, // HTTP 站点不能用 secure: true
+      },
+    },
+  },
   pages: {
     signIn: "/login",
   },
