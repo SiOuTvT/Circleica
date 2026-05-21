@@ -87,7 +87,7 @@ export default function GameDetailClient({
   const [favCnt, setFavCnt] = useState(favCount)
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
-  const [mobileArchiveOpen, setMobileArchiveOpen] = useState(false)
+  const [mobileArchiveOpen, setMobileArchiveOpen] = useState(true)
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -295,8 +295,8 @@ export default function GameDetailClient({
           </div>
         </div>
 
-        {/* ─── 移动端档案信息（折叠面板）─── */}
-        <div className="mt-6 lg:hidden">
+        {/* ─── 移动端档案信息（折叠面板，仅简介tab显示）─── */}
+        {tab === "intro" && <div className="mt-6 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileArchiveOpen(v => !v)}
@@ -377,7 +377,7 @@ export default function GameDetailClient({
               )}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
         <div className="hidden lg:block w-[300px] shrink-0 rounded-2xl p-5"

@@ -19,7 +19,7 @@ const ALLOWED_TYPES = [
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "请先登录" }, { status: 401 })
     }
 

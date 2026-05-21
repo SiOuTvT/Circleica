@@ -1,7 +1,7 @@
 "use client"
 
 import { getRandomAvatarColor } from "@/lib/utils"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 /**
  * 带 onError 降级的头像组件
@@ -20,7 +20,11 @@ export function SafeAvatar({
 }) {
   const [error, setError] = useState(false)
 
-  const cacheBustedSrc = `${src}${src.includes("?") ? "&" : "?"}t=${Date.now()}`
+  // 仅在 src 变化时重新生成 cache-busted URL，避免每次渲染都刷新图片
+  const cacheBustedSrc = useMemo(
+    () => `${src}${src.includes("?") ? "&" : "?"}t=${Date.now()}`,
+    [src],
+  )
 
   if (!src || error) {
     return (
