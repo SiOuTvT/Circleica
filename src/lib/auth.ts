@@ -20,7 +20,6 @@ declare module "next-auth" {
   interface JWT {
     id?: string
     name?: string
-    image?: string | null
   }
 }
 
@@ -72,36 +71,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.id    = user.id
-        token.name  = user.name
-        token.image = user.image
-        // 注意：avatarFrame 不放入 JWT，避免 cookie 过大触发 431 错误
+        token.id   = user.id
+        token.name = user.name
+        // 注意：image 和 avatarFrame 都不放入 JWT，避免 cookie 过大触发 431 错误
         // 改为在 session 回调中实时查询数据库
       }
       // 用户更新后刷新 session
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name
-        if (session.image) token.image = session.image
+        // image 不存入 JWT，所以不需要从 session 中获取
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id    = token.id as string
-        session.user.name  = token.name ?? ""
-        session.user.image = token.image as string | null
-        // 实时从数据库读取 avatarFrame，避免存入 JWT 增大 cookie
+        session.user.id   = token.id as string
+        session.user.name = token.name ?? ""
+        // 实时从数据库读取 image 和 avatarFrame，避免存入 JWT 增大 cookie
         try {
           if (token.id) {
             const dbUser = await prisma.user.findUnique({
               where: { id: token.id as string },
-              select: { avatarFrame: true },
+              select: { avatar: true, avatarFrame: true },
             })
+            session.user.image = dbUser?.avatar ?? null
             session.user.avatarFrame = dbUser?.avatarFrame ?? "none"
           } else {
+            session.user.image = null
             session.user.avatarFrame = "none"
           }
         } catch {
+          session.user.image = null
           session.user.avatarFrame = "none"
         }
       }

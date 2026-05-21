@@ -67,10 +67,9 @@ export function ProfileEditForm({ user }: Props) {
 
     if (!res.ok) { setError(data.error); return }
 
-    // 更新 session 中的用户名和头像 URL（头像是上传后的普通 URL，不是 base64，可以安全放入 JWT cookie）
+    // 更新 session（image 不再存入 JWT，由 session 回调实时从 DB 读取）
     await updateSession({
       name: data.username || username.trim(),
-      image: data.avatar || avatarData,
     })
 
     // 触发自定义事件，通知导航栏头像已更新（传递头像 URL，由 TopNav 本地存储）
