@@ -105,6 +105,8 @@ export function ImageUpload({
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // 记录自身 onChange 发出的 URL，防止 useEffect 用服务器 URL 覆盖 blob 预览
+  const lastEmittedUrlRef = useRef<string | null>(null)
 
   // 裁剪相关状态
   const [cropSrc, setCropSrc] = useState<string | null>(null)
@@ -117,6 +119,11 @@ export function ImageUpload({
   const [isCropping, setIsCropping] = useState(false)
 
   useEffect(() => {
+    // 如果这个 value 是我们自己 onChange 发出的，跳过（保留 blob 预览）
+    if (value === lastEmittedUrlRef.current) {
+      lastEmittedUrlRef.current = null
+      return
+    }
     if (value) setPreview(value)
   }, [value])
 
@@ -192,6 +199,7 @@ export function ImageUpload({
       try {
         if (uploadFunction) {
           const url = await uploadFunction(croppedFile)
+          lastEmittedUrlRef.current = url
           onChange?.(url)
         } else {
           // 使用自建上传 API
@@ -200,6 +208,7 @@ export function ImageUpload({
           const res = await fetch("/api/upload", { method: "POST", body: formData })
           const data = await res.json()
           if (res.ok && data.url) {
+            lastEmittedUrlRef.current = data.url
             onChange?.(data.url)
           } else {
             throw new Error(data.error || "上传失败：未返回 URL")
