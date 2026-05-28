@@ -203,7 +203,7 @@ export default async function GameDetailPage({
                   {game.title}
                 </h1>
                 {game.originalWork && (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground/60">原作：{game.originalWork}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/70">原作：{game.originalWork}</p>
                 )}
               </div>
 
@@ -227,18 +227,18 @@ export default async function GameDetailPage({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">
+                  <p className="text-[15px] font-semibold text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
-                  <p className="text-[11px] text-muted-foreground/60">{timeAgo}</p>
+                  <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
                 </div>
               </div>
 
-              {/* 标签行 */}
+              {/* 平台/语言标签行 */}
               {paramTags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <span
-                    className="inline-block text-xs font-semibold"
+                    className="inline-block text-xs font-bold"
                     style={{ color: "var(--clr-blue)" }}
                   >
                     {game.isNsfw ? "NSFW" : "SFW"}
@@ -246,11 +246,10 @@ export default async function GameDetailPage({
                   {paramTags.slice(0, 4).map((tag, i) => (
                     <span
                       key={i}
-                    className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
-                    style={{
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                      style={{
                         color: "var(--clr-blue)",
-                        background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08)",
-                        border: "none",
+                        background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.10)",
                       }}
                     >
                       {tag}
@@ -260,18 +259,18 @@ export default async function GameDetailPage({
               )}
 
               {/* 人气数据 */}
-              <div className="flex items-center gap-4 mt-2">
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground/70">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <span className="font-bold">{game.viewCount}</span>
+              <div className="flex items-center gap-4 mt-3">
+                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground/70">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                  <span className="font-bold">{game.downloadCount}</span>
+                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                  <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground/70">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                  <span className="font-bold">{game.favoriteCount}</span>
+                <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
               </div>
 

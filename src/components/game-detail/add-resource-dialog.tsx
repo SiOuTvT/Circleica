@@ -19,7 +19,6 @@ import {
   Trash2,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { createPortal } from "react-dom"
 
 /* ─────────── 选项定义 ─────────── */
 
@@ -66,73 +65,40 @@ function RequiredMark() {
 
 /* ─────────── 浮动 Popover 单选组件 ─────────── */
 
-interface PopoverSelectProps {
+function PopoverSelect({ label, icon, options, value, onChange }: {
   label: string
   icon: React.ReactNode
   options: string[]
-  value: string
-  onChange: (val: string) => void
-  expandUp?: boolean
-}
-
-function PopoverSelect({ label, icon, options, value, onChange, expandUp = false }: PopoverSelectProps) {
+  value: string[]
+  onChange: (val: string[]) => void
+}) {
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 })
-  const btnRef = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  const calcPos = useCallback(() => {
-    if (!btnRef.current) return
-    const rect = btnRef.current.getBoundingClientRect()
-    const panelH = options.length * 40 + 8
-    if (expandUp) {
-      const top = rect.top - panelH - 4
-      setPos({ top: Math.max(4, top), left: rect.left, width: rect.width })
-    } else {
-      const spaceBelow = window.innerHeight - rect.bottom
-      const top = spaceBelow < panelH + 8
-        ? rect.top - panelH - 4
-        : rect.bottom + 4
-      setPos({ top, left: rect.left, width: rect.width })
-    }
-  }, [options.length, expandUp])
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const toggle = useCallback(() => {
-    if (!open) {
-      calcPos()
-      setOpen(true)
-    } else {
-      setOpen(false)
-    }
-  }, [open, calcPos])
+    setOpen(prev => !prev)
+  }, [])
 
   // 点击外部关闭
   useEffect(() => {
     if (!open) return
     function handleClick(e: MouseEvent) {
-      if (
-        btnRef.current && !btnRef.current.contains(e.target as Node) &&
-        panelRef.current && !panelRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [open])
-
-  // scroll 时关闭
-  useEffect(() => {
-    if (!open) return
-    function handleClose() { setOpen(false) }
-    window.addEventListener("scroll", handleClose, true)
-    return () => window.removeEventListener("scroll", handleClose, true)
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClick)
+    }, 0)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("mousedown", handleClick)
+    }
   }, [open])
 
   return (
-    <>
+    <div ref={containerRef} className="relative">
       <button
-        ref={btnRef}
         type="button"
         onClick={toggle}
         className={cn(
@@ -143,7 +109,7 @@ function PopoverSelect({ label, icon, options, value, onChange, expandUp = false
       >
         <span className="flex-shrink-0 opacity-80">{icon}</span>
         <span className="flex-1 text-left truncate">
-          {value || label}
+          {value.length > 0 ? value.join("、") : label}
         </span>
         <ChevronDown
           className={cn(
@@ -153,37 +119,52 @@ function PopoverSelect({ label, icon, options, value, onChange, expandUp = false
         />
       </button>
 
-      {open && createPortal(
+      {open && (
         <div
-          ref={panelRef}
-          className="fixed z-[10000] animate-in fade-in-0 zoom-in-95"
-          style={{ top: pos.top, left: pos.left, width: pos.width }}
+          className="absolute left-0 right-0 bottom-full mb-1 z-50 animate-in fade-in-0 zoom-in-95"
         >
           <div className="rounded-xl border border-foreground/15 bg-card shadow-xl overflow-hidden max-h-56 overflow-y-auto">
             {options.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => {
-                  onChange(opt)
-                  setOpen(false)
-                }}
-                className={cn(
-                  "w-full text-left px-4 py-2.5 text-sm transition-all",
-                  "hover:bg-muted",
-                  value === opt
-                    ? "text-primary bg-primary/10 font-medium"
-                    : "text-foreground"
-                )}
-              >
-                {opt}
-              </button>
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (value.includes(opt)) {
+                      onChange(value.filter(v => v !== opt))
+                    } else {
+                      onChange([...value, opt])
+                    }
+                    // 多选不自动关闭，用户可继续选择或点外部关闭
+                  }}
+                  className={cn(
+                    "w-full text-left px-4 py-2.5 text-sm transition-all flex items-center gap-2",
+                    "hover:bg-muted",
+                    value.includes(opt)
+                      ? "text-primary bg-primary/10 font-medium"
+                      : "text-foreground"
+                  )}
+                >
+                  <span className={cn(
+                    "flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                    value.includes(opt)
+                      ? "bg-primary border-primary"
+                      : "border-foreground/30"
+                  )}>
+                    {value.includes(opt) && (
+                      <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </span>
+                  {opt}
+                </button>
             ))}
           </div>
-        </div>,
-        document.body
+        </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -216,11 +197,11 @@ export function AddResourceDialog() {
   // 资源链接列表
   const [entries, setEntries] = useState<ResourceEntry[]>([createEmptyEntry()])
 
-  // 详情选择
-  const [platform, setPlatform] = useState("")
-  const [language, setLanguage] = useState("")
-  const [runType, setRunType] = useState("")
-  const [resourceContent, setResourceContent] = useState("")
+  // 详情选择（多选）
+  const [platform, setPlatform] = useState<string[]>([])
+  const [language, setLanguage] = useState<string[]>([])
+  const [runType, setRunType] = useState<string[]>([])
+  const [resourceContent, setResourceContent] = useState<string[]>([])
 
   // 资源名称 & 备注（可选）
   const [resourceName, setResourceName] = useState("")
@@ -245,10 +226,10 @@ export function AddResourceDialog() {
 
   const handleReset = useCallback(() => {
     setEntries([createEmptyEntry()])
-    setPlatform("")
-    setLanguage("")
-    setRunType("")
-    setResourceContent("")
+    setPlatform([])
+    setLanguage([])
+    setRunType([])
+    setResourceContent([])
     setResourceName("")
     setResourceNote("")
     setSubmitAttempted(false)
@@ -257,7 +238,7 @@ export function AddResourceDialog() {
   // 检查必填项是否都已填写
   const isValid = useCallback(() => {
     const hasUrl = entries.every((e) => e.url.trim() !== "")
-    const hasSelections = platform !== "" && language !== "" && runType !== "" && resourceContent !== ""
+    const hasSelections = platform.length > 0 && language.length > 0 && runType.length > 0 && resourceContent.length > 0
     return hasUrl && hasSelections
   }, [entries, platform, language, runType, resourceContent])
 
@@ -412,7 +393,7 @@ export function AddResourceDialog() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-foreground/80 mb-1.5 block">
-                  资源 <RequiredMark />
+                  平台 <RequiredMark />
                 </label>
                 <PopoverSelect
                   label="选择运行平台"
@@ -437,7 +418,7 @@ export function AddResourceDialog() {
             </div>
 
             {/* 提示文字 */}
-            {submitAttempted && (!platform || !language) && (
+            {submitAttempted && (platform.length === 0 || language.length === 0) && (
               <p className="text-xs text-red-500">请填写上方的资源和语言</p>
             )}
 
@@ -453,7 +434,6 @@ export function AddResourceDialog() {
                   options={RUNTYPE_OPTIONS}
                   value={runType}
                   onChange={setRunType}
-                  expandUp
                 />
               </div>
               <div>
@@ -466,12 +446,11 @@ export function AddResourceDialog() {
                   options={RESOURCE_CONTENT_OPTIONS}
                   value={resourceContent}
                   onChange={setResourceContent}
-                  expandUp
                 />
               </div>
             </div>
 
-            {submitAttempted && (!runType || !resourceContent) && (
+            {submitAttempted && (runType.length === 0 || resourceContent.length === 0) && (
               <p className="text-xs text-red-500">请填写运行方式和资源内容</p>
             )}
           </div>
@@ -483,11 +462,11 @@ export function AddResourceDialog() {
             </span>
             <div>
               <label className="text-xs text-foreground/80 mb-1 block">
-                资源名称
+                平台名称
               </label>
               <input
                 type="text"
-                placeholder="给这个资源起个名字，方便别人查找"
+                placeholder="如: Steam、DLsite、百度网盘等"
                 value={resourceName}
                 onChange={(e) => setResourceName(e.target.value)}
                 className="w-full rounded-lg border border-foreground/15 bg-card text-foreground px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"

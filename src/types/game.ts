@@ -11,6 +11,24 @@ export interface Creator {
 export interface DownloadLink {
   label: string
   url: string
+  /** 资源平台，如 "Windows", "Android" 等 */
+  platform?: string
+  /** 资源语言 */
+  language?: string
+  /** 运行方式 */
+  runType?: string
+  /** 资源内容类型 */
+  resourceContent?: string
+  /** 提取码 */
+  extractCode?: string
+  /** 解压码 */
+  decompressCode?: string
+  /** 资源大小 */
+  fileSize?: string
+  /** 资源名称 */
+  resourceName?: string
+  /** 资源备注 */
+  resourceNote?: string
 }
 
 export interface GameComment {

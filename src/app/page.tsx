@@ -27,6 +27,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         id: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true, platform: true, language: true, fileSize: true,
+        downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
       },
@@ -39,11 +40,22 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
-  const mapped = games.map((g) => ({
-    ...g,
-    coverImage: g.coverImage || placeholder,
-    tags: g.tags.map((t) => t.tag),
-  }))
+  const mapped = games.map((g) => {
+    // downloadLinks 是 JSON 字符串，需要解析为对象数组
+    let downloadLinks: { label?: string; url: string; platform?: string }[] = []
+    try {
+      const parsed = JSON.parse(g.downloadLinks || "[]")
+      if (Array.isArray(parsed)) {
+        downloadLinks = parsed
+      }
+    } catch { /* ignore */ }
+    return {
+      ...g,
+      coverImage: g.coverImage || placeholder,
+      tags: g.tags.map((t) => t.tag),
+      downloadLinks,
+    }
+  })
 
   return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} />
 }

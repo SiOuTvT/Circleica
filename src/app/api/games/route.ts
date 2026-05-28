@@ -48,6 +48,7 @@ async function handleGamesList(req: NextRequest) {
           platform: true,
           language: true,
           fileSize: true,
+          downloadLinks: true,
           updatedAt: true,
           createdAt: true,
           description: true,
@@ -57,10 +58,18 @@ async function handleGamesList(req: NextRequest) {
       prisma.game.count({ where }),
     ])
 
-    const data = games.map((g) => ({
-      ...g,
-      tags: g.tags.map((t) => t.tag),
-    }))
+    const data = games.map((g) => {
+      let downloadLinks: { label?: string; url: string; platform?: string }[] = []
+      try {
+        const parsed = JSON.parse(g.downloadLinks || "[]")
+        if (Array.isArray(parsed)) downloadLinks = parsed
+      } catch { /* ignore */ }
+      return {
+        ...g,
+        tags: g.tags.map((t) => t.tag),
+        downloadLinks,
+      }
+    })
 
     return success({ games: data, total, page, limit })
   } catch (error) {

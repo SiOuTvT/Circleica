@@ -41,7 +41,7 @@ async function SearchResults({
     ...(tag && { tags: { some: { tag: { name: tag } } } }),
   }
 
-  const games = await prisma.game.findMany({
+  const rawGames = await prisma.game.findMany({
     where,
     orderBy: ORDER_MAP[sort],
     take: 60,
@@ -49,14 +49,28 @@ async function SearchResults({
       id: true, title: true, coverImage: true, status: true,
       isNsfw: true, favoriteCount: true, viewCount: true,
       downloadCount: true, platform: true, language: true, fileSize: true,
+      downloadLinks: true,
       updatedAt: true, createdAt: true,
       tags: { select: { tag: { select: { name: true, color: true } } } },
     },
   })
 
+  function parseDlLinks(raw: string | null): { label?: string; url: string; platform?: string }[] {
+    try {
+      const parsed = JSON.parse(raw || "[]")
+      return Array.isArray(parsed) ? parsed : []
+    } catch { return [] }
+  }
+
+  const games = rawGames.map((g) => ({
+    ...g,
+    downloadLinks: parseDlLinks(g.downloadLinks),
+    tags: g.tags.map((t: any) => t.tag),
+  }))
+
   if (!games.length) {
     // 搜索无结果时推荐热门游戏
-    const recommended = await prisma.game.findMany({
+    const rawRecommended = await prisma.game.findMany({
       where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
       orderBy: { viewCount: "desc" },
       take: 8,
@@ -64,10 +78,17 @@ async function SearchResults({
         id: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true, platform: true, language: true, fileSize: true,
+        downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
       },
     })
+
+    const recommended = rawRecommended.map((g) => ({
+      ...g,
+      downloadLinks: parseDlLinks(g.downloadLinks),
+      tags: g.tags.map((t: any) => t.tag),
+    }))
 
     return (
       <div className="py-10 text-center">
@@ -89,8 +110,8 @@ async function SearchResults({
           <div className="mt-8 text-left">
             <h3 className="mb-3 text-sm font-semibold text-zinc-300">🔥 热门推荐</h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
-              {recommended.map((game) => (
-                <GameCard key={game.id} game={{ ...game, tags: game.tags.map((t: any) => t.tag) }} />
+        {recommended.map((game) => (
+                <GameCard key={game.id} game={game} />
               ))}
             </div>
           </div>
@@ -104,7 +125,7 @@ async function SearchResults({
       <p className="mb-4 text-xs text-zinc-600">找到 {games.length} 个结果</p>
       <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 items-stretch">
         {games.map((game) => (
-          <GameCard key={game.id} game={{ ...game, tags: game.tags.map((t: any) => t.tag) }} />
+          <GameCard key={game.id} game={game} />
         ))}
       </div>
     </>

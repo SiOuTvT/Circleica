@@ -15,6 +15,7 @@ export interface GameCardData {
   viewCount?: number
   downloadCount?: number
   platform?: string
+  downloadLinks?: { label?: string; url: string; platform?: string }[]
   language?: string
   fileSize?: string
   updatedAt?: Date | string
@@ -38,7 +39,17 @@ export function GameCard({ game }: { game: GameCardData }) {
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
 
-  const platformTags = parseStringArray(game.platform)
+  // 优先从 downloadLinks 中提取平台标签（去重），回退到 game.platform
+  const platformTags = (() => {
+    if (game.downloadLinks && game.downloadLinks.length > 0) {
+      const platforms = game.downloadLinks
+        .map((dl) => dl.platform)
+        .filter((p): p is string => !!p)
+      const unique = [...new Set(platforms)]
+      if (unique.length > 0) return unique
+    }
+    return parseStringArray(game.platform)
+  })()
   const languageTags = parseStringArray(game.language)
   const paramTags = [...platformTags, ...languageTags]
   const fileSizes = parseFileSizes(game.fileSize)

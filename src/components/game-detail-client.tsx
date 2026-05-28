@@ -106,7 +106,7 @@ export default function GameDetailClient({
     const containerRect = container.getBoundingClientRect()
     const btnRect = btn.getBoundingClientRect()
     slider.style.width = `${btnRect.width}px`
-    slider.style.transform = `translateX(${btnRect.left - containerRect.left - 4}px)` // 4 = p-1 padding
+    slider.style.transform = `translateX(${btnRect.left - containerRect.left - 2}px)` // 2 = p-0.5 padding
   }, [tab])
 
   const toggleFav = useCallback(async () => {
@@ -153,10 +153,10 @@ export default function GameDetailClient({
       <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start">
 
         {/* ─── 左侧: Tab 导航 + 内容 ─── */}
-        <div className="flex-1 min-w-0 lg:w-[calc(100%-320px)]">
+        <div className="flex-1 min-w-0 lg:w-[calc(100%-380px)]">
           {/* Tab 栏：圆角底槽 + 悬浮滑块 — 横向填满 */}
           <div ref={containerRef}
-            className="relative flex rounded-2xl p-1"
+            className="relative flex rounded-xl p-0.5"
             role="tablist"
             aria-label="游戏详情导航"
             style={{
@@ -165,7 +165,7 @@ export default function GameDetailClient({
             }}>
             {/* 滑块 */}
             <div ref={sliderRef}
-              className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-xl transition-all duration-300 ease-out"
+              className="absolute top-0.5 left-0 h-[calc(100%-4px)] rounded-xl transition-all duration-300 ease-out"
               aria-hidden="true"
               style={{
                 backgroundColor: "var(--tab-active, var(--background))",
@@ -196,7 +196,7 @@ export default function GameDetailClient({
           </div>
 
           {/* ─── Tab 内容 ─── */}
-          <div className="pt-6">
+          <div className="pt-4">
             {/* 游戏简介 */}
             {tab === "intro" && (
               <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
@@ -225,7 +225,7 @@ export default function GameDetailClient({
                         />
                         {/* 分隔线（非最后一个） */}
                         {idx < allDescriptions.length - 1 && (
-                          <div className="mt-5 border-t border-border/50" />
+                          <div className="mt-4 border-t border-border/50" />
                         )}
                       </div>
                     ))}
@@ -323,79 +323,105 @@ export default function GameDetailClient({
           <button
             type="button"
             onClick={() => setMobileArchiveOpen(v => !v)}
-            className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium mld-text transition-colors"
-            style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+            className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors"
+            style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--foreground)" }}
           >
             <span className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 opacity-50" />
+              <Calendar className="h-4 w-4" style={{ opacity: 0.6 }} />
               游戏档案
             </span>
             <ChevronDown
-              className="h-4 w-4 opacity-50 transition-transform duration-200"
-              style={{ transform: mobileArchiveOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+              className="h-4 w-4 transition-transform duration-200"
+              style={{ opacity: 0.6, transform: mobileArchiveOpen ? "rotate(180deg)" : "rotate(0deg)" }}
             />
           </button>
           {mobileArchiveOpen && (
-            <div className="mt-2 space-y-2 rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+            <div className="mt-2 space-y-3 rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
               {releaseDate && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">发售日期</span>
-                  <span className="ml-auto text-xs font-semibold text-foreground">{releaseDate}</span>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>发售日期</span>
+                  <span className="ml-auto text-sm font-semibold" style={{ color: "var(--foreground)" }}>{releaseDate}</span>
                 </div>
               )}
               {studioName && (
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">制作会社</span>
-                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{studioName}</span>
+                <div className="flex items-center gap-3">
+                  <Building2 className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
                 </div>
               )}
               {platformTags && platformTags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Monitor className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">支持平台</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                <div className="flex items-start gap-3">
+                  <Monitor className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>支持平台</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
                     {platformTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{tag}</span>
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{tag}</span>
                     ))}
                   </div>
                 </div>
               )}
               {genreTags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Gamepad2 className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">游戏类型</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                <div className="flex items-start gap-3">
+                  <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏类型</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
                     {genreTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg-purple">{tag.name}</span>
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "rgba(129,140,248,0.15)", color: "#a5b4fc" }}>{tag.name}</span>
                     ))}
                   </div>
                 </div>
               )}
               {gameDuration && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">游戏时长</span>
-                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{gameDuration}</span>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{gameDuration}</span>
                 </div>
               )}
               {storyTags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">剧情标签</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1">
+                <div className="flex items-start gap-3">
+                  <BookOpen className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>剧情标签</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
                     {storyTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{tag.name}</span>
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{tag.name}</span>
                     ))}
                   </div>
                 </div>
               )}
-              {vndbId && (
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="h-3.5 w-3.5 mld-text" />
-                  <span className="text-xs mld-text">VNDB</span>
-                  <a href={`https://vndb.org/v${vndbId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 mld-bg">v{vndbId}</a>
+              {vndbId && (() => {
+                const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
+                const numericId = rawId.replace(/^v/, "")
+                return (
+                  <div className="flex items-center gap-3">
+                    <ExternalLink className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                    <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>VNDB</span>
+                    <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>v{numericId}</a>
+                  </div>
+                )
+              })()}
+              {/* 游戏标签（全部） */}
+              {gameTags && gameTags.length > 0 && (
+                <div className="flex items-start gap-3">
+                  <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签</span>
+                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+                    {gameTags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{
+                          color: tag.color || "var(--foreground)",
+                          background: tag.color ? `${tag.color}18` : "var(--secondary)",
+                          border: `1px solid ${tag.color ? `${tag.color}30` : "var(--border)"}`,
+                        }}
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -403,47 +429,46 @@ export default function GameDetailClient({
         </div>}
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
-        <div className="hidden lg:block w-[300px] shrink-0 rounded-2xl p-5"
+        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6"
           style={{
             background: "var(--card)",
             border: "1px solid var(--border)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
           }}>
 
-          {/* 档案行列表 — 严格顺序：发售日期→制作会社→支持平台→游戏类型→游戏时长→剧情标签→VNDB */}
-          <div className="space-y-3">
+          {/* 档案行列表 */}
+          <div className="space-y-3.5">
 
             {/* 发售日期 */}
             {releaseDate && (
-              <div className="flex items-start gap-2">
-                <Calendar className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">发售日期：</span>
-                  <span className="text-xs font-semibold text-foreground">{releaseDate}</span>
+              <div className="flex items-start gap-2.5">
+                <Calendar className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>发售日期：</span>
+                  <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>{releaseDate}</span>
                 </div>
               </div>
             )}
 
             {/* 制作会社 */}
             {studioName && (
-              <div className="flex items-start gap-2">
-                <Building2 className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">制作会社：</span>
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">{studioName}
-                  </span>
+              <div className="flex items-start gap-2.5">
+                <Building2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社：</span>
+                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
                 </div>
               </div>
             )}
 
             {/* 支持平台 */}
             {platformTags && platformTags.length > 0 && (
-              <div className="flex items-start gap-2">
-                <Monitor className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">支持平台：</span>
+              <div className="flex items-start gap-2.5">
+                <Monitor className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>支持平台：</span>
                   {platformTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
+                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
                       {tag}
                     </span>
                   ))}
@@ -453,12 +478,12 @@ export default function GameDetailClient({
 
             {/* 游戏类型 */}
             {genreTags.length > 0 && (
-              <div className="flex items-start gap-2">
-                <Gamepad2 className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">游戏类型：</span>
+              <div className="flex items-start gap-2.5">
+                <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏类型：</span>
                   {genreTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg-purple">
+                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "rgba(129,140,248,0.15)", color: "#a5b4fc" }}>
                       {tag.name}
                     </span>
                   ))}
@@ -468,11 +493,11 @@ export default function GameDetailClient({
 
             {/* 游戏时长 */}
             {gameDuration && (
-              <div className="flex items-start gap-2">
-                <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">游戏时长：</span>
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
+              <div className="flex items-start gap-2.5">
+                <Clock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长：</span>
+                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
                     {gameDuration}
                   </span>
                 </div>
@@ -481,12 +506,12 @@ export default function GameDetailClient({
 
             {/* 剧情标签 */}
             {storyTags.length > 0 && (
-              <div className="flex items-start gap-2">
-                <BookOpen className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1 gap-y-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">剧情标签：</span>
+              <div className="flex items-start gap-2.5">
+                <BookOpen className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>剧情标签：</span>
                   {storyTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium mld-bg">
+                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
                       {tag.name}
                     </span>
                   ))}
@@ -495,19 +520,48 @@ export default function GameDetailClient({
             )}
 
             {/* VNDB 链接 */}
-            {vndbId && (
-              <div className="flex items-start gap-2">
-                <ExternalLink className="h-3.5 w-3.5 mt-0.5 shrink-0 mld-text" strokeWidth={2} />
-                <div className="flex items-center gap-x-1 min-w-0">
-                  <span className="text-xs font-medium shrink-0 mld-text">VNDB：</span>
-                  <a
-                    href={`https://vndb.org/v${vndbId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 mld-bg"
-                  >
-                    v{vndbId}
-                  </a>
+            {vndbId && (() => {
+              // 兼容 vndbId 存储为 "v12345" 或纯数字 "12345" 两种格式
+              const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
+              const numericId = rawId.replace(/^v/, "")
+              return (
+                <div className="flex items-start gap-2.5">
+                  <ExternalLink className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                  <div className="flex items-center gap-x-1.5 min-w-0">
+                    <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>VNDB：</span>
+                    <a
+                      href={`https://vndb.org/v${numericId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80"
+                      style={{ background: "var(--secondary)", color: "var(--foreground)" }}
+                    >
+                      v{numericId}
+                    </a>
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* 游戏标签（全部） */}
+            {gameTags && gameTags.length > 0 && (
+              <div className="flex items-start gap-2.5">
+                <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签：</span>
+                  {gameTags.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                      style={{
+                        color: tag.color || "var(--foreground)",
+                        background: tag.color ? `${tag.color}18` : "var(--secondary)",
+                        border: `1px solid ${tag.color ? `${tag.color}30` : "var(--border)"}`,
+                      }}
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}
