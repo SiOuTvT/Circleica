@@ -89,24 +89,29 @@ class VNDBClient {
 
   /**
    * 初始化代理（延迟加载，避免 import 失败影响启动）
+   * 如果未配置代理，强制使用 IPv4 连接（避免 IPv6 不通导致超时）
    */
   private async initProxy() {
     if (this.proxyInitialized) return
     this.proxyInitialized = true
 
     const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-    if (!proxyUrl) {
-      console.debug("[VNDB] 未配置代理，直连 API")
-      return
-    }
 
     try {
       // @ts-ignore - undici 是 Node.js 内置模块，运行时可用
       const undici = await import("undici")
-      this.dispatcher = new undici.ProxyAgent(proxyUrl)
-      console.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+
+      if (proxyUrl) {
+        this.dispatcher = new undici.ProxyAgent(proxyUrl)
+        console.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+      } else {
+        // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
+        // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
+        this.dispatcher = new undici.Agent({ connect: { family: 4 } })
+        console.debug("[VNDB] 未配置代理，强制 IPv4 直连")
+      }
     } catch (e) {
-      console.warn("[VNDB] 无法加载 undici ProxyAgent，将使用直连:", e)
+      console.warn("[VNDB] 无法加载 undici Agent，将使用默认 fetch:", e)
     }
   }
 

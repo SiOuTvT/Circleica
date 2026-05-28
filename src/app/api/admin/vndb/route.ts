@@ -14,15 +14,22 @@ async function getProxyDispatcher() {
   _proxyInitialized = true
 
   const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
-  if (!proxyUrl) return null
 
   try {
     // @ts-ignore - undici 是 Node.js 内置模块
     const undici = await import("undici")
-    _proxyDispatcher = new undici.ProxyAgent(proxyUrl)
-    console.debug("[VNDB Admin] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+
+    if (proxyUrl) {
+      _proxyDispatcher = new undici.ProxyAgent(proxyUrl)
+      console.debug("[VNDB Admin] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+    } else {
+      // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
+      // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
+      _proxyDispatcher = new undici.Agent({ connect: { family: 4 } })
+      console.debug("[VNDB Admin] 未配置代理，强制 IPv4 直连")
+    }
   } catch (e) {
-    console.warn("[VNDB Admin] 无法加载 undici ProxyAgent，将使用直连:", e)
+    console.warn("[VNDB Admin] 无法加载 undici Agent，将使用默认 fetch:", e)
   }
   return _proxyDispatcher
 }
@@ -91,7 +98,7 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             filters: ["id", "=", vnId],
-            fields: "title, alttitle, aliases, description, released, tags.name, developers.name",
+            fields: "title,alttitle,aliases,description,released,tags.id,tags.name,tags.rating,developers.id,developers.name",
             results: 1,
           }),
           signal: AbortSignal.timeout(10000), // 10秒超时
@@ -103,16 +110,19 @@ export async function POST(req: NextRequest) {
         break // 成功则跳出重试循环
       } catch (fetchErr: any) {
         lastError = fetchErr
+        // fetch() 包装错误：TypeError: fetch failed 的实际错误码在 err.cause 中
+        const fCause = fetchErr?.cause
+        const fCode = fetchErr?.code || fCause?.code
         const isNetworkError =
-          fetchErr?.code === 'ENOTFOUND' ||
-          fetchErr?.code === 'ETIMEDOUT' ||
-          fetchErr?.code === 'ECONNREFUSED' ||
-          fetchErr?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+          fCode === 'ENOTFOUND' ||
+          fCode === 'ETIMEDOUT' ||
+          fCode === 'ECONNREFUSED' ||
+          fCode === 'UND_ERR_CONNECT_TIMEOUT' ||
           fetchErr?.name === 'TimeoutError' ||
           fetchErr?.message?.includes('fetch failed')
 
         if (attempt < 2 && isNetworkError) {
-          console.debug(`[VNDB Admin] 网络错误 (${fetchErr?.code || fetchErr?.message})，${attempt * 500}ms 后重试...`)
+          console.debug(`[VNDB Admin] 网络错误 (${fCode || fetchErr?.message})，${attempt * 500}ms 后重试...`)
           await new Promise(r => setTimeout(r, attempt * 500))
           continue
         }
@@ -255,17 +265,22 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("VNDB fetch error:", err)
 
+    // fetch() 包装错误：TypeError: fetch failed 的实际错误码在 err.cause 中
+    const cause = err?.cause
+    const errCode = err?.code || cause?.code
+    const errHostname = err?.hostname || cause?.hostname
+
     // 提供更友好的错误信息
     let errorMsg = `VNDB 数据拉取失败: ${err?.message || "未知错误"}`
 
-    if (err?.code === 'ENOTFOUND') {
-      errorMsg = `无法解析 VNDB API 域名 (${err.hostname || 'api.vndb.org'})，请检查服务器的 DNS 配置或网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
-    } else if (err?.code === 'ETIMEDOUT' || err?.code === 'UND_ERR_CONNECT_TIMEOUT' || err?.name === 'TimeoutError') {
+    if (errCode === 'ENOTFOUND') {
+      errorMsg = `无法解析 VNDB API 域名 (${errHostname || 'api.vndb.org'})，请检查服务器的 DNS 配置或网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
+    } else if (errCode === 'ETIMEDOUT' || errCode === 'UND_ERR_CONNECT_TIMEOUT' || err?.name === 'TimeoutError') {
       errorMsg = "VNDB API 请求超时，请检查网络连接或配置代理。"
-    } else if (err?.code === 'ECONNREFUSED') {
+    } else if (errCode === 'ECONNREFUSED') {
       errorMsg = "VNDB API 连接被拒绝，请检查网络或代理配置。"
     } else if (err?.message?.includes('fetch failed')) {
-      errorMsg = `VNDB API 请求失败（${err?.cause?.code || err?.code || '网络错误'}），请检查服务器网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
+      errorMsg = `VNDB API 请求失败（${errCode || '网络错误'}），请检查服务器网络连接。如在国内服务器上，请配置 VNDB_API_PROXY 代理环境变量。`
     }
 
     return NextResponse.json(
