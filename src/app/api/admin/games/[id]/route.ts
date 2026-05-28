@@ -19,7 +19,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  const session = await getAdminSession()
+  if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   const body = await req.json()
   const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, platform, language, fileSize, releaseDate, gameDuration, studioName, englishName, aliases } = body
@@ -30,10 +31,17 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   await prisma.gameTag.deleteMany({ where: { gameId: id } })
   await prisma.gameCreator.deleteMany({ where: { gameId: id } })
 
+  // 如果游戏还没有 publisherId，设置为当前编辑的管理员
+  const existingGame = await prisma.game.findUnique({
+    where: { id },
+    select: { publisherId: true },
+  })
+
   const game = await prisma.game.update({
     where: { id },
     data: {
       title: title.trim(),
+      ...(existingGame && !existingGame.publisherId ? { publisherId: session.user.id } : {}),
       originalWork: originalWork?.trim() ?? "",
       description: description?.trim() ?? "",
       coverImage: coverImage ?? "",
