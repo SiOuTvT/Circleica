@@ -4,10 +4,10 @@ import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { GameGallery } from "@/components/game-gallery"
 import { RelatedGames } from "@/components/related-games"
 import { SafeImage } from "@/components/safe-image"
+import { ViewCounter } from "@/components/view-counter"
 import { auth } from "@/lib/auth"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
-import { cookies } from "next/headers"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 
@@ -54,18 +54,11 @@ export default async function GameDetailPage({
       creators: {
         include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
       },
+      publisher: { select: { id: true, username: true, avatar: true } },
     },
   })
 
   if (!game) notFound()
-
-  // 增加浏览量（24小时内同一访客不重复计数）
-  const cookieStore = await cookies()
-  const viewedKey = `viewed_${id}`
-  const alreadyViewed = cookieStore.get(viewedKey)
-  if (!alreadyViewed) {
-    prisma.game.update({ where: { id }, data: { viewCount: { increment: 1 } } }).catch((e) => console.warn("[viewCount]", e))
-  }
 
   const tags = game.tags.map((t) => t.tag)
 
@@ -139,7 +132,7 @@ export default async function GameDetailPage({
       { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": game.favoriteCount },
       { "@type": "InteractionCounter", "interactionType": "https://schema.org/ViewAction", "userInteractionCount": game.viewCount },
     ],
-    ...(primaryCreator ? { "author": { "@type": "Organization", "name": primaryCreator.name } } : {}),
+    ...(game.publisher ? { "author": { "@type": "Person", "name": game.publisher.username } } : {}),
   }
 
   return (
@@ -148,6 +141,7 @@ export default async function GameDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c').replace(/>/g, '\\u003e') }}
       />
+      <ViewCounter gameId={id} />
       <GameBreadcrumb gameId={id} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
@@ -212,12 +206,12 @@ export default async function GameDetailPage({
                 )}
               </div>
 
-              {/* 作者信息 */}
+              {/* 发布者信息 */}
               <div className="flex items-center gap-3">
-                {primaryCreator?.avatar ? (
+                {game.publisher?.avatar ? (
                   <Image
-                    src={primaryCreator.avatar}
-                    alt={primaryCreator.name}
+                    src={game.publisher.avatar}
+                    alt={game.publisher.username}
                     width={36}
                     height={36}
                     className="rounded-full object-cover shrink-0"
@@ -228,12 +222,12 @@ export default async function GameDetailPage({
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                     style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
                   >
-                    {primaryCreator ? (primaryCreator.nameJa || primaryCreator.name)[0] : "?"}
+                    {game.publisher ? game.publisher.username[0] : "?"}
                   </div>
                 )}
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
-                    {primaryCreator ? (primaryCreator.nameJa || primaryCreator.name) : "未知创作者"}
+                    {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
                   <p className="text-[11px] text-muted-foreground/60">{timeAgo}</p>
                 </div>
@@ -282,13 +276,12 @@ export default async function GameDetailPage({
 
               {/* 功能按钮行 */}
               <div className="mt-auto pt-3">
-                <GameDetailTopClient
-                  gameId={id}
-                  downloadLinks={downloadLinks}
-                  isFav={isFav}
-                  favCount={game.favoriteCount}
-                  isLoggedIn={!!session?.user}
-                />
+              <GameDetailTopClient
+                gameId={game.id}
+                downloadLinks={downloadLinks}
+                isFav={isFav}
+                isLoggedIn={!!session}
+              />
               </div>
             </div>
           </div>

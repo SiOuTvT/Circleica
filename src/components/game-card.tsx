@@ -48,6 +48,9 @@ export function GameCard({ game }: { game: GameCardData }) {
       href={`/games/${game.id}`}
       aria-label={`查看游戏：${game.title}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
+      onClick={() => {
+        try { sessionStorage.setItem(`pending_view_${game.id}`, "1") } catch {}
+      }}
     >
       {/* ─── 封面：比例固定 ─── */}
       <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
