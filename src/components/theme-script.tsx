@@ -58,30 +58,49 @@ export function ThemeScript() {
         }
         
         var hex = '#' + color;
+        var glowOpacity = (alpha / 100) * 0.75;
         var isDark = root.classList.contains('dark');
         if (isDark) {
           var primaryDark = darken(hex, 0.05);
           root.style.setProperty('--primary', primaryDark);
           root.style.setProperty('--ring', primaryDark);
           root.style.setProperty('--accent', lighten(hex, 0.15));
-          // --clr-blue 继承自 --primary（CSS alias），无需单独设置
+          root.style.setProperty('--clr-blue', primaryDark);
           root.style.setProperty('--clr-sky', lighten(hex, 0.2));
-          root.style.setProperty('--clr-glow', hex + '1F');
+          root.style.setProperty('--clr-glow', 'rgba(' + r + ',' + g + ',' + b + ',' + glowOpacity + ')');
         } else {
           root.style.setProperty('--primary', hex);
           root.style.setProperty('--ring', hex);
           root.style.setProperty('--accent', lighten(hex, 0.45));
-          // --clr-blue 继承自 --primary（CSS alias），无需单独设置
+          root.style.setProperty('--clr-blue', darken(hex, 0.2));
           root.style.setProperty('--clr-sky', lighten(hex, 0.15));
-          root.style.setProperty('--clr-glow', hex + '1F');
-          var lum = 0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255);
-          root.style.setProperty('--primary-foreground', lum > 0.6 ? '#18181b' : '#ffffff');
+          root.style.setProperty('--clr-glow', 'rgba(' + r + ',' + g + ',' + b + ',' + glowOpacity + ')');
         }
+        // 全局主题色原始 hex（供链接、NProgress、focus ring 等直接引用）
+        root.style.setProperty('--theme-color', hex);
+        // Hover / Active 加深色
+        root.style.setProperty('--theme-color-hover', darken(hex, 0.15));
+        root.style.setProperty('--theme-color-active', darken(hex, 0.25));
+        // 前景文字（白/黑自动判定）
+        var fg = (0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255)) > 0.6 ? '#18181b' : '#ffffff';
+        root.style.setProperty('--primary-foreground', fg);
+        root.style.setProperty('--theme-fg', fg);
+
         // Common variables
         root.style.setProperty('--clr-warm', '#f59e0b');
         root.style.setProperty('--theme-radius', radius + 'px');
         root.style.setProperty('--theme-shadow-intensity', (shadowIntensity / 100).toString());
         root.style.setProperty('--theme-alpha', (alpha / 100).toString());
+        // 计算色相
+        var r2 = r / 255, g2 = g / 255, b2 = b / 255;
+        var cmax = Math.max(r2, g2, b2), cmin = Math.min(r2, g2, b2), hue = 0;
+        if (cmax !== cmin) {
+          var cd = cmax - cmin;
+          if (cmax === r2) hue = ((g2 - b2) / cd + (g2 < b2 ? 6 : 0)) * 60;
+          else if (cmax === g2) hue = ((b2 - r2) / cd + 2) * 60;
+          else hue = ((r2 - g2) / cd + 4) * 60;
+        }
+        root.style.setProperty('--theme-hue', Math.round(hue).toString());
         root.style.setProperty('--theme-r', r.toString());
         root.style.setProperty('--theme-g', g.toString());
         root.style.setProperty('--theme-b', b.toString());

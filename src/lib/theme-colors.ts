@@ -86,34 +86,65 @@ export function getThemeCSSVariables(vars: ThemeVars): string {
   ].join("; ")
 }
 
-/* ── applyThemeColor：设置 :root 变量 ── */
+/* ── 色相计算（供 focus ring / selection 等使用） ── */
+function getHue(hex: string): number {
+  const [r, g, b] = hexToRgb(hex)
+  const r1 = r / 255, g1 = g / 255, b1 = b / 255
+  const max = Math.max(r1, g1, b1), min = Math.min(r1, g1, b1)
+  let h = 0
+  if (max !== min) {
+    const d = max - min
+    switch (max) {
+      case r1: h = ((g1 - b1) / d + (g1 < b1 ? 6 : 0)) * 60; break
+      case g1: h = ((b1 - r1) / d + 2) * 60; break
+      case b1: h = ((r1 - g1) / d + 4) * 60; break
+    }
+  }
+  return Math.round(h)
+}
+
+/* ── applyThemeColor：设置 :root CSS 变量（全部输出 hex，与 Tailwind v4 @theme inline 兼容） ── */
 export function applyThemeColor(hex: string, radius = 12, shadowIntensity = 50, alpha = 15) {
   const root = document.documentElement
   const isDark = !root.classList.contains("light")
+  const [r, g, b] = hexToRgb(hex)
+  const lum = 0.299 * (r / 255) + 0.587 * (g / 255) + 0.114 * (b / 255)
+  const fg = lum > 0.6 ? "#18181b" : "#ffffff"
+  const alphaDecimal = alpha / 100
+  const hue = getHue(hex)
 
   if (isDark) {
     const primaryDark = darkenHex(hex, 0.05)
-    root.style.setProperty("--primary", hexToHsl(primaryDark))
-    root.style.setProperty("--ring", hexToHsl(primaryDark))
-    root.style.setProperty("--accent", hexToHsl(lightenHex(hex, 0.15)))
+    root.style.setProperty("--primary", primaryDark)
+    root.style.setProperty("--ring", primaryDark)
+    root.style.setProperty("--accent", lightenHex(hex, 0.15))
     root.style.setProperty("--clr-blue", primaryDark)
     root.style.setProperty("--clr-sky", lightenHex(hex, 0.2))
-    root.style.setProperty("--clr-glow", hex + "1F")
+    root.style.setProperty("--clr-glow", `rgba(${r}, ${g}, ${b}, ${alphaDecimal * 0.75})`)
   } else {
-    root.style.setProperty("--primary", hexToHsl(hex))
-    root.style.setProperty("--ring", hexToHsl(hex))
-    root.style.setProperty("--accent", hexToHsl(lightenHex(hex, 0.45)))
+    root.style.setProperty("--primary", hex)
+    root.style.setProperty("--ring", hex)
+    root.style.setProperty("--accent", lightenHex(hex, 0.45))
     root.style.setProperty("--clr-blue", darkenHex(hex, 0.2))
     root.style.setProperty("--clr-sky", lightenHex(hex, 0.15))
-    root.style.setProperty("--clr-glow", hex + "1F")
+    root.style.setProperty("--clr-glow", `rgba(${r}, ${g}, ${b}, ${alphaDecimal * 0.75})`)
   }
+
+  // 全局主题色原始 hex（供链接、NProgress、focus ring 等直接引用）
+  root.style.setProperty("--theme-color", hex)
+  // Hover / Active 加深色
+  root.style.setProperty("--theme-color-hover", darkenHex(hex, 0.15))
+  root.style.setProperty("--theme-color-active", darkenHex(hex, 0.25))
+  // 主题色前景文字（白/黑自动判定）
+  root.style.setProperty("--primary-foreground", fg)
+  root.style.setProperty("--theme-fg", fg)
 
   // 通用变量
   root.style.setProperty("--clr-warm", "#f59e0b")
   root.style.setProperty("--theme-radius", `${radius}px`)
   root.style.setProperty("--theme-shadow-intensity", `${shadowIntensity / 100}`)
-  root.style.setProperty("--theme-alpha", `${alpha / 100}`)
-  const [r, g, b] = hexToRgb(hex)
+  root.style.setProperty("--theme-alpha", `${alphaDecimal}`)
+  root.style.setProperty("--theme-hue", `${hue}`)
   root.style.setProperty("--theme-r", `${r}`)
   root.style.setProperty("--theme-g", `${g}`)
   root.style.setProperty("--theme-b", `${b}`)

@@ -1,16 +1,22 @@
 "use client"
 
 import { TAG_POSITIONS, getPositionsByGroup } from "@/lib/tag-positions"
-import { Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
-import { useState } from "react"
+import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "./ui/confirm-dialog"
+
+/* ──────────────────── 类型 ──────────────────── */
 
 interface TagInGroup {
   id: string
   name: string
   color: string
   gameCount: number
+  groupId?: string | null
+  description?: string
+  sortOrder?: number
+  isVisible?: boolean
 }
 
 export interface TagGroup {
@@ -23,6 +29,8 @@ export interface TagGroup {
   tags: TagInGroup[]
 }
 
+/* ──────────────────── 常量 ──────────────────── */
+
 const PRESET_COLORS = [
   "#7c8a9e", "#6b7280", "#9ca3af",
   "#a78bfa", "#818cf8", "#60a5fa", "#38bdf8", "#22d3ee",
@@ -31,6 +39,8 @@ const PRESET_COLORS = [
 ]
 
 const POSITION_GROUPS = getPositionsByGroup()
+
+/* ──────────────────── 方位选择组件 ──────────────────── */
 
 function PositionCheckboxGroup({
   selected,
@@ -83,39 +93,240 @@ function PositionCheckboxGroup({
   )
 }
 
-export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] }) {
+/* ──────────────────── 颜色选择器（色盘 + hex 输入） ──────────────────── */
+
+function ColorPicker({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (color: string) => void
+}) {
+  const [hexInput, setHexInput] = useState(value)
+
+  function handleHexChange(v: string) {
+    setHexInput(v)
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+      onChange(v)
+    }
+  }
+
+  function handlePresetClick(c: string) {
+    setHexInput(c)
+    onChange(c)
+  }
+
+  // 同步外部 value 变化
+  useEffect(() => {
+    setHexInput(value)
+  }, [value])
+
+  return (
+    <div className="space-y-2">
+      {/* 色盘 */}
+      <div className="flex flex-wrap gap-1.5">
+        {PRESET_COLORS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => handlePresetClick(c)}
+            className={`h-6 w-6 rounded-full transition-all ${
+              value.toLowerCase() === c.toLowerCase()
+                ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
+                : "hover:scale-110"
+            }`}
+            style={{ background: c }}
+          />
+        ))}
+      </div>
+      {/* hex 输入 + 原生颜色选择器 */}
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => {
+            setHexInput(e.target.value)
+            onChange(e.target.value)
+          }}
+          className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent"
+          title="点击打开调色盘"
+        />
+        <input
+          type="text"
+          value={hexInput}
+          onChange={(e) => handleHexChange(e.target.value)}
+          placeholder="#000000"
+          className="w-24 rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground font-mono ring-1 ring-border outline-none focus:ring-ring"
+        />
+        <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} title="当前颜色预览" />
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────── 标签内联编辑弹窗 ──────────────────── */
+
+function TagInlineEditor({
+  tag,
+  groups,
+  onSave,
+  onCancel,
+  saving,
+}: {
+  tag: TagInGroup & { description?: string; groupId?: string | null; sortOrder?: number; isVisible?: boolean }
+  groups: TagGroup[]
+  onSave: (data: { name: string; description: string; color: string; groupId: string | null; sortOrder: number; isVisible: boolean }) => void
+  onCancel: () => void
+  saving: boolean
+}) {
+  const [name, setName] = useState(tag.name)
+  const [desc, setDesc] = useState(tag.description ?? "")
+  const [color, setColor] = useState(tag.color)
+  const [groupId, setGroupId] = useState(tag.groupId ?? "")
+  const [sortOrder, setSortOrder] = useState(tag.sortOrder ?? 0)
+  const [isVisible, setIsVisible] = useState(tag.isVisible !== false)
+
+  return (
+    <div className="rounded-xl bg-secondary/50 p-4 space-y-3 ring-1 ring-border">
+      <div className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="标签名称"
+          className="flex-1 rounded-lg bg-background px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+          autoFocus
+        />
+        <select
+          value={groupId}
+          onChange={(e) => setGroupId(e.target.value)}
+          className="w-32 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+        >
+          <option value="">未分组</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>{g.name}</option>
+          ))}
+        </select>
+        <input
+          type="number"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(Number(e.target.value))}
+          title="排序值（小的在前）"
+          className="w-16 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+        />
+        <button
+          type="button"
+          onClick={() => setIsVisible(!isVisible)}
+          title={isVisible ? "可见" : "隐藏"}
+          className={`shrink-0 rounded-lg px-2 py-1 text-xs ring-1 ring-border transition-colors ${
+            isVisible ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+          }`}
+        >
+          {isVisible ? "👁" : "🚫"}
+        </button>
+      </div>
+      <input
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+        placeholder="标签描述（可选）"
+        className="w-full rounded-lg bg-background px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+      />
+      <ColorPicker value={color} onChange={setColor} />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onSave({ name: name.trim(), description: desc, color, groupId: groupId || null, sortOrder, isVisible })}
+          disabled={saving || !name.trim()}
+          className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+          保存
+        </button>
+        <button
+          onClick={onCancel}
+          className="rounded-lg bg-background px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          取消
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────── 主组件 ──────────────────── */
+
+interface TagInGroup {
+  id: string
+  name: string
+  color: string
+  gameCount: number
+  groupId?: string | null
+  description?: string
+  sortOrder?: number
+  isVisible?: boolean
+}
+
+export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { initialGroups: TagGroup[]; initialUngroupedTags?: TagInGroup[] }) {
   const [groups, setGroups] = useState(initialGroups)
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [color, setColor] = useState(PRESET_COLORS[0])
-  const [positions, setPositions] = useState<string[]>([])
-  const [editing, setEditing] = useState<string | null>(null)
-  const [editName, setEditName] = useState("")
-  const [editDesc, setEditDesc] = useState("")
-  const [editColor, setEditColor] = useState("")
-  const [editPositions, setEditPositions] = useState<string[]>([])
-  const [editIsPreset, setEditIsPreset] = useState(false)
+  const [ungroupedTags, setUngroupedTags] = useState<TagInGroup[]>(initialUngroupedTags ?? [])
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [editingGroup, setEditingGroup] = useState<string | null>(null)
+  const [editingTag, setEditingTag] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
-  const [expanded, setExpanded] = useState<string | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
+  const [showCreateTag, setShowCreateTag] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
   const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: "group" | "tag"
     id: string
     name: string
-    tagCount?: number
+    count?: number
     forceEndpoint?: boolean
   } | null>(null)
 
-  async function handleCreate(e: React.FormEvent) {
+  // 新建标签组表单
+  const [newGroupName, setNewGroupName] = useState("")
+  const [newGroupDesc, setNewGroupDesc] = useState("")
+  const [newGroupColor, setNewGroupColor] = useState(PRESET_COLORS[0])
+  const [newGroupPositions, setNewGroupPositions] = useState<string[]>([])
+
+  // 编辑标签组表单
+  const [editGroupName, setEditGroupName] = useState("")
+  const [editGroupDesc, setEditGroupDesc] = useState("")
+  const [editGroupColor, setEditGroupColor] = useState("")
+  const [editGroupPositions, setEditGroupPositions] = useState<string[]>([])
+
+  // 新建标签表单
+  const [newTagName, setNewTagName] = useState("")
+  const [newTagColor, setNewTagColor] = useState(PRESET_COLORS[0])
+
+  /* ── 过滤逻辑 ── */
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery.trim()) return groups
+    const q = searchQuery.toLowerCase()
+    return groups.filter(
+      (g) =>
+        g.name.toLowerCase().includes(q) ||
+        g.tags.some((t) => t.name.toLowerCase().includes(q))
+    )
+  }, [groups, searchQuery])
+
+  /* ── 标签组 CRUD ── */
+
+  async function handleCreateGroup(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!newGroupName.trim()) return
     setSaving(true)
     setError("")
     try {
       const res = await fetch("/api/admin/tag-groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), description, color, positions }),
+        body: JSON.stringify({
+          name: newGroupName.trim(),
+          description: newGroupDesc,
+          color: newGroupColor,
+          positions: newGroupPositions,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -125,16 +336,15 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
       }
       setGroups((prev) =>
         [...prev, { ...data, tags: [] }].sort((a, b) => {
-          // 预设组排前面
           if (a.isPreset && !b.isPreset) return -1
           if (!a.isPreset && b.isPreset) return 1
           return a.name.localeCompare(b.name)
         })
       )
-      setName("")
-      setDescription("")
-      setPositions([])
-      setShowCreateForm(false)
+      setNewGroupName("")
+      setNewGroupDesc("")
+      setNewGroupPositions([])
+      setShowCreateGroup(false)
       toast.success("标签组创建成功")
     } catch {
       setError("网络错误")
@@ -142,8 +352,8 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
     setSaving(false)
   }
 
-  async function handleUpdate(id: string) {
-    if (!editName.trim()) return
+  async function handleUpdateGroup(id: string) {
+    if (!editGroupName.trim()) return
     setSaving(true)
     setError("")
     try {
@@ -151,10 +361,10 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: editName.trim(),
-          description: editDesc,
-          color: editColor,
-          positions: editPositions,
+          name: editGroupName.trim(),
+          description: editGroupDesc,
+          color: editGroupColor,
+          positions: editGroupPositions,
         }),
       })
       const data = await res.json()
@@ -166,17 +376,11 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
       setGroups((prev) =>
         prev.map((g) =>
           g.id === id
-            ? {
-                ...g,
-                name: data.name,
-                description: data.description,
-                color: data.color,
-                positions: data.positions,
-              }
+            ? { ...g, name: data.name, description: data.description, color: data.color, positions: data.positions }
             : g
         )
       )
-      setEditing(null)
+      setEditingGroup(null)
       toast.success("已保存")
     } catch {
       setError("网络错误")
@@ -184,7 +388,7 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
     setSaving(false)
   }
 
-  async function handleDelete(id: string, forceDelete = false) {
+  async function handleDeleteGroup(id: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
     const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
     const res = await fetch(`/api/admin/tag-groups/${id}`, {
@@ -198,9 +402,10 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
       toast.success("已删除")
     } else if (data.confirm) {
       setDeleteConfirm({
+        type: "group",
         id,
         name: data.error,
-        tagCount: data.tagCount,
+        count: data.tagCount,
         forceEndpoint: true,
       })
     } else {
@@ -208,39 +413,240 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
     }
   }
 
-  function startEdit(group: TagGroup) {
-    setEditing(group.id)
-    setEditName(group.name)
-    setEditDesc(group.description)
-    setEditColor(group.color)
-    setEditPositions(group.positions || [])
-    setEditIsPreset(group.isPreset || false)
+  function startEditGroup(group: TagGroup) {
+    setEditingGroup(group.id)
+    setEditGroupName(group.name)
+    setEditGroupDesc(group.description)
+    setEditGroupColor(group.color)
+    setEditGroupPositions(group.positions || [])
   }
+
+  /* ── 标签 CRUD ── */
+
+  async function handleCreateTag(groupId: string) {
+    if (!newTagName.trim()) return
+    setSaving(true)
+    setError("")
+    try {
+      const group = groups.find((g) => g.id === groupId)
+      const res = await fetch("/api/admin/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newTagName.trim(),
+          color: newTagColor || group?.color || PRESET_COLORS[0],
+          groupId,
+          sortOrder: 0,
+          isVisible: true,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? "创建失败")
+        setSaving(false)
+        return
+      }
+      setGroups((prev) =>
+        prev.map((g) =>
+          g.id === groupId
+            ? { ...g, tags: [...g.tags, { ...data, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)) }
+            : g
+        )
+      )
+      setNewTagName("")
+      setShowCreateTag(null)
+      toast.success("标签创建成功")
+    } catch {
+      setError("网络错误")
+    }
+    setSaving(false)
+  }
+
+  async function handleUpdateTag(tagId: string, data: { name: string; description: string; color: string; groupId: string | null; sortOrder: number; isVisible: boolean }) {
+    if (!data.name) return
+    setSaving(true)
+    setError("")
+    try {
+      const res = await fetch(`/api/admin/tags/${tagId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        setError(result.error ?? "更新失败")
+        setSaving(false)
+        return
+      }
+      // 更新标签，如果换了组就移动
+      setGroups((prev) => {
+        const newGroups = prev.map((g) => ({
+          ...g,
+          tags: g.tags.filter((t) => t.id !== tagId),
+        }))
+        const targetGroupId = result.groupId
+        return newGroups.map((g) =>
+          g.id === targetGroupId
+            ? {
+                ...g,
+                tags: [
+                  ...g.tags,
+                  {
+                    id: result.id,
+                    name: result.name,
+                    color: result.color,
+                    gameCount: result.gameCount ?? 0,
+                    description: result.description,
+                    groupId: result.groupId,
+                    sortOrder: result.sortOrder,
+                    isVisible: result.isVisible,
+                  },
+                ].sort((a, b) => a.name.localeCompare(b.name)),
+              }
+            : g
+        )
+      })
+      setEditingTag(null)
+      toast.success("已保存")
+    } catch {
+      setError("网络错误")
+    }
+    setSaving(false)
+  }
+
+  async function handleUpdateUngroupedTag(tagId: string, data: { name: string; description: string; color: string; groupId: string | null; sortOrder: number; isVisible: boolean }) {
+    if (!data.name) return
+    setSaving(true)
+    setError("")
+    try {
+      const res = await fetch(`/api/admin/tags/${tagId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        setError(result.error ?? "更新失败")
+        setSaving(false)
+        return
+      }
+      // 从未分组列表中移除
+      setUngroupedTags((prev) => prev.filter((t) => t.id !== tagId))
+      // 如果分配了组，添加到对应组
+      if (result.groupId) {
+        setGroups((prev) =>
+          prev.map((g) =>
+            g.id === result.groupId
+              ? {
+                  ...g,
+                  tags: [
+                    ...g.tags,
+                    {
+                      id: result.id,
+                      name: result.name,
+                      color: result.color,
+                      gameCount: result.gameCount ?? 0,
+                      description: result.description,
+                      groupId: result.groupId,
+                      sortOrder: result.sortOrder,
+                      isVisible: result.isVisible,
+                    },
+                  ].sort((a, b) => a.name.localeCompare(b.name)),
+                }
+              : g
+          )
+        )
+      } else {
+        // 未分配组，放回未分组列表
+        setUngroupedTags((prev) =>
+          [
+            ...prev,
+            {
+              id: result.id,
+              name: result.name,
+              color: result.color,
+              gameCount: result.gameCount ?? 0,
+              description: result.description,
+              groupId: result.groupId,
+              sortOrder: result.sortOrder,
+              isVisible: result.isVisible,
+            },
+          ].sort((a, b) => a.name.localeCompare(b.name))
+        )
+      }
+      setEditingTag(null)
+      toast.success("已保存")
+    } catch {
+      setError("网络错误")
+    }
+    setSaving(false)
+  }
+
+  async function handleDeleteTag(tagId: string, forceDelete = false) {
+    const method = forceDelete ? "PATCH" : "DELETE"
+    const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
+    const res = await fetch(`/api/admin/tags/${tagId}`, {
+      method,
+      headers: forceDelete ? { "Content-Type": "application/json" } : undefined,
+      body,
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setGroups((prev) =>
+        prev.map((g) => ({ ...g, tags: g.tags.filter((t) => t.id !== tagId) }))
+      )
+      setUngroupedTags((prev) => prev.filter((t) => t.id !== tagId))
+      toast.success("已删除")
+    } else if (data.confirm) {
+      setDeleteConfirm({
+        type: "tag",
+        id: tagId,
+        name: data.error,
+        count: data.gameCount,
+        forceEndpoint: true,
+      })
+    } else {
+      toast.error(data.error || "删除失败")
+    }
+  }
+
+  /* ── 统计 ── */
+  const totalTags = groups.reduce((sum, g) => sum + g.tags.length, 0)
+  const totalGames = groups.reduce((sum, g) => sum + g.tags.reduce((s, t) => s + t.gameCount, 0), 0)
 
   const inputCls =
     "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* ── 顶部标题栏 ── */}
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-violet-500" />
-          标签组管理
+          标签管理
+          <span className="text-xs font-normal text-muted-foreground">
+            {groups.length} 个组 · {totalTags} 个标签 · {totalGames} 次关联
+          </span>
         </h2>
-        <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-1.5 rounded-xl bg-violet-500/10 text-violet-400 px-3.5 py-2 text-xs font-semibold ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all"
-        >
-          {showCreateForm ? (
-            <>
-              <X className="h-3.5 w-3.5" /> 收起
-            </>
-          ) : (
-            <>
-              <Plus className="h-3.5 w-3.5" /> 新建标签组
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* 搜索框 */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索标签…"
+              className="rounded-lg bg-secondary pl-8 pr-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring w-36 transition-all"
+            />
+          </div>
+          <button
+            onClick={() => setShowCreateGroup(!showCreateGroup)}
+            className="flex items-center gap-1.5 rounded-xl bg-violet-500/10 text-violet-400 px-3 py-1.5 text-xs font-semibold ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all"
+          >
+            {showCreateGroup ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+            {showCreateGroup ? "收起" : "新建标签组"}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -249,59 +655,38 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
         </div>
       )}
 
-      {/* 新建标签组 */}
-      {showCreateForm && (
+      {/* ── 新建标签组表单 ── */}
+      {showCreateGroup && (
         <form
-          onSubmit={handleCreate}
+          onSubmit={handleCreateGroup}
           className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4"
         >
-          <div className="flex gap-2">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="标签组名称（如：题材、风格、制作商）"
-              className={inputCls}
-            />
-          </div>
           <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+            placeholder="标签组名称（如：题材、风格、制作商）"
+            className={inputCls}
+          />
+          <input
+            value={newGroupDesc}
+            onChange={(e) => setNewGroupDesc(e.target.value)}
             placeholder="描述（可选）"
             className={inputCls}
           />
-
-          {/* 色盘 */}
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">标签组颜色</p>
-            <div className="flex flex-wrap gap-2">
-              {PRESET_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className={`h-7 w-7 rounded-full transition-all ${
-                    color === c
-                      ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
-                      : "hover:scale-110"
-                  }`}
-                  style={{ background: c }}
-                />
-              ))}
-            </div>
+            <ColorPicker value={newGroupColor} onChange={setNewGroupColor} />
           </div>
-
-          {/* 方位选择 */}
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">
               绑定展示方位
               <span className="ml-1 text-muted-foreground/60">（选择该标签组在前台哪些位置展示）</span>
             </p>
-            <PositionCheckboxGroup selected={positions} onChange={setPositions} />
+            <PositionCheckboxGroup selected={newGroupPositions} onChange={setNewGroupPositions} />
           </div>
-
           <button
             type="submit"
-            disabled={saving || !name.trim()}
+            disabled={saving || !newGroupName.trim()}
             className="flex items-center gap-1.5 rounded-xl bg-violet-500 text-white px-5 py-2.5 text-sm font-semibold hover:bg-violet-600 transition-all disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
@@ -310,62 +695,62 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
         </form>
       )}
 
-      {/* 标签组列表 */}
-      <div className="rounded-xl bg-card ring-1 ring-border divide-y divide-border overflow-hidden">
-        {groups.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-            暂无标签组，点击上方「新建标签组」开始创建
-          </p>
+      {/* ── 标签组卡片列表 ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {filteredGroups.length === 0 && (
+          <div className="col-span-full rounded-xl bg-card p-8 text-center ring-1 ring-border">
+            <p className="text-sm text-muted-foreground">
+              {searchQuery ? "没有找到匹配的标签" : "暂无标签组，点击上方「新建标签组」开始创建"}
+            </p>
+          </div>
         )}
-        {groups.map((group) => (
-          <div key={group.id}>
-            <div className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent/50">
-              {editing === group.id ? (
-                /* ── 编辑模式 ── */
-                <div className="flex-1 space-y-3 py-1">
+
+        {filteredGroups.map((group) => {
+          const isExpanded = expanded === group.id
+          const isEditingGroup = editingGroup === group.id
+          const isAddingTag = showCreateTag === group.id
+
+          return (
+            <div
+              key={group.id}
+              className="rounded-xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-violet-500/40 hover:shadow-lg hover:shadow-violet-500/5"
+            >
+              {/* ── 标签组头部 ── */}
+              {isEditingGroup ? (
+                /* 编辑模式 */
+                <div className="p-4 space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: editColor }} />
+                    <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: editGroupColor }} />
                     <input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      value={editGroupName}
+                      onChange={(e) => setEditGroupName(e.target.value)}
                       placeholder="标签组名称"
                       className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      autoFocus
                     />
-                    <input
-                      value={editDesc}
-                      onChange={(e) => setEditDesc(e.target.value)}
-                      placeholder="描述"
-                      className="w-40 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
-                    />
+                    {group.isPreset && (
+                      <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20">
+                        🔒 内置
+                      </span>
+                    )}
                   </div>
-
-                  {/* 色盘 */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {PRESET_COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setEditColor(c)}
-                        className={`h-5 w-5 rounded-full transition-all ${
-                          editColor === c ? "ring-2 ring-violet-500 scale-110" : "hover:scale-110"
-                        }`}
-                        style={{ background: c }}
-                      />
-                    ))}
-                  </div>
-
-                  {/* 方位选择 */}
+                  <input
+                    value={editGroupDesc}
+                    onChange={(e) => setEditGroupDesc(e.target.value)}
+                    placeholder="描述（可选）"
+                    className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                  />
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1.5">绑定展示方位</p>
-                    <PositionCheckboxGroup
-                      selected={editPositions}
-                      onChange={setEditPositions}
-                    />
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">颜色</p>
+                    <ColorPicker value={editGroupColor} onChange={setEditGroupColor} />
                   </div>
-
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">展示方位</p>
+                    <PositionCheckboxGroup selected={editGroupPositions} onChange={setEditGroupPositions} />
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handleUpdate(group.id)}
+                      onClick={() => handleUpdateGroup(group.id)}
                       disabled={saving}
                       className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
                     >
@@ -373,129 +758,274 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
                       保存
                     </button>
                     <button
-                      onClick={() => setEditing(null)}
+                      onClick={() => setEditingGroup(null)}
                       className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
                       取消
                     </button>
-                    {editIsPreset && (
-                      <span className="ml-auto text-[11px] text-amber-400/70 bg-amber-500/10 rounded-full px-2.5 py-0.5 ring-1 ring-amber-500/20">
-                        🔒 系统内置组
-                      </span>
-                    )}
                   </div>
                 </div>
               ) : (
-                /* ── 展示模式 ── */
-                <>
-                  <button
-                    onClick={() => setExpanded(expanded === group.id ? null : group.id)}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
-                  >
-                    <div
-                      className="h-3 w-3 shrink-0 rounded-full"
-                      style={{ background: group.color }}
-                    />
-                    <span className="text-sm font-semibold text-foreground">{group.name}</span>
-                    {group.isPreset && (
-                      <span className="shrink-0 text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
-                        内置
-                      </span>
-                    )}
-                    {group.description && (
-                      <span className="text-xs text-muted-foreground truncate">
-                        {group.description}
-                      </span>
-                    )}
-                    {group.positions && group.positions.length > 0 && (
-                      <span className="shrink-0 text-[10px] text-violet-400/70 bg-violet-500/10 rounded-full px-1.5 py-0.5">
-                        {group.positions.length} 个方位
-                      </span>
-                    )}
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {group.tags.length} 个标签
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => startEdit(group)}
-                    title="编辑标签组"
-                    aria-label="编辑标签组"
-                    className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  {!group.isPreset && (
+                /* 展示模式 */
+                <div className="p-4">
+                  <div className="flex items-center gap-2">
+                    {/* 展开/收起按钮 */}
                     <button
-                      onClick={() =>
-                        setDeleteConfirm({
-                          id: group.id,
-                          name: group.name,
-                          tagCount: group.tags.length,
-                        })
-                      }
-                      title="删除标签组"
-                      aria-label="删除标签组"
-                      className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors"
+                      onClick={() => setExpanded(isExpanded ? null : group.id)}
+                      className="flex items-center gap-2 flex-1 min-w-0 text-left"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: group.color }} />
+                      <span className="text-sm font-semibold text-foreground truncate">{group.name}</span>
+                      {group.isPreset && (
+                        <span className="shrink-0 text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
+                          内置
+                        </span>
+                      )}
+                      {group.description && (
+                        <span className="text-xs text-muted-foreground truncate hidden sm:inline">
+                          {group.description}
+                        </span>
+                      )}
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {group.tags.length}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      )}
+                    </button>
+
+                    {/* 操作按钮 */}
+                    <button
+                      onClick={() => startEditGroup(group)}
+                      title="编辑标签组"
+                      className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    {!group.isPreset && (
+                      <button
+                        onClick={() =>
+                          setDeleteConfirm({
+                            type: "group",
+                            id: group.id,
+                            name: group.name,
+                            count: group.tags.length,
+                          })
+                        }
+                        title="删除标签组"
+                        className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 方位标签行 */}
+                  {group.positions && group.positions.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {group.positions.map((posKey) => {
+                        const def = TAG_POSITIONS.find((p) => p.key === posKey)
+                        if (!def) return null
+                        return (
+                          <span
+                            key={posKey}
+                            className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-secondary text-muted-foreground ring-1 ring-border"
+                            title={def.description}
+                          >
+                            {def.icon} {def.label}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 展开的标签区域 ── */}
+              {isExpanded && !isEditingGroup && (
+                <div className="px-4 pb-4 space-y-3">
+                  {/* 标签网格 */}
+                  {group.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {group.tags.map((tag) => (
+                        <div key={tag.id} className="group/tag relative">
+                          <span
+                            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 cursor-default select-none"
+                            style={{
+                              background: tag.color + "18",
+                              color: tag.color,
+                              borderColor: tag.color + "30",
+                            }}
+                          >
+                            <span
+                              className="h-1.5 w-1.5 rounded-full shrink-0"
+                              style={{ background: tag.color }}
+                            />
+                            {tag.name}
+                            <span
+                              className="text-[10px] opacity-60 ml-0.5"
+                              title={`绑定 ${tag.gameCount} 个游戏`}
+                            >
+                              {tag.gameCount}
+                            </span>
+
+                            {/* 悬停显示的操作按钮 */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setEditingTag(tag.id)
+                              }}
+                              title="编辑"
+                              className="opacity-0 group-hover/tag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition-all"
+                            >
+                              <Pencil className="h-2.5 w-2.5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setDeleteConfirm({
+                                  type: "tag",
+                                  id: tag.id,
+                                  name: tag.name,
+                                  count: tag.gameCount,
+                                })
+                              }}
+                              title="删除"
+                              className="opacity-0 group-hover/tag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition-all"
+                            >
+                              <Trash2 className="h-2.5 w-2.5" />
+                            </button>
+                          </span>
+
+                          {/* 标签内联编辑 */}
+                          {editingTag === tag.id && (
+                            <div className="absolute left-0 top-full mt-1 z-20 w-80">
+                              <TagInlineEditor
+                                tag={tag}
+                                groups={groups}
+                                saving={saving}
+                                onSave={(data) => handleUpdateTag(tag.id, data)}
+                                onCancel={() => setEditingTag(null)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground/60 italic">该标签组暂无标签</p>
+                  )}
+
+                  {/* 添加标签到该组 */}
+                  {isAddingTag ? (
+                    <div className="flex gap-2">
+                      <input
+                        value={newTagName}
+                        onChange={(e) => setNewTagName(e.target.value)}
+                        placeholder="新标签名称"
+                        className="flex-1 rounded-lg bg-secondary px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleCreateTag(group.id)
+                          if (e.key === "Escape") setShowCreateTag(null)
+                        }}
+                      />
+                      <ColorPicker value={newTagColor} onChange={setNewTagColor} />
+                      <button
+                        onClick={() => handleCreateTag(group.id)}
+                        disabled={saving || !newTagName.trim()}
+                        className="shrink-0 flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground disabled:opacity-50"
+                      >
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                        添加
+                      </button>
+                      <button
+                        onClick={() => setShowCreateTag(null)}
+                        className="shrink-0 rounded-lg bg-secondary px-2 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setNewTagColor(group.color)
+                        setShowCreateTag(group.id)
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground ring-1 ring-border hover:ring-violet-500/30 transition-all"
+                    >
+                      <Plus className="h-3 w-3" />
+                      添加标签到「{group.name}」
                     </button>
                   )}
-                </>
+                </div>
               )}
             </div>
-
-            {/* 展开显示组内标签 + 绑定方位 */}
-            {expanded === group.id && (
-              <div className="px-5 pb-3 pl-10 space-y-2">
-                {/* 绑定方位 */}
-                {group.positions && group.positions.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.positions.map((posKey) => {
-                      const def = TAG_POSITIONS.find((p) => p.key === posKey)
-                      if (!def) return null
-                      return (
-                        <span
-                          key={posKey}
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-secondary text-muted-foreground ring-1 ring-border"
-                        >
-                          {def.icon} {def.label}
-                        </span>
-                      )
-                    })}
-                  </div>
-                )}
-
-                {/* 组内标签 */}
-                {group.tags.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1"
-                        style={{
-                          background: tag.color + "18",
-                          color: tag.color,
-                          borderColor: tag.color + "30",
-                        }}
-                      >
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ background: tag.color }}
-                        />
-                        {tag.name}
-                        <span className="text-[10px] opacity-60">{tag.gameCount}</span>
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground/60 italic">该标签组暂无标签</p>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
+      {/* ── 未分组标签 ── */}
+      {(() => {
+        if (ungroupedTags.length === 0) return null
+        return (
+          <div className="rounded-xl bg-card ring-1 ring-border p-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              ⚠️ 未分组标签（{ungroupedTags.length}）
+            </h3>
+            <div className="flex flex-wrap gap-2">
+            {ungroupedTags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="group/utag inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-amber-500/10 text-amber-400 ring-amber-500/20"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: tag.color }} />
+                  {tag.name}
+                  <span className="text-[10px] opacity-60">{tag.gameCount}</span>
+                  <button
+                    onClick={() => setEditingTag(tag.id)}
+                    title="编辑并分配到标签组"
+                    className="opacity-0 group-hover/utag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition-all"
+                  >
+                    <Pencil className="h-2.5 w-2.5" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setDeleteConfirm({
+                        type: "tag",
+                        id: tag.id,
+                        name: tag.name,
+                        count: tag.gameCount,
+                      })
+                    }
+                    title="删除"
+                    className="opacity-0 group-hover/utag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition-all"
+                  >
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </button>
+
+                  {/* 标签内联编辑（浮动弹窗） */}
+                  {editingTag === tag.id && (
+                    <div className="absolute left-0 top-full mt-1 z-20 w-80">
+                      <TagInlineEditor
+                        tag={tag}
+                        groups={groups}
+                        saving={saving}
+                        onSave={(data) => handleUpdateUngroupedTag(tag.id, data)}
+                        onCancel={() => setEditingTag(null)}
+                      />
+                    </div>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ── 删除确认弹窗 ── */}
       <ConfirmDialog
         open={!!deleteConfirm}
         onOpenChange={(v) => {
@@ -503,19 +1033,29 @@ export function TagGroupsManager({ initialGroups }: { initialGroups: TagGroup[] 
         }}
         onConfirm={() => {
           if (deleteConfirm) {
-            if (deleteConfirm.forceEndpoint) {
-              handleDelete(deleteConfirm.id, true)
+            if (deleteConfirm.type === "group") {
+              if (deleteConfirm.forceEndpoint) {
+                handleDeleteGroup(deleteConfirm.id, true)
+              } else {
+                handleDeleteGroup(deleteConfirm.id)
+              }
             } else {
-              handleDelete(deleteConfirm.id)
+              if (deleteConfirm.forceEndpoint) {
+                handleDeleteTag(deleteConfirm.id, true)
+              } else {
+                handleDeleteTag(deleteConfirm.id)
+              }
             }
           }
           setDeleteConfirm(null)
         }}
-        title="删除标签组"
+        title={deleteConfirm?.type === "group" ? "删除标签组" : "删除标签"}
         description={
-          deleteConfirm?.tagCount && deleteConfirm.tagCount > 0
-            ? `标签组「${deleteConfirm.name}」包含 ${deleteConfirm.tagCount} 个标签，删除后这些标签将变为未分组状态。`
-            : `确定删除标签组「${deleteConfirm?.name}」？`
+          deleteConfirm?.count && deleteConfirm.count > 0
+            ? deleteConfirm.type === "group"
+              ? `标签组「${deleteConfirm.name}」包含 ${deleteConfirm.count} 个标签，删除后这些标签将变为未分组状态。`
+              : `标签「${deleteConfirm.name}」正被 ${deleteConfirm.count} 个游戏使用，删除后将解除所有关联。`
+            : `确定删除${deleteConfirm?.type === "group" ? "标签组" : "标签"}「${deleteConfirm?.name}」？`
         }
         confirmText="删除"
         variant="destructive"

@@ -151,6 +151,10 @@ main > * {
   --theme-r:       56;
   --theme-g:       189;
   --theme-b:       248;
+  --theme-color:         #38BDF8;
+  --theme-color-hover:   #2da8e0;
+  --theme-color-active:  #2491c8;
+  --theme-fg:            #18181b;
 
   /* 点缀色 — 天空青色，高级质感 */
   --primary:          #38BDF8; /* sky-400，天空般的青 */
@@ -804,7 +808,53 @@ main > * {
 /* ── 链接下划线 - 精致渐变 ── */
 a {
   text-decoration-color: transparent;
-  transition: text-decoration-color 0.2s ease;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+
+/* ── 全局链接颜色 — 跟随主题色 ── */
+a.text-primary,
+a[class*="text-primary"] {
+  color: var(--theme-color) !important;
+}
+a.text-primary:hover,
+a[class*="text-primary"]:hover {
+  color: var(--theme-color-hover) !important;
+}
+
+/* ── NProgress 进度条 — 跟随主题色 ── */
+#nprogress .bar {
+  background: var(--theme-color) !important;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--theme-color), 0 0 5px var(--theme-color) !important;
+}
+#nprogress .spinner-icon {
+  border-top-color: var(--theme-color) !important;
+  border-left-color: var(--theme-color) !important;
+}
+
+/* ── 分页按钮 — 跟随主题色 ── */
+.pagination-btn,
+button[class*="pagination"] {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.pagination-btn.active,
+.pagination-btn[aria-current="true"],
+button[class*="pagination"].active {
+  background-color: var(--theme-color) !important;
+  color: var(--theme-fg) !important;
+  border-color: var(--theme-color) !important;
+}
+.pagination-btn:hover:not(:disabled):not(.active),
+button[class*="pagination"]:hover:not(:disabled):not(.active) {
+  background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
+}
+
+/* ── Badge 标签跟随主题色 ── */
+.badge-theme,
+span[class*="bg-primary"] {
+  background-color: var(--theme-color) !important;
+  color: var(--theme-fg) !important;
 }
 
 /* ── 输入框聚焦 - 克制聚焦环（使用 outline 防止被 overflow-x: hidden 裁剪） ── */

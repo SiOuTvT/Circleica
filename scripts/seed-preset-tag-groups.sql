@@ -1,7 +1,3 @@
--- AlterTable: Add positions and isPreset columns to TagGroup
-ALTER TABLE "TagGroup" ADD COLUMN IF NOT EXISTS "positions" TEXT NOT NULL DEFAULT '[]';
-ALTER TABLE "TagGroup" ADD COLUMN IF NOT EXISTS "isPreset" BOOLEAN NOT NULL DEFAULT false;
-
 -- Seed preset tag groups (idempotent via ON CONFLICT)
 INSERT INTO "TagGroup" ("id", "name", "description", "color", "positions", "isPreset", "createdAt")
 VALUES
