@@ -46,7 +46,7 @@ async function SearchResults({
     orderBy: ORDER_MAP[sort],
     take: 60,
       select: {
-      id: true, title: true, coverImage: true, status: true,
+      id: true, serialId: true, title: true, coverImage: true, status: true,
       isNsfw: true, favoriteCount: true, viewCount: true,
       downloadCount: true, platform: true, language: true, fileSize: true,
       downloadLinks: true,
@@ -75,7 +75,7 @@ async function SearchResults({
       orderBy: { viewCount: "desc" },
       take: 8,
       select: {
-        id: true, title: true, coverImage: true, status: true,
+        id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true, platform: true, language: true, fileSize: true,
         downloadLinks: true,

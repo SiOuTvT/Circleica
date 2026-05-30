@@ -24,7 +24,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
       orderBy: { createdAt: "desc" },
       take: 24,
       select: {
-        id: true, title: true, coverImage: true, status: true,
+        id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
         downloadCount: true, platform: true, language: true, fileSize: true,
         downloadLinks: true,

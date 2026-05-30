@@ -3,7 +3,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // 允许本地上传的图片通过 next/image 优化
+    // 允许本地上传的图片通过 next/image 优化，但标记为 unoptimized 避免 sharp 损坏
+    unoptimized: true,
     localPatterns: [
       { pathname: "/uploads/**" },
     ],

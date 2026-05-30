@@ -5,6 +5,7 @@ import { SafeImage } from "./safe-image"
 
 type RelatedGame = {
   id: string
+  serialId?: number | null
   title: string
   coverImage: string | null
   originalWork: string | null
@@ -20,7 +21,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
         {games.map((g) => (
           <Link
             key={g.id}
-            href={`/games/${g.id}`}
+            href={`/games/${g.serialId ?? g.id}`}
             className="group shrink-0 w-[140px] sm:w-[160px]"
           >
             <div className="relative overflow-hidden rounded-xl aspect-[3/4] bg-card ring-1 ring-border transition-all group-hover:ring-primary/30 group-hover:scale-[1.02]">

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { mkdir, writeFile } from "fs/promises"
 import { NextResponse } from "next/server"
 import path from "path"
+import sharp from "sharp"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB（与 nginx client_max_body_size 一致）
 const ALLOWED_TYPES = [
@@ -65,6 +66,33 @@ export async function POST(request: Request) {
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+
+    // 验证图片完整性：用 sharp 尝试解析，确保不是损坏数据
+    try {
+      const metadata = await sharp(buffer).metadata()
+      // 极小图片警告（< 100 bytes 可能是空图/占位图）
+      if (buffer.length < 100) {
+        return NextResponse.json(
+          { error: "图片文件过小，可能已损坏" },
+          { status: 400 }
+        )
+      }
+      // 确保有宽高（SVG 等矢量图除外）
+      if (!metadata.width && file.type !== "image/svg+xml") {
+        return NextResponse.json(
+          { error: "无法读取图片尺寸，文件可能已损坏" },
+          { status: 400 }
+        )
+      }
+      console.log(`✓ 图片校验通过: ${metadata.width}x${metadata.height}, format=${metadata.format}`)
+    } catch (sharpErr) {
+      console.error("图片校验失败（文件损坏）:", sharpErr)
+      return NextResponse.json(
+        { error: "图片文件损坏或格式不正确，请重新上传" },
+        { status: 400 }
+      )
+    }
+
     await writeFile(path.join(uploadDir, filename), buffer)
 
     const url = `/uploads/${filename}`

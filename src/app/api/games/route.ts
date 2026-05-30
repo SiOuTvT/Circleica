@@ -38,6 +38,7 @@ async function handleGamesList(req: NextRequest) {
         take: limit,
         select: {
           id: true,
+          serialId: true,
           title: true,
           coverImage: true,
           status: true,

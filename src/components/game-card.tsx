@@ -4,10 +4,11 @@ import { parseFileSizes, parseStringArray } from "@/lib/parse-utils"
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 export interface GameCardData {
   id: string
+  serialId?: number | null
   title: string
   coverImage: string
   tags: { name: string; color: string }[]
@@ -34,6 +35,26 @@ function fmtNum(n?: number): string {
 
 export function GameCard({ game }: { game: GameCardData }) {
   const [imgError, setImgError] = useState(false)
+  const [imgFallback, setImgFallback] = useState(false)
+
+  const handleNextImageError = useCallback(() => {
+    // next/image 加载失败，尝试原生 img 降级
+    setImgFallback(true)
+  }, [])
+
+  const handleImgError = useCallback(() => {
+    // 原生 img 也失败，显示占位图
+    setImgError(true)
+  }, [])
+
+  // src 变化时重置
+  const coverSrc = game.coverImage
+  const [prevSrc, setPrevSrc] = useState(coverSrc)
+  if (coverSrc !== prevSrc) {
+    setPrevSrc(coverSrc)
+    setImgError(false)
+    setImgFallback(false)
+  }
 
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
@@ -56,7 +77,7 @@ export function GameCard({ game }: { game: GameCardData }) {
 
   return (
     <Link
-      href={`/games/${game.id}`}
+      href={`/games/${game.serialId ?? game.id}`}
       aria-label={`查看游戏：${game.title}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300"
       onClick={() => {
@@ -66,19 +87,32 @@ export function GameCard({ game }: { game: GameCardData }) {
       {/* ─── 封面：比例固定 ─── */}
       <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
         {game.coverImage && !imgError ? (
-          <Image
-            src={game.coverImage}
-            alt={game.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            onError={() => setImgError(true)}
-            loading="lazy"
-            decoding="async"
-            quality={75}
-            placeholder="blur"
-            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEzMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJiIj48Z2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTIiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYikiIGZpbGw9IiMyMjIiLz48L3N2Zz4="
-          />
+          imgFallback ? (
+            // 降级：原生 img 绕过 next/image 优化管道
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={game.coverImage}
+              alt={game.title}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              loading="lazy"
+              decoding="async"
+              onError={handleImgError}
+            />
+          ) : (
+            <Image
+              src={game.coverImage}
+              alt={game.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              onError={handleNextImageError}
+              loading="lazy"
+              decoding="async"
+              quality={75}
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEzMyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJiIj48Z2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTIiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYikiIGZpbGw9IiMyMjIiLz48L3N2Zz4="
+            />
+          )
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
             <ImageOff className="w-8 h-8" aria-hidden="true" strokeWidth={1} />

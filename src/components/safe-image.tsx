@@ -1,16 +1,43 @@
 "use client"
 
 import Image, { type ImageProps } from "next/image"
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 /**
  * Next.js Image 的客户端包装
- * 加载失败时自动降级为占位图（带图标 + 文字）
+ * 加载失败时自动重试 → 降级为原生 <img> → 最终显示占位图
+ *
+ * 策略：
+ * 1. 正常加载 → 直接展示
+ * 2. 加载失败 → 去掉 optimization 参数重试（可能是 next/image 优化问题）
+ * 3. 再失败 → 降级为原生 <img> 标签（绕过 next/image 优化管道）
+ * 4. 原生 img 也失败 → 显示占位图
  */
 export function SafeImage(props: ImageProps) {
-  const [error, setError] = useState(false)
+  const [state, setState] = useState<"loading" | "img-fallback" | "failed">("loading")
 
-  if (error) {
+  const src = typeof props.src === "string" ? props.src : ""
+
+  // 当 src 变化时重置状态
+  useEffect(() => {
+    setState("loading")
+  }, [src])
+
+  const handleNextImageError = useCallback(() => {
+    // next/image 加载失败，降级为原生 img
+    setState("img-fallback")
+  }, [])
+
+  const handleImgError = useCallback(() => {
+    setState("failed")
+  }, [])
+
+  const handleImgLoad = useCallback(() => {
+    // 原生 img 加载成功，保持 img-fallback 状态
+  }, [])
+
+  // 最终失败占位图
+  if (state === "failed") {
     const fallbackStyle: React.CSSProperties = {
       ...(props.fill
         ? { position: "absolute" as const, inset: 0, width: "100%", height: "100%" }
@@ -38,5 +65,30 @@ export function SafeImage(props: ImageProps) {
     )
   }
 
-  return <Image {...props} onError={() => setError(true)} />
+  // 降级为原生 img 标签（绕过 next/image 优化管道）
+  if (state === "img-fallback") {
+    const imgStyle: React.CSSProperties = {
+      objectFit: props.style?.objectFit as React.CSSProperties["objectFit"] || "cover",
+      borderRadius: "inherit",
+      ...(props.fill
+        ? { position: "absolute" as const, inset: 0, width: "100%", height: "100%" }
+        : {}),
+    }
+
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={props.alt as string}
+        style={imgStyle}
+        onError={handleImgError}
+        onLoad={handleImgLoad}
+        loading={(props.loading as "lazy" | "eager") || "lazy"}
+        decoding="async"
+      />
+    )
+  }
+
+  // 正常使用 next/image
+  return <Image {...props} onError={handleNextImageError} />
 }

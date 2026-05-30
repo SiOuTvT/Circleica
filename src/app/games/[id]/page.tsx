@@ -9,15 +9,33 @@ import { auth } from "@/lib/auth"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
+import { isNumericId } from "@/lib/serial-id"
 import Image from "next/image"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
+
+/**
+ * 游戏详情页 — 支持两种 URL 格式：
+ *   /games/1         (serialId，新格式)
+ *   /games/clxxx     (cuid，旧格式 → 301 重定向到 serialId URL)
+ */
+
+// ── 查找游戏：优先 serialId，回退 cuid ──────────────────────────────
+async function resolveGame(id: string) {
+  if (isNumericId(id)) {
+    const numId = parseInt(id, 10)
+    if (isNaN(numId) || numId <= 0) return null
+    return prisma.game.findUnique({ where: { serialId: numId }, select: { id: true, serialId: true } })
+  }
+  return prisma.game.findUnique({ where: { id }, select: { id: true, serialId: true } })
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const game = await prisma.game.findUnique({
-    where: { id },
+  const resolved = await resolveGame(id)
+  const game = resolved ? await prisma.game.findUnique({
+    where: { id: resolved.id },
     select: { title: true, description: true, coverImage: true, originalWork: true },
-  })
+  }) : null
   if (!game) return { title: "游戏详情" }
   return {
     title: `${game.title} · 同人游戏站`,
@@ -44,8 +62,17 @@ export default async function GameDetailPage({
   const { id } = await params
   const session = await auth()
 
+  // 查找游戏
+  const resolved = await resolveGame(id)
+  if (!resolved) notFound()
+
+  // 如果是 cuid 格式访问 → 301 重定向到 serialId URL
+  if (!isNumericId(id)) {
+    redirect(`/games/${resolved.serialId}`)
+  }
+
   const game = await prisma.game.findFirst({
-    where: { id, isPublished: true },
+    where: { id: resolved.id, isPublished: true },
     include: {
       tags: { select: { tag: { select: { name: true, color: true, group: { select: { color: true, name: true } } } } } },
       comments: {
@@ -69,11 +96,11 @@ export default async function GameDetailPage({
     tagNames.length > 0
       ? await prisma.game.findMany({
           where: {
-            id: { not: id },
+            id: { not: resolved.id },
             isPublished: true,
             tags: { some: { tag: { name: { in: tagNames } } } },
           },
-          select: { id: true, title: true, coverImage: true, originalWork: true },
+          select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true },
           orderBy: { favoriteCount: "desc" },
           take: 8,
         })
@@ -84,7 +111,7 @@ export default async function GameDetailPage({
   let isFav = false
   if (session?.user?.id) {
     const fav = await prisma.favorite.findUnique({
-      where: { userId_gameId: { userId: session.user.id, gameId: id } },
+      where: { userId_gameId: { userId: session.user.id, gameId: resolved.id } },
     })
     isFav = !!fav
   }
@@ -124,7 +151,7 @@ export default async function GameDetailPage({
     "name": game.title,
     "description": getDescriptionText(game.description)?.slice(0, 300) || `${game.originalWork || ""} 同人游戏`,
     "image": game.coverImage || undefined,
-    "url": `${BASE}/games/${id}`,
+    "url": `${BASE}/games/${game.serialId}`,
     "applicationCategory": "Game",
     "genre": tags.map(t => t.name).join(", "),
     "datePublished": game.createdAt.toISOString(),
@@ -142,8 +169,8 @@ export default async function GameDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c').replace(/>/g, '\\u003e') }}
       />
-      <ViewCounter gameId={id} />
-      <GameBreadcrumb gameId={id} gameTitle={game.title} />
+      <ViewCounter gameId={resolved.id} />
+      <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
@@ -277,7 +304,7 @@ export default async function GameDetailPage({
               {/* 功能按钮行 */}
               <div className="mt-auto pt-3">
               <GameDetailTopClient
-                gameId={game.id}
+                gameId={resolved.id}
                 downloadLinks={downloadLinks}
                 isFav={isFav}
                 isLoggedIn={!!session}
@@ -312,7 +339,7 @@ export default async function GameDetailPage({
             }))}
             isLoggedIn={!!session?.user}
             currentUserId={session?.user?.id}
-            gameId={id}
+            gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
             fileSizes={fileSizes}
