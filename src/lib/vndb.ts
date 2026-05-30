@@ -98,7 +98,6 @@ class VNDBClient {
     const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
 
     try {
-      // @ts-ignore - undici 是 Node.js 内置模块，运行时可用
       const undici = await import("undici")
 
       if (proxyUrl) {
@@ -144,8 +143,7 @@ class VNDBClient {
         // 使用 undici.fetch 代替全局 fetch（Next.js 的 fetch 会忽略 dispatcher 参数）
         let response: Response
         if (this.dispatcher) {
-          // @ts-ignore - undici 的 fetch 支持 dispatcher
-          const undici = await import("undici")
+        const undici = await import("undici")
           fetchOptions.dispatcher = this.dispatcher
           response = await (undici.fetch as any)(url, fetchOptions)
         } else {

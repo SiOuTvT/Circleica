@@ -18,10 +18,9 @@ export function SafeImage(props: ImageProps) {
 
   const src = typeof props.src === "string" ? props.src : ""
 
-  // 当 src 变化时重置状态
-  useEffect(() => {
-    setState("loading")
-  }, [src])
+  // src 变化时重置为 loading
+   
+  useEffect(() => { setState("loading") }, [src])
 
   const handleNextImageError = useCallback(() => {
     // next/image 加载失败，降级为原生 img
@@ -79,7 +78,7 @@ export function SafeImage(props: ImageProps) {
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
-        alt={props.alt as string}
+        alt={(props.alt as string) ?? ""}
         style={imgStyle}
         onError={handleImgError}
         onLoad={handleImgLoad}

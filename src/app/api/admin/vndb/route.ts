@@ -16,7 +16,6 @@ async function getProxyDispatcher() {
   const proxyUrl = process.env.VNDB_API_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
 
   try {
-    // @ts-ignore - undici 是 Node.js 内置模块
     const undici = await import("undici")
 
     if (proxyUrl) {

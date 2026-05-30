@@ -81,8 +81,6 @@ export default async function HomePage({
     }),
   ])
 
-  const allTags = ["全部", ...tags.map((t: { name: string }) => t.name)]
-
   return (
     <div className="flex flex-col gap-3 sm:gap-5">
 

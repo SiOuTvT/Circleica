@@ -1,5 +1,6 @@
 "use client"
 
+import { BottomNav } from "@/components/bottom-nav"
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
 import { MusicPlayer } from "@/components/music-player"
@@ -7,6 +8,7 @@ import { TopNav } from "@/components/top-nav"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode; isAdmin?: boolean }) {
   const pathname = usePathname()
@@ -14,6 +16,17 @@ export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode
   useKeyboardShortcuts()
   const isAdminRoute = pathname.startsWith("/admin")
   const isFullscreenRoute = pathname === "/login" || pathname === "/register"
+  const showBottomNav = !isAdminRoute && !isFullscreenRoute
+
+  // 在 body 上标记是否有 bottom-nav，供 CSS safe-area 使用
+  useEffect(() => {
+    if (showBottomNav) {
+      document.body.setAttribute("data-has-bottom-nav", "true")
+    } else {
+      document.body.removeAttribute("data-has-bottom-nav")
+    }
+    return () => { document.body.removeAttribute("data-has-bottom-nav") }
+  }, [showBottomNav])
 
   return (
     <BreadcrumbProvider>
@@ -40,7 +53,8 @@ export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode
           </div>
         )}
       </main>
-      {!isAdminRoute && !isFullscreenRoute && isAdmin && <MusicPlayer />}
+      {showBottomNav && <BottomNav />}
+      {showBottomNav && isAdmin && <MusicPlayer />}
     </BreadcrumbProvider>
   )
 }

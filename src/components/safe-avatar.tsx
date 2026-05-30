@@ -26,10 +26,9 @@ export function SafeAvatar({
 }) {
   const [error, setError] = useState(false)
 
-  // src 变化时重置 error 状态，否则更换头像后仍显示旧的降级
-  useEffect(() => {
-    setError(false)
-  }, [src])
+  // src 变化时重置 error 状态
+   
+  useEffect(() => { setError(false) }, [src])
 
   const handleError = useCallback(() => {
     setError(true)

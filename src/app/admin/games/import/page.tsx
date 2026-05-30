@@ -50,7 +50,7 @@ export default async function VNDBImportPage() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-400 mt-0.5">•</span>
-            <span>导入的游戏默认为"草稿"状态，需要手动编辑后发布</span>
+            <span>导入的游戏默认为「草稿」状态，需要手动编辑后发布</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-blue-400 mt-0.5">•</span>

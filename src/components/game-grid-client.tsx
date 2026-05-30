@@ -47,7 +47,9 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
   }, [page, q, tag, nsfw])
 
   // 保持 ref 中引用最新的 loadMore，避免 IntersectionObserver 闭包陈旧
-  loadMoreRef.current = loadMore
+  useEffect(() => {
+    loadMoreRef.current = loadMore
+  }, [loadMore])
 
   // IntersectionObserver 无限滚动
   useEffect(() => {

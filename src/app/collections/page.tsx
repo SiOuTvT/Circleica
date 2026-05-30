@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 120
 export const metadata = { title: "精选合集 · 同人游戏站" }
 
 export default async function CollectionsPage() {
@@ -12,7 +12,7 @@ export default async function CollectionsPage() {
   const games = await prisma.game.findMany({
     where: { isPublished: true, isNsfw: false, NOT: { originalWork: "" } },
     orderBy: { createdAt: "desc" },
-    select: { id: true, title: true, coverImage: true, originalWork: true, favoriteCount: true },
+    select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true, favoriteCount: true },
   })
 
   // 按原作分组
@@ -59,7 +59,7 @@ export default async function CollectionsPage() {
             {list.slice(0, 8).map(g => (
               <Link
                 key={g.id}
-                href={`/games/${g.id}`}
+                href={`/games/${g.serialId}`}
                 className="group overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-900 ring-1 ring-black/[0.06] dark:ring-white/[0.06] transition-all hover:-translate-y-1 hover:ring-black/[0.12] dark:hover:ring-white/[0.12] hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
                 style={{ aspectRatio: "4/5" }}
               >

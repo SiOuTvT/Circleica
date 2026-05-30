@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 import {
   CalendarCheck,
   FileQuestion,
+  Gamepad2,
+  Home,
   Layers,
   LogOut,
   Menu,
@@ -24,6 +26,8 @@ import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 const MENU_ITEMS = [
+  { icon: Home,         label: "首页",     href: "/" },
+  { icon: Gamepad2,     label: "游戏库",   href: "/search" },
   { icon: Layers,       label: "精选合集", href: "/collections" },
   { icon: FileQuestion, label: "求档中心", href: "/forum" },
 ]
@@ -38,7 +42,7 @@ function setCookie(name: string, value: string) {
 
 export function TopNav() {
   const router = useRouter()
-  const { data: session, update: updateSession } = useSession()
+  const { data: session } = useSession()
   const user = session?.user
 
   const [menuOpen, setMenuOpen]   = useState(false)
@@ -59,15 +63,19 @@ export function TopNav() {
   const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
 
+  // 在客户端挂载后从 localStorage/cookie 读取实际值，避免 hydration mismatch
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "dark" | "light" | null
-    const t = savedTheme ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    setTheme(t)
-    document.documentElement.classList.toggle("light", t === "light")
+    const saved = localStorage.getItem("theme") as "dark" | "light" | null
+    const actual = saved ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    setTheme(actual)
+    document.documentElement.classList.toggle("light", actual === "light")
 
     const nsfwVal = getCookie("nsfw_status") === "1"
     setNsfw(nsfwVal)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅 mount 时执行一次客户端同步
+  }, [])
 
+  useEffect(() => {
     fetch("/api/checkin")
       .then(r => r.json())
       .then(data => setCheckedIn(data.checkedIn))
@@ -91,6 +99,7 @@ export function TopNav() {
   // 当 session 中的头像 URL 与 localStorage 中的本地覆盖一致时，清除本地覆盖（说明已同步到 session）
   useEffect(() => {
     if (localAvatar && user?.image && localAvatar === user.image) {
+       
       setLocalAvatar(null)
       try { localStorage.removeItem("local_avatar") } catch {}
     }
@@ -202,11 +211,11 @@ export function TopNav() {
                   onClick={() => setUserOpen(v => !v)}
                   className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                    {(user as any).composedAvatarUrl
-                      ? <img src={`${(user as any).composedAvatarUrl}${(user as any).composedAvatarUrl.includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                    {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
+                      ? <img src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
                       : <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
                           {(localAvatar || user.image)
-                            ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                            ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
                             : <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                           }
                         </AvatarFrame>
@@ -218,7 +227,7 @@ export function TopNav() {
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-xs font-bold text-white ring-1 ring-border">
                         {(localAvatar || user.image)
-                          ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}_${Date.now()}`} alt="" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentText('beforeend', (user.name ?? "U")[0].toUpperCase()); }} />
+                          ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt="" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentText('beforeend', (user.name ?? "U")[0].toUpperCase()); }} />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
                       <span className="truncate text-sm font-semibold text-foreground">{user.name}</span>

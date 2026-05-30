@@ -22,6 +22,8 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const len = announcements.length
   const scrollRef = useRef<HTMLDivElement>(null)
   const [imgError, setImgError] = useState(false)
+   
+  useEffect(() => { setImgError(false) }, [cur])
   const [paused, setPaused] = useState(false)
 
   // 监听滚动，实现视差效果（用 ref + rAF 避免高频 setState）
@@ -52,11 +54,6 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
     return () => clearInterval(t)
   }, [len, next, paused])
 
-  // 切换公告时重置图片错误状态
-  useEffect(() => {
-    setImgError(false)
-  }, [cur])
-
   if (!len) return null
 
   const ann = announcements[cur]
@@ -82,7 +79,6 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             decoding="async"
             fetchPriority={cur === 0 ? "high" : "low"}
             onError={() => {
-              console.error("[AnnounceSwiper] 图片加载失败:", ann.imageUrl)
               setImgError(true)
             }}
             onLoad={() => setImgError(false)}

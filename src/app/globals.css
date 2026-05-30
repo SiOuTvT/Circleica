@@ -1410,3 +1410,20 @@ svg {
 body.body-scroll-locked {
   overflow: hidden !important;
 }
+
+/* ═══ 移动端底部安全区域 ═══ */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* 移动端主内容底部留白，防止被 bottom-nav 遮挡 */
+/* bottom-nav 高度 56px + safe-area + 额外 8px 间距 */
+/* data-has-bottom-nav 由 layout-wrapper 标记在 body 上 */
+body[data-has-bottom-nav="true"] {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px);
+}
+@media (min-width: 1024px) {
+  body[data-has-bottom-nav="true"] {
+    padding-bottom: 0;
+  }
+}

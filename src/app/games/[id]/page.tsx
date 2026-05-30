@@ -10,6 +10,7 @@ import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { parseFileSizes, parseStringArray, safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
+import { unstable_cache } from "next/cache"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
 
@@ -71,20 +72,28 @@ export default async function GameDetailPage({
     redirect(`/games/${resolved.serialId}`)
   }
 
-  const game = await prisma.game.findFirst({
-    where: { id: resolved.id, isPublished: true },
-    include: {
-      tags: { select: { tag: { select: { name: true, color: true, group: { select: { color: true, name: true } } } } } },
-      comments: {
-        orderBy: { createdAt: "desc" },
-        include: { user: { select: { id: true, username: true, avatar: true } } },
-      },
-      creators: {
-        include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
-      },
-      publisher: { select: { id: true, username: true, avatar: true } },
+  // ISR：缓存游戏详情查询，60秒内复用，减少数据库压力
+  const getCachedGameDetail = unstable_cache(
+    async (gameId: string) => {
+      return prisma.game.findFirst({
+        where: { id: gameId, isPublished: true },
+        include: {
+          tags: { select: { tag: { select: { name: true, color: true, group: { select: { color: true, name: true } } } } } },
+          comments: {
+            orderBy: { createdAt: "desc" },
+            include: { user: { select: { id: true, username: true, avatar: true } } },
+          },
+          creators: {
+            include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
+          },
+          publisher: { select: { id: true, username: true, avatar: true } },
+        },
+      })
     },
-  })
+    ["game-detail-page"],
+    { revalidate: 60, tags: ["game-detail"] }
+  )
+  const game = await getCachedGameDetail(resolved.id)
 
   if (!game) notFound()
 
@@ -326,7 +335,6 @@ export default async function GameDetailPage({
           <GameDetailClient
             description={getDescriptionText(game.description)}
             allDescriptions={getAllDescriptions(game.description)}
-            screenshots={screenshots}
             downloadLinks={downloadLinks}
             creators={creators}
             comments={game.comments.map((c) => ({
@@ -342,12 +350,8 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
-            fileSizes={fileSizes}
             platformTags={platformTags}
-            languageTags={languageTags}
             gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color, groupName: t.group?.name }))}
-            viewCount={game.viewCount}
-            downloadCount={game.downloadCount}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
             gameDuration={game.gameDuration ?? undefined}

@@ -57,7 +57,9 @@ export default function ThemeSettingsPage() {
   }, [applyAll])
 
   const createApp = useCallback((container: HTMLDivElement) => {
-    const { createApp, h, ref, watch, computed } = require("vue") as typeof import("vue")
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Vue 模块需要在 React 回调中动态 require
+    const { createApp, h, ref } = require("vue") as typeof import("vue")
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { ThemeEditor } = require("@/components/vue-theme-editor")
 
     // Create reactive refs inside Vue that sync with React state
