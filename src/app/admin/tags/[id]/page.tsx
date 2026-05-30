@@ -55,7 +55,7 @@ export default async function TagGroupDetailPage({
         name: group.name,
         description: group.description,
         color: group.color,
-        positions: group.positions,
+        positions: (() => { try { return JSON.parse(group.positions) } catch { return group.positions ? group.positions.split(",").map((p: string) => p.trim()).filter(Boolean) : [] } })(),
         isPreset: group.isPreset,
       }}
       tags={tags}

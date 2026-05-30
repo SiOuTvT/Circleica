@@ -1,0 +1,5 @@
+const { PrismaClient } = require('@prisma/client')
+const p = new PrismaClient()
+p.tagGroup.findMany({ select: { id: true, name: true, positions: true } })
+  .then(g => { console.log(JSON.stringify(g, null, 2)); return p.$disconnect() })
+  .catch(e => { console.error(e.message); return p.$disconnect() })

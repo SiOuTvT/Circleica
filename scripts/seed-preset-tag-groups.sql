@@ -13,9 +13,9 @@ VALUES
   (
     'preset_detail_header',
     '详情页信息栏标签',
-    '游戏详情页右侧核心信息区域展示的标签，用于详细了解游戏属性',
+    '游戏详情页和编辑器表单中展示的标签，用于详细了解游戏属性和后台编辑选择',
     '#f472b6',
-    '["detail_header","detail_related","resource_card"]',
+    '["detail_header","detail_related","resource_card","game_form"]',
     true,
     NOW()
   ),
@@ -34,15 +34,6 @@ VALUES
     '搜索筛选、标签云、排行榜等发现类页面中展示的标签',
     '#a78bfa',
     '["search_filter","tag_cloud","ranking"]',
-    true,
-    NOW()
-  ),
-  (
-    'preset_editor',
-    '编辑器标签',
-    '后台游戏编辑表单中展示的标签，供管理员编辑时选择',
-    '#facc15',
-    '["game_form"]',
     true,
     NOW()
   )

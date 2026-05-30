@@ -234,13 +234,13 @@ export async function POST(req: NextRequest) {
     })
     const existingNameSet = new Set(existingTags.map(t => t.name))
 
-    // 自动创建缺失标签
+    // 自动创建缺失标签（默认分配到"编辑器标签"组）
     const newTagNames = tagNames.filter(n => !existingNameSet.has(n))
     const newTags: { id: string; name: string }[] = []
     for (const name of newTagNames) {
       try {
         const created = await prisma.tag.create({
-          data: { name, color: "#6b7280" }, // 默认灰色
+          data: { name, color: "#6b7280", groupId: "preset_editor" }, // 默认灰色，归入编辑器标签组
           select: { id: true, name: true },
         })
         newTags.push(created)

@@ -26,8 +26,9 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
       isVisible: isVisible !== false,
     },
+    include: { _count: { select: { games: true } } },
   })
-  return NextResponse.json(tag)
+  return NextResponse.json({ ...tag, gameCount: tag._count.games })
 }
 
 export async function DELETE(_req: NextRequest, { params }: Ctx) {
@@ -55,11 +56,32 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
 export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const { forceDelete } = await req.json()
+  const { forceDelete, groupId } = await req.json()
 
+  // 强制删除
   if (forceDelete) {
     await prisma.tag.delete({ where: { id } })
     return NextResponse.json({ ok: true })
   }
+
+  // 分配标签到标签组
+  if (groupId !== undefined) {
+    const tag = await prisma.tag.findUnique({ where: { id } })
+    if (!tag) return NextResponse.json({ error: "标签不存在" }, { status: 404 })
+
+    // 如果指定了groupId，验证目标组存在
+    if (groupId) {
+      const group = await prisma.tagGroup.findUnique({ where: { id: groupId } })
+      if (!group) return NextResponse.json({ error: "目标标签组不存在" }, { status: 404 })
+    }
+
+    const updated = await prisma.tag.update({
+      where: { id },
+      data: { groupId: groupId || null },
+      include: { _count: { select: { games: true } } },
+    })
+    return NextResponse.json({ ...updated, gameCount: updated._count.games })
+  }
+
   return NextResponse.json({ error: "无效操作" }, { status: 400 })
 }

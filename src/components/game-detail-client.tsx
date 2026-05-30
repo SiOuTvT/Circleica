@@ -1,6 +1,6 @@
 "use client"
 
-import { BookOpen, Building2, Calendar, ChevronDown, ChevronUp, Clock, Download, ExternalLink, Gamepad2, Monitor } from "lucide-react"
+import { Building2, Calendar, ChevronDown, ChevronUp, Clock, Download, ExternalLink, Gamepad2, Monitor } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { type SubmittedResource } from "./game-detail/add-resource-dialog"
@@ -30,7 +30,7 @@ type Comment = {
   user: { id: string; username: string; avatar: string | null }
 }
 
-type TagInfo = { name: string; color: string }
+type TagInfo = { name: string; color: string; groupName?: string }
 type FileSizeEntry = { value: string; unit: string }
 
 const TABS = [
@@ -278,9 +278,6 @@ export default function GameDetailClient({
     }
   }, [isLoggedIn, favPending, fav, favCnt, gameId])
 
-  // Split gameTags by category (use tag.color to differentiate)
-  const genreTags = gameTags?.filter(t => t.color === "#818cf8" || t.color === "#a78bfa") ?? []
-  const storyTags = gameTags?.filter(t => t.color === "#38bdf8" || t.color === "#22d3ee") ?? []
 
   return (
     <div>
@@ -454,33 +451,11 @@ export default function GameDetailClient({
                   </div>
                 </div>
               )}
-              {genreTags.length > 0 && (
-                <div className="flex items-start gap-3">
-                  <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏类型</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
-                    {genreTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "rgba(129,140,248,0.15)", color: "#a5b4fc" }}>{tag.name}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
               {gameDuration && (
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
                   <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长</span>
                   <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{gameDuration}</span>
-                </div>
-              )}
-              {storyTags.length > 0 && (
-                <div className="flex items-start gap-3">
-                  <BookOpen className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>剧情标签</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
-                    {storyTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{tag.name}</span>
-                    ))}
-                  </div>
                 </div>
               )}
               {vndbId && (() => {
@@ -494,24 +469,14 @@ export default function GameDetailClient({
                   </div>
                 )
               })()}
-              {/* 游戏标签（全部） */}
+              {/* 游戏标签 */}
               {gameTags && gameTags.length > 0 && (
                 <div className="flex items-start gap-3">
                   <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
                   <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签</span>
                   <div className="ml-auto flex flex-wrap justify-end gap-1.5">
                     {gameTags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                        style={{
-                          color: tag.color || "var(--foreground)",
-                          background: tag.color ? `${tag.color}18` : "var(--secondary)",
-                          border: `1px solid ${tag.color ? `${tag.color}30` : "var(--border)"}`,
-                        }}
-                      >
-                        {tag.name}
-                      </span>
+                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>{tag.name}</span>
                     ))}
                   </div>
                 </div>
@@ -568,21 +533,6 @@ export default function GameDetailClient({
               </div>
             )}
 
-            {/* 游戏类型 */}
-            {genreTags.length > 0 && (
-              <div className="flex items-start gap-2.5">
-                <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏类型：</span>
-                  {genreTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "rgba(129,140,248,0.15)", color: "#a5b4fc" }}>
-                      {tag.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* 游戏时长 */}
             {gameDuration && (
               <div className="flex items-start gap-2.5">
@@ -592,21 +542,6 @@ export default function GameDetailClient({
                   <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
                     {gameDuration}
                   </span>
-                </div>
-              </div>
-            )}
-
-            {/* 剧情标签 */}
-            {storyTags.length > 0 && (
-              <div className="flex items-start gap-2.5">
-                <BookOpen className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>剧情标签：</span>
-                  {storyTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
-                      {tag.name}
-                    </span>
-                  ))}
                 </div>
               </div>
             )}
@@ -635,22 +570,14 @@ export default function GameDetailClient({
               )
             })()}
 
-            {/* 游戏标签（全部） */}
+            {/* 游戏标签 */}
             {gameTags && gameTags.length > 0 && (
               <div className="flex items-start gap-2.5">
                 <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
                   <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签：</span>
                   {gameTags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                      style={{
-                        color: tag.color || "var(--foreground)",
-                        background: tag.color ? `${tag.color}18` : "var(--secondary)",
-                        border: `1px solid ${tag.color ? `${tag.color}30` : "var(--border)"}`,
-                      }}
-                    >
+                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>
                       {tag.name}
                     </span>
                   ))}

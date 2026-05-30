@@ -218,42 +218,42 @@ export function TagGroupDetailClient({
     }
   }
 
-  const inputCls = "w-full rounded-xl bg-secondary px-5 py-3 text-base text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+  const inputCls = "w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
 
   return (
     <div className="space-y-6">
       {/* ── 顶部导航 ── */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/admin/tags")}
-          className="flex items-center gap-2.5 rounded-2xl bg-secondary px-6 py-3.5 text-base font-semibold text-foreground ring-1 ring-border hover:ring-violet-500/40 hover:bg-violet-500/5 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-violet-500/40 hover:bg-violet-500/5 transition-all cursor-pointer"
         >
-          <ArrowLeft className="h-5 w-5" />
-          返回标签组总览
+          <ArrowLeft className="h-3.5 w-3.5" />
+          返回
         </button>
-        <div className="flex items-center gap-3">
-          <div className="h-5 w-5 rounded-full" style={{ background: group.color }} />
-          <h1 className="text-2xl font-bold text-foreground">{group.name}</h1>
+        <div className="flex items-center gap-2">
+          <div className="h-3.5 w-3.5 rounded-full" style={{ background: group.color }} />
+          <h1 className="text-base font-semibold text-foreground">{group.name}</h1>
           {group.isPreset && (
-            <span className="text-xs text-amber-400/80 bg-amber-500/10 rounded-full px-3 py-1 ring-1 ring-amber-500/20">内置</span>
+            <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">内置</span>
           )}
-          <span className="text-base text-muted-foreground">
-            {tags.length} 个标签 · {tags.reduce((s, t) => s + t.gameCount, 0)} 次关联
+          <span className="text-xs text-muted-foreground">
+            {tags.length} 标签 · {tags.reduce((s, t) => s + t.gameCount, 0)} 关联
           </span>
         </div>
       </div>
 
       {group.description && (
-        <p className="text-base text-muted-foreground">{group.description}</p>
+        <p className="text-xs text-muted-foreground">{group.description}</p>
       )}
 
       {Array.isArray(group.positions) && group.positions.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {group.positions.map((posKey: string) => {
             const def = TAG_POSITIONS.find((p) => p.key === posKey)
             if (!def) return null
             return (
-              <span key={posKey} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium bg-secondary text-muted-foreground ring-1 ring-border" title={def.description}>
+              <span key={posKey} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-secondary text-muted-foreground ring-1 ring-border" title={def.description}>
                 {def.icon} {def.label}
               </span>
             )
@@ -262,32 +262,32 @@ export function TagGroupDetailClient({
       )}
 
       {error && (
-        <div className="rounded-xl bg-red-500/10 px-5 py-3 text-base text-red-400 ring-1 ring-red-500/20">{error}</div>
+        <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
 
       {/* ── 搜索 + 新建 ── */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…"
-            className="w-full rounded-xl bg-secondary pl-12 pr-4 py-3 text-base text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
+            className="w-full rounded-lg bg-secondary pl-9 pr-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
           />
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 rounded-xl bg-violet-500/10 text-violet-400 px-5 py-3 text-base font-semibold ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-violet-500/10 text-violet-400 px-3 py-1.5 text-xs font-medium ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all cursor-pointer"
         >
-          {showCreate ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+          {showCreate ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           {showCreate ? "收起" : "新建标签"}
         </button>
       </div>
 
       {/* ── 新建标签表单 ── */}
       {showCreate && (
-        <div className="rounded-2xl bg-card p-6 ring-1 ring-border space-y-4">
+        <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-3">
           <input
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
@@ -300,9 +300,9 @@ export function TagGroupDetailClient({
           <button
             onClick={handleCreateTag}
             disabled={saving || !newTagName.trim()}
-            className="flex items-center gap-2 rounded-xl bg-violet-500 text-white px-6 py-3 text-base font-semibold hover:bg-violet-600 transition-all disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg bg-violet-500 text-white px-4 py-1.5 text-xs font-medium hover:bg-violet-600 transition-all disabled:opacity-50 cursor-pointer"
           >
-            {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             创建标签
           </button>
         </div>
@@ -310,45 +310,34 @@ export function TagGroupDetailClient({
 
       {/* ── 标签胶囊流 ── */}
       {filteredTags.length === 0 ? (
-        <div className="rounded-2xl bg-card p-12 text-center ring-1 ring-border">
-          <p className="text-lg text-muted-foreground">
+        <div className="rounded-xl bg-card p-8 text-center ring-1 ring-border">
+          <p className="text-sm text-muted-foreground">
             {searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签，点击上方「新建标签」开始创建"}
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           {filteredTags.map((tag) => (
             <div key={tag.id} className="group/capsule relative">
               {/* 胶囊主体 */}
               <div
-                className="inline-flex items-center gap-3 rounded-2xl bg-secondary/60 px-5 py-3.5 ring-1 ring-border transition-all duration-200 hover:ring-violet-500/50 hover:shadow-lg hover:shadow-violet-500/10 cursor-default select-none"
+                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border transition-all duration-200 hover:ring-violet-500/50 hover:shadow-md cursor-default select-none"
               >
-                {/* 标签色点 */}
-                <span className="h-3 w-3 rounded-full shrink-0" style={{ background: tag.color }} />
-
-                {/* 标签名 */}
-                <span className="text-lg font-semibold text-foreground">{tag.name}</span>
-
-                {/* 游戏数量徽章 */}
-                <span
-                  className="inline-flex items-center justify-center min-w-[2rem] h-7 rounded-full bg-muted/60 px-2.5 text-sm font-bold text-muted-foreground transition-all duration-200 group-hover/capsule:bg-violet-500 group-hover/capsule:text-white"
-                >
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
+                <span className="text-xs font-medium text-foreground">{tag.name}</span>
+                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 rounded-full bg-muted/60 px-1.5 text-[10px] font-semibold text-muted-foreground transition-all duration-200 group-hover/capsule:bg-violet-500 group-hover/capsule:text-white">
                   {tag.gameCount}
                 </span>
-
-                {/* 隐藏标记 */}
                 {tag.isVisible === false && (
-                  <span className="text-sm text-muted-foreground/50">🚫</span>
+                  <span className="text-[10px] text-muted-foreground/50">隐藏</span>
                 )}
-
-                {/* 悬停操作按钮 */}
-                <div className="flex items-center gap-1 opacity-0 group-hover/capsule:opacity-100 transition-opacity duration-200">
+                <div className="flex items-center gap-0.5 opacity-0 group-hover/capsule:opacity-100 transition-opacity duration-200 ml-0.5">
                   <button
                     onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
                     title="编辑"
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    className="p-1 rounded hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-3 w-3" />
                   </button>
                   <button
                     onClick={(e) => {
@@ -356,28 +345,28 @@ export function TagGroupDetailClient({
                       setDeleteConfirm({ id: tag.id, name: tag.name, count: tag.gameCount })
                     }}
                     title="删除"
-                    className="p-1.5 rounded-lg hover:bg-red-500/20 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
+                    className="p-1 rounded hover:bg-red-500/20 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3" />
                   </button>
                 </div>
               </div>
 
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
-                <div className="absolute left-0 top-full mt-2 z-30 w-96 rounded-2xl bg-card p-5 ring-1 ring-border shadow-2xl shadow-black/30 space-y-3">
-                  <div className="flex gap-3">
+                <div className="absolute left-0 top-full mt-1.5 z-30 w-72 rounded-xl bg-card p-3.5 ring-1 ring-border shadow-xl shadow-black/30 space-y-2">
+                  <div className="flex gap-2">
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="标签名称"
-                      className="flex-1 rounded-xl bg-secondary px-4 py-2.5 text-base text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
                       autoFocus
                     />
                     <select
                       value={editGroupId}
                       onChange={(e) => setEditGroupId(e.target.value)}
-                      className="w-40 shrink-0 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="w-28 shrink-0 rounded-lg bg-secondary px-2 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
                     >
                       {allGroups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -388,39 +377,39 @@ export function TagGroupDetailClient({
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     placeholder="标签描述（可选）"
-                    className="w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                    className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
                   />
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <input
                       type="number"
                       value={editSortOrder}
                       onChange={(e) => setEditSortOrder(Number(e.target.value))}
                       title="排序值"
-                      className="w-20 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="w-16 rounded-lg bg-secondary px-2 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
                     />
                     <button
                       type="button"
                       onClick={() => setEditVisible(!editVisible)}
-                      className={`rounded-xl px-4 py-2.5 text-sm ring-1 ring-border transition-colors cursor-pointer ${
+                      className={`rounded-lg px-2.5 py-1.5 text-[10px] ring-1 ring-border transition-colors cursor-pointer ${
                         editVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
                       }`}
                     >
-                      {editVisible ? "👁 可见" : "🚫 隐藏"}
+                      {editVisible ? "可见" : "隐藏"}
                     </button>
                   </div>
                   <ColorPicker value={editColor} onChange={setEditColor} />
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={handleUpdateTag}
                       disabled={saving || !editName.trim()}
-                      className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-base font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
                     >
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       保存
                     </button>
                     <button
                       onClick={() => setEditingTag(null)}
-                      className="rounded-xl bg-secondary px-5 py-2.5 text-base text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                       取消
                     </button>

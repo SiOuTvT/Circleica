@@ -47,7 +47,7 @@ export default async function GameDetailPage({
   const game = await prisma.game.findFirst({
     where: { id, isPublished: true },
     include: {
-      tags: { select: { tag: { select: { name: true, color: true } } } },
+      tags: { select: { tag: { select: { name: true, color: true, group: { select: { color: true, name: true } } } } } },
       comments: {
         orderBy: { createdAt: "desc" },
         include: { user: { select: { id: true, username: true, avatar: true } } },
@@ -318,7 +318,7 @@ export default async function GameDetailPage({
             fileSizes={fileSizes}
             platformTags={platformTags}
             languageTags={languageTags}
-            gameTags={tags.map((t) => ({ name: t.name, color: t.color }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color, groupName: t.group?.name }))}
             viewCount={game.viewCount}
             downloadCount={game.downloadCount}
             vndbId={game.vndbId ?? undefined}

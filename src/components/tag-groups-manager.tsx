@@ -696,7 +696,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
       )}
 
       {/* ── 标签组卡片列表 ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {filteredGroups.length === 0 && (
           <div className="col-span-full rounded-xl bg-card p-8 text-center ring-1 ring-border">
             <p className="text-sm text-muted-foreground">
@@ -711,10 +711,10 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           const isAddingTag = showCreateTag === group.id
 
           return (
-            <div
-              key={group.id}
-              className="rounded-xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-violet-500/40 hover:shadow-lg hover:shadow-violet-500/5"
-            >
+              <div
+                key={group.id}
+                className="rounded-2xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-violet-500/40 hover:shadow-lg hover:shadow-violet-500/5"
+              >
               {/* ── 标签组头部 ── */}
               {isEditingGroup ? (
                 /* 编辑模式 */
@@ -767,15 +767,15 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 </div>
               ) : (
                 /* 展示模式 */
-                <div className="p-4">
-                  <div className="flex items-center gap-2">
+                <div className="p-5">
+                  <div className="flex items-center gap-3">
                     {/* 展开/收起按钮 */}
                     <button
                       onClick={() => setExpanded(isExpanded ? null : group.id)}
                       className="flex items-center gap-2 flex-1 min-w-0 text-left"
                     >
-                      <div className="h-3 w-3 shrink-0 rounded-full" style={{ background: group.color }} />
-                      <span className="text-sm font-semibold text-foreground truncate">{group.name}</span>
+                      <div className="h-4 w-4 shrink-0 rounded-full" style={{ background: group.color }} />
+                      <span className="text-base font-semibold text-foreground">{group.name}</span>
                       {group.isPreset && (
                         <span className="shrink-0 text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
                           内置
@@ -786,8 +786,8 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                           {group.description}
                         </span>
                       )}
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {group.tags.length}
+                      <span className="shrink-0 text-sm text-muted-foreground">
+                        {group.tags.length} 个标签
                       </span>
                       {isExpanded ? (
                         <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -845,7 +845,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
               {/* ── 展开的标签区域 ── */}
               {isExpanded && !isEditingGroup && (
-                <div className="px-4 pb-4 space-y-3">
+                <div className="px-5 pb-5 space-y-4">
                   {/* 标签网格 */}
                   {group.tags.length > 0 ? (
                     <div className="flex flex-wrap gap-2">

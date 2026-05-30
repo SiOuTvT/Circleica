@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       description: description?.trim() ?? "",
       color: color ?? "#a78bfa",
-      groupId: groupId || null,
+      groupId: groupId || "preset_editor",
       sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
       isVisible: isVisible !== false,
     },

@@ -10,6 +10,8 @@ datasource db {
 
 model User {
   id            String         @id @default(cuid())
+  serialId      Int            @unique @default(autoincrement())
+  uid           String         @unique @default("")
   username      String         @unique
   email         String         @unique
   password      String
@@ -38,6 +40,7 @@ model User {
   publishedGames   Game[]
 
   @@index([role])
+  @@index([serialId])
 }
 
 model Follow {
@@ -79,6 +82,7 @@ model Session {
 
 model Game {
   id            String       @id @default(cuid())
+  serialId      Int          @unique @default(autoincrement())
   title         String
   originalWork  String       @default("")
   description   String       @default("")
@@ -117,6 +121,7 @@ model Game {
   @@index([isPublished, createdAt])
   @@index([title])
   @@index([vndbId])
+  @@index([serialId])
 }
 
 model TagGroup {

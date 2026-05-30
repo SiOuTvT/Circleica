@@ -31,7 +31,32 @@ export default async function TagsOverviewPage() {
     totalGames: g.tags.reduce((s, t) => s + t._count.games, 0),
   }))
 
+  // 查询未分组标签（VNDB导入等场景创建的标签没有groupId）
+  const ungroupedTags = await prisma.tag.findMany({
+    where: { groupId: null },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      color: true,
+      description: true,
+      sortOrder: true,
+      isVisible: true,
+      _count: { select: { games: true } },
+    },
+  })
+
+  const mappedUngrouped = ungroupedTags.map((t) => ({
+    id: t.id,
+    name: t.name,
+    color: t.color,
+    gameCount: t._count.games,
+    description: t.description,
+    sortOrder: t.sortOrder,
+    isVisible: t.isVisible,
+  }))
+
   return (
-    <TagsOverviewClient groups={mappedGroups} />
+    <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={mappedGroups.map(g => ({ id: g.id, name: g.name, color: g.color }))} />
   )
 }
