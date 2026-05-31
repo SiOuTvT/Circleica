@@ -9,7 +9,6 @@ function buildCSP(): string {
     `img-src 'self' data: blob: https:`,
     `font-src 'self' data:`,
     `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
-    `upgrade-insecure-requests`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
