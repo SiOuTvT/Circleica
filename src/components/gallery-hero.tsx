@@ -289,14 +289,21 @@ export function GalleryStrip({
 
   useEffect(() => {
     if (!barRef.current) return
-    const active = barRef.current.children[activeIndex] as HTMLElement
-    if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
+    const container = barRef.current
+    const active = container.children[activeIndex] as HTMLElement
+    if (!active) return
+    // 手动计算水平滚动位置，避免 scrollIntoView 导致页面纵向跳动
+    const containerRect = container.getBoundingClientRect()
+    const activeRect = active.getBoundingClientRect()
+    const scrollLeft =
+      active.offsetLeft - container.offsetWidth / 2 + active.offsetWidth / 2
+    container.scrollTo({ left: scrollLeft, behavior: "smooth" })
   }, [activeIndex])
 
   if (screenshots.length === 0) return null
 
   return (
-    <div ref={barRef} className="flex h-full items-center gap-1.5 sm:gap-2 overflow-x-auto px-2 sm:px-3 scrollbar-hide" style={{ scrollBehavior: "smooth" }}>
+    <div ref={barRef} className="flex h-full items-center gap-1.5 sm:gap-2 overflow-x-auto px-2 sm:px-3 scrollbar-hide" style={{ scrollBehavior: "smooth", overscrollBehaviorX: "contain", overscrollBehaviorY: "none" }}>
       {screenshots.map((img, i) => (
         <button
           key={i}
