@@ -22,10 +22,16 @@ echo "=============================="
 echo "  设置 SSL 证书 ($SERVER_IP)"
 echo "=============================="
 
-# 1. 安装 openssl（如果未安装）
+# 1. 安装 nginx 和 openssl（如果未安装）
+echo "检查并安装 nginx..."
+apt-get update -y
+if ! command -v nginx &> /dev/null; then
+    echo "安装 nginx..."
+    apt-get install -y nginx
+fi
 if ! command -v openssl &> /dev/null; then
     echo "安装 openssl..."
-    apt-get update && apt-get install -y openssl
+    apt-get install -y openssl
 fi
 
 # 2. 创建 SSL 目录
