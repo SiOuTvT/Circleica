@@ -86,6 +86,14 @@ export const TAG_POSITIONS: TagPositionDef[] = [
     group: "资源与下载",
   },
 
+  {
+    key: "game_form",
+    label: "游戏编辑表单",
+    description: "后台游戏编辑/新建表单中展示的标签分类，供管理员编辑时选择",
+    icon: "✏️",
+    group: "核心展示区",
+  },
+
 ]
 
 /** 获取所有 position key 列表 */

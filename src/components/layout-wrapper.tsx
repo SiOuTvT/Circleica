@@ -25,7 +25,7 @@ export function LayoutWrapper({ children, isAdmin }: { children: React.ReactNode
         跳到主要内容
       </a>
       {!isAdminRoute && !isFullscreenRoute && <TopNav />}
-      <main id="main-content" role="main" className={(isAdminRoute || isFullscreenRoute) ? "min-h-screen overflow-x-clip" : "pt-14 min-h-screen overflow-x-clip"}>
+      <main id="main-content" role="main" className={(isAdminRoute || isFullscreenRoute) ? "min-h-screen overflow-x-clip" : "pt-[calc(3.5rem+env(safe-area-inset-top,0px))] min-h-screen overflow-x-clip"}>
         {isAdminRoute ? (
           /* 管理后台：全屏无边距，由 admin/layout.tsx 自行处理 */
           children

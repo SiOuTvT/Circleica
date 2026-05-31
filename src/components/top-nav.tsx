@@ -84,12 +84,17 @@ export function TopNav() {
   }, [])
 
   // 监听滚动，用于导航栏透明效果
+  // 移动端降低阈值，减少快速滚动时的闪烁
   useEffect(() => {
     let ticking = false
     function handleScroll() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 60)
+          // 使用 Math.max 过滤 iOS 橡皮筋回弹时的负 scrollY
+          // 移动端使用更低阈值 20px（PC 端保持 60px）
+          const isMobile = window.innerWidth < 768
+          const threshold = isMobile ? 20 : 60
+          setScrolled(Math.max(0, window.scrollY) > threshold)
           ticking = false
         })
         ticking = true
@@ -170,12 +175,15 @@ export function TopNav() {
 
   return (
     <>
-      <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300",
-        scrolled
-          ? "bg-zinc-950/80 backdrop-blur-md border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.3)] light:bg-white/80 light:border-black/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
-          : "bg-transparent border-transparent"
-      )}>
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 will-change-transform",
+          "pt-[env(safe-area-inset-top)]",
+          scrolled
+            ? "bg-zinc-950/80 backdrop-blur-md border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.3)] light:bg-white/80 light:border-black/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+            : "bg-transparent border-transparent"
+        )}
+      >
         {/* 顶部渐变高光线 */}
         <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
 
@@ -187,7 +195,7 @@ export function TopNav() {
               setForumOpen(v => !v)
             }
           }}
-          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:bg-muted/50 rounded-full"
+          className="absolute top-[env(safe-area-inset-top)] left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:bg-muted/50 rounded-full"
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>
@@ -323,7 +331,8 @@ export function TopNav() {
       )}
 
       <aside className={cn(
-        "fixed top-14 z-40 flex h-[calc(100dvh-3.5rem)] flex-col backdrop-blur-sm transition-all duration-300 ease-out",
+        "fixed z-40 flex flex-col backdrop-blur-sm transition-all duration-300 ease-out",
+        "top-[calc(3.5rem+env(safe-area-inset-top,0px))] h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))]",
         "lg:left-0 lg:translate-x-0",
         forumOpen ? "lg:w-[240px]" : "lg:w-0 lg:border-r-0 lg:overflow-hidden",
         "left-0 w-full",

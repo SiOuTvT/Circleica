@@ -73,7 +73,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            className="h-full w-full object-cover transition-all duration-700 ease-in-out"
+            className="block h-full w-full object-cover transition-all duration-700 ease-in-out"
             style={{ transform: `scale(1.1)` }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
@@ -131,7 +131,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
                 onClick={(e) => { e.preventDefault(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`h-2.5 rounded-full transition-all ${i === cur ? "w-6 bg-white" : "w-2.5 bg-white/40"}`}
+                className={`h-[6px] w-[6px] rounded-full transition-all sm:h-2.5 sm:w-2.5 ${i === cur ? "!w-5 sm:!w-6 bg-white" : "bg-white/40"}`}
               />
             ))}
           </div>

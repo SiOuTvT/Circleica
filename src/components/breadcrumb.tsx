@@ -62,8 +62,8 @@ function isDynamicSegment(seg: string): boolean {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(seg)) return true
   // CUID / NanoID 等长随机串（20+字符，字母数字混合）
   if (/^[a-z0-9_-]{20,}$/i.test(seg)) return true
-  // 纯数字 ID（如 user id 12345）
-  if (/^\d{3,}$/.test(seg)) return true
+  // 纯数字 ID（如 serialId 1, 2, 12345）
+  if (/^\d+$/.test(seg)) return true
   // VNDB 风格 ID（如 s123, p456）
   if (/^[sp]\d+$/i.test(seg)) return true
   return false
