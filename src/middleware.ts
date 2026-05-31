@@ -30,6 +30,19 @@ export function middleware(req: NextRequest) {
     res.headers.set("Content-Security-Policy", buildCSP())
   }
 
+  // 移除 Sentry 自动添加的 Strict-Transport-Security 头（HTTP 站点不需要）
+  res.headers.delete("Strict-Transport-Security")
+
+  // 移除 Sentry 自动添加的 X-Frame-Options（我们用 CSP frame-ancestors 控制）
+  res.headers.delete("X-Frame-Options")
+
+  // 读取当前 CSP 并移除 upgrade-insecure-requests（HTTP 站点不需要）
+  const csp = res.headers.get("Content-Security-Policy")
+  if (csp) {
+    const cleaned = csp.replace(/upgrade-insecure-requests;?\s*/g, "").trim()
+    res.headers.set("Content-Security-Policy", cleaned)
+  }
+
   return res
 }
 

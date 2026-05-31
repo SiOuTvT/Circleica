@@ -33,6 +33,23 @@ const nextConfig: NextConfig = {
   },
   // 移除 X-Powered-By 头，减少信息泄露
   poweredByHeader: false,
+
+  async headers() {
+    return [
+      {
+        // 对所有页面强制覆盖 CSP，移除 upgrade-insecure-requests（HTTP 站点不需要）
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Forwarded-Proto",
+            value: "http",
+          },
+        ],
+      },
+    ];
+  },
+
+  // 告诉 Sentry 不要添加安全头（我们自己控制）
   // 启用 gzip/brotli 压缩
   compress: true,
   // 忽略可选依赖的类型检查错误
