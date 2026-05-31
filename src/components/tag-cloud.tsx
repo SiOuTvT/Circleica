@@ -2,20 +2,36 @@
 
 import { ChevronDown } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useMemo, useState } from "react"
 
 type Tag = { id: string; name: string; color: string }
 
 export function TagCloud({
   tags,
   activeTag,
-  buildHref,
+  basePath,
 }: {
   tags: Tag[]
   activeTag: string
-  buildHref: (overrides: Record<string, string>) => string
+  basePath: string
 }) {
   const [expanded, setExpanded] = useState(false)
+  const searchParams = useSearchParams()
+
+  const buildHref = useMemo(() => {
+    return (tagName: string) => {
+      const p = new URLSearchParams(searchParams.toString())
+      if (tagName) {
+        p.set("tag", tagName)
+      } else {
+        p.delete("tag")
+      }
+      const s = p.toString()
+      return `${basePath}${s ? `?${s}` : ""}`
+    }
+  }, [searchParams, basePath])
+
   const VISIBLE_COUNT = 10
   const visibleTags = expanded ? tags : tags.slice(0, VISIBLE_COUNT)
 
@@ -23,7 +39,7 @@ export function TagCloud({
     <div>
       <div className="flex flex-wrap gap-1.5">
         <Link
-          href={buildHref({ tag: "" })}
+          href={buildHref("")}
           className={[
             "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium leading-none transition-all",
             !activeTag
@@ -36,7 +52,7 @@ export function TagCloud({
         {visibleTags.map((t) => (
           <Link
             key={t.id}
-            href={buildHref({ tag: t.name })}
+            href={buildHref(t.name)}
             className={[
               "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium leading-none transition-all ring-1",
               activeTag === t.name ? "opacity-100" : "opacity-50 hover:opacity-80",

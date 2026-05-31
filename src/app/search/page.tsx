@@ -169,8 +169,8 @@ export default async function SearchPage({
       {/* 搜索框 */}
       <SearchBar defaultValue={q} />
 
-        {/* 标签云（折叠） */}
-      <TagCloud tags={tags} activeTag={tag} buildHref={buildHref} />
+      {/* 标签云（折叠） */}
+      <TagCloud tags={tags} activeTag={tag} basePath="/search" />
 
       {/* 清除筛选 */}
       {(q || tag || sort !== "newest" || nsfw) && (
