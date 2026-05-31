@@ -39,12 +39,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false, // 保持严格检查，但通过 tsconfig 排除特定模块
   },
-  // Turbopack 配置 - 使用默认项目根目录（不要硬编码路径，否则服务器部署会出错）
-  // 实验性优化
-  experimental: {
-    // 优化 CSS 打包
-    optimizeCss: true,
-  },
+  // 显式关闭 StrictMode，避免生产环境双重渲染
+  reactStrictMode: false,
 };
 
 export default withSentryConfig(nextConfig, {
