@@ -101,6 +101,20 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   const activeImage = galleryImages[activeIndex]
 
+  // Track previous image for crossfade
+  const prevImageRef = useRef<string>(activeImage)
+  const [fading, setFading] = useState(false)
+  useEffect(() => {
+    if (prevImageRef.current !== activeImage) {
+      setFading(true)
+      const timer = setTimeout(() => {
+        prevImageRef.current = activeImage
+        setFading(false)
+      }, 350)
+      return () => clearTimeout(timer)
+    }
+  }, [activeImage])
+
   return (
     <>
     {/* Lightbox 弹层 */}
@@ -156,13 +170,24 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     )}
 
     <div className="group relative h-full w-full overflow-hidden">
+      {/* Previous image underneath for crossfade */}
+      {prevImageRef.current !== activeImage && (
+        <Image
+          src={prevImageRef.current}
+          alt=""
+          fill
+          className="object-cover"
+          draggable={false}
+          sizes="(max-width: 1024px) 100vw, 62vw"
+          quality={80}
+        />
+      )}
       <Image
-        key={activeIndex}
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
         fill
-        className="object-cover cursor-pointer"
-        style={{ animation: "heroFadeIn 0.35s ease-out" }}
+        className={`object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
         sizes="(max-width: 1024px) 100vw, 62vw"
         quality={80}
@@ -183,20 +208,20 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-40 active:opacity-80 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.35)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
+            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
             aria-label="上一张"
           >
-            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-40 active:opacity-80 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
-            style={{ background: "rgba(0,0,0,0.35)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
+            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
             aria-label="下一张"
           >
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
         </>
       )}
@@ -205,15 +230,15 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); openLightbox() }}
-        className="absolute left-3 bottom-3 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-40 active:opacity-80 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-105"
-        style={{ background: "rgba(0,0,0,0.35)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-105"
+        style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
         aria-label="放大查看"
       >
         <Maximize2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
       </button>
 
       {/* 右上角控件 */}
-      <div className="absolute right-2.5 top-2.5 sm:right-3 sm:top-3 flex items-center gap-1 sm:gap-1.5">
+      <div className="absolute right-2 top-2 sm:right-3 sm:top-3 flex items-center gap-1 sm:gap-1.5">
         {hasMultipleImages && (
           <button
             type="button"
@@ -226,16 +251,16 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
                 return next
               })
             }}
-            className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 opacity-40 active:opacity-80 sm:opacity-100 sm:hover:scale-105"
-            style={{ background: "rgba(0,0,0,0.35)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+            className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 sm:hover:scale-105"
+            style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
             aria-label={isPaused ? "继续轮播" : "暂停轮播"}
           >
             {isPaused ? <Play className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <Pause className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
           </button>
         )}
         <span
-          className="rounded-full px-1.5 py-0.5 text-[9px] sm:px-2 sm:text-[10px] font-semibold tabular-nums backdrop-blur-md"
-          style={{ background: "rgba(0,0,0,0.35)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+          className="rounded-full px-1.5 py-0.5 text-[8px] sm:px-2 sm:text-[10px] font-semibold tabular-nums backdrop-blur-md"
+          style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
         >
           {activeIndex + 1}/{galleryImages.length}
         </span>

@@ -314,14 +314,12 @@ export default function GameDetailClient({
                   </div>
                 )
               })()}
-              {/* 游戏标签 — 标签从最左边换行，不缩进 */}
+              {/* 游戏标签 — 图标+标题+标签全部 inline，换行从最左端开始 */}
               {gameTags && gameTags.length > 0 && (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-2.5">
-                    <Gamepad2 className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                <div className="flex items-start gap-2.5">
+                  <Gamepad2 className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
+                  <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                     <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pl-0">
                     {gameTags.map((tag, i) => (
                       <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>{tag.name}</span>
                     ))}
