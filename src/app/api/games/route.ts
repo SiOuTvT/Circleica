@@ -51,21 +51,37 @@ async function handleGamesList(req: NextRequest) {
           createdAt: true,
           description: true,
           tags: { select: { tag: { select: { name: true, color: true } } } },
+          resources: { select: { language: true, runType: true, resourceContent: true } },
         },
       }),
       prisma.game.count({ where }),
     ])
 
     const data = games.map((g) => {
-      let downloadLinks: { label?: string; url: string; platform?: string }[] = []
+      let downloadLinks: { label?: string; url: string; tags?: string[] }[] = []
       try {
         const parsed = JSON.parse(g.downloadLinks || "[]")
         if (Array.isArray(parsed)) downloadLinks = parsed
       } catch { /* ignore */ }
+
+      // 从所有资源中收集去重的 resourceTags（仅语言、运行方式、资源内容，不含平台）
+      const resourceTags: string[] = [...new Set(
+        g.resources.flatMap((r) => {
+          const tags: string[] = []
+          try { tags.push(...JSON.parse(r.language)) } catch {}
+          try { tags.push(...JSON.parse(r.runType)) } catch {}
+          try { tags.push(...JSON.parse(r.resourceContent)) } catch {}
+          return tags
+        })
+      )]
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { resources: _ignored, ...rest } = g
       return {
-        ...g,
-        tags: g.tags.map((t) => t.tag),
+        ...rest,
+        tags: rest.tags.map((t) => t.tag),
         downloadLinks,
+        resourceTags,
       }
     })
 

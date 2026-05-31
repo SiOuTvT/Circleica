@@ -15,6 +15,7 @@ export interface GameCardData {
   viewCount?: number
   downloadCount?: number
   downloadLinks?: { label?: string; url: string; tags?: string[] }[]
+  resourceTags?: string[]
   updatedAt?: Date | string
   createdAt?: Date | string
   isNsfw: boolean
@@ -56,16 +57,8 @@ export function GameCard({ game }: { game: GameCardData }) {
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
 
-  // 从 downloadLinks 中收集去重的标签
-  const paramTags = (() => {
-    if (game.downloadLinks && game.downloadLinks.length > 0) {
-      const allTags = game.downloadLinks
-        .flatMap((dl) => dl.tags ?? [])
-        .filter((t): t is string => !!t)
-      return [...new Set(allTags)]
-    }
-    return []
-  })()
+  // 使用 resourceTags（来自资源表的 language/runType/resourceContent 去重合并）
+  const paramTags = game.resourceTags ?? []
 
   return (
     <Link

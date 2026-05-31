@@ -192,13 +192,13 @@ export default async function GameDetailPage({
               overflow: "hidden",
             }}
           >
-            {/* ①号位：封面图 3:2，左右留内边距 */}
-            <div className="px-2.5 sm:px-5 pt-2.5 sm:pt-5 pb-2 shrink-0 min-w-0">
+            {/* ①号位：封面图 3:2，融入卡片顶部 */}
+            <div className="shrink-0 min-w-0">
               <div
                 className="relative overflow-hidden w-full"
                   style={{
                   aspectRatio: "3 / 2",
-                  borderRadius: "12px",
+                  borderRadius: "12px 12px 0 0",
                 }}
               >
                 {game.coverImage ? (
