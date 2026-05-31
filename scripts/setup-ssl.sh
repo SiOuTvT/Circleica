@@ -98,12 +98,13 @@ server {
 }
 EOF
 
-# 6. 测试并重载 Nginx
+# 6. 测试并启动 Nginx
 echo "测试 Nginx 配置..."
 nginx -t
 
-echo "重载 Nginx..."
-systemctl reload nginx
+echo "启动 Nginx..."
+systemctl enable nginx
+systemctl restart nginx
 
 echo ""
 echo "=============================="
