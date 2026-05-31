@@ -24,6 +24,8 @@ declare module "next-auth" {
   }
 }
 
+const isSecure = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false
+
 // 注意：不使用 PrismaAdapter。
 // PrismaAdapter 用于 OAuth provider（GitHub/Google 等）需要数据库存储 account/session 的场景。
 // 我们只用 Credentials + JWT 策略，不需要 Adapter。
@@ -46,7 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: false, // HTTP 站点不能用 secure: true
+        secure: isSecure, // 根据 NEXTAUTH_URL 自动判断是否需要 secure
       },
     },
   },
