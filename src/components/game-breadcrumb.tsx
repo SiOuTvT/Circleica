@@ -1,7 +1,17 @@
 "use client"
 
-import { BreadcrumbSetter } from "./breadcrumb-setter";
+import { useBreadcrumb } from "@/components/breadcrumb-context";
+import { useEffect } from "react";
 
 export function GameBreadcrumb({ gameId, gameTitle }: { gameId: string; gameTitle: string }) {
-  return <BreadcrumbSetter segment={gameId} label={gameTitle} />
+  const { setDynamicLabel } = useBreadcrumb()
+
+  useEffect(() => {
+    setDynamicLabel(`/games/${gameId}`, gameTitle)
+    return () => {
+      setDynamicLabel(`/games/${gameId}`, null)
+    }
+  }, [gameId, gameTitle, setDynamicLabel])
+
+  return null
 }

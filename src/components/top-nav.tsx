@@ -170,9 +170,14 @@ export function TopNav() {
 
   return (
     <>
-      <header className={cn("fixed top-0 left-0 right-0 z-50 bg-background border-b border-border nav-header", scrolled && "nav-scrolled")}>
+      <header className={cn(
+        "fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300",
+        scrolled
+          ? "bg-zinc-950/80 backdrop-blur-md border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.3)] light:bg-white/80 light:border-black/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+          : "bg-transparent border-transparent"
+      )}>
         {/* 顶部渐变高光线 */}
-        <div className={cn("nav-gradient-line absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
+        <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
 
         <button
           onClick={() => {
@@ -182,7 +187,7 @@ export function TopNav() {
               setForumOpen(v => !v)
             }
           }}
-          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center nav-icon-btn transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="fixed top-0 left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:bg-muted/50 rounded-full"
         >
           <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
         </button>

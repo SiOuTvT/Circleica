@@ -134,8 +134,9 @@ export default async function GameDetailPage({
   }))
 
   // 计算发布时间相对描述
+  const createdAt = new Date(game.createdAt)
   const now = new Date()
-  const diffMs = now.getTime() - game.createdAt.getTime()
+  const diffMs = now.getTime() - createdAt.getTime()
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
   let timeAgo: string
   if (diffDays === 0) timeAgo = "今天发布"
@@ -155,8 +156,8 @@ export default async function GameDetailPage({
     "url": `${BASE}/games/${game.serialId}`,
     "applicationCategory": "Game",
     "genre": tags.map(t => t.name).join(", "),
-    "datePublished": game.createdAt.toISOString(),
-    "dateModified": game.updatedAt.toISOString(),
+    "datePublished": new Date(game.createdAt).toISOString(),
+    "dateModified": new Date(game.updatedAt).toISOString(),
     "interactionStatistic": [
       { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": game.favoriteCount },
       { "@type": "InteractionCounter", "interactionType": "https://schema.org/ViewAction", "userInteractionCount": game.viewCount },
