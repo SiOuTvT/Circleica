@@ -7,9 +7,9 @@ export function GameBreadcrumb({ gameId, gameTitle }: { gameId: string; gameTitl
   const { setDynamicLabel } = useBreadcrumb()
 
   useEffect(() => {
-    setDynamicLabel(`/games/${gameId}`, gameTitle)
+    setDynamicLabel(gameId, gameTitle)
     return () => {
-      setDynamicLabel(`/games/${gameId}`, null)
+      setDynamicLabel(gameId, null)
     }
   }, [gameId, gameTitle, setDynamicLabel])
 
