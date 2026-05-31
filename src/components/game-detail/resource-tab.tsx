@@ -1,7 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { ChevronDown, ChevronUp, Download, Pencil, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
 
@@ -35,6 +35,11 @@ type Creator = {
   nameJa: string | null
   avatar: string | null
   role: string
+}
+
+/* ─── API返回的资源类型（含服务器提供的字段） ─── */
+interface ApiResource extends SubmittedResource {
+  userResourceCount: number
 }
 
 interface ResourceTabProps {
@@ -119,14 +124,13 @@ function ResourceCard({
   onEdit,
   onDelete,
 }: {
-  resource: SubmittedResource
+  resource: ApiResource
   isOwner: boolean
   isGamePublisher: boolean
   onEdit: () => void
   onDelete: () => void
 }) {
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set())
-
   const toggleEntry = useCallback((idx: number) => {
     setExpandedEntries(prev => {
       const next = new Set(prev)
@@ -144,31 +148,13 @@ function ResourceCard({
     ...resource.resourceContent,
   ]
 
-  // 已发布资源数量
-  const [userResourceCount, setUserResourceCount] = useState(0)
-  useEffect(() => {
-    try {
-      let count = 0
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i)
-        if (k?.startsWith("resources_")) {
-          const list = JSON.parse(localStorage.getItem(k) || "[]") as SubmittedResource[]
-          count += list.filter(r => r.userId === resource.userId).length
-        }
-      }
-      setUserResourceCount(count)
-    } catch {
-      // ignore
-    }
-  }, [resource.userId])
-
   return (
     <div
-      className="relative rounded-xl border border-foreground/10 bg-card overflow-hidden transition-all duration-200 hover:border-foreground/20 hover:shadow-md"
+      className="relative rounded-xl border border-foreground/10 bg-card hover:border-foreground/20 overflow-hidden transition-all duration-200 hover:shadow-md"
       style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
     >
       {/* ── 第一行：胶囊标签流 ── */}
-      <div className="px-4 pt-4 pb-2.5 flex flex-wrap gap-2">
+      <div className="px-4 pt-4 pb-2.5 flex flex-wrap items-center gap-2">
         {allTags.map((tag) => (
           <span
             key={tag}
@@ -194,8 +180,8 @@ function ResourceCard({
           </p>
           <p className="text-sm text-muted-foreground/80">
             {formatRelativeTime(resource.createdAt)}
-            {userResourceCount > 0 && (
-              <span className="ml-2">· 已发布 {userResourceCount} 条资源</span>
+            {resource.userResourceCount > 0 && (
+              <span className="ml-2">· 已发布 {resource.userResourceCount} 条资源</span>
             )}
           </p>
         </div>
@@ -210,7 +196,7 @@ function ResourceCard({
         </div>
       )}
 
-      {/* ── 第四行：下载链接按钮（并排排列，点击展开详情）── */}
+      {/* ── 第四行：下载链接按钮 ── */}
       <div className="px-4 pb-2.5">
         <div className="flex flex-wrap gap-2">
           {resource.entries.map((entry, i) => {
@@ -315,51 +301,120 @@ export function ResourceTab({
   username,
   userAvatar,
 }: ResourceTabProps) {
-  const [submittedResources, setSubmittedResources] = useState<SubmittedResource[]>([])
-  const [editingResource, setEditingResource] = useState<SubmittedResource | null>(null)
+  const [resources, setResources] = useState<ApiResource[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [editingResource, setEditingResource] = useState<ApiResource | null>(null)
   const [editOpen, setEditOpen] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<SubmittedResource | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ApiResource | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [actionLoading, setActionLoading] = useState(false)
 
-  // 从 localStorage 加载资源
-  useEffect(() => {
+  /* ── 从API加载资源 ── */
+  const fetchResources = useCallback(async () => {
     try {
-      const key = `resources_${gameId}`
-      const stored = JSON.parse(localStorage.getItem(key) || "[]") as SubmittedResource[]
-      setSubmittedResources(stored)
-    } catch {
-      // ignore
+      setLoadError(null)
+      const res = await fetch(`/api/games/${gameId}/resources`)
+      if (!res.ok) {
+        throw new Error("加载失败")
+      }
+      const data = await res.json()
+      setResources(data.resources || [])
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "加载资源失败")
+    } finally {
+      setLoading(false)
     }
   }, [gameId])
 
-  const handleAdd = useCallback((resource: SubmittedResource) => {
-    setSubmittedResources(prev => [resource, ...prev])
-  }, [])
+  useEffect(() => {
+    fetchResources()
+  }, [fetchResources])
 
-  const handleEdit = useCallback((resource: SubmittedResource) => {
-    setSubmittedResources(prev => {
-      const updated = prev.map(r => r.id === resource.id ? resource : r)
-      try {
-        localStorage.setItem(`resources_${gameId}`, JSON.stringify(updated))
-      } catch { /* ignore */ }
-      return updated
-    })
-    setEditingResource(null)
-    setEditOpen(false)
+  /* ── 添加资源 ── */
+  const handleAdd = useCallback(async (resource: SubmittedResource) => {
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/resources`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entries: resource.entries,
+          platform: resource.platform,
+          language: resource.language,
+          runType: resource.runType,
+          resourceContent: resource.resourceContent,
+          resourceName: resource.resourceName,
+          resourceNote: resource.resourceNote,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "提交失败")
+      }
+      const data = await res.json()
+      setResources(prev => [data.resource, ...prev])
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "提交资源失败")
+    } finally {
+      setActionLoading(false)
+    }
   }, [gameId])
 
-  const handleDeleteConfirm = useCallback(() => {
+  /* ── 编辑资源 ── */
+  const handleEdit = useCallback(async (resource: SubmittedResource) => {
+    if (!editingResource) return
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/resources/${editingResource.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entries: resource.entries,
+          platform: resource.platform,
+          language: resource.language,
+          runType: resource.runType,
+          resourceContent: resource.resourceContent,
+          resourceName: resource.resourceName,
+          resourceNote: resource.resourceNote,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "编辑失败")
+      }
+      const data = await res.json()
+      setResources(prev => prev.map(r => r.id === editingResource.id ? data.resource : r))
+      setEditingResource(null)
+      setEditOpen(false)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "编辑资源失败")
+    } finally {
+      setActionLoading(false)
+    }
+  }, [gameId, editingResource])
+
+  /* ── 删除资源 ── */
+  const handleDeleteConfirm = useCallback(async () => {
     if (!deleteTarget) return
-    setSubmittedResources(prev => {
-      const updated = prev.filter(r => r.id !== deleteTarget.id)
-      try {
-        localStorage.setItem(`resources_${gameId}`, JSON.stringify(updated))
-      } catch { /* ignore */ }
-      return updated
-    })
-    setDeleteTarget(null)
-    setDeleteOpen(false)
-  }, [deleteTarget, gameId])
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/resources/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "删除失败")
+      }
+      setResources(prev => prev.filter(r => r.id !== deleteTarget.id))
+      setDeleteTarget(null)
+      setDeleteOpen(false)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "删除资源失败")
+    } finally {
+      setActionLoading(false)
+    }
+  }, [gameId, deleteTarget])
 
   return (
     <div className="space-y-5">
@@ -378,10 +433,32 @@ export function ResourceTab({
         </div>
       </div>
 
+      {/* 加载中状态 */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-sm text-muted-foreground">加载资源中...</span>
+        </div>
+      )}
+
+      {/* 加载错误 */}
+      {loadError && !loading && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+          <p className="text-sm text-red-600">{loadError}</p>
+          <button
+            type="button"
+            onClick={fetchResources}
+            className="mt-2 text-sm font-medium text-red-700 underline hover:no-underline"
+          >
+            重试
+          </button>
+        </div>
+      )}
+
       {/* 用户提交的资源卡片列表 */}
-      {submittedResources.length > 0 && (
+      {!loading && resources.length > 0 && (
         <div className="space-y-3">
-          {submittedResources.map((res) => {
+          {resources.map((res) => {
             const isOwner = !!currentUserId && res.userId === currentUserId
             const isGamePublisher = false
             return (
@@ -404,6 +481,11 @@ export function ResourceTab({
         </div>
       )}
 
+      {/* 空状态 */}
+      {!loading && !loadError && resources.length === 0 && downloadLinks.length === 0 && (
+        <p className="text-sm text-muted-foreground/60 text-center py-4">暂无下载链接</p>
+      )}
+
       {/* 编辑资源弹窗 */}
       {editingResource && (
         <AddResourceDialog
@@ -415,7 +497,10 @@ export function ResourceTab({
           editData={editingResource}
           onEdit={handleEdit}
           open={editOpen}
-          onOpenChange={setEditOpen}
+          onOpenChange={(v) => {
+            setEditOpen(v)
+            if (!v) setEditingResource(null)
+          }}
           hideTrigger
         />
       )}
@@ -426,13 +511,13 @@ export function ResourceTab({
         onOpenChange={setDeleteOpen}
         title="删除资源"
         description={`确定要删除"${deleteTarget?.resourceName || "此资源"}"吗？此操作无法撤销。`}
-        confirmText="删除"
+        confirmText={actionLoading ? "删除中..." : "删除"}
         onConfirm={handleDeleteConfirm}
         variant="destructive"
       />
 
       {/* 后台配置的下载链接 */}
-      {downloadLinks.length > 0 ? (
+      {downloadLinks.length > 0 && (
         <div className="space-y-2">
           {downloadLinks.map((dl, i) => (
             <a
@@ -447,9 +532,7 @@ export function ResourceTab({
             </a>
           ))}
         </div>
-      ) : submittedResources.length === 0 ? (
-        <p className="text-sm text-muted-foreground/60">暂无下载链接</p>
-      ) : null}
+      )}
 
       {/* 制作人员列表 */}
       {creators.length > 0 && (

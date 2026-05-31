@@ -351,23 +351,7 @@ export function AddResourceDialog({
       createdAt: isEditMode && editData ? editData.createdAt : new Date().toISOString(),
     }
 
-    // 保存到 localStorage
-    try {
-      const key = `resources_${gameId}`
-      const existing = JSON.parse(localStorage.getItem(key) || "[]") as SubmittedResource[]
-      if (isEditMode) {
-        const idx = existing.findIndex(r => r.id === resource.id)
-        if (idx >= 0) existing[idx] = resource
-        else existing.unshift(resource)
-      } else {
-        existing.unshift(resource)
-      }
-      localStorage.setItem(key, JSON.stringify(existing))
-    } catch {
-      // localStorage 不可用时静默失败
-    }
-
-    // 回调通知父组件
+    // 回调通知父组件（资源数据由父组件通过API持久化）
     if (isEditMode) {
       onEdit?.(resource)
     } else {
