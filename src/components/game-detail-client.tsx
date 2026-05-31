@@ -281,47 +281,49 @@ export default function GameDetailClient({
             />
           </button>
           {mobileArchiveOpen && (
-            <div className="mt-2 space-y-3 rounded-xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+            <div className="mt-2 space-y-2.5 rounded-xl p-2.5" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
               {releaseDate && (
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>发售日期</span>
-                  <span className="ml-auto text-sm font-semibold" style={{ color: "var(--foreground)" }}>{releaseDate}</span>
+                <div className="flex items-center gap-2.5">
+                  <Calendar className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>发售日期</span>
+                  <span className="ml-auto text-xs font-semibold" style={{ color: "var(--foreground)" }}>{releaseDate}</span>
                 </div>
               )}
               {studioName && (
-                <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社</span>
-                  <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
+                <div className="flex items-center gap-2.5">
+                  <Building2 className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
                 </div>
               )}
               {gameDuration && (
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长</span>
-                  <span className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{gameDuration}</span>
+                <div className="flex items-center gap-2.5">
+                  <Clock className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                  <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长</span>
+                  <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{gameDuration}</span>
                 </div>
               )}
               {vndbId && (() => {
                 const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
                 const numericId = rawId.replace(/^v/, "")
                 return (
-                  <div className="flex items-center gap-3">
-                    <ExternalLink className="h-4 w-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
-                    <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>VNDB</span>
-                    <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>v{numericId}</a>
+                  <div className="flex items-center gap-2.5">
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                    <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>VNDB</span>
+                    <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold transition-all hover:opacity-80" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>v{numericId}</a>
                   </div>
                 )
               })()}
-              {/* 游戏标签 */}
+              {/* 游戏标签 — 标签从最左边换行，不缩进 */}
               {gameTags && gameTags.length > 0 && (
-                <div className="flex items-start gap-3">
-                  <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--muted-foreground)" }} />
-                  <span className="text-sm shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签</span>
-                  <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2.5">
+                    <Gamepad2 className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted-foreground)" }} />
+                    <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pl-0">
                     {gameTags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>{tag.name}</span>
+                      <span key={i} className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>{tag.name}</span>
                     ))}
                   </div>
                 </div>
