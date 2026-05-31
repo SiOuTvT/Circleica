@@ -35,6 +35,7 @@ interface NotificationItem {
   createdAt: string
   actor: {
     id: string
+    serialId: number | null
     username: string
     avatar: string
   }
@@ -70,7 +71,7 @@ const TYPE_CONFIG: Record<
   follow: {
     icon: UserPlus,
     text: (actor) => `${actor} 关注了你`,
-    href: (_type, id) => `/profile/${id}`,
+    href: (_type, id) => `/user/${id}`,
     category: "follow",
   },
 }
@@ -360,7 +361,7 @@ export default function NotificationsClient({
 
                   <div className="relative shrink-0">
                     {n.actor.avatar ? (
-                      <Link href={`/profile/${n.actor.id}`}>
+                    <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
                         <img
                           src={n.actor.avatar}
                           alt=""
@@ -368,7 +369,7 @@ export default function NotificationsClient({
                         />
                       </Link>
                     ) : (
-                      <Link href={`/profile/${n.actor.id}`}>
+                      <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 light:bg-zinc-200">
                           <Icon
                             className="h-4 w-4 text-zinc-500"

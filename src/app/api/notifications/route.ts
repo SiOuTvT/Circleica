@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     orderBy: { createdAt: "desc" },
     include: {
-      actor: { select: { id: true, username: true, avatar: true } },
+      actor: { select: { id: true, serialId: true, username: true, avatar: true } },
     },
   })
 

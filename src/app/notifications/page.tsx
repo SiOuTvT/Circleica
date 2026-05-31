@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
     take: 30,
     orderBy: { createdAt: "desc" },
     include: {
-      actor: { select: { id: true, username: true, avatar: true } },
+      actor: { select: { id: true, serialId: true, username: true, avatar: true } },
     },
   })
 
