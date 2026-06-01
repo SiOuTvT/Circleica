@@ -108,7 +108,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       {/* ─── 内容区：自然撑开 ─── */}
       <div className="game-card-body flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 overflow-hidden">
         {/* 第1行：游戏名称 */}
-        <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-snug line-clamp-2">
+        <h3 className="game-card-title text-[16px] sm:text-[17px] font-semibold leading-snug line-clamp-2">
           {game.title}
         </h3>
 
@@ -119,19 +119,19 @@ export function GameCard({ game }: { game: GameCardData }) {
         <div className="game-card-stats flex items-center gap-3 flex-shrink-0">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
+              <Eye className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} aria-hidden="true" />
               {viewStr}
             </span>
           )}
           {dlStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
+              <Download className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} aria-hidden="true" />
               {dlStr}
             </span>
           )}
           {favStr && (
             <span className="game-card-stat flex items-center gap-1 text-sm sm:text-[13px] font-normal">
-              <Heart className="w-4 h-4 sm:w-3.5 sm:h-3.5" strokeWidth={1.5} aria-hidden="true" />
+              <Heart className="w-[18px] h-[18px] sm:w-4 sm:h-4" strokeWidth={1.5} aria-hidden="true" />
               {favStr}
             </span>
           )}

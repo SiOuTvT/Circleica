@@ -1065,14 +1065,14 @@ input:focus, textarea:focus, select:focus {
 /* ── 卡片：干净、自然、带统一阴影层次 ── */
 .game-card {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: var(--card-shadow);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
 }
 
 .game-card:hover {
   box-shadow: var(--card-shadow-hover);
-  border-color: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .game-card-title {
@@ -1085,13 +1085,13 @@ input:focus, textarea:focus, select:focus {
 
 .light .game-card {
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: var(--card-shadow);
 }
 
 .light .game-card:hover {
   box-shadow: var(--card-shadow-hover);
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.20);
 }
 
 .light .game-card-title {

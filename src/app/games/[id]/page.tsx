@@ -209,7 +209,7 @@ export default async function GameDetailPage({
               <div
                 className="relative overflow-hidden w-full"
                   style={{
-                  aspectRatio: "3 / 2",
+                  aspectRatio: "17 / 9",
                   borderRadius: "12px 12px 0 0",
                 }}
               >
@@ -249,10 +249,10 @@ export default async function GameDetailPage({
               </div>
 
               {/* ② 标签行（SFW/NSFW + 资源标签） */}
-              <div className="flex flex-wrap items-center gap-1.5 mt-1 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mt-2.5 mb-2">
                 {/* SFW/NSFW 标识 */}
                 <span
-                  className="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded"
+                    className="inline-block text-[12px] font-bold px-2 py-0.5 rounded"
                   style={{
                     color: game.isNsfw ? "var(--clr-rose)" : "var(--clr-blue)",
                     background: game.isNsfw ? "rgba(231,76,111,0.1)" : "rgba(52,152,219,0.1)",
@@ -264,7 +264,7 @@ export default async function GameDetailPage({
                 {resourceTags.map((tag) => (
                   <span
                     key={tag}
-                    className="game-card-tag inline-block text-[11px] font-medium px-2 py-0.5 rounded-md max-w-[96px] truncate"
+                    className="game-card-tag inline-block text-[13px] font-medium px-2.5 py-1 rounded-md max-w-[96px] truncate"
                     title={tag}
                   >
                     {tag}
@@ -338,7 +338,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           下方内容区 — Tab 式详情
       ═══════════════════════════════════════════════ */}
-      <div className="py-4 sm:py-6 lg:py-8">
+      <div className="py-6 sm:py-8 lg:py-12">
           <GameDetailClient
             description={getDescriptionText(game.description)}
             allDescriptions={getAllDescriptions(game.description)}

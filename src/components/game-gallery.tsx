@@ -17,10 +17,10 @@ export function GameGallery({
   const [activeIndex, setActiveIndex] = useState(0)
 
   return (
-    <div className="flex flex-col h-[200px] sm:h-[300px] lg:h-[430px] min-w-0">
+    <div className="flex flex-col h-[300px] sm:h-[400px] lg:h-[520px] min-w-0">
       {/* 上卡片：巨幕预览 — 占 60% */}
       <div
-        className="relative overflow-hidden flex-[6] min-h-0 w-full"
+        className="relative overflow-hidden flex-[7.5] min-h-0 w-full"
         style={{
           borderRadius: "16px",
           background: "var(--card)",
@@ -37,7 +37,7 @@ export function GameGallery({
       </div>
 
       {/* 下区域：缝隙 + 缩略图条 — 占 40% */}
-      <div className="flex-[4] min-h-0 flex flex-col">
+      <div className="flex-[2.5] min-h-0 flex flex-col">
         <div className="shrink-0 h-1.5 sm:h-3 lg:h-4" />
 
         {/* 下卡片：画廊缩略图条 */}
