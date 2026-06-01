@@ -120,8 +120,8 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
                   <td className="hidden px-5 py-3.5 sm:table-cell">
                     <div className="flex flex-wrap gap-1">
                       {g.tags.slice(0, 3).map(({ tag }) => (
-                        <span key={tag.name} className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium leading-none"
-                          style={{ color: tag.color, background: `${tag.color}18`, outline: `1px solid ${tag.color}30` }}>
+                        <span key={tag.name} className="game-card-tag inline-block text-[11px] font-medium px-2 py-0.5 rounded-md max-w-[96px] truncate"
+                          title={tag.name}>
                           {tag.name}
                         </span>
                       ))}

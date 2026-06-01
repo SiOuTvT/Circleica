@@ -30,6 +30,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
+        resources: { select: { language: true, runType: true, resourceContent: true } },
       },
     }),
     prisma.game.count({ where }),
@@ -49,11 +50,23 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         downloadLinks = parsed
       }
     } catch { /* ignore */ }
+    // 从资源中收集去重的 resourceTags
+    const resourceTags: string[] = [...new Set(
+      g.resources.flatMap((r) => {
+        const items: string[] = []
+        try { items.push(...JSON.parse(r.language)) } catch {}
+        try { items.push(...JSON.parse(r.runType)) } catch {}
+        try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+        return items
+      })
+    )]
+
     return {
       ...g,
       coverImage: g.coverImage || placeholder,
       tags: g.tags.map((t) => t.tag),
       downloadLinks,
+      resourceTags,
     }
   })
 

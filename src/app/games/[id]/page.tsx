@@ -12,7 +12,6 @@ import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { unstable_cache } from "next/cache"
 import Image from "next/image"
-import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
 /**
@@ -76,10 +75,11 @@ export default async function GameDetailPage({
   // ISR：缓存游戏详情查询，60秒内复用，减少数据库压力
   const getCachedGameDetail = unstable_cache(
     async (gameId: string) => {
-      return prisma.game.findFirst({
+        return prisma.game.findFirst({
         where: { id: gameId, isPublished: true },
         include: {
           tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
+          resources: { select: { language: true, runType: true, resourceContent: true } },
           comments: {
             orderBy: { createdAt: "desc" },
             include: { user: { select: { id: true, username: true, avatar: true } } },
@@ -99,6 +99,17 @@ export default async function GameDetailPage({
   if (!game) notFound()
 
   const tags = game.tags.map((t) => t.tag)
+
+  // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）
+  const resourceTags: string[] = [...new Set(
+    game.resources.flatMap((r) => {
+      const items: string[] = []
+      try { items.push(...JSON.parse(r.language)) } catch {}
+      try { items.push(...JSON.parse(r.runType)) } catch {}
+      try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+      return items
+    })
+  )]
 
   // 相关游戏推荐：按共同标签匹配
   const tagNames = tags.map((t) => t.name)
@@ -237,7 +248,7 @@ export default async function GameDetailPage({
                 )}
               </div>
 
-              {/* ② 标签行（SFW/NSFW + 游戏标签，两行） */}
+              {/* ② 标签行（SFW/NSFW + 资源标签） */}
               <div className="flex flex-wrap items-center gap-1.5 mt-1 mb-2">
                 {/* SFW/NSFW 标识 */}
                 <span
@@ -249,16 +260,15 @@ export default async function GameDetailPage({
                 >
                   {game.isNsfw ? "NSFW" : "SFW"}
                 </span>
-                {/* 游戏标签（全部显示，溢出自动换行） */}
-                {tags.map((tag) => (
-                  <Link
-                    key={tag.id}
-                    href={`/search?tag=${tag.id}`}
-                    className="rounded-md bg-secondary/80 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors truncate max-w-[80px]"
-                    title={tag.name}
+                {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 颜色跟随主题色 */}
+                {resourceTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="game-card-tag inline-block text-[11px] font-medium px-2 py-0.5 rounded-md max-w-[96px] truncate"
+                    title={tag}
                   >
-                    {tag.name}
-                  </Link>
+                    {tag}
+                  </span>
                 ))}
               </div>
 

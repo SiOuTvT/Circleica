@@ -74,30 +74,30 @@ export function GameDetailTopClient({
     }
   }
 
-  const btnBase = "flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-all"
+  const btnBase = "flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all"
 
   if (compact) {
-    // 紧凑模式：三个等宽按钮并排
+    // 紧凑模式：三个按钮自适应宽度，不撑满整行
     return (
       <>
-        <div className="flex items-center gap-2">
-          {/* 收藏 */}
+        <div className="flex items-center gap-1.5 w-fit">
+          {/* 收藏 — 正方形按钮 */}
           <button
             onClick={handleFavoriteClick}
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
               btnBase,
-              "flex-1 py-2.5 border",
+              "p-2.5 rounded-xl border-2",
               fav
-                ? "bg-secondary border-border text-rose-500"
-                : "bg-secondary border-border/70 text-muted-foreground"
+                ? "bg-secondary border-foreground/25 text-rose-500"
+                : "bg-secondary border-foreground/20 text-muted-foreground hover:text-foreground"
             )}
           >
             {unfavoriting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-[18px] h-[18px] animate-spin" />
             ) : (
               <Heart
-                className="w-4 h-4"
+                className="w-[18px] h-[18px]"
                 strokeWidth={2}
                 fill={fav ? "currentColor" : "none"}
                 style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
@@ -105,12 +105,12 @@ export function GameDetailTopClient({
             )}
           </button>
 
-          {/* 分享 */}
+          {/* 分享 — 正方形按钮 */}
           <button
             onClick={handleShare}
-            className={cn(btnBase, "flex-1 py-2.5 bg-secondary border border-border/70 text-muted-foreground")}
+            className={cn(btnBase, "p-2.5 rounded-xl bg-secondary border-2 border-foreground/20 text-muted-foreground hover:text-foreground")}
           >
-            <Share2 className="w-4 h-4" strokeWidth={2} />
+            <Share2 className="w-[18px] h-[18px]" strokeWidth={2} />
           </button>
 
           {/* 下载 */}
@@ -120,16 +120,18 @@ export function GameDetailTopClient({
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleDownloadClick}
-              className={cn(btnBase, "flex-1 py-2.5 bg-primary text-primary-foreground hover:opacity-90")}
+              className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
             >
-              <Download className="w-4 h-4" strokeWidth={2.5} />
+              <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
+              <span>下载</span>
             </a>
           ) : (
             <button
               onClick={handleDownloadClick}
-              className={cn(btnBase, "flex-1 py-2.5 bg-primary text-primary-foreground hover:opacity-90")}
+              className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
             >
-              <Download className="w-4 h-4" strokeWidth={2.5} />
+              <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
+              <span>下载</span>
             </button>
           )}
         </div>

@@ -69,8 +69,8 @@ export function GameCard({ game }: { game: GameCardData }) {
         try { sessionStorage.setItem(`pending_view_${game.id}`, "1") } catch {}
       }}
     >
-      {/* ─── 封面：比例固定 ─── */}
-      <div className="relative w-full" style={{ aspectRatio: "3 / 2" }}>
+      {/* ─── 封面：固定像素高度 ─── */}
+      <div className="relative w-full h-[130px] sm:h-[155px] lg:h-[175px]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -105,8 +105,8 @@ export function GameCard({ game }: { game: GameCardData }) {
         )}
       </div>
 
-      {/* ─── 内容区 ─── */}
-      <div className="game-card-body flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4">
+      {/* ─── 内容区：自然撑开 ─── */}
+      <div className="game-card-body flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 overflow-hidden">
         {/* 第1行：游戏名称 */}
         <h3 className="game-card-title text-[15px] sm:text-base font-semibold leading-snug line-clamp-2">
           {game.title}
@@ -162,9 +162,9 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card card-shadow">
       {/* 封面 */}
-      <div className="w-full skeleton-shimmer" style={{ aspectRatio: "3 / 2" }} />
+      <div className="w-full h-[130px] sm:h-[155px] lg:h-[175px] skeleton-shimmer" />
       {/* 内容 */}
-      <div className="flex flex-col flex-1 px-2 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+      <div className="flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4">
         <div className="h-4 w-full rounded skeleton-shimmer" />
         <div className="game-card-spacer" />
         <div className="flex gap-3">
