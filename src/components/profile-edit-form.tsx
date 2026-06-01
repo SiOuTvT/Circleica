@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 interface Props {
-  user: { id: string; username: string; bio: string; avatar: string; banner: string }
+  user: { id: string; username: string; bio: string; avatar: string; banner: string; uid: string }
 }
 
 export function ProfileEditForm({ user }: Props) {
@@ -82,15 +82,15 @@ export function ProfileEditForm({ user }: Props) {
     setNewPassword("")
     setTimeout(() => {
       router.refresh()
-      router.push(`/profile/${user.id}`)
+      router.push(`/user/${user.id}`)
     }, 800)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-2xl px-4">
+    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-2xl">
       {/* 返回按钮 */}
       <Link
-        href={`/profile/${user.id}`}
+        href={`/user/${user.id}`}
         className="mb-6 inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
@@ -109,11 +109,11 @@ export function ProfileEditForm({ user }: Props) {
         </div>
       )}
 
-      {/* ==================== 手机端：方案A（居中大头像 + 卡片分区）==================== */}
-      <div className="md:hidden">
-        {/* 居中大头像 */}
-        <div className="flex flex-col items-center gap-3 mb-6">
-          <div className="w-[120px] h-[120px]">
+      {/* 统一卡片 */}
+      <div className="rounded-2xl bg-zinc-900 ring-1 ring-white/[0.06] overflow-hidden">
+        {/* 头部：头像 + 用户名 + UID */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-8">
+          <div className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] shrink-0">
             <ImageUpload
               value={avatarData}
               onChange={setAvatarData}
@@ -124,225 +124,118 @@ export function ProfileEditForm({ user }: Props) {
               placeholder="上传头像"
             />
           </div>
-          <p className="text-[11px] text-zinc-600">点击头像更换 · JPG/PNG/WebP · 最大 5MB</p>
-        </div>
-
-        {/* 基本信息卡片 */}
-        <div className="rounded-2xl bg-zinc-900 p-5 ring-1 ring-white/[0.06] mb-4">
-          <div className="flex items-center gap-2 mb-4">
-            <User className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
-            <h3 className="text-sm font-semibold text-zinc-300">基本信息</h3>
-          </div>
-
-          <label className="block mb-1.5 text-[11px] font-medium text-zinc-500">用户名</label>
-          <input
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            placeholder="用户名"
-            maxLength={20}
-            required
-            className="mb-4 w-full rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] focus:ring-zinc-500 outline-none transition-all"
-          />
-
-          <label className="block mb-1.5 text-[11px] font-medium text-zinc-500">个人简介</label>
-          <div className="rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
-            <textarea
-              value={bio}
-              onChange={e => setBio(e.target.value)}
-              placeholder="介绍一下自己吧…（选填）"
-              maxLength={200}
-              rows={3}
-              className="w-full resize-none bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
-            />
-            <p className="mt-1 text-right text-[10px] text-zinc-600">{bio.length}/200</p>
+          <div className="text-center sm:text-left">
+            <p className="text-xl font-semibold text-zinc-200">{username || user.username}</p>
+            <p className="mt-1 text-sm text-zinc-500">UID: {user.uid}</p>
+            <p className="mt-2 text-xs text-zinc-600">点击头像更换 · JPG/PNG/WebP · 最大 5MB</p>
           </div>
         </div>
 
-        {/* 安全设置卡片 */}
-        <div className="rounded-2xl bg-zinc-900/70 p-5 ring-1 ring-white/[0.04] mb-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Lock className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
-            <h3 className="text-sm font-semibold text-zinc-400">安全设置</h3>
-            <span className="text-[10px] text-zinc-600">不修改请留空</span>
-          </div>
+        {/* 分隔线 */}
+        <div className="h-px bg-white/[0.06]" />
 
-          <label className="block mb-1.5 text-[11px] font-medium text-zinc-600">当前密码</label>
-          <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 px-4 py-3 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all mb-3">
-            <input
-              type={showOld ? "text" : "password"}
-              value={oldPassword}
-              onChange={e => setOldPassword(e.target.value)}
-              placeholder="输入当前密码"
-              className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowOld(v => !v)}
-              className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
-            >
-              {showOld ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
-            </button>
-          </div>
-
-          <label className="block mb-1.5 text-[11px] font-medium text-zinc-600">新密码</label>
-          <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 px-4 py-3 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
-            <input
-              type={showNew ? "text" : "password"}
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="设置新密码（至少6位）"
-              className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowNew(v => !v)}
-              className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
-            >
-              {showNew ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
-            </button>
-          </div>
-        </div>
-
-        {/* 保存按钮 */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="gradient-accent flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
-          {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
-          {saving ? "保存中…" : "保存修改"}
-        </button>
-      </div>
-
-      {/* ==================== 桌面端：方案B（头像并排 + 单卡紧凑表格式）==================== */}
-      <div className="hidden md:block">
-        <div className="rounded-2xl bg-zinc-900 ring-1 ring-white/[0.06] overflow-hidden">
-          {/* 头部：头像与用户名并排 */}
-          <div className="flex items-center gap-5 p-6">
-            <div className="w-[80px] h-[80px] shrink-0">
-              <ImageUpload
-                value={avatarData}
-                onChange={setAvatarData}
-                uploadFunction={handleAvatarUpload}
-                aspectRatio={1}
-                maxSizeMB={5}
-                shape="circle"
-                placeholder="上传头像"
+        {/* 基本信息 */}
+        <div className="p-8 space-y-6">
+          <div>
+            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              用户名
+            </label>
+            <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3.5 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
+              <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+              <input
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="用户名"
+                maxLength={20}
+                required
+                className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
               />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-semibold text-zinc-200 truncate">{username || user.username}</p>
-              <p className="mt-0.5 text-xs text-zinc-500">ID: {user.id}</p>
-              <p className="mt-2 text-[11px] text-zinc-600">点击头像更换 · JPG/PNG/WebP · 最大 5MB</p>
-            </div>
           </div>
 
-          {/* 分隔线 */}
-          <div className="h-px bg-white/[0.06]" />
+          <div>
+            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              个人简介
+            </label>
+            <div className="rounded-xl bg-zinc-800 px-4 py-3.5 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
+              <textarea
+                value={bio}
+                onChange={e => setBio(e.target.value)}
+                placeholder="介绍一下自己吧…（选填）"
+                maxLength={200}
+                rows={4}
+                className="w-full resize-none bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+              />
+              <p className="mt-1 text-right text-[10px] text-zinc-600">{bio.length}/200</p>
+            </div>
+          </div>
+        </div>
 
-          {/* 基本信息 */}
-          <div className="p-6 space-y-5">
+        {/* 分隔线 */}
+        <div className="h-px bg-white/[0.06]" />
+
+        {/* 安全设置 - 每行一个 */}
+        <div className="p-8 bg-zinc-900/50">
+          <div className="flex items-center gap-2 mb-5">
+            <Lock className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">安全设置</h3>
+            <span className="text-[10px] text-zinc-600">不修改请留空</span>
+          </div>
+          <div className="space-y-4">
             <div>
-              <label className="block mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                用户名
-              </label>
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
-                <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+              <label className="block mb-2 text-xs font-medium text-zinc-600">当前密码</label>
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 px-4 py-3.5 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
                 <input
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder="用户名"
-                  maxLength={20}
-                  required
+                  type={showOld ? "text" : "password"}
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                  placeholder="输入当前密码"
                   className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowOld(v => !v)}
+                  className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
+                >
+                  {showOld ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
+                </button>
               </div>
             </div>
-
             <div>
-              <label className="block mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                个人简介
-              </label>
-              <div className="rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-500 transition-all">
-                <textarea
-                  value={bio}
-                  onChange={e => setBio(e.target.value)}
-                  placeholder="介绍一下自己吧…（选填）"
-                  maxLength={200}
-                  rows={3}
-                  className="w-full resize-none bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+              <label className="block mb-2 text-xs font-medium text-zinc-600">新密码</label>
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 px-4 py-3.5 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
+                <input
+                  type={showNew ? "text" : "password"}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  placeholder="设置新密码（至少6位）"
+                  className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
                 />
-                <p className="mt-1 text-right text-[10px] text-zinc-600">{bio.length}/200</p>
+                <button
+                  type="button"
+                  onClick={() => setShowNew(v => !v)}
+                  className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
+                >
+                  {showNew ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* 分隔线 */}
-          <div className="h-px bg-white/[0.06]" />
+        {/* 分隔线 */}
+        <div className="h-px bg-white/[0.06]" />
 
-          {/* 安全设置 */}
-          <div className="p-6 bg-zinc-900/50">
-            <div className="flex items-center gap-2 mb-4">
-              <Lock className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">安全设置</h3>
-              <span className="text-[10px] text-zinc-600">不修改请留空</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1.5 text-[11px] font-medium text-zinc-600">当前密码</label>
-                <div className="flex items-center gap-2 rounded-xl bg-zinc-800/60 px-4 py-3 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
-                  <input
-                    type={showOld ? "text" : "password"}
-                    value={oldPassword}
-                    onChange={e => setOldPassword(e.target.value)}
-                    placeholder="输入当前密码"
-                    className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none min-w-0"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowOld(v => !v)}
-                    className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
-                  >
-                    {showOld ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block mb-1.5 text-[11px] font-medium text-zinc-600">新密码</label>
-                <div className="flex items-center gap-2 rounded-xl bg-zinc-800/60 px-4 py-3 ring-1 ring-white/[0.04] focus-within:ring-zinc-600 transition-all">
-                  <input
-                    type={showNew ? "text" : "password"}
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    placeholder="设置新密码（至少6位）"
-                    className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none min-w-0"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNew(v => !v)}
-                    className="shrink-0 text-zinc-600 hover:text-zinc-400 transition-colors"
-                  >
-                    {showNew ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 分隔线 */}
-          <div className="h-px bg-white/[0.06]" />
-
-          {/* 保存按钮 */}
-          <div className="p-6">
-            <button
-              type="submit"
-              disabled={saving}
-              className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-            >
-              {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
-              {saving ? "保存中…" : "保存修改"}
-            </button>
-          </div>
+        {/* 保存按钮 */}
+        <div className="p-8">
+          <button
+            type="submit"
+            disabled={saving}
+            className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
+            {saving ? "保存中…" : "保存修改"}
+          </button>
         </div>
       </div>
     </form>
