@@ -270,9 +270,7 @@ export default async function GameDetailPage({
                   isFav={isFav}
                   isLoggedIn={!!session}
                   compact
-                  onDownloadClick={() => {
-                    document.getElementById("resources-section")?.scrollIntoView({ behavior: "smooth" })
-                  }}
+                  scrollToResources
                 />
               </div>
 

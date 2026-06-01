@@ -12,6 +12,7 @@ export function GameDetailTopClient({
   isFav,
   isLoggedIn,
   onDownloadClick,
+  scrollToResources = false,
   compact = false,
 }: {
   gameId: string
@@ -19,6 +20,8 @@ export function GameDetailTopClient({
   isFav: boolean
   isLoggedIn: boolean
   onDownloadClick?: () => void
+  /** 点击下载时自动滚动到资源区 */
+  scrollToResources?: boolean
   /** 紧凑模式：三个按钮等宽并排，用于手机端卡片内 */
   compact?: boolean
 }) {
@@ -66,6 +69,8 @@ export function GameDetailTopClient({
   function handleDownloadClick() {
     if (onDownloadClick) {
       onDownloadClick()
+    } else if (scrollToResources) {
+      document.getElementById("resources-section")?.scrollIntoView({ behavior: "smooth" })
     }
   }
 
