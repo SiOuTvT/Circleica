@@ -66,7 +66,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
       onMouseLeave={() => setPaused(false)}
     >
       {/* 背景图 - 始终铺满整个容器 */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 h-full w-full">
         {ann.imageUrl && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -74,7 +74,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             src={ann.imageUrl}
             alt={ann.title}
             className="block h-full w-full object-cover transition-all duration-700 ease-in-out"
-            style={{ transform: `scale(1.1)` }}
+            style={{ transform: `scale(1.1)`, verticalAlign: 'bottom' }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
             fetchPriority={cur === 0 ? "high" : "low"}
@@ -124,14 +124,14 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           </button>
 
           {/* 分页点 */}
-          <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 sm:bottom-4 sm:gap-2">
             {announcements.map((_, i) => (
               <button
                 key={i}
                 onClick={(e) => { e.preventDefault(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`h-[6px] w-[6px] rounded-full transition-all sm:h-2.5 sm:w-2.5 ${i === cur ? "!w-5 sm:!w-6 bg-white" : "bg-white/40"}`}
+                className={`h-[5px] w-[5px] rounded-full transition-all sm:h-2 sm:w-2 lg:h-2.5 lg:w-2.5 ${i === cur ? "!w-3.5 sm:!w-5 lg:!w-6 bg-white" : "bg-white/40"}`}
               />
             ))}
           </div>

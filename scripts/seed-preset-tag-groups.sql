@@ -13,9 +13,9 @@ VALUES
   (
     'preset_detail_header',
     '详情页信息栏标签',
-    '游戏详情页信息栏、相关游戏、资源卡片及编辑表单中展示的标签',
+    '游戏详情页信息栏、相关游戏和资源卡片中展示的标签',
     '#f472b6',
-    '["detail_header","detail_related","resource_card","game_form"]',
+    '["detail_header","detail_related","resource_card"]',
     true,
     NOW()
   ),
