@@ -156,9 +156,6 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
         >
           <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
           <span className="text-xs font-medium text-foreground">勋章墙</span>
-          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400">
-            {earnedMedals.length}
-          </span>
         </button>
       ) : (
         <button
@@ -192,7 +189,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                 <Award className="h-5 w-5 text-amber-400" />
                 <h2 className="text-base font-bold text-foreground">勋章墙</h2>
                 <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
-                  {earnedMedals.length}/{allMedals.length}
+                  {earnedMedals.length}
                 </span>
               </div>
               <button
@@ -250,7 +247,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                   className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
                 >
                   <Award className="h-3.5 w-3.5" strokeWidth={2} />
-                  {showAll ? "仅显示已获得" : `查看全部 (${allMedals.length - earnedMedals.length} 个未解锁)`}
+                  {showAll ? "仅显示已获得" : "查看全部"}
                 </button>
               )}
             </div>
