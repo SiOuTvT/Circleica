@@ -3,7 +3,7 @@
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useState } from "react"
+import { memo, useCallback, useState } from "react"
 
 export interface GameCardData {
   id: string
@@ -30,7 +30,7 @@ function fmtNum(n?: number): string {
   return String(n)
 }
 
-export function GameCard({ game }: { game: GameCardData }) {
+export const GameCard = memo(function GameCard({ game }: { game: GameCardData }) {
   const [imgError, setImgError] = useState(false)
   const [imgFallback, setImgFallback] = useState(false)
 
@@ -156,7 +156,7 @@ export function GameCard({ game }: { game: GameCardData }) {
       </div>
     </Link>
   )
-}
+})
 
 export function GameCardSkeleton() {
   return (

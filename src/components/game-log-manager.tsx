@@ -11,10 +11,12 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   const [adding, setAdding] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/admin/games/${gameId}/logs`)
+    const controller = new AbortController()
+    fetch(`/api/admin/games/${gameId}/logs`, { signal: controller.signal })
       .then(r => r.json())
       .then(setLogs)
       .catch(() => {})
+    return () => controller.abort()
   }, [gameId])
 
   async function add(e: React.FormEvent) {

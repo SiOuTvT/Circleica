@@ -1,5 +1,6 @@
 "use client"
 
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Trash2, Unlock, X } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -122,14 +123,7 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
   }
 
   // 弹窗打开时锁定背景滚动
-  useEffect(() => {
-    if (modalFolder) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-    return () => { document.body.style.overflow = "" }
-  }, [modalFolder])
+  useBodyScrollLock(!!modalFolder)
 
   return (
     <div className="flex flex-col">

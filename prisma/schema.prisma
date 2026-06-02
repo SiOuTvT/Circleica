@@ -174,6 +174,7 @@ model GameTag {
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
   @@id([gameId, tagId])
+  @@index([tagId])
 }
 
 model Comment {
@@ -285,6 +286,8 @@ model Announcement {
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+
+  @@index([sortOrder])
 }
 
 model Music {
@@ -302,6 +305,8 @@ model GameLog {
   content   String
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([gameId])
 }
 
 model Creator {
@@ -329,6 +334,8 @@ model GameCreator {
   game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
   creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   @@unique([gameId, creatorId, role])
+  @@index([gameId])
+  @@index([creatorId])
 }
 
 model GameRating {
@@ -341,6 +348,7 @@ model GameRating {
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([gameId, userId])
+  @@index([gameId])
 }
 
 model PasswordResetToken {
@@ -351,6 +359,8 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model CheckIn {
@@ -360,6 +370,7 @@ model CheckIn {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, date])
+  @@index([userId])
 }
 
 model ForumPost {

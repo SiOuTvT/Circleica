@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 /**
  * 移动端输入框聚焦自动滚动 — 防止软键盘遮挡
@@ -12,8 +12,9 @@ import { useEffect } from "react"
  *   调用 scrollIntoView 将输入框滚动到可视区域中央
  */
 export function useInputFocusScroll() {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
-    // 仅移动端生效
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     if (!isMobile) return
 
@@ -22,24 +23,19 @@ export function useInputFocusScroll() {
       if (!target) return
 
       const tag = target.tagName.toLowerCase()
-      const isInput =
-        tag === "input" ||
-        tag === "textarea" ||
-        tag === "select" ||
-        target.isContentEditable
-
+      const isInput = tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable
       if (!isInput) return
 
-      // 延迟滚动，等待软键盘弹出动画完成
-      setTimeout(() => {
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        })
+      if (timerRef.current) clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "center" })
       }, 300)
     }
 
     document.addEventListener("focusin", handleFocusIn)
-    return () => document.removeEventListener("focusin", handleFocusIn)
+    return () => {
+      document.removeEventListener("focusin", handleFocusIn)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
   }, [])
 }

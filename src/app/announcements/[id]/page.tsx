@@ -4,6 +4,8 @@ import { ArrowLeft, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+export const revalidate = 300
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const ann = await prisma.announcement.findUnique({ where: { id }, select: { title: true } })

@@ -1,7 +1,7 @@
 "use client"
 
 import { applyThemeColor } from "@/lib/theme-colors"
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 
 export interface FullThemeSettings {
   themeColor: string
@@ -57,7 +57,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Fetch from server on mount
   useEffect(() => {
-    // Try localStorage for instant display
     try {
       const cached = localStorage.getItem(STORAGE_KEY)
       if (cached) {
@@ -67,8 +66,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       }
     } catch {}
 
-    // Fetch authoritative value
-    fetch("/api/site-settings")
+    const controller = new AbortController()
+    fetch("/api/site-settings", { signal: controller.signal })
       .then(res => res.json())
       .then(data => {
         if (data.themeColor) {
@@ -85,6 +84,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {})
       .finally(() => setLoaded(true))
+
+    return () => controller.abort()
   }, [])
 
   // Re-apply on dark/light toggle
@@ -113,8 +114,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
   }, [])
 
+  const value = useMemo(() => ({ settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll }), [settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll])
+
   return (
-    <ThemeContext.Provider value={{ settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   )

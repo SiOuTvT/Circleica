@@ -16,9 +16,12 @@ export function MusicPlayer() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    fetch("/api/music").then(r => r.json()).then(data => {
-      if (Array.isArray(data) && data.length) setTracks(data)
-    }).catch(() => {})
+    const controller = new AbortController()
+    fetch("/api/music", { signal: controller.signal })
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data) && data.length) setTracks(data) })
+      .catch(() => {})
+    return () => controller.abort()
   }, [])
 
   // 切换曲目时加载

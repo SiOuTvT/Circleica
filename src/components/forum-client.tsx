@@ -7,7 +7,7 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { RichTextContent } from "./rich-text-content"
-import { RichTextEditor } from "./rich-text-editor"
+import { RichTextEditor } from "./rich-text-editor-wrapper"
 
 interface User { id: string; username: string; avatar: string }
 interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
@@ -83,7 +83,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
     if (postId && !activePost) {
       openPost(postId)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, activePost, openPost])
 
   async function likePost(id: string) {
     // Optimistic: +1 立即生效，失败时回滚

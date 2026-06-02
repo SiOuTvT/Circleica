@@ -3,6 +3,8 @@ import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
+
+export const revalidate = 60
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
 import { TrendingUp } from "lucide-react"

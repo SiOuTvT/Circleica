@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
 
 export interface CrumbItem {
   label: string
@@ -38,8 +38,10 @@ export function BreadcrumbProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const value = useMemo(() => ({ dynamicLabels, setDynamicLabel, parentCrumbs, setParentCrumbs }), [dynamicLabels, setDynamicLabel, parentCrumbs, setParentCrumbs])
+
   return (
-    <BreadcrumbContext.Provider value={{ dynamicLabels, setDynamicLabel, parentCrumbs, setParentCrumbs }}>
+    <BreadcrumbContext.Provider value={value}>
       {children}
     </BreadcrumbContext.Provider>
   )

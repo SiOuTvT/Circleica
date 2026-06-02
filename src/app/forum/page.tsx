@@ -2,6 +2,7 @@ import { ForumClient } from "@/components/forum-client"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+export const revalidate = 30
 export const metadata = { title: "求档区 · 同人游戏站" }
 
 export default async function ForumPage() {

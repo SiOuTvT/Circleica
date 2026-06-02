@@ -28,12 +28,16 @@ export async function getDefaultPlaceholderImage(): Promise<string | null> {
 }
 
 /**
- * 获取所有站点配置（返回 key→value 映射）
+ * 获取所有站点配置（返回 key→value 映射，带缓存）
  */
-export async function getSiteSettings(): Promise<Record<string, string>> {
-  const settings = await prisma.siteSetting.findMany()
-  return Object.fromEntries(settings.map(s => [s.key, s.value]))
-}
+export const getSiteSettings = unstable_cache(
+  async (): Promise<Record<string, string>> => {
+    const settings = await prisma.siteSetting.findMany()
+    return Object.fromEntries(settings.map(s => [s.key, s.value]))
+  },
+  ["all-site-settings"],
+  { revalidate: 60, tags: ["site-settings"] }
+)
 
 /**
  * 批量更新站点配置

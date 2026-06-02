@@ -2,7 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { RichTextContent } from "@/components/rich-text-content"
-import { RichTextEditor } from "@/components/rich-text-editor"
+import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Plus, Trash2 } from "lucide-react"
 import { useCallback, useRef, useState } from "react"

@@ -9,26 +9,19 @@ export async function GET() {
   if (!session?.user?.id) return unauthorized()
 
   try {
-    const collections = await prisma.collection.findMany({
-      where: { userId: session.user.id },
-      include: {
-        _count: { select: { favorites: true } },
-      },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-    })
-
-    // 获取未分组的收藏数量
-    const ungroupedCount = await prisma.favorite.count({
-      where: {
-        userId: session.user.id,
-        collectionId: null,
-      },
-    })
-
-    // 获取总收藏数
-    const totalCount = await prisma.favorite.count({
-      where: { userId: session.user.id },
-    })
+    const [collections, ungroupedCount, totalCount] = await Promise.all([
+      prisma.collection.findMany({
+        where: { userId: session.user.id },
+        include: { _count: { select: { favorites: true } } },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      }),
+      prisma.favorite.count({
+        where: { userId: session.user.id, collectionId: null },
+      }),
+      prisma.favorite.count({
+        where: { userId: session.user.id },
+      }),
+    ])
 
     return ok({ collections, ungroupedCount, totalCount })
   } catch (error) {

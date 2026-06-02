@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 export interface RecentGame {
   id: string
@@ -20,20 +20,14 @@ const MAX_ITEMS = 20
  *   const { recentGames, addRecent, clearRecent } = useRecentlyViewed()
  */
 export function useRecentlyViewed() {
-  const [recentGames, setRecentGames] = useState<RecentGame[]>([])
-
-  // 初始化从 localStorage 读取
-  useEffect(() => {
+  const [recentGames, setRecentGames] = useState<RecentGame[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const parsed: RecentGame[] = JSON.parse(raw)
-        setRecentGames(parsed)
-      }
+      return raw ? JSON.parse(raw) : []
     } catch {
-      // ignore
+      return []
     }
-  }, [])
+  })
 
   /** 添加一条浏览记录（去重 + 时间更新） */
   const addRecent = useCallback(

@@ -77,10 +77,12 @@ export function TopNav() {
   }, [])
 
   useEffect(() => {
-    fetch("/api/checkin")
+    const controller = new AbortController()
+    fetch("/api/checkin", { signal: controller.signal })
       .then(r => r.json())
       .then(data => setCheckedIn(data.checkedIn))
       .catch(() => setCheckedIn(false))
+    return () => controller.abort()
   }, [])
 
   // 监听滚动，用于导航栏背景透明度渐变
@@ -373,10 +375,12 @@ function ForumSidebarPosts() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/forum/posts")
+    const controller = new AbortController()
+    fetch("/api/forum/posts", { signal: controller.signal })
       .then(r => r.json())
       .then(data => { setPosts(data.slice(0, 20)); setLoading(false) })
       .catch(() => setLoading(false))
+    return () => controller.abort()
   }, [])
 
   if (loading) return <p className="p-4 text-xs text-muted-foreground">加载中…</p>

@@ -32,42 +32,34 @@ export async function GET(
 
   if (!game) return NextResponse.json({ error: "游戏不存在或已下架" }, { status: 404 })
 
-  let isFav = false
-  let playStatus: string | null = null
-
-  if (session?.user?.id) {
-    const [fav, ps] = await Promise.all([
-      prisma.favorite.findUnique({
-        where: { userId_gameId: { userId: session.user.id, gameId: id } },
-      }),
-      prisma.playStatus.findUnique({
-        where: { userId_gameId: { userId: session.user.id, gameId: id } },
-      }),
-    ])
-    isFav = !!fav
-    playStatus = ps?.status ?? null
-  }
-
-  const reportCount = await prisma.gameReport.count({ where: { gameId: id } })
-
-  // 相关游戏
+  // 并行执行所有独立查询
   const tagIds = game.tags.map((t) => t.tag.name)
-  const related = await prisma.game.findMany({
-    where: {
-      id: { not: id },
-      isPublished: true,
-      ...getGameNsfwFilter(nsfw),
-      tags: { some: { tag: { name: { in: tagIds } } } },
-    },
-    take: 4,
-    select: { id: true, title: true, coverImage: true, isNsfw: true },
-  })
+
+  const [favResult, psResult, reportCount, related] = await Promise.all([
+    session?.user?.id
+      ? prisma.favorite.findUnique({ where: { userId_gameId: { userId: session.user.id, gameId: id } } })
+      : Promise.resolve(null),
+    session?.user?.id
+      ? prisma.playStatus.findUnique({ where: { userId_gameId: { userId: session.user.id, gameId: id } } })
+      : Promise.resolve(null),
+    prisma.gameReport.count({ where: { gameId: id } }),
+    prisma.game.findMany({
+      where: {
+        id: { not: id },
+        isPublished: true,
+        ...getGameNsfwFilter(nsfw),
+        tags: { some: { tag: { name: { in: tagIds } } } },
+      },
+      take: 4,
+      select: { id: true, title: true, coverImage: true, isNsfw: true },
+    }),
+  ])
 
   return NextResponse.json({
     ...game,
     tags: game.tags.map((t) => t.tag),
-    isFav,
-    playStatus,
+    isFav: !!favResult,
+    playStatus: psResult?.status ?? null,
     reportCount,
     related,
   })

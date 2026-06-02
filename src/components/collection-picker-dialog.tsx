@@ -42,14 +42,14 @@ export function CollectionPickerDialog({
 
   useEffect(() => {
     if (!open) return
+    const controller = new AbortController()
     setLoading(true)
-    fetch("/api/collections")
+    fetch("/api/collections", { signal: controller.signal })
       .then((r) => r.json())
-      .then((data) => {
-        setCollections(data.collections || [])
-      })
+      .then((data) => { setCollections(data.collections || []) })
       .catch(() => {})
       .finally(() => setLoading(false))
+    return () => controller.abort()
   }, [open])
 
   async function handleCreate() {

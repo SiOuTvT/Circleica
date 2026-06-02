@@ -1,6 +1,5 @@
 "use client"
 
-import { getRandomProducer, getRandomStaff } from "@/lib/vndb-client"
 import { Loader2, Sparkles, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -13,13 +12,10 @@ export function RandomCreatorBtn() {
   async function go() {
     setLoading(true)
     try {
-      // 优先尝试 staff（个人创作者：脚本家、画师、音乐人）
-      // 直接在浏览器端调用 VNDB API，绕过服务器网络限制
+      // 动态导入 VNDB 客户端，避免首屏加载
+      const { getRandomStaff, getRandomProducer } = await import("@/lib/vndb-client")
       let creator: { vndbId?: string; [key: string]: unknown } | null = await getRandomStaff()
-      
       if (!creator) {
-        // Fallback: 尝试 producer（团体/公司创作者）
-        // Staff 未获取到，尝试 producer
         creator = await getRandomProducer()
       }
 
