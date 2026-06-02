@@ -30,13 +30,25 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const res = NextResponse.next()
 
-  // 管理后台路由保护：未登录或非管理员重定向到登录页
+  // 管理后台路由保护
   if (pathname.startsWith("/admin")) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
     if (!token) {
       const loginUrl = new URL("/login", req.url)
       loginUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(loginUrl)
+    }
+    const role = token.role as string
+    if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+      return NextResponse.redirect(new URL("/", req.url))
+    }
+    // SUPER_ADMIN 专属路由：用户管理、站点设置、主题、文案、头像框、情感消息、资源标签
+    const superAdminRoutes = [
+      "/admin/users", "/admin/site-settings", "/admin/theme", "/admin/copy",
+      "/admin/avatar-frames", "/admin/emotional-messages", "/admin/resource-tags",
+    ]
+    if (role === "ADMIN" && superAdminRoutes.some(r => pathname.startsWith(r))) {
+      return NextResponse.redirect(new URL("/admin", req.url))
     }
   }
 

@@ -27,6 +27,7 @@ declare module "next-auth" {
       image?: string | null
       avatarFrame: string
       composedAvatarUrl: string | null
+      role: string
     }
   }
 }
@@ -35,6 +36,7 @@ declare module "next-auth" {
   interface JWT {
     id?: string
     name?: string
+    role?: string
   }
 }
 
@@ -94,6 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.username,
           email: user.email,
           image: user.avatar ?? null,
+          role: user.role,
         }
       },
     }),
@@ -103,8 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id   = user.id
         token.name = user.name
-        // 注意：image 和 avatarFrame 都不放入 JWT，避免 cookie 过大触发 431 错误
-        // 改为在 session 回调中实时查询数据库
+        token.role = (user as Record<string, unknown>).role as string
       }
       // 用户更新后刷新 session
       if (trigger === "update" && session) {
@@ -117,6 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.user.id   = token.id as string
         session.user.name = token.name ?? ""
+        session.user.role = (token.role as string) ?? "USER"
         // 实时从数据库读取 image 和 avatarFrame，避免存入 JWT 增大 cookie
         try {
           if (token.id) {

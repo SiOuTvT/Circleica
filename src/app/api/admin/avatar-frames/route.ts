@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 
 // GET: 获取所有头像框（管理员）
 export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const frames = await prisma.avatarFrame.findMany({
     orderBy: { sort: "asc" },
@@ -15,7 +15,7 @@ export async function GET() {
 
 // POST: 创建新头像框
 export async function POST(request: Request) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   try {
     const body = await request.json()

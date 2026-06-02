@@ -1,34 +1,43 @@
 ﻿"use client"
 
+import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
 import {
   ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Settings, SmilePlus, Sun, Tag, Type, UserPlus, Users, X,
 } from "lucide-react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
-const items = [
-  { icon: LayoutDashboard, label: "仪表盘",     href: "/admin" },
-  { icon: Gamepad2,        label: "游戏管理",    href: "/admin/games" },
-  { icon: Tag,             label: "标签管理",    href: "/admin/tags" },
-  { icon: PenTool,         label: "创作者管理",  href: "/admin/creators" },
-  { icon: Megaphone,       label: "公告管理",    href: "/admin/announcements" },
-  { icon: Music,           label: "音乐管理",    href: "/admin/music" },
-  { icon: MessageSquare,   label: "论坛管理",    href: "/admin/forum" },
-  { icon: Flag,            label: "举报管理",    href: "/admin/reports" },
-  { icon: CalendarCheck,   label: "签到记录",    href: "/admin/checkins" },
-  { icon: Heart,           label: "收藏数据",    href: "/admin/favorites" },
-  { icon: UserPlus,        label: "关注关系",    href: "/admin/follows" },
-  { icon: Users,           label: "用户管理",    href: "/admin/users" },
-  { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames" },
-  { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages" },
-  { icon: Tag,             label: "资源标签",    href: "/admin/resource-tags" },
-  { icon: Settings,        label: "站点设置",    href: "/admin/site-settings" },
-  { icon: Type,            label: "文案管理",    href: "/admin/copy" },
-  { icon: Palette,         label: "主题设置",    href: "/admin/theme" },
+interface NavItem {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  label: string
+  href: string
+  minRole: UserRole
+}
+
+const items: NavItem[] = [
+  { icon: LayoutDashboard, label: "仪表盘",     href: "/admin",                minRole: "ADMIN" },
+  { icon: Gamepad2,        label: "游戏管理",    href: "/admin/games",          minRole: "ADMIN" },
+  { icon: Tag,             label: "标签管理",    href: "/admin/tags",           minRole: "ADMIN" },
+  { icon: PenTool,         label: "创作者管理",  href: "/admin/creators",       minRole: "ADMIN" },
+  { icon: Megaphone,       label: "公告管理",    href: "/admin/announcements",  minRole: "ADMIN" },
+  { icon: Music,           label: "音乐管理",    href: "/admin/music",          minRole: "ADMIN" },
+  { icon: MessageSquare,   label: "论坛管理",    href: "/admin/forum",          minRole: "ADMIN" },
+  { icon: Flag,            label: "举报管理",    href: "/admin/reports",        minRole: "ADMIN" },
+  { icon: CalendarCheck,   label: "签到记录",    href: "/admin/checkins",       minRole: "ADMIN" },
+  { icon: Heart,           label: "收藏数据",    href: "/admin/favorites",      minRole: "ADMIN" },
+  { icon: UserPlus,        label: "关注关系",    href: "/admin/follows",        minRole: "ADMIN" },
+  { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages", minRole: "SUPER_ADMIN" },
+  { icon: Tag,             label: "资源标签",    href: "/admin/resource-tags",  minRole: "SUPER_ADMIN" },
+  { icon: Users,           label: "用户管理",    href: "/admin/users",          minRole: "SUPER_ADMIN" },
+  { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames",  minRole: "SUPER_ADMIN" },
+  { icon: Settings,        label: "站点设置",    href: "/admin/site-settings",  minRole: "SUPER_ADMIN" },
+  { icon: Type,            label: "文案管理",    href: "/admin/copy",           minRole: "SUPER_ADMIN" },
+  { icon: Palette,         label: "主题设置",    href: "/admin/theme",          minRole: "SUPER_ADMIN" },
 ]
 
 const STORAGE_KEY = "admin-sidebar-collapsed"
@@ -53,12 +62,21 @@ function applyTheme(mode: ThemeMode) {
   root.classList.add(resolved)
 }
 
+const ROLE_LEVEL: Record<string, number> = { USER: 0, ADMIN: 1, SUPER_ADMIN: 2 }
+
 export function AdminNav() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const userRole = (session?.user as Record<string, unknown>)?.role as string ?? "USER"
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark")
   const [mounted, setMounted] = useState(false)
+
+  const visibleItems = useMemo(
+    () => items.filter(item => (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0)),
+    [userRole]
+  )
 
   // 初始化：读取 localStorage
   useEffect(() => {
@@ -149,7 +167,7 @@ export function AdminNav() {
         {/* 导航列表 */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
           <div className="flex flex-col gap-0.5">
-            {items.map(({ icon: Icon, label, href }) => {
+            {visibleItems.map(({ icon: Icon, label, href }) => {
               const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href))
               return (
                 <Link
@@ -266,7 +284,7 @@ export function AdminNav() {
         {/* 导航 */}
         <nav className="flex-1 overflow-y-auto px-2 py-1">
           <div className="flex flex-col gap-0.5">
-            {items.map(({ icon: Icon, label, href }) => {
+            {visibleItems.map(({ icon: Icon, label, href }) => {
               const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href))
               return (
                 <Link

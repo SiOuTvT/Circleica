@@ -8,7 +8,7 @@ type Ctx = { params: Promise<{ id: string }> }
 
 // 重置密码 + 切换角色
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   const { newPassword, role } = await req.json()
 
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
 
 // 管理员为指定用户生成重置链接
 export async function POST(_req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
 
   const user = await prisma.user.findUnique({ where: { id }, select: { id: true, email: true } })

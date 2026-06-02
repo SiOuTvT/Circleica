@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { ids } = await req.json()
   if (!Array.isArray(ids) || ids.length === 0) {
     return NextResponse.json({ error: "请选择要删除的游戏" }, { status: 400 })

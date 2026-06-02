@@ -27,7 +27,7 @@ const LABELS: Record<string, string> = {
 
 // GET: 获取所有资源标签选项
 export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const keys = Object.values(TAG_KEYS)
   const settings = await prisma.siteSetting.findMany({
@@ -49,7 +49,7 @@ export async function GET() {
 
 // PUT: 更新某个标签组的选项
 export async function PUT(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const body = await req.json()
   const { group, options } = body as { group: string; options: string[] }
@@ -75,7 +75,7 @@ export async function PUT(req: NextRequest) {
 
 // POST: 重置为默认值
 export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const body = await req.json()
   const { group } = body as { group: string }

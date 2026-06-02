@@ -174,10 +174,27 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 {/* 用户名 */}
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">{user.username}</h1>
 
-                {/* UID 显示 */}
-                <p className="mt-1 text-xs text-muted-foreground/70 font-mono">
-                  UID: {uidDisplay}
-                </p>
+                {/* UID + 角色标签 */}
+                <div className="mt-2 flex items-center justify-center gap-2.5">
+                  <span className="text-[13px] text-muted-foreground/60">
+                    UID {uidDisplay}
+                  </span>
+                  {user.role === "SUPER_ADMIN" && (
+                    <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-[13px] font-medium text-amber-500 light:text-amber-600 ring-1 ring-amber-500/20">
+                      站长
+                    </span>
+                  )}
+                  {user.role === "ADMIN" && (
+                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-[13px] font-medium text-blue-500 light:text-blue-600 ring-1 ring-blue-500/20">
+                      管理员
+                    </span>
+                  )}
+                  {user.role === "USER" && (
+                    <span className="rounded-full bg-zinc-500/15 px-2.5 py-1 text-[13px] font-medium text-zinc-500 light:text-zinc-600 ring-1 ring-zinc-500/15">
+                      用户
+                    </span>
+                  )}
+                </div>
 
                 {/* 个性签名 */}
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 px-4">

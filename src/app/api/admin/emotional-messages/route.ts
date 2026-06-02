@@ -1,10 +1,10 @@
-import { requireAdmin } from "@/lib/admin"
+import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 /** GET: 列表（支持 ?category=toast|empty|error|success 筛选） */
 export async function GET(req: NextRequest) {
-  await requireAdmin()
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const category = req.nextUrl.searchParams.get("category")
   const where = category ? { category } : {}
   const items = await prisma.emotionalMessage.findMany({
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
 /** POST: 创建新的情感化消息 */
 export async function POST(req: NextRequest) {
-  await requireAdmin()
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const body = await req.json()
   const { key, category, title, subtitle, imageUrl, emoji, enabled } = body
   if (!key || !category) {

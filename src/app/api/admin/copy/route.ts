@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 // GET: 获取所有文案（默认值 + 覆盖值）
 export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const keys = COPY_ENTRIES.map(e => `copy:${e.key}`)
   const settings = await prisma.siteSetting.findMany({
@@ -28,7 +28,7 @@ export async function GET() {
 
 // PUT: 批量更新文案覆盖
 export async function PUT(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const body = await req.json()
   const updates = body.updates as { key: string; value: string }[]
@@ -61,7 +61,7 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: 重置所有文案为默认值
 export async function DELETE() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   const keys = COPY_ENTRIES.map(e => `copy:${e.key}`)
   await prisma.siteSetting.deleteMany({
