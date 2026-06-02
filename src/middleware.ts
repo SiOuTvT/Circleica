@@ -3,11 +3,16 @@ import { getToken } from "next-auth/jwt"
 
 // CSP 策略
 function buildCSP(): string {
+  // 开发模式需要 unsafe-eval：React 使用 eval() 重建调用栈用于调试
+  const scriptSrc = process.env.NODE_ENV === "development"
+    ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
+    : `script-src 'self' 'unsafe-inline'`
+
   const directives = [
     `default-src 'self'`,
     // unsafe-inline 保留：Next.js SSR 内联脚本 + Tailwind CSS 动态注入需要
     // 后续可迁移至 nonce-based 方案进一步加固
-    `script-src 'self' 'unsafe-inline'`,
+    scriptSrc,
     // unsafe-inline 保留：Tailwind CSS 运行时样式注入需要
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https:`,
