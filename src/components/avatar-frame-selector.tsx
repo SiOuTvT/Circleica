@@ -16,10 +16,12 @@ export function AvatarFrameSelector({
   currentFrameId,
   userImage,
   userName,
+  compact,
 }: {
   currentFrameId: string | null
   userImage?: string | null
   userName: string
+  compact?: boolean
 }) {
   const { update } = useSession()
   const [selected, setSelected] = useState<string | null>(currentFrameId)
@@ -73,13 +75,28 @@ export function AvatarFrameSelector({
   useBodyScrollLock(open)
 
   return (
-    <div>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground"
-      >
-        🎭 更换头像框
-      </button>
+    <>
+      {compact ? (
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+        >
+          <span className="text-xl leading-none">🎭</span>
+          <span className="text-xs font-medium text-foreground">头像框</span>
+          {frames.length > 0 && (
+            <span className="rounded-full bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-purple-400">
+              {frames.length}
+            </span>
+          )}
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(v => !v)}
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground"
+        >
+          🎭 更换头像框
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
@@ -179,6 +196,6 @@ export function AvatarFrameSelector({
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

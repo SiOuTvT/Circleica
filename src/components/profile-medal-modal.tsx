@@ -33,9 +33,10 @@ interface Props {
   playCount: number
   commentCount: number
   totalLevel: number
+  compact?: boolean
 }
 
-export function ProfileMedalModal({ favCount, playCount, commentCount, totalLevel }: Props) {
+export function ProfileMedalModal({ favCount, playCount, commentCount, totalLevel, compact }: Props) {
   const [open, setOpen] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
@@ -148,18 +149,31 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
   return (
     <>
       {/* 触发按钮 */}
-      <button
-        onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-between rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary"
-      >
-        <div className="flex items-center gap-2.5">
-          <Award className="h-4 w-4 text-amber-400" strokeWidth={2} />
-          勋章墙
-        </div>
-        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
-          {earnedMedals.length}
-        </span>
-      </button>
+      {compact ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+        >
+          <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
+          <span className="text-xs font-medium text-foreground">勋章墙</span>
+          <span className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400">
+            {earnedMedals.length}
+          </span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex w-full items-center justify-between rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary"
+        >
+          <div className="flex items-center gap-2.5">
+            <Award className="h-4 w-4 text-amber-400" strokeWidth={2} />
+            勋章墙
+          </div>
+          <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
+            {earnedMedals.length}
+          </span>
+        </button>
+      )}
 
       {/* 弹窗 */}
       {open && (

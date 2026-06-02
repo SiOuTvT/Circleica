@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
-import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
+import { Bookmark, Gamepad2, Image, MessageSquare, Pencil } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
@@ -252,40 +252,52 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
               style={{ boxShadow: 'var(--card-shadow)' }}>
 
               <div className="px-5 py-4">
-                {/* 第一行：成员序号 + 加入日期（字号调大） */}
+                {/* 成员信息 */}
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>第 {userRank} 位成员</span>
                   <span>{joinDate} 加入</span>
                 </div>
 
-                {/* 按钮区域（仅本人） */}
+                {/* 操作网格（仅本人） */}
                 {isSelf && (
-                  <div className="mt-4 flex flex-col gap-2">
-                    {/* 编辑资料（合并修改密码功能） */}
-                    <Link href="/profile/edit" className="flex items-center gap-2.5 rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary">
-                      <Pencil className="h-4 w-4 text-muted-foreground" strokeWidth={2} />编辑资料
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {/* 编辑资料 */}
+                    <Link
+                      href="/profile/edit"
+                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+                    >
+                      <Pencil className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+                      <span className="text-xs font-medium text-foreground">编辑资料</span>
                     </Link>
 
-                    {/* 更换头像框 */}
-                    <div className="rounded-xl bg-secondary/60 px-4 py-2.5">
-                      <AvatarFrameSelector
-                        currentFrameId={user.avatarFrameId || null}
-                        userImage={user.composedAvatarUrl || user.avatar}
-                        userName={user.username}
-                      />
-                    </div>
+                    {/* 生成名片（占位） */}
+                    <button
+                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
+                      disabled
+                    >
+                      <Image className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+                      <span className="text-xs font-medium text-foreground">生成名片</span>
+                      <span className="text-[10px] text-muted-foreground">即将推出</span>
+                    </button>
+
+                    {/* 勋章墙 */}
+                    <ProfileMedalModal
+                      favCount={allFavGames.length}
+                      playCount={user.playStatuses.length}
+                      commentCount={user.comments.length}
+                      totalLevel={lv}
+                      compact
+                    />
+
+                    {/* 头像框 */}
+                    <AvatarFrameSelector
+                      currentFrameId={user.avatarFrameId || null}
+                      userImage={user.composedAvatarUrl || user.avatar}
+                      userName={user.username}
+                      compact
+                    />
                   </div>
                 )}
-
-                {/* 勋章墙按钮 */}
-                <div className="mt-3">
-                  <ProfileMedalModal
-                    favCount={allFavGames.length}
-                    playCount={user.playStatuses.length}
-                    commentCount={user.comments.length}
-                    totalLevel={lv}
-                  />
-                </div>
               </div>
             </div>
           </div>
