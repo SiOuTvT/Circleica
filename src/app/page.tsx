@@ -113,6 +113,7 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-3 sm:gap-5">
+      <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
       {/* Hero Section：响应式布局 */}
       {/* 桌面端：左侧按钮 + 右侧公告（对齐用户头像右侧）；手机端：公告在上，按钮在下横排 */}

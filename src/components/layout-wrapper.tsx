@@ -40,6 +40,14 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </main>
+      {!isAdminRoute && !isFullscreenRoute && (
+        <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
+          <div className="mx-auto max-w-[1300px] px-4">
+            <p>同人游戏站 · 资源大厅</p>
+            <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
+          </div>
+        </footer>
+      )}
       <MusicPlayer />
     </BreadcrumbProvider>
   )

@@ -1,10 +1,11 @@
 "use client"
 
+import { TurnstileCaptcha } from "@/components/turnstile-captcha"
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
 
 export default function LoginPage() {
   return (
@@ -29,6 +30,8 @@ function LoginContent() {
 
   // 注册表单
   const [regForm, setRegForm] = useState({ username: "", email: "", password: "", confirm: "" })
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const handleCaptchaVerify = useCallback((token: string) => setCaptchaToken(token), [])
 
   useEffect(() => {
     if (searchParams.get("tab") === "register") setTab("register")
@@ -48,7 +51,11 @@ function LoginContent() {
       setError("账号或密码错误")
     } else {
       const callbackUrl = searchParams.get("callbackUrl")
-      router.push(callbackUrl || "/")
+      // 安全修复：仅允许同源路径，防止开放重定向漏洞
+      const safeUrl = callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") && !callbackUrl.includes("://")
+        ? callbackUrl
+        : "/"
+      router.push(safeUrl)
       router.refresh()
     }
   }
@@ -59,10 +66,12 @@ function LoginContent() {
     if (regForm.password !== regForm.confirm) { setError("两次密码不一致"); return }
     if (regForm.password.length < 6) { setError("密码至少6位"); return }
     setLoading(true)
+    const hasTurnstile = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    if (hasTurnstile && !captchaToken) { setError("请完成验证码验证"); return }
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: regForm.username, email: regForm.email, password: regForm.password }),
+      body: JSON.stringify({ username: regForm.username, email: regForm.email, password: regForm.password, captchaToken }),
     })
     const data = await res.json()
     setLoading(false)
@@ -78,7 +87,7 @@ function LoginContent() {
   const regFields = [
     { key: "username" as const, icon: User, type: "text", placeholder: "用户名", autoComplete: "username" },
     { key: "email" as const, icon: Mail, type: "email", placeholder: "邮箱地址", autoComplete: "email" },
-    { key: "password" as const, icon: Lock, type: "password", placeholder: "密码（至少6位）", autoComplete: "new-password" },
+    { key: "password" as const, icon: Lock, type: "password", placeholder: "密码（至少6位，建议包含字母+数字）", autoComplete: "new-password", minLength: 6 },
     { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
@@ -188,7 +197,7 @@ function LoginContent() {
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-3">
-              {regFields.map(({ key, icon: Icon, type, placeholder, autoComplete }) => (
+              {regFields.map(({ key, icon: Icon, type, placeholder, autoComplete, minLength }) => (
                 <div key={key} className={inputCls}>
                   <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                   <input
@@ -198,11 +207,14 @@ function LoginContent() {
                     placeholder={placeholder}
                     required
                     autoComplete={autoComplete}
+                    minLength={minLength}
                     className={inputInnerCls}
                     onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                   />
                 </div>
               ))}
+
+              <TurnstileCaptcha onVerify={handleCaptchaVerify} />
 
               <button
                 type="submit"

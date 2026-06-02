@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getToken } from "next-auth/jwt"
 
 // CSP 策略
 function buildCSP(): string {
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
+    // unsafe-inline 保留：Next.js SSR 内联脚本 + Tailwind CSS 动态注入需要
+    // 后续可迁移至 nonce-based 方案进一步加固
+    `script-src 'self' 'unsafe-inline'`,
+    // unsafe-inline 保留：Tailwind CSS 运行时样式注入需要
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https:`,
     `font-src 'self' data:`,
@@ -17,24 +21,39 @@ function buildCSP(): string {
   return directives.join("; ")
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const res = NextResponse.next()
 
-  // 安全头（精简 - 不设置不必要的头减少响应头大小）
+  // 管理后台路由保护：未登录或非管理员重定向到登录页
+  if (pathname.startsWith("/admin")) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    if (!token) {
+      const loginUrl = new URL("/login", req.url)
+      loginUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  // 安全头
   res.headers.set("X-Content-Type-Options", "nosniff")
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
+  res.headers.set("X-Frame-Options", "DENY")
+  res.headers.set("X-XSS-Protection", "1; mode=block")
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+
+  // HSTS：仅在生产环境 HTTPS 下启用（避免 HTTP 站点误设导致无法访问）
+  const isSecure = req.nextUrl.protocol === "https"
+  if (isSecure) {
+    res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+  } else {
+    res.headers.delete("Strict-Transport-Security")
+  }
 
   // CSP 仅对页面路由设置，不对 API 设置（避免干扰 NextAuth）
   if (!pathname.startsWith("/api/")) {
     res.headers.set("Content-Security-Policy", buildCSP())
   }
-
-  // 移除 Sentry 自动添加的 Strict-Transport-Security 头（HTTP 站点不需要）
-  res.headers.delete("Strict-Transport-Security")
-
-  // 移除 Sentry 自动添加的 X-Frame-Options（我们用 CSP frame-ancestors 控制）
-  res.headers.delete("X-Frame-Options")
 
   // 读取当前 CSP 并移除 upgrade-insecure-requests（HTTP 站点不需要）
   const csp = res.headers.get("Content-Security-Policy")

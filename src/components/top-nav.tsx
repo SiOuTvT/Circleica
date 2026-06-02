@@ -204,13 +204,14 @@ export function TopNav() {
             <button
               onClick={() => setMenuOpen(v => !v)}
               className="group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn"
+              aria-label="导航菜单"
             >
               {/* Hover circle: centered on icon, overflows left for visual balance */}
               <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
               <Menu className="relative z-10 h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
             </button>
             {menuOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
+              <nav aria-label="主导航" className="absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
                 {MENU_ITEMS.map(({ icon: Icon, label, href }) => (
                   <Link key={href} href={href} onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
@@ -218,7 +219,7 @@ export function TopNav() {
                     {label}
                   </Link>
                 ))}
-              </div>
+              </nav>
             )}
           </div>
 

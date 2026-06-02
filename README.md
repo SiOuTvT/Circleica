@@ -21,7 +21,7 @@
 |:---:|:---:|:---:|
 | ![搜索](screenshots/search.png) | ![论坛](screenshots/forum.png) | ![个人](screenshots/profile.png) |
 
-## ✨ 为什么选择 Fangame
+## ✨ 为什么选择 我们
 
 - **专注同人 Galgame** — 只收录同人 Galgame / 视觉小说，不做大杂烩，内容精准垂直
 - **VNDB 数据对接** — 一键从 VNDB 导入游戏信息、标签、封面，数据权威且省时
@@ -73,7 +73,7 @@ npm run build
 npm start
 ```
 
-> 📖 **生产环境部署**请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)，包含 1Panel + PostgreSQL + PM2 的完整部署教程。
+> 📖 **生产环境部署**请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)，包含 PostgreSQL + PM2 的完整部署教程。
 
 ## 📁 项目结构
 
