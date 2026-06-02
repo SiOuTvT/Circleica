@@ -1141,6 +1141,32 @@ input:focus, textarea:focus, select:focus {
   background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
 }
 
+/* 论坛筛选标签 hover */
+.forum-tab-btn[data-active="false"]:hover {
+  color: var(--tab-hover-text) !important;
+}
+
+/* ── Toast 关闭按钮强制右上角 ── */
+[data-sonner-toaster] [data-close-button] {
+  order: 1 !important;
+  margin-left: auto !important;
+}
+
+/* ── 弹窗移动端优化 ── */
+@media (max-width: 640px) {
+  [data-slot="dialog-content"] {
+    max-width: calc(100vw - 2rem) !important;
+    max-height: 85dvh;
+    overflow-y: auto;
+  }
+  [data-slot="dialog-content"] [data-slot="dialog-footer"] {
+    flex-direction: column-reverse;
+  }
+  [data-slot="dialog-content"] [data-slot="dialog-footer"] button {
+    width: 100%;
+  }
+}
+
 /* ═══ 莫兰迪灰蓝色调（游戏详情页） ═══ */
 :root {
   --mld-bg: rgba(148, 163, 184, 0.10);

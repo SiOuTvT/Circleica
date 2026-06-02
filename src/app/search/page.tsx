@@ -102,13 +102,13 @@ async function SearchResults({
           试试换个关键词，或浏览下方推荐
         </p>
         {q && (
-          <Link href="/search" className="mt-3 inline-block rounded-lg px-4 py-1.5 text-xs text-zinc-400 ring-1 ring-zinc-700 transition-colors hover:text-zinc-200 hover:ring-zinc-500">
+          <Link href="/search" className="mt-3 inline-block rounded-lg px-4 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
             清除搜索条件
           </Link>
         )}
         {recommended.length > 0 && (
           <div className="mt-8 text-left">
-            <h3 className="mb-3 text-sm font-semibold text-zinc-300">🔥 热门推荐</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">🔥 热门推荐</h3>
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
         {recommended.map((game) => (
                 <GameCard key={game.id} game={game} />
@@ -176,7 +176,7 @@ export default async function SearchPage({
       {/* 清除筛选 */}
       {(q || tag || sort !== "newest" || nsfw) && (
         <Link href="/search"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 ring-1 ring-zinc-800 transition-colors hover:text-zinc-300 hover:ring-zinc-600">
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
           <X className="h-3 w-3" strokeWidth={2} />
           清除筛选
         </Link>
@@ -184,7 +184,7 @@ export default async function SearchPage({
 
       {/* 排序 + 结果标题 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-zinc-300">
+        <h2 className="text-sm font-semibold text-foreground">
           {q && tag
             ? `「${q}」· ${tag}`
             : q
@@ -203,8 +203,8 @@ export default async function SearchPage({
               className={[
                 "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
                 sort === key
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-600 hover:text-zinc-400",
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               ].join(" ")}
             >
               <Icon className="h-3 w-3" strokeWidth={1.5} />
@@ -214,18 +214,18 @@ export default async function SearchPage({
         </div>
         {/* 移动端：下拉排序 */}
         <details className="sm:hidden relative">
-          <summary className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 bg-zinc-800/50 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground bg-muted cursor-pointer list-none [&::-webkit-details-marker]:hidden">
             {SORT_OPTIONS.find(o => o.key === sort)?.label ?? "排序"}
             <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
           </summary>
-          <div className="absolute right-0 top-full z-50 mt-1 w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-zinc-900 border border-zinc-800">
+          <div className="absolute right-0 top-full z-50 mt-1 w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-card border border-border">
             {SORT_OPTIONS.map(({ key, label }) => (
               <Link
                 key={key}
                 href={buildHref({ sort: key })}
                 className={[
                   "flex items-center px-3 py-2 text-xs transition-colors",
-                  sort === key ? "bg-zinc-800 text-zinc-200" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
+                  sort === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                 ].join(" ")}
               >
                 {label}

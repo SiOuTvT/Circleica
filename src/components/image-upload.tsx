@@ -360,7 +360,7 @@ export function ImageUpload({
       <div className={cn("group relative", className)}>
         <div
           className={cn(
-            "relative overflow-hidden bg-zinc-800 ring-1 ring-white/[0.06]",
+            "relative overflow-hidden bg-zinc-800 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06]",
             shape === "circle" ? "rounded-full" : "rounded-xl"
           )}
           style={{ aspectRatio }}
@@ -414,14 +414,14 @@ export function ImageUpload({
           shape === "circle" ? "rounded-full" : "rounded-xl",
           isDragging
             ? "border-primary bg-primary/10"
-            : "border-zinc-700 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
+            : "border-zinc-700 light:border-zinc-300 bg-zinc-900 light:bg-white hover:border-zinc-600 light:hover:border-zinc-400 hover:bg-zinc-800 light:hover:bg-zinc-100"
         )}
         style={{ aspectRatio, minHeight: "120px" }}
       >
         <div
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
-            isDragging ? "bg-primary/20 text-primary" : "bg-zinc-800 text-zinc-500"
+            isDragging ? "bg-primary/20 text-primary" : "bg-zinc-800 light:bg-zinc-100 text-zinc-500"
           )}
         >
           <Upload className="h-5 w-5" strokeWidth={1.5} />
@@ -435,7 +435,7 @@ export function ImageUpload({
           >
             {isDragging ? "释放以上传图片" : placeholder}
           </p>
-          <p className="mt-1 text-[10px] text-zinc-700">
+          <p className="mt-1 text-[10px] text-zinc-700 light:text-zinc-300">
             支持 JPG、PNG、WebP，最大 {maxSizeMB}MB
           </p>
         </div>

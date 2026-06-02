@@ -272,7 +272,7 @@ function UngroupedTagsSection({
           <button
             type="button"
             onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors cursor-pointer"
           >
             {expanded ? "收起" : `展开全部`}
             <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: expanded ? "rotate(180deg)" : "none" }} />

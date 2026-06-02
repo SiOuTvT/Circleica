@@ -225,15 +225,14 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
           <button key={tab.key} onClick={() => setFilter(tab.key)}
             role="tab"
             aria-selected={filter === tab.key}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
+            className="forum-tab-btn flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
+            data-active={filter === tab.key}
             style={{
               backgroundColor: filter === tab.key ? "var(--tab-active)" : "transparent",
               color: filter === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",
               boxShadow: filter === tab.key ? "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)" : "none",
               fontWeight: filter === tab.key ? 700 : 500,
             }}
-            onMouseEnter={(e) => { if (filter !== tab.key) e.currentTarget.style.color = "var(--tab-hover-text)" }}
-            onMouseLeave={(e) => { if (filter !== tab.key) e.currentTarget.style.color = "var(--tab-inactive-text)" }}
           >
             {tab.label}
             <span className="ml-1.5 text-[10px]"
@@ -261,7 +260,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
                 <Avatar user={post.user} size={6} />
                 <span className="text-xs text-zinc-500 light:text-zinc-400">{post.user.username}</span>
                 {post.isSolved && (
-                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 light:text-emerald-600 ring-1 ring-emerald-500/20">
+                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 light:text-emerald-600 ring-1 ring-emerald-500/20">
                     <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2} />已解决
                   </span>
                 )}
@@ -534,11 +533,11 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                   {showCommentEmoji && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setShowCommentEmoji(false)} />
-                      <div className="absolute bottom-10 left-0 z-50 w-64 rounded-xl bg-zinc-900 light:bg-white p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
+                      <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-zinc-900 light:bg-white p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
                         <div className="grid grid-cols-10 gap-1">
                           {EMOJI_LIST.map((emoji) => (
                             <button key={emoji} type="button" onClick={() => onInsertEmoji(emoji)}
-                              className="flex h-7 w-7 items-center justify-center rounded-lg text-base hover:bg-zinc-800 light:hover:bg-zinc-100 transition-colors active:scale-90">
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-zinc-800 light:hover:bg-zinc-100 transition-colors active:scale-90">
                               {emoji}
                             </button>
                           ))}

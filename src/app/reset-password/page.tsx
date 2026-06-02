@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { CheckCircle2, Eye, EyeOff, Loader2, Lock, XCircle } from "lucide-react"
 import Link from "next/link"
@@ -45,10 +45,10 @@ function ResetForm() {
     setTimeout(() => router.push("/login"), 2000)
   }
 
-  const fieldCls = "flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 ring-1 ring-white/[0.06] focus-within:ring-zinc-600 transition-all"
+  const fieldCls = "flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all"
 
   return (
-    <div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+    <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
       {status === "loading" && (
         <div className="flex flex-col items-center gap-3 py-8">
           <Loader2 className="h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} />
@@ -58,7 +58,7 @@ function ResetForm() {
       {status === "invalid" && (
         <div className="text-center">
           <XCircle className="mx-auto mb-4 h-12 w-12 text-red-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-zinc-100">链接过期啦</h1>
+          <h1 className="text-lg font-bold text-zinc-100 light:text-zinc-900">链接过期啦</h1>
           <p className="mt-2 text-sm text-zinc-500">重新申请一个吧~</p>
           <Link href="/forgot-password" className="mt-6 block text-sm text-primary hover:text-primary/80 transition-colors">重新申请</Link>
         </div>
@@ -66,21 +66,21 @@ function ResetForm() {
       {status === "valid" && !done && (
         <>
           <div className="mb-6">
-            <h1 className="text-xl font-bold text-zinc-100">重置密码</h1>
+            <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">重置密码</h1>
             <p className="mt-1 text-sm text-zinc-500">{email}</p>
           </div>
           {error && <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" required className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none" />
-              <button type="button" onClick={() => setShowPwd(v => !v)} className="text-zinc-600 hover:text-zinc-400">
+              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" required className="flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none" />
+              <button type="button" onClick={() => setShowPwd(v => !v)} className="text-zinc-600 light:text-zinc-400 hover:text-zinc-400 light:hover:text-zinc-500">
                 {showPwd ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" required className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none" />
+              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" required className="flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none" />
             </div>
             <button type="submit" disabled={saving}
               className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
@@ -93,7 +93,7 @@ function ResetForm() {
       {done && (
         <div className="text-center">
           <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-zinc-100">密码重置成功！</h1>
+          <h1 className="text-lg font-bold text-zinc-100 light:text-zinc-900">密码重置成功！</h1>
           <p className="mt-2 text-sm text-zinc-500">正在跳转到登录页…</p>
         </div>
       )}
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Suspense fallback={<div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]"><Loader2 className="mx-auto h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} /></div>}>
+        <Suspense fallback={<div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10"><Loader2 className="mx-auto h-8 w-8 animate-spin text-zinc-500" strokeWidth={1.5} /></div>}>
           <ResetForm />
         </Suspense>
       </div>

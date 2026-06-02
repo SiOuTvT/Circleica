@@ -208,7 +208,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
             style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
             aria-label="上一张"
           >
@@ -217,7 +217,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:hover:scale-110"
             style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)", opacity: 0.7 }}
             aria-label="下一张"
           >
@@ -259,7 +259,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           </button>
         )}
         <span
-          className="rounded-full px-1.5 py-0.5 text-[8px] sm:px-2 sm:text-[10px] font-semibold tabular-nums backdrop-blur-md"
+          className="rounded-full px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-xs font-semibold tabular-nums backdrop-blur-md"
           style={{ background: "rgba(0,0,0,0.5)", color: "#fff", border: "1px solid rgba(255,255,255,0.15)" }}
         >
           {activeIndex + 1}/{galleryImages.length}

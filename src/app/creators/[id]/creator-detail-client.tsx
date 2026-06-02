@@ -178,17 +178,17 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
                       sizes="(max-width: 640px) 33vw, 16vw" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 text-xs">封面还没上传~</div>
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-800 light:bg-zinc-100 text-zinc-600 light:text-zinc-400 text-xs">封面还没上传~</div>
                   )}
                   {vn.rating ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-amber-400 backdrop-blur-sm">
+                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-amber-400 backdrop-blur-sm">
                       <Star className="h-2.5 w-2.5" strokeWidth={2} />
                       {formatRating(vn.rating)}
                     </div>
                   ) : null}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950/90 to-transparent p-2">
-                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200">{vn.original || vn.title}</p>
-                    <p className="mt-0.5 text-[9px] text-zinc-500">{roleLabelMap[vn.role] || vn.role}</p>
+                    <p className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-200 light:text-zinc-800">{vn.original || vn.title}</p>
+                    <p className="mt-0.5 text-[10px] text-zinc-500">{roleLabelMap[vn.role] || vn.role}</p>
                   </div>
                 </div>
               </Link>

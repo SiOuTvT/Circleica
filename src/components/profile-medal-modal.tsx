@@ -220,7 +220,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                           <p className={cn("text-[11px] font-semibold leading-tight", medal.earned ? "text-foreground" : "text-muted-foreground")}>
                             {medal.name}
                           </p>
-                          <p className="mt-0.5 text-[9px] text-muted-foreground leading-tight line-clamp-2">
+                          <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight line-clamp-2">
                             {medal.earned ? medal.description : "未解锁"}
                           </p>
                         </div>

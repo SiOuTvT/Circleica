@@ -25,6 +25,7 @@ const items = [
   { icon: Users,           label: "用户管理",    href: "/admin/users" },
   { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames" },
   { icon: SmilePlus,       label: "情感消息",    href: "/admin/emotional-messages" },
+  { icon: Tag,             label: "资源标签",    href: "/admin/resource-tags" },
   { icon: Settings,        label: "站点设置",    href: "/admin/site-settings" },
   { icon: Type,            label: "文案管理",    href: "/admin/copy" },
   { icon: Palette,         label: "主题设置",    href: "/admin/theme" },

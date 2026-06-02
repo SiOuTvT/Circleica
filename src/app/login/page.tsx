@@ -82,23 +82,26 @@ function LoginContent() {
     { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
+  const inputCls = "flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 border border-white/[0.06] light:border-black/[0.06] focus-within:border-zinc-500 light:focus-within:border-zinc-400 transition-all"
+  const inputInnerCls = "flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+
   return (
     <div className="flex min-h-[100dvh] items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300">
+        <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300 light:hover:text-zinc-600">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           返回首页
         </Link>
 
-        <div className="rounded-2xl bg-zinc-900 light:bg-white p-8 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+        <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
           {/* 标签切换 */}
-          <div className="mb-6 flex rounded-xl bg-zinc-800/60 p-1">
+          <div className="mb-6 flex rounded-xl bg-zinc-800/60 light:bg-zinc-200/60 p-1">
             <button
               onClick={() => { setTab("login"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "login"
-                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-400"
+                  ? "bg-zinc-700 light:bg-zinc-300 text-zinc-100 light:text-zinc-900 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-400 light:hover:text-zinc-600"
               }`}
             >
               登录
@@ -107,8 +110,8 @@ function LoginContent() {
               onClick={() => { setTab("register"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "register"
-                  ? "bg-zinc-700 text-zinc-100 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-400"
+                  ? "bg-zinc-700 light:bg-zinc-300 text-zinc-100 light:text-zinc-900 shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-400 light:hover:text-zinc-600"
               }`}
             >
               注册
@@ -116,7 +119,7 @@ function LoginContent() {
           </div>
 
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-zinc-100">
+            <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">
               {tab === "login" ? "欢迎回来" : "创建账号"}
             </h1>
             <p className="mt-1 text-sm text-zinc-500">
@@ -138,7 +141,7 @@ function LoginContent() {
 
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-3">
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
+              <div className={inputCls}>
                 <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                 <input
                   type="text"
@@ -147,12 +150,12 @@ function LoginContent() {
                   placeholder="用户名或邮箱"
                   required
                   autoComplete="username"
-                  className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                  className={inputInnerCls}
                   onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
               </div>
 
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
+              <div className={inputCls}>
                 <Lock className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -161,13 +164,13 @@ function LoginContent() {
                   placeholder="密码"
                   required
                   autoComplete="current-password"
-                  className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                  className={inputInnerCls}
                   onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors"
                   aria-label={showPassword ? "隐藏密码" : "显示密码"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
@@ -177,7 +180,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-semibold text-zinc-900 transition-all hover:bg-white disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 light:bg-zinc-800 py-3 text-sm font-semibold text-zinc-900 light:text-zinc-100 transition-all hover:bg-white light:hover:bg-zinc-700 disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "登录中…" : "登 录"}
@@ -186,7 +189,7 @@ function LoginContent() {
           ) : (
             <form onSubmit={handleRegister} className="space-y-3">
               {regFields.map(({ key, icon: Icon, type, placeholder, autoComplete }) => (
-                <div key={key} className="flex items-center gap-3 rounded-xl bg-zinc-800 px-4 py-3 border border-white/[0.06] focus-within:border-zinc-500 transition-all">
+                <div key={key} className={inputCls}>
                   <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
                   <input
                     type={type}
@@ -195,7 +198,7 @@ function LoginContent() {
                     placeholder={placeholder}
                     required
                     autoComplete={autoComplete}
-                    className="flex-1 bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 outline-none"
+                    className={inputInnerCls}
                     onFocus={(e) => e.target.scrollIntoView({ behavior: "smooth", block: "center" })}
                   />
                 </div>
@@ -204,7 +207,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-semibold text-zinc-900 transition-all hover:bg-white disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 light:bg-zinc-800 py-3 text-sm font-semibold text-zinc-900 light:text-zinc-100 transition-all hover:bg-white light:hover:bg-zinc-700 disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}
@@ -214,7 +217,7 @@ function LoginContent() {
 
           {tab === "login" && (
             <p className="mt-4 text-center text-sm">
-              <Link href="/forgot-password" className="text-zinc-600 transition-colors hover:text-zinc-400">
+              <Link href="/forgot-password" className="text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-zinc-500">
                 忘记密码？
               </Link>
             </p>

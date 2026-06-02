@@ -55,7 +55,7 @@ export default async function CollectionsPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
             {list.slice(0, 8).map(g => (
               <Link
                 key={g.id}

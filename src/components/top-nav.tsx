@@ -83,18 +83,14 @@ export function TopNav() {
       .catch(() => setCheckedIn(false))
   }, [])
 
-  // 监听滚动，用于导航栏透明效果
-  // 移动端降低阈值，减少快速滚动时的闪烁
+  // 监听滚动，用于导航栏背景透明度渐变
   useEffect(() => {
     let ticking = false
     function handleScroll() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          // 使用 Math.max 过滤 iOS 橡皮筋回弹时的负 scrollY
-          // 移动端使用更低阈值 20px（PC 端保持 60px）
-          const isMobile = window.innerWidth < 768
-          const threshold = isMobile ? 20 : 60
-          setScrolled(Math.max(0, window.scrollY) > threshold)
+          const y = Math.max(0, window.scrollY)
+          setScrolled(y > 10)
           ticking = false
         })
         ticking = true
@@ -177,11 +173,13 @@ export function TopNav() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 will-change-transform",
+          "fixed top-0 left-0 right-0 z-50 border-b will-change-transform",
           "pt-[env(safe-area-inset-top)]",
+          "bg-zinc-950/60 backdrop-blur-md border-white/[0.04] light:bg-white/60 light:border-black/[0.04]",
+          "transition-[box-shadow,border-color] duration-300",
           scrolled
-            ? "bg-zinc-950/80 backdrop-blur-md border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.3)] light:bg-white/80 light:border-black/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
-            : "bg-transparent border-transparent"
+            ? "shadow-[0_1px_3px_rgba(0,0,0,0.2)] border-white/[0.06] light:shadow-[0_1px_3px_rgba(0,0,0,0.06)] light:border-black/[0.06]"
+            : "shadow-none"
         )}
       >
         {/* 顶部渐变高光线 */}

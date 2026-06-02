@@ -125,7 +125,7 @@ export function CommentsSection({
               disabled={!commentText.trim() || commentStatus === SUBMITTING}
               className="px-6 py-2.5 min-h-[44px] rounded-full text-sm font-semibold text-primary-foreground bg-primary transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {commentStatus === SUBMITTING ? "提交中..." : commentStatus === SUBMITTED ? "已发布 ✓" : "发布评论"}
+              {commentStatus === SUBMITTING ? "提交中…" : commentStatus === SUBMITTED ? "已发布 ✓" : "发布评论"}
             </button>
           </div>
         </div>

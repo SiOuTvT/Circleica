@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { Database, CheckCircle2, XCircle, Loader2 } from "lucide-react"
@@ -17,11 +17,10 @@ export function VNDBImportManager() {
     setResults([])
 
     try {
-      // 解析 VNDB ID 列表（支持逗号、换行分隔）
       const ids = vndbIds
         .split(/[\n,]/)
-        .map(id => id.trim().replace(/^v/i, "")) // 移除可能的 'v' 前缀
-        .filter(id => /^\d+$/.test(id)) // 只保留数字ID
+        .map(id => id.trim().replace(/^v/i, ""))
+        .filter(id => /^\d+$/.test(id))
 
       if (ids.length === 0) {
         setMessage("❌ 未找到有效的 VNDB ID")
@@ -40,7 +39,7 @@ export function VNDBImportManager() {
       if (res.ok) {
         setMessage(`✅ ${data.message}`)
         setResults(data.results)
-        setVndbIds("") // 清空输入
+        setVndbIds("")
       } else {
         setMessage(`❌ ${data.error}`)
       }
@@ -52,10 +51,10 @@ export function VNDBImportManager() {
   }
 
   return (
-    <div className="rounded-xl bg-zinc-900 p-6 ring-1 ring-white/[0.06]">
+    <div className="rounded-xl bg-zinc-900 light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
       <div className="mb-4 flex items-center gap-2">
         <Database className="h-5 w-5 text-primary" strokeWidth={2} />
-        <h3 className="text-base font-semibold text-zinc-200">VNDB 批量导入</h3>
+        <h3 className="text-base font-semibold text-zinc-200 light:text-zinc-800">VNDB 批量导入</h3>
       </div>
 
       <p className="mb-3 text-sm text-zinc-500">
@@ -69,7 +68,7 @@ export function VNDBImportManager() {
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="w-full resize-none rounded-xl bg-zinc-800 px-4 py-3 text-sm text-zinc-200 placeholder:text-zinc-600 ring-1 ring-white/[0.06] outline-none focus:ring-zinc-600 transition-all"
+        className="w-full resize-none rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all"
       />
 
       <button
@@ -80,7 +79,7 @@ export function VNDBImportManager() {
         {importing ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-            导入中...
+            导入中…
           </>
         ) : (
           <>
@@ -91,7 +90,7 @@ export function VNDBImportManager() {
       </button>
 
       {message && (
-        <div className="mt-4 rounded-lg bg-zinc-800 px-4 py-3 text-sm text-zinc-300">
+        <div className="mt-4 rounded-lg bg-zinc-800 light:bg-zinc-100 px-4 py-3 text-sm text-zinc-300 light:text-zinc-700">
           {message}
         </div>
       )}
@@ -102,7 +101,7 @@ export function VNDBImportManager() {
           {results.map((result, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 rounded-lg bg-zinc-800/50 px-3 py-2 text-xs"
+              className="flex items-center gap-2 rounded-lg bg-zinc-800/50 light:bg-zinc-100/50 px-3 py-2 text-xs"
             >
               {result.status === "success" && (
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" strokeWidth={2} />
@@ -113,8 +112,8 @@ export function VNDBImportManager() {
               {result.status === "skipped" && (
                 <span className="h-4 w-4 text-yellow-400 text-lg">⚠</span>
               )}
-              <span className="text-zinc-400">v{result.vndbId}</span>
-              <span className="text-zinc-600">-</span>
+              <span className="text-zinc-400 light:text-zinc-600">v{result.vndbId}</span>
+              <span className="text-zinc-600 light:text-zinc-400">-</span>
               <span
                 className={
                   result.status === "success"

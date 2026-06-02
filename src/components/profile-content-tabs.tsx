@@ -256,7 +256,7 @@ function FavoritesTab({
               onClick={() => setNewFolderPublic(false)}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                 !newFolderPublic
-                  ? "bg-zinc-500/15 text-zinc-400 ring-1 ring-zinc-500/30"
+                  ? "bg-zinc-500/15 text-zinc-400 light:text-zinc-600 ring-1 ring-zinc-500/30"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -319,7 +319,7 @@ function FavoritesTab({
                   className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all ${
                     folder.isPublic
                       ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-                      : "bg-zinc-500/10 text-zinc-400 hover:bg-zinc-500/20"
+                      : "bg-zinc-500/10 text-zinc-400 light:text-zinc-600 hover:bg-zinc-500/20"
                   }`}
                   title={folder.isPublic ? "点击设为私密" : "点击设为公开"}
                 >
@@ -421,7 +421,7 @@ function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: (
                 {folder.games.length} 部
               </span>
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                folder.isPublic ? "bg-emerald-500/10 text-emerald-500" : "bg-zinc-500/10 text-zinc-400"
+                folder.isPublic ? "bg-emerald-500/10 text-emerald-500" : "bg-zinc-500/10 text-zinc-400 light:text-zinc-600"
               }`}>
                 {folder.isPublic ? <Unlock className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
                 {folder.isPublic ? "公开" : "私密"}
@@ -517,7 +517,7 @@ function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; statu
     "想玩": "bg-sky-500/10 text-sky-400",
     "在玩": "bg-amber-500/10 text-amber-400",
     "玩过": "bg-emerald-500/10 text-emerald-400",
-    "搁置": "bg-zinc-500/10 text-zinc-400",
+    "搁置": "bg-zinc-500/10 text-zinc-400 light:text-zinc-600",
     "弃坑": "bg-rose-500/10 text-rose-400",
   }
 

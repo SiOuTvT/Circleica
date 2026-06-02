@@ -13,19 +13,7 @@ import {
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now()
-  const then = new Date(dateStr).getTime()
-  const diff = Math.max(0, Math.floor((now - then) / 1000))
-  if (diff < 60) return "刚刚"
-  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`
-  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`
-  if (diff < 604800) return `${Math.floor(diff / 86400)} 天前`
-  if (diff < 2592000) return `${Math.floor(diff / 604800)} 周前`
-  const d = new Date(dateStr)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-}
+import { timeAgo } from "@/lib/time-ago"
 
 interface NotificationItem {
   id: string
@@ -228,12 +216,12 @@ export default function NotificationsClient({
         <div className="mb-6 flex items-center gap-3">
           <Link
             href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 light:text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-zinc-400" />
+            <Bell className="h-5 w-5 text-zinc-400 light:text-zinc-600" />
             <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">
               消息中心
             </h1>
@@ -418,7 +406,7 @@ className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-
             <button
               onClick={fetchMore}
               disabled={loadingMore}
-              className="rounded-full px-6 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+              className="rounded-full px-6 py-2 text-sm font-medium text-zinc-400 light:text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
             >
               {loadingMore ? "加载中…" : "加载更多"}
             </button>

@@ -152,7 +152,7 @@ function ResourceCard({
   return (
     <div
       className="relative rounded-xl border border-foreground/10 bg-card hover:border-foreground/20 overflow-hidden transition-all duration-200 hover:shadow-md"
-      style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+      style={{ boxShadow: "var(--card-shadow)" }}
     >
       {/* ── 第一行：胶囊标签流 ── */}
       <div className="px-4 pt-4 pb-2.5 flex flex-wrap items-center gap-2">

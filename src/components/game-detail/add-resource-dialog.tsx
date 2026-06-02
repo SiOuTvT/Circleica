@@ -20,42 +20,36 @@ import {
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-/* ─────────── 选项定义 ─────────── */
+/* ─────────── 默认选项（API 未返回时的兜底） ─────────── */
 
-const PLATFORM_OPTIONS = [
-  "Windows",
-  "Android",
-  "iOS",
-  "MacOS",
-  "Linux",
-  "其他",
-]
+const DEFAULT_OPTIONS = {
+  platforms: ["Windows", "Android", "iOS", "MacOS", "Linux", "其他"],
+  languages: ["简体中文", "繁体中文", "日文", "英文", "韩文", "其他"],
+  runTypes: ["电脑硬盘", "手机模拟器", "安卓直装", "苹果直装", "原版镜像", "其他"],
+  contentTypes: ["游戏本体", "补丁资源", "番外资源", "游戏存档", "其他"],
+}
 
-const LANGUAGE_OPTIONS = [
-  "简体中文",
-  "繁体中文",
-  "日文",
-  "英文",
-  "韩文",
-  "其他",
-]
+/* ─────────── 获取资源标签选项 ─────────── */
 
-const RUNTYPE_OPTIONS = [
-  "电脑硬盘",
-  "手机模拟器",
-  "安卓直装",
-  "苹果直装",
-  "原版镜像",
-  "其他",
-]
+function useResourceTagOptions() {
+  const [options, setOptions] = useState(DEFAULT_OPTIONS)
 
-const RESOURCE_CONTENT_OPTIONS = [
-  "游戏本体",
-  "补丁资源",
-  "番外资源",
-  "游戏存档",
-  "其他",
-]
+  useEffect(() => {
+    fetch("/api/resource-tags")
+      .then(r => r.json())
+      .then(data => {
+        setOptions({
+          platforms: data.resource_platforms || DEFAULT_OPTIONS.platforms,
+          languages: data.resource_languages || DEFAULT_OPTIONS.languages,
+          runTypes: data.resource_run_types || DEFAULT_OPTIONS.runTypes,
+          contentTypes: data.resource_content_types || DEFAULT_OPTIONS.contentTypes,
+        })
+      })
+      .catch(() => { /* use defaults */ })
+  }, [])
+
+  return options
+}
 
 /* ─────────── 导出资源数据类型 ─────────── */
 
@@ -242,6 +236,7 @@ export function AddResourceDialog({
   onOpenChange: controlledOnOpenChange,
   hideTrigger = false,
 }: AddResourceDialogProps) {
+  const tagOptions = useResourceTagOptions()
   const isEditMode = !!editData
   const [internalOpen, setInternalOpen] = useState(false)
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
@@ -387,7 +382,7 @@ export function AddResourceDialog({
         showCloseButton
         className={cn(
           "w-[90vw] !max-w-[1152px] max-h-[90vh] overflow-y-auto p-0",
-          "rounded-3xl"
+          "rounded-xl"
         )}
       >
         <DialogHeader className="px-4 sm:px-10 pt-6 sm:pt-10 pb-4 sm:pb-5">
@@ -500,7 +495,7 @@ export function AddResourceDialog({
                 <PopoverSelect
                   label="选择运行平台"
                   icon={<Monitor className="w-4 h-4" />}
-                  options={PLATFORM_OPTIONS}
+                  options={tagOptions.platforms}
                   value={platform}
                   onChange={setPlatform}
                 />
@@ -512,7 +507,7 @@ export function AddResourceDialog({
                 <PopoverSelect
                   label="选择游戏语言"
                   icon={<Globe className="w-4 h-4" />}
-                  options={LANGUAGE_OPTIONS}
+                  options={tagOptions.languages}
                   value={language}
                   onChange={setLanguage}
                 />
@@ -531,7 +526,7 @@ export function AddResourceDialog({
                 <PopoverSelect
                   label="选择运行方式"
                   icon={<HardDrive className="w-4 h-4" />}
-                  options={RUNTYPE_OPTIONS}
+                  options={tagOptions.runTypes}
                   value={runType}
                   onChange={setRunType}
                 />
@@ -543,7 +538,7 @@ export function AddResourceDialog({
                 <PopoverSelect
                   label="选择资源类型"
                   icon={<FileText className="w-4 h-4" />}
-                  options={RESOURCE_CONTENT_OPTIONS}
+                  options={tagOptions.contentTypes}
                   value={resourceContent}
                   onChange={setResourceContent}
                 />
@@ -598,7 +593,7 @@ export function AddResourceDialog({
                 : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"
             )}
           >
-            {submitting ? "提交中..." : canSubmit ? (isEditMode ? "保存修改" : "提交资源") : "请填写所有必填项后提交"}
+            {submitting ? "提交中…" : canSubmit ? (isEditMode ? "保存修改" : "提交资源") : "还有必填项没填完哦"}
           </button>
         </div>
       </DialogContent>

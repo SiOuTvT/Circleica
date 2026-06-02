@@ -133,7 +133,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
             {/* 上层主卡片 - 身份区 */}
             <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden"
-              style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.08)' }}>
+              style={{ boxShadow: 'var(--card-shadow-hover)' }}>
 
               {/* Banner */}
               {user.banner && (
@@ -232,7 +232,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
             {/* 下层信息卡片 */}
             <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden"
-              style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06)' }}>
+              style={{ boxShadow: 'var(--card-shadow)' }}>
 
               <div className="px-5 py-4">
                 {/* 第一行：成员序号 + 加入日期（字号调大） */}
@@ -276,8 +276,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
         {/* ====== 右侧：内容 Tab（移动端在下方显示） ====== */}
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
-          <div className="rounded-2xl bg-card ring-1 ring-border h-full"
-            style={{ boxShadow: 'none' }}>
+          <div className="rounded-2xl bg-card ring-1 ring-border h-full shadow-none">
             <ProfileContentTabs
               favGames={favGames}
               playStatusGames={playStatusGames}

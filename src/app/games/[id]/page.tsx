@@ -200,7 +200,7 @@ export default async function GameDetailPage({
               borderRadius: "16px",
               background: "var(--card)",
               border: "1px solid var(--border)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              boxShadow: "var(--card-shadow)",
               overflow: "hidden",
             }}
           >
@@ -238,8 +238,8 @@ export default async function GameDetailPage({
               {/* ① 游戏标题 */}
               <div className="mb-1">
                 <h1
-                  className="font-black leading-tight"
-                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "var(--foreground)", fontWeight: 900 }}
+                  className="font-bold leading-tight"
+                  style={{ fontSize: "clamp(16px, 2.2vw, 24px)", color: "var(--foreground)" }}
                 >
                   {game.title}
                 </h1>

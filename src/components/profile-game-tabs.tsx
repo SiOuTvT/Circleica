@@ -89,7 +89,7 @@ export function ProfileGameTabs({ faveGame, favGames, playStatusGames }: Props) 
             >
               {tab.label}
               {counts[tab.key] > 0 && (
-                <span className="rounded-full px-1.5 py-0.5 text-[9px]"
+                <span className="rounded-full px-1.5 py-0.5 text-[10px]"
                   style={{
                     backgroundColor: activeTab === tab.key ? "var(--tab-trough)" : "var(--muted)",
                     color: activeTab === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",

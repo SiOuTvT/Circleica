@@ -321,7 +321,7 @@ export default function AdminAvatarFramesPage() {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? "保存中..." : editingFrame ? "保存修改" : "创建"}
+                {saving ? "保存中…" : editingFrame ? "保存修改" : "创建"}
               </Button>
             </div>
           </div>

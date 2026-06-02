@@ -1,14 +1,14 @@
 "use client"
 
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useState } from "react"
 
 interface ReportDialogProps {
   show: boolean
   onClose: () => void
-  reason: string
-  setReason: (v: string) => void
   reportSubmitting: boolean
-  onSubmit: () => void
+  onSubmit: (reason: string) => void
 }
 
 const REASONS = [
@@ -19,15 +19,16 @@ const REASONS = [
   { value: "other", label: "其他" },
 ]
 
-export function ReportDialog({ show, onClose, reason, setReason, reportSubmitting, onSubmit }: ReportDialogProps) {
-  useBodyScrollLock(show)
-  if (!show) return null
+export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: ReportDialogProps) {
+  const [reason, setReason] = useState("")
 
   return (
-    <div className="fixed inset-0 z-50 touch-none flex items-center justify-center bg-black/70 backdrop-blur-md">
-      <div className="bg-card rounded-2xl p-6 w-[400px] max-w-[90vw] shadow-xl">
-        <h3 className="text-lg font-bold text-foreground mb-4">举报游戏</h3>
-        <div className="space-y-2 mb-4">
+    <Dialog open={show} onOpenChange={(open) => { if (!open) { onClose(); setReason("") } }}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>举报游戏</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2">
           {REASONS.map((r) => (
             <label key={r.value} className="flex items-center gap-3 p-3 rounded-xl bg-background border border-input cursor-pointer hover:bg-accent transition-colors min-h-[44px]">
               <input
@@ -42,27 +43,20 @@ export function ReportDialog({ show, onClose, reason, setReason, reportSubmittin
             </label>
           ))}
         </div>
-        <div className="flex gap-2 justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 min-h-[44px] rounded-xl bg-secondary text-muted-foreground text-sm hover:text-foreground transition-colors"
-          >
+        <DialogFooter>
+          <Button variant="outline" size="sm" onClick={() => { onClose(); setReason("") }}>
             取消
-          </button>
-          <button
-            onClick={onSubmit}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onSubmit(reason)}
             disabled={!reason || reportSubmitting}
-            className="px-4 py-2 min-h-[44px] rounded-xl bg-red-500 text-white text-sm hover:bg-red-600 disabled:opacity-50 transition-opacity"
           >
-            {reportSubmitting ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                提交中…
-              </span>
-            ) : "提交举报"}
-          </button>
-        </div>
-      </div>
-    </div>
+            {reportSubmitting ? "提交中…" : "提交举报"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -114,7 +114,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-foreground line-clamp-1">{g.title}</span>
                       {g.isNsfw && (
-                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
+                        <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
                       )}
                     </div>
                   </td>
