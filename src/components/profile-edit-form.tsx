@@ -112,7 +112,7 @@ export function ProfileEditForm({ user }: Props) {
       {/* 统一卡片 */}
       <div className="rounded-2xl bg-card ring-1 ring-foreground/10 overflow-hidden">
         {/* 头部：头像 + 用户名 + UID */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 p-8">
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-5 sm:p-6">
           <div className="w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] shrink-0">
             <ImageUpload
               value={avatarData}
@@ -135,12 +135,12 @@ export function ProfileEditForm({ user }: Props) {
         <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
 
         {/* 基本信息 */}
-        <div className="p-8 space-y-6">
+        <div className="p-5 sm:p-6 space-y-5">
           <div>
             <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               用户名
             </label>
-            <div className="flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3.5 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-zinc-500 light:focus-within:ring-zinc-400 transition-all">
+            <div className="flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-primary/30 transition-all">
               <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
               <input
                 value={username}
@@ -157,7 +157,7 @@ export function ProfileEditForm({ user }: Props) {
             <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               个人简介
             </label>
-            <div className="rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3.5 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-zinc-500 light:focus-within:ring-zinc-400 transition-all">
+            <div className="rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-primary/30 transition-all">
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
@@ -175,8 +175,8 @@ export function ProfileEditForm({ user }: Props) {
         <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
 
         {/* 修改密码 */}
-        <div className="p-8 bg-zinc-900/50 light:bg-zinc-50">
-          <div className="flex items-center gap-2 mb-5">
+        <div className="p-5 sm:p-6 bg-zinc-900/50 light:bg-zinc-50">
+          <div className="flex items-center gap-2 mb-4">
             <Lock className="h-4 w-4 text-zinc-600 light:text-zinc-400" strokeWidth={1.5} />
             <h3 className="text-xs font-semibold text-muted-foreground">修改密码</h3>
             <span className="text-[10px] text-zinc-600 light:text-zinc-400">不想改的话留空就好~</span>
@@ -184,7 +184,7 @@ export function ProfileEditForm({ user }: Props) {
           <div className="space-y-4">
             <div>
               <label className="block mb-2 text-xs font-medium text-zinc-600 light:text-zinc-400">当前密码</label>
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3.5 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
                 <input
                   type={showOld ? "text" : "password"}
                   value={oldPassword}
@@ -203,7 +203,7 @@ export function ProfileEditForm({ user }: Props) {
             </div>
             <div>
               <label className="block mb-2 text-xs font-medium text-zinc-600 light:text-zinc-400">新密码</label>
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3.5 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-zinc-600 light:focus-within:ring-zinc-400 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
                 <input
                   type={showNew ? "text" : "password"}
                   value={newPassword}
@@ -227,11 +227,11 @@ export function ProfileEditForm({ user }: Props) {
         <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
 
         {/* 保存按钮 */}
-        <div className="p-8">
+        <div className="p-5 sm:p-6">
           <button
             type="submit"
             disabled={saving}
-            className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
             {saving ? "保存中…" : "保存修改"}
