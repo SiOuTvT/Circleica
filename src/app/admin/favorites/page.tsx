@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
-import { Heart } from "lucide-react"
+import { Heart, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 
 const FavoriteDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FavoriteDeleteBtn })), {
@@ -13,16 +13,25 @@ export const metadata = { title: "收藏记录 · 管理后台" }
 export default async function AdminFavoritesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string }>
 }) {
   await requireAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
+  const q = sp.q?.trim() ?? ""
   const limit = 20
   const skip = (page - 1) * limit
 
+  const where = q ? {
+    OR: [
+      { user: { username: { contains: q, mode: "insensitive" as const } } },
+      { game: { title: { contains: q, mode: "insensitive" as const } } },
+    ],
+  } : {}
+
   const [favorites, total] = await Promise.all([
     prisma.favorite.findMany({
+      where,
       orderBy: { id: "desc" },
       skip, take: limit,
       include: {
@@ -30,19 +39,26 @@ export default async function AdminFavoritesPage({
         game: { select: { id: true, title: true, coverImage: true } },
       },
     }),
-    prisma.favorite.count(),
+    prisma.favorite.count({ where }),
   ])
 
   const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Heart className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">收藏记录</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {total} 条记录
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Heart className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">收藏记录</h1>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            {total} 条记录
+          </span>
+        </div>
+        <form method="get" className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+          <input name="q" defaultValue={q} placeholder="搜索用户或游戏…"
+            className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+        </form>
       </div>
 
       {favorites.length === 0 ? (
@@ -84,6 +100,7 @@ export default async function AdminFavoritesPage({
         currentPage={page}
         totalPages={totalPages}
         baseUrl="/admin/favorites"
+        extraParams={q ? { q } : undefined}
       />
     </div>
   )
