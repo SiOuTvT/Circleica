@@ -63,8 +63,11 @@ function LoginContent() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setError("")
-    if (regForm.password !== regForm.confirm) { setError("两次密码不一致"); return }
+    if (!regForm.username.trim()) { setError("请输入用户名"); return }
+    if (!regForm.email.trim()) { setError("请输入邮箱"); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regForm.email)) { setError("邮箱格式不正确"); return }
     if (regForm.password.length < 6) { setError("密码至少6位"); return }
+    if (regForm.password !== regForm.confirm) { setError("两次密码不一致"); return }
     const hasTurnstile = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
     if (hasTurnstile && !captchaToken) { setError("请完成验证码验证"); return }
     setLoading(true)
