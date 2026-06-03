@@ -1,9 +1,12 @@
+import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
 
 export const dynamic = "force-dynamic"
 
 export default async function TagsOverviewPage() {
+  await requireAdmin()
+
   // 查询所有标签组及其标签数量统计
   const groups = await prisma.tagGroup.findMany({
     orderBy: [{ isPreset: "desc" }, { name: "asc" }],

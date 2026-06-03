@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { TagGroupDetailClient } from "./detail-client"
@@ -7,6 +8,7 @@ export default async function TagGroupDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  await requireAdmin()
   const { id } = await params
 
   // 查询标签组及其标签
