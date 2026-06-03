@@ -96,6 +96,7 @@ export default async function AdminFollowsPage({
         currentPage={page}
         totalPages={totalPages}
         baseUrl="/admin/follows"
+        extraParams={q ? { q } : undefined}
       />
     </div>
   )
