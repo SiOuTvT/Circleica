@@ -81,18 +81,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function CreatorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  let creator: any = null
+  let creator: CreatorData | null = null
 
   try {
     // id 格式如 s123（staff）或 p123（producer）
     if (id.startsWith("s")) {
-      creator = await vndbClient.getStaffDetail(id.slice(1))
+      const staff = await vndbClient.getStaffDetail(id.slice(1))
+      if (staff) creator = { ...staff, vndbId: id.slice(1), roles: staff.roles || [], vns: staff.vns || [] }
     } else if (id.startsWith("p")) {
       const producer = await vndbClient.getProducer(id.slice(1))
       if (producer) creator = mapProducerToCreator(producer, id.slice(1))
     } else {
       // 纯数字 ID，尝试 staff 先，失败再 producer
-      creator = await vndbClient.getStaffDetail(id)
+      const staff = await vndbClient.getStaffDetail(id)
+      if (staff) creator = { ...staff, vndbId: id, roles: staff.roles || [], vns: staff.vns || [] }
       if (!creator) {
         const producer = await vndbClient.getProducer(id)
         if (producer) creator = mapProducerToCreator(producer, id)
