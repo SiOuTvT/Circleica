@@ -50,19 +50,23 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
 
   let creator: any = null
 
-  // id 格式如 s123（staff）或 p123（producer）
-  if (id.startsWith("s")) {
-    creator = await vndbClient.getStaffDetail(id.slice(1))
-  } else if (id.startsWith("p")) {
-    const producer = await vndbClient.getProducer(id.slice(1))
-    if (producer) creator = mapProducerToCreator(producer, id.slice(1))
-  } else {
-    // 纯数字 ID，尝试 staff 先，失败再 producer
-    creator = await vndbClient.getStaffDetail(id)
-    if (!creator) {
-      const producer = await vndbClient.getProducer(id)
-      if (producer) creator = mapProducerToCreator(producer, id)
+  try {
+    // id 格式如 s123（staff）或 p123（producer）
+    if (id.startsWith("s")) {
+      creator = await vndbClient.getStaffDetail(id.slice(1))
+    } else if (id.startsWith("p")) {
+      const producer = await vndbClient.getProducer(id.slice(1))
+      if (producer) creator = mapProducerToCreator(producer, id.slice(1))
+    } else {
+      // 纯数字 ID，尝试 staff 先，失败再 producer
+      creator = await vndbClient.getStaffDetail(id)
+      if (!creator) {
+        const producer = await vndbClient.getProducer(id)
+        if (producer) creator = mapProducerToCreator(producer, id)
+      }
     }
+  } catch (error) {
+    console.error(`[CreatorPage] VNDB API error for ${id}:`, error)
   }
 
   if (!creator) notFound()
