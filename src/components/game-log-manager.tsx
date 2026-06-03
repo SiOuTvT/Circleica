@@ -43,12 +43,12 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   }
 
   return (
-    <div className="rounded-xl bg-card light:bg-white p-5 ring-1 ring-white/[0.06] light:ring-black/[0.06] space-y-3">
+    <div className="rounded-xl bg-card light:bg-white p-5 ring-1 ring-border space-y-3">
       <h2 className="text-sm font-semibold text-foreground light:text-muted-foreground">更新日志</h2>
       <form onSubmit={add} className="flex gap-2">
         <input value={content} onChange={e => setContent(e.target.value)}
           placeholder="如：修复百度网盘链接、新增汉化版…"
-          className="flex-1 rounded-xl bg-secondary light:bg-secondary px-4 py-2.5 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all" />
+          className="flex-1 rounded-xl bg-secondary light:bg-secondary px-4 py-2.5 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
         <button type="submit" disabled={adding || !content.trim()}
           className="flex items-center gap-1.5 rounded-xl bg-secondary light:bg-secondary px-4 py-2 text-sm text-foreground light:text-foreground transition-all hover:bg-secondary light:hover:bg-secondary disabled:opacity-50">
           {adding ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} /> : <Plus className="h-4 w-4" strokeWidth={1.5} />}
