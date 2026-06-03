@@ -75,8 +75,8 @@ export function MusicPlayer() {
 
       <div className={cn(
         "fixed right-5 z-50 flex flex-col overflow-hidden rounded-2xl",
-        "border border-white/[0.08] light:border-black/[0.08]",
-        "bg-card/95 light:bg-white/95",
+        "ring-1 ring-border",
+        "bg-card/95 bg-card/95",
         "shadow-2xl backdrop-blur-xl transition-all duration-300",
         expanded ? "w-64" : "w-12"
       )} style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>
@@ -113,16 +113,16 @@ export function MusicPlayer() {
 
               {/* 控制按钮 */}
               <div className="flex items-center gap-0.5">
-                <button onClick={prev} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground light:text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={prev} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   <SkipBack className="h-4 w-4" strokeWidth={1.5} />
                 </button>
                 <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:text-foreground">
                   {playing ? <Pause className="h-4 w-4" strokeWidth={1.5} /> : <Play className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
-                <button onClick={next} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground light:text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={next} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   <SkipForward className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={() => setMuted(v => !v)} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground light:text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={() => setMuted(v => !v)} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   {muted ? <VolumeX className="h-4 w-4" strokeWidth={1.5} /> : <Volume2 className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
               </div>
