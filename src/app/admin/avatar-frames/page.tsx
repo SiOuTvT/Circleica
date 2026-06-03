@@ -121,23 +121,23 @@ export default function AdminAvatarFramesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">头像框管理</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">头像框管理</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             管理用户可选择的头像框，图片应为透明背景的 PNG
           </p>
         </div>
         <Button
           onClick={openCreate}
-          className="bg-indigo-600 hover:bg-indigo-700"
+          className="bg-primary hover:opacity-90"
         >
           + 新建头像框
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400">加载中...</div>
+        <div className="text-center py-12 text-muted-foreground">加载中...</div>
       ) : frames.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-muted-foreground">
           暂无头像框，点击上方按钮创建
         </div>
       ) : (
@@ -145,10 +145,10 @@ export default function AdminAvatarFramesPage() {
           {frames.map((frame) => (
             <div
               key={frame.id}
-              className="bg-white/5 rounded-xl p-4 flex flex-col items-center gap-3 border border-white/10"
+              className="bg-muted rounded-xl p-4 flex flex-col items-center gap-3 border ring-1 ring-border"
             >
               <div className="relative w-24 h-24">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-foreground text-2xl font-bold">
                   {frame.name.charAt(0)}
                 </div>
                 <img
@@ -159,11 +159,11 @@ export default function AdminAvatarFramesPage() {
               </div>
 
               <div className="text-center w-full">
-                <p className="text-white font-medium text-sm truncate">
+                <p className="text-foreground font-medium text-sm truncate">
                   {frame.name}
                 </p>
                 {frame.description && (
-                  <p className="text-gray-400 text-xs truncate mt-0.5">
+                  <p className="text-muted-foreground text-xs truncate mt-0.5">
                     {frame.description}
                   </p>
                 )}
@@ -177,12 +177,12 @@ export default function AdminAvatarFramesPage() {
                   >
                     {frame.isPublic ? "公开" : "隐藏"}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     排序: {frame.sort}
                   </span>
                 </div>
                 {frame._count && (
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {frame._count.users} 人使用
                   </p>
                 )}
@@ -192,7 +192,7 @@ export default function AdminAvatarFramesPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1 text-xs border-white/20 text-white hover:bg-white/10"
+                  className="flex-1 text-xs ring-1 ring-border text-foreground hover:bg-accent"
                   onClick={() => openEdit(frame)}
                 >
                   编辑
@@ -213,7 +213,7 @@ export default function AdminAvatarFramesPage() {
       )}
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
+        <DialogContent className="bg-card ring-1 ring-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>
               {editingFrame ? "编辑头像框" : "新建头像框"}
@@ -222,33 +222,33 @@ export default function AdminAvatarFramesPage() {
 
           <div className="space-y-4 mt-2">
             <div>
-              <label className="text-sm text-gray-300 mb-1 block">
+              <label className="text-sm text-foreground mb-1 block">
                 名称 <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white"
+                className="w-full bg-muted border ring-1 ring-border rounded-lg px-3 py-2 text-foreground"
                 placeholder="例：金色传说"
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-300 mb-1 block">描述</label>
+              <label className="text-sm text-foreground mb-1 block">描述</label>
               <input
                 type="text"
                 value={form.description}
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white"
+                className="w-full bg-muted border ring-1 ring-border rounded-lg px-3 py-2 text-foreground"
                 placeholder="可选"
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-300 mb-1 block">
+              <label className="text-sm text-foreground mb-1 block">
                 头像框图片 <span className="text-red-400">*</span>
               </label>
               <ImageUpload
@@ -256,14 +256,14 @@ export default function AdminAvatarFramesPage() {
                 onChange={(url) => setForm({ ...form, imageUrl: url })}
                 aspectRatio={1}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 建议使用 200×200 透明背景 PNG
               </p>
             </div>
 
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm text-gray-300 mb-1 block">
+                <label className="text-sm text-foreground mb-1 block">
                   排序
                 </label>
                 <input
@@ -272,7 +272,7 @@ export default function AdminAvatarFramesPage() {
                   onChange={(e) =>
                     setForm({ ...form, sort: parseInt(e.target.value) || 0 })
                   }
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-white"
+                  className="w-full bg-muted border ring-1 ring-border rounded-lg px-3 py-2 text-foreground"
                 />
               </div>
               <div className="flex items-end pb-2">
@@ -285,18 +285,18 @@ export default function AdminAvatarFramesPage() {
                     }
                     className="rounded"
                   />
-                  <span className="text-sm text-gray-300">公开可见</span>
+                  <span className="text-sm text-foreground">公开可见</span>
                 </label>
               </div>
             </div>
 
             {form.imageUrl && (
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">
+                <label className="text-sm text-foreground mb-2 block">
                   预览效果
                 </label>
                 <div className="relative w-20 h-20">
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-foreground text-xl font-bold">
                     A
                   </div>
                   <img
@@ -311,13 +311,13 @@ export default function AdminAvatarFramesPage() {
             <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
+                className="flex-1 ring-1 ring-border text-foreground hover:bg-accent"
                 onClick={() => setShowDialog(false)}
               >
                 取消
               </Button>
               <Button
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                className="flex-1 bg-primary hover:opacity-90"
                 onClick={handleSave}
                 disabled={saving}
               >
