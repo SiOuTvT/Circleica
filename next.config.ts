@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
   },
   // 移除 X-Powered-By 头，减少信息泄露
   poweredByHeader: false,
+  // Docker 部署：生成独立运行包
+  output: "standalone",
 
   async headers() {
     return [
