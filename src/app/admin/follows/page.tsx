@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
-import { UserPlus } from "lucide-react"
+import { Search, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
 
 const FollowDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FollowDeleteBtn })), {
@@ -13,16 +13,25 @@ export const metadata = { title: "关注记录 · 管理后台" }
 export default async function AdminFollowsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string }>
 }) {
   await requireAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
+  const q = sp.q?.trim() ?? ""
   const limit = 20
   const skip = (page - 1) * limit
 
+  const where = q ? {
+    OR: [
+      { follower: { username: { contains: q, mode: "insensitive" as const } } },
+      { following: { username: { contains: q, mode: "insensitive" as const } } },
+    ],
+  } : {}
+
   const [follows, total] = await Promise.all([
     prisma.follow.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       skip, take: limit,
       include: {
@@ -30,19 +39,26 @@ export default async function AdminFollowsPage({
         following: { select: { id: true, username: true, avatar: true } },
       },
     }),
-    prisma.follow.count(),
+    prisma.follow.count({ where }),
   ])
 
   const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <UserPlus className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">关注记录</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {total} 条记录
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <UserPlus className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">关注记录</h1>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            {total} 条记录
+          </span>
+        </div>
+        <form method="get" className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+          <input name="q" defaultValue={q} placeholder="搜索用户名…"
+            className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+        </form>
       </div>
 
       {follows.length === 0 ? (
