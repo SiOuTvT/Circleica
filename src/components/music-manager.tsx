@@ -62,10 +62,10 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
       </div>
 
       <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
-        <div className="border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
+        <div className="border-b border-border px-4 py-3">
           <p className="text-xs text-muted-foreground">共 {list.length} 首，{list.filter(m => m.isActive).length} 首激活</p>
         </div>
-        <div className="divide-y divide-white/[0.04] light:divide-black/[0.04]">
+        <div className="divide-y divide-white/[0.04] divide-border/50">
           {list.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">暂无音乐</p>}
           {list.map(m => (
             <div key={m.id} className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors">
