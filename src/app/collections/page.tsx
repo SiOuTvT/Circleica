@@ -8,23 +8,28 @@ export const revalidate = 120
 export const metadata = { title: "精选合集 · 同人游戏站" }
 
 export default async function CollectionsPage() {
-  // 查所有有原作的游戏，按原作分组
-  const games = await prisma.game.findMany({
+  // 1. 先查所有原作系列及其游戏数量（数据库层面分组）
+  const groupCounts = await prisma.game.groupBy({
+    by: ["originalWork"],
     where: { isPublished: true, isNsfw: false, NOT: { originalWork: "" } },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true, favoriteCount: true },
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+    take: 100, // 最多显示 100 个系列
   })
 
-  // 按原作分组
-  const groups = new Map<string, typeof games>()
-  for (const g of games) {
-    const key = g.originalWork
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(g)
-  }
-
-  // 按游戏数量降序排列
-  const sorted = [...groups.entries()].sort((a, b) => b[1].length - a[1].length)
+  // 2. 批量查询每个系列的前 8 个游戏
+  const sorted: [string, { id: string; serialId: number; title: string; coverImage: string; favoriteCount: number }[]][] =
+    await Promise.all(
+      groupCounts.map(async (g) => {
+        const games = await prisma.game.findMany({
+          where: { isPublished: true, isNsfw: false, originalWork: g.originalWork },
+          orderBy: { favoriteCount: "desc" },
+          take: 8,
+          select: { id: true, serialId: true, title: true, coverImage: true, favoriteCount: true },
+        })
+        return [g.originalWork, games]
+      })
+    )
 
   return (
     <ThemeText className="space-y-8">
