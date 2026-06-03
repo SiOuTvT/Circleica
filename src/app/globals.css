@@ -851,10 +851,10 @@ span[class*="bg-primary"] {
 
 /* ── 输入框聚焦 - 克制聚焦环（使用 outline 防止被 overflow-x: hidden 裁剪） ── */
 input:focus, textarea:focus, select:focus {
-  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
-  outline-offset: -2px;
-  box-shadow: none;
-  border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
+  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.3);
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
+  border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
 }
 
 /* ── 全局按钮按压反馈 — 微缩放 ── */
