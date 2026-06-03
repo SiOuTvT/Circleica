@@ -1,8 +1,8 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { ChevronLeft, UserPlus } from "lucide-react"
+import { Pagination } from "@/components/ui/pagination"
+import { UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 
 const FollowDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FollowDeleteBtn })), {
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
@@ -76,23 +76,11 @@ export default async function AdminFollowsPage({
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Link
-            href={`/admin/follows?page=${Math.max(1, page - 1)}`}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent ${page === 1 ? "pointer-events-none opacity-40" : ""}`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-          <span className="px-3 text-sm text-muted-foreground">{page} / {totalPages}</span>
-          <Link
-            href={`/admin/follows?page=${Math.min(totalPages, page + 1)}`}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent ${page === totalPages ? "pointer-events-none opacity-40" : ""}`}
-          >
-            <ChevronLeft className="h-4 w-4 rotate-180" />
-          </Link>
-        </div>
-      )}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl="/admin/follows"
+      />
     </div>
   )
 }
