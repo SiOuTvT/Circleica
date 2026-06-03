@@ -407,7 +407,7 @@ function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: (
 
         <div className="folder-modal-content">
           {/* 弹窗头部 */}
-          <div className="flex items-center justify-between border-b border-black/[0.08] px-6 py-4 dark:border-white/[0.08]">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div className="flex items-center gap-3">
               <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
               <h2 className="text-base font-bold text-foreground">{folder.name}</h2>
