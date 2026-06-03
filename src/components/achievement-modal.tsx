@@ -186,7 +186,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
       {/* 关闭 */}
       <button
         onClick={onClose}
-        className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700/50 transition-colors"
+        className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
       >
         <X className="h-3 w-3" strokeWidth={2.5} />
       </button>
@@ -218,7 +218,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
           </span>
         </div>
         <div className="mt-1.5 flex items-end justify-between gap-2">
-          <p className="text-[11px] text-zinc-400 leading-tight line-clamp-2 flex-1">
+          <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2 flex-1">
             {achievement.description}
           </p>
           <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-400 tabular-nums">
