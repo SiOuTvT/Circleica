@@ -8,7 +8,8 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
-import { Bookmark, Gamepad2, Image, MessageSquare, Pencil } from "lucide-react"
+import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
+import NextImage from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
@@ -133,7 +134,16 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
               {/* Banner */}
               {user.banner && (
-                <div className="h-36 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }} />
+                <div className="relative h-36 w-full overflow-hidden">
+                  <NextImage
+                    src={user.banner}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 380px"
+                    loading="eager"
+                  />
+                </div>
               )}
 
               <div className="px-6 py-8 flex flex-col items-center text-center">
