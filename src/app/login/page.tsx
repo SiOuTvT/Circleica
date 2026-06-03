@@ -9,7 +9,7 @@ import { Suspense, useCallback, useEffect, useState } from "react"
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-zinc-500" /></div>}>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
       <LoginContent />
     </Suspense>
   )
@@ -100,7 +100,7 @@ function LoginContent() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-8 inline-flex items-center gap-2 px-2 py-2 -ml-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300 light:hover:text-zinc-600">
+        <Link href="/" className="mb-8 inline-flex items-center gap-2 px-2 py-2 -ml-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           返回首页
         </Link>
@@ -112,8 +112,8 @@ function LoginContent() {
               onClick={() => { setTab("login"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "login"
-                  ? "bg-zinc-700 light:bg-zinc-300 text-zinc-100 light:text-zinc-900 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-400 light:hover:text-zinc-600"
+                  ? "bg-zinc-700 light:bg-zinc-300 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-zinc-400 light:hover:text-zinc-600"
               }`}
             >
               登录
@@ -122,8 +122,8 @@ function LoginContent() {
               onClick={() => { setTab("register"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "register"
-                  ? "bg-zinc-700 light:bg-zinc-300 text-zinc-100 light:text-zinc-900 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-400 light:hover:text-zinc-600"
+                  ? "bg-zinc-700 light:bg-zinc-300 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-zinc-400 light:hover:text-zinc-600"
               }`}
             >
               注册
@@ -131,10 +131,10 @@ function LoginContent() {
           </div>
 
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">
+            <h1 className="text-xl font-bold text-foreground">
               {tab === "login" ? "欢迎回来" : "创建账号"}
             </h1>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               {tab === "login" ? "登录以继续探索" : "加入同人游戏世界"}
             </p>
           </div>
@@ -154,7 +154,7 @@ function LoginContent() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} className="space-y-3">
               <div className={inputCls}>
-                <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+                <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   type="text"
                   value={identifier}
@@ -168,7 +168,7 @@ function LoginContent() {
               </div>
 
               <div className={inputCls}>
-                <Lock className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+                <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -182,7 +182,7 @@ function LoginContent() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? "隐藏密码" : "显示密码"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
@@ -202,7 +202,7 @@ function LoginContent() {
             <form onSubmit={handleRegister} className="space-y-3">
               {regFields.map(({ key, icon: Icon, type, placeholder, autoComplete, minLength }) => (
                 <div key={key} className={inputCls}>
-                  <Icon className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                   <input
                     type={type}
                     value={regForm[key]}
@@ -232,7 +232,7 @@ function LoginContent() {
 
           {tab === "login" && (
             <div className="mt-4 flex justify-center">
-              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-zinc-500">
+              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-muted-foreground">
                 忘记密码？
               </Link>
             </div>
