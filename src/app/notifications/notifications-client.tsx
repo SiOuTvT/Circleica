@@ -285,7 +285,7 @@ export default function NotificationsClient({
                   <>
                     <button
                       onClick={handleMarkSelectedRead}
-                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-zinc-800 light:text-primary light:hover:bg-zinc-100"
+                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-secondary"
                     >
                       <CheckCheck className="h-3.5 w-3.5" />
                       标记已读
