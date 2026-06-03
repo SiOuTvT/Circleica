@@ -49,7 +49,7 @@ export function TopNav() {
   const [userOpen, setUserOpen]   = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
   const [scrolled, setScrolled]   = useState(false)
-  const [theme, setTheme]         = useState<"dark" | "light">("dark")
+  const [theme, setTheme]         = useState<"dark" | "light" | "system">("dark")
   const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkinLoading, setCheckinLoading] = useState(false)
@@ -66,13 +66,34 @@ export function TopNav() {
 
   // 在客户端挂载后从 localStorage/cookie 读取实际值，避免 hydration mismatch
   useEffect(() => {
-    const saved = localStorage.getItem("theme") as "dark" | "light" | null
-    const actual = saved ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    setTheme(actual)
-    document.documentElement.classList.toggle("light", actual === "light")
+    const saved = localStorage.getItem("theme") as "dark" | "light" | "system" | null
+    const mode = saved || "system"
+    setTheme(mode)
+
+    // 应用主题
+    const applyTheme = (m: string) => {
+      let isLight = false
+      if (m === "light") isLight = true
+      else if (m === "dark") isLight = false
+      else isLight = window.matchMedia("(prefers-color-scheme: light)").matches
+      document.documentElement.classList.toggle("light", isLight)
+      document.documentElement.classList.toggle("dark", !isLight)
+    }
+    applyTheme(mode)
+
+    // 系统模式下监听 OS 主题变化
+    const mq = window.matchMedia("(prefers-color-scheme: light)")
+    const handler = () => {
+      if (localStorage.getItem("theme") === "system" || !localStorage.getItem("theme")) {
+        applyTheme("system")
+      }
+    }
+    mq.addEventListener("change", handler)
 
     const nsfwVal = getCookie("nsfw_status") === "1"
     setNsfw(nsfwVal)
+
+    return () => mq.removeEventListener("change", handler)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅 mount 时执行一次客户端同步
   }, [])
 
@@ -139,10 +160,17 @@ export function TopNav() {
   }, [])
 
   function toggleTheme() {
-    const next = theme === "dark" ? "light" : "dark"
+    const next: "dark" | "light" | "system" = theme === "dark" ? "light" : theme === "light" ? "system" : "dark"
     setTheme(next)
-    document.documentElement.classList.toggle("light", next === "light")
     localStorage.setItem("theme", next)
+
+    let isLight = false
+    if (next === "light") isLight = true
+    else if (next === "dark") isLight = false
+    else isLight = window.matchMedia("(prefers-color-scheme: light)").matches
+
+    document.documentElement.classList.toggle("light", isLight)
+    document.documentElement.classList.toggle("dark", !isLight)
   }
 
   function toggleNsfw() {
@@ -232,8 +260,10 @@ export function TopNav() {
 
             {user && <NotificationBell />}
 
-            <button onClick={toggleTheme} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} /> : <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
+            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+              {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+                : theme === "dark" ? <Moon className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+                : <Monitor className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />}
             </button>
 
             {user ? (
