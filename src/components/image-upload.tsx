@@ -223,7 +223,7 @@ export function ImageUpload({
           shape === "circle" ? "rounded-full" : "rounded-xl",
           isDragging
             ? "border-primary bg-primary/10"
-            : "border-zinc-700 light:border-zinc-300 bg-zinc-900 light:bg-white hover:border-zinc-600 light:hover:border-zinc-400 hover:bg-zinc-800 light:hover:bg-zinc-100"
+            : "border-border bg-card hover:border-muted-foreground hover:bg-secondary"
         )}
         style={{ aspectRatio, minHeight: "120px" }}
       >
