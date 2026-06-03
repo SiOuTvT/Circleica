@@ -2,17 +2,48 @@ import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
 import { CreatorDetailClient } from "./creator-detail-client"
 
+interface ProducerData {
+  id: string
+  name: string
+  original?: string
+  description?: string
+  developed?: Array<{
+    id: string
+    title: string
+    rating?: number
+    image?: { url: string }
+  }>
+}
+
+interface CreatorData {
+  id: string
+  name: string
+  original?: string
+  description?: string
+  gender?: string
+  vndbId: string
+  roles: string[]
+  vns: Array<{
+    id: string
+    title: string
+    original: string
+    role: string
+    rating?: number
+    image?: string
+  }>
+}
+
 /** 将 producer 数据转换为 creator 格式 */
-function mapProducerToCreator(producer: any, vndbId: string) {
+function mapProducerToCreator(producer: ProducerData, vndbId: string): CreatorData {
   return {
     id: producer.id,
     name: producer.name,
-    original: producer.original,
-    description: producer.description,
+    original: producer.original || "",
+    description: producer.description || "",
     gender: undefined,
     vndbId,
     roles: [],
-    vns: (producer.developed || []).map((vn: any) => ({
+    vns: (producer.developed || []).map((vn) => ({
       id: vn.id,
       title: vn.title,
       original: "",
@@ -27,20 +58,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params
   try {
     // 尝试获取创作者名称用于标题
-    let creator: any = null
+    let creatorName: string | null = null
     if (id.startsWith("s")) {
-      creator = await vndbClient.getStaffDetail(id.slice(1))
+      const staff = await vndbClient.getStaffDetail(id.slice(1))
+      creatorName = staff?.name || null
     } else if (id.startsWith("p")) {
       const producer = await vndbClient.getProducer(id.slice(1))
-      if (producer) creator = { name: producer.name }
+      creatorName = producer?.name || null
     } else {
-      creator = await vndbClient.getStaffDetail(id)
-      if (!creator) {
+      const staff = await vndbClient.getStaffDetail(id)
+      creatorName = staff?.name || null
+      if (!creatorName) {
         const producer = await vndbClient.getProducer(id)
-        if (producer) creator = { name: producer.name }
+        creatorName = producer?.name || null
       }
     }
-    if (creator?.name) return { title: `${creator.name} · 创作者 · 同人游戏站` }
+    if (creatorName) return { title: `${creatorName} · 创作者 · 同人游戏站` }
   } catch {}
   return { title: `创作者详情 · 同人游戏站` }
 }
