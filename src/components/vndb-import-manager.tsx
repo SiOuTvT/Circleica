@@ -51,13 +51,13 @@ export function VNDBImportManager() {
   }
 
   return (
-    <div className="rounded-xl bg-zinc-900 light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+    <div className="rounded-xl bg-card light:bg-white p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
       <div className="mb-4 flex items-center gap-2">
         <Database className="h-5 w-5 text-primary" strokeWidth={2} />
-        <h3 className="text-base font-semibold text-zinc-200 light:text-zinc-800">VNDB 批量导入</h3>
+        <h3 className="text-base font-semibold text-foreground light:text-foreground">VNDB 批量导入</h3>
       </div>
 
-      <p className="mb-3 text-sm text-zinc-500">
+      <p className="mb-3 text-sm text-muted-foreground">
         输入 VNDB 视觉小说 ID（每行一个或用逗号分隔），系统将自动验证并导入同人作品。
         <br />
         示例：12345, 67890, 11111
@@ -68,7 +68,7 @@ export function VNDBImportManager() {
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="w-full resize-none rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all"
+        className="w-full resize-none rounded-xl bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all"
       />
 
       <button
@@ -90,18 +90,18 @@ export function VNDBImportManager() {
       </button>
 
       {message && (
-        <div className="mt-4 rounded-lg bg-zinc-800 light:bg-zinc-100 px-4 py-3 text-sm text-zinc-300 light:text-zinc-700">
+        <div className="mt-4 rounded-lg bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-muted-foreground">
           {message}
         </div>
       )}
 
       {results.length > 0 && (
         <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-          <p className="text-xs font-medium text-zinc-500">导入结果：</p>
+          <p className="text-xs font-medium text-muted-foreground">导入结果：</p>
           {results.map((result, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 rounded-lg bg-zinc-800/50 light:bg-zinc-100/50 px-3 py-2 text-xs"
+              className="flex items-center gap-2 rounded-lg bg-secondary/50 light:bg-secondary/50 px-3 py-2 text-xs"
             >
               {result.status === "success" && (
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" strokeWidth={2} />
@@ -112,8 +112,8 @@ export function VNDBImportManager() {
               {result.status === "skipped" && (
                 <span className="h-4 w-4 text-yellow-400 text-lg">⚠</span>
               )}
-              <span className="text-zinc-400 light:text-zinc-600">v{result.vndbId}</span>
-              <span className="text-zinc-600 light:text-zinc-400">-</span>
+              <span className="text-muted-foreground light:text-muted-foreground">v{result.vndbId}</span>
+              <span className="text-muted-foreground light:text-muted-foreground">-</span>
               <span
                 className={
                   result.status === "success"
