@@ -139,9 +139,12 @@ main > * {
   --accent-foreground: #e8e8ec;
   --destructive:   #f87171;
 
-  /* 审计修复：卡片统一阴影 — 深色模式 */
-  --card-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
-  --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+  /* 统一阴影系统 — 深色模式 */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+  --card-shadow: var(--shadow-md);
+  --card-shadow-hover: var(--shadow-lg);
   --ring:          #252528;
   --radius:        0.75rem;
 
@@ -197,9 +200,12 @@ main > * {
   --ring:          #d4d4d8;
   --primary:       #d4607e; /* 柔玫瑰-浅色模式 */
 
-  /* 审计修复：卡片统一阴影 — 亮色模式 */
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  /* 统一阴影系统 — 亮色模式 */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --card-shadow: var(--shadow-md);
+  --card-shadow-hover: var(--shadow-lg);
   --primary-foreground: #ffffff;
 
   /* ── 统一 Tab 切换组件色（亮色主题） ── */
