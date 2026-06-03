@@ -6,6 +6,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DATABASE_URL: ${DATABASE_URL:-postgresql://fangame:password@host.docker.internal:5432/fangame}
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
     container_name: fangame-app
     restart: unless-stopped
     # 允许容器访问宿主机上的 PostgreSQL
