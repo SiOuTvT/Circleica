@@ -47,14 +47,14 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-300 light:text-zinc-700">添加音乐</h2>
-        <p className="text-xs text-zinc-600 light:text-zinc-400">填入音乐文件的直链 URL（mp3/ogg/flac），前台会循环播放所有激活的曲目</p>
+        <h2 className="text-sm font-semibold text-foreground">添加音乐</h2>
+        <p className="text-xs text-muted-foreground">填入音乐文件的直链 URL（mp3/ogg/flac），前台会循环播放所有激活的曲目</p>
         {error && <p className="text-xs text-red-400">{error}</p>}
         <form onSubmit={add} className="space-y-2">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="曲目名称" required className={inputCls} />
           <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（https://...）" required className={inputCls} />
           <button type="submit" disabled={adding}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-2 text-sm text-zinc-300 light:text-zinc-700 ring-1 ring-border transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white disabled:opacity-60">
+            className="flex items-center gap-1.5 rounded-xl bg-secondary px-4 py-2 text-sm text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-white disabled:opacity-60">
             {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} /> : <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />}
             {adding ? "添加中…" : "添加"}
           </button>
@@ -63,24 +63,24 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
 
       <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
         <div className="border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
-          <p className="text-xs text-zinc-500">共 {list.length} 首，{list.filter(m => m.isActive).length} 首激活</p>
+          <p className="text-xs text-muted-foreground">共 {list.length} 首，{list.filter(m => m.isActive).length} 首激活</p>
         </div>
         <div className="divide-y divide-white/[0.04] light:divide-black/[0.04]">
-          {list.length === 0 && <p className="px-4 py-8 text-center text-sm text-zinc-600 light:text-zinc-400">暂无音乐</p>}
+          {list.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">暂无音乐</p>}
           {list.map(m => (
-            <div key={m.id} className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 light:hover:bg-zinc-100/50 transition-colors">
-              <Music className="h-4 w-4 shrink-0 text-zinc-600 light:text-zinc-400" strokeWidth={1.5} />
+            <div key={m.id} className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors">
+              <Music className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-zinc-300 light:text-zinc-700 truncate">{m.title}</p>
-                <p className="text-[10px] text-zinc-600 light:text-zinc-400 truncate">{m.url || m.filename}</p>
+                <p className="text-sm font-medium text-foreground truncate">{m.title}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{m.url || m.filename}</p>
               </div>
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 light:bg-zinc-100 text-zinc-500"}`}>
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
                 {m.isActive ? "播放中" : "已停用"}
               </span>
-              <button onClick={() => toggle(m.id, m.isActive)} className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600">
+              <button onClick={() => toggle(m.id, m.isActive)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                 {m.isActive ? <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />}
               </button>
-              <button onClick={() => remove(m.id)} className="rounded-lg p-1.5 text-zinc-600 light:text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400">
+              <button onClick={() => remove(m.id)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-400">
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             </div>
