@@ -73,7 +73,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-in-out"
+            className="absolute inset-0 h-full w-full object-fill transition-transform duration-700 ease-in-out"
             style={{ transform: `scale(1.1)` }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
