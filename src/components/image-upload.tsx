@@ -169,7 +169,7 @@ export function ImageUpload({
       <div className={cn("group relative", className)}>
         <div
           className={cn(
-            "relative overflow-hidden bg-zinc-800 light:bg-zinc-100 ring-1 ring-white/[0.06] light:ring-black/[0.06]",
+            "relative overflow-hidden bg-secondary ring-1 ring-border",
             shape === "circle" ? "rounded-full" : "rounded-xl"
           )}
           style={{ aspectRatio }}
@@ -230,7 +230,7 @@ export function ImageUpload({
         <div
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
-            isDragging ? "bg-primary/20 text-primary" : "bg-zinc-800 light:bg-zinc-100 text-zinc-500"
+            isDragging ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
           )}
         >
           <Upload className="h-5 w-5" strokeWidth={1.5} />
@@ -239,12 +239,12 @@ export function ImageUpload({
           <p
             className={cn(
               "text-xs font-medium transition-colors",
-              isDragging ? "text-primary" : "text-zinc-500"
+              isDragging ? "text-primary" : "text-muted-foreground"
             )}
           >
             {isDragging ? "释放以上传图片" : placeholder}
           </p>
-          <p className="mt-1 text-[10px] text-zinc-700 light:text-zinc-300">
+          <p className="mt-1 text-[10px] text-muted-foreground">
             支持 JPG、PNG、WebP，最大 {maxSizeMB}MB
           </p>
         </div>
