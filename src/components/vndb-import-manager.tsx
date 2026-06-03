@@ -51,10 +51,10 @@ export function VNDBImportManager() {
   }
 
   return (
-    <div className="rounded-xl bg-card light:bg-white p-6 ring-1 ring-border">
+    <div className="rounded-xl bg-card p-6 ring-1 ring-border">
       <div className="mb-4 flex items-center gap-2">
         <Database className="h-5 w-5 text-primary" strokeWidth={2} />
-        <h3 className="text-base font-semibold text-foreground light:text-foreground">VNDB 批量导入</h3>
+        <h3 className="text-base font-semibold text-foreground">VNDB 批量导入</h3>
       </div>
 
       <p className="mb-3 text-sm text-muted-foreground">
@@ -68,7 +68,7 @@ export function VNDBImportManager() {
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="w-full resize-none rounded-xl bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-foreground placeholder:text-muted-foreground light:placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+        className="w-full resize-none rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
       />
 
       <button
@@ -90,7 +90,7 @@ export function VNDBImportManager() {
       </button>
 
       {message && (
-        <div className="mt-4 rounded-lg bg-secondary light:bg-secondary px-4 py-3 text-sm text-foreground light:text-muted-foreground">
+        <div className="mt-4 rounded-lg bg-secondary px-4 py-3 text-sm text-foreground">
           {message}
         </div>
       )}
@@ -101,7 +101,7 @@ export function VNDBImportManager() {
           {results.map((result, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 rounded-lg bg-secondary/50 light:bg-secondary/50 px-3 py-2 text-xs"
+              className="flex items-center gap-2 rounded-lg bg-secondary/50/50 px-3 py-2 text-xs"
             >
               {result.status === "success" && (
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" strokeWidth={2} />
@@ -112,8 +112,8 @@ export function VNDBImportManager() {
               {result.status === "skipped" && (
                 <span className="h-4 w-4 text-yellow-400 text-lg">⚠</span>
               )}
-              <span className="text-muted-foreground light:text-muted-foreground">v{result.vndbId}</span>
-              <span className="text-muted-foreground light:text-muted-foreground">-</span>
+              <span className="text-muted-foreground">v{result.vndbId}</span>
+              <span className="text-muted-foreground">-</span>
               <span
                 className={
                   result.status === "success"
