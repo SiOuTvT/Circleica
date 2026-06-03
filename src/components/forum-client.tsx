@@ -268,7 +268,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               onClick={() => openPost(post.id)}
               className={cn(
                 "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-secondary",
-                activePost?.id === post.id ? "ring-primary" : "ring-border hover:ring-white/10 light:hover:ring-black/10"
+                activePost?.id === post.id ? "ring-primary" : "ring-border hover:ring-border"
               )}>
               <div className="mb-2 flex items-center gap-2">
                 <Avatar user={post.user} size={6} />
@@ -393,7 +393,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <form onSubmit={submitPost} className="space-y-4">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
-                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
               
               <RichTextEditor
                 content={newContent}
@@ -501,7 +501,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 {c.imageUrl && (
                   <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 block max-w-[200px]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-white/10 light:hover:ring-black/10 transition-all" />
+                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-border transition-all" />
                   </a>
                 )}
                 <div className="mt-1 flex items-center gap-2">
@@ -573,7 +573,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 </div>
               </div>
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
                 className="flex items-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
