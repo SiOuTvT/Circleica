@@ -267,7 +267,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <button key={post.id}
               onClick={() => openPost(post.id)}
               className={cn(
-                "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-zinc-800 light:hover:bg-zinc-50",
+                "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-secondary",
                 activePost?.id === post.id ? "ring-zinc-600 light:ring-zinc-300" : "ring-white/[0.06] light:ring-black/[0.06] hover:ring-white/10 light:hover:ring-black/10"
               )}>
               <div className="mb-2 flex items-center gap-2">
@@ -293,7 +293,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-800 light:hover:bg-zinc-50 hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-50"
+              className="w-full rounded-xl bg-zinc-900/50 light:bg-white/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-zinc-200 light:hover:text-zinc-800 disabled:opacity-50"
             >
               {loadingMore ? "加载中..." : "加载更多帖子"}
             </button>
