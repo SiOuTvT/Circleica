@@ -132,7 +132,7 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         {/* 分隔线 */}
-        <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
+        <div className="h-px bg-border/30" />
 
         {/* 基本信息 */}
         <div className="p-5 sm:p-6 space-y-5">
@@ -172,7 +172,7 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         {/* 分隔线 */}
-        <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
+        <div className="h-px bg-border/30" />
 
         {/* 修改密码 */}
         <div className="p-5 sm:p-6 bg-muted/30">
@@ -224,7 +224,7 @@ export function ProfileEditForm({ user }: Props) {
         </div>
 
         {/* 分隔线 */}
-        <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
+        <div className="h-px bg-border/30" />
 
         {/* 保存按钮 */}
         <div className="p-5 sm:p-6">
