@@ -94,8 +94,8 @@ function LoginContent() {
     { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
-  const inputCls = "flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 border border-white/[0.06] light:border-black/[0.06] focus-within:border-zinc-500 light:focus-within:border-zinc-400 transition-all"
-  const inputInnerCls = "flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+  const inputCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 border border-border focus-within:border-primary/30 transition-all"
+  const inputInnerCls = "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center p-4">
