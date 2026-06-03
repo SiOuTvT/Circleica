@@ -1,4 +1,5 @@
 import { GameCard, GameCardSkeleton } from "@/components/game-card"
+import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { TagCloud } from "@/components/tag-cloud"
 import { prisma } from "@/lib/prisma"
@@ -21,9 +22,9 @@ const ORDER_MAP: Record<SortKey, object> = {
 }
 
 async function SearchResults({
-  q, tag, sort, nsfw,
+  q, tag, sort, nsfw, page = 1,
 }: {
-  q: string; tag: string; sort: SortKey; nsfw: boolean
+  q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
 }) {
   const where = {
     isPublished: true,
@@ -41,24 +42,36 @@ async function SearchResults({
     ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
   }
 
+  const limit = 24
+  const skip = (page - 1) * limit
+
   let rawGames: any[] = []
+  let total = 0
   try {
-    rawGames = await prisma.game.findMany({
-      where,
-      orderBy: ORDER_MAP[sort],
-      take: 60,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true, status: true,
-        isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true,
-        downloadLinks: true,
-        updatedAt: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
-      },
-    })
+    const [gamesResult, countResult] = await Promise.all([
+      prisma.game.findMany({
+        where,
+        orderBy: ORDER_MAP[sort],
+        skip,
+        take: limit,
+        select: {
+          id: true, serialId: true, title: true, coverImage: true, status: true,
+          isNsfw: true, favoriteCount: true, viewCount: true,
+          downloadCount: true,
+          downloadLinks: true,
+          updatedAt: true, createdAt: true,
+          tags: { select: { tag: { select: { name: true, color: true } } } },
+        },
+      }),
+      prisma.game.count({ where }),
+    ])
+    rawGames = gamesResult
+    total = countResult
   } catch (error) {
     console.error("[SearchResults] Database query failed:", error)
   }
+
+  const totalPages = Math.ceil(total / limit)
 
   function parseDlLinks(raw: string | null): { label?: string; url: string; platform?: string }[] {
     try {
@@ -132,12 +145,27 @@ async function SearchResults({
 
   return (
     <>
-      <p className="mb-4 text-xs text-muted-foreground">找到 {games.length} 个结果~</p>
+      <p className="mb-4 text-xs text-muted-foreground">找到 {total} 个结果~</p>
       <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 items-stretch">
         {games.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            baseUrl="/search"
+            extraParams={{
+              ...(q && { q }),
+              ...(tag && { tag }),
+              ...(sort !== "newest" && { sort }),
+              ...(nsfw && { nsfw: "1" }),
+            }}
+          />
+        </div>
+      )}
     </>
   )
 }
@@ -153,7 +181,7 @@ function ResultsSkeleton() {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; sort?: string; nsfw?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string; nsfw?: string; page?: string }>
 }) {
   const sp    = await searchParams
   const q     = sp.q?.trim() ?? ""
@@ -161,6 +189,7 @@ export default async function SearchPage({
   const VALID_SORTS: SortKey[] = ["newest", "popular", "mostFaved"]
   const sort  = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
   const nsfw  = sp.nsfw === "1"
+  const page  = Math.max(1, parseInt(sp.page || "1"))
 
   const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } })
 
@@ -247,7 +276,7 @@ export default async function SearchPage({
 
       {/* 结果网格 */}
       <Suspense fallback={<ResultsSkeleton />}>
-        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} />
+        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
       </Suspense>
     </div>
   )
