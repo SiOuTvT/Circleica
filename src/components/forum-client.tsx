@@ -304,7 +304,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         <div className="hidden md:block">
           {loadingPost && (
             <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-border">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 light:border-zinc-300 border-t-zinc-400 light:border-t-zinc-600" />
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
             </div>
           )}
           {!loadingPost && !activePost && (
