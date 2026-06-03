@@ -39,12 +39,12 @@ vi .env
 必填项
 
 ```env
-POSTGRES_PASSWORD=设置一个强密码
-DATABASE_URL=postgresql://fangame:你的密码@db:5432/fangame
+DATABASE_URL=postgresql://用户名:密码@host.docker.internal:5432/数据库名
 NEXTAUTH_SECRET=用 openssl rand -base64 32 生成
-NEXTAUTH_URL=http://你的服务器IP:3000
+NEXTAUTH_URL=http://你的服务器IP
 ```
 
+> DATABASE_URL 中的 `host.docker.internal` 是 Docker 内部访问宿主机的地址，无需修改
 > NEXTAUTH_URL 必须和实际访问地址完全一致，包括协议和端口
 
 ### 3 一键启动
@@ -54,12 +54,11 @@ docker compose up -d
 ```
 
 首次启动会自动：
-- 拉取 PostgreSQL 镜像
 - 构建 Next.js 应用镜像
-- 初始化数据库
-- 启动所有服务
+- 运行数据库迁移
+- 启动应用（连接宿主机已有的 PostgreSQL）
 
-等待构建完成（约 3-5 分钟），访问 `http://你的服务器IP:3000`
+等待构建完成（约 3-5 分钟），访问 `http://你的服务器IP`
 
 ### 4 查看日志
 
