@@ -359,7 +359,7 @@ export default function NotificationsClient({
                       </Link>
                     ) : (
                       <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 light:bg-zinc-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
                           <Icon
                             className="h-4 w-4 text-zinc-500"
                             strokeWidth={1.5}
