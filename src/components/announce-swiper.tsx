@@ -84,7 +84,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 light:from-zinc-200 light:to-zinc-300">
-            <ImageIcon className="h-12 w-12 text-zinc-700 light:text-zinc-400" strokeWidth={1} />
+            <ImageIcon className="h-12 w-12 text-muted-foreground/40" strokeWidth={1} />
           </div>
         )}
       </div>
