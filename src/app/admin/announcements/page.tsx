@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/admin"
+import { Pagination } from "@/components/ui/pagination"
 import { prisma } from "@/lib/prisma"
 import dynamic from "next/dynamic"
 
@@ -8,9 +9,22 @@ const AnnouncementsManager = dynamic(() => import("@/components/announcements-ma
 
 export const metadata = { title: "公告管理 · 管理后台" }
 
-export default async function AdminAnnouncementsPage() {
+export default async function AdminAnnouncementsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
   await requireAdmin()
-  const anns = await prisma.announcement.findMany({ orderBy: { sortOrder: "asc" }, take: 100 })
+  const sp = await searchParams
+  const page = Math.max(1, parseInt(sp.page || "1"))
+  const limit = 20
+  const skip = (page - 1) * limit
+
+  const [anns, total] = await Promise.all([
+    prisma.announcement.findMany({ orderBy: { sortOrder: "asc" }, skip, take: limit }),
+    prisma.announcement.count(),
+  ])
+
   const initial = anns.map(a => ({
     id: a.id,
     title: a.title,
@@ -22,10 +36,13 @@ export default async function AdminAnnouncementsPage() {
     createdAt: a.createdAt.toISOString(),
   }))
 
+  const totalPages = Math.ceil(total / limit)
+
   return (
     <div className="w-full space-y-4">
       <h1 className="text-lg font-bold text-foreground">公告管理</h1>
       <AnnouncementsManager initialAnns={initial} />
+      <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/announcements" />
     </div>
   )
 }
