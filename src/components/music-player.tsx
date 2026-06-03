@@ -82,8 +82,8 @@ export function MusicPlayer() {
       )} style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>
         {/* 进度条 */}
         {expanded && (
-        <div className="h-3 w-full cursor-pointer bg-secondary light:bg-zinc-200 flex items-center" onClick={handleSeek}>
-            <div className="h-1 w-full bg-zinc-700 light:bg-zinc-300 rounded-full overflow-hidden">
+        <div className="h-3 w-full cursor-pointer bg-secondary bg-muted flex items-center" onClick={handleSeek}>
+            <div className="h-1 w-full bg-muted-foreground/30 rounded-full overflow-hidden">
               <div className="h-full bg-primary transition-all rounded-full" style={{ width: `${progress}%` }} />
             </div>
           </div>
@@ -97,7 +97,7 @@ export function MusicPlayer() {
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
               playing
                 ? "text-primary"
-                : "text-muted-foreground hover:text-zinc-300 light:text-muted-foreground light:hover:text-zinc-600"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Music2 className={cn("h-4 w-4", playing && "animate-pulse")} strokeWidth={1.5} />
@@ -107,8 +107,8 @@ export function MusicPlayer() {
             <>
               {/* 曲名 */}
               <div className="flex-1 min-w-0">
-                <p className="truncate text-xs font-medium text-zinc-300 light:text-zinc-700">{tracks[cur]?.title}</p>
-                <p className="text-[10px] text-zinc-600 light:text-muted-foreground">{cur + 1} / {tracks.length}</p>
+                <p className="truncate text-xs font-medium text-foreground">{tracks[cur]?.title}</p>
+                <p className="text-[10px] text-muted-foreground">{cur + 1} / {tracks.length}</p>
               </div>
 
               {/* 控制按钮 */}
@@ -116,7 +116,7 @@ export function MusicPlayer() {
                 <button onClick={prev} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground light:text-muted-foreground transition-colors hover:text-foreground">
                   <SkipBack className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-300 light:text-zinc-700 transition-colors hover:text-white light:hover:text-zinc-900">
+                <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:text-foreground">
                   {playing ? <Pause className="h-4 w-4" strokeWidth={1.5} /> : <Play className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
                 <button onClick={next} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground light:text-muted-foreground transition-colors hover:text-foreground">
