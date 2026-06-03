@@ -37,7 +37,7 @@ export function TranslateBtn({ text, onTranslated }: { text: string; onTranslate
     <button
       onClick={translate}
       disabled={loading || done}
-      className="flex items-center gap-1.5 rounded-lg bg-zinc-800/80 light:bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-300 light:text-zinc-600 ring-1 ring-white/[0.08] light:ring-black/[0.08] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white light:hover:text-zinc-900 disabled:opacity-50"
+      className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground disabled:opacity-50"
       title="将英文描述翻译为中文"
     >
       {loading ? (
