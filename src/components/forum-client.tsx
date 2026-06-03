@@ -268,7 +268,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               onClick={() => openPost(post.id)}
               className={cn(
                 "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-secondary",
-                activePost?.id === post.id ? "ring-zinc-600 light:ring-zinc-300" : "ring-white/[0.06] light:ring-black/[0.06] hover:ring-white/10 light:hover:ring-black/10"
+                activePost?.id === post.id ? "ring-zinc-600 light:ring-zinc-300" : "ring-border hover:ring-white/10 light:hover:ring-black/10"
               )}>
               <div className="mb-2 flex items-center gap-2">
                 <Avatar user={post.user} size={6} />
@@ -293,7 +293,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <button
               onClick={loadMore}
               disabled={loadingMore}
-              className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
+              className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
             >
               {loadingMore ? "加载中..." : "加载更多帖子"}
             </button>
@@ -303,12 +303,12 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         {/* 右：帖子详情 */}
         <div className="hidden md:block">
           {loadingPost && (
-            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-border">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 light:border-zinc-300 border-t-zinc-400 light:border-t-zinc-600" />
             </div>
           )}
           {!loadingPost && !activePost && (
-            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-border">
               <p className="text-sm text-muted-foreground">点击左侧帖子查看详情</p>
             </div>
           )}
@@ -361,7 +361,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       {/* 确认弹窗 */}
       {confirmAction && (
         <div className="fixed inset-0 z-[60] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card p-5 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+          <div className="w-full max-w-sm rounded-2xl bg-card p-5 ring-1 ring-border">
             <p className="mb-4 text-sm text-foreground">{confirmAction.message}</p>
             <div className="flex justify-end gap-2">
               <button onClick={() => setConfirmAction(null)}
@@ -383,7 +383,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       {/* 发帖弹窗 */}
       {showNew && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 light:bg-black/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-white/[0.06] light:ring-black/[0.06]">
+          <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-border">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-foreground">发布新帖</h2>
               <button onClick={() => setShowNew(false)} aria-label="关闭" className="text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-700 transition-colors">
@@ -393,7 +393,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <form onSubmit={submitPost} className="space-y-4">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
-                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               
               <RichTextEditor
                 content={newContent}
@@ -438,7 +438,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
   const commentFileRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className="rounded-2xl bg-card ring-1 ring-white/[0.06] light:ring-black/[0.06] overflow-hidden">
+    <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
       <div className="p-5">
         <div className="mb-3 flex items-center gap-2.5">
           <Avatar user={post.user} size={8} />
@@ -461,7 +461,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
 
         <div className="mt-4 flex items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-primary disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-primary disabled:opacity-40">
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
@@ -470,7 +470,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
                   ? "bg-emerald-500/10 text-emerald-400 light:text-emerald-600 ring-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-secondary text-muted-foreground ring-white/[0.06] light:ring-black/[0.06] hover:text-foreground"
+                  : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               {post.isSolved ? "取消已解决" : "标记已解决"}
@@ -501,7 +501,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 {c.imageUrl && (
                   <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 block max-w-[200px]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-white/[0.06] light:ring-black/[0.06] max-h-32 hover:ring-white/10 light:hover:ring-black/10 transition-all" />
+                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-white/10 light:hover:ring-black/10 transition-all" />
                   </a>
                 )}
                 <div className="mt-1 flex items-center gap-2">
@@ -573,10 +573,10 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 </div>
               </div>
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
-                className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:text-foreground disabled:opacity-40">
+                className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
                 <Send className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </form>
