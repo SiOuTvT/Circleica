@@ -526,7 +526,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             {commentImagePreview && (
               <div className="mb-2 relative inline-block group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10 light:ring-black/10" />
+                <img src={commentImagePreview} alt="预览" className="h-16 w-16 rounded-lg object-cover ring-1 ring-border" />
                 <button type="button" onClick={onRemoveCommentImage}
                   aria-label="移除图片"
                   className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white">
@@ -558,7 +558,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                   {showCommentEmoji && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setShowCommentEmoji(false)} />
-                      <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-white/10 light:ring-black/10 shadow-2xl">
+                      <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
                         <div className="grid grid-cols-10 gap-1">
                           {EMOJI_LIST.map((emoji) => (
                             <button key={emoji} type="button" onClick={() => onInsertEmoji(emoji)}
