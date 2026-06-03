@@ -10,24 +10,32 @@ export function ThemeScript() {
       try {
         var root = document.documentElement;
         
-        // ── Dark/Light mode: follow system if no explicit choice ──
+        // ── Dark/Light mode: support dark / light / system ──
         var storedMode = localStorage.getItem('theme');
-        if (storedMode === 'light') {
-          root.classList.remove('dark');
-          root.classList.add('light');
-        } else if (storedMode === 'dark') {
-          root.classList.remove('light');
-          root.classList.add('dark');
-        } else {
-          // No stored preference → follow system
-          var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-          if (prefersLight) {
-            root.classList.remove('dark');
-            root.classList.add('light');
+
+        function applyMode(mode) {
+          var isLight = false;
+          if (mode === 'light') {
+            isLight = true;
+          } else if (mode === 'dark') {
+            isLight = false;
           } else {
-            root.classList.remove('light');
-            root.classList.add('dark');
+            // system or unset → follow OS preference
+            isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
           }
+          root.classList.toggle('light', isLight);
+          root.classList.toggle('dark', !isLight);
+        }
+
+        applyMode(storedMode);
+
+        // Listen for OS theme changes when in system mode
+        if (!storedMode || storedMode === 'system') {
+          window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function() {
+            if (localStorage.getItem('theme') === 'system' || !localStorage.getItem('theme')) {
+              applyMode('system');
+            }
+          });
         }
         
         var raw = localStorage.getItem('site-theme-settings');
