@@ -26,7 +26,7 @@ interface CreatorData {
   vns: Array<{
     id: string
     title: string
-    original: string
+    original?: string
     role: string
     rating?: number
     image?: string
