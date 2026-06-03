@@ -246,7 +246,7 @@ export default function NotificationsClient({
               className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                 filter === tab.key
                   ? "bg-white text-black light:bg-zinc-900 light:text-white"
-                  : "text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               }`}
             >
               {tab.label}
@@ -267,7 +267,7 @@ export default function NotificationsClient({
                 setSelectMode(!selectMode)
                 setSelectedIds(new Set())
               }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground hover:bg-secondary hover:text-foreground"
             >
               {selectMode ? "取消选择" : "管理"}
             </button>
@@ -275,7 +275,7 @@ export default function NotificationsClient({
               <>
                 <button
                   onClick={toggleSelectAll}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground hover:bg-secondary hover:text-foreground"
                 >
                   {selectedIds.size === filteredNotifications.length
                     ? "取消全选"
