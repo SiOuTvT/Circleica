@@ -1,5 +1,3 @@
-"use client"
-
 import type { TagInfo } from "@/types/game"
 import { BookOpen, Building2, Calendar, Clock, ExternalLink, Gamepad2, Monitor } from "lucide-react"
 import Link from "next/link"

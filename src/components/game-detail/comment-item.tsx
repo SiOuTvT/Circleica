@@ -1,8 +1,9 @@
 "use client"
 
+import { memo } from "react"
 import type { Comment } from "./use-comments"
 
-export function CommentItem({
+export const CommentItem = memo(function CommentItem({
   comment,
   isLoggedIn,
   onLike,
@@ -117,4 +118,4 @@ export function CommentItem({
       )}
     </div>
   )
-}
+})

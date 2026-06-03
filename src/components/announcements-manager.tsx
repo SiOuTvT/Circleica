@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { ImageUpload } from "@/components/image-upload"
-import { RichTextContent } from "@/components/rich-text-content"
+import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Plus, Trash2 } from "lucide-react"

@@ -1,4 +1,4 @@
-import { RichTextContent } from "@/components/rich-text-content"
+import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import Link from "next/link"

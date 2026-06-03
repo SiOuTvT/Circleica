@@ -2,7 +2,7 @@
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
 
@@ -118,7 +118,7 @@ function CollapsibleNote({ text, maxLines = 3 }: { text: string; maxLines?: numb
 }
 
 /* ─── 资源卡片组件 ─── */
-function ResourceCard({
+const ResourceCard = memo(function ResourceCard({
   resource,
   isOwner,
   isGamePublisher,
@@ -286,7 +286,8 @@ function ResourceCard({
       )}
     </div>
   )
-}
+})
+
 
 /* ─── 主组件 ─── */
 export function ResourceTab({

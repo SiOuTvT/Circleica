@@ -6,7 +6,7 @@ import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send,
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { RichTextContent } from "./rich-text-content"
+import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
 
 interface User { id: string; username: string; avatar: string }
