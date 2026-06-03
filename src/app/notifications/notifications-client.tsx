@@ -306,7 +306,7 @@ export default function NotificationsClient({
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={loading}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:text-red-400 light:hover:text-red-600"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-400 light:hover:text-red-600"
             >
               清空全部
             </button>
@@ -317,8 +317,8 @@ export default function NotificationsClient({
         <div className="space-y-1">
           {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <Bell className="mb-4 h-12 w-12 text-zinc-700 light:text-zinc-300" />
-              <p className="text-sm text-zinc-600 light:text-muted-foreground">
+              <Bell className="mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground light:text-muted-foreground">
                 {filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~"}
               </p>
             </div>
@@ -333,7 +333,7 @@ export default function NotificationsClient({
                   key={n.id}
                   className={`group flex items-start gap-3 rounded-xl px-4 py-3 transition-colors ${
                     !n.isRead
-                      ? "bg-zinc-900/80 light:bg-primary/5/60"
+                      ? "bg-card/80"
                       : "hover:bg-zinc-900/40 light:hover:bg-zinc-50"
                   } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 light:bg-primary/5" : ""}`}
                 >
@@ -361,7 +361,7 @@ export default function NotificationsClient({
                       <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
                           <Icon
-                            className="h-4 w-4 text-zinc-500"
+                            className="h-4 w-4 text-muted-foreground"
                             strokeWidth={1.5}
                           />
                         </div>
@@ -382,7 +382,7 @@ export default function NotificationsClient({
                     <p className="text-sm leading-snug text-foreground">
                       {config.text(n.actor.username)}
                     </p>
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {timeAgo(n.createdAt)}
                     </p>
                   </Link>
@@ -390,7 +390,7 @@ export default function NotificationsClient({
                   {!selectMode && (
                     <button
                       onClick={() => deleteNotifications([n.id])}
-className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground light:hover:text-red-600"
+className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground light:hover:text-red-600"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
