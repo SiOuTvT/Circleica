@@ -10,7 +10,6 @@ import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
-import { unstable_cache } from "next/cache"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
 
@@ -72,29 +71,22 @@ export default async function GameDetailPage({
     redirect(`/games/${resolved.serialId}`)
   }
 
-  // ISR：缓存游戏详情查询，60秒内复用，减少数据库压力
-  const getCachedGameDetail = unstable_cache(
-    async (gameId: string) => {
-        return prisma.game.findFirst({
-        where: { id: gameId, isPublished: true },
-        include: {
-          tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
-          resources: { select: { language: true, runType: true, resourceContent: true } },
-          comments: {
-            orderBy: { createdAt: "desc" },
-            include: { user: { select: { id: true, username: true, avatar: true } } },
-          },
-          creators: {
-            include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
-          },
-          publisher: { select: { id: true, username: true, avatar: true } },
-        },
-      })
+  // 查询游戏详情
+  const game = await prisma.game.findFirst({
+    where: { id: resolved.id, isPublished: true },
+    include: {
+      tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
+      resources: { select: { language: true, runType: true, resourceContent: true } },
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: { user: { select: { id: true, username: true, avatar: true } } },
+      },
+      creators: {
+        include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
+      },
+      publisher: { select: { id: true, username: true, avatar: true } },
     },
-    ["game-detail-page"],
-    { revalidate: 60, tags: ["game-detail"] }
-  )
-  const game = await getCachedGameDetail(resolved.id)
+  })
 
   if (!game) notFound()
 
