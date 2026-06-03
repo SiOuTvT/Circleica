@@ -103,11 +103,8 @@ RUN chmod +x /docker-entrypoint.sh
 # Set ownership
 RUN chown -R nextjs:nodejs /app
 
-# Switch to non-root user
-USER nextjs
-
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
 # Environment variables
 ENV NODE_ENV=production
