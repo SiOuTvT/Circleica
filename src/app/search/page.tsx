@@ -102,7 +102,7 @@ async function SearchResults({
           试试换个关键词，或浏览下方推荐
         </p>
         {q && (
-          <Link href="/search" className="mt-3 inline-block rounded-lg px-4 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
+          <Link href="/search" className="mt-3 inline-flex items-center rounded-lg px-4 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
             清除搜索条件
           </Link>
         )}
@@ -176,8 +176,8 @@ export default async function SearchPage({
       {/* 清除筛选 */}
       {(q || tag || sort !== "newest" || nsfw) && (
         <Link href="/search"
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
-          <X className="h-3 w-3" strokeWidth={2} />
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
+          <X className="h-3.5 w-3.5" strokeWidth={2} />
           清除筛选
         </Link>
       )}
@@ -201,30 +201,30 @@ export default async function SearchPage({
               key={key}
               href={buildHref({ sort: key })}
               className={[
-                "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+                "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors",
                 sort === key
                   ? "bg-muted text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               ].join(" ")}
             >
-              <Icon className="h-3 w-3" strokeWidth={1.5} />
+              <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
               {label}
             </Link>
           ))}
         </div>
         {/* 移动端：下拉排序 */}
         <details className="sm:hidden relative">
-          <summary className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground bg-muted cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1 rounded-lg px-3 py-2.5 text-sm text-muted-foreground bg-muted cursor-pointer list-none [&::-webkit-details-marker]:hidden">
             {SORT_OPTIONS.find(o => o.key === sort)?.label ?? "排序"}
-            <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
+            <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
           </summary>
-          <div className="absolute right-0 top-full z-50 mt-1 w-28 overflow-hidden rounded-lg py-1 shadow-lg bg-card border border-border">
+          <div className="absolute right-0 top-full z-50 mt-1 w-32 overflow-hidden rounded-lg py-1 shadow-lg bg-card border border-border">
             {SORT_OPTIONS.map(({ key, label }) => (
               <Link
                 key={key}
                 href={buildHref({ sort: key })}
                 className={[
-                  "flex items-center px-3 py-2 text-xs transition-colors",
+                  "flex items-center px-3 py-2.5 text-sm transition-colors",
                   sort === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                 ].join(" ")}
               >

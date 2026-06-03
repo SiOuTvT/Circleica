@@ -761,32 +761,20 @@ main > * {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--muted-foreground);
+  opacity: 0.3;
   border-radius: 4px;
-  border-radius: 3px;
-  transition: background 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.22);
-}
-
-.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4);
+  opacity: 0.5;
 }
 
 /* Firefox 滚动条 */
 * {
   scrollbar-width: auto;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-.light * {
-  scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
+  scrollbar-color: var(--muted-foreground) transparent;
 }
 
 /* ── 焦点环 - 简洁聚焦指示 ── */
@@ -867,6 +855,20 @@ input:focus, textarea:focus, select:focus {
   outline-offset: -2px;
   box-shadow: none;
   border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25);
+}
+
+/* ── 全局按钮按压反馈 — 微缩放 ── */
+button:active:not(:disabled),
+a[href]:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* ── 卡片悬停反馈 — 微上浮 ── */
+.game-card:hover,
+[class*="ring-1"][class*="bg-card"]:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease;
 }
 
 /* ═══════════════════════════════════════════════════════

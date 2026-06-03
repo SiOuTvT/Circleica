@@ -225,7 +225,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
           <button key={tab.key} onClick={() => setFilter(tab.key)}
             role="tab"
             aria-selected={filter === tab.key}
-            className="forum-tab-btn flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-300 ease-out"
+            className="forum-tab-btn flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
             data-active={filter === tab.key}
             style={{
               backgroundColor: filter === tab.key ? "var(--tab-active)" : "transparent",
@@ -309,7 +309,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 light:bg-white md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
-            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="text-zinc-400 hover:text-zinc-200 light:hover:text-zinc-800">
+            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-200 light:hover:text-zinc-800">
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-zinc-200 light:text-zinc-800 line-clamp-1">{activePost.title}</span>
@@ -481,13 +481,13 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <button onClick={() => onLikeComment(c.id)} disabled={!isLoggedIn}
-                    className="flex items-center gap-1 text-[10px] text-zinc-600 light:text-zinc-400 transition-colors hover:text-primary disabled:opacity-40">
-                    <Heart className="h-2.5 w-2.5" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
+                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-zinc-600 light:text-zinc-400 transition-colors hover:text-primary disabled:opacity-40">
+                    <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                   </button>
                   {(currentUserId === c.user.id || isAdmin) && (
                     <button onClick={() => onDeleteComment(c.id)}
-                      className="flex items-center gap-1 text-[10px] text-zinc-600 light:text-zinc-400 transition-colors hover:text-red-400">
-                      <Trash2 className="h-2.5 w-2.5" strokeWidth={1.5} />删除
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs text-zinc-600 light:text-zinc-400 transition-colors hover:text-red-400">
+                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />删除
                     </button>
                   )}
                 </div>

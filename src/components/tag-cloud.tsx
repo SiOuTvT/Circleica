@@ -41,7 +41,7 @@ export function TagCloud({
         <Link
           href={buildHref("")}
           className={[
-            "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium leading-none transition-all",
+            "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all",
             !activeTag
               ? "bg-primary/15 text-primary ring-1 ring-primary/20"
               : "bg-muted text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground",
@@ -54,7 +54,7 @@ export function TagCloud({
             key={t.id}
             href={buildHref(t.name)}
             className={[
-              "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium leading-none transition-all ring-1",
+              "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all ring-1",
               activeTag === t.name ? "opacity-100" : "opacity-50 hover:opacity-80",
             ].join(" ")}
             style={
@@ -71,7 +71,7 @@ export function TagCloud({
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
-          className="mt-2 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-2 flex items-center gap-1 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {expanded ? "收起" : `展开全部 (${tags.length})`}
           <ChevronDown

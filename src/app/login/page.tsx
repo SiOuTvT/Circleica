@@ -97,7 +97,7 @@ function LoginContent() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300 light:hover:text-zinc-600">
+        <Link href="/" className="mb-8 inline-flex items-center gap-2 px-2 py-2 -ml-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300 light:hover:text-zinc-600">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           返回首页
         </Link>
@@ -179,7 +179,7 @@ function LoginContent() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors"
                   aria-label={showPassword ? "隐藏密码" : "显示密码"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
@@ -228,11 +228,11 @@ function LoginContent() {
           )}
 
           {tab === "login" && (
-            <p className="mt-4 text-center text-sm">
-              <Link href="/forgot-password" className="text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-zinc-500">
+            <div className="mt-4 flex justify-center">
+              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-zinc-500">
                 忘记密码？
               </Link>
-            </p>
+            </div>
           )}
         </div>
       </div>

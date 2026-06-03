@@ -304,10 +304,10 @@ export function GalleryStrip({
           key={i}
           type="button"
           onClick={() => onSelect(i)}
-          className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px]"
+          className="relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg"
           style={{
-            borderRadius: "8px",
-            border: i === activeIndex ? `2px solid var(--primary)` : "2px solid transparent",
+            outline: i === activeIndex ? `2px solid var(--primary)` : "none",
+            outlineOffset: "-2px",
             opacity: i === activeIndex ? 1 : 0.45,
           }}
         >

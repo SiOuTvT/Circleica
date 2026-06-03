@@ -105,14 +105,14 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
             <button
               type="button"
               onClick={() => { setValue(""); setSuggestions([]); setShowSuggestions(false); inputRef.current?.focus() }}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
             >
               <X className="h-5 w-5" strokeWidth={1.5} />
             </button>
           )}
           <button
             type="submit"
-            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
           >
             搜索
           </button>
@@ -130,7 +130,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
               key={s.id}
               href={`/games/${s.serialId}`}
               onClick={() => setShowSuggestions(false)}
-              className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-secondary"
+              className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary"
               style={i === activeIdx ? { background: "var(--secondary)" } : undefined}
             >
               {s.coverImage ? (
@@ -152,11 +152,11 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
               </div>
             </Link>
           ))}
-          <div className="border-t px-4 py-2" style={{ borderColor: "var(--border)" }}>
+          <div className="border-t px-4 py-2.5" style={{ borderColor: "var(--border)" }}>
             <button
               type="button"
               onClick={handleSubmit}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               查看全部「{value.trim()}」的搜索结果 →
             </button>
