@@ -88,7 +88,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   if (!user) notFound()
 
-  const userRank = await prisma.user.count({ where: { createdAt: { lte: user.createdAt } } })
+  // 使用 serialId 作为排名（自增 ID 近似等于注册顺序，避免 O(n) count 查询）
+  const userRank = user.serialId
   const favGames = user.favorites.map((f) => f.game)
   const allFavGames = user.favorites.map(f => f.game)
   const playStatusGames = user.playStatuses.map(p => ({ game: p.game, status: p.status }))
