@@ -196,7 +196,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     </span>
                   )}
                   {user.role === "USER" && (
-                    <span className="rounded-full bg-zinc-500/15 px-2.5 py-1 text-[13px] font-medium text-zinc-500 light:text-zinc-600 ring-1 ring-zinc-500/15">
+                    <span className="rounded-full bg-muted-foreground/10 px-2.5 py-1 text-[13px] font-medium text-muted-foreground ring-1 ring-muted-foreground/15">
                       用户
                     </span>
                   )}
