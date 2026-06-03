@@ -175,7 +175,7 @@ export function ProfileEditForm({ user }: Props) {
         <div className="h-px bg-white/[0.06] light:bg-black/[0.06]" />
 
         {/* 修改密码 */}
-        <div className="p-5 sm:p-6 bg-zinc-900/50 light:bg-zinc-50">
+        <div className="p-5 sm:p-6 bg-muted/30">
           <div className="flex items-center gap-2 mb-4">
             <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <h3 className="text-xs font-semibold text-muted-foreground">修改密码</h3>
