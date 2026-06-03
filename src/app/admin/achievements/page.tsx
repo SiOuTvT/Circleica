@@ -116,16 +116,28 @@ export default function AdminAchievementsPage() {
           </div>
 
           <div className="flex gap-5">
-            {/* 左侧：立绘（固定宽度） */}
-            <div className="w-[150px] shrink-0">
-              <label className="mb-1.5 block text-sm font-medium text-foreground">解锁立绘</label>
-              <ImageUpload
-                value={editing.characterImage ?? ""}
-                onChange={(url) => setEditing({ ...editing, characterImage: url })}
-                aspectRatio={3 / 4}
-                shape="rounded"
-                placeholder="上传立绘"
-              />
+            {/* 左侧：图片上传 */}
+            <div className="flex gap-4 shrink-0">
+              <div className="w-[100px]">
+                <label className="mb-1.5 block text-sm font-medium text-foreground">图标</label>
+                <ImageUpload
+                  value={editing.icon ?? ""}
+                  onChange={(url) => setEditing({ ...editing, icon: url })}
+                  aspectRatio={1}
+                  shape="rounded"
+                  placeholder="上传图标"
+                />
+              </div>
+              <div className="w-[120px]">
+                <label className="mb-1.5 block text-sm font-medium text-foreground">解锁立绘</label>
+                <ImageUpload
+                  value={editing.characterImage ?? ""}
+                  onChange={(url) => setEditing({ ...editing, characterImage: url })}
+                  aspectRatio={3 / 4}
+                  shape="rounded"
+                  placeholder="上传立绘"
+                />
+              </div>
             </div>
 
             {/* 右侧：表单 */}
@@ -136,10 +148,8 @@ export default function AdminAchievementsPage() {
                 <Field label="条件类型"><select value={editing.conditionType ?? "favorite_count"} onChange={(e) => setEditing({ ...editing, conditionType: e.target.value })} className={inputCls}>{CONDITION_TYPES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
                 <Field label="目标值"><input type="number" value={editing.conditionTarget ?? 1} onChange={(e) => setEditing({ ...editing, conditionTarget: Number(e.target.value) })} className={inputCls} min={1} /></Field>
                 <Field label="积分"><input type="number" value={editing.points ?? 10} onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })} className={inputCls} min={1} /></Field>
-                <Field label="图标 URL"><input value={editing.icon ?? ""} onChange={(e) => setEditing({ ...editing, icon: e.target.value })} className={inputCls} placeholder="https://..." /></Field>
+                <Field label="描述"><textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={cn(inputCls, "min-h-[56px] resize-y")} placeholder="成就描述" /></Field>
               </div>
-
-              <Field label="描述"><textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={cn(inputCls, "min-h-[56px] resize-y")} placeholder="成就描述" /></Field>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
