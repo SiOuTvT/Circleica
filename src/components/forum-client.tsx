@@ -393,7 +393,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
             <form onSubmit={submitPost} className="space-y-4">
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
-                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               
               <RichTextEditor
                 content={newContent}
@@ -537,7 +537,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             <form onSubmit={onSubmitComment} className="flex gap-2 items-center">
               <div className="relative flex items-center gap-1">
                 <button type="button" onClick={() => commentFileRef.current?.click()}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600 shrink-0"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground shrink-0"
                   aria-label="上传图片">
                   <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                 </button>
@@ -549,7 +549,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                       "flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0",
                       showCommentEmoji 
                         ? "bg-zinc-800 light:bg-zinc-200 text-primary" 
-                        : "text-muted-foreground hover:bg-zinc-800 light:hover:bg-zinc-200 hover:text-zinc-300 light:hover:text-zinc-600"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                     aria-label="表情"
                     aria-expanded={showCommentEmoji}>
@@ -573,7 +573,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 </div>
               </div>
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
+                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-white/[0.12] light:focus:ring-black/[0.12] transition-all" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
                 className="flex items-center gap-1 rounded-xl bg-zinc-800 light:bg-zinc-200 px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
