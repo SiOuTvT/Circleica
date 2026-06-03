@@ -74,10 +74,10 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-white/[0.08] ring-border shadow-xl">
+      <div className="mb-8 flex flex-col items-start gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-8 ring-1 ring-border shadow-xl">
         <div className="flex flex-col sm:flex-row items-start gap-6 w-full">
           {/* Avatar placeholder */}
-          <div className="flex h-32 w-32 sm:h-40 sm:w-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-400 ring-2 ring-white/10 ring-border/50 shadow-lg mx-auto sm:mx-0">
+          <div className="flex h-32 w-32 sm:h-40 sm:w-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-400 ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
             <User className="h-16 w-16 text-white/80" strokeWidth={1.5} />
           </div>
 
@@ -143,13 +143,13 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               {translated && (
                 <button
                   onClick={() => setShowOriginal(!showOriginal)}
-                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-white/[0.08] ring-border transition-all hover:bg-secondary hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-white"
                 >
                   {showOriginal ? "查看翻译" : "查看原文"}
                 </button>
               )}
             </h2>
-            <div className="rounded-2xl bg-card/50 p-6 ring-1 ring-white/[0.06] ring-border">
+            <div className="rounded-2xl bg-card/50 p-6 ring-1 ring-border">
               <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
@@ -170,7 +170,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               <Link
                 key={vn.id}
                 href={`/games?vndb=${vn.id}`}
-                className="group overflow-hidden rounded-xl bg-card ring-1 ring-white/[0.06] ring-border transition-all hover:-translate-y-1 hover:ring-white/[0.12] hover:ring-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition-all hover:-translate-y-1 hover:ring-border hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
               >
                 <div className="relative" style={{ aspectRatio: "4/5" }}>
                   {vn.image ? (
