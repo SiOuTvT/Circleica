@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+out
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment (use docker-compose env_file)
+.env
+.env.local
+.env.*.local
+
+# Version control
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_*.py
+audit_*.py
+verify_*.py
+*.png
+!public/**
+
+# Documentation
+*.md
+!DEPLOYMENT.md
+
+# Misc
+docker-compose*.yml
+Dockerfile
+.dockerignore
+ecosystem.config.js
