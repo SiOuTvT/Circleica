@@ -63,14 +63,53 @@ export async function PUT(req: NextRequest) {
   // 去重、去空
   const cleaned = [...new Set(options.map(s => s.trim()).filter(Boolean))]
 
+  // 获取旧选项，找出被删除的标签
+  const oldSetting = await prisma.siteSetting.findUnique({ where: { key } })
+  let oldOptions: string[] = []
+  if (oldSetting?.value) {
+    try { oldOptions = JSON.parse(oldSetting.value) } catch { /* ignore */ }
+  }
+  const removedTags = oldOptions.filter(t => !cleaned.includes(t))
+
+  // 更新 SiteSetting
   await prisma.siteSetting.upsert({
     where: { key },
     update: { value: JSON.stringify(cleaned) },
     create: { key, value: JSON.stringify(cleaned) },
   })
 
+  // 清理已删除的标签：从所有 GameResource 的对应字段中移除
+  if (removedTags.length > 0) {
+    const fieldMap: Record<string, string> = {
+      resource_platforms: "platform",
+      resource_languages: "language",
+      resource_run_types: "runType",
+      resource_content_types: "resourceContent",
+    }
+    const field = fieldMap[key]
+    if (field) {
+      // 查询所有可能包含被删标签的资源
+      const resources = await prisma.$queryRawUnsafe<{ id: string; tags: string }[]>(
+        `SELECT id, "${field}" as tags FROM "GameResource" WHERE "${field}" LIKE $1`,
+        `%${removedTags[0]}%`
+      )
+
+      for (const resource of resources) {
+        const tags: string[] = JSON.parse(resource.tags || "[]")
+        const filtered = tags.filter(t => !removedTags.includes(t))
+        if (filtered.length !== tags.length) {
+          await prisma.$executeRawUnsafe(
+            `UPDATE "GameResource" SET "${field}" = $1 WHERE id = $2`,
+            JSON.stringify(filtered),
+            resource.id
+          )
+        }
+      }
+    }
+  }
+
   revalidateTag("resource-tags", "max")
-  return NextResponse.json({ success: true, options: cleaned })
+  return NextResponse.json({ success: true, options: cleaned, removed: removedTags })
 }
 
 // POST: 重置为默认值
