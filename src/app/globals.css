@@ -1146,12 +1146,6 @@ input:focus, textarea:focus, select:focus {
   color: var(--tab-hover-text) !important;
 }
 
-/* ── Toast 关闭按钮强制右上角 ── */
-[data-sonner-toaster] [data-close-button] {
-  order: 1 !important;
-  margin-left: auto !important;
-}
-
 /* ── 弹窗移动端优化 ── */
 @media (max-width: 640px) {
   [data-slot="dialog-content"] {
