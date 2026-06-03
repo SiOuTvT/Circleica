@@ -58,9 +58,9 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     const resourceTags: string[] = [...new Set(
       g.resources.flatMap((r) => {
         const items: string[] = []
-        try { items.push(...JSON.parse(r.language)) } catch {}
-        try { items.push(...JSON.parse(r.runType)) } catch {}
-        try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+        try { items.push(...JSON.parse(r.language)) } catch { console.warn("[HomePage] Failed to parse resource language") }
+        try { items.push(...JSON.parse(r.runType)) } catch { console.warn("[HomePage] Failed to parse resource runType") }
+        try { items.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[HomePage] Failed to parse resourceContent") }
         return items
       })
     )]
@@ -87,29 +87,38 @@ export default async function HomePage({
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
 
-  const [tags, total, announcements, hotGames] = await Promise.all([
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
-    prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
-    prisma.announcement.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: { id: true, title: true, content: true, imageUrl: true, link: true },
-    }),
-    prisma.game.findMany({
-      where: { isPublished: true, isNsfw: false, favoriteCount: { gt: 0 } },
-      orderBy: { favoriteCount: "desc" },
-      take: 8,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true, status: true,
-        isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true, downloadLinks: true,
-        updatedAt: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
-        resources: { select: { language: true, runType: true, resourceContent: true } },
-      },
-    }),
-  ])
+  let tags: { id: string; name: string; color: string }[] = []
+  let total = 0
+  let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
+  let hotGames: { id: string; serialId: number; title: string; coverImage: string; status: string; isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number; downloadLinks: string; updatedAt: Date; createdAt: Date; tags: { tag: { name: string; color: string } }[]; resources: { language: string; runType: string; resourceContent: string }[] }[] = []
+
+  try {
+    ;[tags, total, announcements, hotGames] = await Promise.all([
+      prisma.tag.findMany({ orderBy: { name: "asc" } }),
+      prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
+      prisma.announcement.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, title: true, content: true, imageUrl: true, link: true },
+      }),
+      prisma.game.findMany({
+        where: { isPublished: true, isNsfw: false, favoriteCount: { gt: 0 } },
+        orderBy: { favoriteCount: "desc" },
+        take: 8,
+        select: {
+          id: true, serialId: true, title: true, coverImage: true, status: true,
+          isNsfw: true, favoriteCount: true, viewCount: true,
+          downloadCount: true, downloadLinks: true,
+          updatedAt: true, createdAt: true,
+          tags: { select: { tag: { select: { name: true, color: true } } } },
+          resources: { select: { language: true, runType: true, resourceContent: true } },
+        },
+      }),
+    ])
+  } catch (error) {
+    console.error("[HomePage] Database query failed:", error)
+  }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
 
@@ -147,13 +156,13 @@ export default async function HomePage({
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-4 lg:grid-cols-4 items-stretch">
             {hotGames.map((g) => {
               let downloadLinks: { label?: string; url: string }[] = []
-              try { downloadLinks = JSON.parse(g.downloadLinks || "[]") } catch {}
+              try { downloadLinks = JSON.parse(g.downloadLinks || "[]") } catch { console.warn("[HomePage] Failed to parse downloadLinks") }
               const resourceTags: string[] = [...new Set(
                 g.resources.flatMap((r) => {
                   const items: string[] = []
-                  try { items.push(...JSON.parse(r.language)) } catch {}
-                  try { items.push(...JSON.parse(r.runType)) } catch {}
-                  try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+                  try { items.push(...JSON.parse(r.language)) } catch { console.warn("[HomePage] Failed to parse resource language") }
+                  try { items.push(...JSON.parse(r.runType)) } catch { console.warn("[HomePage] Failed to parse resource runType") }
+                  try { items.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[HomePage] Failed to parse resourceContent") }
                   return items
                 })
               )]

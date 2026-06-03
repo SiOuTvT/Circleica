@@ -52,34 +52,39 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   }
 
   // 用 cuid 查询完整数据（因为 include 需要 id 字段）
-  const user = await prisma.user.findUnique({
-    where: { id: resolved.id },
-    select: {
-      id: true, serialId: true, uid: true, username: true, avatar: true,
-      avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
-      role: true, createdAt: true,
-      favorites: {
-        include: {
-          game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
+  let user: any = null
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: resolved.id },
+      select: {
+        id: true, serialId: true, uid: true, username: true, avatar: true,
+        avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
+        role: true, createdAt: true,
+        favorites: {
+          include: {
+            game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
+          },
         },
-      },
-      playStatuses: {
-        include: {
-          game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
+        playStatuses: {
+          include: {
+            game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
+          },
         },
-      },
-      comments: {
-        orderBy: { createdAt: "desc" },
-        include: { game: { select: { id: true, serialId: true, title: true } } },
-      },
-      _count: {
-        select: {
-          followers: true,
-          following: true,
+        comments: {
+          orderBy: { createdAt: "desc" },
+          include: { game: { select: { id: true, serialId: true, title: true } } },
+        },
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          }
         }
-      }
-    },
-  })
+      },
+    })
+  } catch (error) {
+    console.error("[UserProfilePage] Database query failed:", error)
+  }
 
   if (!user) notFound()
 

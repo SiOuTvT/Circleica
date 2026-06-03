@@ -8,14 +8,19 @@ export const metadata = { title: "求档区 · 同人游戏站" }
 export default async function ForumPage() {
   const session = await auth()
 
-  const posts = await prisma.forumPost.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 50,
-    include: {
-      user: { select: { id: true, username: true, avatar: true } },
-      _count: { select: { comments: true } },
-    },
-  })
+  let posts: any[] = []
+  try {
+    posts = await prisma.forumPost.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      include: {
+        user: { select: { id: true, username: true, avatar: true } },
+        _count: { select: { comments: true } },
+      },
+    })
+  } catch (error) {
+    console.error("[ForumPage] Database query failed:", error)
+  }
 
   const initialPosts = posts.map((p) => ({
     id: p.id,

@@ -68,9 +68,9 @@ async function handleGamesList(req: NextRequest) {
       const resourceTags: string[] = [...new Set(
         g.resources.flatMap((r) => {
           const tags: string[] = []
-          try { tags.push(...JSON.parse(r.language)) } catch {}
-          try { tags.push(...JSON.parse(r.runType)) } catch {}
-          try { tags.push(...JSON.parse(r.resourceContent)) } catch {}
+          try { tags.push(...JSON.parse(r.language)) } catch { console.warn("[GamesAPI] Failed to parse resource language") }
+          try { tags.push(...JSON.parse(r.runType)) } catch { console.warn("[GamesAPI] failed to parse resource runType") }
+          try { tags.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[GamesAPI] failed to parse resourceContent") }
           return tags
         })
       )]

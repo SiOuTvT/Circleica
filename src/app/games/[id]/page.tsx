@@ -96,9 +96,9 @@ export default async function GameDetailPage({
   const resourceTags: string[] = [...new Set(
     game.resources.flatMap((r) => {
       const items: string[] = []
-      try { items.push(...JSON.parse(r.language)) } catch {}
-      try { items.push(...JSON.parse(r.runType)) } catch {}
-      try { items.push(...JSON.parse(r.resourceContent)) } catch {}
+      try { items.push(...JSON.parse(r.language)) } catch { console.warn("[GameDetail] Failed to parse resource language:", r.language) }
+      try { items.push(...JSON.parse(r.runType)) } catch { console.warn("[GameDetail] Failed to parse resource runType:", r.runType) }
+      try { items.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[GameDetail] Failed to parse resourceContent:", r.resourceContent) }
       return items
     })
   )]

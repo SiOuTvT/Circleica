@@ -41,19 +41,24 @@ async function SearchResults({
     ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
   }
 
-  const rawGames = await prisma.game.findMany({
-    where,
-    orderBy: ORDER_MAP[sort],
-    take: 60,
+  let rawGames: any[] = []
+  try {
+    rawGames = await prisma.game.findMany({
+      where,
+      orderBy: ORDER_MAP[sort],
+      take: 60,
       select: {
-      id: true, serialId: true, title: true, coverImage: true, status: true,
-      isNsfw: true, favoriteCount: true, viewCount: true,
-      downloadCount: true,
-      downloadLinks: true,
-      updatedAt: true, createdAt: true,
-      tags: { select: { tag: { select: { name: true, color: true } } } },
-    },
-  })
+        id: true, serialId: true, title: true, coverImage: true, status: true,
+        isNsfw: true, favoriteCount: true, viewCount: true,
+        downloadCount: true,
+        downloadLinks: true,
+        updatedAt: true, createdAt: true,
+        tags: { select: { tag: { select: { name: true, color: true } } } },
+      },
+    })
+  } catch (error) {
+    console.error("[SearchResults] Database query failed:", error)
+  }
 
   function parseDlLinks(raw: string | null): { label?: string; url: string; platform?: string }[] {
     try {
@@ -70,19 +75,24 @@ async function SearchResults({
 
   if (!games.length) {
     // 搜索无结果时推荐热门游戏
-    const rawRecommended = await prisma.game.findMany({
-      where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
-      orderBy: { viewCount: "desc" },
-      take: 8,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true, status: true,
-        isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true,
-        downloadLinks: true,
-        updatedAt: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
-      },
-    })
+    let rawRecommended: any[] = []
+    try {
+      rawRecommended = await prisma.game.findMany({
+        where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
+        orderBy: { viewCount: "desc" },
+        take: 8,
+        select: {
+          id: true, serialId: true, title: true, coverImage: true, status: true,
+          isNsfw: true, favoriteCount: true, viewCount: true,
+          downloadCount: true,
+          downloadLinks: true,
+          updatedAt: true, createdAt: true,
+          tags: { select: { tag: { select: { name: true, color: true } } } },
+        },
+      })
+    } catch (error) {
+      console.error("[SearchResults] Recommended games query failed:", error)
+    }
 
     const recommended = rawRecommended.map((g) => ({
       ...g,
