@@ -217,26 +217,18 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin }: 
       </div>
 
       {/* 筛选 tab — 统一凹槽 + 圆角活动方块 */}
-      <div className="mb-4 inline-flex gap-1 rounded-xl p-1"
+      <div className="mb-4 inline-flex gap-1 rounded-xl bg-[--tab-trough] p-1"
         role="tablist"
-        aria-label="帖子筛选"
-        style={{ backgroundColor: "var(--tab-trough)" }}>
+        aria-label="帖子筛选">
         {FILTER_TABS.map(tab => (
           <button key={tab.key} onClick={() => setFilter(tab.key)}
             role="tab"
             aria-selected={filter === tab.key}
             className="forum-tab-btn flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
             data-active={filter === tab.key}
-            style={{
-              backgroundColor: filter === tab.key ? "var(--tab-active)" : "transparent",
-              color: filter === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)",
-              boxShadow: filter === tab.key ? "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)" : "none",
-              fontWeight: filter === tab.key ? 700 : 500,
-            }}
           >
             {tab.label}
-            <span className="ml-1.5 text-[10px]"
-              style={{ color: filter === tab.key ? "var(--tab-active-text)" : "var(--tab-inactive-text)", opacity: 0.6 }}>
+            <span className="tab-count ml-1.5 text-[10px]">
               {tab.key === "all" ? posts.length : tab.key === "solved" ? posts.filter(p => p.isSolved).length : posts.filter(p => !p.isSolved).length}
             </span>
           </button>

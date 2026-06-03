@@ -1483,3 +1483,25 @@ body[data-has-bottom-nav="true"] {
   opacity: 0;
 }
 
+/* ── 论坛筛选标签 ── */
+.forum-tab-btn {
+  background-color: transparent;
+  color: var(--tab-inactive-text);
+  font-weight: 500;
+  box-shadow: none;
+}
+.forum-tab-btn[data-active="true"] {
+  background-color: var(--tab-active);
+  color: var(--tab-active-text);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+}
+.forum-tab-btn .tab-count {
+  color: var(--tab-inactive-text);
+  opacity: 0.6;
+}
+.forum-tab-btn[data-active="true"] .tab-count {
+  color: var(--tab-active-text);
+  opacity: 0.6;
+}
+
