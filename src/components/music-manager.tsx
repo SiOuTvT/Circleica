@@ -12,7 +12,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   const [adding, setAdding] = useState(false)
   const [error, setError]   = useState("")
 
-  const inputCls = "w-full rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-2.5 text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 ring-1 ring-white/[0.06] light:ring-black/[0.06] outline-none focus:ring-zinc-600 light:focus:ring-zinc-400 transition-all"
+  const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
@@ -46,7 +46,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-zinc-900 light:bg-white p-5 ring-1 ring-white/[0.06] light:ring-black/[0.06] space-y-3">
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
         <h2 className="text-sm font-semibold text-zinc-300 light:text-zinc-700">添加音乐</h2>
         <p className="text-xs text-zinc-600 light:text-zinc-400">填入音乐文件的直链 URL（mp3/ogg/flac），前台会循环播放所有激活的曲目</p>
         {error && <p className="text-xs text-red-400">{error}</p>}
@@ -54,14 +54,14 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="曲目名称" required className={inputCls} />
           <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（https://...）" required className={inputCls} />
           <button type="submit" disabled={adding}
-            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-2 text-sm text-zinc-300 light:text-zinc-700 ring-1 ring-white/[0.06] light:ring-black/[0.06] transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white disabled:opacity-60">
+            className="flex items-center gap-1.5 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-2 text-sm text-zinc-300 light:text-zinc-700 ring-1 ring-border transition-all hover:bg-zinc-700 light:hover:bg-zinc-200 hover:text-white disabled:opacity-60">
             {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} /> : <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />}
             {adding ? "添加中…" : "添加"}
           </button>
         </form>
       </div>
 
-      <div className="rounded-xl bg-zinc-900 light:bg-white ring-1 ring-white/[0.06] light:ring-black/[0.06] overflow-hidden">
+      <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
         <div className="border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
           <p className="text-xs text-zinc-500">共 {list.length} 首，{list.filter(m => m.isActive).length} 首激活</p>
         </div>
