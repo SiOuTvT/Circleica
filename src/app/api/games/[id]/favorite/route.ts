@@ -1,3 +1,4 @@
+import { checkAchievements } from "@/lib/achievements"
 import { badRequest, ok, serverError, tooManyRequests, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -53,6 +54,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return { isFav: true, count: game.favoriteCount }
       }
     })
+
+    // 异步检查成就解锁（不阻塞响应）
+    checkAchievements(session.user.id).catch(() => {})
 
     return ok(result)
   } catch (error) {

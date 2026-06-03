@@ -32,7 +32,7 @@ export async function middleware(req: NextRequest) {
 
   // 管理后台路由保护
   if (pathname.startsWith("/admin")) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: "fangame-session-token" })
     if (!token) {
       const loginUrl = new URL("/login", req.url)
       loginUrl.searchParams.set("callbackUrl", pathname)
@@ -46,6 +46,7 @@ export async function middleware(req: NextRequest) {
     const superAdminRoutes = [
       "/admin/users", "/admin/site-settings", "/admin/theme", "/admin/copy",
       "/admin/avatar-frames", "/admin/emotional-messages", "/admin/resource-tags",
+      "/admin/achievements",
     ]
     if (role === "ADMIN" && superAdminRoutes.some(r => pathname.startsWith(r))) {
       return NextResponse.redirect(new URL("/admin", req.url))

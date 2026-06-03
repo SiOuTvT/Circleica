@@ -1,3 +1,4 @@
+import { checkAchievements } from "@/lib/achievements"
 import { badRequest, created, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
 import { withRateLimit } from "@/lib/middleware"
@@ -69,6 +70,9 @@ async function handleComment(req: NextRequest, context: { params: Promise<{ id: 
     },
     include: { user: { select: { id: true, username: true, avatar: true } } },
   })
+
+  // 异步检查成就解锁（不阻塞响应）
+  checkAchievements(session.user.id).catch(() => {})
 
   return created({ ...comment, createdAt: comment.createdAt.toISOString() })
 }

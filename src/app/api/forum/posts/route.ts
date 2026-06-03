@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { checkAchievements } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server"
 
 /**
  * 简单的 HTML 转义函数，防止 XSS 攻击
@@ -64,6 +65,9 @@ export async function POST(req: NextRequest) {
       _count: { select: { comments: true } },
     },
   })
+
+  // 异步检查成就解锁（不阻塞响应）
+  checkAchievements(session.user.id).catch(() => {})
 
   return NextResponse.json({
     id: post.id, title: post.title, content: post.content,

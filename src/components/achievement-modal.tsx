@@ -1,0 +1,229 @@
+"use client"
+
+import { cn } from "@/lib/utils"
+import { Award, Lock, X } from "lucide-react"
+import { useEffect, useState } from "react"
+
+interface Achievement {
+  id: string
+  name: string
+  description: string
+  icon: string
+  characterImage: string
+  category: string
+  points: number
+  unlocked: boolean
+  unlockedAt: string | null
+}
+
+interface Props {
+  compact?: boolean
+}
+
+export function AchievementModal({ compact }: Props) {
+  const [open, setOpen] = useState(false)
+  const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [loading, setLoading] = useState(false)
+  const [selected, setSelected] = useState<Achievement | null>(null)
+
+  useEffect(() => {
+    if (!open || achievements.length > 0) return
+    setLoading(true)
+    fetch("/api/achievements")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setAchievements(data) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [open, achievements.length])
+
+  const unlocked = achievements.filter((a) => a.unlocked)
+  const locked = achievements.filter((a) => !a.unlocked)
+
+  return (
+    <>
+      {/* 触发按钮 */}
+      {compact ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+        >
+          <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
+          <span className="text-xs font-medium text-foreground">成就</span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex w-full items-center justify-between rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary"
+        >
+          <div className="flex items-center gap-2.5">
+            <Award className="h-4 w-4 text-amber-400" strokeWidth={2} />
+            成就
+          </div>
+        </button>
+      )}
+
+      {/* 弹窗 */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setOpen(false); setSelected(null) }}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-lg max-h-[80vh] overflow-auto rounded-2xl bg-card ring-1 ring-border animate-in fade-in zoom-in-95 duration-200"
+            style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.25)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 头部 */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <Award className="h-5 w-5 text-amber-400" />
+                <h2 className="text-base font-bold text-foreground">成就</h2>
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-400">
+                  {unlocked.length}
+                </span>
+              </div>
+              <button
+                onClick={() => { setOpen(false); setSelected(null) }}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* 内容 */}
+            <div className="p-5">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                </div>
+              ) : achievements.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Award className="h-12 w-12 text-muted-foreground/20 mb-3" />
+                  <p className="text-sm text-muted-foreground">暂无成就</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                  {/* 已解锁 */}
+                  {unlocked.map((ach) => (
+                    <button
+                      key={ach.id}
+                      onClick={() => setSelected(ach)}
+                      className={cn(
+                        "group flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 transition-all",
+                        "bg-amber-500/5 ring-amber-500/15 hover:-translate-y-0.5 hover:ring-amber-500/30"
+                      )}
+                    >
+                      {ach.icon ? (
+                        <img src={ach.icon} alt="" className="h-10 w-10" />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
+                          <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
+                        </div>
+                      )}
+                      <div className="text-center">
+                        <p className="text-[11px] font-semibold leading-tight text-foreground">{ach.name}</p>
+                        <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight line-clamp-2">{ach.description}</p>
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* 未解锁（隐藏） */}
+                  {locked.map((ach) => (
+                    <div
+                      key={ach.id}
+                      className="flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 bg-muted/20 ring-border/30 opacity-40"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/40">
+                        <Lock className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[11px] font-semibold leading-tight text-muted-foreground">???</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 解锁动画卡片 */}
+          {selected && (
+            <AchievementUnlockCard
+              achievement={selected}
+              onClose={() => setSelected(null)}
+            />
+          )}
+        </div>
+      )}
+    </>
+  )
+}
+
+/**
+ * 成就解锁动画卡片 — 横向布局，左侧立绘右侧内容
+ */
+function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievement; onClose: () => void }) {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true))
+  }, [])
+
+  return (
+    <div
+      className={cn(
+        "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60]",
+        "w-[340px] h-[100px] overflow-visible rounded-xl",
+        "bg-zinc-900/95 backdrop-blur-xl ring-1 ring-amber-500/25",
+        "shadow-[0_8px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(245,158,11,0.1)]",
+        "transition-all duration-300 ease-out",
+        visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
+      )}
+    >
+      {/* 顶部金线 */}
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+
+      {/* 关闭 */}
+      <button
+        onClick={onClose}
+        className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700/50 transition-colors"
+      >
+        <X className="h-3 w-3" strokeWidth={2.5} />
+      </button>
+
+      {/* 左侧立绘 */}
+      {achievement.characterImage && (
+        <div className="absolute -bottom-1 -left-2 h-[108px] w-[85px] pointer-events-none">
+          <img
+            src={achievement.characterImage}
+            alt=""
+            className="h-full w-full object-contain object-bottom drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+          />
+        </div>
+      )}
+
+      {/* 右侧内容 */}
+      <div className={cn(
+        "flex flex-col justify-center h-full",
+        achievement.characterImage ? "pl-[76px] pr-4" : "px-5"
+      )}>
+        <div className="flex items-center gap-1.5">
+          {achievement.icon ? (
+            <img src={achievement.icon} alt="" className="h-4 w-4 shrink-0" />
+          ) : (
+            <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
+          )}
+          <span className="text-[13px] font-bold text-amber-400 tracking-tight leading-none truncate">
+            {achievement.name}
+          </span>
+        </div>
+        <div className="mt-1.5 flex items-end justify-between gap-2">
+          <p className="text-[11px] text-zinc-400 leading-tight line-clamp-2 flex-1">
+            {achievement.description}
+          </p>
+          <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-400 tabular-nums">
+            +{achievement.points}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}

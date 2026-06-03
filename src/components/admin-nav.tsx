@@ -3,7 +3,7 @@
 import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
 import {
-  ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Flag, Frame, Gamepad2, Heart,
+  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, Flag, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Settings, SmilePlus, Sun, Tag, Type, UserPlus, Users, X,
 } from "lucide-react"
@@ -36,6 +36,7 @@ const items: NavItem[] = [
   { icon: Users,           label: "用户管理",    href: "/admin/users",          minRole: "SUPER_ADMIN" },
   { icon: Frame,           label: "头像框管理",  href: "/admin/avatar-frames",  minRole: "SUPER_ADMIN" },
   { icon: Settings,        label: "站点设置",    href: "/admin/site-settings",  minRole: "SUPER_ADMIN" },
+  { icon: Award,           label: "成就管理",    href: "/admin/achievements",   minRole: "SUPER_ADMIN" },
   { icon: Type,            label: "文案管理",    href: "/admin/copy",           minRole: "SUPER_ADMIN" },
   { icon: Palette,         label: "主题设置",    href: "/admin/theme",          minRole: "SUPER_ADMIN" },
 ]

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { checkAchievements } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -16,6 +17,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     create: { userId: session.user.id, gameId, status },
     update: { status },
   })
+
+  // 异步检查成就解锁（不阻塞响应）
+  checkAchievements(session.user.id).catch(() => {})
 
   return NextResponse.json({ status })
 }

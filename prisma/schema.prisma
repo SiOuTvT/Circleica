@@ -44,6 +44,7 @@ model User {
   forumPostLikes   ForumPostLike[]
   forumCommentLikes ForumCommentLike[]
   commentLikes     CommentLike[]
+  achievements     UserAchievement[]
 
   @@index([role])
   @@index([serialId])
@@ -485,4 +486,39 @@ model SiteSetting {
   key       String   @unique
   value     String   @default("")
   updatedAt DateTime @updatedAt
+}
+
+/// 成就定义 — 由管理员在后台创建
+model Achievement {
+  id              String   @id @default(cuid())
+  name            String                // 成就名称
+  description     String   @default("") // 成就描述
+  icon            String   @default("") // 成就图标 URL
+  characterImage  String   @default("") // 解锁卡片角色立绘 URL（透明底 PNG）
+  category        String   @default("general") // 分类
+  conditionType   String                // 条件类型：favorite_count / comment_count / play_count / checkin_streak / forum_post_count / register_days
+  conditionTarget Int      @default(1)  // 目标值
+  points          Int      @default(10) // 积分权重
+  hidden          Boolean  @default(true) // 是否隐藏（全部默认隐藏）
+  isActive        Boolean  @default(true) // 是否启用
+  unlockCount     Int      @default(0)  // 解锁人数（定时统计更新）
+  createdAt       DateTime @default(now())
+  users           UserAchievement[]
+
+  @@index([category])
+  @@index([conditionType])
+  @@index([isActive])
+}
+
+/// 用户成就解锁记录
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
 }

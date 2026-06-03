@@ -1,8 +1,8 @@
+import { AchievementModal } from "@/components/achievement-modal"
 import { AvatarFrameSelector } from "@/components/avatar-frame-selector"
 import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
-import { ProfileMedalModal } from "@/components/profile-medal-modal"
 import { SafeAvatar } from "@/components/safe-avatar"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -108,16 +108,6 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     month: "2-digit",
     day: "2-digit",
   }).replace(/\//g, "/")
-
-  // Calculate level for medal modal
-  const totalActivity = allFavGames.length + user.playStatuses.length + user.comments.length
-  let lv = 1
-  if (totalActivity >= 100) lv = 10
-  else if (totalActivity >= 60) lv = 9
-  else if (totalActivity >= 35) lv = 8
-  else if (totalActivity >= 20) lv = 7
-  else if (totalActivity >= 10) lv = 5
-  else if (totalActivity >= 3) lv = 3
 
   const uidDisplay = user.uid || String(user.serialId)
 
@@ -279,14 +269,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                       <span className="text-xs font-medium text-foreground">生成名片</span>
                     </button>
 
-                    {/* 勋章墙 */}
-                    <ProfileMedalModal
-                      favCount={allFavGames.length}
-                      playCount={user.playStatuses.length}
-                      commentCount={user.comments.length}
-                      totalLevel={lv}
-                      compact
-                    />
+                    {/* 成就 */}
+                    <AchievementModal compact />
 
                     {/* 头像框 */}
                     <AvatarFrameSelector
