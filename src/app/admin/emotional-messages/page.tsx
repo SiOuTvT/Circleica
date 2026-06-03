@@ -26,7 +26,16 @@ export default async function EmotionalMessagesPage() {
       <p className="text-sm text-muted-foreground -mt-3">
         管理各场景的提示文案、插图和 Emoji。修改后会实时影响前台用户看到的提示。
       </p>
-      <EmotionalMessagesManager initialItems={JSON.parse(JSON.stringify(items))} />
+      <EmotionalMessagesManager initialItems={items.map(item => ({
+        id: item.id,
+        key: item.key,
+        category: item.category,
+        title: item.title,
+        subtitle: item.subtitle,
+        imageUrl: item.imageUrl,
+        emoji: item.emoji,
+        enabled: item.enabled,
+      }))} />
     </div>
   )
 }
