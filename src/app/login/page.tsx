@@ -192,7 +192,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 light:bg-zinc-800 py-3 text-sm font-semibold text-zinc-900 light:text-zinc-100 transition-all hover:bg-white light:hover:bg-zinc-700 disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-secondary py-3 text-sm font-semibold text-foreground transition-all hover:bg-accent disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "登录中…" : "登 录"}
@@ -222,7 +222,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 light:bg-zinc-800 py-3 text-sm font-semibold text-zinc-900 light:text-zinc-100 transition-all hover:bg-white light:hover:bg-zinc-700 disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-secondary py-3 text-sm font-semibold text-foreground transition-all hover:bg-accent disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}
@@ -232,7 +232,7 @@ function LoginContent() {
 
           {tab === "login" && (
             <div className="mt-4 flex justify-center">
-              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-zinc-400 light:hover:text-muted-foreground">
+              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
                 忘记密码？
               </Link>
             </div>
