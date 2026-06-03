@@ -318,7 +318,7 @@ export default function NotificationsClient({
           {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Bell className="mb-4 h-12 w-12 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground light:text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~"}
               </p>
             </div>
@@ -335,12 +335,12 @@ export default function NotificationsClient({
                     !n.isRead
                       ? "bg-card/80"
                       : "hover:bg-secondary/40"
-                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 light:bg-primary/5" : ""}`}
+                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 bg-primary/5" : ""}`}
                 >
                   {selectMode && (
                     <button
                       onClick={() => toggleSelect(n.id)}
-                      className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-zinc-600 transition-colors light:border-zinc-300"
+                      className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-zinc-600 transition-colors border-border"
                     >
                       {selectedIds.has(n.id) && (
                         <Check className="h-3 w-3 text-primary" />
@@ -368,7 +368,7 @@ export default function NotificationsClient({
                       </Link>
                     )}
                     {!n.isRead && (
-                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black light:border-white bg-primary" />
+                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black border-background bg-primary" />
                     )}
                   </div>
 
@@ -390,7 +390,7 @@ export default function NotificationsClient({
                   {!selectMode && (
                     <button
                       onClick={() => deleteNotifications([n.id])}
-className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground hover:text-red-500"
+className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 hover:text-red-500"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
