@@ -362,7 +362,7 @@ export function RichTextEditor({
       </div>
 
       {/* 提示文字 */}
-      <div className="px-4 py-2 text-xs text-zinc-600 light:text-zinc-400 border-t border-white/[0.06] light:border-black/[0.06] bg-zinc-900/50 light:bg-white/50">
+      <div className="px-4 py-2 text-xs text-muted-foreground border-t border-border bg-muted/30">
         <span className="inline-flex items-center gap-1">
           <Upload className="h-3 w-3" strokeWidth={1.5} />
           拖拽图片到编辑区域上传
