@@ -216,13 +216,13 @@ export default function NotificationsClient({
         <div className="mb-6 flex items-center gap-3">
           <Link
             href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 light:text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-zinc-400 light:text-zinc-600" />
-            <h1 className="text-xl font-bold text-zinc-100 light:text-zinc-900">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <h1 className="text-xl font-bold text-foreground">
               消息中心
             </h1>
             {unreadCount > 0 && (
@@ -267,7 +267,7 @@ export default function NotificationsClient({
                 setSelectMode(!selectMode)
                 setSelectedIds(new Set())
               }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
             >
               {selectMode ? "取消选择" : "管理"}
             </button>
@@ -275,7 +275,7 @@ export default function NotificationsClient({
               <>
                 <button
                   onClick={toggleSelectAll}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground light:text-zinc-500 light:hover:bg-zinc-100 light:hover:text-zinc-700"
                 >
                   {selectedIds.size === filteredNotifications.length
                     ? "取消全选"
@@ -318,7 +318,7 @@ export default function NotificationsClient({
           {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Bell className="mb-4 h-12 w-12 text-zinc-700 light:text-zinc-300" />
-              <p className="text-sm text-zinc-600 light:text-zinc-400">
+              <p className="text-sm text-zinc-600 light:text-muted-foreground">
                 {filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~"}
               </p>
             </div>
@@ -379,7 +379,7 @@ export default function NotificationsClient({
                     }}
                     className="min-w-0 flex-1"
                   >
-                    <p className="text-sm leading-snug text-zinc-200 light:text-zinc-800">
+                    <p className="text-sm leading-snug text-foreground">
                       {config.text(n.actor.username)}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
@@ -390,7 +390,7 @@ export default function NotificationsClient({
                   {!selectMode && (
                     <button
                       onClick={() => deleteNotifications([n.id])}
-className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-zinc-400 light:hover:text-red-600"
+className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground light:hover:text-red-600"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -406,7 +406,7 @@ className="mt-1 shrink-0 rounded-lg p-1.5 text-zinc-600 sm:opacity-0 transition-
             <button
               onClick={fetchMore}
               disabled={loadingMore}
-              className="rounded-full px-6 py-2 text-sm font-medium text-zinc-400 light:text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-200 light:hover:bg-zinc-100 light:hover:text-zinc-700"
+              className="rounded-full px-6 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               {loadingMore ? "加载中…" : "加载更多"}
             </button>
