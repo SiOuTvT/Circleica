@@ -306,7 +306,7 @@ export default function NotificationsClient({
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={loading}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-400 light:hover:text-red-600"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-400 hover:text-red-500"
             >
               清空全部
             </button>
@@ -334,7 +334,7 @@ export default function NotificationsClient({
                   className={`group flex items-start gap-3 rounded-xl px-4 py-3 transition-colors ${
                     !n.isRead
                       ? "bg-card/80"
-                      : "hover:bg-zinc-900/40 light:hover:bg-zinc-50"
+                      : "hover:bg-secondary/40"
                   } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 light:bg-primary/5" : ""}`}
                 >
                   {selectMode && (
@@ -390,7 +390,7 @@ export default function NotificationsClient({
                   {!selectMode && (
                     <button
                       onClick={() => deleteNotifications([n.id])}
-className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground light:hover:text-red-600"
+className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-400 light:text-muted-foreground hover:text-red-500"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
