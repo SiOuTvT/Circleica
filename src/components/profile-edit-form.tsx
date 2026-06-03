@@ -91,7 +91,7 @@ export function ProfileEditForm({ user }: Props) {
       {/* 返回按钮 */}
       <Link
         href={`/user/${user.id}`}
-        className="mb-6 inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-300 light:hover:text-zinc-600 transition-colors"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         返回主页
@@ -125,9 +125,9 @@ export function ProfileEditForm({ user }: Props) {
             />
           </div>
           <div className="text-center sm:text-left">
-            <p className="text-xl font-semibold text-zinc-200 light:text-zinc-800">{username || user.username}</p>
-            <p className="mt-1 text-sm text-zinc-500">UID: {user.uid}</p>
-            <p className="mt-2 text-xs text-zinc-600 light:text-zinc-400">点击头像就可以换啦 · JPG/PNG/WebP · 最大 5MB</p>
+            <p className="text-xl font-semibold text-foreground">{username || user.username}</p>
+            <p className="mt-1 text-sm text-muted-foreground">UID: {user.uid}</p>
+            <p className="mt-2 text-xs text-muted-foreground">点击头像就可以换啦 · JPG/PNG/WebP · 最大 5MB</p>
           </div>
         </div>
 
@@ -141,14 +141,14 @@ export function ProfileEditForm({ user }: Props) {
               用户名
             </label>
             <div className="flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-primary/30 transition-all">
-              <User className="h-4 w-4 shrink-0 text-zinc-500" strokeWidth={1.5} />
+              <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <input
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="用户名"
                 maxLength={20}
                 required
-                className="flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
               />
             </div>
           </div>
@@ -164,9 +164,9 @@ export function ProfileEditForm({ user }: Props) {
                 placeholder="介绍一下自己吧…（选填）"
                 maxLength={200}
                 rows={4}
-                className="w-full resize-none bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
               />
-              <p className="mt-1 text-right text-[10px] text-zinc-600 light:text-zinc-400">{bio.length}/200</p>
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">{bio.length}/200</p>
             </div>
           </div>
         </div>
@@ -177,44 +177,44 @@ export function ProfileEditForm({ user }: Props) {
         {/* 修改密码 */}
         <div className="p-5 sm:p-6 bg-zinc-900/50 light:bg-zinc-50">
           <div className="flex items-center gap-2 mb-4">
-            <Lock className="h-4 w-4 text-zinc-600 light:text-zinc-400" strokeWidth={1.5} />
+            <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <h3 className="text-xs font-semibold text-muted-foreground">修改密码</h3>
-            <span className="text-[10px] text-zinc-600 light:text-zinc-400">不想改的话留空就好~</span>
+            <span className="text-[10px] text-muted-foreground">不想改的话留空就好~</span>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block mb-2 text-xs font-medium text-zinc-600 light:text-zinc-400">当前密码</label>
+              <label className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
               <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
                 <input
                   type={showOld ? "text" : "password"}
                   value={oldPassword}
                   onChange={e => setOldPassword(e.target.value)}
                   placeholder="输入当前密码"
-                  className="flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowOld(v => !v)}
-                  className="shrink-0 text-zinc-600 light:text-zinc-400 hover:text-zinc-400 light:hover:text-zinc-500 transition-colors"
+                  className="shrink-0 text-muted-foreground hover:text-zinc-400 light:hover:text-muted-foreground transition-colors"
                 >
                   {showOld ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
               </div>
             </div>
             <div>
-              <label className="block mb-2 text-xs font-medium text-zinc-600 light:text-zinc-400">新密码</label>
+              <label className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
               <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
                 <input
                   type={showNew ? "text" : "password"}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="设置新密码（至少6位）"
-                  className="flex-1 bg-transparent text-sm text-zinc-200 light:text-zinc-800 placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(v => !v)}
-                  className="shrink-0 text-zinc-600 light:text-zinc-400 hover:text-zinc-400 light:hover:text-zinc-500 transition-colors"
+                  className="shrink-0 text-muted-foreground hover:text-zinc-400 light:hover:text-muted-foreground transition-colors"
                 >
                   {showNew ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
