@@ -172,27 +172,22 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     <div className="group relative h-full w-full overflow-hidden">
       {/* Previous image underneath for crossfade */}
       {prevImageRef.current !== activeImage && (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={prevImageRef.current}
           alt=""
-          fill
-          className="object-fill"
+          className="absolute inset-0 h-full w-full object-fill"
           draggable={false}
-          sizes="(max-width: 1024px) 100vw, 62vw"
-          quality={80}
         />
       )}
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={activeImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-        fill
-        className={`object-fill cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        className={`absolute inset-0 h-full w-full object-fill cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
         style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
-        sizes="(max-width: 1024px) 100vw, 62vw"
-        quality={80}
-        priority={activeIndex === 0}
-        loading={activeIndex === 0 ? undefined : "lazy"}
+        loading={activeIndex === 0 ? "eager" : "lazy"}
         onDoubleClick={openLightbox}
       />
 
