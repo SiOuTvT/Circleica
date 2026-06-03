@@ -1460,15 +1460,12 @@ body[data-has-bottom-nav="true"] {
   }
 }
 
-/* ═══ 顶部导航栏按钮固定灰色（不受深浅色模式影响） ═══ */
+/* ═══ 顶部导航栏按钮颜色（跟随主题） ═══ */
 .nav-icon-btn {
-  color: #6B7280 !important;
+  color: var(--muted-foreground);
 }
 .nav-icon-btn:hover {
-  color: #374151 !important;
-}
-.dark .nav-icon-btn:hover {
-  color: #9CA3AF !important;
+  color: var(--foreground);
 }
 
 /* ═══ 导航栏滚动透明过渡 ═══ */
