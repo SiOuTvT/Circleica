@@ -13,7 +13,19 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   const { newPassword, role } = await req.json()
 
   const data: Record<string, string> = {}
-  if (role) data.role = role
+  if (role) {
+    // 验证角色值是否合法
+    const validRoles = ["USER", "ADMIN", "SUPER_ADMIN"]
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: "无效的角色值" }, { status: 400 })
+    }
+    // 防止降级站长
+    const targetUser = await prisma.user.findUnique({ where: { id }, select: { role: true } })
+    if (targetUser?.role === "SUPER_ADMIN") {
+      return NextResponse.json({ error: "不能修改站长角色" }, { status: 403 })
+    }
+    data.role = role
+  }
   if (newPassword) {
     if (newPassword.length < 6) return NextResponse.json({ error: "密码至少6位" }, { status: 400 })
     data.password = await bcrypt.hash(newPassword, 10)
