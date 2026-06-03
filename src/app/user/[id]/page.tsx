@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
-import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
+import { Bookmark, Gamepad2, Image as ImageIcon, MessageSquare, Pencil } from "lucide-react"
 import NextImage from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -281,7 +281,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                       className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
                       disabled
                     >
-                      <Image className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+                      <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
                       <span className="text-xs font-medium text-foreground">生成名片</span>
                     </button>
 
