@@ -107,13 +107,13 @@ function LoginContent() {
 
         <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
           {/* 标签切换 */}
-          <div className="mb-6 flex rounded-xl bg-zinc-800/60 light:bg-zinc-200/60 p-1">
+          <div className="mb-6 flex rounded-xl bg-secondary/60 p-1">
             <button
               onClick={() => { setTab("login"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "login"
-                  ? "bg-zinc-700 light:bg-zinc-300 text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-zinc-400 light:hover:text-zinc-600"
+                  ? "bg-secondary text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               登录
@@ -122,8 +122,8 @@ function LoginContent() {
               onClick={() => { setTab("register"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "register"
-                  ? "bg-zinc-700 light:bg-zinc-300 text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-zinc-400 light:hover:text-zinc-600"
+                  ? "bg-secondary text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               注册
@@ -232,7 +232,7 @@ function LoginContent() {
 
           {tab === "login" && (
             <div className="mt-4 flex justify-center">
-              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-zinc-600 light:text-zinc-400 transition-colors hover:text-zinc-400 light:hover:text-muted-foreground">
+              <Link href="/forgot-password" className="inline-flex items-center px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-zinc-400 light:hover:text-muted-foreground">
                 忘记密码？
               </Link>
             </div>
