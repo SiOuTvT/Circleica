@@ -111,7 +111,6 @@ EXPOSE 3000
 
 # Environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
 
