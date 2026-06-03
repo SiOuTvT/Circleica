@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  Monitor,
   Moon,
   Search,
   ShieldAlert,
