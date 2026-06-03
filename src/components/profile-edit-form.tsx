@@ -140,7 +140,7 @@ export function ProfileEditForm({ user }: Props) {
             <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               用户名
             </label>
-            <div className="flex items-center gap-3 rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-primary/30 transition-all">
+            <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
               <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <input
                 value={username}
@@ -148,7 +148,7 @@ export function ProfileEditForm({ user }: Props) {
                 placeholder="用户名"
                 maxLength={20}
                 required
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
             </div>
           </div>
@@ -157,14 +157,14 @@ export function ProfileEditForm({ user }: Props) {
             <label className="block mb-2 text-xs font-semibold text-muted-foreground">
               个人简介
             </label>
-            <div className="rounded-xl bg-zinc-800 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.06] light:ring-black/[0.06] focus-within:ring-primary/30 transition-all">
+            <div className="rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 placeholder="介绍一下自己吧…（选填）"
                 maxLength={200}
                 rows={4}
-                className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
               <p className="mt-1 text-right text-[10px] text-muted-foreground">{bio.length}/200</p>
             </div>
@@ -184,18 +184,18 @@ export function ProfileEditForm({ user }: Props) {
           <div className="space-y-4">
             <div>
               <label className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
                 <input
                   type={showOld ? "text" : "password"}
                   value={oldPassword}
                   onChange={e => setOldPassword(e.target.value)}
                   placeholder="输入当前密码"
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowOld(v => !v)}
-                  className="shrink-0 text-muted-foreground hover:text-zinc-400 light:hover:text-muted-foreground transition-colors"
+                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showOld ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
@@ -203,18 +203,18 @@ export function ProfileEditForm({ user }: Props) {
             </div>
             <div>
               <label className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
-              <div className="flex items-center gap-3 rounded-xl bg-zinc-800/60 light:bg-zinc-100 px-4 py-3 ring-1 ring-white/[0.04] light:ring-black/[0.04] focus-within:ring-primary/30 transition-all">
+              <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
                 <input
                   type={showNew ? "text" : "password"}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="设置新密码（至少6位）"
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-zinc-600 light:placeholder:text-zinc-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(v => !v)}
-                  className="shrink-0 text-muted-foreground hover:text-zinc-400 light:hover:text-muted-foreground transition-colors"
+                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showNew ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
