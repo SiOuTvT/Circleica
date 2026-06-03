@@ -35,16 +35,24 @@ export function TagCloud({
   const VISIBLE_COUNT = 10
   const visibleTags = expanded ? tags : tags.slice(0, VISIBLE_COUNT)
 
+  /** 生成标签样式 - 使用 CSS 变量实现动态颜色 */
+  const getTagStyle = (color: string, isActive: boolean): React.CSSProperties => ({
+    '--tag-color': color,
+    color: color,
+    background: isActive ? `${color}20` : `${color}10`,
+    borderColor: isActive ? color : `${color}30`,
+  } as React.CSSProperties)
+
   return (
     <div>
       <div className="flex flex-wrap gap-1.5">
         <Link
           href={buildHref("")}
           className={[
-            "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all",
+            "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all ring-1",
             !activeTag
-              ? "bg-primary/15 text-primary ring-1 ring-primary/20"
-              : "bg-muted text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground",
+              ? "bg-primary/15 text-primary ring-primary/20"
+              : "bg-muted text-muted-foreground ring-border hover:bg-accent hover:text-foreground",
           ].join(" ")}
         >
           全部
@@ -57,11 +65,7 @@ export function TagCloud({
               "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all ring-1",
               activeTag === t.name ? "opacity-100" : "opacity-50 hover:opacity-80",
             ].join(" ")}
-            style={
-              activeTag === t.name
-                ? { color: t.color, background: `${t.color}20`, outlineColor: t.color }
-                : { color: t.color, background: `${t.color}10`, borderColor: `${t.color}30` }
-            }
+            style={getTagStyle(t.color, activeTag === t.name)}
           >
             {t.name}
           </Link>
