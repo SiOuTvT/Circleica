@@ -30,7 +30,7 @@ export function Tooltip({
       {children}
       {show && (
         <span
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[9999] whitespace-nowrap rounded-lg bg-zinc-800 px-2.5 py-1.5 text-xs text-zinc-200 shadow-lg pointer-events-none animate-in fade-in zoom-in-95 duration-150"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[9999] whitespace-nowrap rounded-lg bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-lg pointer-events-none animate-in fade-in zoom-in-95 duration-150"
           role="tooltip"
         >
           {content}
