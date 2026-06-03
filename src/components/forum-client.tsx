@@ -268,7 +268,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               onClick={() => openPost(post.id)}
               className={cn(
                 "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-secondary",
-                activePost?.id === post.id ? "ring-zinc-600 light:ring-zinc-300" : "ring-border hover:ring-white/10 light:hover:ring-black/10"
+                activePost?.id === post.id ? "ring-primary" : "ring-border hover:ring-white/10 light:hover:ring-black/10"
               )}>
               <div className="mb-2 flex items-center gap-2">
                 <Avatar user={post.user} size={6} />
@@ -334,7 +334,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background md:hidden">
           <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
-            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-foreground">
+            <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{activePost.title}</span>
