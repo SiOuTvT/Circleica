@@ -274,7 +274,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
                 <Avatar user={post.user} size={6} />
                 <span className="text-xs text-muted-foreground">{post.user.username}</span>
                 {post.isSolved && (
-                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 light:text-emerald-600 ring-1 ring-emerald-500/20">
+                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 text-emerald-500 ring-1 ring-emerald-500/20">
                     <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2} />已解决
                   </span>
                 )}
@@ -333,12 +333,12 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
       {/* 移动端全屏详情 */}
       {activePost && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background md:hidden">
-          <div className="flex items-center gap-3 border-b border-white/[0.06] light:border-black/[0.06] px-4 py-3">
+          <div className="flex items-center gap-3 border-b border-border px-4 py-3">
             <button onClick={() => setActivePost(null)} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
             </button>
             <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{activePost.title}</span>
-            {activePost.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 light:text-emerald-600" strokeWidth={1.5} />}
+            {activePost.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 text-emerald-500" strokeWidth={1.5} />}
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <PostDetail post={activePost} isLoggedIn={isLoggedIn} currentUserId={currentUser?.id} isAdmin={isAdmin}
@@ -447,7 +447,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             <p className="text-[10px] text-muted-foreground">{fmtDate(post.createdAt)}</p>
           </div>
           {post.isSolved && (
-            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 light:text-emerald-600 ring-1 ring-emerald-500/20">
+            <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 text-emerald-500 ring-1 ring-emerald-500/20">
               <CheckCircle2 className="h-3 w-3" strokeWidth={2} />已解决
             </span>
           )}
@@ -469,7 +469,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
               className={cn(
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
                 post.isSolved
-                  ? "bg-emerald-500/10 text-emerald-400 light:text-emerald-600 ring-emerald-500/20 hover:bg-emerald-500/20"
+                  ? "bg-emerald-500/10 text-emerald-400 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
                   : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
               )}>
               <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -478,14 +478,14 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
           )}
           {(isAuthor || isAdmin) && (
             <button onClick={onDeletePost}
-              className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 light:text-red-600 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
+              className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
             </button>
           )}
         </div>
       </div>
 
-      <div className="border-t border-white/[0.06] light:border-black/[0.06] p-5">
+      <div className="border-t border-border p-5">
         <p className="mb-3 text-xs font-semibold text-muted-foreground">评论 {post.comments.length}</p>
         <div className="mb-4 max-h-64 space-y-3 overflow-y-auto">
           {post.comments.length === 0 && <p className="text-xs text-muted-foreground">还没有人回复，来说点什么吧~</p>}
