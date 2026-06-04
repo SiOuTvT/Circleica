@@ -29,7 +29,7 @@ export function ReportDeleteBtn({ id }: { id: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-lg p-2 text-muted-foreground sm:opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 sm:group-hover:opacity-100"
+        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500"
         title="删除"
       >
         <Trash2 className="h-4 w-4" />

@@ -274,7 +274,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                       <p className="text-xs text-muted-foreground">{item.subtitle || "—"}</p>
                     </div>
                     {/* 操作按钮 */}
-                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="flex items-center gap-1 transition-opacity">
                       <button onClick={() => toggleEnabled(item)} title={item.enabled ? "禁用" : "启用"}
                         className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-accent hover:text-foreground">
                         {item.enabled ? <ToggleRight className="h-4 w-4 text-emerald-400" /> : <ToggleLeft className="h-4 w-4" />}

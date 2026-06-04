@@ -101,7 +101,9 @@ export default async function AdminDashboard() {
         <div className="rounded-xl bg-card p-5 ring-1 ring-border">
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近添加</h2>
           <div className="divide-y divide-border">
-            {recentGames.map(g => (
+            {recentGames.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">暂无游戏</p>
+            ) : recentGames.map(g => (
               <div key={g.id} className="flex items-center justify-between py-2.5">
                 <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
                 <span className={`ml-2 shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
@@ -116,7 +118,9 @@ export default async function AdminDashboard() {
         <div className="rounded-xl bg-card p-5 ring-1 ring-border">
           <h2 className="mb-3 text-sm font-semibold text-foreground">浏览最多</h2>
           <div className="divide-y divide-border">
-            {topGames.map((g, i) => (
+            {topGames.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">暂无数据</p>
+            ) : topGames.map((g, i) => (
               <div key={g.id} className="flex items-center gap-3 py-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">{i + 1}</span>
                 <Link href={`/games/${g.serialId}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
@@ -130,7 +134,9 @@ export default async function AdminDashboard() {
         <div className="rounded-xl bg-card p-5 ring-1 ring-border">
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近注册</h2>
           <div className="divide-y divide-border">
-            {recentUsers.map(u => (
+            {recentUsers.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">暂无用户</p>
+            ) : recentUsers.map(u => (
               <div key={u.id} className="flex items-center gap-3 py-2.5">
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
                   {u.avatar

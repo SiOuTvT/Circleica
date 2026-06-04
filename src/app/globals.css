@@ -82,6 +82,18 @@ main > * {
   }
 }
 
+/* ═══ 尊重用户"减少动画"偏好 ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 @custom-variant light (&:is(.light *));
 
@@ -217,8 +229,20 @@ main > * {
 }
 
 @layer base {
-  * {
+  /* 移除默认 outline，但保留焦点样式给交互元素 */
+  *:not(a):not(button):not(input):not(select):not(textarea):not([tabindex]) {
     @apply outline-none;
+  }
+
+  /* 焦点样式 - 键盘用户可见 */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+    outline: none;
   }
 
   body {

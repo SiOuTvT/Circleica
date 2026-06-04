@@ -134,7 +134,7 @@ export default function ResourceTagsPage() {
                   {i > 0 && (
                     <button
                       onClick={() => handleMove(g.group, i, i - 1)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                      className="transition-opacity text-muted-foreground hover:text-foreground"
                       title="上移"
                     >
                       <GripVertical className="h-4 w-4" />
@@ -143,7 +143,7 @@ export default function ResourceTagsPage() {
                   <span>{opt}</span>
                   <button
                     onClick={() => handleRemove(g.group, i)}
-                    className="ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500"
+                    className="ml-0.5 transition-opacity text-muted-foreground hover:text-red-500"
                     title="删除"
                   >
                     <X className="h-4 w-4" />
