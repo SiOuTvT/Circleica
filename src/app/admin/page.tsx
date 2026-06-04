@@ -1,11 +1,11 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { Eye, Gamepad2, Plus, Tag, Users } from "lucide-react"
+import { Download, Eye, Gamepad2, Users } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
 const AdminChartsWrapper = dynamic(() => import("@/components/admin-charts-wrapper").then(m => ({ default: m.AdminChartsWrapper })), {
-  loading: () => <div className="h-40 animate-pulse rounded-xl bg-muted" />,
+  loading: () => <div className="h-[200px] animate-pulse rounded-xl bg-muted" />,
 })
 
 function getLast14Days() {
@@ -22,18 +22,24 @@ export default async function AdminDashboard() {
   const days = getLast14Days()
   const since = new Date(days[0])
 
-  const [totalGames, published, totalTags, totalUsers, recentGames, topGames,
+  const [totalGames, published, totalUsers, totalViews, totalDownloads,
+    recentGames, topGames, recentUsers,
     newGames, newUsers, newComments] = await Promise.all([
     prisma.game.count(),
     prisma.game.count({ where: { isPublished: true } }),
-    prisma.tag.count(),
     prisma.user.count(),
+    prisma.game.aggregate({ _sum: { viewCount: true } }).then(r => r._sum.viewCount ?? 0),
+    prisma.game.aggregate({ _sum: { downloadCount: true } }).then(r => r._sum.downloadCount ?? 0),
     prisma.game.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, title: true, isPublished: true, createdAt: true } }),
     prisma.game.findMany({ where: { isPublished: true }, orderBy: { viewCount: "desc" }, take: 5, select: { id: true, serialId: true, title: true, viewCount: true } }),
+    prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, username: true, avatar: true, createdAt: true } }),
     prisma.game.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.comment.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
   ])
+
+  const today = new Date().toISOString().slice(0, 10)
+  const todayNewUsers = newUsers.filter(u => u.createdAt.toISOString().slice(0, 10) === today).length
 
   function toChartData(items: { createdAt: Date }[]) {
     const map = new Map(days.map(d => [d, 0]))
@@ -44,53 +50,61 @@ export default async function AdminDashboard() {
     return days.map(d => ({ date: d.slice(5), value: map.get(d) ?? 0 }))
   }
 
+  function fmtNum(n: number): string {
+    if (n >= 10000) return (n / 10000).toFixed(1) + "w"
+    if (n >= 1000) return (n / 1000).toFixed(1) + "k"
+    return String(n)
+  }
+
   const stats = [
-    { icon: Gamepad2, label: "游戏总数", value: totalGames, sub: `${published} 已发布`, href: "/admin/games" },
-    { icon: Tag,      label: "标签数",   value: totalTags,  sub: "点击管理",           href: "/admin/tags" },
-    { icon: Users,    label: "注册用户", value: totalUsers, sub: "累计注册",           href: "/admin/users" },
-    { icon: Eye,      label: "未发布",   value: totalGames - published, sub: "待审核", href: "/admin/games" },
+    { icon: Gamepad2, label: "游戏总数", value: totalGames, sub: `${published} 已发布 · ${totalGames - published} 待审核`, href: "/admin/games" },
+    { icon: Users, label: "注册用户", value: totalUsers, sub: todayNewUsers > 0 ? `今日 +${todayNewUsers}` : "今日无新增", href: "/admin/users" },
+    { icon: Eye, label: "总浏览量", value: totalViews, sub: "所有游戏累计", href: undefined },
+    { icon: Download, label: "总下载量", value: totalDownloads, sub: "所有游戏累计", href: undefined },
   ]
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-lg font-bold text-foreground">仪表盘</h1>
-        <Link href="/admin/games/new" className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground w-fit">
-          <Plus className="h-5 w-5" strokeWidth={2} />新增游戏
-        </Link>
-      </div>
+      <h1 className="text-xl font-bold text-foreground">仪表盘</h1>
 
-      {/* 统计卡片 - 放大版 */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {stats.map(({ icon: Icon, label, value, sub, href }) => (
-          <Link key={label} href={href} className="rounded-2xl bg-card p-6 ring-1 ring-border transition-all hover:bg-accent/50 hover:ring-ring">
-            <Icon className="mb-3 h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
-            <p className="text-3xl font-bold text-foreground">{value}</p>
-            <p className="mt-2 text-sm font-medium text-foreground">{label}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
+          <Link
+            key={label}
+            href={href || "#"}
+            className="rounded-xl bg-card p-5 ring-1 ring-border transition-all hover:ring-primary/30 hover:shadow-md"
+          >
+            <Icon className="mb-3 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            <p className="text-2xl font-bold text-foreground">{fmtNum(value)}</p>
+            <p className="mt-1 text-xs font-medium text-foreground">{label}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground/70">{sub}</p>
           </Link>
         ))}
       </div>
 
-      {/* 趋势图表（最近14天） */}
-      <div>
-        <p className="mb-3 text-xs font-medium text-muted-foreground">最近 14 天趋势</p>
-        <AdminChartsWrapper
-          gamesByDay={toChartData(newGames)}
-          usersByDay={toChartData(newUsers)}
-          commentsByDay={toChartData(newComments)}
-        />
+      {/* 趋势图表 */}
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <p className="mb-3 text-sm font-medium text-muted-foreground">最近 14 天趋势</p>
+        <div className="h-auto">
+          <AdminChartsWrapper
+            gamesByDay={toChartData(newGames)}
+            usersByDay={toChartData(newUsers)}
+            commentsByDay={toChartData(newComments)}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+      {/* 底部三列 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* 最近添加 */}
-        <div className="rounded-2xl bg-card p-6 ring-1 ring-border">
-          <h2 className="mb-4 text-base font-semibold text-foreground">最近添加</h2>
-          <div className="space-y-3">
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">最近添加</h2>
+          <div className="divide-y divide-border">
             {recentGames.map(g => (
-              <div key={g.id} className="flex items-center justify-between">
+              <div key={g.id} className="flex items-center justify-between py-2.5">
                 <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
-                <span className={`ml-2 shrink-0 rounded px-2 py-1 text-xs ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
+                <span className={`ml-2 shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
                   {g.isPublished ? "已发布" : "草稿"}
                 </span>
               </div>
@@ -98,15 +112,33 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* 热门游戏 */}
-        <div className="rounded-2xl bg-card p-6 ring-1 ring-border">
-          <h2 className="mb-4 text-base font-semibold text-foreground">浏览最多</h2>
-          <div className="space-y-3">
+        {/* 浏览最多 */}
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">浏览最多</h2>
+          <div className="divide-y divide-border">
             {topGames.map((g, i) => (
-              <div key={g.id} className="flex items-center gap-3">
-                <span className="w-5 shrink-0 text-sm text-muted-foreground">{i + 1}</span>
+              <div key={g.id} className="flex items-center gap-3 py-2.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">{i + 1}</span>
                 <Link href={`/games/${g.serialId}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
-                <span className="shrink-0 text-sm text-muted-foreground">{g.viewCount} 次</span>
+                <span className="shrink-0 text-sm tabular-nums font-medium text-muted-foreground">{fmtNum(g.viewCount)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 最近注册 */}
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+          <h2 className="mb-3 text-sm font-semibold text-foreground">最近注册</h2>
+          <div className="divide-y divide-border">
+            {recentUsers.map(u => (
+              <div key={u.id} className="flex items-center gap-3 py-2.5">
+                <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
+                  {u.avatar
+                    ? <img src={u.avatar} alt="" className="h-full w-full object-cover" />
+                    : <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">{u.username[0].toUpperCase()}</div>}
+                </div>
+                <Link href={`/user/${u.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>
+                <span className="shrink-0 text-xs text-muted-foreground/70">{new Date(u.createdAt).toLocaleDateString("zh-CN")}</span>
               </div>
             ))}
           </div>
