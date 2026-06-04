@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, Plus, Tags } from "lucide-react"
+import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, Loader2, Plus, Tags, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -48,13 +48,35 @@ export function TagsOverviewClient({
 }) {
   const router = useRouter()
 
-  // 新建标签组
+  // 新建标签颜色组
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState("")
   const [newDesc, setNewDesc] = useState("")
   const [newColor, setNewColor] = useState("#6b7280")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [deleting, setDeleting] = useState<string | null>(null)
+
+  async function handleDeleteGroup(id: string) {
+    if (!confirm("确定要删除这个标签组吗？")) return
+    setDeleting(id)
+    try {
+      const res = await fetch(`/api/admin/tag-groups/${id}`, {
+        method: "DELETE",
+      })
+      if (res.ok) {
+        toast.success("标签组已删除")
+        router.refresh()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || "删除失败")
+      }
+    } catch {
+      toast.error("删除失败")
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   async function handleCreateGroup() {
     if (!newName.trim()) return
@@ -95,7 +117,7 @@ export function TagsOverviewClient({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Tags className="h-5 w-5 text-violet-400" />
-          <h1 className="text-lg font-semibold text-foreground">标签组管理</h1>
+          <h1 className="text-lg font-semibold text-foreground">标签组颜色管理</h1>
           <span className="text-sm text-muted-foreground">{groups.length} 个标签组</span>
         </div>
         <button
@@ -103,7 +125,7 @@ export function TagsOverviewClient({
           className="flex items-center gap-1.5 rounded-lg bg-violet-500 text-white px-3 py-1.5 text-xs font-medium hover:bg-violet-600 transition-all shadow-md shadow-violet-500/20 cursor-pointer"
         >
           <Plus className="h-3.5 w-3.5" />
-          新建标签组
+          新建标签颜色组
         </button>
       </div>
 
@@ -111,10 +133,10 @@ export function TagsOverviewClient({
         <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
 
-      {/* ── 新建标签组表单 ── */}
+      {/* ── 新建标签颜色组表单 ── */}
       {showCreate && (
         <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">创建新标签组</h2>
+          <h2 className="text-sm font-semibold text-foreground">创建新标签颜色组</h2>
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
@@ -166,10 +188,12 @@ export function TagsOverviewClient({
       {/* ── 标签组卡片网格 ── */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {groups.map((g) => (
-          <button
+          <div
             key={g.id}
-            type="button"
+            role="button"
+            tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
+            onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
             className="group/card text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-violet-500/50 hover:shadow-lg hover:shadow-violet-500/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/50"
           >
             {/* 顶部：色条 + 组名 */}
@@ -185,6 +209,14 @@ export function TagsOverviewClient({
                 )}
               </div>
               <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover/card:opacity-100 transition-opacity" />
+              <button
+                onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id) }}
+                disabled={deleting === g.id}
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground opacity-0 group-hover/card:opacity-100 transition-all hover:bg-red-500/10 hover:text-red-400"
+                title="删除标签组"
+              >
+                {deleting === g.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              </button>
             </div>
 
             {/* 描述 */}
@@ -203,7 +235,7 @@ export function TagsOverviewClient({
                 {g.totalGames} 次关联
               </span>
             </div>
-          </button>
+          </div>
         ))}
       </div>
 
