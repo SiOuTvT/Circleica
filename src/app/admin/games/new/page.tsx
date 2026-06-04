@@ -19,7 +19,7 @@ export default async function NewGamePage() {
   ])
   return (
     <div className="w-full">
-      <h1 className="mb-6 text-lg font-bold text-foreground">新增游戏</h1>
+      <h1 className="mb-6 text-xl font-bold text-foreground">新增游戏</h1>
       <GameForm tags={tags} tagGroups={tagGroups} />
     </div>
   )
