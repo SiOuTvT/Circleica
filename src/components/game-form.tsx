@@ -394,7 +394,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           <div className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-400 ring-1 ring-red-500/20">{vndbError}</div>
         )}
         {vndbSuccess && (
-          <div className="rounded-lg bg-green-500/10 px-4 py-2 text-sm text-green-400 ring-1 ring-green-500/20">{vndbSuccess}</div>
+          <div className="rounded-lg bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400 ring-1 ring-emerald-500/20">{vndbSuccess}</div>
         )}
       </div>
 
@@ -436,7 +436,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <span>{flag}</span>
                 <span>{label}</span>
                 {descLangs[key] && (
-                  <span className="ml-0.5 h-2 w-2 rounded-full bg-green-500" />
+                  <span className="ml-0.5 h-2 w-2 rounded-full bg-emerald-500" />
                 )}
               </button>
             ))}
@@ -499,7 +499,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={() => handleTranslate("ja")}
                 disabled={translating || !descLangs[activeDescLang].trim()}
-                className="flex items-center gap-2 rounded-lg bg-violet-500/10 text-violet-500 px-4 py-2 text-xs font-medium ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-xs font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -571,7 +571,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             <div className="mt-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 ring-1 ring-red-500/20">{translateError}</div>
           )}
           {translateSuccess && (
-            <div className="mt-1 rounded-lg bg-green-500/10 px-3 py-1.5 text-xs text-green-400 ring-1 ring-green-500/20">{translateSuccess}</div>
+            <div className="mt-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 ring-1 ring-emerald-500/20">{translateSuccess}</div>
           )}
           <p className="mt-1 text-[11px] text-muted-foreground/50">
             前台默认优先展示中文，缺少的语种将按{"中文 > 英文 > 日文 > 其他"}的优先级自动回退。
