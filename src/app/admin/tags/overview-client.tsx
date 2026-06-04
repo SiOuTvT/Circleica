@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, Loader2, Plus, Tags, Trash2 } from "lucide-react"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -57,11 +58,18 @@ export function TagsOverviewClient({
   const [error, setError] = useState("")
   const [deleting, setDeleting] = useState<string | null>(null)
 
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+
   async function handleDeleteGroup(id: string) {
-    if (!confirm("确定要删除这个标签组吗？")) return
-    setDeleting(id)
+    setDeleteTarget(id)
+  }
+
+  async function confirmDeleteGroup() {
+    if (!deleteTarget) return
+    setDeleting(deleteTarget)
+    setDeleteTarget(null)
     try {
-      const res = await fetch(`/api/admin/tag-groups/${id}`, {
+      const res = await fetch(`/api/admin/tag-groups/${deleteTarget}`, {
         method: "DELETE",
       })
       if (res.ok) {
@@ -112,17 +120,17 @@ export function TagsOverviewClient({
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* ── 页面标题 + 新建按钮 ── */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Tags className="h-5 w-5 text-violet-400" />
-          <h1 className="text-lg font-semibold text-foreground">标签组颜色管理</h1>
+          <Tags className="h-5 w-5 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">标签组颜色管理</h1>
           <span className="text-sm text-muted-foreground">{groups.length} 个标签组</span>
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-1.5 rounded-lg bg-violet-500 text-white px-3 py-1.5 text-xs font-medium hover:bg-violet-600 transition-all shadow-md shadow-violet-500/20 cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all cursor-pointer"
         >
           <Plus className="h-3.5 w-3.5" />
           新建标签颜色组
@@ -159,7 +167,7 @@ export function TagsOverviewClient({
                 onClick={() => setNewColor(c)}
                 className={`h-6 w-6 rounded-full transition-all cursor-pointer ${
                   newColor.toLowerCase() === c.toLowerCase()
-                    ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
                     : "hover:scale-110"
                 }`}
                 style={{ background: c }}
@@ -171,7 +179,7 @@ export function TagsOverviewClient({
             <button
               onClick={handleCreateGroup}
               disabled={saving || !newName.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-violet-500 text-white px-3 py-1.5 text-xs font-medium hover:bg-violet-600 transition-all disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
             >
               {saving ? "创建中…" : "创建"}
             </button>
@@ -194,7 +202,7 @@ export function TagsOverviewClient({
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group/card text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-violet-500/50 hover:shadow-lg hover:shadow-violet-500/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+            className="group/card text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             {/* 顶部：色条 + 组名 */}
             <div className="flex items-center gap-3 mb-3">
@@ -227,7 +235,7 @@ export function TagsOverviewClient({
             {/* 统计行 */}
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1.5 text-foreground font-medium">
-                <Layers className="h-3.5 w-3.5 text-violet-400" />
+                <Layers className="h-3.5 w-3.5 text-primary" />
                 {g.tagCount} 个标签
               </span>
               <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -248,6 +256,15 @@ export function TagsOverviewClient({
         />
       )}
 
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
+        title="删除标签组"
+        description="确定要删除这个标签组吗？该操作不可撤销。"
+        variant="destructive"
+        confirmText="确认删除"
+        onConfirm={confirmDeleteGroup}
+      />
     </div>
   )
 }
@@ -293,7 +310,7 @@ function UngroupedTagsSection({
   }
 
   return (
-    <div className="rounded-2xl bg-card p-5 ring-1 ring-border space-y-4">
+    <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
@@ -321,7 +338,7 @@ function UngroupedTagsSection({
                 setAssigningId(assigningId === t.id ? null : t.id)
                 setAssignTarget("")
               }}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-all hover:ring-violet-500/50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-all hover:ring-primary/50 cursor-pointer"
               style={{ color: t.color, background: `${t.color}15`, borderColor: `${t.color}30` }}
             >
               {t.name}
@@ -347,7 +364,7 @@ function UngroupedTagsSection({
                     type="button"
                     onClick={() => handleAssign(t.id)}
                     disabled={!assignTarget || assignLoading}
-                    className="flex-1 rounded-lg bg-violet-500 text-white px-3 py-1.5 text-xs font-medium hover:bg-violet-600 disabled:opacity-50 cursor-pointer"
+                    className="flex-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50 cursor-pointer"
                   >
                     {assignLoading ? "分配中…" : "确认分配"}
                   </button>
