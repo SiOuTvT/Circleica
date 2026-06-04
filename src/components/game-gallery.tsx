@@ -19,15 +19,7 @@ export function GameGallery({
   return (
     <div className="flex flex-col min-w-0">
       {/* 上卡片：巨幕预览 — 16:9 比例 */}
-      <div
-        className="relative overflow-hidden w-full aspect-video"
-        style={{
-          borderRadius: "16px",
-          background: "var(--card)",
-          border: "1px solid var(--border)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-        }}
-      >
+      <div className="relative overflow-hidden w-full aspect-video rounded-2xl bg-card">
         <HeroCarousel
           screenshots={screenshots}
           gameTitle={gameTitle}
@@ -41,15 +33,7 @@ export function GameGallery({
         <div className="shrink-0 h-1.5 sm:h-3 lg:h-4" />
 
         {/* 下卡片：画廊缩略图条 */}
-        <div
-          className="h-[60px] sm:h-[72px] lg:h-[80px] flex items-center"
-          style={{
-            borderRadius: "16px",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-          }}
-        >
+        <div className="h-[72px] sm:h-[80px] lg:h-[88px] flex items-center rounded-2xl bg-card">
           <GalleryStrip
             screenshots={screenshots}
             gameTitle={gameTitle}

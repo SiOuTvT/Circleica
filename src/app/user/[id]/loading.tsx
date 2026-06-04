@@ -11,8 +11,8 @@ export default function UserProfileLoading() {
               <div className="h-36 w-full animate-pulse bg-muted" />
               <div className="px-6 py-8 flex flex-col items-center text-center">
                 {/* 头像骨架 */}
-                <div className="-mt-22 mb-5">
-                  <div className="h-[130px] w-[130px] rounded-full animate-pulse bg-muted" />
+                <div className="-mt-16 sm:-mt-22 mb-4 sm:mb-5">
+                  <div className="h-[100px] w-[100px] sm:h-[130px] sm:w-[130px] rounded-full animate-pulse bg-muted" />
                 </div>
                 {/* 用户名 */}
                 <div className="h-6 w-32 mx-auto rounded animate-pulse bg-muted mb-2" />
