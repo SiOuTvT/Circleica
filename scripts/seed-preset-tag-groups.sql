@@ -20,20 +20,20 @@ VALUES
     NOW()
   ),
   (
-    'preset_profile',
-    '个人中心标签',
-    '用户个人主页和收藏集视图中展示的标签',
-    '#34d399',
-    '["profile_game","collection_view"]',
-    true,
-    NOW()
-  ),
-  (
     'preset_discover',
     '发现页标签',
     '搜索筛选、标签云、排行榜等发现类页面中展示的标签',
     '#a78bfa',
     '["search_filter","tag_cloud","ranking"]',
+    true,
+    NOW()
+  ),
+  (
+    'preset_resource_tab',
+    '资源标签',
+    '游戏详情页资源tab区展示的标签，用于分类资源链接',
+    '#22c55e',
+    '["resource_card"]',
     true,
     NOW()
   )
