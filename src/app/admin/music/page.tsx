@@ -28,8 +28,8 @@ export default async function AdminMusicPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="w-full space-y-4">
-      <h1 className="text-lg font-bold text-foreground">音乐管理</h1>
+    <div className="w-full space-y-6">
+      <h1 className="text-xl font-bold text-foreground">音乐管理</h1>
       <MusicManager initialMusic={music} />
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/music" />
     </div>
