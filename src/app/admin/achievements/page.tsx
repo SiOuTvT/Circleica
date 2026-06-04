@@ -1,6 +1,7 @@
 "use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
@@ -27,6 +28,7 @@ const CONDITION_TYPES = [
   { value: "comment_count", label: "评论数" },
   { value: "play_count", label: "玩过数" },
   { value: "checkin_count", label: "签到天数" },
+  { value: "checkin_streak", label: "连续签到天数" },
   { value: "forum_post_count", label: "论坛发帖数" },
   { value: "forum_like_received", label: "论坛被点赞数" },
   { value: "register_days", label: "注册天数" },
@@ -47,6 +49,7 @@ export default function AdminAchievementsPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Partial<Achievement> | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -76,7 +79,6 @@ export default function AdminAchievementsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("确定删除？所有用户的解锁记录也会被删除。")) return
     const res = await fetch(`/api/admin/achievements/${id}`, { method: "DELETE" })
     if (res.ok) { toast.success("已删除"); load() }
   }
@@ -109,7 +111,7 @@ export default function AdminAchievementsPage() {
 
       {/* 编辑表单 */}
       {editing && (
-        <div className="rounded-2xl bg-card ring-1 ring-border p-5">
+        <div className="rounded-xl bg-card ring-1 ring-border p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-foreground">{editing.id ? "编辑成就" : "新建成就"}</h2>
             <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
@@ -169,7 +171,7 @@ export default function AdminAchievementsPage() {
       )}
 
       {/* 列表 */}
-      <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+      <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -203,7 +205,7 @@ export default function AdminAchievementsPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
                     <button onClick={() => setEditing(ach)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"><Edit2 className="h-4 w-4" /></button>
-                    <button onClick={() => handleDelete(ach.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                    <button onClick={() => setDeleteTarget(ach.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </td>
               </tr>
@@ -214,6 +216,16 @@ export default function AdminAchievementsPage() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
+        title="删除成就"
+        description="确定删除此成就？所有用户的解锁记录也会被删除。"
+        variant="destructive"
+        confirmText="删除"
+        onConfirm={() => { if (deleteTarget) handleDelete(deleteTarget) }}
+      />
     </div>
   )
 }
