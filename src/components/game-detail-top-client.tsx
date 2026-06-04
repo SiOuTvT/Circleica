@@ -70,7 +70,8 @@ export function GameDetailTopClient({
     if (onDownloadClick) {
       onDownloadClick()
     } else if (scrollToResources) {
-      document.getElementById("resources-section")?.scrollIntoView({ behavior: "smooth" })
+      // 切换到资源 Tab（不滚动页面）
+      window.dispatchEvent(new CustomEvent("game-detail-switch-tab", { detail: "resource" }))
     }
   }
 
@@ -87,10 +88,10 @@ export function GameDetailTopClient({
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
               btnBase,
-              "p-2.5 rounded-xl border-2",
+              "p-2.5 rounded-xl ring-1",
               fav
-                ? "bg-secondary border-foreground/25 text-rose-500"
-                : "bg-secondary border-foreground/20 text-muted-foreground hover:text-foreground"
+                ? "bg-primary/10 ring-primary/20 text-primary"
+                : "bg-card ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20"
             )}
           >
             {unfavoriting ? (
@@ -100,7 +101,7 @@ export function GameDetailTopClient({
                 className="w-[18px] h-[18px]"
                 strokeWidth={2}
                 fill={fav ? "currentColor" : "none"}
-                style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
+                style={fav ? { filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))" } : undefined}
               />
             )}
           </button>
@@ -108,23 +109,20 @@ export function GameDetailTopClient({
           {/* 分享 — 正方形按钮 */}
           <button
             onClick={handleShare}
-            className={cn(btnBase, "p-2.5 rounded-xl bg-secondary border-2 border-foreground/20 text-muted-foreground hover:text-foreground")}
+            className={cn(btnBase, "p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
           >
             <Share2 className="w-[18px] h-[18px]" strokeWidth={2} />
           </button>
 
           {/* 下载 */}
           {downloadLinks.length > 0 ? (
-            <a
-              href={downloadLinks[0].url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               onClick={handleDownloadClick}
               className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
             >
               <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
               <span>下载</span>
-            </a>
+            </button>
           ) : (
             <button
               onClick={handleDownloadClick}

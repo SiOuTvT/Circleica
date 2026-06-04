@@ -94,14 +94,45 @@ main > * {
   }
 }
 
+/* ═══ 列表入场动画 ═══ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--duration-slow) var(--ease-out) forwards;
+  opacity: 0;
+}
+
+/* Stagger 延迟 - 最多支持 10 项 */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
+.stagger-9 { animation-delay: 450ms; }
+.stagger-10 { animation-delay: 500ms; }
+
 @custom-variant dark (&:is(.dark *));
 @custom-variant light (&:is(.light *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+  /* 字体系统：Noto Serif SC (标题) + Noto Sans SC (正文) */
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-sans: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -132,33 +163,62 @@ main > * {
   --color-brand-foreground: var(--primary-foreground);
 }
 
-/* ── 深色主题（默认）— 深邃宇宙黑 ── */
+/* ── 深色主题（默认）— 内敛奢华 ── */
 :root {
-  /* 深空黑基调 — 纯净、沉浸、高级 */
-  --background:    #000000; /* 纯黑底色，OLED 级别深邃 */
+  /* 深空黑基调 — 微调避免纯黑"死黑"感 */
+  --background:    #08080a; /* 带蓝调深黑，更有质感 */
   --foreground:    #e8e8ec; /* 冷白文字，清晰锐利 */
-  --card:          #141416; /* 纯灰调浮层，无色偏，与纯黑背景形成清晰层次 */
+  --card:          #121214; /* 卡片底色，比背景亮一点 */
+  --card-hover:    #18181b; /* 卡片悬停提亮 */
   --card-foreground: #e8e8ec;
   --popover:       #101012;
   --popover-foreground: #e8e8ec;
   --muted:         #111113; /* 极深中性灰底 */
   --muted-foreground: #a1a1b5; /* 提亮灰字，确保 ≥4.5:1 对比度 */
-  --border:        rgba(255, 255, 255, 0.10); /* 细腻分隔线 */
-  --input:         rgba(255, 255, 255, 0.08);
+  --border:        rgba(255, 255, 255, 0.06); /* 更细腻的分隔线 */
+  --input:         rgba(255, 255, 255, 0.06);
   --secondary:     #0e0e10;
   --secondary-foreground: #e8e8ec;
   --accent:        #0e0e10;
   --accent-foreground: #e8e8ec;
   --destructive:   #f87171;
 
+  /* 语义色 */
+  --success:       #6ee7b7;
+  --success-soft:  rgba(110, 231, 183, 0.1);
+  --warning:       #fcd34d;
+  --warning-soft:  rgba(252, 211, 77, 0.1);
+  --error:         #fca5a5;
+  --error-soft:    rgba(252, 165, 165, 0.1);
+  --info:          #93c5fd;
+  --info-soft:     rgba(147, 197, 253, 0.1);
+
+  /* 文字层次 */
+  --text-primary:  #e8e8ec;
+  --text-secondary: #a1a1b5;
+  --text-tertiary: #71717a;
+  --text-disabled: #52525b;
+
   /* 统一阴影系统 — 深色模式 */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+  --shadow-glow: 0 0 30px rgba(232, 120, 154, 0.15); /* 品牌色光晕 */
   --card-shadow: var(--shadow-md);
   --card-shadow-hover: var(--shadow-lg);
   --ring:          #252528;
   --radius:        0.75rem;
+
+  /* ═══ 动画令牌 ═══ */
+  --duration-fast: 150ms;          /* 微交互：按钮悬停 */
+  --duration-normal: 200ms;        /* 一般过渡 */
+  --duration-slow: 300ms;          /* 复杂动画 */
+  --duration-enter: 400ms;         /* 进入动画 */
+  --duration-exit: 250ms;          /* 退出动画 (比进入快) */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
   --theme-radius:  12px;
@@ -192,25 +252,42 @@ main > * {
   --tab-hover-text: #a1a1aa;           /* 悬停提亮 */
 }
 
-/* ── 亮色主题 — 纯白明亮 ── */
+/* ── 亮色主题 — 暖白优雅 ── */
 :root.light, .light {
-  --background:    #ffffff; /* 纯白底色 */
-  --foreground:    #111111; /* 接近纯黑文字，避免刺眼纯黑 */
+  --background:    #fafafa; /* 带暖调的白 */
+  --foreground:    #1a1a1e; /* 柔和的深色，避免刺眼纯黑 */
   --card:          #ffffff; /* 纯白卡片 */
-  --card-foreground: #111111;
+  --card-hover:    #f5f5f7; /* 卡片悬停 */
+  --card-foreground: #1a1a1e;
   --popover:       #ffffff;
-  --popover-foreground: #111111;
+  --popover-foreground: #1a1a1e;
   --muted:         #f5f5f7; /* 微灰 muted */
   --muted-foreground: #52525b; /* 中灰，确保可读 */
-  --border:        rgba(0, 0, 0, 0.08); /* 极淡分割线 */
-  --input:         rgba(0, 0, 0, 0.08);
+  --border:        rgba(0, 0, 0, 0.06); /* 极淡分割线 */
+  --input:         rgba(0, 0, 0, 0.06);
   --secondary:     #f5f5f7;
-  --secondary-foreground: #111111;
+  --secondary-foreground: #1a1a1e;
   --accent:        #f5f5f7;
-  --accent-foreground: #111111;
+  --accent-foreground: #1a1a1e;
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
   --primary:       #d4607e; /* 柔玫瑰-浅色模式 */
+
+  /* 语义色 - 浅色模式 */
+  --success:       #059669;
+  --success-soft:  rgba(5, 150, 105, 0.08);
+  --warning:       #d97706;
+  --warning-soft:  rgba(217, 119, 6, 0.08);
+  --error:         #dc2626;
+  --error-soft:    rgba(220, 38, 38, 0.08);
+  --info:          #2563eb;
+  --info-soft:     rgba(37, 99, 235, 0.08);
+
+  /* 文字层次 */
+  --text-primary:  #1a1a1e;
+  --text-secondary: #52525b;
+  --text-tertiary: #71717a;
+  --text-disabled: #a1a1aa;
 
   /* 统一阴影系统 — 亮色模式 */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -247,7 +324,8 @@ main > * {
 
   body {
     @apply bg-background text-foreground;
-    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    /* 使用 Noto Sans SC 作为正文字体 */
+    font-family: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     /* 平滑主题切换 - 仅对 body 自身生效 */
     transition: background-color 0.3s ease, color 0.3s ease;
     /* 优化排版 */
@@ -283,33 +361,33 @@ main > * {
   }
   
   /* ── 标题层级 — 统一 Type Scale ── */
-  /* h1=24px  h2=20px  h3=18px  h4=16px  h5/h6=14px */
+  /* h1=24px  h2=20px  h3=16px  h4=14px  h5/h6=12px */
+  /* 全部使用黑体 */
   h1 {
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
     font-weight: 700;
     font-size: 1.5rem;
   }
   h2 {
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    line-height: 1.4;
     font-weight: 600;
     font-size: 1.25rem;
   }
   h3 {
-    line-height: 1.3;
-    font-weight: 600;
-    font-size: 1.125rem;
-  }
-  h4 {
-    line-height: 1.3;
+    line-height: 1.5;
     font-weight: 600;
     font-size: 1rem;
   }
-  h5, h6 {
-    line-height: 1.35;
-    font-weight: 500;
+  h4 {
+    line-height: 1.5;
+    font-weight: 600;
     font-size: 0.875rem;
+  }
+  h5, h6 {
+    line-height: 1.5;
+    font-weight: 500;
+    font-size: 0.75rem;
   }
   
   /* 段落增加呼吸感 */

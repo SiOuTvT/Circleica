@@ -92,7 +92,24 @@ export default function AdminAchievementsPage() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-7 w-32 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+          </div>
+          <div className="h-10 w-28 animate-pulse rounded-xl bg-muted" />
+        </div>
+        <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-14 animate-pulse rounded bg-muted" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

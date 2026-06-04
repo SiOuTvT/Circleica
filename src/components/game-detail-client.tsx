@@ -103,6 +103,18 @@ export default function GameDetailClient({
     slider.style.transform = `translateX(${btnRect.left - containerRect.left - 2}px)` // 2 = p-0.5 padding
   }, [tab])
 
+  // 监听下载按钮切换 Tab 事件
+  useEffect(() => {
+    function handleSwitchTab(e: CustomEvent) {
+      const tabName = e.detail
+      if (tabName === "resource" || tabName === "intro" || tabName === "comments") {
+        setTab(tabName as "intro" | "resource" | "comments")
+      }
+    }
+    window.addEventListener("game-detail-switch-tab", handleSwitchTab as EventListener)
+    return () => window.removeEventListener("game-detail-switch-tab", handleSwitchTab as EventListener)
+  }, [])
+
   const toggleFav = useCallback(async () => {
     if (!isLoggedIn || favPending) return
     setFavPending(true)
@@ -236,7 +248,7 @@ export default function GameDetailClient({
 
             {/* 游戏资源 */}
             {tab === "resource" && (
-              <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource">
+              <div role="tabpanel" id="tabpanel-resource" aria-labelledby="tab-resource" data-section="resources">
                 <ResourceTab
                   downloadLinks={downloadLinks}
                   creators={creators}

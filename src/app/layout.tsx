@@ -48,6 +48,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
+        {/* 字体引入：Noto Serif SC (标题) + Noto Sans SC (正文) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
         <ThemeScript />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground">
