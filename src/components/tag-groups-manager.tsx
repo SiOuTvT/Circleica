@@ -76,7 +76,7 @@ function PositionCheckboxGroup({
                   disabled={disabled}
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition-all ${
                     checked
-                      ? "bg-violet-500/15 text-violet-400 ring-violet-500/30"
+                      ? "bg-primary/15 text-primary ring-primary/30"
                       : "bg-secondary text-muted-foreground ring-border hover:bg-accent hover:text-foreground"
                   } ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                   title={pos.description}
@@ -622,7 +622,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
       {/* ── 顶部标题栏 ── */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-violet-500" />
+          <span className="inline-block h-2 w-2 rounded-full bg-primary" />
           标签管理
           <span className="text-xs font-normal text-muted-foreground">
             {groups.length} 个组 · {totalTags} 个标签 · {totalGames} 次关联
@@ -641,7 +641,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           </div>
           <button
             onClick={() => setShowCreateGroup(!showCreateGroup)}
-            className="flex items-center gap-1.5 rounded-xl bg-violet-500/10 text-violet-400 px-3 py-1.5 text-xs font-semibold ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all"
+            className="flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold ring-1 ring-primary/20 hover:bg-primary/20 transition-all"
           >
             {showCreateGroup ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             {showCreateGroup ? "收起" : "新建标签组"}
@@ -687,7 +687,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           <button
             type="submit"
             disabled={saving || !newGroupName.trim()}
-            className="flex items-center gap-1.5 rounded-xl bg-violet-500 text-white px-5 py-2.5 text-sm font-semibold hover:bg-violet-600 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             创建标签组
@@ -713,7 +713,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           return (
               <div
                 key={group.id}
-                className="rounded-2xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-violet-500/40 hover:shadow-lg hover:shadow-violet-500/5"
+                className="rounded-xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-lg hover:shadow-primary/5"
               >
               {/* ── 标签组头部 ── */}
               {isEditingGroup ? (
