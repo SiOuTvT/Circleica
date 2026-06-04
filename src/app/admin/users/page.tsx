@@ -46,10 +46,10 @@ export default async function AdminUsersPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold text-foreground">用户管理</h1>
+          <h1 className="text-xl font-bold text-foreground">用户管理</h1>
           <p className="text-xs text-muted-foreground mt-0.5">共 {total} 个用户</p>
         </div>
         <form method="get" className="relative">
