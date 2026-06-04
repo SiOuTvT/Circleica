@@ -39,8 +39,8 @@ export default async function AdminAnnouncementsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="w-full space-y-4">
-      <h1 className="text-lg font-bold text-foreground">公告管理</h1>
+    <div className="w-full space-y-6">
+      <h1 className="text-xl font-bold text-foreground">公告管理</h1>
       <AnnouncementsManager initialAnns={initial} />
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/announcements" />
     </div>
