@@ -885,6 +885,15 @@ main > * {
   scrollbar-color: var(--muted-foreground) transparent;
 }
 
+/* ── 隐藏滚动条（画廊缩略图等） ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── 焦点环 - 简洁聚焦指示 ── */
 *:focus-visible {
   outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
