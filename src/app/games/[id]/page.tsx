@@ -92,6 +92,16 @@ export default async function GameDetailPage({
 
   const tags = game.tags.map((t) => t.tag)
 
+  // 获取"资源标签"组颜色（用于资源下载区）
+  let resourceTagColor = "#22c55e"
+  try {
+    const group = await prisma.tagGroup.findFirst({
+      where: { id: "preset_resource_tab" },
+      select: { color: true },
+    })
+    if (group?.color) resourceTagColor = group.color
+  } catch {}
+
   // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）
   const resourceTags: string[] = [...new Set(
     game.resources.flatMap((r) => {
@@ -356,6 +366,7 @@ export default async function GameDetailPage({
             studioName={game.studioName ?? undefined}
             username={session?.user?.name || undefined}
             userAvatar={session?.user?.image || null}
+            resourceTagColor={resourceTagColor}
           />
       </div>
 
