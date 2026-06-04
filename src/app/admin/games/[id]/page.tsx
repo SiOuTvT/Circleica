@@ -47,8 +47,8 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="w-full space-y-5">
-      <h1 className="text-lg font-bold text-foreground">编辑游戏</h1>
+    <div className="w-full space-y-6">
+      <h1 className="text-xl font-bold text-foreground">编辑游戏</h1>
       <GameForm tags={tags} tagGroups={tagGroups} initialData={gameData} gameId={id} />
       <GameLogManager gameId={id} />
     </div>
