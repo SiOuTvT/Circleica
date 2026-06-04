@@ -244,7 +244,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             {/* 工具栏 */}
             <div className="flex items-center gap-1 border-t border-border/50 px-2 py-1.5">
               <button type="button" onClick={() => fileRef.current?.click()}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 title="上传图片">
                 <ImageIcon className="h-4 w-4" strokeWidth={1.5} />
               </button>
@@ -253,7 +253,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <div className="relative">
                 <button type="button" onClick={() => setShowEmoji(!showEmoji)}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                    "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
                     showEmoji
                       ? "bg-secondary text-primary"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"

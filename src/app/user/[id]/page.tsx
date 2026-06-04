@@ -150,8 +150,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
               <div className="px-6 py-8 flex flex-col items-center text-center">
 
                 {/* 头像（居中） */}
-                <div className={user.banner ? "-mt-22 mb-5" : "mb-5"}>
-                  <div className="relative" style={{ width: 130, height: 130 }}>
+                <div className={user.banner ? "-mt-16 sm:-mt-22 mb-4 sm:mb-5" : "mb-4 sm:mb-5"}>
+                  <div className="relative h-[100px] w-[100px] sm:h-[130px] sm:w-[130px]">
                     {/* 优先使用合成头像，回退到原始头像 */}
                     {user.composedAvatarUrl ? (
                       <SafeAvatar
@@ -169,7 +169,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                       />
                     ) : (
                       <div
-                        className="flex h-full w-full items-center justify-center rounded-full text-[2.8rem] font-bold text-white"
+                        className="flex h-full w-full items-center justify-center rounded-full text-2xl sm:text-[2.8rem] font-bold text-white"
                         style={{ backgroundColor: getRandomAvatarColor(user.username) }}
                       >
                         {user.username[0].toUpperCase()}
@@ -209,7 +209,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </p>
 
                 {/* 关注 / 粉丝（增加间距） */}
-                <div className="mt-6 flex items-center justify-center gap-12">
+                <div className="mt-4 sm:mt-6 flex items-center justify-center gap-8 sm:gap-12">
                   <div className="flex flex-col items-center">
                     <span className="text-lg font-bold text-foreground">{user._count.following}</span>
                     <span className="text-xs text-muted-foreground mt-0.5">关注</span>
@@ -221,7 +221,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
 
                 {/* 收藏 / 评论 / 玩过（带图标，间距增大） */}
-                <div className="mt-6 flex items-center justify-center gap-10">
+                <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
                       <Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} />

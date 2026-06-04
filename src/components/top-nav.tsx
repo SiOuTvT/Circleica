@@ -271,7 +271,7 @@ export function TopNav() {
               <div ref={userRef} className="relative ml-1">
                 <button
                   onClick={() => setUserOpen(v => !v)}
-                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 lg:h-10 lg:w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
                       ? <img src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
@@ -317,13 +317,13 @@ export function TopNav() {
                     </button>
 
                     <button onClick={toggleNsfw}
-                      className="flex w-full items-center justify-between px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                      className="flex w-full items-center justify-between px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                       <span className="flex items-center gap-3">
                         <ShieldAlert className="h-5 w-5 shrink-0" strokeWidth={2} />
                         NSFW 内容
                       </span>
-                      <div className={cn("relative h-5 w-9 rounded-full transition-colors", nsfw ? "bg-red-500/60" : "bg-muted")}>
-                        <div className={cn("absolute top-0.5 h-4 w-4 rounded-full shadow transition-transform", nsfw ? "translate-x-4 bg-white" : "translate-x-0.5 bg-muted-foreground")} />
+                      <div className={cn("relative h-6 w-11 rounded-full transition-colors", nsfw ? "bg-red-500/60" : "bg-muted")}>
+                        <div className={cn("absolute top-0.5 h-5 w-5 rounded-full shadow transition-transform", nsfw ? "translate-x-5 bg-white" : "translate-x-0.5 bg-muted-foreground")} />
                       </div>
                     </button>
 
@@ -421,7 +421,7 @@ function ForumSidebarPosts() {
     <div className="space-y-0.5">
       {posts.map(p => (
         <Link key={p.id} href={`/forum?post=${p.id}`}
-          className="block w-full rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent">
+          className="block w-full rounded-lg px-3 py-3 text-left transition-colors hover:bg-accent">
           <p className="mb-0.5 text-[10px] text-muted-foreground">{p.user.username}</p>
           <p className="line-clamp-2 text-xs font-medium text-foreground">{p.title}</p>
         </Link>
