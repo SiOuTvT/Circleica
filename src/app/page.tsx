@@ -45,6 +45,17 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
+
+  // 获取"首页卡片标签"组的颜色
+  let cardTagColor = "#6b7280"
+  try {
+    const homeCardTag = await prisma.tagGroup.findFirst({
+      where: { positions: { contains: "home_card" } },
+      select: { color: true },
+    })
+    if (homeCardTag?.color) cardTagColor = homeCardTag.color
+  } catch {}
+
   const mapped = games.map((g) => {
     // downloadLinks 是 JSON 字符串，需要解析为对象数组
     let downloadLinks: { label?: string; url: string; platform?: string }[] = []
@@ -54,16 +65,22 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         downloadLinks = parsed
       }
     } catch { /* ignore */ }
-    // 从资源中收集去重的 resourceTags
-    const resourceTags: string[] = [...new Set(
-      g.resources.flatMap((r) => {
-        const items: string[] = []
-        try { items.push(...JSON.parse(r.language)) } catch { console.warn("[HomePage] Failed to parse resource language") }
-        try { items.push(...JSON.parse(r.runType)) } catch { console.warn("[HomePage] Failed to parse resource runType") }
-        try { items.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[HomePage] Failed to parse resourceContent") }
-        return items
-      })
-    )]
+    // 从资源中收集去重的 resourceTags（统一颜色）
+    const seen = new Set<string>()
+    const resourceTags: { name: string; color: string }[] = []
+    for (const r of g.resources) {
+      for (const field of [r.language, r.runType, r.resourceContent]) {
+        try {
+          const arr: string[] = JSON.parse(field)
+          for (const name of arr) {
+            if (!seen.has(name)) {
+              seen.add(name)
+              resourceTags.push({ name, color: cardTagColor })
+            }
+          }
+        } catch {}
+      }
+    }
 
     return {
       ...g,
