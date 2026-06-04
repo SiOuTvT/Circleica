@@ -56,8 +56,24 @@ export default function SiteSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-6 w-6 animate-pulse rounded bg-muted" />
+          <div className="h-7 w-24 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+          <div className="h-6 w-32 animate-pulse rounded bg-muted" />
+          <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+          <div className="flex items-center gap-4">
+            <div className="h-40 w-28 animate-pulse rounded-lg bg-muted" />
+            <div className="flex flex-col gap-2">
+              <div className="h-9 w-24 animate-pulse rounded bg-muted" />
+              <div className="h-9 w-24 animate-pulse rounded bg-muted" />
+            </div>
+          </div>
+          <div className="h-9 w-full animate-pulse rounded bg-muted" />
+          <div className="h-9 w-24 animate-pulse rounded bg-muted" />
+        </div>
       </div>
     )
   }
@@ -66,7 +82,7 @@ export default function SiteSettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
         <Settings className="h-6 w-6 text-muted-foreground" />
-        <h1 className="text-2xl font-bold">站点设置</h1>
+        <h1 className="text-xl font-bold">站点设置</h1>
       </div>
 
       {/* 默认占位图 */}
