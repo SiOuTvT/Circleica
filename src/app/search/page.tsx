@@ -191,7 +191,12 @@ export default async function SearchPage({
   const nsfw  = sp.nsfw === "1"
   const page  = Math.max(1, parseInt(sp.page || "1"))
 
-  const tags = await prisma.tag.findMany({ orderBy: { name: "asc" } })
+  const rawTags = await prisma.tag.findMany({
+    orderBy: { name: "asc" },
+    include: { group: { select: { color: true } } },
+  })
+  // 使用标签组颜色替代标签自身颜色
+  const tags = rawTags.map(t => ({ ...t, color: t.group?.color || t.color }))
 
   function buildHref(overrides: Record<string, string>) {
     const p = new URLSearchParams()
