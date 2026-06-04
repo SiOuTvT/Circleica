@@ -37,7 +37,7 @@ const TOOLTIP_STYLE_LIGHT = {
 
 export function AdminCharts({ gamesByDay, usersByDay, commentsByDay }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <ChartCard title="新增游戏" data={gamesByDay} color="#f472b6" type="bar" />
       <ChartCard title="新增用户" data={usersByDay} color="#a78bfa" type="line" />
       <ChartCard title="新增评论" data={commentsByDay} color="#22D3EE" type="bar" />
@@ -60,7 +60,7 @@ function ChartCard({ title, data, color, type }: {
         <p className="text-xs font-medium text-muted-foreground">{title}</p>
         <p className="text-lg font-bold text-foreground">{total}</p>
       </div>
-      <ResponsiveContainer width="100%" height={80}>
+      <ResponsiveContainer width="100%" height={180}>
         {type === "bar"
           ? <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
