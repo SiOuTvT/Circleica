@@ -15,7 +15,7 @@ export interface GameCardData {
   viewCount?: number
   downloadCount?: number
   downloadLinks?: { label?: string; url: string; tags?: string[] }[]
-  resourceTags?: string[]
+  resourceTags?: string[] | { name: string; color: string }[]
   updatedAt?: Date | string
   createdAt?: Date | string
   isNsfw: boolean
@@ -58,7 +58,9 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   const favStr = fmtNum(game.favoriteCount)
 
   // 使用 resourceTags（来自资源表的 language/runType/resourceContent 去重合并）
-  const paramTags = game.resourceTags ?? []
+  const rawTags = game.resourceTags ?? []
+  // 兼容旧格式 string[] 和新格式 {name, color}[]
+  const paramTags = rawTags.map(t => typeof t === "string" ? { name: t, color: "" } : t)
 
   return (
     <Link
@@ -142,13 +144,18 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
         {/* 第3行：标签 */}
         {paramTags.length > 0 && (
-          <div className="game-card-tags flex flex-wrap items-center gap-2 flex-shrink-0">
+          <div className="game-card-tags flex flex-wrap items-center gap-1.5 flex-shrink-0">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="game-card-tag inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
+                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
+                style={{
+                  background: tag.color ? `${tag.color}18` : undefined,
+                  color: tag.color || undefined,
+                  border: tag.color ? `1px solid ${tag.color}30` : undefined,
+                }}
               >
-                {tag}
+                {tag.name}
               </span>
             ))}
           </div>
