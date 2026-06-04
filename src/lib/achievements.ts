@@ -14,6 +14,54 @@ export type ConditionType =
   | "register_days"      // 注册天数
 
 /**
+ * 计算连续签到天数
+ * 从今天开始向前回溯，计算连续签到的天数
+ */
+async function calculateCheckinStreak(userId: string): Promise<number> {
+  // 获取用户所有签到日期，按日期降序排列
+  const checkins = await prisma.checkIn.findMany({
+    where: { userId },
+    orderBy: { date: "desc" },
+    select: { date: true },
+  })
+
+  if (checkins.length === 0) return 0
+
+  // 使用 Asia/Shanghai 时区计算今天
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+
+  // 如果今天没有签到，从昨天开始检查
+  let streak = 0
+  let currentDate = new Date(today)
+
+  // 如果最新签到不是今天也不是昨天，连续签到中断
+  const latestCheckin = checkins[0].date
+  const yesterday = new Date(currentDate)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = yesterday.toISOString().slice(0, 10)
+
+  if (latestCheckin !== today && latestCheckin !== yesterdayStr) {
+    return 0
+  }
+
+  // 如果最新签到是昨天，从昨天开始计算
+  if (latestCheckin === yesterdayStr) {
+    currentDate = yesterday
+  }
+
+  // 创建一个 Set 用于快速查找
+  const checkinDates = new Set(checkins.map(c => c.date))
+
+  // 从当前日期向前回溯
+  while (checkinDates.has(currentDate.toISOString().slice(0, 10))) {
+    streak++
+    currentDate.setDate(currentDate.getDate() - 1)
+  }
+
+  return streak
+}
+
+/**
  * 获取用户当前的统计数据
  */
 async function getUserStats(userId: string) {
@@ -23,7 +71,7 @@ async function getUserStats(userId: string) {
   })
   if (!user) return null
 
-  const [favoriteCount, commentCount, playCount, checkinCount, forumPostCount, forumLikeReceived] =
+  const [favoriteCount, commentCount, playCount, checkinCount, forumPostCount, forumLikeReceived, checkinStreak] =
     await Promise.all([
       prisma.favorite.count({ where: { userId } }),
       prisma.comment.count({ where: { userId } }),
@@ -34,6 +82,8 @@ async function getUserStats(userId: string) {
       prisma.forumPostLike.count({
         where: { post: { userId } },
       }),
+      // 计算连续签到天数
+      calculateCheckinStreak(userId),
     ])
 
   // 计算注册天数
@@ -46,7 +96,7 @@ async function getUserStats(userId: string) {
     comment_count: commentCount,
     play_count: playCount,
     checkin_count: checkinCount,
-    checkin_streak: checkinCount, // TODO: 需要单独计算连续签到
+    checkin_streak: checkinStreak,
     forum_post_count: forumPostCount,
     forum_like_received: forumLikeReceived,
     register_days: registerDays,
