@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
-import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
+
+export const dynamic = "force-dynamic"
 
 const DEFAULTS: Record<string, string[]> = {
   resource_platforms: ["Windows", "Android", "iOS", "MacOS", "Linux", "其他"],
@@ -9,31 +10,23 @@ const DEFAULTS: Record<string, string[]> = {
   resource_content_types: ["游戏本体", "补丁资源", "番外资源", "游戏存档", "其他"],
 }
 
-const getCachedTags = unstable_cache(
-  async () => {
-    const keys = Object.keys(DEFAULTS)
-    const settings = await prisma.siteSetting.findMany({
-      where: { key: { in: keys } },
-    })
-    const map = new Map(settings.map(s => [s.key, s.value]))
-
-    const result: Record<string, string[]> = {}
-    for (const key of keys) {
-      const raw = map.get(key)
-      if (raw) {
-        try { result[key] = JSON.parse(raw) } catch { result[key] = DEFAULTS[key] }
-      } else {
-        result[key] = DEFAULTS[key]
-      }
-    }
-    return result
-  },
-  ["resource-tags"],
-  { revalidate: 60, tags: ["resource-tags"] }
-)
-
-// GET: 获取所有资源标签选项（公开接口）
+// GET: 获取所有资源标签选项（公开接口，无缓存，管理员修改后立即生效）
 export async function GET() {
-  const tags = await getCachedTags()
-  return NextResponse.json(tags)
+  const keys = Object.keys(DEFAULTS)
+  const settings = await prisma.siteSetting.findMany({
+    where: { key: { in: keys } },
+  })
+  const map = new Map(settings.map(s => [s.key, s.value]))
+
+  const result: Record<string, string[]> = {}
+  for (const key of keys) {
+    const raw = map.get(key)
+    if (raw) {
+      try { result[key] = JSON.parse(raw) } catch { result[key] = DEFAULTS[key] }
+    } else {
+      result[key] = DEFAULTS[key]
+    }
+  }
+
+  return NextResponse.json(result)
 }

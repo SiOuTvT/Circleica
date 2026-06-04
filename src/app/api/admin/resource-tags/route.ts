@@ -79,9 +79,13 @@ export async function PUT(req: NextRequest) {
     }
     const field = fieldMap[key]
     if (field) {
+      // 查找所有包含任意被删除标签的资源
+      const likeConditions = removedTags.map(() => `"${field}" LIKE $1`).join(' OR ')
+      const likeParams = removedTags.map(t => `%${t}%`)
+
       const resources = await prisma.$queryRawUnsafe<{ id: string; tags: string }[]>(
-        `SELECT id, "${field}" as tags FROM "GameResource" WHERE "${field}" LIKE $1`,
-        `%${removedTags[0]}%`
+        `SELECT id, "${field}" as tags FROM "GameResource" WHERE ${likeConditions}`,
+        ...likeParams
       )
 
       for (const resource of resources) {
