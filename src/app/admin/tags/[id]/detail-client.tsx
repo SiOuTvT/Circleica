@@ -64,7 +64,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
             onClick={() => { setHexInput(c); onChange(c) }}
             className={`h-8 w-8 rounded-full transition-all ${
               value.toLowerCase() === c.toLowerCase()
-                ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
+                ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
                 : "hover:scale-110"
             }`}
             style={{ background: c }}
@@ -226,14 +226,14 @@ export function TagGroupDetailClient({
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/admin/tags")}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-violet-500/40 hover:bg-violet-500/5 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-primary/40 hover:bg-primary/5 transition-all cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           返回
         </button>
         <div className="flex items-center gap-2">
           <div className="h-3.5 w-3.5 rounded-full" style={{ background: group.color }} />
-          <h1 className="text-base font-semibold text-foreground">{group.name}</h1>
+          <h1 className="text-xl font-bold text-foreground">{group.name}</h1>
           {group.isPreset && (
             <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">内置</span>
           )}
@@ -273,12 +273,12 @@ export function TagGroupDetailClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…"
-            className="w-full rounded-lg bg-secondary pl-9 pr-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
+            className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full sm:w-48"
           />
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-1.5 rounded-lg bg-violet-500/10 text-violet-400 px-3 py-1.5 text-xs font-medium ring-1 ring-violet-500/20 hover:bg-violet-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all cursor-pointer"
         >
           {showCreate ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           {showCreate ? "收起" : "新建标签"}
@@ -300,7 +300,7 @@ export function TagGroupDetailClient({
           <button
             onClick={handleCreateTag}
             disabled={saving || !newTagName.trim()}
-            className="flex items-center gap-1.5 rounded-lg bg-violet-500 text-white px-4 py-1.5 text-xs font-medium hover:bg-violet-600 transition-all disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
             创建标签
@@ -321,11 +321,11 @@ export function TagGroupDetailClient({
             <div key={tag.id} className="group/capsule relative">
               {/* 胶囊主体 */}
               <div
-                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border transition-all duration-200 hover:ring-violet-500/50 hover:shadow-md cursor-default select-none"
+                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-md cursor-default select-none"
               >
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
                 <span className="text-xs font-medium text-foreground">{tag.name}</span>
-                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 rounded-full bg-muted/60 px-1.5 text-[10px] font-semibold text-muted-foreground transition-all duration-200 group-hover/capsule:bg-violet-500 group-hover/capsule:text-white">
+                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 rounded-full bg-muted/60 px-1.5 text-[10px] font-semibold text-muted-foreground transition-all duration-200 group-hover/capsule:bg-primary group-hover/capsule:text-primary-foreground">
                   {tag.gameCount}
                 </span>
                 {tag.isVisible === false && (
