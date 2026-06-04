@@ -9,6 +9,22 @@ import { Suspense } from "react"
 
 type SortKey = "newest" | "popular" | "mostFaved"
 
+interface GameWithTag {
+  id: string
+  serialId: number
+  title: string
+  coverImage: string | null
+  status: string
+  isNsfw: boolean
+  favoriteCount: number
+  viewCount: number
+  downloadCount: number
+  downloadLinks: string | null
+  updatedAt: Date
+  createdAt: Date
+  tags: { tag: { name: string; color: string } }[]
+}
+
 const SORT_OPTIONS: { key: SortKey; label: string; icon: typeof Clock }[] = [
   { key: "newest",    label: "最新",   icon: Clock },
   { key: "popular",  label: "最热",   icon: TrendingUp },
@@ -45,7 +61,7 @@ async function SearchResults({
   const limit = 24
   const skip = (page - 1) * limit
 
-  let rawGames: any[] = []
+  let rawGames: GameWithTag[] = []
   let total = 0
   try {
     const [gamesResult, countResult] = await Promise.all([
@@ -82,13 +98,14 @@ async function SearchResults({
 
   const games = rawGames.map((g) => ({
     ...g,
+    coverImage: g.coverImage ?? "",
     downloadLinks: parseDlLinks(g.downloadLinks),
-    tags: g.tags.map((t: any) => t.tag),
+    tags: g.tags.map((t) => t.tag),
   }))
 
   if (!games.length) {
     // 搜索无结果时推荐热门游戏
-    let rawRecommended: any[] = []
+    let rawRecommended: GameWithTag[] = []
     try {
       rawRecommended = await prisma.game.findMany({
         where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
@@ -109,8 +126,9 @@ async function SearchResults({
 
     const recommended = rawRecommended.map((g) => ({
       ...g,
+      coverImage: g.coverImage ?? "",
       downloadLinks: parseDlLinks(g.downloadLinks),
-      tags: g.tags.map((t: any) => t.tag),
+      tags: g.tags.map((t) => t.tag),
     }))
 
     return (
