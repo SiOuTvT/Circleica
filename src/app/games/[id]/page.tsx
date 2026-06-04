@@ -206,12 +206,12 @@ export default async function GameDetailPage({
               overflow: "hidden",
             }}
           >
-            {/* ①号位：封面图 3:2，融入卡片顶部 */}
+            {/* ①号位：封面图 16:10，融入卡片顶部 */}
             <div className="shrink-0 min-w-0">
               <div
                 className="relative overflow-hidden w-full"
                   style={{
-                  aspectRatio: "17 / 9",
+                  aspectRatio: "16 / 10",
                   borderRadius: "12px 12px 0 0",
                 }}
               >
