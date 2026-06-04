@@ -25,7 +25,7 @@ export default async function VNDBImportPage() {
       </div>
 
       <div>
-        <h1 className="text-lg font-bold text-foreground">VNDB 批量导入</h1>
+        <h1 className="text-xl font-bold text-foreground">VNDB 批量导入</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           从 VNDB 自动导入同人视觉小说数据，系统会验证作品信息并创建草稿。
         </p>
