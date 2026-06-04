@@ -7,6 +7,7 @@ import {
   CheckCheck,
   Heart,
   MessageSquare,
+  RefreshCw,
   Trash2,
   UserPlus,
 } from "lucide-react"
@@ -119,6 +120,21 @@ export default function NotificationsClient({
     setLoadingMore(false)
   }, [nextCursor, loadingMore])
 
+  const refresh = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch("/api/notifications")
+      if (res.ok) {
+        const data = await res.json()
+        setNotifications(data.notifications ?? [])
+        setNextCursor(data.nextCursor)
+      }
+    } catch {
+      // ignore
+    }
+    setLoading(false)
+  }, [])
+
   async function markRead(ids: string[]) {
     try {
       await fetch("/api/notifications", {
@@ -216,11 +232,11 @@ export default function NotificationsClient({
         <div className="mb-6 flex items-center gap-3">
           <Link
             href="/"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <Bell className="h-5 w-5 text-muted-foreground" />
             <h1 className="text-xl font-bold text-foreground">
               消息中心
@@ -231,6 +247,14 @@ export default function NotificationsClient({
               </span>
             )}
           </div>
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
+            title="刷新"
+          >
+            <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+          </button>
         </div>
 
         {/* Filter Tabs */}
@@ -267,7 +291,7 @@ export default function NotificationsClient({
                 setSelectMode(!selectMode)
                 setSelectedIds(new Set())
               }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground hover:bg-secondary hover:text-foreground"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               {selectMode ? "取消选择" : "管理"}
             </button>
@@ -275,7 +299,7 @@ export default function NotificationsClient({
               <>
                 <button
                   onClick={toggleSelectAll}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground hover:bg-secondary hover:text-foreground"
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 >
                   {selectedIds.size === filteredNotifications.length
                     ? "取消全选"
@@ -306,7 +330,7 @@ export default function NotificationsClient({
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={loading}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-400 hover:text-red-500"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-500"
             >
               清空全部
             </button>
@@ -335,12 +359,12 @@ export default function NotificationsClient({
                     !n.isRead
                       ? "bg-card/80"
                       : "hover:bg-secondary/40"
-                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/10 bg-primary/5" : ""}`}
+                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/5" : ""}`}
                 >
                   {selectMode && (
                     <button
                       onClick={() => toggleSelect(n.id)}
-                      className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-zinc-600 transition-colors border-border"
+                      className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border transition-colors"
                     >
                       {selectedIds.has(n.id) && (
                         <Check className="h-3 w-3 text-primary" />
@@ -368,7 +392,7 @@ export default function NotificationsClient({
                       </Link>
                     )}
                     {!n.isRead && (
-                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black border-background bg-primary" />
+                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />
                     )}
                   </div>
 
