@@ -96,9 +96,9 @@ export default function AdminAvatarFramesPage() {
       }
       setShowDialog(false)
       loadFrames()
-    } catch (error: any) {
+    } catch (error) {
       console.error("保存头像框失败:", error)
-      toast.error(error?.message || "保存失败")
+      toast.error(error instanceof Error ? error.message : "保存失败")
     } finally {
       setSaving(false)
     }
@@ -109,9 +109,9 @@ export default function AdminAvatarFramesPage() {
     try {
       await api.delete(`/api/admin/avatar-frames/${id}`)
       loadFrames()
-    } catch (error: any) {
+    } catch (error) {
       console.error("删除头像框失败:", error)
-      toast.error(error?.message || "删除失败")
+      toast.error(error instanceof Error ? error.message : "删除失败")
     } finally {
       setDeleting(null)
     }
@@ -121,7 +121,7 @@ export default function AdminAvatarFramesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">头像框管理</h1>
+          <h1 className="text-xl font-bold text-foreground">头像框管理</h1>
           <p className="text-sm text-muted-foreground mt-1">
             管理用户可选择的头像框，图片应为透明背景的 PNG
           </p>
@@ -171,7 +171,7 @@ export default function AdminAvatarFramesPage() {
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded ${
                       frame.isPublic
-                        ? "bg-green-500/20 text-green-400"
+                        ? "bg-emerald-500/20 text-emerald-400"
                         : "bg-red-500/20 text-red-400"
                     }`}
                   >
