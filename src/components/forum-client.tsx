@@ -456,17 +456,17 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
         
         <RichTextContent html={post.content} />
         
-        {post.imageUrl && <Image src={post.imageUrl} alt={post.title} width={480} height={320} className="mt-3 rounded-xl object-cover" />}
+        {post.imageUrl && <Image src={post.imageUrl} alt={post.title} width={480} height={320} className="mt-3 max-w-full rounded-xl object-cover" sizes="(max-width: 640px) 100vw, 480px" />}
 
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <button onClick={onLikePost} disabled={!isLoggedIn}
-            className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-primary disabled:opacity-40">
+            className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-primary disabled:opacity-40">
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
             <button onClick={onToggleSolve}
               className={cn(
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs ring-1 transition-all",
+                "flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
                 post.isSolved
                   ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
                   : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
@@ -477,7 +477,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
           )}
           {(isAuthor || isAdmin) && (
             <button onClick={onDeletePost}
-              className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
+              className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
             </button>
           )}
@@ -505,12 +505,12 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <button onClick={() => onLikeComment(c.id)} disabled={!isLoggedIn}
-                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-primary disabled:opacity-40">
+                    className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-primary disabled:opacity-40">
                     <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                   </button>
                   {(currentUserId === c.user.id || isAdmin) && (
                     <button onClick={() => onDeleteComment(c.id)}
-                      className="flex items-center gap-1 px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-red-400">
+                      className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-red-400">
                       <Trash2 className="h-3 w-3" strokeWidth={1.5} />删除
                     </button>
                   )}
@@ -536,18 +536,18 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             <form onSubmit={onSubmitComment} className="flex gap-2 items-center">
               <div className="relative flex items-center gap-1">
                 <button type="button" onClick={() => commentFileRef.current?.click()}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground shrink-0"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground shrink-0"
                   aria-label="上传图片">
-                  <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
+                  <ImageIcon className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                 </button>
                 <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={onCommentImage} />
-                
+
                 <div className="relative">
                   <button type="button" onClick={() => setShowCommentEmoji(!showCommentEmoji)}
                     className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-lg transition-colors shrink-0",
-                      showCommentEmoji 
-                        ? "bg-secondary text-primary" 
+                      "flex h-11 w-11 items-center justify-center rounded-lg transition-colors shrink-0",
+                      showCommentEmoji
+                        ? "bg-secondary text-primary"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                     aria-label="表情"
@@ -572,11 +572,11 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 </div>
               </div>
               <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="写下评论…"
-                className="flex-1 rounded-xl bg-secondary px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
+                className="flex-1 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all min-h-[44px]" />
               <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
                 aria-label="发送评论"
-                className="flex items-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
-                <Send className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
+                <Send className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               </button>
             </form>
           </div>
