@@ -1,5 +1,7 @@
 "use client"
 
+import { useId } from "react"
+
 /**
  * 头像框组件
  * 支持两种模式：
@@ -64,6 +66,7 @@ export function AvatarFrame({
 
 /** 史莱姆主题头像框 */
 function SlimeFrame({ size, className = "", children }: { size: number; className?: string; children?: React.ReactNode }) {
+  const id = useId()
   const containerSize = Math.round(size * 1.35)
   const slimeSize = Math.round(size * 0.55)
 
@@ -90,17 +93,17 @@ function SlimeFrame({ size, className = "", children }: { size: number; classNam
         viewBox="0 0 100 100"
       >
         <defs>
-          <linearGradient id="slime-ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${id}-slime-ring-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
             <stop offset="50%" stopColor="#7DD3FC" stopOpacity="0.6" />
             <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.8" />
           </linearGradient>
-          <filter id="slime-ring-glow">
+          <filter id={`${id}-slime-ring-glow`}>
             <feGaussianBlur stdDeviation="1" />
           </filter>
         </defs>
-        <circle cx="50" cy="53" r="38" fill="none" stroke="url(#slime-ring-grad)" strokeWidth="2" filter="url(#slime-ring-glow)" opacity="0.4" />
-        <circle cx="50" cy="53" r="36" fill="none" stroke="url(#slime-ring-grad)" strokeWidth="1.8" />
+        <circle cx="50" cy="53" r="38" fill="none" stroke={`url(#${id}-slime-ring-grad)`} strokeWidth="2" filter={`url(#${id}-slime-ring-glow)`} opacity="0.4" />
+        <circle cx="50" cy="53" r="36" fill="none" stroke={`url(#${id}-slime-ring-grad)`} strokeWidth="1.8" />
         <circle cx="50" cy="53" r="34.5" fill="none" stroke="#7DD3FC" strokeWidth="0.4" opacity="0.4" />
       </svg>
 
@@ -111,6 +114,7 @@ function SlimeFrame({ size, className = "", children }: { size: number; classNam
 
 /** 可爱的蓝色史莱姆，趴在右上角 */
 function SlimeOnCorner({ size, containerSize }: { size: number; containerSize: number }) {
+  const id = useId()
   return (
     <div
       className="pointer-events-none absolute"
@@ -123,16 +127,16 @@ function SlimeOnCorner({ size, containerSize }: { size: number; containerSize: n
     >
       <svg viewBox="0 0 80 80" width={size} height={size}>
         <defs>
-          <radialGradient id="slime-body" cx="45%" cy="35%" r="55%">
+          <radialGradient id={`${id}-slime-body`} cx="45%" cy="35%" r="55%">
             <stop offset="0%" stopColor="#7DD3FC" />
             <stop offset="40%" stopColor="#38BDF8" />
             <stop offset="100%" stopColor="#0284C7" />
           </radialGradient>
-          <radialGradient id="slime-highlight" cx="35%" cy="25%" r="30%">
+          <radialGradient id={`${id}-slime-highlight`} cx="35%" cy="25%" r="30%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="slime-shadow" cx="50%" cy="80%" r="40%">
+          <radialGradient id={`${id}-slime-shadow`} cx="50%" cy="80%" r="40%">
             <stop offset="0%" stopColor="#0369A1" stopOpacity="0.5" />
             <stop offset="100%" stopColor="#0369A1" stopOpacity="0" />
           </radialGradient>
@@ -140,7 +144,7 @@ function SlimeOnCorner({ size, containerSize }: { size: number; containerSize: n
 
         <path
           d="M40 10 C55 10, 70 22, 70 40 C70 52, 65 60, 60 65 Q52 72, 40 72 Q28 72, 20 65 C15 60, 10 52, 10 40 C10 22, 25 10, 40 10Z"
-          fill="url(#slime-body)"
+          fill={`url(#${id}-slime-body)`}
           stroke="#0EA5E9"
           strokeWidth="0.8"
         >
@@ -154,8 +158,8 @@ function SlimeOnCorner({ size, containerSize }: { size: number; containerSize: n
           />
         </path>
 
-        <ellipse cx="40" cy="58" rx="20" ry="8" fill="url(#slime-shadow)" opacity="0.4" />
-        <ellipse cx="32" cy="28" rx="12" ry="8" fill="url(#slime-highlight)" />
+        <ellipse cx="40" cy="58" rx="20" ry="8" fill={`url(#${id}-slime-shadow)`} opacity="0.4" />
+        <ellipse cx="32" cy="28" rx="12" ry="8" fill={`url(#${id}-slime-highlight)`} />
 
         <ellipse cx="32" cy="38" rx="7" ry="8" fill="white" />
         <ellipse cx="33" cy="38" rx="5" ry="6" fill="#1E293B" />
