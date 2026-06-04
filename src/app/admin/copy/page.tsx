@@ -101,7 +101,7 @@ export default function CopyEditorPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-lg font-bold text-foreground">文案管理</h1>
+        <h1 className="text-xl font-bold text-foreground">文案管理</h1>
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
@@ -115,7 +115,7 @@ export default function CopyEditorPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold text-foreground">文案管理</h1>
+          <h1 className="text-xl font-bold text-foreground">文案管理</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             自定义前台显示的文字，留空则使用默认值
           </p>
@@ -145,7 +145,7 @@ export default function CopyEditorPage() {
       </div>
 
       {Object.entries(categories).map(([category, items]) => (
-        <div key={category} className="rounded-2xl bg-card ring-1 ring-border p-5 space-y-4">
+        <div key={category} className="rounded-xl bg-card ring-1 ring-border p-5 space-y-4">
           <h2 className="text-sm font-semibold text-foreground">{category}</h2>
           <div className="space-y-3">
             {items.map(entry => {
