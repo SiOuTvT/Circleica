@@ -2,6 +2,7 @@
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { cn } from "@/lib/utils"
+import { X } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useCallback, useEffect, useState, useTransition } from "react"
 
@@ -107,7 +108,9 @@ export function AvatarFrameSelector({
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h3 className="text-base font-semibold text-foreground">选择头像框</h3>
-              <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground text-lg">×</button>
+              <button onClick={() => setOpen(false)} className="flex h-11 w-11 items-center justify-center text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             <div className="p-5 max-h-[70vh] overflow-y-auto">
