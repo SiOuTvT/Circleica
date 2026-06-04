@@ -1,4 +1,4 @@
-import { ForumClient } from "@/components/forum-client"
+import { ForumClient, type Post as ForumPost } from "@/components/forum-client"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -8,7 +8,7 @@ export const metadata = { title: "求档区 · 同人游戏站" }
 export default async function ForumPage() {
   const session = await auth()
 
-  let posts: any[] = []
+  let posts: ForumPost[] = []
   let totalPosts = 0
   try {
     const limit = 20
@@ -23,7 +23,17 @@ export default async function ForumPage() {
       }),
       prisma.forumPost.count(),
     ])
-    posts = fetchedPosts
+    posts = fetchedPosts.map((p) => ({
+      id: p.id,
+      title: p.title,
+      content: p.content,
+      imageUrl: p.imageUrl ?? "",
+      likeCount: p.likeCount,
+      isSolved: p.isSolved,
+      createdAt: p.createdAt.toISOString(),
+      user: { id: p.user.id, username: p.user.username, avatar: p.user.avatar ?? "" },
+      commentCount: p._count.comments,
+    }))
     totalPosts = count
   } catch (error) {
     console.error("[ForumPage] Database query failed:", error)
@@ -31,23 +41,11 @@ export default async function ForumPage() {
 
   const totalPages = Math.ceil(totalPosts / 20)
 
-  const initialPosts = posts.map((p) => ({
-    id: p.id,
-    title: p.title,
-    content: p.content,
-    imageUrl: p.imageUrl,
-    likeCount: p.likeCount,
-    isSolved: p.isSolved,
-    createdAt: p.createdAt.toISOString(),
-    user: p.user,
-    commentCount: p._count.comments,
-  }))
-
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
 
   return (
     <ForumClient
-      initialPosts={initialPosts}
+      initialPosts={posts}
       isLoggedIn={!!session?.user}
       currentUser={session?.user ? { id: session.user.id!, username: session.user.name ?? "", avatar: session.user.image ?? "" } : null}
       isAdmin={isAdmin}
