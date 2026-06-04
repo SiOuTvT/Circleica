@@ -265,6 +265,13 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowEmoji(false)} />
                     <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card bg-card p-3 ring-1 ring-border shadow-2xl">
+                      <div className="mb-2 flex items-center justify-between">
+                        <p className="text-xs font-medium text-foreground">选择表情</p>
+                        <button type="button" onClick={() => setShowEmoji(false)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
                       {EMOJI_CATEGORIES.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
                           <p className="mb-1.5 text-[10px] font-medium text-muted-foreground">{cat.name}</p>
