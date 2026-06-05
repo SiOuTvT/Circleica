@@ -119,8 +119,14 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
   }
 
   /* ── 删除 ── */
-  const handleDelete = async (id: string) => {
-    await fetch(`/api/admin/emotional-messages/${id}`, { method: "DELETE" })
+  const handleDelete = async () => {
+    if (!confirmDeleteId) return
+    const res = await fetch(`/api/admin/emotional-messages/${confirmDeleteId}`, { method: "DELETE" })
+    if (res.ok) {
+      toast.success("已删除")
+    } else {
+      toast.error("删除失败")
+    }
     setConfirmDeleteId(null)
     refresh()
   }
@@ -176,7 +182,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Field label="Key (唯一标识)">
-              <input value={newItem.key} onChange={e => setNewItem(p => ({ ...p, key: e.target.value }))} placeholder="e.g. favorite_added" className="em-input" />
+              <input value={newItem.key} onChange={e => setNewItem(p => ({ ...p, key: e.target.value }))} placeholder="如：favorite_added" className="em-input" />
             </Field>
             <Field label="分类">
               <select value={newItem.category} onChange={e => setNewItem(p => ({ ...p, category: e.target.value }))} className="em-input">
@@ -291,16 +297,6 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                   </div>
                 )}
 
-                {/* 删除确认 */}
-                {confirmDeleteId === item.id && (
-                  <div className="mt-3 flex items-center gap-3 rounded-lg bg-red-500/5 px-4 py-2 ring-1 ring-red-500/20">
-                    <span className="text-xs text-red-400">确定删除这条消息？</span>
-                    <button onClick={() => handleDelete(item.id)}
-                      className="ml-auto rounded-lg bg-red-500 px-3 py-1 text-xs font-semibold text-white hover:bg-red-600">确定</button>
-                    <button onClick={() => setConfirmDeleteId(null)}
-                      className="rounded-lg px-3 py-1 text-xs text-muted-foreground hover:bg-accent">取消</button>
-                  </div>
-                )}
               </div>
             )
           })}
@@ -313,6 +309,16 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
         title="初始化预设消息"
         description="将初始化全部预设情感消息（已存在的 key 会跳过），确定？"
         onConfirm={handleSeed}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onOpenChange={(open) => { if (!open) setConfirmDeleteId(null) }}
+        title="删除情感消息"
+        description="确定删除这条消息？删除后不可恢复。"
+        confirmText="删除"
+        variant="destructive"
+        onConfirm={handleDelete}
       />
     </div>
   )

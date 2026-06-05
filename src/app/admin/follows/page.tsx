@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Search, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
+import Image from "next/image"
+import Link from "next/link"
 
 const FollowDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FollowDeleteBtn })), {
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
@@ -73,14 +75,17 @@ export default async function AdminFollowsPage({
               key={follow.id}
               className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/80 text-sm font-bold text-primary-foreground">
-                {follow.follower.username.charAt(0).toUpperCase()}
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
+                {follow.follower.avatar
+                  ? <Image src={follow.follower.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
+                  : <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary-foreground">{follow.follower.username.charAt(0).toUpperCase()}</div>
+                }
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground">
-                  {follow.follower.username}
+                  <Link href={`/admin/users?q=${encodeURIComponent(follow.follower.username)}`} className="hover:underline">{follow.follower.username}</Link>
                   <span className="mx-2 text-muted-foreground">关注了</span>
-                  {follow.following.username}
+                  <Link href={`/admin/users?q=${encodeURIComponent(follow.following.username)}`} className="hover:underline">{follow.following.username}</Link>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(follow.createdAt).toLocaleString("zh-CN")}

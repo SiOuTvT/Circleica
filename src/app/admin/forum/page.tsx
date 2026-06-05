@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 
 const ForumDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.ForumDeleteBtn })), {
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
@@ -13,21 +14,33 @@ export const metadata = { title: "论坛管理 · 管理后台" }
 export default async function AdminForumPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string }>
+  searchParams: Promise<{ page?: string; q?: string; status?: string }>
 }) {
   await requireAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
   const q = sp.q?.trim() ?? ""
+  const status = sp.status?.trim() ?? ""
   const limit = 20
   const skip = (page - 1) * limit
 
-  const where = q ? {
+  const searchCondition = q ? {
     OR: [
       { title:   { contains: q, mode: "insensitive" as const } },
       { content: { contains: q, mode: "insensitive" as const } },
     ]
   } : {}
+
+  const statusCondition = status === "solved"
+    ? { isSolved: true }
+    : status === "unsolved"
+    ? { isSolved: false }
+    : {}
+
+  const where = {
+    ...searchCondition,
+    ...statusCondition,
+  }
 
   const [posts, total] = await Promise.all([
     prisma.forumPost.findMany({
@@ -60,6 +73,34 @@ export default async function AdminForumPage({
           <input name="q" defaultValue={q} placeholder="搜索帖子…" aria-label="搜索帖子"
             className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
         </form>
+      </div>
+
+      {/* Status filter tabs */}
+      <div className="flex items-center gap-1">
+        {[
+          { key: "", label: "全部" },
+          { key: "unsolved", label: "未解决" },
+          { key: "solved", label: "已解决" },
+        ].map(({ key, label }) => {
+          const href = `/admin/forum?${new URLSearchParams({
+            ...(q && { q }),
+            ...(key && { status: key }),
+          }).toString()}`
+          const isActive = status === key
+          return (
+            <Link
+              key={key}
+              href={href}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {label}
+            </Link>
+          )
+        })}
       </div>
 
       {posts.length === 0 ? (
@@ -95,7 +136,7 @@ export default async function AdminForumPage({
                   <ForumDeleteBtn id={post.id} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-                  <span>by {post.user.username}</span>
+                  <span>发布者：{post.user.username}</span>
                   <span>·</span>
                   <span>{new Date(post.createdAt).toLocaleDateString("zh-CN")}</span>
                   <span>·</span>
@@ -115,7 +156,10 @@ export default async function AdminForumPage({
         currentPage={page}
         totalPages={totalPages}
         baseUrl="/admin/forum"
-        extraParams={q ? { q } : undefined}
+        extraParams={{
+          ...(q && { q }),
+          ...(status && { status }),
+        }}
       />
     </div>
   )
