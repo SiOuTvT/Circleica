@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { RotateCcw, Save } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -21,6 +22,8 @@ export default function CopyEditorPage() {
   const [saving, setSaving] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [changedKeys, setChangedKeys] = useState<Set<string>>(new Set())
+
+  useUnsavedChanges(changedKeys.size > 0)
 
   useEffect(() => {
     fetch("/api/admin/copy")

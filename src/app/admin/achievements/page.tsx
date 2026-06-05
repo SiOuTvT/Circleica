@@ -2,6 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
@@ -42,13 +43,15 @@ const CATEGORIES = [
   { value: "special", label: "特殊" },
 ]
 
-const inputCls = "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+const inputCls = "w-full rounded-xl bg-muted px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
 
 export default function AdminAchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Partial<Achievement> | null>(null)
   const [saving, setSaving] = useState(false)
+
+  useUnsavedChanges(editing !== null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -134,7 +137,7 @@ export default function AdminAchievementsPage() {
             <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
           </div>
 
-          <div className="flex gap-5">
+          <div className="flex flex-col gap-5 md:flex-row">
             {/* 左侧：图片上传 */}
             <div className="flex gap-4 shrink-0">
               <div className="w-[100px]">
@@ -161,16 +164,16 @@ export default function AdminAchievementsPage() {
 
             {/* 右侧：表单 */}
             <div className="flex-1 space-y-3 min-w-0">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="名称"><input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className={inputCls} placeholder="成就名称" /></Field>
                 <Field label="分类"><select value={editing.category ?? "general"} onChange={(e) => setEditing({ ...editing, category: e.target.value })} className={inputCls}>{CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
                 <Field label="条件类型"><select value={editing.conditionType ?? "favorite_count"} onChange={(e) => setEditing({ ...editing, conditionType: e.target.value })} className={inputCls}>{CONDITION_TYPES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
                 <Field label="目标值"><input type="number" value={editing.conditionTarget ?? 1} onChange={(e) => setEditing({ ...editing, conditionTarget: Number(e.target.value) })} className={inputCls} min={1} /></Field>
                 <Field label="积分"><input type="number" value={editing.points ?? 10} onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })} className={inputCls} min={1} /></Field>
-                <Field label="描述"><textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={cn(inputCls, "min-h-[56px] resize-y")} placeholder="成就描述" /></Field>
+                <div className="col-span-2"><Field label="描述"><textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={cn(inputCls, "min-h-[56px] resize-y")} placeholder="成就描述" /></Field></div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" checked={editing.hidden !== false} onChange={(e) => setEditing({ ...editing, hidden: e.target.checked })} className="rounded" />隐藏</label>
                   <label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" checked={editing.isActive !== false} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} className="rounded" />启用</label>
@@ -189,6 +192,7 @@ export default function AdminAchievementsPage() {
 
       {/* 列表 */}
       <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -232,6 +236,7 @@ export default function AdminAchievementsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ConfirmDialog

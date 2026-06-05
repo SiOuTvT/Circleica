@@ -13,20 +13,35 @@ export const metadata = { title: "签到记录 · 管理后台" }
 export default async function AdminCheckInsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string }>
+  searchParams: Promise<{ page?: string; q?: string; from?: string; to?: string }>
 }) {
   await requireAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
   const q = sp.q?.trim() ?? ""
+  const from = sp.from?.trim() ?? ""
+  const to = sp.to?.trim() ?? ""
   const limit = 20
   const skip = (page - 1) * limit
 
-  const where = q ? {
+  const searchCondition = q ? {
     user: {
       username: { contains: q, mode: "insensitive" as const },
     },
   } : {}
+
+  const dateCondition: Record<string, unknown> = {}
+  if (from || to) {
+    dateCondition.createdAt = {
+      ...(from ? { gte: new Date(from) } : {}),
+      ...(to ? { lte: new Date(to + "T23:59:59.999Z") } : {}),
+    }
+  }
+
+  const where = {
+    ...searchCondition,
+    ...dateCondition,
+  }
 
   const [checkIns, total] = await Promise.all([
     prisma.checkIn.findMany({
@@ -53,10 +68,21 @@ export default async function AdminCheckInsPage({
             {total} 条记录
           </span>
         </div>
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
-            className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+        <form method="get" className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+            <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
+              className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+          </div>
+          <input type="date" name="from" defaultValue={from} aria-label="开始日期"
+            className="rounded-xl bg-muted px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+          <span className="text-xs text-muted-foreground">至</span>
+          <input type="date" name="to" defaultValue={to} aria-label="结束日期"
+            className="rounded-xl bg-muted px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+          <button type="submit"
+            className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90">
+            筛选
+          </button>
         </form>
       </div>
 
@@ -93,7 +119,11 @@ export default async function AdminCheckInsPage({
         currentPage={page}
         totalPages={totalPages}
         baseUrl="/admin/checkins"
-        extraParams={q ? { q } : undefined}
+        extraParams={{
+          ...(q && { q }),
+          ...(from && { from }),
+          ...(to && { to }),
+        }}
       />
     </div>
   )
