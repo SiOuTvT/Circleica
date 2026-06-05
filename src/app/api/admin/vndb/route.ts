@@ -1,4 +1,5 @@
 import { getAdminSession } from "@/lib/admin"
+import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { prisma } from "@/lib/prisma"
 import { cleanTags } from "@/lib/vndb-tags"
 import { NextRequest, NextResponse } from "next/server"
@@ -75,6 +76,9 @@ export async function POST(req: NextRequest) {
   if (!(await getAdminSession())) {
     return NextResponse.json({ error: "无权限" }, { status: 403 })
   }
+
+  // 确保预设标签组存在（VNDB 导入会引用 preset_detail_header）
+  await ensurePresetTagGroups()
 
   const { vndbId } = await req.json()
   if (!vndbId?.trim()) {

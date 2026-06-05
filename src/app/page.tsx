@@ -104,14 +104,22 @@ export default async function HomePage({
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
 
+  // 获取发现页标签组的颜色（用于首页标签云）
+  const discoverGroup = await prisma.tagGroup.findUnique({
+    where: { id: "preset_discover" },
+    select: { color: true },
+  }).catch(() => null)
+  const discoverColor = discoverGroup?.color || "#a78bfa"
+
   let tags: { id: string; name: string; color: string }[] = []
   let total = 0
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
   let hotGames: { id: string; serialId: number; title: string; coverImage: string; status: string; isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number; downloadLinks: string; updatedAt: Date; createdAt: Date; tags: { tag: { name: string; color: string } }[]; resources: { language: string; runType: string; resourceContent: string }[] }[] = []
 
   try {
-    ;[tags, total, announcements, hotGames] = await Promise.all([
-      prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    const rawTags = await prisma.tag.findMany({ orderBy: { name: "asc" } })
+    tags = rawTags.map(t => ({ id: t.id, name: t.name, color: discoverColor }))
+    ;[total, announcements, hotGames] = await Promise.all([
       prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
       prisma.announcement.findMany({
         where: { isActive: true },

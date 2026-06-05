@@ -1,9 +1,13 @@
 import { getAdminSession } from "@/lib/admin"
+import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+
+  // 确保预设标签组存在
+  await ensurePresetTagGroups()
   const tags = await prisma.tag.findMany({
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     include: {
@@ -16,6 +20,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+
+  // 确保预设标签组存在（创建标签时可能引用默认组）
+  await ensurePresetTagGroups()
+
   const { name, description, color, groupId, sortOrder, isVisible } = await req.json()
   if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
 
