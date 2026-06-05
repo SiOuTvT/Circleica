@@ -1,8 +1,10 @@
 "use client"
 
-import { KeyRound, Link2, Loader2, Shield, ShieldOff, Copy, X } from "lucide-react"
+import { KeyRound, Link2, Loader2, Shield, ShieldOff, Copy } from "lucide-react"
 import Image from "next/image"
-import React, { useState, useCallback } from "react"
+import React, { useState } from "react"
+import { toast } from "sonner"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 interface UserItem {
   id: string; username: string; email: string; role: string
@@ -21,22 +23,13 @@ function getRoleConfig(role: string) {
   return ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || ROLE_CONFIG.USER
 }
 
-// ── 消息类型 ──
-type MsgType = "success" | "error" | "info"
-interface FlashMsg { text: string; type: MsgType }
-
 export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
   const [users, setUsers] = useState(initialUsers)
   const [resetId, setResetId] = useState<string | null>(null)
   const [newPwd, setNewPwd] = useState("")
   const [saving, setSaving] = useState(false)
-  const [msg, setMsg] = useState<FlashMsg | null>(null)
   const [resetLink, setResetLink] = useState<string | null>(null)
-
-  const flash = useCallback((text: string, type: MsgType = "success") => {
-    setMsg({ text, type })
-    setTimeout(() => setMsg(null), 4000)
-  }, [])
+  const [roleConfirm, setRoleConfirm] = useState<{id: string, current: string} | null>(null)
 
   async function resetPassword(id: string) {
     if (!newPwd.trim()) return
@@ -48,15 +41,15 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
         body: JSON.stringify({ newPassword: newPwd }),
       })
       if (res.ok) {
-        flash("密码已重置", "success")
+        toast.success("密码已重置")
         setResetId(null)
         setNewPwd("")
       } else {
         const d = await res.json()
-        flash(d.error || "操作失败", "error")
+        toast.error(d.error || "操作失败")
       }
     } catch {
-      flash("网络错误", "error")
+      toast.error("网络错误")
     } finally {
       setSaving(false)
     }
@@ -67,17 +60,19 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
       const res = await fetch(`/api/admin/users/${id}`, { method: "POST" })
       const data = await res.json()
       if (res.ok) setResetLink(data.resetUrl)
-      else flash(data.error || "操作失败", "error")
+      else toast.error(data.error || "操作失败")
     } catch {
-      flash("网络错误", "error")
+      toast.error("网络错误")
     }
   }
 
-  async function toggleRole(id: string, current: string) {
+  async function confirmRoleChange() {
+    if (!roleConfirm) return
+    const { id, current } = roleConfirm
     let role: string
     if (current === "USER") role = "ADMIN"
     else if (current === "ADMIN") role = "USER"
-    else { flash("站长角色不能通过此按钮修改", "error"); return }
+    else { setRoleConfirm(null); return }
 
     try {
       const res = await fetch(`/api/admin/users/${id}`, {
@@ -87,40 +82,28 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
       })
       if (res.ok) {
         setUsers(p => p.map(u => u.id === id ? { ...u, role } : u))
-        flash(`已${role === "ADMIN" ? "设为管理员" : "撤销管理员"}`, "success")
+        toast.success(`已${role === "ADMIN" ? "设为管理员" : "撤销管理员"}`)
       } else {
         const d = await res.json()
-        flash(d.error || "操作失败", "error")
+        toast.error(d.error || "操作失败")
       }
     } catch {
-      flash("网络错误", "error")
+      toast.error("网络错误")
     }
+    setRoleConfirm(null)
   }
 
   async function copyToClipboard(text: string) {
     try {
       await navigator.clipboard.writeText(text)
-      flash("已复制到剪贴板", "success")
+      toast.success("已复制到剪贴板")
     } catch {
-      flash("复制失败", "error")
+      toast.error("复制失败")
     }
-  }
-
-  const msgStyles = {
-    success: "bg-emerald-500/10 text-emerald-600 light:text-emerald-700 ring-emerald-500/20",
-    error: "bg-red-500/10 text-red-600 light:text-red-700 ring-red-500/20",
-    info: "bg-blue-500/10 text-blue-600 light:text-blue-700 ring-blue-500/20",
   }
 
   return (
     <div className="space-y-3">
-      {/* 消息提示 */}
-      {msg && (
-        <div className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm ring-1 ${msgStyles[msg.type]}`}>
-          {msg.text}
-        </div>
-      )}
-
       {/* 重置链接卡片 */}
       {resetLink && (
         <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -146,6 +129,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
 
       {/* 用户表格 */}
       <div className="overflow-hidden rounded-xl bg-card ring-1 ring-border">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left">
@@ -231,7 +215,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                         </button>
                         {u.role !== "SUPER_ADMIN" && (
                           <button
-                            onClick={() => toggleRole(u.id, u.role)}
+                            onClick={() => setRoleConfirm({id: u.id, current: u.role})}
                             className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                               u.role === "ADMIN"
                                 ? "text-red-500 hover:bg-red-500/10"
@@ -288,7 +272,16 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
             })}
           </tbody>
         </table>
+        </div>
       </div>
+      <ConfirmDialog
+        open={!!roleConfirm}
+        onOpenChange={v => !v && setRoleConfirm(null)}
+        title={roleConfirm?.current === "ADMIN" ? "撤销管理员" : "设为管理员"}
+        description={roleConfirm?.current === "ADMIN" ? "确定要撤销该用户的管理员权限吗？" : "确定要将该用户设为管理员吗？"}
+        confirmText="确定"
+        onConfirm={confirmRoleChange}
+      />
     </div>
   )
 }
