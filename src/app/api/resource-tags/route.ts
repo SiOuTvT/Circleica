@@ -1,3 +1,4 @@
+import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -12,6 +13,9 @@ const DEFAULTS: Record<string, string[]> = {
 
 // GET: 获取所有资源标签选项（公开接口，无缓存，管理员修改后立即生效）
 export async function GET() {
+  // 确保资源标签数据存在（首次访问时自动创建）
+  await ensureResourceTags()
+
   const keys = Object.keys(DEFAULTS)
   const settings = await prisma.siteSetting.findMany({
     where: { key: { in: keys } },

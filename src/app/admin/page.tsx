@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { Download, Eye, Gamepad2, Users } from "lucide-react"
+import { Download, Eye, Gamepad2, Tag, Users } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
@@ -22,9 +22,12 @@ export default async function AdminDashboard() {
   const days = getLast14Days()
   const since = new Date(days[0])
 
+  const RESOURCE_TAG_KEYS = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+
   const [totalGames, published, totalUsers, totalViews, totalDownloads,
     recentGames, topGames, recentUsers,
-    newGames, newUsers, newComments] = await Promise.all([
+    newGames, newUsers, newComments,
+    totalGameTags, resourceTagSettings] = await Promise.all([
     prisma.game.count(),
     prisma.game.count({ where: { isPublished: true } }),
     prisma.user.count(),
@@ -36,7 +39,13 @@ export default async function AdminDashboard() {
     prisma.game.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
     prisma.comment.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
+    prisma.tag.count(),
+    prisma.siteSetting.findMany({ where: { key: { in: RESOURCE_TAG_KEYS } }, select: { value: true } }),
   ])
+
+  const totalResourceTags = resourceTagSettings.reduce((sum, s) => {
+    try { return sum + (JSON.parse(s.value) as unknown[]).length } catch { return sum }
+  }, 0)
 
   const today = new Date().toISOString().slice(0, 10)
   const todayNewUsers = newUsers.filter(u => u.createdAt.toISOString().slice(0, 10) === today).length
@@ -59,6 +68,7 @@ export default async function AdminDashboard() {
   const stats = [
     { icon: Gamepad2, label: "游戏总数", value: totalGames, sub: `${published} 已发布 · ${totalGames - published} 待审核`, href: "/admin/games" },
     { icon: Users, label: "注册用户", value: totalUsers, sub: todayNewUsers > 0 ? `今日 +${todayNewUsers}` : "今日无新增", href: "/admin/users" },
+    { icon: Tag, label: "游戏标签", value: totalGameTags, sub: `${totalResourceTags} 资源标签`, href: "/admin/tags" },
     { icon: Eye, label: "总浏览量", value: totalViews, sub: "所有游戏累计", href: undefined },
     { icon: Download, label: "总下载量", value: totalDownloads, sub: "所有游戏累计", href: undefined },
   ]
@@ -68,19 +78,23 @@ export default async function AdminDashboard() {
       <h1 className="text-xl font-bold text-foreground">仪表盘</h1>
 
       {/* 统计卡片 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {stats.map(({ icon: Icon, label, value, sub, href }) => (
-          <Link
-            key={label}
-            href={href || "#"}
-            className="rounded-xl bg-card p-5 ring-1 ring-border transition-all hover:ring-primary/30 hover:shadow-md"
-          >
-            <Icon className="mb-3 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-            <p className="text-2xl font-bold text-foreground">{fmtNum(value)}</p>
-            <p className="mt-1 text-xs font-medium text-foreground">{label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground/70">{sub}</p>
-          </Link>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {stats.map(({ icon: Icon, label, value, sub, href }) => {
+          const cls = "rounded-xl bg-card p-5 ring-1 ring-border transition-all hover:ring-primary/30 hover:shadow-md"
+          const inner = (
+            <>
+              <Icon className="mb-3 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+              <p className="text-2xl font-bold text-foreground">{fmtNum(value)}</p>
+              <p className="mt-1 text-xs font-medium text-foreground">{label}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground/70">{sub}</p>
+            </>
+          )
+          return href ? (
+            <Link key={label} href={href} className={cls}>{inner}</Link>
+          ) : (
+            <div key={label} className={cls}>{inner}</div>
+          )
+        })}
       </div>
 
       {/* 趋势图表 */}
@@ -141,7 +155,7 @@ export default async function AdminDashboard() {
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
                   {u.avatar
                     ? <img src={u.avatar} alt="" className="h-full w-full object-cover" />
-                    : <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">{u.username[0].toUpperCase()}</div>}
+                    : <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
                 </div>
                 <Link href={`/user/${u.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>
                 <span className="shrink-0 text-xs text-muted-foreground/70">{new Date(u.createdAt).toLocaleDateString("zh-CN")}</span>

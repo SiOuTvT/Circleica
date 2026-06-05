@@ -6,29 +6,29 @@ import { NextRequest, NextResponse } from "next/server"
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const { name, description, color, positions } = await req.json()
-  if (!name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
+  const body = await req.json()
 
   const existing = await prisma.tagGroup.findUnique({ where: { id } })
   if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
 
-  const dup = await prisma.tagGroup.findFirst({ where: { name: name.trim(), NOT: { id } } })
-  if (dup) return NextResponse.json({ error: "标签组名已存在" }, { status: 409 })
+  // 支持部分更新（如仅更新颜色）
+  const updateData: Record<string, unknown> = {}
 
-  // Validate positions
-  const validPositions = Array.isArray(positions)
-    ? positions.filter((p: string) => isValidPosition(p))
-    : undefined
+  if (body.name !== undefined) {
+    if (!body.name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
+    const dup = await prisma.tagGroup.findFirst({ where: { name: body.name.trim(), NOT: { id } } })
+    if (dup) return NextResponse.json({ error: "标签组名已存在" }, { status: 409 })
+    updateData.name = body.name.trim()
+  }
+  if (body.description !== undefined) updateData.description = body.description?.trim() ?? ""
+  if (body.color !== undefined) updateData.color = body.color
+  if (body.positions !== undefined) {
+    updateData.positions = JSON.stringify(
+      Array.isArray(body.positions) ? body.positions.filter((p: string) => isValidPosition(p)) : []
+    )
+  }
 
-  const group = await prisma.tagGroup.update({
-    where: { id },
-    data: {
-      name: name.trim(),
-      description: description?.trim() ?? "",
-      color: color ?? "#7c8a9e",
-      ...(validPositions !== undefined && { positions: JSON.stringify(validPositions) }),
-    },
-  })
+  const group = await prisma.tagGroup.update({ where: { id }, data: updateData })
   return NextResponse.json({ ...group, positions: JSON.parse(group.positions) })
 }
 

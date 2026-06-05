@@ -1,10 +1,9 @@
 "use client"
 
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { TAG_POSITIONS } from "@/lib/tag-positions"
-import { ArrowLeft, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
+import { ArrowLeft, Loader2, Pencil, Plus, Search, X } from "lucide-react"
+import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 /* ──────────────────── 类型 ──────────────────── */
@@ -37,13 +36,6 @@ interface AllGroup {
 
 /* ──────────────────── 常量 ──────────────────── */
 
-const PRESET_COLORS = [
-  "#7c8a9e", "#6b7280", "#9ca3af",
-  "#a78bfa", "#818cf8", "#60a5fa", "#38bdf8", "#22d3ee",
-  "#34d399", "#4ade80", "#facc15", "#fb923c", "#f87171",
-  "#e879f9", "#f472b6",
-]
-
 /* ──────────────────── 颜色选择器 ──────────────────── */
 
 function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
@@ -57,7 +49,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        {PRESET_COLORS.map((c) => (
+        {TAG_PRESET_COLORS.map((c) => (
           <button
             key={c}
             type="button"
@@ -100,7 +92,7 @@ export function TagGroupDetailClient({
   // 新建标签
   const [showCreate, setShowCreate] = useState(false)
   const [newTagName, setNewTagName] = useState("")
-  const [newTagColor, setNewTagColor] = useState(group.color || PRESET_COLORS[0])
+  const [newTagColor, setNewTagColor] = useState(group.color || TAG_PRESET_COLORS[0])
 
   // 编辑标签
   const [editingTag, setEditingTag] = useState<string | null>(null)
@@ -110,11 +102,19 @@ export function TagGroupDetailClient({
   const [editGroupId, setEditGroupId] = useState("")
   const [editSortOrder, setEditSortOrder] = useState(0)
   const [editVisible, setEditVisible] = useState(true)
+  const editPanelRef = useRef<HTMLDivElement>(null)
 
-  // 删除确认
-  const [deleteConfirm, setDeleteConfirm] = useState<{
-    id: string; name: string; count?: number; forceDelete?: boolean
-  } | null>(null)
+  // 点击外部关闭编辑面板
+  useEffect(() => {
+    if (!editingTag) return
+    function handleClick(e: MouseEvent) {
+      if (editPanelRef.current && !editPanelRef.current.contains(e.target as Node)) {
+        setEditingTag(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [editingTag])
 
   // 过滤
   const filteredTags = useMemo(() => {
@@ -180,7 +180,6 @@ export function TagGroupDetailClient({
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? "更新失败"); setSaving(false); return }
-      // 如果移到别的组，从当前列表移除
       if (data.groupId && data.groupId !== group.id) {
         setTags((prev) => prev.filter((t) => t.id !== editingTag))
         toast.success("已移动到其他标签组")
@@ -199,25 +198,6 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
-  async function handleDeleteTag(id: string, forceDelete = false) {
-    const method = forceDelete ? "PATCH" : "DELETE"
-    const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
-    const res = await fetch(`/api/admin/tags/${id}`, {
-      method,
-      headers: forceDelete ? { "Content-Type": "application/json" } : undefined,
-      body,
-    })
-    const data = await res.json()
-    if (res.ok) {
-      setTags((prev) => prev.filter((t) => t.id !== id))
-      toast.success("已删除")
-    } else if (data.confirm) {
-      setDeleteConfirm({ id, name: data.error, count: data.gameCount, forceDelete: true })
-    } else {
-      toast.error(data.error || "删除失败")
-    }
-  }
-
   const inputCls = "w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
 
   return (
@@ -234,32 +214,11 @@ export function TagGroupDetailClient({
         <div className="flex items-center gap-2">
           <div className="h-3.5 w-3.5 rounded-full" style={{ background: group.color }} />
           <h1 className="text-xl font-bold text-foreground">{group.name}</h1>
-          {group.isPreset && (
-            <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">内置</span>
-          )}
           <span className="text-xs text-muted-foreground">
-            {tags.length} 标签 · {tags.reduce((s, t) => s + t.gameCount, 0)} 关联
+            {tags.length} 标签
           </span>
         </div>
       </div>
-
-      {group.description && (
-        <p className="text-xs text-muted-foreground">{group.description}</p>
-      )}
-
-      {Array.isArray(group.positions) && group.positions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {group.positions.map((posKey: string) => {
-            const def = TAG_POSITIONS.find((p) => p.key === posKey)
-            if (!def) return null
-            return (
-              <span key={posKey} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-secondary text-muted-foreground ring-1 ring-border" title={def.description}>
-                {def.icon} {def.label}
-              </span>
-            )
-          })}
-        </div>
-      )}
 
       {error && (
         <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</div>
@@ -308,18 +267,17 @@ export function TagGroupDetailClient({
         </div>
       )}
 
-      {/* ── 标签胶囊流 ── */}
+      {/* ── 标签列表 ── */}
       {filteredTags.length === 0 ? (
         <div className="rounded-xl bg-card p-8 text-center ring-1 ring-border">
           <p className="text-sm text-muted-foreground">
-            {searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签，点击上方「新建标签」开始创建"}
+            {searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签"}
           </p>
         </div>
       ) : (
         <div className="flex flex-wrap gap-2">
           {filteredTags.map((tag) => (
             <div key={tag.id} className="group/capsule relative">
-              {/* 胶囊主体 */}
               <div
                 className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-md cursor-default select-none"
               >
@@ -331,30 +289,18 @@ export function TagGroupDetailClient({
                 {tag.isVisible === false && (
                   <span className="text-[10px] text-muted-foreground/50">隐藏</span>
                 )}
-                <div className="flex items-center gap-0.5 opacity-0 group-hover/capsule:opacity-100 transition-opacity duration-200 ml-0.5">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
-                    title="编辑"
-                    className="p-1 rounded hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setDeleteConfirm({ id: tag.id, name: tag.name, count: tag.gameCount })
-                    }}
-                    title="删除"
-                    className="p-1 rounded hover:bg-red-500/20 text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
+                  title="编辑"
+                  className="p-1 rounded hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer opacity-0 group-hover/capsule:opacity-100"
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
               </div>
 
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
-                <div className="absolute left-0 top-full mt-1.5 z-30 w-72 rounded-xl bg-card p-3.5 ring-1 ring-border shadow-xl shadow-black/30 space-y-2">
+                <div ref={editPanelRef} className="absolute left-0 top-full mt-1.5 z-30 w-72 rounded-xl bg-card p-3.5 ring-1 ring-border shadow-xl shadow-black/30 space-y-2">
                   <div className="flex gap-2">
                     <input
                       value={editName}
@@ -420,24 +366,6 @@ export function TagGroupDetailClient({
           ))}
         </div>
       )}
-
-      {/* ── 删除确认 ── */}
-      <ConfirmDialog
-        open={!!deleteConfirm}
-        onOpenChange={(v) => { if (!v) setDeleteConfirm(null) }}
-        onConfirm={() => {
-          if (deleteConfirm) handleDeleteTag(deleteConfirm.id, !!deleteConfirm.forceDelete)
-          setDeleteConfirm(null)
-        }}
-        title="删除标签"
-        description={
-          deleteConfirm?.count && deleteConfirm.count > 0
-            ? `标签「${deleteConfirm.name}」正被 ${deleteConfirm.count} 个游戏使用，删除后将解除所有关联。`
-            : `确定删除标签「${deleteConfirm?.name}」？`
-        }
-        confirmText="删除"
-        variant="destructive"
-      />
     </div>
   )
 }

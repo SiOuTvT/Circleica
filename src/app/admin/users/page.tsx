@@ -1,5 +1,5 @@
 import { Pagination } from "@/components/ui/pagination"
-import { requireAdmin } from "@/lib/admin"
+import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Search } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -15,7 +15,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ page?: string; q?: string }>
 }) {
-  await requireAdmin()
+  await requireSuperAdmin()
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
   const q = sp.q?.trim() ?? ""

@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "./button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./dialog"
 
@@ -33,6 +34,8 @@ export function ConfirmDialog({
     try {
       await onConfirm()
       onOpenChange(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "操作失败")
     } finally {
       setLoading(false)
     }

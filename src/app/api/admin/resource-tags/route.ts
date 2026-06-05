@@ -1,4 +1,5 @@
 import { getAdminSession } from "@/lib/admin"
+import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
@@ -21,6 +22,9 @@ const LABELS: Record<string, string> = {
 // GET: 获取所有资源标签选项
 export async function GET() {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
+
+  // 确保资源标签数据存在
+  await ensureResourceTags()
 
   const keys = Object.values(TAG_KEYS)
   const settings = await prisma.siteSetting.findMany({

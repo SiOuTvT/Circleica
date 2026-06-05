@@ -1,9 +1,9 @@
 "use client"
 
-import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, Loader2, Plus, Tags, Trash2 } from "lucide-react"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { ChevronDown, ExternalLink, FolderInput, Gamepad2, Layers, List, Tags } from "lucide-react"
+import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 /* ──────────────────── 类型 ──────────────────── */
@@ -35,6 +35,106 @@ interface GroupOption {
   color: string
 }
 
+/* ──────────────────── 颜色编辑弹窗 ──────────────────── */
+
+function ColorEditPopover({
+  color,
+  groupId,
+  onSaved,
+  onClose,
+}: {
+  color: string
+  groupId: string
+  onSaved: (newColor: string) => void
+  onClose: () => void
+}) {
+  const [value, setValue] = useState(color)
+  const [saving, setSaving] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  // 点击外部关闭
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [onClose])
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/tag-groups/${groupId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ color: value }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "保存失败")
+      } else {
+        onSaved(value)
+        toast.success("颜色已更新")
+      }
+    } catch {
+      toast.error("网络错误")
+    }
+    setSaving(false)
+  }
+
+  return (
+    <div
+      ref={ref}
+      className="absolute right-0 top-full mt-2 z-30 rounded-xl bg-card p-4 ring-1 ring-border shadow-xl shadow-black/30 space-y-3"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex flex-wrap gap-1.5">
+        {TAG_PRESET_COLORS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setValue(c)}
+            className={`h-6 w-6 rounded-full transition-all cursor-pointer ${
+              value.toLowerCase() === c.toLowerCase()
+                ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
+                : "hover:scale-110"
+            }`}
+            style={{ background: c }}
+          />
+        ))}
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="h-6 w-6 rounded-full cursor-pointer border-0 bg-transparent"
+        />
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="h-6 w-6 rounded-full ring-1 ring-border shrink-0" style={{ background: value }} />
+        <span className="text-xs font-mono text-muted-foreground">{value}</span>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || value.toLowerCase() === color.toLowerCase()}
+          className="flex-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50 cursor-pointer"
+        >
+          {saving ? "保存中…" : "保存"}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+        >
+          取消
+        </button>
+      </div>
+    </div>
+  )
+}
 
 /* ──────────────────── 主组件 ──────────────────── */
 
@@ -48,150 +148,33 @@ export function TagsOverviewClient({
   allGroups: GroupOption[]
 }) {
   const router = useRouter()
+  const [editingColorId, setEditingColorId] = useState<string | null>(null)
+  const [groupColors, setGroupColors] = useState<Record<string, string>>(
+    Object.fromEntries(groups.map((g) => [g.id, g.color]))
+  )
 
-  // 新建标签颜色组
-  const [showCreate, setShowCreate] = useState(false)
-  const [newName, setNewName] = useState("")
-  const [newDesc, setNewDesc] = useState("")
-  const [newColor, setNewColor] = useState("#6b7280")
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
-  const [deleting, setDeleting] = useState<string | null>(null)
-
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
-
-  async function handleDeleteGroup(id: string) {
-    setDeleteTarget(id)
-  }
-
-  async function confirmDeleteGroup() {
-    if (!deleteTarget) return
-    setDeleting(deleteTarget)
-    setDeleteTarget(null)
-    try {
-      const res = await fetch(`/api/admin/tag-groups/${deleteTarget}`, {
-        method: "DELETE",
-      })
-      if (res.ok) {
-        toast.success("标签组已删除")
-        router.refresh()
-      } else {
-        const data = await res.json()
-        toast.error(data.error || "删除失败")
-      }
-    } catch {
-      toast.error("删除失败")
-    } finally {
-      setDeleting(null)
-    }
-  }
-
-  async function handleCreateGroup() {
-    if (!newName.trim()) return
-    setSaving(true)
-    setError("")
-    try {
-      const res = await fetch("/api/admin/tag-groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newName.trim(),
-          description: newDesc,
-          color: newColor,
-          positions: [],
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "创建失败"); setSaving(false); return }
-      toast.success("标签组创建成功")
-      router.refresh()
-      setShowCreate(false)
-      setNewName("")
-      setNewDesc("")
-      setNewColor("#6b7280")
-    } catch { setError("网络错误") }
-    setSaving(false)
-  }
-
-  const PRESET_COLORS = [
-    "#6b7280", "#a78bfa", "#818cf8", "#60a5fa", "#38bdf8",
-    "#22d3ee", "#34d399", "#4ade80", "#facc15", "#fb923c",
-    "#f87171", "#e879f9", "#f472b6",
-  ]
+  const handleColorSaved = useCallback((groupId: string, newColor: string) => {
+    setGroupColors((prev) => ({ ...prev, [groupId]: newColor }))
+    setEditingColorId(null)
+  }, [])
 
   return (
     <div className="space-y-6">
-      {/* ── 页面标题 + 新建按钮 ── */}
+      {/* ── 页面标题 ── */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Tags className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">标签组颜色管理</h1>
+          <h1 className="text-xl font-bold text-foreground">标签组颜色</h1>
           <span className="text-sm text-muted-foreground">{groups.length} 个标签组</span>
         </div>
         <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all cursor-pointer"
+          onClick={() => router.push("/admin/tags/all")}
+          className="flex items-center gap-1.5 rounded-lg bg-secondary text-foreground px-3 py-1.5 text-xs font-medium ring-1 ring-border hover:ring-primary/40 transition-all cursor-pointer"
         >
-          <Plus className="h-3.5 w-3.5" />
-          新建标签颜色组
+          <List className="h-3.5 w-3.5" />
+          全部标签
         </button>
       </div>
-
-      {error && (
-        <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</div>
-      )}
-
-      {/* ── 新建标签颜色组表单 ── */}
-      {showCreate && (
-        <div className="rounded-xl bg-card p-4 ring-1 ring-border space-y-3">
-          <h2 className="text-sm font-semibold text-foreground">创建新标签颜色组</h2>
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="标签组名称"
-            className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring"
-            autoFocus
-            onKeyDown={(e) => { if (e.key === "Enter") handleCreateGroup(); if (e.key === "Escape") setShowCreate(false) }}
-          />
-          <input
-            value={newDesc}
-            onChange={(e) => setNewDesc(e.target.value)}
-            placeholder="描述（可选）"
-            className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring"
-          />
-          <div className="flex flex-wrap gap-1.5">
-            {PRESET_COLORS.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setNewColor(c)}
-                className={`h-6 w-6 rounded-full transition-all cursor-pointer ${
-                  newColor.toLowerCase() === c.toLowerCase()
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
-                    : "hover:scale-110"
-                }`}
-                style={{ background: c }}
-              />
-            ))}
-              <input type="color" value={newColor} onChange={(e) => setNewColor(e.target.value)} className="h-6 w-6 rounded-full cursor-pointer border-0 bg-transparent" />
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleCreateGroup}
-              disabled={saving || !newName.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {saving ? "创建中…" : "创建"}
-            </button>
-            <button
-              onClick={() => setShowCreate(false)}
-              className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              取消
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── 标签组卡片网格 ── */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -202,35 +185,35 @@ export function TagsOverviewClient({
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group/card text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="group/card relative text-left rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
-            {/* 顶部：色条 + 组名 */}
+            {/* 顶部：色块 + 组名 */}
             <div className="flex items-center gap-3 mb-3">
-              <div
-                className="h-8 w-8 rounded-lg shrink-0 transition-transform duration-200 group-hover/card:scale-110"
-                style={{ background: g.color }}
-              />
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-foreground truncate">{g.name}</h3>
-                {g.isPreset && (
-                  <span className="text-xs text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">内置</span>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="h-8 w-8 rounded-lg shrink-0 transition-transform duration-200 group-hover/card:scale-110 cursor-pointer"
+                  style={{ background: groupColors[g.id] }}
+                  title="编辑颜色"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setEditingColorId(editingColorId === g.id ? null : g.id)
+                  }}
+                />
+                {editingColorId === g.id && (
+                  <ColorEditPopover
+                    color={groupColors[g.id]}
+                    groupId={g.id}
+                    onSaved={(c) => handleColorSaved(g.id, c)}
+                    onClose={() => setEditingColorId(null)}
+                  />
                 )}
               </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-foreground truncate">{g.name}</h3>
+              </div>
               <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover/card:opacity-100 transition-opacity" />
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id) }}
-                disabled={deleting === g.id}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground opacity-0 group-hover/card:opacity-100 transition-all hover:bg-red-500/10 hover:text-red-400"
-                title="删除标签组"
-              >
-                {deleting === g.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-              </button>
             </div>
-
-            {/* 描述 */}
-            {g.description && (
-              <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{g.description}</p>
-            )}
 
             {/* 统计行 */}
             <div className="flex items-center gap-4 text-xs">
@@ -247,7 +230,7 @@ export function TagsOverviewClient({
         ))}
       </div>
 
-      {/* ── 未分组标签区域（VNDB导入等产生的标签） ── */}
+      {/* ── 未分组标签区域 ── */}
       {ungroupedTags.length > 0 && (
         <UngroupedTagsSection
           tags={ungroupedTags}
@@ -255,16 +238,6 @@ export function TagsOverviewClient({
           onAssigned={() => router.refresh()}
         />
       )}
-
-      <ConfirmDialog
-        open={!!deleteTarget}
-        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
-        title="删除标签组"
-        description="确定要删除这个标签组吗？该操作不可撤销。"
-        variant="destructive"
-        confirmText="确认删除"
-        onConfirm={confirmDeleteGroup}
-      />
     </div>
   )
 }
@@ -284,8 +257,21 @@ function UngroupedTagsSection({
   const [assigningId, setAssigningId] = useState<string | null>(null)
   const [assignTarget, setAssignTarget] = useState("")
   const [assignLoading, setAssignLoading] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const VISIBLE = 12
   const visible = expanded ? tags : tags.slice(0, VISIBLE)
+
+  // 点击外部关闭分配下拉
+  useEffect(() => {
+    if (!assigningId) return
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setAssigningId(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [assigningId])
 
   async function handleAssign(tagId: string) {
     if (!assignTarget) return
@@ -328,10 +314,9 @@ function UngroupedTagsSection({
           </button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">这些标签由 VNDB 导入或手动创建时未分配到标签组，点击分配按钮将其归类。</p>
       <div className="flex flex-wrap gap-2">
         {visible.map((t) => (
-          <div key={t.id} className="relative group/tag">
+          <div key={t.id} ref={assigningId === t.id ? dropdownRef : undefined} className="relative group/tag">
             <button
               type="button"
               onClick={() => {
@@ -345,10 +330,8 @@ function UngroupedTagsSection({
               <span className="text-[10px] opacity-60">({t.gameCount})</span>
               <FolderInput className="h-3 w-3 opacity-40 group-hover/tag:opacity-100 transition-opacity" />
             </button>
-            {/* 分配下拉 */}
             {assigningId === t.id && (
               <div className="absolute top-full left-0 mt-1 z-20 bg-popover rounded-xl p-3 ring-1 ring-border shadow-xl min-w-[200px] space-y-2">
-                <p className="text-[11px] text-muted-foreground">选择目标标签组：</p>
                 <select
                   value={assignTarget}
                   onChange={(e) => setAssignTarget(e.target.value)}

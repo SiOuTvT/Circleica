@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/admin"
+import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { SmilePlus } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -10,7 +10,7 @@ const EmotionalMessagesManager = dynamic(() => import("./manager").then(m => ({ 
 export const metadata = { title: "情感消息管理 · 管理后台" }
 
 export default async function EmotionalMessagesPage() {
-  await requireAdmin()
+  await requireSuperAdmin()
   const items = await prisma.emotionalMessage.findMany({
     orderBy: [{ category: "asc" }, { key: "asc" }],
   })

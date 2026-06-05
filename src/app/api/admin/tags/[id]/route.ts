@@ -7,25 +7,29 @@ type Ctx = { params: Promise<{ id: string }> }
 export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const { name, description, color, groupId, sortOrder, isVisible } = await req.json()
-  if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
+  const body = await req.json()
 
   const existing = await prisma.tag.findUnique({ where: { id } })
   if (!existing) return NextResponse.json({ error: "标签不存在" }, { status: 404 })
 
-  const dup = await prisma.tag.findFirst({ where: { name: name.trim(), NOT: { id } } })
-  if (dup) return NextResponse.json({ error: "标签名已存在" }, { status: 409 })
+  // 支持部分更新
+  const updateData: Record<string, unknown> = {}
+
+  if (body.name !== undefined) {
+    if (!body.name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
+    const dup = await prisma.tag.findFirst({ where: { name: body.name.trim(), NOT: { id } } })
+    if (dup) return NextResponse.json({ error: "标签名已存在" }, { status: 409 })
+    updateData.name = body.name.trim()
+  }
+  if (body.description !== undefined) updateData.description = body.description?.trim() ?? ""
+  if (body.color !== undefined) updateData.color = body.color
+  if (body.groupId !== undefined) updateData.groupId = body.groupId || null
+  if (body.sortOrder !== undefined) updateData.sortOrder = typeof body.sortOrder === "number" ? body.sortOrder : 0
+  if (body.isVisible !== undefined) updateData.isVisible = body.isVisible !== false
 
   const tag = await prisma.tag.update({
     where: { id },
-    data: {
-      name: name.trim(),
-      description: description?.trim() ?? "",
-      color: color ?? "#a78bfa",
-      groupId: groupId || null,
-      sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
-      isVisible: isVisible !== false,
-    },
+    data: updateData,
     include: { _count: { select: { games: true } } },
   })
   return NextResponse.json({ ...tag, gameCount: tag._count.games })
@@ -60,6 +64,8 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
 
   // 强制删除
   if (forceDelete) {
+    const tag = await prisma.tag.findUnique({ where: { id } })
+    if (!tag) return NextResponse.json({ error: "标签不存在" }, { status: 404 })
     await prisma.tag.delete({ where: { id } })
     return NextResponse.json({ ok: true })
   }

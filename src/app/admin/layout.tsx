@@ -1,5 +1,17 @@
-import { requireAdmin } from "@/lib/admin"
+import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
 import dynamic from "next/dynamic"
+import { headers } from "next/headers"
+
+const SUPER_ADMIN_PATHS = [
+  "/admin/emotional-messages",
+  "/admin/resource-tags",
+  "/admin/users",
+  "/admin/avatar-frames",
+  "/admin/site-settings",
+  "/admin/achievements",
+  "/admin/copy",
+  "/admin/theme",
+]
 
 const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ default: m.AdminNav })), {
   loading: () => (
@@ -28,7 +40,16 @@ const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ def
 export const metadata = { title: "管理后台 · 同人游戏站" }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const hdrs = await headers()
+  const pathname = hdrs.get("x-next-pathname") || hdrs.get("x-invoke-path") || ""
+
+  // 先检查 ADMIN 权限
   await requireAdmin()
+
+  // SUPER_ADMIN 页面需要更高权限
+  if (SUPER_ADMIN_PATHS.some(p => pathname.startsWith(p))) {
+    await requireSuperAdmin()
+  }
 
   return (
     <div className="min-h-screen bg-background">
