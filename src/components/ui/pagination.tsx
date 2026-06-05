@@ -58,7 +58,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
   const pages = getPageNumbers(currentPage, totalPages)
 
   return (
-    <div className="flex items-center justify-center gap-1.5">
+    <nav aria-label="分页" className="flex items-center justify-center gap-1.5">
       {/* 上一页 */}
       {currentPage > 1 && (
         <Link
@@ -102,6 +102,6 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
           <ChevronRight className="h-4 w-4" />
         </Link>
       )}
-    </div>
+    </nav>
   )
 }
