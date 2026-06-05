@@ -63,7 +63,7 @@ export default async function AdminGamesPage({
           </Link>
           <Link
             href="/admin/games/new"
-            className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground ring-1 ring-border transition-all hover:opacity-90"
           >
             <Plus className="h-5 w-5" strokeWidth={2} />
             新增
