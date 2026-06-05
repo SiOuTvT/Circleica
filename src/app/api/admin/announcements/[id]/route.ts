@@ -14,6 +14,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   if ("isActive" in body) data.isActive = body.isActive
   if (body.title) data.title = body.title.trim()
   if (body.content) data.content = body.content.trim()
+  if ("imageUrl" in body) data.imageUrl = body.imageUrl?.trim() ?? ""
   if ("link" in body) data.link = body.link?.trim() ?? ""
 
   const ann = await prisma.announcement.update({ where: { id }, data })

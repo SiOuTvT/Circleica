@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { GripVertical, Plus, Save, X } from "lucide-react"
+import { ChevronUp, Plus, Save, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -137,7 +137,7 @@ export default function ResourceTagsPage() {
                       className="transition-opacity text-muted-foreground hover:text-foreground"
                       title="上移"
                     >
-                      <GripVertical className="h-4 w-4" />
+                      <ChevronUp className="h-4 w-4" />
                     </button>
                   )}
                   <span>{opt}</span>

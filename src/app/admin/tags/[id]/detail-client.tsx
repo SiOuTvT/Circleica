@@ -198,7 +198,7 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
-  const inputCls = "w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+  const inputCls = "w-full rounded-xl bg-muted px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
 
   return (
     <div className="space-y-6">
@@ -300,7 +300,7 @@ export function TagGroupDetailClient({
 
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
-                <div ref={editPanelRef} className="absolute left-0 top-full mt-1.5 z-30 w-72 rounded-xl bg-card p-3.5 ring-1 ring-border shadow-xl shadow-black/30 space-y-2">
+                <div ref={editPanelRef} className="absolute left-0 top-full mt-1.5 z-30 w-72 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3.5 ring-1 ring-border shadow-xl shadow-black/30 space-y-2">
                   <div className="flex gap-2">
                     <input
                       value={editName}
