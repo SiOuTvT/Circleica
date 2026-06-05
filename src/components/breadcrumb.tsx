@@ -25,7 +25,7 @@ const ROUTE_NAMES: Record<string, string> = {
   theme: "主题设置",
   announcements: "公告管理",
   music: "音乐管理",
-  tags: "标签组颜色",
+  tags: "标签管理",
   all: "全部标签",
   "tag-groups": "标签组管理",
   reports: "举报管理",
