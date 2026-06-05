@@ -121,7 +121,7 @@ export default function ResourceTagsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {groups.map(g => (
-          <div key={g.group} className="rounded-xl bg-card ring-1 ring-border p-6 space-y-5">
+          <div key={g.group} className="rounded-xl bg-card ring-1 ring-border p-5 space-y-5">
             <h2 className="text-base font-semibold text-foreground">{g.label}</h2>
 
             {/* 标签列表 */}

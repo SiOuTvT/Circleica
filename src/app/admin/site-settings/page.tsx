@@ -79,16 +79,16 @@ export default function SiteSettingsPage() {
           <div className="h-6 w-6 animate-pulse rounded bg-muted" />
           <div className="h-7 w-24 animate-pulse rounded bg-muted" />
         </div>
-        <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
         </div>
-        <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
         </div>
-        <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="flex items-center gap-4">
             <div className="h-40 w-28 animate-pulse rounded-lg bg-muted" />
@@ -111,7 +111,7 @@ export default function SiteSettingsPage() {
       </div>
 
       {/* 站点信息 */}
-      <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold">站点信息</h2>
@@ -143,7 +143,7 @@ export default function SiteSettingsPage() {
       </div>
 
       {/* 注册设置 */}
-      <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold">注册设置</h2>
@@ -176,7 +176,7 @@ export default function SiteSettingsPage() {
       </div>
 
       {/* 默认占位图 */}
-      <div className="rounded-xl bg-card p-6 ring-1 ring-border space-y-4">
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold">默认占位图</h2>

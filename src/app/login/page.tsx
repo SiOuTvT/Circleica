@@ -192,7 +192,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-accent disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "登录中…" : "登 录"}
@@ -222,7 +222,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-accent disabled:opacity-60"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}

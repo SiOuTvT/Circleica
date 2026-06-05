@@ -226,16 +226,16 @@ main > * {
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
   --theme-radius:  12px;
   --theme-alpha:   0.15;
-  --theme-r:       232;
-  --theme-g:       120;
-  --theme-b:       154;
-  --theme-color:         #e8789a;
-  --theme-color-hover:   #d4607e;
-  --theme-color-active:  #c0506e;
+  --theme-r:       224;
+  --theme-g:       168;
+  --theme-b:       124;
+  --theme-color:         #E0A87C;
+  --theme-color-hover:   #D09868;
+  --theme-color-active:  #C08858;
   --theme-fg:            #18181b;
 
-  /* 主题色 — 柔玫瑰，温暖怀旧的同人社区感 */
-  --primary:          #e8789a;
+  /* 主题色 — 暖桃，温柔质感的同人社区感 */
+  --primary:          #E0A87C;
   --primary-foreground: #0a0a0c;
   --clr-blue:   var(--primary);
   --clr-sky:    #f0a0b8;
@@ -274,7 +274,7 @@ main > * {
   --accent-foreground: #1a1a1e;
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
-  --primary:       #d4607e; /* 柔玫瑰-浅色模式 */
+  --primary:       #C89060; /* 暖桃-浅色模式 */
 
   /* 语义色 - 浅色模式 */
   --success:       #059669;
@@ -301,7 +301,7 @@ main > * {
   --primary-foreground: #ffffff;
 
   /* ── 统一 Tab 切换组件色（亮色主题） ── */
-  --tab-trough:     #f0f0f3;           /* 底槽：极浅灰 */
+  --tab-trough:     #e8e8ec;           /* 底槽：极浅灰 */
   --tab-active:     #ffffff;           /* 选中方块：纯白 */
   --tab-active-text:#111111;           /* 选中文字：深色 */
   --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
@@ -447,9 +447,11 @@ main > * {
 }
 
 .light .glass {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .glass::before {
@@ -978,7 +980,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ── 全局按钮按压反馈 — 微缩放 ── */
-button:active:not(:disabled),
+button:not([data-slot]):active:not(:disabled),
 a[href]:active {
   transform: scale(0.98);
   transition: transform 0.1s ease;

@@ -10,6 +10,7 @@ import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
+import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
 
@@ -316,15 +317,15 @@ export default async function GameDetailPage({
               {/* ⑤ 人气数据 */}
               <div className="flex items-center gap-4 mt-auto pt-3">
                 <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <Eye className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                  <Download className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  <Heart className="w-3.5 h-3.5" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
               </div>
