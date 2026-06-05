@@ -178,7 +178,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">Border Radius</span>
+                <span className="text-sm text-foreground">圆角大小</span>
                 <code className="text-sm font-semibold">{draft.themeRadius}px</code>
               </div>
               <input
@@ -198,7 +198,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">Shadow Intensity</span>
+                <span className="text-sm text-foreground">阴影强度</span>
                 <code className="text-sm font-semibold">{draft.themeShadowIntensity}%</code>
               </div>
               <input
@@ -218,7 +218,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">Background Alpha</span>
+                <span className="text-sm text-foreground">背景透明度</span>
                 <code className="text-sm font-semibold">{draft.themeAlpha}%</code>
               </div>
               <input
