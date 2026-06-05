@@ -1,9 +1,10 @@
 import { GameCard, GameCardSkeleton } from "@/components/game-card"
+import { MobileSortDropdown } from "@/components/mobile-sort-dropdown"
 import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { TagCloud } from "@/components/tag-cloud"
 import { prisma } from "@/lib/prisma"
-import { ChevronDown, Clock, Heart, TrendingUp, X } from "lucide-react"
+import { Clock, Heart, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -282,26 +283,11 @@ export default async function SearchPage({
           ))}
         </div>
         {/* 移动端：下拉排序 */}
-        <details className="sm:hidden relative">
-          <summary className="flex items-center gap-1 rounded-lg px-3 py-2.5 text-sm text-muted-foreground bg-muted cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            {SORT_OPTIONS.find(o => o.key === sort)?.label ?? "排序"}
-            <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
-          </summary>
-          <div className="absolute right-0 top-full z-50 mt-1 w-32 overflow-hidden rounded-lg py-1 shadow-lg bg-card border border-border">
-            {SORT_OPTIONS.map(({ key, label }) => (
-              <Link
-                key={key}
-                href={buildHref({ sort: key })}
-                className={[
-                  "flex items-center px-3 py-2.5 text-sm transition-colors",
-                  sort === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                ].join(" ")}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        </details>
+        <MobileSortDropdown
+          currentSort={sort}
+          options={SORT_OPTIONS.map(({ key, label }) => ({ key, label }))}
+          buildHref={(sortKey) => buildHref({ sort: sortKey })}
+        />
       </div>
 
       {/* 结果网格 */}
