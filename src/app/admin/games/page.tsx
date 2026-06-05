@@ -50,7 +50,7 @@ export default async function AdminGamesPage({
         <div className="flex flex-wrap items-center gap-2">
           <form method="get" className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索游戏…"
+            <input name="q" defaultValue={q} placeholder="搜索游戏…" aria-label="搜索游戏"
               className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
           </form>
           <Link

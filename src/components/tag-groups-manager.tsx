@@ -253,17 +253,6 @@ function TagInlineEditor({
 
 /* ──────────────────── 主组件 ──────────────────── */
 
-interface TagInGroup {
-  id: string
-  name: string
-  color: string
-  gameCount: number
-  groupId?: string | null
-  description?: string
-  sortOrder?: number
-  isVisible?: boolean
-}
-
 export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { initialGroups: TagGroup[]; initialUngroupedTags?: TagInGroup[] }) {
   const [groups, setGroups] = useState(initialGroups)
   const [ungroupedTags, setUngroupedTags] = useState<TagInGroup[]>(initialUngroupedTags ?? [])

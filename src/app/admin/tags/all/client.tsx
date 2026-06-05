@@ -90,22 +90,24 @@ export function AllTagsClient({ tags }: { tags: TagItem[] }) {
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索标签…"
+            placeholder="搜索标签…" aria-label="搜索标签"
             className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full"
           />
         </div>
         <div className="flex rounded-lg bg-secondary ring-1 ring-border overflow-hidden">
           <button
             type="button"
+            aria-pressed={sortBy === "name"}
             onClick={() => setSortBy("name")}
             className={`px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
               sortBy === "name" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            名称
+            默认
           </button>
           <button
             type="button"
+            aria-pressed={sortBy === "count"}
             onClick={() => setSortBy("count")}
             className={`px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
               sortBy === "count" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
@@ -127,10 +129,13 @@ export function AllTagsClient({ tags }: { tags: TagItem[] }) {
             {filtered.map((tag) => (
               <div
                 key={tag.id}
-                className="flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors"
+                className={`flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors ${tag.isVisible ? "" : "opacity-50"}`}
               >
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
                 <span className="flex-1 text-sm text-foreground truncate">{tag.name}</span>
+                {!tag.isVisible && (
+                  <span className="shrink-0 text-[10px] text-muted-foreground bg-secondary rounded-full px-1.5 py-0.5">隐藏</span>
+                )}
                 {tag.groupName && (
                   <span
                     className="shrink-0 text-[10px] rounded-full px-1.5 py-0.5 font-medium"

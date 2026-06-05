@@ -231,7 +231,7 @@ export function TagGroupDetailClient({
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索标签…"
+            placeholder="搜索标签…" aria-label="搜索标签"
             className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full sm:w-48"
           />
         </div>

@@ -22,12 +22,16 @@ export default function SiteSettingsPage() {
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
-      await fetch("/api/admin/settings", {
+      const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ default_placeholder_image: placeholderUrl }),
       })
-      toast.success("已保存")
+      if (!res.ok) {
+        toast.error("保存失败")
+      } else {
+        toast.success("已保存")
+      }
     } catch {
       toast.error("保存失败")
     } finally {
@@ -81,8 +85,8 @@ export default function SiteSettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Settings className="h-6 w-6 text-muted-foreground" />
-        <h1 className="text-xl font-bold">站点设置</h1>
+        <Settings className="h-6 w-6 text-primary" />
+        <h1 className="text-xl font-bold text-foreground">站点设置</h1>
       </div>
 
       {/* 默认占位图 */}
