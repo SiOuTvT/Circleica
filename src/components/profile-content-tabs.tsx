@@ -1,6 +1,7 @@
 "use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Trash2, Unlock, X } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -217,6 +218,7 @@ function FavoritesTab({
   onToggleVisibility: (id: string) => void
   onDeleteFolder: (id: string) => void
 }) {
+  const { messages: favMsgs } = useEmotionalMessages(["empty_favorites", "empty_play_status"])
   return (
     <div className="space-y-3">
       {/* 创建新收藏夹 */}
@@ -287,7 +289,7 @@ function FavoritesTab({
       {folders.length === 0 && !showCreateFolder ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FolderHeart className="h-10 w-10 text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">还没有收藏夹</p>
+          <p className="text-sm text-muted-foreground">{favMsgs.empty_favorites ? `${favMsgs.empty_favorites.emoji} ${favMsgs.empty_favorites.title}，${favMsgs.empty_favorites.subtitle}` : "还没有收藏夹"}</p>
         </div>
       ) : (
         folders.map((folder) => (
@@ -496,14 +498,22 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
   )
 }
 
+/* ==================== 足迹空状态 ==================== */
+function EmptyPlayStatus() {
+  const { message: playMsg } = useEmotionalMessage("empty_play_status")
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <Eye className="h-10 w-10 text-muted-foreground/30 mb-3" />
+      <p className="text-sm text-muted-foreground">{playMsg ? `${playMsg.emoji} ${playMsg.title}，${playMsg.subtitle}` : "还没有游玩记录"}</p>
+    </div>
+  )
+}
+
 /* ==================== 足迹 Tab ==================== */
 function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; status: string }[] }) {
   if (playStatusGames.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Eye className="h-10 w-10 text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground">还没有游玩记录</p>
-      </div>
+      <EmptyPlayStatus />
     )
   }
 
