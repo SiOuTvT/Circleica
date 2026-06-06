@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             filters: ["id", "=", vnId],
-            fields: "title,alttitle,aliases,description,released,tags.id,tags.name,tags.rating,developers.id,developers.name",
+            fields: "title,alttitle,aliases,description,released,tags.id,tags.name,tags.rating,developers.id,developers.name,staff.id,staff.name,staff.original,staff.role",
             results: 1,
           }),
           signal: AbortSignal.timeout(10000), // 10秒超时
@@ -259,6 +259,18 @@ export async function POST(req: NextRequest) {
     const devs: { name: string }[] = vn.developers ?? []
     const studioName = devs.length > 0 ? devs.map((d) => d.name).join(", ") : ""
 
+    /* ── 创作者（staff：脚本、原画、音乐等） ── */
+    const staffList: Array<{ id: string; name: string; original?: string; role: string }> = vn.staff ?? []
+    const creators = staffList
+      .filter(s => s.id && s.name)
+      .map(s => ({
+        vndbId: String(s.id).replace("s", ""),
+        name: s.name,
+        nameJa: s.original || "",
+        role: s.role || "other",
+      }))
+      .slice(0, 20)
+
     return NextResponse.json({
       title: primaryName,
       japaneseName,
@@ -268,8 +280,8 @@ export async function POST(req: NextRequest) {
       description: cleanDesc,
       studioName,
       tagIds: allTagIds,
-      // 也返回标签名称用于前端显示（标签可能刚创建，前端列表还没刷新）
       tagNames: [...existingTags, ...newTags].map(t => ({ id: t.id, name: t.name })),
+      creators,
     })
   } catch (err: any) {
     console.error("VNDB fetch error:", err)
