@@ -666,37 +666,39 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               aspectRatio={3 / 2}
               maxSizeMB={5}
               placeholder="上传封面"
-              className="w-[140px] sm:w-[180px]"
+              className="w-[200px] sm:w-[240px]"
             />
           </div>
-          <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label className={labelCls}>VNDB ID</label>
-              <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+          <div className="flex-1 space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className={labelCls}>VNDB ID</label>
+                <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>发售日期</label>
+                <input type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>制作会社</label>
+                <input value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>游戏时长</label>
+                <input value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+              </div>
             </div>
-            <div>
-              <label className={labelCls}>发售日期</label>
-              <input type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>制作会社</label>
-              <input value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>游戏时长</label>
-              <input value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+            <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
+                NSFW 内容
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
+                立即发布
+              </label>
             </div>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
-            NSFW 内容
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
-            立即发布
-          </label>
         </div>
       </div>
 
