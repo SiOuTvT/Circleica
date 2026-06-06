@@ -202,6 +202,11 @@ export default async function HomePage({
         </section>
       )}
 
+      {/* 分隔线 */}
+      {hotGames.length > 0 && !q && activeTag === "全部" && (
+        <div className="border-t border-border/60" />
+      )}
+
       {/* 游戏网格 */}
       <section>
         <div className="mb-4 flex items-center justify-between">
