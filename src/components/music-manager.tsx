@@ -113,7 +113,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 <p className="text-sm font-medium text-foreground truncate">{m.title}</p>
                 <p className="text-[10px] text-muted-foreground truncate">{m.url || m.filename}</p>
               </div>
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400" : "bg-secondary text-muted-foreground"}`}>
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                 {m.isActive ? "播放中" : "已停用"}
               </span>
               <button onClick={() => togglePlay(m.id, m.url)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title={playingId === m.id ? "暂停" : "试听"}>
