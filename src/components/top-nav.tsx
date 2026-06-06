@@ -2,6 +2,7 @@
 
 import { AvatarFrame } from "@/components/avatar-frame"
 import { NotificationBell } from "@/components/notification-bell"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import {
   CalendarCheck,
@@ -61,6 +62,8 @@ export function TopNav() {
     if (typeof window === "undefined") return null
     try { return localStorage.getItem("local_avatar") } catch { return null }
   })
+  const { message: checkinMsg } = useEmotionalMessage("checkin_success")
+  const { message: checkinDupMsg } = useEmotionalMessage("checkin_duplicate")
 
   const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
@@ -189,9 +192,12 @@ export function TopNav() {
     fetch("/api/checkin", { method: "POST" })
       .then(r => r.json())
       .then(data => {
-        if (data.ok || data.alreadyDone) {
+        if (data.alreadyDone) {
           setCheckedIn(true)
-          toast.success("签到成功！积分 +1")
+          toast.success(checkinDupMsg ? `${checkinDupMsg.emoji} ${checkinDupMsg.title}` : "今日已签到~")
+        } else if (data.ok) {
+          setCheckedIn(true)
+          toast.success(checkinMsg ? `${checkinMsg.emoji} ${checkinMsg.title}` : "签到成功！积分 +1")
         } else {
           toast.error("签到失败，请稍后重试")
         }
