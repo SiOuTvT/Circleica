@@ -1,10 +1,12 @@
 "use client"
 
 import { SearchBar } from "@/components/search-bar"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { Gamepad2, Home } from "lucide-react"
 import Link from "next/link"
 
 export default function NotFound() {
+  const { message: notFoundMsg } = useEmotionalMessage("error_404")
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="relative">
@@ -13,9 +15,9 @@ export default function NotFound() {
           <Gamepad2 className="h-12 w-12 text-muted-foreground/40" strokeWidth={1.5} />
         </div>
       </div>
-      <h1 className="text-2xl font-semibold text-foreground">迷路了？</h1>
+      <h1 className="text-2xl font-semibold text-foreground">{notFoundMsg ? `${notFoundMsg.emoji} ${notFoundMsg.title}` : "迷路了？"}</h1>
       <p className="max-w-md text-sm text-muted-foreground leading-relaxed">
-        这个页面似乎已经被传送到了另一个世界。<br />
+        {notFoundMsg ? notFoundMsg.subtitle : "这个页面似乎已经被传送到了另一个世界。"}<br />
         别担心，搜索或点击下方按钮回到安全区域。
       </p>
       <div className="w-full max-w-md">
