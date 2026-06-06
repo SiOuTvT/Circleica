@@ -1,8 +1,11 @@
+import { ensureEmotionalMessages } from "@/lib/ensure-emotional-messages"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 /** GET: 公共接口，返回已启用的情感消息（支持 ?category= 和 ?key= 查询） */
 export async function GET(req: NextRequest) {
+  // 确保预设情感消息存在（首次访问时自动创建）
+  await ensureEmotionalMessages()
   const category = req.nextUrl.searchParams.get("category")
   const key = req.nextUrl.searchParams.get("key")
 
