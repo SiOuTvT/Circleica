@@ -226,38 +226,34 @@ export function AdminNav() {
           </button>
         </div>
 
-        {/* 返回前台 */}
-        <div className="px-3 pt-2">
+        {/* 返回前台 + 搜索 */}
+        <div className="px-3 pt-2 flex flex-col gap-1">
           <Link
             href="/"
             title={collapsed ? "返回前台" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg text-xs font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
-              collapsed ? "justify-center px-0 py-1.5" : "px-2 py-1.5"
+              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
+              collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
             )}
           >
-            <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} />
             {!collapsed && <span className="truncate">返回前台</span>}
           </Link>
-        </div>
-
-        {/* 全局搜索 */}
-        <div className="px-3 pt-1">
           <button
             onClick={() => {
               document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
             }}
             title={collapsed ? "全局搜索 (Ctrl+K)" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg text-xs font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
-              collapsed ? "justify-center px-0 py-1.5" : "px-2 py-1.5"
+              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
+              collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
             )}
           >
-            <Search className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <Search className="h-4 w-4 shrink-0" strokeWidth={2} />
             {!collapsed && (
               <>
-                <span className="truncate flex-1 text-left">全局搜索</span>
-                <kbd className="rounded bg-muted px-1 py-0.5 text-[9px] text-muted-foreground ring-1 ring-border">⌘K</kbd>
+                <span className="truncate flex-1 text-left">搜索</span>
+                <kbd className="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground ring-1 ring-border">⌘K</kbd>
               </>
             )}
           </button>
