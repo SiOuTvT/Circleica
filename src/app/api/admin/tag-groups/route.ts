@@ -10,12 +10,8 @@ export async function GET() {
   // 确保预设标签组存在（首次访问时自动创建）
   await ensurePresetTagGroups()
 
-  // 获取标签总数（用于预设组显示）
-  const totalTagCount = await prisma.tag.count()
-
-  // 获取资源标签计数
+  // 获取资源标签计数（用于预设组显示）
   const allResourceTagKeys = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
-  // 首页卡片标签用的子集（不含平台）
   const homeCardTagKeys = ["resource_languages", "resource_run_types", "resource_content_types"]
 
   const allResourceSettings = await prisma.siteSetting.findMany({
@@ -33,6 +29,8 @@ export async function GET() {
     } catch {}
   }
 
+  const totalTagCount = await prisma.tag.count()
+
   const groups = await prisma.tagGroup.findMany({
     orderBy: [{ isPreset: "desc" }, { name: "asc" }],
     include: {
@@ -47,12 +45,12 @@ export async function GET() {
     ...g,
     positions: JSON.parse(g.positions) as string[],
     tags: g.tags.map((t) => ({ ...t, gameCount: t._count.games })),
-    // 根据预设组类型显示不同标签数
+    // 预设组显示资源标签数，自定义组显示实际标签数
     tagCount: g.id === "preset_home_card"
-      ? homeCardTagCount           // 首页卡片：语言+运行方式+内容类型（18个）
+      ? homeCardTagCount
       : g.id === "preset_resource_tab"
-        ? totalResourceTagCount    // 资源标签：全部4组（24个）
-        : g.isPreset ? totalTagCount : g.tags.length,  // 其他预设组：游戏标签
+        ? totalResourceTagCount
+        : g.isPreset ? totalTagCount : g.tags.length,
   })))
 }
 
