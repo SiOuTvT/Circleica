@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
@@ -63,6 +64,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const { message: emptyForumMsg } = useEmotionalMessage("empty_forum")
   const [totalPages, setTotalPages] = useState(initialTotalPages || 1)
   const [loadingMore, setLoadingMore] = useState(false)
   const commentInputRef = useRef<HTMLInputElement>(null)
@@ -262,7 +264,9 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         {/* 左：帖子列表 */}
         <div className="space-y-2">
           {filteredPosts.length === 0 && (
-            <p className="py-16 text-center text-sm text-muted-foreground">还没有人发过帖，来开个头吧~</p>
+            <p className="py-16 text-center text-sm text-muted-foreground">
+              {emptyForumMsg ? `${emptyForumMsg.emoji} ${emptyForumMsg.title}，${emptyForumMsg.subtitle}` : "还没有人发过帖，来开个头吧~"}
+            </p>
           )}
           {filteredPosts.map(post => (
             <button key={post.id}
