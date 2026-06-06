@@ -1,6 +1,7 @@
 "use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { ArrowLeft, Eye, EyeOff, Loader2, Lock, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -25,6 +26,7 @@ export function ProfileEditForm({ user }: Props) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const { message: profileMsg } = useEmotionalMessage("success_profile")
 
   async function handleAvatarUpload(file: File): Promise<string> {
     if (file.size > 5 * 1024 * 1024) {
@@ -77,7 +79,7 @@ export function ProfileEditForm({ user }: Props) {
       })
     )
 
-    setSuccess("保存成功！")
+    setSuccess(profileMsg ? `${profileMsg.emoji} ${profileMsg.title}` : "保存成功！")
     setOldPassword("")
     setNewPassword("")
     setTimeout(() => {
