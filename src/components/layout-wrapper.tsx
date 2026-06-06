@@ -34,7 +34,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           children
         ) : (
           /* 前台页面：居中容器，与顶部导航栏左右边缘对齐 */
-          <div className="mx-auto w-full max-w-[1300px] px-2 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6 min-w-0">
+          <div className="mx-auto w-full max-w-[1300px] px-4 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:ml-[max(calc((100vw-1240px)/2),0px)] lg:max-w-[1300px] lg:px-6 min-w-0">
             <Breadcrumb />
             {children}
           </div>
@@ -45,6 +45,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           <div className="mx-auto max-w-[1300px] px-4">
             <p>同人游戏站 · 资源大厅</p>
             <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
+            <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
+              <a href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">关于我们</a>
+              <a href="/rules" className="text-xs text-muted-foreground hover:text-foreground transition-colors">社区规范</a>
+              <a href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors">联系我们</a>
+            </div>
           </div>
         </footer>
       )}
