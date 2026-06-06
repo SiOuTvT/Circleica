@@ -34,7 +34,7 @@ export default async function AdminCreatorsPage({
       select: {
         id: true, name: true, nameJa: true, avatar: true,
         gender: true, vndbId: true,
-        _count: { select: { games: true } },
+        games: { select: { gameId: true } },
       },
     }),
     prisma.creator.count({ where }),
@@ -49,7 +49,7 @@ export default async function AdminCreatorsPage({
     avatar: c.avatar,
     gender: c.gender,
     vndbId: c.vndbId,
-    gameCount: c._count.games,
+    gameCount: new Set(c.games.map(g => g.gameId)).size,
   }))
 
   return (

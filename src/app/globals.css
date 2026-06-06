@@ -308,6 +308,31 @@ main > * {
   --tab-hover-text: #3f3f46;           /* 悬停提亮 */
 }
 
+/* ════ 浅色模式状态徽章/提示对比度修复 ════ */
+/* 问题：color/10% 背景 + 原色文字在浅色模式下对比度不足 */
+/* 方案：背景透明度提高到 20%，文字颜色加深一档 */
+
+.light .bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.2) !important; }
+.light .text-emerald-400 { color: #059669 !important; }
+.light .text-emerald-500 { color: #047857 !important; }
+
+.light .bg-amber-500\/10 { background-color: rgba(245, 158, 11, 0.2) !important; }
+.light .text-amber-400 { color: #b45309 !important; }
+.light .text-amber-500 { color: #92400e !important; }
+
+.light .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.2) !important; }
+.light .bg-red-500\/15 { background-color: rgba(239, 68, 68, 0.25) !important; }
+.light .text-red-400 { color: #b91c1c !important; }
+.light .text-red-500 { color: #991b1b !important; }
+
+.light .bg-destructive\/10 { background-color: rgba(239, 68, 68, 0.2) !important; }
+.light .text-destructive { color: #b91c1c !important; }
+
+/* 头像占位符：浅色模式用深色文字 */
+.light .bg-primary\/80 { background-color: rgba(200, 144, 96, 0.9) !important; }
+.light .bg-primary\/80 .text-white,
+.light .bg-primary\/80.text-white { color: #ffffff !important; }
+
 @layer base {
   /* 移除默认 outline，但保留焦点样式给交互元素 */
   *:not(a):not(button):not(input):not(select):not(textarea):not([tabindex]) {
