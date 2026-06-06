@@ -129,7 +129,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
                     </div>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                       {g.isPublished ? "已发布" : "草稿"}
                     </span>
                   </td>
