@@ -22,6 +22,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
       where: { id },
       include: {
         tags: { select: { tag: true } },
+        creators: { select: { creatorId: true, role: true, creator: { select: { vndbId: true, name: true, nameJa: true } } } },
       },
     }),
     prisma.tag.findMany({ orderBy: { name: "asc" } }),
@@ -43,6 +44,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
     screenshots,
     downloadLinks,
     tagIds: game.tags.map((t) => t.tag.id),
+    creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
     releaseDate: game.releaseDate ? game.releaseDate.toISOString().slice(0, 10) : undefined,
   }
 

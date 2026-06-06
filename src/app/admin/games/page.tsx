@@ -24,7 +24,7 @@ export default async function AdminGamesPage({
     ]
   } : {}
 
-  const [games, total] = await Promise.all([
+  const [games, total, published, draft] = await Promise.all([
     prisma.game.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -36,37 +36,41 @@ export default async function AdminGamesPage({
       },
     }),
     prisma.game.count({ where }),
+    prisma.game.count({ where: { ...where, isPublished: true } }),
+    prisma.game.count({ where: { ...where, isPublished: false } }),
   ])
 
   const totalPages = Math.ceil(total / limit)
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
+      {/* ── 页面标题 ── */}
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">游戏管理</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">共 {total} 个游戏</p>
+          <h1 className="text-2xl font-bold text-foreground">游戏管理</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            共 {total} 个游戏，{published} 已发布，{draft} 草稿
+          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <form method="get" className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索游戏…" aria-label="搜索游戏"
-              className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+              className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-56" />
           </form>
           <Link
             href="/admin/games/import"
-            className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:ring-primary/40"
           >
-            <Download className="h-5 w-5" strokeWidth={2} />
-            <span className="hidden sm:inline">VNDB 导入</span>
-            <span className="sm:hidden">导入</span>
+            <Download className="h-4 w-4" strokeWidth={2} />
+            VNDB 导入
           </Link>
           <Link
             href="/admin/games/new"
-            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground ring-1 ring-border transition-all hover:opacity-90"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
           >
-            <Plus className="h-5 w-5" strokeWidth={2} />
-            新增
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            新增游戏
           </Link>
         </div>
       </div>
