@@ -1,8 +1,10 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 import Image from "next/image"
 import { useCallback, useRef, useState } from "react"
 
@@ -60,6 +62,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { message: emptyMsg } = useEmotionalMessage("empty_comments")
+  const { message: commentMsg } = useEmotionalMessage("comment_success")
 
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return
@@ -140,6 +144,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         setContent("")
         removePreview()
         setShowEmoji(false)
+        toast.success(commentMsg ? `${commentMsg.emoji} ${commentMsg.title}` : "评论成功！")
       } else {
         const err = await res.json().catch(() => ({ error: "发送失败了，再试试？" }))
         setSubmitError(err.error || "发送失败了，再试试？")
@@ -337,7 +342,9 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       {/* 评论列表 */}
       <div className="space-y-4">
         {sortedComments.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted-foreground">还没有评论，来说点什么吧~</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            {emptyMsg ? `${emptyMsg.emoji} ${emptyMsg.title}，${emptyMsg.subtitle}` : "还没有评论，来说点什么吧~"}
+          </p>
         )}
         {sortedComments.map((c) => (
           <div key={c.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-secondary/30">
