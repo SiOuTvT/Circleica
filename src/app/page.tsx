@@ -158,15 +158,15 @@ export default async function HomePage({
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
         {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card px-6 py-8 ring-1 ring-border flex flex-col min-h-[310px]">
-          <h2 className="text-[26px] font-bold text-foreground tracking-tight">同人游戏站</h2>
-          <p className="text-sm text-muted-foreground mt-1">GalGame 同人世界的一站式入口</p>
+        <div className="rounded-2xl bg-card px-8 py-10 ring-1 ring-border flex flex-col min-h-[310px]">
+          <h2 className="text-4xl font-bold text-foreground tracking-tight">同人游戏站</h2>
+          <p className="text-lg text-muted-foreground mt-3">GalGame 同人世界的一站式入口</p>
           <div className="flex-1" />
-          <div className="flex gap-4 text-sm">
-            <span className="text-muted-foreground"><strong className="text-lg font-bold text-foreground">{total}</strong> 个游戏</span>
-            <span className="text-muted-foreground"><strong className="text-lg font-bold text-foreground">{todayCheckins}</strong> 今日签到</span>
+          <div className="flex gap-6 text-base">
+            <span className="text-muted-foreground"><strong className="text-2xl font-bold text-foreground">{total}</strong> 个游戏</span>
+            <span className="text-muted-foreground"><strong className="text-2xl font-bold text-foreground">{todayCheckins}</strong> 今日签到</span>
           </div>
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-3 mt-5">
             <RandomCreatorBtn />
             <RandomCharacterBtn />
           </div>
