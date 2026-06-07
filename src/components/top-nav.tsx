@@ -217,7 +217,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 border-b will-change-transform",
+          "sticky top-0 z-50 border-b will-change-transform",
           "pt-[env(safe-area-inset-top)]",
           "bg-background/60 backdrop-blur-md border-border/50",
           "transition-[box-shadow,border-color] duration-300",
