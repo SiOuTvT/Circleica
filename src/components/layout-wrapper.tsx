@@ -22,7 +22,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [navMobileOpen, setNavMobileOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
-  const [contentOffset, setContentOffset] = useState(0)
 
   // 只在客户端初始化桌面状态
   useEffect(() => {
@@ -35,24 +34,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const leftExpanded = !navCollapsed && !forumOpen
   const rightExpanded = navCollapsed && forumOpen
 
-  // 计算内容区偏移（居中 + 往侧边栏靠）
   const LEFT_NORMAL = 220, LEFT_EXPANDED = 260, LEFT_COLLAPSED = 60
   const RIGHT_NORMAL = 280, RIGHT_EXPANDED = 360
 
-  useEffect(() => {
-    if (!isDesktop) { setContentOffset(0); return }
-    const sw = window.innerWidth
-    const lw = navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)
-    const rw = forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0
-    const available = sw - lw - rw
-    const centerOfAvailable = lw + available / 2
-    const centerOfPage = sw / 2
-    let offset = centerOfAvailable - centerOfPage
-    // 往侧边栏靠一点
-    if (navCollapsed && forumOpen) offset += rw / 5
-    else if (!navCollapsed && !forumOpen) offset -= lw / 5
-    setContentOffset(offset)
-  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded])
+  const marginLeft = isDesktop ? (navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)) : 0
+  const marginRight = isDesktop ? (forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0) : 0
 
   const toggleNav = useCallback(() => {
     if (window.innerWidth < 1024) {
@@ -93,11 +79,12 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         ) : isFullscreenRoute ? (
           children
         ) : (
-          /* 前台页面：顶栏在内容区内，悬浮卡片样式 */
+          /* 前台页面：顶栏在内容区内 */
           <div
-            className="min-h-screen transition-transform duration-300 ease-out"
+            className="min-h-screen transition-[margin] duration-300 ease-out"
             style={{
-              transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
+              marginLeft,
+              marginRight,
             }}
           >
             <div className="flex justify-center px-4 pb-8">
