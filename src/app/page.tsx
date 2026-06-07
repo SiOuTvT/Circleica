@@ -163,8 +163,6 @@ export default async function HomePage({
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
         {/* 品牌卡 */}
         <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden min-h-[310px] flex flex-col">
-          {/* 顶部装饰条 */}
-          <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
           <div className="flex flex-col flex-1 px-7 py-8 justify-between">
             <div>
               <h2 className="text-3xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
