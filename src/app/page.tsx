@@ -170,21 +170,25 @@ export default async function HomePage({
               <h2 className="text-3xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
               <p className="text-sm text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
             </div>
-            <div className="flex items-end justify-between gap-4">
-              <div className="flex gap-6">
-                <div>
-                  <p className="text-2xl font-bold text-foreground leading-none">{total}</p>
-                  <p className="text-xs text-muted-foreground mt-1">个游戏</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground leading-none">{todayCheckins}</p>
-                  <p className="text-xs text-muted-foreground mt-1">今日签到</p>
-                </div>
+            {/* 统计行 */}
+            <div className="flex gap-6">
+              <div>
+                <p className="text-2xl font-bold text-foreground leading-none">{total}</p>
+                <p className="text-xs text-muted-foreground mt-1">个游戏</p>
               </div>
-              <div className="flex gap-2">
-                <RandomCreatorBtn />
-                <RandomCharacterBtn />
+              <div>
+                <p className="text-2xl font-bold text-foreground leading-none">{weekNewGames}</p>
+                <p className="text-xs text-muted-foreground mt-1">本周新增</p>
               </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground leading-none">{todayCheckins}</p>
+                <p className="text-xs text-muted-foreground mt-1">今日签到</p>
+              </div>
+            </div>
+            {/* 按钮行 */}
+            <div className="flex gap-2">
+              <RandomCreatorBtn />
+              <RandomCharacterBtn />
             </div>
           </div>
         </div>
