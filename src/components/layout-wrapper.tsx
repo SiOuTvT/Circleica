@@ -37,8 +37,22 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const LEFT_NORMAL = 220, LEFT_EXPANDED = 260, LEFT_COLLAPSED = 60
   const RIGHT_NORMAL = 280, RIGHT_EXPANDED = 360
 
-  const marginLeft = isDesktop ? (navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)) : 0
-  const marginRight = isDesktop ? (forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0) : 0
+  // 计算内容区偏移（居中 + 往侧边栏靠）
+  const [contentOffset, setContentOffset] = useState(0)
+
+  useEffect(() => {
+    if (!isDesktop) { setContentOffset(0); return }
+    const sw = window.innerWidth
+    const lw = navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)
+    const rw = forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0
+    const available = sw - lw - rw
+    const centerOfAvailable = lw + available / 2
+    const centerOfPage = sw / 2
+    let offset = centerOfAvailable - centerOfPage
+    if (navCollapsed && forumOpen) offset += rw / 5
+    else if (!navCollapsed && !forumOpen) offset -= lw / 5
+    setContentOffset(offset)
+  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded])
 
   const toggleNav = useCallback(() => {
     if (window.innerWidth < 1024) {
@@ -81,14 +95,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         ) : (
           /* 前台页面：顶栏在内容区内 */
           <div
-            className="min-h-screen transition-[margin] duration-300 ease-out"
+            className="min-h-screen transition-transform duration-300 ease-out"
             style={{
-              marginLeft,
-              marginRight,
+              transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
             }}
           >
-            <div className="flex justify-center px-4 pb-8">
-              <div className="w-full max-w-[1100px]">
+            <div className="px-4 pb-8">
+              <div className="mx-auto max-w-[1100px]">
                 {/* 悬浮卡片导航栏 - 在 1100px 内容区上方 */}
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav
