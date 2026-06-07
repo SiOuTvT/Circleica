@@ -42,14 +42,21 @@ function setCookie(name: string, value: string) {
   document.cookie = `${name}=${value};path=/;max-age=31536000`
 }
 
-export function TopNav() {
+interface TopNavProps {
+  navCollapsed?: boolean
+  onToggleNav?: () => void
+  forumOpen?: boolean
+  forumExpanded?: boolean
+  onToggleForum?: () => void
+}
+
+export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, onToggleForum }: TopNavProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
 
   const [menuOpen, setMenuOpen]   = useState(false)
   const [userOpen, setUserOpen]   = useState(false)
-  const [forumOpen, setForumOpen] = useState(false)
   const [scrolled, setScrolled]   = useState(false)
   const [theme, setTheme]         = useState<"dark" | "light" | "system">("dark")
   const [nsfw, setNsfw]           = useState(false)
@@ -222,43 +229,15 @@ export function TopNav() {
         {/* 顶部渐变高光线 */}
         <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
 
-        <button
-          onClick={() => {
-            if (window.innerWidth < 1024) {
-              window.location.href = "/forum"
-            } else {
-              setForumOpen(v => !v)
-            }
-          }}
-          className="absolute top-[env(safe-area-inset-top)] left-0 z-[60] flex h-14 w-14 items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:bg-muted/50 rounded-full"
-        >
-          <MessageSquare className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
-        </button>
+        <div className="mx-auto flex h-[52px] max-w-[1600px] items-center gap-1 px-4 sm:gap-3 sm:px-6">
 
-        <div className="mx-auto flex h-14 max-w-[1300px] items-center gap-1 pl-14 pr-2 sm:gap-3 sm:pl-[68px] sm:pr-4 lg:pl-6 lg:pr-6 lg:ml-[max(calc((100vw-1240px)/2),0px)]">
-
-        <div ref={menuRef} className="relative">
-            <button
-              onClick={() => setMenuOpen(v => !v)}
-              className="group relative flex h-11 items-center pl-0 pr-[22px] lg:pr-[24px] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn"
-              aria-label="导航菜单"
-            >
-              {/* Hover circle: centered on icon, overflows left for visual balance */}
-              <span className="pointer-events-none absolute top-0 left-[11px] lg:left-[12px] h-11 w-11 -translate-x-1/2 rounded-full bg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-              <Menu className="relative z-10 h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
-            </button>
-            {menuOpen && (
-              <nav aria-label="主导航" className="absolute left-0 top-full mt-2 w-48 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
-                {MENU_ITEMS.map(({ icon: Icon, label, href }) => (
-                  <Link key={href} href={href} onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
-                    {label}
-                  </Link>
-                ))}
-              </nav>
-            )}
-          </div>
+          <button
+            onClick={onToggleNav}
+            className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+            aria-label="导航菜单"
+          >
+            <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+          </button>
 
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
@@ -266,6 +245,14 @@ export function TopNav() {
             </Link>
 
             {user && <NotificationBell />}
+
+            <button
+              onClick={onToggleForum}
+              className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+              title="论坛"
+            >
+              <MessageSquare className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+            </button>
 
             <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
@@ -361,39 +348,39 @@ export function TopNav() {
         </div>
       </header>
 
+      {/* 移动端论坛遮罩 */}
       {forumOpen && (
         <div
-          className="fixed inset-0 z-40 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
-          onClick={() => setForumOpen(false)}
+          className="fixed inset-0 z-35 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
+          onClick={onToggleForum}
         />
       )}
 
       <aside className={cn(
-        "fixed z-40 flex flex-col backdrop-blur-sm transition-all duration-300 ease-out",
-        "top-[calc(3.5rem+env(safe-area-inset-top,0px))] h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))]",
-        "lg:left-0 lg:translate-x-0",
-        forumOpen ? "lg:w-[240px]" : "lg:w-0 lg:border-r-0 lg:overflow-hidden",
-        "left-0 w-full",
-        forumOpen ? "translate-x-0 sidebar-enter" : "-translate-x-full sidebar-exit",
-        "bg-background border-r border-border",
+        "fixed z-40 flex flex-col",
+        "top-[calc(52px+env(safe-area-inset-top,0px))] h-[calc(100dvh-52px-env(safe-area-inset-top,0px))]",
+        "right-0",
+        "bg-background border-l border-border",
       )}
         style={{
-          boxShadow: forumOpen
-            ? "4px 0 24px rgba(0,0,0,0.15), 8px 0 48px rgba(0,0,0,0.08)"
-            : "none",
+          width: forumExpanded ? 360 : 280,
+          transform: forumOpen ? "translateX(0)" : "translateX(100%)",
+          opacity: forumOpen ? 1 : 0,
+          transition: "transform 0.3s ease, opacity 0.3s ease, width 0.3s ease",
+          boxShadow: "none",
         }}
       >
         {forumOpen && (
-          <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-border via-transparent to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-border via-transparent to-transparent" />
         )}
         <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-muted/50">
           <span className="text-sm font-semibold text-foreground">论坛动态</span>
-          <button onClick={() => setForumOpen(false)} className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
+          <button onClick={onToggleForum} className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
             <X className="h-5 w-5" strokeWidth={2.5} />
           </button>
         </div>
         <div className="border-b border-border p-3 bg-muted/50">
-          <Link href="/forum" onClick={() => setForumOpen(false)}
+          <Link href="/forum" onClick={onToggleForum}
             className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground">
             <MessageSquare className="h-5 w-5" strokeWidth={2} />
             进入求档区
@@ -403,12 +390,13 @@ export function TopNav() {
           <ForumSidebarPosts />
         </div>
       </aside>
+
     </>
   )
 }
 
 function ForumSidebarPosts() {
-  const [posts, setPosts] = useState<{ id: string; title: string; user: { username: string } }[]>([])
+  const [posts, setPosts] = useState<{ id: string; title: string; user: { username: string }; isSolved?: boolean; createdAt?: string }[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -421,15 +409,23 @@ function ForumSidebarPosts() {
   }, [])
 
   if (loading) return <p className="p-4 text-xs text-muted-foreground">加载中…</p>
-  if (!posts.length) return <p className="p-4 text-xs text-muted-foreground">暂无帖子，来发第一帖吧~</p>
+  if (!posts.length) return <p className="p-4 text-xs text-muted-foreground">暂无帖子</p>
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1.5">
       {posts.map(p => (
         <Link key={p.id} href={`/forum?post=${p.id}`}
-          className="block w-full rounded-lg px-3 py-3 text-left transition-colors hover:bg-accent">
-          <p className="mb-0.5 text-[10px] text-muted-foreground">{p.user.username}</p>
-          <p className="line-clamp-2 text-xs font-medium text-foreground">{p.title}</p>
+          className="block rounded-lg p-2.5 transition-all hover:border-primary/20"
+          style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.04)" }}>
+          <p className="line-clamp-2 text-xs font-medium text-foreground leading-relaxed">{p.title}</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            {p.isSolved !== undefined && (
+              <span className={`text-[9px] px-1.5 py-0.5 rounded ${p.isSolved ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/10 text-primary"}`}>
+                {p.isSolved ? "已解决" : "未解决"}
+              </span>
+            )}
+            <span className="text-[10px] text-muted-foreground">{p.user.username}</span>
+          </div>
         </Link>
       ))}
     </div>

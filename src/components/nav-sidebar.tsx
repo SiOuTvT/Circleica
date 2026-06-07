@@ -1,0 +1,151 @@
+"use client"
+
+import { cn } from "@/lib/utils"
+import {
+  Compass,
+  Gamepad2,
+  Heart,
+  Home,
+  Layers,
+  Tag,
+} from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+
+const NAV_SECTIONS = [
+  {
+    label: "发现",
+    items: [
+      { icon: Home, label: "首页", href: "/" },
+      { icon: Gamepad2, label: "游戏库", href: "/search" },
+      { icon: Layers, label: "精选合集", href: "/collections" },
+      { icon: Tag, label: "标签浏览", href: "/search?showTags=1" },
+    ],
+  },
+  {
+    label: "我的",
+    items: [
+      { icon: Heart, label: "我的收藏", href: "/favorites" },
+      { icon: Compass, label: "随机发现", href: "/random" },
+    ],
+  },
+]
+
+interface ForumPost {
+  id: string
+  title: string
+  user: { username: string }
+  isSolved: boolean
+  createdAt: string
+}
+
+interface NavSidebarProps {
+  collapsed: boolean
+  expanded?: boolean
+  onToggle: () => void
+  mobileOpen?: boolean
+  onMobileToggle?: () => void
+}
+
+export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
+  const pathname = usePathname()
+  const [forumPosts, setForumPosts] = useState<ForumPost[]>([])
+
+  useEffect(() => {
+    fetch("/api/forum/posts")
+      .then(r => r.json())
+      .then(data => setForumPosts((data || []).slice(0, 5)))
+      .catch(() => {})
+  }, [])
+
+  // 关闭移动端侧边栏当路由变化
+  useEffect(() => {
+    if (mobileOpen && onMobileToggle) {
+      onMobileToggle()
+    }
+  }, [pathname])
+
+  return (
+    <>
+      {/* 移动端遮罩 */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        )}
+        onClick={onMobileToggle}
+      />
+
+      {/* 侧边栏 */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-full bg-background border-r border-border overflow-hidden",
+          "lg:top-[52px] lg:h-[calc(100vh-52px)]",
+          "top-0 w-[260px]",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+        style={{
+          width: collapsed ? 0 : expanded ? 260 : 220,
+          transition: "width 0.3s ease",
+        }}
+      >
+        {/* 导航列表 - 始终渲染，靠宽度裁切 */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" style={{ width: expanded ? 260 : 220, height: "calc(100vh - 52px)" }}>
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label} className="mb-3">
+              <p className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
+                {section.label}
+              </p>
+              {section.items.map(({ icon: Icon, label, href }) => {
+                const isActive = pathname === href || (href !== "/" && pathname.startsWith(href))
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all whitespace-nowrap",
+                      isActive
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                    )}
+                  >
+                    <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+                    <span>{label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
+
+          {/* 社区动态 */}
+          {forumPosts.length > 0 && (
+            <div className="border-t border-border pt-3 mt-3">
+              <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
+                社区动态
+              </p>
+              {forumPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/forum?post=${post.id}`}
+                  className="block px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors"
+                >
+                  <p className="text-xs text-foreground truncate whitespace-nowrap">{post.title}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 whitespace-nowrap">
+                    {post.user.username} · {post.isSolved ? "已解决" : "未解决"}
+                  </p>
+                </Link>
+              ))}
+              <Link
+                href="/forum"
+                className="block px-2 py-1.5 text-xs text-primary hover:underline mt-1 whitespace-nowrap"
+              >
+                查看全部 →
+              </Link>
+            </div>
+          )}
+        </nav>
+      </aside>
+    </>
+  )
+}

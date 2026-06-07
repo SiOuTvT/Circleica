@@ -61,7 +61,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
 
   return (
     <div
-      className="relative aspect-video w-full sm:max-w-[60%] sm:ml-auto overflow-hidden rounded-2xl bg-card"
+      className="relative aspect-video w-full overflow-hidden rounded-2xl bg-card"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

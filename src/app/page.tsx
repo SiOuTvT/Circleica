@@ -7,7 +7,7 @@ import { buildGameSearchFilter } from "@/lib/filters"
 export const revalidate = 60
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
-import { TrendingUp } from "lucide-react"
+import { Gamepad2 } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -148,64 +148,39 @@ export default async function HomePage({
   const placeholder = await getSiteSetting("default_placeholder_image")
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-5">
+    <div className="flex flex-col gap-6 sm:gap-8">
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
-      {/* Hero Section：响应式布局 */}
-      {/* 桌面端：左侧按钮 + 右侧公告（对齐用户头像右侧）；手机端：公告在上，按钮在下横排 */}
-      <div className="flex flex-col lg:grid lg:grid-cols-[auto_1fr] gap-3 sm:gap-6 lg:gap-4 items-start">
-        
-        {/* 左侧功能区（手机端显示在下面）*/}
-        <div className="order-2 lg:order-1 flex flex-row lg:flex-col gap-2 lg:gap-3 w-full lg:w-auto">
-          <RandomCreatorBtn />
-          <RandomCharacterBtn />
-        </div>
-        {/* 右侧公告区（手机端显示在最上面）*/}
-        {announcements.length > 0 && (
-          <div className="lg:col-span-1 order-1 lg:order-2 w-full">
-            <AnnounceSwiper announcements={announcements} />
+      {/* Hero：品牌卡 + 公告 */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-4 lg:gap-5">
+        {/* 品牌卡 */}
+        <div className="rounded-2xl bg-card p-6 sm:p-8 ring-1 ring-border flex flex-col justify-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">同人游戏站</h2>
+          <p className="text-sm text-muted-foreground mt-2 mb-5">东方、月姬、Fate 等同人游戏资源一站式体验</p>
+          <div className="flex gap-5 mb-5">
+            <div className="text-center">
+              <span className="text-xl font-bold text-foreground block">{total}</span>
+              <span className="text-[11px] text-muted-foreground">个游戏</span>
+            </div>
+            <div className="text-center">
+              <span className="text-xl font-bold text-foreground block">{tags.length}</span>
+              <span className="text-[11px] text-muted-foreground">个标签</span>
+            </div>
           </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/search" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-all">
+              <Gamepad2 className="h-4 w-4" /> 开始探索
+            </Link>
+            <RandomCreatorBtn />
+            <RandomCharacterBtn />
+          </div>
+        </div>
+
+        {/* 公告区 */}
+        {announcements.length > 0 && (
+          <AnnounceSwiper announcements={announcements} />
         )}
       </div>
-
-      {/* 热门游戏 */}
-      {hotGames.length > 0 && !q && activeTag === "全部" && (
-        <section>
-          <div className="mb-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" strokeWidth={2} />
-            <h2 className="text-base font-semibold text-foreground">热门推荐</h2>
-            <Link href="/search?sort=mostFaved" className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors">
-              查看更多 →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-4 lg:grid-cols-4 items-stretch">
-            {hotGames.map((g) => {
-              let downloadLinks: { label?: string; url: string }[] = []
-              try { downloadLinks = JSON.parse(g.downloadLinks || "[]") } catch { console.warn("[HomePage] Failed to parse downloadLinks") }
-              const resourceTags: string[] = [...new Set(
-                g.resources.flatMap((r) => {
-                  const items: string[] = []
-                  try { items.push(...JSON.parse(r.language)) } catch { console.warn("[HomePage] Failed to parse resource language") }
-                  try { items.push(...JSON.parse(r.runType)) } catch { console.warn("[HomePage] Failed to parse resource runType") }
-                  try { items.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[HomePage] Failed to parse resourceContent") }
-                  return items
-                })
-              )]
-              return (
-                <GameCard
-                  key={g.id}
-                  game={{ ...g, coverImage: g.coverImage || placeholder, tags: g.tags.map(t => t.tag), downloadLinks, resourceTags }}
-                />
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 分隔线 */}
-      {hotGames.length > 0 && !q && activeTag === "全部" && (
-        <div className="border-t border-border/60" />
-      )}
 
       {/* 游戏网格 */}
       <section>
