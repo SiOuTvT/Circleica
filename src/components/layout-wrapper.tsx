@@ -100,20 +100,22 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
             }}
           >
-            {/* 悬浮卡片导航栏 */}
-            <div className="sticky top-0 z-30 px-4 pt-3">
-              <TopNav
-                navCollapsed={navCollapsed}
-                onToggleNav={toggleNav}
-                forumOpen={forumOpen}
-                forumExpanded={rightExpanded}
-                onToggleForum={toggleForum}
-              />
-            </div>
             <div className="flex justify-center px-4 pb-8">
-              <div className="w-full max-w-[1100px] py-4">
-                <Breadcrumb />
-                {children}
+              <div className="w-full max-w-[1100px]">
+                {/* 悬浮卡片导航栏 - 在 1100px 内容区上方 */}
+                <div className="sticky top-0 z-30 pt-3 pb-4">
+                  <TopNav
+                    navCollapsed={navCollapsed}
+                    onToggleNav={toggleNav}
+                    forumOpen={forumOpen}
+                    forumExpanded={rightExpanded}
+                    onToggleForum={toggleForum}
+                  />
+                </div>
+                <div className="py-4">
+                  <Breadcrumb />
+                  {children}
+                </div>
               </div>
             </div>
             {/* Footer 也在内容区内 */}
