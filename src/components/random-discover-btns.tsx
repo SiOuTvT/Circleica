@@ -97,7 +97,7 @@ export function RandomCharacterBtn() {
     <button
       onClick={go}
       disabled={loading}
-      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-sm text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
+      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-base text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
       title="随机查看游戏角色（完整角色设定）"
     >
       {loading
