@@ -158,17 +158,30 @@ export default async function HomePage({
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
         {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card px-8 py-10 ring-1 ring-border flex flex-col min-h-[310px]">
-          <h2 className="text-4xl font-bold text-foreground tracking-tight">同人游戏站</h2>
-          <p className="text-lg text-muted-foreground mt-3">GalGame 同人世界的一站式入口</p>
-          <div className="flex-1" />
-          <div className="flex gap-6 text-base">
-            <span className="text-muted-foreground"><strong className="text-2xl font-bold text-foreground">{total}</strong> 个游戏</span>
-            <span className="text-muted-foreground"><strong className="text-2xl font-bold text-foreground">{todayCheckins}</strong> 今日签到</span>
-          </div>
-          <div className="flex gap-3 mt-5">
-            <RandomCreatorBtn />
-            <RandomCharacterBtn />
+        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden min-h-[310px] flex flex-col">
+          {/* 顶部装饰条 */}
+          <div className="h-1 w-full bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
+          <div className="flex flex-col flex-1 px-7 py-8 justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
+              <p className="text-sm text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
+            </div>
+            <div className="flex items-end justify-between gap-4">
+              <div className="flex gap-6">
+                <div>
+                  <p className="text-2xl font-bold text-foreground leading-none">{total}</p>
+                  <p className="text-xs text-muted-foreground mt-1">个游戏</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground leading-none">{todayCheckins}</p>
+                  <p className="text-xs text-muted-foreground mt-1">今日签到</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <RandomCreatorBtn />
+                <RandomCharacterBtn />
+              </div>
+            </div>
           </div>
         </div>
 
