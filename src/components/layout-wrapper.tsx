@@ -116,7 +116,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         ) : (
           /* 前台页面：内容区居中，随侧边栏偏移 */
           <div
-            className="flex justify-center min-h-[calc(100vh-54px)] px-4 pt-[calc(54px+env(safe-area-inset-top,0px))] transition-transform duration-300 ease-out"
+            className="flex justify-center min-h-[calc(100vh-54px)] px-4 transition-transform duration-300 ease-out"
             style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="w-full max-w-[1100px] py-6">
