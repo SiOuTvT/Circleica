@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案D：画廊墙</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08080a; color: #e8e8ec; font-family: 'Noto Sans SC', sans-serif; line-height: 1.7; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* 顶部品牌条 */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 32px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #e8789a, #d4607e); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .brand-text h1 { font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .brand-text p { font-size: 11px; color: #71717a; }
+  .top-stats { display: flex; gap: 20px; font-size: 12px; color: #71717a; }
+  .top-stats strong { color: #e8e8ec; }
+
+  /* 画廊墙 - 不规则网格 */
+  .gallery { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 200px; gap: 12px; margin-bottom: 48px; }
+  .gallery-item { border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; transition: all 0.3s; }
+  .gallery-item:hover { transform: scale(1.02); z-index: 2; }
+  .gallery-item .cover { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-item .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%); display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; }
+  .gallery-item .title { font-size: 13px; font-weight: 600; }
+  .gallery-item .meta { font-size: 10px; color: #a1a1b5; margin-top: 4px; }
+
+  /* 不规则尺寸 */
+  .gallery-item.wide { grid-column: span 2; }
+  .gallery-item.tall { grid-row: span 2; }
+  .gallery-item.big { grid-column: span 2; grid-row: span 2; }
+
+  /* 品牌卡 - 嵌入画廊 */
+  .brand-card { grid-column: span 2; grid-row: span 2; background: linear-gradient(135deg, #1a1520, #1e1a25); border: 1px solid rgba(232,120,154,0.2); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px; }
+  .brand-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .brand-card p { font-size: 13px; color: #a1a1b5; margin-bottom: 16px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; }
+  .btn-primary { background: #e8789a; color: #0a0a0c; }
+
+  /* 公告卡 - 嵌入画廊 */
+  .announce-card { grid-column: span 2; background: #141416; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+  .announce-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .announce-card p { font-size: 12px; color: #71717a; }
+
+  /* 底部标签云 */
+  .tags-section { padding: 32px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+  .tags-header { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+  .tags-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { padding: 6px 14px; border-radius: 999px; font-size: 12px; background: rgba(232,120,154,0.1); color: #e8789a; border: 1px solid rgba(232,120,154,0.2); cursor: pointer; transition: all 0.2s; }
+  .tag:hover { background: rgba(232,120,154,0.2); }
+
+  .footer { padding: 24px 0; text-align: center; font-size: 11px; color: #52525b; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 顶部品牌条 -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-icon">🎮</div>
+      <div class="brand-text">
+        <h1>同人游戏站</h1>
+        <p>资源大厅</p>
+      </div>
+    </div>
+    <div class="top-stats">
+      <span><strong>128</strong> 个游戏</span>
+      <span><strong>56</strong> 位用户</span>
+      <span><strong>1.2k</strong> 次签到</span>
+    </div>
+  </div>
+
+  <!-- 画廊墙 -->
+  <div class="gallery">
+    <!-- 品牌卡嵌入画廊 -->
+    <div class="brand-card">
+      <h2>同人游戏站</h2>
+      <p>东方、月姬、Fate 等同人游戏资源</p>
+      <button class="btn btn-primary">开始探索</button>
+    </div>
+
+    <!-- 公告卡嵌入画廊 -->
+    <div class="announce-card">
+      <h3>📢 欢迎来到同人游戏站</h3>
+      <p>这里是 GalGame 爱好者的资源天堂</p>
+    </div>
+
+    <!-- 游戏卡片 - 不规则排列 -->
+    <div class="gallery-item big">
+      <div class="cover" style="background:linear-gradient(135deg,#2a1a2e,#1a2a2e)"></div>
+      <div class="overlay"><div class="title">东方Project 星莲船</div><div class="meta">👁 1.2k · ❤ 340</div></div>
+    </div>
+    <div class="gallery-item">
+      <div class="cover" style="background:linear-gradient(135deg,#1a2a2e,#2a1a2e)"></div>
+      <div class="overlay"><div class="title">月姬</div><div class="meta">👁 890</div></div>
+    </div>
+    <div class="gallery-item">
+      <div class="cover" style="background:linear-gradient(135deg,#2a2a1a,#1a1a2e)"></div>
+      <div class="overlay"><div class="title">Fate</div><div class="meta">👁 2.1k</div></div>
+    </div>
+    <div class="gallery-item tall">
+      <div class="cover" style="background:linear-gradient(135deg,#1a2e2a,#2a1a2e)"></div>
+      <div class="overlay"><div class="title">寒蝉</div><div class="meta">👁 670</div></div>
+    </div>
+    <div class="gallery-item wide">
+      <div class="cover" style="background:linear-gradient(135deg,#2e1a2a,#1a2e1a)"></div>
+      <div class="overlay"><div class="title">海猫鸣泣之时</div><div class="meta">👁 450 · ❤ 120</div></div>
+    </div>
+    <div class="gallery-item">
+      <div class="cover" style="background:linear-gradient(135deg,#1a1a2e,#2e2a1a)"></div>
+      <div class="overlay"><div class="title">游戏A</div><div class="meta">👁 234</div></div>
+    </div>
+    <div class="gallery-item">
+      <div class="cover" style="background:linear-gradient(135deg,#2a2e1a,#1a2a2e)"></div>
+      <div class="overlay"><div class="title">游戏B</div><div class="meta">👁 189</div></div>
+    </div>
+    <div class="gallery-item wide">
+      <div class="cover" style="background:linear-gradient(135deg,#2e2a1a,#1a1a2e)"></div>
+      <div class="overlay"><div class="title">游戏C</div><div class="meta">👁 156</div></div>
+    </div>
+    <div class="gallery-item">
+      <div class="cover" style="background:linear-gradient(135deg,#1a2e1a,#2e1a2a)"></div>
+      <div class="overlay"><div class="title">游戏D</div><div class="meta">👁 123</div></div>
+    </div>
+  </div>
+
+  <!-- 标签云 -->
+  <div class="tags-section">
+    <div class="tags-header">按标签浏览</div>
+    <div class="tags-cloud">
+      <span class="tag">东方Project</span>
+      <span class="tag">月姬</span>
+      <span class="tag">Fate</span>
+      <span class="tag">RPG</span>
+      <span class="tag">ADV</span>
+      <span class="tag">催泪</span>
+      <span class="tag">多结局</span>
+      <span class="tag">校园</span>
+      <span class="tag">奇幻</span>
+      <span class="tag">悬疑</span>
+    </div>
+  </div>
+
+  <div class="footer">同人游戏站 · 资源大厅</div>
+</div>
+
+</body>
+</html>

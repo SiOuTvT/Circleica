@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方案E：杂志封面</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08080a; color: #e8e8ec; font-family: 'Noto Sans SC', sans-serif; line-height: 1.7; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* 杂志封面区 */
+  .cover-story { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; padding: 48px 0; min-height: 480px; align-items: center; }
+  .cover-image { border-radius: 16px; overflow: hidden; height: 100%; min-height: 400px; position: relative; }
+  .cover-image .img { width: 100%; height: 100%; background: linear-gradient(135deg, #1a1520, #1e1a25, #151a20); }
+  .cover-image .badge { position: absolute; top: 16px; left: 16px; background: rgba(232,120,154,0.9); color: #0a0a0c; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+  .cover-info { padding: 20px 0; }
+  .cover-info .kicker { font-size: 12px; color: #e8789a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .cover-info h1 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .cover-info .desc { font-size: 14px; color: #a1a1b5; margin-bottom: 20px; line-height: 1.6; }
+  .cover-info .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .cover-info .tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; background: rgba(232,120,154,0.1); color: #e8789a; border: 1px solid rgba(232,120,154,0.2); }
+  .cover-info .stats { display: flex; gap: 16px; margin-bottom: 24px; font-size: 13px; color: #71717a; }
+  .cover-info .stats strong { color: #e8e8ec; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+  .btn-primary { background: #e8789a; color: #0a0a0c; }
+  .btn-ghost { background: transparent; color: #a1a1b5; border: 1px solid rgba(255,255,255,0.1); }
+
+  /* 公告条 */
+  .announce-strip { display: flex; gap: 12px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 40px; overflow-x: auto; }
+  .announce-chip { flex-shrink: 0; padding: 8px 16px; background: #141416; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .announce-chip:hover { border-color: rgba(232,120,154,0.3); }
+
+  /* 编辑精选 */
+  .editorial { margin-bottom: 48px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .section-bar { width: 3px; height: 20px; border-radius: 2px; background: #e8789a; }
+  .section-title { font-size: 18px; font-weight: 600; }
+  .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .game-card { border-radius: 12px; overflow: hidden; background: #141416; border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
+  .game-card:hover { transform: translateY(-2px); border-color: rgba(232,120,154,0.3); }
+  .game-cover { width: 100%; aspect-ratio: 3/4; background: linear-gradient(135deg, #1a1520, #1e1a25); }
+  .game-info { padding: 12px; }
+  .game-title { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  .game-meta { display: flex; gap: 12px; margin-top: 6px; font-size: 11px; color: #71717a; }
+
+  /* 标签云 */
+  .tags-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; }
+  .tag { padding: 6px 14px; border-radius: 999px; font-size: 12px; background: rgba(232,120,154,0.1); color: #e8789a; border: 1px solid rgba(232,120,154,0.2); cursor: pointer; transition: all 0.2s; }
+  .tag:hover { background: rgba(232,120,154,0.2); }
+
+  .footer { padding: 24px 0; text-align: center; font-size: 11px; color: #52525b; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 杂志封面区 -->
+  <div class="cover-story">
+    <div class="cover-image">
+      <div class="img"></div>
+      <div class="badge">编辑推荐</div>
+    </div>
+    <div class="cover-info">
+      <div class="kicker">封面故事</div>
+      <h1>东方Project 星莲船</h1>
+      <p class="desc">东方Project系列第12作，弹幕射击游戏的巅峰之作。在星空与莲花交织的世界中，展开一场华丽的弹幕冒险。</p>
+      <div class="tags">
+        <span class="tag">东方Project</span>
+        <span class="tag">弹幕</span>
+        <span class="tag">STG</span>
+      </div>
+      <div class="stats">
+        <span>👁 <strong>1.2k</strong> 浏览</span>
+        <span>❤ <strong>340</strong> 收藏</span>
+        <span>📥 <strong>580</strong> 下载</span>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="btn btn-primary">查看详情</button>
+        <button class="btn btn-ghost">🎲 随机</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 公告条 -->
+  <div class="announce-strip">
+    <div class="announce-chip">📢 欢迎来到同人游戏站</div>
+    <div class="announce-chip">🆕 新增 5 个游戏</div>
+    <div class="announce-chip">🔧 系统维护通知</div>
+    <div class="announce-chip">🎉 社区活动</div>
+  </div>
+
+  <!-- 编辑精选 -->
+  <div class="editorial">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <span class="section-title">编辑精选</span>
+    </div>
+    <div class="game-grid">
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">月姬</div><div class="game-meta"><span>👁 890</span><span>❤ 280</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">Fate/stay night</div><div class="game-meta"><span>👁 2.1k</span><span>❤ 560</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">寒蝉鸣泣之时</div><div class="game-meta"><span>👁 670</span><span>❤ 190</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">海猫鸣泣之时</div><div class="game-meta"><span>👁 450</span><span>❤ 120</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- 标签云 -->
+  <div class="tags-cloud">
+    <span class="tag">东方Project</span>
+    <span class="tag">月姬</span>
+    <span class="tag">Fate</span>
+    <span class="tag">RPG</span>
+    <span class="tag">ADV</span>
+    <span class="tag">催泪</span>
+    <span class="tag">多结局</span>
+    <span class="tag">校园</span>
+    <span class="tag">奇幻</span>
+    <span class="tag">悬疑</span>
+  </div>
+
+  <!-- 最新资源 -->
+  <div class="editorial">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <span class="section-title">最新资源</span>
+      <span style="margin-left:auto;font-size:13px;color:#71717a;">128 个</span>
+    </div>
+    <div class="game-grid">
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">游戏A</div><div class="game-meta"><span>👁 120</span><span>❤ 30</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">游戏B</div><div class="game-meta"><span>👁 89</span><span>❤ 22</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">游戏C</div><div class="game-meta"><span>👁 56</span><span>❤ 15</span></div></div></div>
+      <div class="game-card"><div class="game-cover"></div><div class="game-info"><div class="game-title">游戏D</div><div class="game-meta"><span>👁 234</span><span>❤ 67</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="footer">同人游戏站 · 资源大厅</div>
+</div>
+
+</body>
+</html>
