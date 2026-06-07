@@ -154,7 +154,7 @@ export default async function HomePage({
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-5 mb-10">
         {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card p-7 sm:p-9 ring-1 ring-border flex flex-col justify-center">
+        <div className="rounded-2xl bg-card px-7 py-9 ring-1 ring-border flex flex-col justify-center">
           <h2 className="text-[26px] font-bold text-foreground tracking-tight">同人游戏站</h2>
           <p className="text-sm text-muted-foreground mt-2 mb-5">东方、月姬、Fate 等同人游戏资源一站式体验</p>
           <div className="flex gap-5 mb-5">
