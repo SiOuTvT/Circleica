@@ -208,9 +208,6 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
             : "shadow-[0_2px_12px_rgba(0,0,0,0.15)] border-border/30"
         )}
       >
-        {/* 顶部渐变高光线 */}
-        <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300 rounded-t-xl", scrolled && "opacity-0")} />
-
         <div className="flex h-full w-full items-center gap-1 px-3 sm:gap-3 sm:px-4">
 
           <button

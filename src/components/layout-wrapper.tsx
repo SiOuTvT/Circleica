@@ -93,23 +93,21 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         ) : isFullscreenRoute ? (
           children
         ) : (
-          /* 前台页面：顶栏在内容区内，悬浮卡片样式 */
+          /* 前台页面：顶栏在内容区内 */
           <div
             className="min-h-screen transition-transform duration-300 ease-out"
             style={{
               transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
             }}
           >
-            {/* 悬浮卡片导航栏 */}
-            <div className="sticky top-0 z-30 px-4 pt-3">
-              <TopNav
-                navCollapsed={navCollapsed}
-                onToggleNav={toggleNav}
-                forumOpen={forumOpen}
-                forumExpanded={rightExpanded}
-                onToggleForum={toggleForum}
-              />
-            </div>
+            {/* 顶栏 */}
+            <TopNav
+              navCollapsed={navCollapsed}
+              onToggleNav={toggleNav}
+              forumOpen={forumOpen}
+              forumExpanded={rightExpanded}
+              onToggleForum={toggleForum}
+            />
             <div className="flex justify-center px-4 pb-8">
               <div className="w-full max-w-[1100px] py-4">
                 <Breadcrumb />
