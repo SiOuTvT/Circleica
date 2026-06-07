@@ -160,9 +160,9 @@ export default async function HomePage({
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
       {/* Hero：品牌卡 + 公告 */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10 items-start">
-        {/* 品牌卡 - 仅电脑端显示 */}
-        <div className="hidden lg:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 mb-10 items-start">
+        {/* 品牌卡 - 平板和电脑端显示 */}
+        <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
           <div className="flex flex-col flex-1 px-7 py-8 justify-between">
             <div>
               <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
