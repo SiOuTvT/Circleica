@@ -208,7 +208,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
             : "shadow-[0_2px_12px_rgba(0,0,0,0.15)] border-border/30"
         )}
       >
-        <div className="flex h-full w-full items-center gap-1 px-3 sm:gap-3 sm:px-4">
+        <div className="flex h-full w-full items-center gap-1 sm:gap-3">
 
           <button
             onClick={onToggleNav}
