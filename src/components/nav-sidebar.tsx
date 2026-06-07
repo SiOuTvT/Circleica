@@ -81,22 +81,23 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-full bg-background border-r border-border overflow-hidden",
-          "lg:top-[54px] lg:h-[calc(100vh-54px)]",
-          "top-0 w-[260px]",
+          "w-[260px]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         style={{
-          width: collapsed ? 0 : expanded ? 260 : 220,
+          width: collapsed ? 60 : expanded ? 260 : 220,
           transition: "width 0.3s ease",
         }}
       >
-        {/* 导航列表 - 始终渲染，靠宽度裁切 */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3" style={{ width: expanded ? 260 : 220, height: "calc(100vh - 54px)" }}>
+        {/* 导航列表 - flex column, 底部放折叠按钮 */}
+        <nav className="flex flex-col overflow-y-auto overflow-x-hidden px-2 py-3 h-full" style={{ width: collapsed ? 60 : (expanded ? 260 : 220) }}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-3">
-              <p className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
-                {section.label}
-              </p>
+              {!collapsed && (
+                <p className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
+                  {section.label}
+                </p>
+              )}
               {section.items.map(({ icon: Icon, label, href }) => {
                 const isActive = pathname === href || (href !== "/" && pathname.startsWith(href))
                 return (
@@ -104,14 +105,16 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
                     key={href}
                     href={href}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all whitespace-nowrap",
+                      "flex items-center rounded-lg py-2 text-sm font-medium transition-all whitespace-nowrap",
+                      collapsed ? "justify-center px-0 mx-auto w-11 h-11" : "gap-3 px-2",
                       isActive
                         ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
+                    title={collapsed ? label : undefined}
                   >
                     <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
-                    <span>{label}</span>
+                    {!collapsed && <span>{label}</span>}
                   </Link>
                 )
               })}
@@ -119,7 +122,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
           ))}
 
           {/* 社区动态 */}
-          {forumPosts.length > 0 && (
+          {forumPosts.length > 0 && !collapsed && (
             <div className="border-t border-border pt-3 mt-3">
               <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
                 社区动态

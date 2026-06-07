@@ -6,10 +6,6 @@ import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import {
   CalendarCheck,
-  FileQuestion,
-  Gamepad2,
-  Home,
-  Layers,
   LogOut,
   Menu,
   MessageSquare,
@@ -26,13 +22,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-
-const MENU_ITEMS = [
-  { icon: Home,         label: "首页",     href: "/" },
-  { icon: Gamepad2,     label: "游戏库",   href: "/search" },
-  { icon: Layers,       label: "精选合集", href: "/collections" },
-  { icon: FileQuestion, label: "求档中心", href: "/forum" },
-]
 
 function getCookie(name: string) {
   if (typeof document === "undefined") return null
@@ -55,7 +44,6 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
   const { data: session } = useSession()
   const user = session?.user
 
-  const [menuOpen, setMenuOpen]   = useState(false)
   const [userOpen, setUserOpen]   = useState(false)
   const [scrolled, setScrolled]   = useState(false)
   const [theme, setTheme]         = useState<"dark" | "light" | "system">("dark")
@@ -72,7 +60,6 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
   const { message: checkinMsg } = useEmotionalMessage("checkin_success")
   const { message: checkinDupMsg } = useEmotionalMessage("checkin_duplicate")
 
-  const menuRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
 
   // 在客户端挂载后从 localStorage/cookie 读取实际值，避免 hydration mismatch
@@ -159,9 +146,6 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
 
   useEffect(() => {
     function handleMouseDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
       if (userRef.current && !userRef.current.contains(e.target as Node)) {
         setUserOpen(false)
       }
@@ -217,26 +201,24 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b will-change-transform",
-          "pt-[env(safe-area-inset-top)]",
-          "bg-background/60 backdrop-blur-md border-border/50",
-          "transition-[box-shadow,border-color] duration-300",
+          "flex h-12 items-center rounded-xl border backdrop-blur-xl transition-all duration-200",
+          "bg-background/80",
           scrolled
-            ? "shadow-md border-border"
-            : "shadow-none"
+            ? "shadow-[0_4px_24px_rgba(0,0,0,0.3)] border-border/60"
+            : "shadow-[0_2px_12px_rgba(0,0,0,0.15)] border-border/30"
         )}
       >
         {/* 顶部渐变高光线 */}
-        <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300", scrolled && "opacity-0")} />
+        <div className={cn("absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent transition-opacity duration-300 rounded-t-xl", scrolled && "opacity-0")} />
 
-        <div className="mx-auto flex h-[54px] max-w-[1600px] items-center gap-1 px-4 sm:gap-3 sm:px-6">
+        <div className="flex h-full w-full items-center gap-1 px-3 sm:gap-3 sm:px-4">
 
           <button
             onClick={onToggleNav}
-            className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
-            aria-label="导航菜单"
+            className="flex h-9 w-9 items-center justify-center rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted"
+            aria-label="切换侧边栏"
           >
-            <Menu className="h-[22px] w-[22px] lg:h-[24px] lg:w-[24px]" strokeWidth={2.5} />
+            <Menu className="h-[18px] w-[18px]" strokeWidth={2} />
           </button>
 
           <div className="ml-auto flex items-center gap-2">
@@ -358,7 +340,7 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
 
       <aside className={cn(
         "fixed z-40 flex flex-col",
-        "top-[calc(54px+env(safe-area-inset-top,0px))] h-[calc(100dvh-54px-env(safe-area-inset-top,0px))]",
+        "top-0 h-full",
         "right-0",
         "bg-background border-l border-border",
       )}

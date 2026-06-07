@@ -20,50 +20,39 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   // 侧边栏状态
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [navMobileOpen, setNavMobileOpen] = useState(false)
-  const [forumOpen, setForumOpen] = useState(typeof window !== "undefined" && window.innerWidth >= 1024)
-
-  // 计算内容区偏移量和侧边栏状态
+  const [isDesktop, setIsDesktop] = useState(false)
+  const [forumOpen, setForumOpen] = useState(false)
   const [contentOffset, setContentOffset] = useState(0)
-  const [leftExpanded, setLeftExpanded] = useState(false)
-  const [rightExpanded, setRightExpanded] = useState(false)
 
-  const LEFT_NORMAL = 220, LEFT_EXPANDED = 260
+  // 只在客户端初始化桌面状态
+  useEffect(() => {
+    const desktop = window.innerWidth >= 1024
+    setIsDesktop(desktop)
+    setForumOpen(desktop)
+  }, [])
+
+  // 只开一边时那一边变大
+  const leftExpanded = !navCollapsed && !forumOpen
+  const rightExpanded = navCollapsed && forumOpen
+
+  // 计算内容区偏移（居中 + 往侧边栏靠）
+  const LEFT_NORMAL = 220, LEFT_EXPANDED = 260, LEFT_COLLAPSED = 60
   const RIGHT_NORMAL = 280, RIGHT_EXPANDED = 360
 
-  const updateLayout = useCallback(() => {
-    if (isAdminRoute || isFullscreenRoute) return
+  useEffect(() => {
+    if (!isDesktop) { setContentOffset(0); return }
     const sw = window.innerWidth
-
-    // 只开一边时，那一边变大
-    const shouldExpandLeft = !navCollapsed && !forumOpen
-    const shouldExpandRight = navCollapsed && forumOpen
-    setLeftExpanded(shouldExpandLeft)
-    setRightExpanded(shouldExpandRight)
-
-    const lw = navCollapsed ? 0 : (shouldExpandLeft ? LEFT_EXPANDED : LEFT_NORMAL)
-    const rw = forumOpen ? (shouldExpandRight ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0
-
-    // 内容在可用空间内居中
+    const lw = navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)
+    const rw = forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0
     const available = sw - lw - rw
     const centerOfAvailable = lw + available / 2
     const centerOfPage = sw / 2
     let offset = centerOfAvailable - centerOfPage
-
-    // 只开一边时，内容往那边靠一点（和方案一致）
-    if (navCollapsed && forumOpen) {
-      offset += rw / 5
-    } else if (!navCollapsed && !forumOpen) {
-      offset -= lw / 5
-    }
-
+    // 往侧边栏靠一点
+    if (navCollapsed && forumOpen) offset += rw / 5
+    else if (!navCollapsed && !forumOpen) offset -= lw / 5
     setContentOffset(offset)
-  }, [navCollapsed, forumOpen, isAdminRoute, isFullscreenRoute])
-
-  useEffect(() => {
-    updateLayout()
-    window.addEventListener("resize", updateLayout)
-    return () => window.removeEventListener("resize", updateLayout)
-  }, [updateLayout])
+  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded])
 
   const toggleNav = useCallback(() => {
     if (window.innerWidth < 1024) {
@@ -87,17 +76,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         跳到主要内容
       </a>
 
-      {!isAdminRoute && !isFullscreenRoute && (
-        <TopNav
-          navCollapsed={navCollapsed}
-          onToggleNav={toggleNav}
-          forumOpen={forumOpen}
-          forumExpanded={rightExpanded}
-          onToggleForum={toggleForum}
-        />
-      )}
-
-      {/* 左侧导航栏 */}
+      {/* 左侧导航栏 - 独立全高，不依赖顶栏 */}
       {!isAdminRoute && !isFullscreenRoute && (
         <NavSidebar
           collapsed={navCollapsed}
@@ -114,32 +93,44 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         ) : isFullscreenRoute ? (
           children
         ) : (
-          /* 前台页面：内容区居中，随侧边栏偏移 */
+          /* 前台页面：顶栏在内容区内，悬浮卡片样式 */
           <div
-            className="flex justify-center min-h-[calc(100vh-54px)] px-4 transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(${contentOffset}px)` }}
+            className="min-h-screen transition-transform duration-300 ease-out"
+            style={{
+              transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
+            }}
           >
-            <div className="w-full max-w-[1100px] py-6">
-              <Breadcrumb />
-              {children}
+            {/* 悬浮卡片导航栏 */}
+            <div className="sticky top-0 z-30 px-4 pt-3">
+              <TopNav
+                navCollapsed={navCollapsed}
+                onToggleNav={toggleNav}
+                forumOpen={forumOpen}
+                forumExpanded={rightExpanded}
+                onToggleForum={toggleForum}
+              />
             </div>
+            <div className="flex justify-center px-4 pb-8">
+              <div className="w-full max-w-[1100px] py-4">
+                <Breadcrumb />
+                {children}
+              </div>
+            </div>
+            {/* Footer 也在内容区内 */}
+            <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
+              <div className="mx-auto max-w-[1100px] px-4">
+                <p>同人游戏站 · 资源大厅</p>
+                <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
+                <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
+                  <a href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">关于我们</a>
+                  <a href="/rules" className="text-xs text-muted-foreground hover:text-foreground transition-colors">社区规范</a>
+                  <a href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors">联系我们</a>
+                </div>
+              </div>
+            </footer>
           </div>
         )}
       </main>
-
-      {!isAdminRoute && !isFullscreenRoute && (
-        <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
-          <div className="mx-auto max-w-[1100px] px-4">
-            <p>同人游戏站 · 资源大厅</p>
-            <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
-            <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
-              <a href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">关于我们</a>
-              <a href="/rules" className="text-xs text-muted-foreground hover:text-foreground transition-colors">社区规范</a>
-              <a href="/contact" className="text-xs text-muted-foreground hover:text-foreground transition-colors">联系我们</a>
-            </div>
-          </div>
-        </footer>
-      )}
       <MusicPlayer />
     </BreadcrumbProvider>
   )
