@@ -49,11 +49,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const centerOfPage = sw / 2
     let offset = centerOfAvailable - centerOfPage
 
-    // 只开一边时，内容往那边靠一点
+    // 只开一边时，内容往那边靠
     if (navCollapsed && forumOpen) {
-      offset += rw / 5
+      offset += rw / 2
     } else if (!navCollapsed && forumOpen) {
-      offset -= lw / 5
+      offset -= lw / 2
     }
 
     setContentOffset(offset)
