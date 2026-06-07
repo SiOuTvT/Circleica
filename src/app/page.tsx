@@ -158,7 +158,7 @@ export default async function HomePage({
       {/* Hero：品牌卡 + 公告 */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-5 mb-10">
         {/* 品牌卡 */}
-        <div className="rounded-2xl bg-card px-6 py-7 ring-1 ring-border flex flex-col justify-center">
+        <div className="rounded-2xl bg-card px-6 py-7 ring-1 ring-border flex flex-col justify-center min-h-[310px]">
           <h2 className="text-[26px] font-bold text-foreground tracking-tight">同人游戏站</h2>
           <p className="text-sm text-muted-foreground mt-1 mb-3">GalGame 同人世界的一站式入口</p>
           <div className="flex gap-4 mb-4">
