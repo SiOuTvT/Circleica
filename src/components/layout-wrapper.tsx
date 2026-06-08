@@ -129,6 +129,15 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         )}
       </main>
 
+      {/* 论坛侧边栏 - 在 translateX 容器外面，避免 fixed 定位被 transform 影响 */}
+      {isNormalRoute && (
+        <ForumSidebar
+          open={forumOpen}
+          expanded={rightExpanded}
+          onToggle={toggleForum}
+        />
+      )}
+
       <MusicPlayer />
     </BreadcrumbProvider>
   )
