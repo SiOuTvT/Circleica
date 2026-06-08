@@ -3,13 +3,11 @@ import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
-
-export const revalidate = 60
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
-import { Gamepad2 } from "lucide-react"
-import Link from "next/link"
 import { Suspense } from "react"
+
+export const revalidate = 60
 
 function GameGridSkeleton() {
   return (
@@ -104,17 +102,11 @@ export default async function HomePage({
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
 
-  // 获取发现页标签组的颜色（用于首页标签云）
-  const discoverGroup = await prisma.tagGroup.findUnique({
-    where: { id: "preset_discover" },
-    select: { color: true },
-  }).catch(() => null)
-  const discoverColor = discoverGroup?.color || "#a78bfa"
-
   let total = 0
   let todayCheckins = 0
   let weekNewGames = 0
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
+  let dbError = false
 
   try {
     const today = new Date()
@@ -134,9 +126,19 @@ export default async function HomePage({
     ])
   } catch (error) {
     console.error("[HomePage] Database query failed:", error)
+    dbError = true
   }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
+
+  if (dbError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <p className="text-lg text-muted-foreground">数据加载失败，请稍后重试</p>
+        <a href="/" className="text-sm text-primary hover:underline">刷新页面</a>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
