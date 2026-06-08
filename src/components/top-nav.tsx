@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   LogOut,
   Menu,
+  MessageSquare,
   SunMoon,
   Moon,
   Search,
