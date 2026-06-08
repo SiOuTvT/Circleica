@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
-export function ReportResolveBtn({ id, gameId }: { id: string; gameId: string }) {
+export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
 

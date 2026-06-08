@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Heart, Search } from "lucide-react"
+import Image from "next/image"
 import dynamic from "next/dynamic"
 
 const FavoriteDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FavoriteDeleteBtn })), {
@@ -75,7 +76,7 @@ export default async function AdminFavoritesPage({
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {fav.game.coverImage ? (
-                  <img src={fav.game.coverImage} alt={fav.game.title} className="h-full w-full object-cover" />
+                  <Image src={fav.game.coverImage} alt={fav.game.title} width={48} height={48} className="h-full w-full object-cover" unoptimized />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     <Heart className="h-5 w-5" />

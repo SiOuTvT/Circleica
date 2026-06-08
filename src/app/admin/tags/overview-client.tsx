@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ExternalLink, FolderInput, Layers, List, Palette, Tags } from "lucide-react"
+import { ChevronDown, ExternalLink, FolderInput, List } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { useRouter } from "next/navigation"

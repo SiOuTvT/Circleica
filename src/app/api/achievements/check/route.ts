@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { checkAchievements } from "@/lib/achievements"
+import { logger } from "@/lib/logger"
 import { NextResponse } from "next/server"
 
 /**
@@ -13,7 +14,7 @@ export async function POST() {
     const unlocked = await checkAchievements(session.user.id)
     return NextResponse.json({ unlocked })
   } catch (error) {
-    console.error("[Achievements Check]", error)
+    logger.game.error("[Achievements Check]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

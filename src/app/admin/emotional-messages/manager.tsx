@@ -12,6 +12,7 @@ import {
   Trash2, X,
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ const SEED_DATA: Omit<EmMsg, "id">[] = [
 ]
 
 export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg[] }) {
-  const [items, setItems] = useState(initialItems)
+  const [items] = useState(initialItems)
   const [filter, setFilter] = useState<string>("all")
   const [editing, setEditing] = useState<EmMsg | null>(null)
   const [creating, setCreating] = useState(false)
@@ -236,7 +237,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                       <Field label="插图 URL"><input value={editing!.imageUrl} onChange={e => setEditing(p => p && { ...p, imageUrl: e.target.value })} placeholder="https://..." className="em-input" /></Field>
                     </div>
                     {editing!.imageUrl && (
-                      <img src={editing!.imageUrl} alt="" className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" />
+                      <Image src={editing!.imageUrl} alt="" width={80} height={80} className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" unoptimized />
                     )}
                     <div className="flex gap-2">
                       <button onClick={() => handleUpdate(editing!)} disabled={pending}
@@ -255,7 +256,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                     {/* Emoji / 图标 */}
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-2xl">
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt="" className="h-full w-full rounded-lg object-cover" />
+                        <Image src={item.imageUrl} alt="" width={48} height={48} className="h-full w-full rounded-lg object-cover" unoptimized />
                       ) : item.emoji ? (
                         <span>{item.emoji}</span>
                       ) : (

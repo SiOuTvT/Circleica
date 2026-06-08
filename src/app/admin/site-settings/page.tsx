@@ -2,6 +2,7 @@
 
 import { adminInput } from "@/lib/admin-styles"
 import { Globe, Image as ImageIcon, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
+import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -189,8 +190,7 @@ export default function SiteSettingsPage() {
         <div className="flex items-center gap-4">
           <div className="relative h-40 w-28 overflow-hidden rounded-lg border border-border bg-muted">
             {placeholderUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={placeholderUrl} alt="占位图预览" className="h-full w-full object-cover" />
+              <Image src={placeholderUrl} alt="占位图预览" fill className="object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                 <ImageIcon className="h-10 w-10" />

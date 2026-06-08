@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Download, Eye, Gamepad2, Tag, Users } from "lucide-react"
+import Image from "next/image"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
@@ -155,7 +156,7 @@ export default async function AdminDashboard() {
               <div key={u.id} className="flex items-center gap-3 py-2.5">
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
                   {u.avatar
-                    ? <img src={u.avatar} alt="" className="h-full w-full object-cover" />
+                    ? <Image src={u.avatar} alt="" width={28} height={28} className="h-full w-full object-cover" unoptimized />
                     : <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
                 </div>
                 <Link href={`/user/${u.id}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>

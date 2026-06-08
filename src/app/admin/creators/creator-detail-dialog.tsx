@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ExternalLink, Loader2, User } from "lucide-react"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 interface CreatorInfo {
@@ -64,7 +65,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
             {/* 头像 */}
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted ring-2 ring-background shadow-md">
               {creator.avatar ? (
-                <img src={creator.avatar} alt={creator.name} className="h-full w-full object-cover" />
+                <Image src={creator.avatar} alt={creator.name} width={64} height={64} className="h-full w-full object-cover" unoptimized />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-400">
                   <User className="h-7 w-7 text-white/80" />

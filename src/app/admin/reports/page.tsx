@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Flag } from "lucide-react"
+import Image from "next/image"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
@@ -125,7 +126,7 @@ export default async function AdminReportsPage({
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {report.game.coverImage ? (
-                  <img src={report.game.coverImage} alt="" className="h-full w-full object-cover" />
+                  <Image src={report.game.coverImage} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     <Flag className="h-5 w-5" />

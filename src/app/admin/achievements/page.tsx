@@ -5,6 +5,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
+import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -209,7 +210,7 @@ export default function AdminAchievementsPage() {
               <tr key={ach.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    {ach.icon ? <img src={ach.icon} alt="" className="h-8 w-8 rounded-lg" /> : <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10"><Award className="h-4 w-4 text-amber-400" /></div>}
+                    {ach.icon ? <Image src={ach.icon} alt="" width={32} height={32} className="h-8 w-8 rounded-lg" unoptimized /> : <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10"><Award className="h-4 w-4 text-amber-400" /></div>}
                     <div><p className="font-medium text-foreground">{ach.name}</p><p className="text-xs text-muted-foreground truncate max-w-[200px]">{ach.description}</p></div>
                   </div>
                 </td>

@@ -2,6 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { api } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -48,7 +50,7 @@ export default function AdminAvatarFramesPage() {
       )
       setFrames(data.frames || [])
     } catch (error) {
-      console.error("加载头像框列表失败:", error)
+      logger.upload.error("加载头像框列表失败", error)
     } finally {
       setLoading(false)
     }
@@ -97,7 +99,7 @@ export default function AdminAvatarFramesPage() {
       setShowDialog(false)
       loadFrames()
     } catch (error) {
-      console.error("保存头像框失败:", error)
+      logger.upload.error("保存头像框失败", error)
       toast.error(error instanceof Error ? error.message : "保存失败")
     } finally {
       setSaving(false)
@@ -110,7 +112,7 @@ export default function AdminAvatarFramesPage() {
       await api.delete(`/api/admin/avatar-frames/${id}`)
       loadFrames()
     } catch (error) {
-      console.error("删除头像框失败:", error)
+      logger.upload.error("删除头像框失败", error)
       toast.error(error instanceof Error ? error.message : "删除失败")
     } finally {
       setDeleting(null)
@@ -165,10 +167,12 @@ export default function AdminAvatarFramesPage() {
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-foreground text-2xl font-bold">
                   {frame.name.charAt(0)}
                 </div>
-                <img
+                <Image
                   src={frame.imageUrl}
                   alt={frame.name}
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                  fill
+                  className="object-contain pointer-events-none"
+                  unoptimized
                 />
               </div>
 
@@ -313,10 +317,13 @@ export default function AdminAvatarFramesPage() {
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-foreground text-xl font-bold">
                     A
                   </div>
-                  <img
+                  <Image
                     src={form.imageUrl}
                     alt="预览"
+                    width={80}
+                    height={80}
                     className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                    unoptimized
                   />
                 </div>
               </div>

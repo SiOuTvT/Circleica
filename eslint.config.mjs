@@ -24,6 +24,13 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-explicit-any": "warn",
       // 动态 import 场景多，保留允许类型注释
       "@typescript-eslint/no-require-imports": ["error", { allow: [] }],
+      // 允许以 _ 开头的变量名表示有意不使用
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+      }],
     },
   },
 ]);

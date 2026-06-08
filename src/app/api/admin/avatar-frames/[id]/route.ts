@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { cleanupOldComposedAvatar } from "@/lib/avatar-compose"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
 import { NextResponse } from "next/server"
@@ -51,7 +52,7 @@ export async function PUT(
 
     return NextResponse.json({ frame })
   } catch (error) {
-    console.error("更新头像框失败:", error)
+    logger.upload.error("更新头像框失败", error)
     return NextResponse.json({ error: "更新失败" }, { status: 500 })
   }
 }
@@ -109,7 +110,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("删除头像框失败:", error)
+    logger.upload.error("删除头像框失败", error)
     return NextResponse.json({ error: "删除失败" }, { status: 500 })
   }
 }
