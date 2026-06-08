@@ -86,12 +86,12 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
         style={{
           background: "var(--sidebar)",
           borderRight: "1px solid var(--sidebar-border)",
-          width: collapsed ? 60 : expanded ? 260 : 220,
+          width: collapsed ? 60 : expanded ? 240 : 200,
           transition: "width 0.3s ease",
         }}
       >
         {/* 导航列表 - flex column, 底部放折叠按钮 */}
-        <nav className="flex flex-col overflow-y-auto overflow-x-hidden px-2 py-3 h-full" style={{ width: collapsed ? 60 : (expanded ? 260 : 220) }}>
+        <nav className="flex flex-col overflow-y-auto overflow-x-hidden px-2 py-3 h-full" style={{ width: collapsed ? 60 : (expanded ? 240 : 200) }}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-2">
               {section.items.map(({ icon: Icon, label, href }) => {
