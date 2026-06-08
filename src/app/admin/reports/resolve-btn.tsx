@@ -15,7 +15,7 @@ export function ReportResolveBtn({ id, gameId }: { id: string; gameId: string })
     const res = await fetch("/api/admin/reports", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ gameId }),
     })
     if (res.ok) {
       toast.success("举报已标记为已处理")

@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
+// 允许通过此端点修改的配置键名白名单
+const ALLOWED_KEYS = new Set([
+  "default_placeholder_image",
+  "site_name",
+  "site_description",
+  "registration_enabled",
+])
+
 // GET /api/admin/settings — 获取所有站点配置
 export async function GET() {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
@@ -21,8 +29,9 @@ export async function PUT(req: NextRequest) {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   try {
     const body = await req.json()
-    // body 是 { key: value, ... } 的对象
-    const entries = Object.entries(body).filter(([k]) => typeof k === "string")
+    const entries = Object.entries(body).filter(
+      ([k, v]) => typeof k === "string" && ALLOWED_KEYS.has(k) && (typeof v === "string" || typeof v === "boolean" || typeof v === "number")
+    )
 
     for (const [key, value] of entries) {
       await prisma.siteSetting.upsert({

@@ -26,8 +26,15 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  const { id } = await req.json()
-  if (!id) return NextResponse.json({ error: "缺少 ID" }, { status: 400 })
+  const { id, gameId } = await req.json()
+
+  if (gameId) {
+    // 按 gameId 删除该游戏的所有举报
+    const result = await prisma.gameReport.deleteMany({ where: { gameId } })
+    return NextResponse.json({ ok: true, deleted: result.count })
+  }
+
+  if (!id) return NextResponse.json({ error: "缺少 ID 或 gameId" }, { status: 400 })
 
   await prisma.gameReport.delete({ where: { id } })
   return NextResponse.json({ ok: true })

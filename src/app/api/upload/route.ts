@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "上传失败",
-        details: error instanceof Error ? error.message : String(error),
+        details: "上传失败",
       },
       { status: 500 }
     )
