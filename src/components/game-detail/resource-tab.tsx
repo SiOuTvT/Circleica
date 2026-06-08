@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { timeAgo } from "@/lib/time-ago"
 import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
+import Image from "next/image"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
@@ -160,7 +161,7 @@ const ResourceCard = memo(function ResourceCard({
       <div className="flex items-center gap-3.5 px-4 pb-2.5">
         <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground overflow-hidden shrink-0 ring-2 ring-background">
           {resource.userAvatar ? (
-            <img src={resource.userAvatar} alt="" className="h-full w-full object-cover" />
+            <Image src={resource.userAvatar} alt="" width={32} height={32} className="h-full w-full object-cover" unoptimized />
           ) : (
             (resource.username || "?")[0]
           )}
@@ -285,9 +286,9 @@ export function ResourceTab({
   creators,
   roleLabels,
   isLoggedIn,
-  isFav,
-  favCount,
-  onToggleFav,
+  isFav: _isFav,
+  favCount: _favCount,
+  onToggleFav: _onToggleFav,
   gameId,
   currentUserId,
   username,
@@ -540,7 +541,7 @@ export function ResourceTab({
                 className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-secondary"
               >
                 {c.avatar ? (
-                  <img src={c.avatar} alt={c.name} className="h-10 w-10 rounded-full object-cover" />
+                  <Image src={c.avatar} alt={c.name} width={40} height={40} className="h-10 w-10 rounded-full object-cover" unoptimized />
                 ) : (
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold bg-primary text-primary-foreground"

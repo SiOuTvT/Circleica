@@ -64,6 +64,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       setActiveIndex(index)
       if (!isPaused) startAutoPlay()
     },
+    // setActiveIndex is stable (empty deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activeIndex, isPaused, startAutoPlay]
   )
 
@@ -93,20 +95,20 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   const activeImage = galleryImages[activeIndex] ?? ""
 
-  // Track previous image for crossfade
-  const prevImageRef = useRef<string>(activeImage)
+  // Track previous image for crossfade using state (not ref) to avoid render-time ref access
+  const [prevImage, setPrevImage] = useState(activeImage)
   const [fading, setFading] = useState(false)
   useEffect(() => {
     if (!activeImage) return
-    if (prevImageRef.current !== activeImage) {
+    if (prevImage !== activeImage) {
       setFading(true)
       const timer = setTimeout(() => {
-        prevImageRef.current = activeImage
+        setPrevImage(activeImage)
         setFading(false)
       }, 350)
       return () => clearTimeout(timer)
     }
-  }, [activeImage])
+  }, [activeImage, prevImage])
 
   if (galleryImages.length === 0) {
     return (
@@ -172,10 +174,10 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
     <div className="group relative h-full w-full overflow-hidden">
       {/* Previous image underneath for crossfade */}
-      {fading && prevImageRef.current && prevImageRef.current !== activeImage && (
+      {fading && prevImage && prevImage !== activeImage && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={prevImageRef.current}
+          src={prevImage}
           alt=""
           className="absolute inset-0 w-full object-cover"
           style={{ height: '100%' }}
@@ -290,8 +292,6 @@ export function GalleryStrip({
     const active = container.children[activeIndex] as HTMLElement
     if (!active) return
     // 手动计算水平滚动位置，避免 scrollIntoView 导致页面纵向跳动
-    const containerRect = container.getBoundingClientRect()
-    const activeRect = active.getBoundingClientRect()
     const scrollLeft =
       active.offsetLeft - container.offsetWidth / 2 + active.offsetWidth / 2
     container.scrollTo({ left: scrollLeft, behavior: "smooth" })

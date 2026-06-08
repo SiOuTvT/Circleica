@@ -2,11 +2,12 @@
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
+import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
@@ -77,12 +78,12 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
     return posts.filter(p => filter === "solved" ? p.isSolved : !p.isSolved)
   }, [posts, filter])
 
-  async function openPost(id: string) {
+  const openPost = useCallback(async (id: string) => {
     setLoadingPost(true)
     const res = await fetch(`/api/forum/posts/${id}`)
     if (res.ok) setActivePost(await res.json())
     setLoadingPost(false)
-  }
+  }, [])
 
   async function loadMore() {
     if (loadingMore || currentPage >= totalPages) return
@@ -97,7 +98,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         setTotalPages(data.totalPages)
       }
     } catch (error) {
-      console.error("Failed to load more posts:", error)
+      logger.forum.error("Failed to load more posts", error)
     } finally {
       setLoadingMore(false)
     }
@@ -503,8 +504,7 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 <p className="text-xs leading-relaxed text-muted-foreground break-words">{c.content}</p>
                 {c.imageUrl && (
                   <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 block max-w-[200px]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.imageUrl} alt="评论图片" className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-border transition-all" />
+                    <Image src={c.imageUrl} alt="评论图片" width={200} height={128} className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-border transition-all" unoptimized />
                   </a>
                 )}
                 <div className="mt-1 flex items-center gap-2">

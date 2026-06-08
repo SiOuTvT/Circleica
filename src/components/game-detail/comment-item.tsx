@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { memo } from "react"
 import type { Comment } from "./use-comments"
 
@@ -20,10 +21,13 @@ export const CommentItem = memo(function CommentItem({
     <div className="bg-card rounded-2xl p-4 space-y-3">
       <div className="flex items-start gap-3">
         {comment.user.avatar ? (
-          <img
+          <Image
             src={comment.user.avatar}
             alt={comment.user.username}
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            width={32}
+            height={32}
+            className="rounded-full object-cover flex-shrink-0"
+            unoptimized
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
@@ -34,6 +38,7 @@ export const CommentItem = memo(function CommentItem({
           <span className="text-sm font-semibold text-foreground">{comment.user.username}</span>
           <p className="mt-1 text-sm text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
           {comment.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={comment.imageUrl}
               alt="comment"
@@ -74,10 +79,13 @@ export const CommentItem = memo(function CommentItem({
           {comment.replies.map((reply) => (
             <div key={reply.id} className="flex items-start gap-3">
               {reply.user.avatar ? (
-                <img
+                <Image
                   src={reply.user.avatar}
                   alt={reply.user.username}
-                  className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                  width={24}
+                  height={24}
+                  className="rounded-full object-cover flex-shrink-0"
+                  unoptimized
                 />
               ) : (
                 <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-semibold text-muted-foreground flex-shrink-0">
@@ -88,6 +96,7 @@ export const CommentItem = memo(function CommentItem({
                 <span className="text-xs font-semibold text-foreground">{reply.user.username}</span>
                 <p className="mt-0.5 text-sm text-foreground whitespace-pre-wrap break-words">{reply.content}</p>
                 {reply.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={reply.imageUrl}
                     alt="reply"

@@ -224,7 +224,7 @@ interface AddResourceDialogProps {
 }
 
 export function AddResourceDialog({
-  gameId,
+  gameId: _gameId,
   userId,
   username,
   userAvatar,
@@ -355,7 +355,7 @@ export function AddResourceDialog({
 
     setOpen(false)
     handleReset()
-  }, [entries, platform, language, runType, resourceContent, resourceName, resourceNote, gameId, userId, username, userAvatar, isValid, submitting, onAdd, onEdit, handleReset, isEditMode, editData])
+  }, [entries, platform, language, runType, resourceContent, resourceName, resourceNote, userId, username, userAvatar, isValid, submitting, onAdd, onEdit, handleReset, isEditMode, editData, setOpen])
 
   const canSubmit = isValid() && !submitting
 

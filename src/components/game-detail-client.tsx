@@ -156,7 +156,7 @@ export default function GameDetailClient({
     } finally {
       if (!controller.signal.aborted) setFavPending(false)
     }
-  }, [isLoggedIn, favPending, fav, favCnt, gameId])
+  }, [isLoggedIn, favPending, fav, favCnt, gameId, favMsgs])
 
 
   return (

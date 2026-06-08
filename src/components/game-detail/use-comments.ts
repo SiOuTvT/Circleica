@@ -29,7 +29,7 @@ const SUBMITTED = 2
  * 评论系统 hook（组合 hook）
  * 组合 useCommentList + useCommentUpload，添加提交和回复逻辑
  */
-export function useComments(gameId: string, initialComments: Comment[], initialCount: number, isLoggedIn: boolean, userId?: string) {
+export function useComments(gameId: string, initialComments: Comment[], initialCount: number, _isLoggedIn: boolean, _userId?: string) {
   const [commentStatus, setCommentStatus] = useState(IDLE)
   const [commentText, setCommentText] = useState("")
   const [commentImage, setCommentImage] = useState("")

@@ -56,6 +56,7 @@ export function CommentsSection({ isLoggedIn, comments }: CommentsSectionProps) 
 
           {commentImage && (
             <div className="relative inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={commentImage}
                 alt="uploaded"
