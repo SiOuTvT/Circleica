@@ -3,7 +3,7 @@
 import { ImageUpload } from "@/components/image-upload"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
-import { ChevronDown, Loader2, Plus, X } from "lucide-react"
+import { Loader2, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
@@ -32,7 +32,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   // 标签列表（可被 VNDB 拉取动态扩展）
   const [tags, setTags] = useState<Tag[]>(initialTags)
-  const [tagGroups, setTagGroups] = useState<TagGroup[]>(initialTagGroups)
+  const [tagGroups] = useState<TagGroup[]>(initialTagGroups)
 
   const [title, setTitle]               = useState(initialData?.title ?? "")
   const handleTitleChange = (v: string) => { setTitle(v); setFormTouched(true) }
@@ -60,6 +60,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   // 创作者（VNDB 拉取或手动添加）
   const [creators, setCreators] = useState<Array<{ vndbId: string; name: string; nameJa: string; role: string }>>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (initialData as any)?.creators ?? []
   )
 
@@ -218,10 +219,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
   }
 
-  function toggleMultiSelect(arr: string[], setArr: (v: string[]) => void, val: string) {
-    setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val])
-  }
-
   function toggleTag(id: string) {
     setSelectedTags((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id])
   }
@@ -337,77 +334,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
-  /* 通用多选标签渲染器 — 下拉选择控件 */
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
-  function renderMultiSelect(label: string, options: string[], selected: string[], setSelected: (v: string[]) => void, id: string) {
-    const isOpen = openDropdown === id
-    return (
-      <div className="relative">
-        <label className={labelCls}>{label}</label>
-        {/* 选择框 */}
-        <button
-          type="button"
-          onClick={() => setOpenDropdown(isOpen ? null : id)}
-          className="w-full rounded-xl bg-secondary px-4 py-2.5 text-left text-sm ring-1 ring-border outline-none focus:ring-ring transition-all"
-        >
-          <div className="flex flex-wrap items-center gap-1.5 min-h-[20px]">
-            {selected.length === 0 ? (
-              <span className="text-muted-foreground/50">点击选择{label}…</span>
-            ) : (
-              selected.map(s => (
-                <span key={s} className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
-                  {s}
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => { e.stopPropagation(); setSelected(selected.filter(v => v !== s)) }}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setSelected(selected.filter(v => v !== s)) } }}
-                    className="hover:text-red-400 transition-colors cursor-pointer"
-                  >
-                    <X className="w-3 h-3" />
-                  </span>
-                </span>
-              ))
-            )}
-            <ChevronDown className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
-          </div>
-        </button>
-        {/* 下拉选项 */}
-        {isOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
-            <div className="absolute z-50 mt-1 w-full rounded-xl bg-popover p-1.5 shadow-xl ring-1 ring-border max-h-60 overflow-y-auto">
-              {options.map(opt => {
-                const checked = selected.includes(opt)
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => toggleMultiSelect(selected, setSelected, opt)}
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-                      checked
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground hover:bg-accent"
-                    }`}
-                  >
-                    <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold transition-colors ${
-                      checked
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background"
-                    }`}>
-                      {checked && "✓"}
-                    </span>
-                    {opt}
-                  </button>
-                )
-              })}
-            </div>
-          </>
-        )}
-      </div>
-    )
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

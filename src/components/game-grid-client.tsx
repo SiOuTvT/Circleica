@@ -1,6 +1,7 @@
 "use client"
 
 import { GameCard, type GameCardData } from "@/components/game-card"
+import { logger } from "@/lib/logger"
 import { ChevronDown, Loader2, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 
@@ -43,7 +44,7 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
         setGames(prev => [...prev, ...data.games])
         setPage(p => p + 1)
       } catch (err) {
-        console.error("加载更多游戏失败:", err)
+        logger.game.error("加载更多游戏失败", err)
         setError(true)
       }
     })

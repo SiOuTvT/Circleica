@@ -1,5 +1,6 @@
 "use client"
 
+import { logger } from "@/lib/logger"
 import { Loader2, Sparkles, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -39,7 +40,7 @@ export function RandomCreatorBtn() {
         }
       }
     } catch (error) {
-      console.error("Random selection error:", error)
+      logger.game.error("Random selection error", error)
       toast.error(`随机选择失败: ${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setLoading(false)
@@ -86,7 +87,7 @@ export function RandomCharacterBtn() {
         toast.error("暂无角色数据，请稍后重试")
       }
     } catch (error) {
-      console.error("Random character error:", error)
+      logger.game.error("Random character error", error)
       toast.error(`随机角色获取失败: ${error instanceof Error ? error.message : '未知错误'}`)
     } finally {
       setLoading(false)

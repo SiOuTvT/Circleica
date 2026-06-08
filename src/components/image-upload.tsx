@@ -1,8 +1,10 @@
 ﻿"use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { Upload, X } from "lucide-react"
+import Image from "next/image"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -98,7 +100,7 @@ export function ImageUpload({
         }
       }
     } catch (err) {
-      console.error("上传失败:", err)
+      logger.upload.error("上传失败", err)
       toast.error(err instanceof Error ? err.message : "上传失败，请重试")
       setPreview(value || null)
     }
@@ -174,8 +176,7 @@ export function ImageUpload({
           )}
           style={{ aspectRatio }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="预览" className="h-full w-full object-cover" />
+          <Image src={preview} alt="预览" fill className="object-cover" unoptimized />
           {/* 悬浮遮罩 */}
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
             <button

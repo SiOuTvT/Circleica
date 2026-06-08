@@ -1,4 +1,3 @@
-import { getCopy } from "@/lib/copy"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 

@@ -48,7 +48,7 @@ interface NavSidebarProps {
   onMobileToggle?: () => void
 }
 
-export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
+export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
   const pathname = usePathname()
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([])
 
@@ -64,7 +64,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle, mobileOpen =
     if (mobileOpen && onMobileToggle) {
       onMobileToggle()
     }
-  }, [pathname])
+  }, [pathname, mobileOpen, onMobileToggle])
 
   return (
     <>

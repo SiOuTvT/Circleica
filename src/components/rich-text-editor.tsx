@@ -1,5 +1,6 @@
 ﻿"use client"
 
+import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import Image from "@tiptap/extension-image"
 import Link from "@tiptap/extension-link"
@@ -108,7 +109,7 @@ export function RichTextEditor({
           throw new Error(data.error || "上传失败")
         }
       } catch (error) {
-        console.error("图片上传失败:", error)
+        logger.upload.error("图片上传失败", error)
         toast.error("图片上传失败")
       } finally {
         setUploading(false)

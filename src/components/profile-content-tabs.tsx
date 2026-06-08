@@ -3,6 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Trash2, Unlock, X } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -344,7 +345,7 @@ function FavoritesTab({
                   {folder.games.slice(0, 5).map((g) => (
                     <div key={g.id} className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
                       {g.coverImage ? (
-                        <img src={g.coverImage} alt={g.title} className="h-full w-full object-cover" />
+                        <Image src={g.coverImage} alt={g.title} width={48} height={64} className="h-full w-full object-cover" unoptimized />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
                           <FolderHeart className="h-4 w-4" />
@@ -443,10 +444,13 @@ function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: (
                 {folder.games.map((g) => (
                   <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
                     {g.coverImage ? (
-                      <img
+                      <Image
                         src={g.coverImage}
                         alt={g.title}
+                        width={120}
+                        height={160}
                         className="aspect-[3/4] w-full rounded-lg object-cover transition-transform group-hover:scale-[1.03]"
+                        unoptimized
                       />
                     ) : (
                       <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -530,7 +534,7 @@ function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; statu
       {playStatusGames.map(({ game, status }) => (
         <Link key={game.id} href={`/games/${game.serialId ?? game.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 transition-colors hover:bg-secondary/70">
           {game.coverImage ? (
-            <img src={game.coverImage} alt={game.title} className="h-12 w-9 rounded-md object-cover" />
+            <Image src={game.coverImage} alt={game.title} width={36} height={48} className="h-12 w-9 rounded-md object-cover" unoptimized />
           ) : (
             <div className="flex h-12 w-9 items-center justify-center rounded-md bg-muted text-muted-foreground">
               <Gamepad2 className="h-4 w-4" />
