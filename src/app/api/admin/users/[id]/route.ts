@@ -10,7 +10,15 @@ type Ctx = { params: Promise<{ id: string }> }
 export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const { newPassword, role } = await req.json()
+
+  let newPassword: string | undefined, role: string | undefined
+  try {
+    const body = await req.json()
+    newPassword = body.newPassword
+    role = body.role
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   const data: Record<string, string> = {}
   if (role) {

@@ -32,7 +32,12 @@ export async function POST(req: NextRequest) {
   const session = await getAdminSession()
   if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, creators, releaseDate, gameDuration, studioName, englishName, aliases } = body
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })

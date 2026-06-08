@@ -32,7 +32,7 @@ export default async function AdminFavoritesPage({
   const [favorites, total] = await Promise.all([
     prisma.favorite.findMany({
       where,
-      orderBy: { id: "desc" },
+      orderBy: { createdAt: "desc" },
       skip, take: limit,
       include: {
         user: { select: { id: true, username: true, avatar: true } },

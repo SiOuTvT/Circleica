@@ -32,7 +32,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { title, content, imageUrl, link } = await req.json()
+
+  let title: string, content: string, imageUrl: string | undefined, link: string | undefined
+  try {
+    const body = await req.json()
+    title = body.title
+    content = body.content
+    imageUrl = body.imageUrl
+    link = body.link
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
   const ann = await prisma.announcement.create({
     data: { title: title.trim(), content: content.trim(), imageUrl: imageUrl?.trim() ?? "", link: link?.trim() ?? "" },

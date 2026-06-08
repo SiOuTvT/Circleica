@@ -106,7 +106,7 @@ export default async function AdminCheckInsPage({
                   {ci.user.username}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  签到日期: {ci.date} · 创建时间: {new Date(ci.createdAt).toLocaleString("zh-CN")}
+                  签到日期: {new Date(ci.date).toLocaleDateString("zh-CN")} · 创建时间: {new Date(ci.createdAt).toLocaleString("zh-CN")}
                 </p>
               </div>
               <CheckinDeleteBtn id={ci.id} />

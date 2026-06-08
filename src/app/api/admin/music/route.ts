@@ -10,7 +10,15 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { title, url } = await req.json()
+
+  let title: string, url: string
+  try {
+    const body = await req.json()
+    title = body.title
+    url = body.url
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!title?.trim() || !url?.trim()) return NextResponse.json({ error: "标题和链接不能为空" }, { status: 400 })
 
   const music = await prisma.music.create({

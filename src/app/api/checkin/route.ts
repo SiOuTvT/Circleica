@@ -11,8 +11,10 @@ async function handleCheckin(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return unauthorized()
 
-  // 使用 Asia/Shanghai 时区计算日期，避免 UTC 时区偏差
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+  // 使用 Asia/Shanghai 时区计算日期
+  const now = new Date()
+  const todayStr = now.toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+  const today = new Date(todayStr + "T00:00:00.000Z")
 
   try {
     const existing = await prisma.checkIn.findUnique({
@@ -30,7 +32,7 @@ async function handleCheckin(req: NextRequest) {
     // 异步检查成就解锁（不阻塞响应）
     checkAchievements(session.user.id).catch(() => {})
 
-    return ok({ ok: true, total, date: today })
+    return ok({ ok: true, total, date: todayStr })
   } catch (error) {
     logger.user.error("Check-in failed", error, { userId: session.user.id })
     return serverError("签到失败，请稍后重试")
@@ -45,7 +47,9 @@ async function handleGetCheckinStatus() {
   if (!session?.user?.id) return ok({ checkedIn: false, total: 0 })
 
   try {
-    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const now = new Date()
+    const todayStr = now.toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
+    const today = new Date(todayStr + "T00:00:00.000Z")
     const [existing, total] = await Promise.all([
       prisma.checkIn.findUnique({ where: { userId_date: { userId: session.user.id, date: today } } }),
       prisma.checkIn.count({ where: { userId: session.user.id } }),

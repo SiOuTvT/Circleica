@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false, // 保持严格检查，但通过 tsconfig 排除特定模块
   },
-  // 显式关闭 StrictMode，避免生产环境双重渲染
+  // 关闭 StrictMode（开发环境双重渲染影响调试体验）
   reactStrictMode: false,
 };
 

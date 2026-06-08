@@ -75,33 +75,40 @@ export async function PUT(req: NextRequest) {
 
   // 清理已删除的标签：从所有 GameResource 的对应字段中移除
   if (removedTags.length > 0) {
-    const fieldMap: Record<string, string> = {
-      resource_platforms: "platform",
-      resource_languages: "language",
-      resource_run_types: "runType",
-      resource_content_types: "resourceContent",
-    }
-    const field = fieldMap[key]
-    if (field) {
-      // 查找所有包含任意被删除标签的资源
-      const likeConditions = removedTags.map(() => `"${field}" LIKE $1`).join(' OR ')
-      const likeParams = removedTags.map(t => `%${t}%`)
+    const removedSet = new Set(removedTags)
 
-      const resources = await prisma.$queryRawUnsafe<{ id: string; tags: string }[]>(
-        `SELECT id, "${field}" as tags FROM "GameResource" WHERE ${likeConditions}`,
-        ...likeParams
-      )
+    // 使用 Prisma findMany + update 替代原始 SQL
+    const allResources = await prisma.gameResource.findMany({
+      select: { id: true, platform: true, language: true, runType: true, resourceContent: true },
+    })
 
-      for (const resource of resources) {
-        const tags: string[] = JSON.parse(resource.tags || "[]")
-        const filtered = tags.filter(t => !removedTags.includes(t))
+    for (const resource of allResources) {
+      let fieldToUpdate: string | null = null
+      let filtered: string[] = []
+
+      // 检查每个字段是否包含被删除的标签
+      const fields: Array<{ key: string; value: string; field: "platform" | "language" | "runType" | "resourceContent" }> = [
+        { key: "resource_platforms", value: resource.platform, field: "platform" },
+        { key: "resource_languages", value: resource.language, field: "language" },
+        { key: "resource_run_types", value: resource.runType, field: "runType" },
+        { key: "resource_content_types", value: resource.resourceContent, field: "resourceContent" },
+      ]
+
+      // 只处理当前修改的标签组对应的字段
+      const targetField = fields.find(f => f.key === key)
+      if (targetField) {
+        const tags: string[] = JSON.parse(targetField.value || "[]")
+        filtered = tags.filter(t => !removedSet.has(t))
         if (filtered.length !== tags.length) {
-          await prisma.$executeRawUnsafe(
-            `UPDATE "GameResource" SET "${field}" = $1 WHERE id = $2`,
-            JSON.stringify(filtered),
-            resource.id
-          )
+          fieldToUpdate = targetField.field
         }
+      }
+
+      if (fieldToUpdate) {
+        await prisma.gameResource.update({
+          where: { id: resource.id },
+          data: { [fieldToUpdate]: JSON.stringify(filtered) },
+        })
       }
     }
   }

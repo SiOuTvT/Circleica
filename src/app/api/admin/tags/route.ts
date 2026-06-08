@@ -24,7 +24,18 @@ export async function POST(req: NextRequest) {
   // 确保预设标签组存在（创建标签时可能引用默认组）
   await ensurePresetTagGroups()
 
-  const { name, description, color, groupId, sortOrder, isVisible } = await req.json()
+  let name: string, description: string | undefined, color: string | undefined, groupId: string | undefined, sortOrder: number | undefined, isVisible: boolean | undefined
+  try {
+    const body = await req.json()
+    name = body.name
+    description = body.description
+    color = body.color
+    groupId = body.groupId
+    sortOrder = body.sortOrder
+    isVisible = body.isVisible
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
 
   const exists = await prisma.tag.findUnique({ where: { name: name.trim() } })

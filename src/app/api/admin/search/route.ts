@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim()
   if (!q) return NextResponse.json([])
 
-  const contains = { contains: q }
+  const contains = { contains: q, mode: "insensitive" as const }
 
   const [games, users, tags, posts] = await Promise.all([
     prisma.game.findMany({

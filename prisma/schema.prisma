@@ -238,10 +238,11 @@ model GameResourceEntry {
 }
 
 model Favorite {
-  id           String @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
   gameId       String
   collectionId String?
+  createdAt    DateTime @default(now())
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
@@ -375,7 +376,7 @@ model PasswordResetToken {
 model CheckIn {
   id        String   @id @default(cuid())
   userId    String
-  date      String   // YYYY-MM-DD
+  date      DateTime @db.Date
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, date])
