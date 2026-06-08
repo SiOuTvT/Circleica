@@ -8,28 +8,42 @@ export const revalidate = 120
 export const metadata = { title: "精选合集 · 同人游戏站" }
 
 export default async function CollectionsPage() {
-  // 1. 先查所有原作系列及其游戏数量（数据库层面分组）
+  // 1. 查所有原作系列及其游戏数量
   const groupCounts = await prisma.game.groupBy({
     by: ["originalWork"],
     where: { isPublished: true, isNsfw: false, NOT: { originalWork: "" } },
     _count: { id: true },
     orderBy: { _count: { id: "desc" } },
-    take: 100, // 最多显示 100 个系列
+    take: 100,
   })
 
-  // 2. 批量查询每个系列的前 8 个游戏
-  const sorted: [string, { id: string; serialId: number; title: string; coverImage: string; favoriteCount: number }[]][] =
-    await Promise.all(
-      groupCounts.map(async (g) => {
-        const games = await prisma.game.findMany({
-          where: { isPublished: true, isNsfw: false, originalWork: g.originalWork },
-          orderBy: { favoriteCount: "desc" },
-          take: 8,
-          select: { id: true, serialId: true, title: true, coverImage: true, favoriteCount: true },
-        })
-        return [g.originalWork, games]
-      })
-    )
+  const seriesNames = groupCounts.map(g => g.originalWork)
+
+  // 2. 单次查询获取所有系列的游戏（避免 N+1）
+  const allGames = await prisma.game.findMany({
+    where: {
+      isPublished: true,
+      isNsfw: false,
+      originalWork: { in: seriesNames },
+    },
+    orderBy: { favoriteCount: "desc" },
+    select: { id: true, serialId: true, title: true, coverImage: true, favoriteCount: true, originalWork: true },
+  })
+
+  // 3. 按系列分组，每个系列取前 8 个
+  const gamesBySeries = new Map<string, typeof allGames>()
+  for (const game of allGames) {
+    const list = gamesBySeries.get(game.originalWork) ?? []
+    if (list.length < 8) {
+      list.push(game)
+      gamesBySeries.set(game.originalWork, list)
+    }
+  }
+
+  // 4. 按系列排序输出
+  const sorted: [string, typeof allGames][] = groupCounts
+    .map(g => [g.originalWork, gamesBySeries.get(g.originalWork) ?? []] as [string, typeof allGames])
+    .filter(([_, games]) => games.length > 0)
 
   return (
     <ThemeText className="space-y-8">

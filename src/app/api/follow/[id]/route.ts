@@ -1,10 +1,17 @@
 import { auth } from "@/lib/auth"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/follow/[id] - 关注用户
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // 速率限制
+  const rateLimit = await checkRateLimit(rateLimits.api)
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "请求过于频繁" }, { status: 429 })
+  }
+
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: "未登录" }, { status: 401 })

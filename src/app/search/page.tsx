@@ -5,8 +5,27 @@ import { SearchBar } from "@/components/search-bar"
 import { TagCloud } from "@/components/tag-cloud"
 import { prisma } from "@/lib/prisma"
 import { Clock, Heart, TrendingUp, X } from "lucide-react"
+import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Suspense } from "react"
+
+// 缓存标签查询（5 分钟）
+const getCachedDiscoverTags = unstable_cache(
+  async () => {
+    const discoverGroup = await prisma.tagGroup.findUnique({
+      where: { id: "preset_discover" },
+      select: { color: true },
+    })
+    const discoverColor = discoverGroup?.color || "#a78bfa"
+    const rawTags = await prisma.tag.findMany({
+      orderBy: { name: "asc" },
+      include: { group: { select: { color: true } } },
+    })
+    return rawTags.map(t => ({ ...t, color: discoverColor }))
+  },
+  ["search-page-tags"],
+  { revalidate: 300, tags: ["tags"] }
+)
 
 type SortKey = "newest" | "popular" | "mostFaved"
 
@@ -210,19 +229,8 @@ export default async function SearchPage({
   const nsfw  = sp.nsfw === "1"
   const page  = Math.max(1, parseInt(sp.page || "1"))
 
-  // 获取发现页标签组的颜色（用于覆盖标签自身颜色）
-  const discoverGroup = await prisma.tagGroup.findUnique({
-    where: { id: "preset_discover" },
-    select: { color: true },
-  })
-  const discoverColor = discoverGroup?.color || "#a78bfa"
-
-  const rawTags = await prisma.tag.findMany({
-    orderBy: { name: "asc" },
-    include: { group: { select: { color: true } } },
-  })
-  // 搜索页统一使用发现页标签组的颜色
-  const tags = rawTags.map(t => ({ ...t, color: discoverColor }))
+  // 获取标签（带缓存，5 分钟刷新）
+  const tags = await getCachedDiscoverTags()
 
   function buildHref(overrides: Record<string, string>) {
     const p = new URLSearchParams()

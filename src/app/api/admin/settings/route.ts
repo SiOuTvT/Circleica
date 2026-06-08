@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
+/**
+ * 站点配置 API
+ *
+ * ⚠️ 注意：此端点与 /api/admin/site-settings 功能重复。
+ * - /api/admin/settings — 直接操作 prisma，有键名白名单
+ * - /api/admin/site-settings — 使用 site-settings.ts 工具函数
+ *
+ * 两者都被前端使用，暂保留两份。未来应统一为一个。
+ */
+
 // 允许通过此端点修改的配置键名白名单
 const ALLOWED_KEYS = new Set([
   "default_placeholder_image",

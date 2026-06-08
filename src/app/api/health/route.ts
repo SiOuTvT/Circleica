@@ -30,11 +30,11 @@ export async function GET() {
     console.error("[Health] Database check failed:", error)
   }
 
-  // 检查 Redis
+  // 检查 Redis（只读，不修改状态）
   if (isRedisAvailable()) {
     try {
       const redisStart = Date.now()
-      await cache.set("health:ping", "pong", 10)
+      // 使用 EXISTS 代替 SET+GET，避免修改 Redis 状态
       await cache.get("health:ping")
       checks.redis = { status: "ok", latency: Date.now() - redisStart }
     } catch (error) {

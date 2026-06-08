@@ -1,6 +1,8 @@
 import { checkAchievements } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
+import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
+import { rateLimits } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
@@ -55,7 +57,7 @@ export async function GET(req: NextRequest) {
   })
 }
 
-export async function POST(req: NextRequest) {
+async function handleCreatePost(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
 
@@ -90,3 +92,6 @@ export async function POST(req: NextRequest) {
     user: post.user, commentCount: 0,
   }, { status: 201 })
 }
+
+export const POST = (req: NextRequest) =>
+  withRateLimit(handleCreatePost, rateLimits.comment, "forum-post")(req)

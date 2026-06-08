@@ -17,42 +17,38 @@ export function roleAtLeast(role: UserRole, minimum: UserRole): boolean {
   return (ROLE_LEVEL[role] ?? 0) >= (ROLE_LEVEL[minimum] ?? 0)
 }
 
-/** 页面用：要求 ADMIN 或以上，否则重定向 */
-export async function requireAdmin() {
+/** 获取当前用户 session 和 role（共享查询） */
+async function getSessionWithRole() {
   const session = await auth()
-  if (!session?.user?.id) redirect("/login")
+  if (!session?.user?.id) return { session: null, role: null }
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { role: true },
   })
-  if (!roleAtLeast(user?.role ?? "USER", "ADMIN")) redirect("/")
+  return { session, role: user?.role ?? "USER" as UserRole }
+}
+
+/** 页面用：要求 ADMIN 或以上，否则重定向 */
+export async function requireAdmin() {
+  const { session, role } = await getSessionWithRole()
+  if (!session) redirect("/login")
+  if (!roleAtLeast(role!, "ADMIN")) redirect("/")
   return session
 }
 
 /** 页面用：要求 SUPER_ADMIN，否则重定向 */
 export async function requireSuperAdmin() {
-  const session = await auth()
-  if (!session?.user?.id) redirect("/login")
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  })
-  if (!roleAtLeast(user?.role ?? "USER", "SUPER_ADMIN")) redirect("/admin")
+  const { session, role } = await getSessionWithRole()
+  if (!session) redirect("/login")
+  if (!roleAtLeast(role!, "SUPER_ADMIN")) redirect("/admin")
   return session
 }
 
 /** API 路由用：返回 session + role，null 表示无权限 */
 export async function getAdminSession(minimumRole: UserRole = "ADMIN") {
-  const session = await auth()
-  if (!session?.user?.id) return null
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  })
-  const role = user?.role ?? "USER"
-  if (!roleAtLeast(role, minimumRole)) return null
-  return { ...session, userRole: role }
+  const { session, role } = await getSessionWithRole()
+  if (!session) return null
+  if (!roleAtLeast(role!, minimumRole)) return null
+  return { ...session, userRole: role! }
 }
