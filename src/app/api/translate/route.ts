@@ -1,4 +1,12 @@
+import { checkRateLimit, getClientIP, type RateLimitConfig } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
+
+// 翻译专用限流：每分钟 10 次
+const translateRateLimit: RateLimitConfig = {
+  windowMs: 60_000,
+  maxRequests: 10,
+  message: "翻译请求过于频繁，请稍后再试",
+}
 
 /**
  * 翻译代理 API
@@ -44,6 +52,22 @@ async function translateWithGoogle(text: string): Promise<string | null> {
 }
 
 export async function POST(req: NextRequest) {
+  // 速率限制
+  const rateLimit = await checkRateLimit(translateRateLimit)
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: translateRateLimit.message },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": String(rateLimit.limit),
+          "X-RateLimit-Remaining": String(rateLimit.remaining),
+          "X-RateLimit-Reset": String(rateLimit.reset),
+        },
+      }
+    )
+  }
+
   try {
     const { text } = await req.json()
 

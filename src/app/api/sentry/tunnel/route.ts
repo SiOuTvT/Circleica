@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
     const header = JSON.parse(piece)
 
     const dsn = new URL(header.dsn)
-    const isAllowedDsn = dsn.hostname.endsWith(SENTRY_HOST)
+    // 精确匹配 sentry.io 或 *.sentry.io，防止 evil-sentry.io 等伪造域名
+    const isAllowedDsn = dsn.hostname === SENTRY_HOST || dsn.hostname.endsWith(`.${SENTRY_HOST}`)
 
     if (!isAllowedDsn) {
       return NextResponse.json({ error: "Invalid DSN" }, { status: 400 })

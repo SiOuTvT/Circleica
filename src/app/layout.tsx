@@ -2,9 +2,13 @@ import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
 import { auth } from "@/lib/auth"
+import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
 import NextTopLoader from "nextjs-toploader"
 import "./globals.css"
+
+// 启动时安全检查（仅开发环境输出警告）
+checkSecurity()
 
 export const viewport: Viewport = {
   width: "device-width",

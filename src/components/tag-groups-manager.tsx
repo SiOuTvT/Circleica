@@ -1,5 +1,6 @@
 "use client"
 
+import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS, getPositionsByGroup } from "@/lib/tag-positions"
 import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
@@ -31,12 +32,7 @@ export interface TagGroup {
 
 /* ──────────────────── 常量 ──────────────────── */
 
-const PRESET_COLORS = [
-  "#7c8a9e", "#6b7280", "#9ca3af",
-  "#a78bfa", "#818cf8", "#60a5fa", "#38bdf8", "#22d3ee",
-  "#34d399", "#4ade80", "#facc15", "#fb923c", "#f87171",
-  "#e879f9", "#f472b6",
-]
+const PRESET_COLORS = TAG_PRESET_COLORS
 
 const POSITION_GROUPS = getPositionsByGroup()
 

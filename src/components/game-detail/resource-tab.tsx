@@ -1,30 +1,11 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { timeAgo } from "@/lib/time-ago"
 import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
-
-/* ─── 相对时间格式化 ─── */
-function formatRelativeTime(dateStr: string): string {
-  const now = Date.now()
-  const date = new Date(dateStr).getTime()
-  const diff = now - date
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
-  const months = Math.floor(days / 30)
-  const years = Math.floor(days / 365)
-
-  if (seconds < 60) return "刚刚"
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 30) return `${days}天前`
-  if (months < 12) return `${months}个月前`
-  return `${years}年前`
-}
 
 /* ─── 后台配置的下载链接 ─── */
 type DownloadLink = { label: string; url: string }
@@ -188,7 +169,7 @@ const ResourceCard = memo(function ResourceCard({
             {resource.username || "热心网友"}
           </p>
           <p className="text-sm text-muted-foreground/80">
-            {formatRelativeTime(resource.createdAt)}
+            {timeAgo(resource.createdAt)}
             {resource.userResourceCount > 0 && (
               <span className="ml-2">· 已发布 {resource.userResourceCount} 条资源</span>
             )}

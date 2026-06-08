@@ -1,5 +1,6 @@
 "use client"
 
+import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -18,11 +19,7 @@ interface Tag {
   isVisible?: boolean
 }
 
-const PRESET_COLORS = [
-  "#a78bfa", "#818cf8", "#60a5fa", "#38bdf8", "#22d3ee",
-  "#34d399", "#4ade80", "#facc15", "#fb923c", "#f87171",
-  "#e879f9", "#f472b6",
-]
+const PRESET_COLORS = TAG_PRESET_COLORS
 
 export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]; initialGroups: TagGroup[] }) {
   const [tags, setTags] = useState(initialTags)
