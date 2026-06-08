@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { UserRole } from "@prisma/client"
 import { redirect } from "next/navigation"
 
-export type UserRole = "USER" | "ADMIN" | "SUPER_ADMIN"
+export type { UserRole }
 
 /** 角色等级：USER=0, ADMIN=1, SUPER_ADMIN=2 */
 const ROLE_LEVEL: Record<UserRole, number> = {
@@ -25,7 +26,7 @@ export async function requireAdmin() {
     where: { id: session.user.id },
     select: { role: true },
   })
-  if (!roleAtLeast(user?.role as UserRole ?? "USER", "ADMIN")) redirect("/")
+  if (!roleAtLeast(user?.role ?? "USER", "ADMIN")) redirect("/")
   return session
 }
 
@@ -38,7 +39,7 @@ export async function requireSuperAdmin() {
     where: { id: session.user.id },
     select: { role: true },
   })
-  if (!roleAtLeast(user?.role as UserRole ?? "USER", "SUPER_ADMIN")) redirect("/admin")
+  if (!roleAtLeast(user?.role ?? "USER", "SUPER_ADMIN")) redirect("/admin")
   return session
 }
 
@@ -51,7 +52,7 @@ export async function getAdminSession(minimumRole: UserRole = "ADMIN") {
     where: { id: session.user.id },
     select: { role: true },
   })
-  const role = (user?.role as UserRole) ?? "USER"
+  const role = user?.role ?? "USER"
   if (!roleAtLeast(role, minimumRole)) return null
   return { ...session, userRole: role }
 }

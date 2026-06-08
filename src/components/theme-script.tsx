@@ -1,10 +1,13 @@
+import { headers } from "next/headers"
+
 /**
  * Inline script to prevent flash of wrong theme color.
  * Reads from localStorage and applies CSS variables before React hydrates.
  * Also handles dark/light mode: follows system preference on first visit,
  * then respects user's explicit choice from localStorage.
  */
-export function ThemeScript() {
+export async function ThemeScript() {
+  const nonce = (await headers()).get("x-nonce") || undefined
   const script = `
     (function() {
       try {
@@ -118,6 +121,7 @@ export function ThemeScript() {
 
   return (
     <script
+      nonce={nonce}
       dangerouslySetInnerHTML={{ __html: script }}
       suppressHydrationWarning
     />
