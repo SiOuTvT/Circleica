@@ -1,5 +1,6 @@
 import { badRequest, created, serverError, tooManyRequests, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { uploadToR2 } from "@/lib/r2"
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         const result = await uploadToR2(buffer, "forum-comments", ext)
         imageUrl = result.url
       } catch (error) {
-        console.error("[Forum Comment] Image upload failed:", error)
+        logger.upload.error("[Forum Comment] Image upload failed", error)
         return badRequest("图片上传失败，请稍后再试")
       }
     }
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     return created({ ...comment, createdAt: comment.createdAt.toISOString() })
   } catch (error) {
-    console.error("[Forum Comment Create]", error)
+    logger.forum.error("[Forum Comment Create]", error)
     return serverError("服务器内部错误")
   }
 }

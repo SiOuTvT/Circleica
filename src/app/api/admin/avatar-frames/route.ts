@@ -1,4 +1,5 @@
 import { getAdminSession } from "@/lib/admin"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ frame }, { status: 201 })
   } catch (error) {
-    console.error("创建头像框失败:", error)
+    logger.upload.error("创建头像框失败", error)
     return NextResponse.json({ error: "创建失败" }, { status: 500 })
   }
 }

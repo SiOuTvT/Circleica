@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -111,7 +112,7 @@ export async function PUT(
       },
     })
   } catch (error) {
-    console.error("[Resource PUT]", error)
+    logger.db.error("[Resource PUT]", error)
     return NextResponse.json({ error: "编辑资源失败" }, { status: 500 })
   }
 }
@@ -154,7 +155,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error("[Resource DELETE]", error)
+    logger.db.error("[Resource DELETE]", error)
     return NextResponse.json({ error: "删除资源失败" }, { status: 500 })
   }
 }

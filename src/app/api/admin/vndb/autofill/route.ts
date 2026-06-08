@@ -1,6 +1,7 @@
+import { getAdminSession } from "@/lib/admin"
+import { logger } from "@/lib/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { vndbClient } from "@/lib/vndb"
-import { getAdminSession } from "@/lib/admin"
 
 export async function POST(req: NextRequest) {
   // 需要管理员权限
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       message: "✓ 成功从 VNDB 获取信息",
     })
   } catch (error) {
-    console.error("VNDB auto-fill error:", error)
+    logger.db.error("VNDB auto-fill error", error)
     return NextResponse.json(
       { error: "自动填充失败，请稍后重试" },
       { status: 500 }

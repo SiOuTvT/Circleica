@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
@@ -37,7 +38,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("[Comment Like]", error)
+    logger.forum.error("[Comment Like]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

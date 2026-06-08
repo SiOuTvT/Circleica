@@ -31,7 +31,7 @@ async function getProxyDispatcher() {
       logger.db.debug("[VNDB Admin] 未配置代理，强制 IPv4 直连")
     }
   } catch (e) {
-    console.warn("[VNDB Admin] 无法加载 undici Agent，将使用默认 fetch:", e)
+    logger.db.warn("[VNDB Admin] 无法加载 undici Agent，将使用默认 fetch", { error: e instanceof Error ? e.message : String(e) })
   }
   return _proxyDispatcher
 }
@@ -114,6 +114,7 @@ export async function POST(req: NextRequest) {
         // 使用 undici.fetch 代替全局 fetch（Next.js 的 fetch 会忽略 dispatcher 参数）
         if (dispatcher) {
           const undici = await import("undici")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           vnRes = await (undici.fetch as any)(`${VNDB_API}/vn`, fetchOptions)
         } else {
           vnRes = await fetch(`${VNDB_API}/vn`, fetchOptions)
@@ -287,7 +288,7 @@ export async function POST(req: NextRequest) {
       creators,
     })
   } catch (err: unknown) {
-    console.error("VNDB fetch error:", err)
+    logger.db.error("VNDB fetch error", err)
 
     // fetch() 包装错误：TypeError: fetch failed 的实际错误码在 err.cause 中
     const error = err as Error & { code?: string; cause?: { code?: string; hostname?: string }; hostname?: string }

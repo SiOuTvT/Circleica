@@ -1,5 +1,6 @@
 import { badRequest, notFound, ok, serverError, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
 
@@ -49,7 +50,7 @@ export async function PUT(
     ) {
       return badRequest("已存在同名收藏集")
     }
-    console.error("[Collection API] PUT failed:", error)
+    logger.user.error("[Collection API] PUT failed", error)
     return serverError("更新收藏集失败")
   }
 }
@@ -82,7 +83,7 @@ export async function DELETE(
 
     return ok({ success: true })
   } catch (error) {
-    console.error("[Collection API] DELETE failed:", error)
+    logger.user.error("[Collection API] DELETE failed", error)
     return serverError("删除收藏集失败")
   }
 }

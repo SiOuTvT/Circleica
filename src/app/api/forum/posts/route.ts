@@ -1,5 +1,6 @@
 import { checkAchievements } from "@/lib/achievements"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
@@ -76,7 +77,7 @@ async function handleCreatePost(req: NextRequest) {
       user: post.user, commentCount: 0,
     }, { status: 201 })
   } catch (error) {
-    console.error("[Forum Post Create]", error)
+    logger.forum.error("[Forum Post Create]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

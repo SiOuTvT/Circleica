@@ -1,4 +1,5 @@
 import { getAdminSession } from "@/lib/admin"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
 import { NextRequest, NextResponse } from "next/server"
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
         results.push({ vndbId, status: "success", gameId: game.id })
         successCount++
       } catch (error) {
-        console.error(`Failed to import VNDB ${vndbId}:`, error)
+        logger.db.error(`Failed to import VNDB ${vndbId}`, error)
         results.push({ vndbId, status: "failed", reason: String(error) })
         failCount++
       }
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
       failCount,
     })
   } catch (error) {
-    console.error("VNDB batch import error:", error)
+    logger.db.error("VNDB batch import error", error)
     return NextResponse.json(
       { error: "批量导入失败" },
       { status: 500 }

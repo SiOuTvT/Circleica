@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
 import { NextRequest } from "next/server"
 
-async function handleCheckin(req: NextRequest) {
+async function handleCheckin(_req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return unauthorized()
 

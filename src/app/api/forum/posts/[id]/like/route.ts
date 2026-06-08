@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
@@ -48,7 +49,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
     return NextResponse.json({ likeCount: result.likeCount, liked: result.liked })
   } catch (error) {
-    console.error("[Forum Post Like]", error)
+    logger.forum.error("[Forum Post Like]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

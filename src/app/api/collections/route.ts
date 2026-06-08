@@ -1,5 +1,6 @@
 import { badRequest, ok, serverError, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
 
@@ -25,7 +26,7 @@ export async function GET() {
 
     return ok({ collections, ungroupedCount, totalCount })
   } catch (error) {
-    console.error("[Collections API] GET failed:", error)
+    logger.user.error("[Collections API] GET failed", error)
     return serverError("获取收藏集失败")
   }
 }
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
     ) {
       return badRequest("已存在同名收藏集")
     }
-    console.error("[Collections API] POST failed:", error)
+    logger.user.error("[Collections API] POST failed", error)
     return serverError("创建收藏集失败")
   }
 }

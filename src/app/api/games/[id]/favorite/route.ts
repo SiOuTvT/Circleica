@@ -1,6 +1,7 @@
 import { checkAchievements } from "@/lib/achievements"
 import { badRequest, ok, serverError, tooManyRequests, unauthorized } from "@/lib/api-response"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { getClientIP, getRateLimit, rateLimits } from "@/lib/rate-limit"
 import { NextRequest } from "next/server"
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     return ok(result)
   } catch (error) {
-    console.error("[Favorite API] Failed:", error)
+    logger.game.error("[Favorite API] Failed", error)
     return serverError("收藏操作失败")
   }
 }
@@ -92,7 +93,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     return ok({ success: true })
   } catch (error) {
-    console.error("[Favorite PATCH] Failed:", error)
+    logger.game.error("[Favorite PATCH] Failed", error)
     return serverError("更新收藏集失败")
   }
 }
