@@ -57,13 +57,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  let name: string, description: string | undefined, color: string | undefined, positions: string[] | undefined
+  let name: string | undefined, description: string | undefined, color: string | undefined, positions: string[] | undefined
   try {
     const body = await req.json()
-    name = body.name
-    description = body.description
-    color = body.color
-    positions = body.positions
+    name = body.name as string | undefined
+    description = body.description as string | undefined
+    color = body.color as string | undefined
+    positions = body.positions as string[] | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
 /**
@@ -39,10 +40,10 @@ export async function ensureResourceTags() {
           })),
           skipDuplicates: true,
         })
-        console.log(`[preset-resource-tags] Created ${toCreate.length} resource tag settings`)
+        logger.db.info(`[preset-resource-tags] Created ${toCreate.length} resource tag settings`)
       }
     } catch (error) {
-      console.error("[preset-resource-tags] Failed:", error)
+      logger.db.error("[preset-resource-tags] Failed:", error)
       initPromise = null
     }
   })()

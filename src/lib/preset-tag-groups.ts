@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
 /**
@@ -62,10 +63,10 @@ export async function ensurePresetTagGroups() {
           })),
           skipDuplicates: true,
         })
-        console.log(`[preset-tag-groups] Created ${toCreate.length} preset tag groups`)
+        logger.db.info(`[preset-tag-groups] Created ${toCreate.length} preset tag groups`)
       }
     } catch (error) {
-      console.error("[preset-tag-groups] Failed:", error)
+      logger.db.error("[preset-tag-groups] Failed:", error)
       initPromise = null // 失败时允许重试
     }
   })()

@@ -33,7 +33,24 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const { title, originalWork, description, coverImage, screenshots, downloadLinks, status, isNsfw, vndbId, isPublished, tagIds, gameCreators, creators, releaseDate, gameDuration, studioName, englishName, aliases } = body
+  const title = body.title as string | undefined
+  const originalWork = body.originalWork as string | undefined
+  const description = body.description as string | undefined
+  const coverImage = body.coverImage as string | undefined
+  const screenshots = body.screenshots as string[] | undefined
+  const downloadLinks = body.downloadLinks as unknown[] | undefined
+  const status = body.status as string | undefined
+  const isNsfw = body.isNsfw as boolean | undefined
+  const vndbId = body.vndbId as string | undefined
+  const isPublished = body.isPublished as boolean | undefined
+  const tagIds = body.tagIds as string[] | undefined
+  const gameCreators = body.gameCreators as Array<{ creatorId: string; role: string }> | undefined
+  const creators = body.creators as Array<{ name: string; vndbId?: string; nameJa?: string; role?: string }> | undefined
+  const releaseDate = body.releaseDate as string | undefined
+  const gameDuration = body.gameDuration as string | undefined
+  const studioName = body.studioName as string | undefined
+  const englishName = body.englishName as string | undefined
+  const aliases = body.aliases as string | undefined
 
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
 
@@ -77,8 +94,8 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       originalWork: originalWork?.trim() ?? "",
       description: description?.trim() ?? "",
       coverImage: coverImage ?? "",
-      screenshots: JSON.stringify(screenshots ?? []),
-      downloadLinks: JSON.stringify(downloadLinks ?? []),
+      screenshots: screenshots ?? [],
+      downloadLinks: downloadLinks ?? [],
       status: status ?? "完结",
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",

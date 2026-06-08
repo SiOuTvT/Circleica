@@ -18,10 +18,10 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   // 支持 toggle isActive 或完整更新
   const data: Record<string, unknown> = {}
   if ("isActive" in body) data.isActive = body.isActive
-  if (body.title) data.title = body.title.trim()
-  if (body.content) data.content = body.content.trim()
-  if ("imageUrl" in body) data.imageUrl = body.imageUrl?.trim() ?? ""
-  if ("link" in body) data.link = body.link?.trim() ?? ""
+  if (body.title) data.title = (body.title as string).trim()
+  if (body.content) data.content = (body.content as string).trim()
+  if ("imageUrl" in body) data.imageUrl = (body.imageUrl as string)?.trim() ?? ""
+  if ("link" in body) data.link = (body.link as string)?.trim() ?? ""
 
   const ann = await prisma.announcement.update({ where: { id }, data })
   return NextResponse.json(ann)

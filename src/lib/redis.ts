@@ -69,7 +69,7 @@ class RedisCache implements CacheClient {
         body: serialized,
       })
     } catch (error) {
-      console.error("Redis set error:", error)
+      logger.db.error("Redis set error", error)
     }
   }
 
@@ -77,7 +77,7 @@ class RedisCache implements CacheClient {
     try {
       await this.request(`/del/${encodeURIComponent(key)}`)
     } catch (error) {
-      console.error("Redis del error:", error)
+      logger.db.error("Redis del error", error)
     }
   }
 

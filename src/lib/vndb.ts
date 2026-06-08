@@ -9,7 +9,20 @@
  * 缓存策略：优先使用 Redis（Upstash），未配置时降级为内存缓存
  */
 import { cache, cached, cacheKey } from "./redis"
-import { KNOWN_PRODUCER_IDS, STAFF_SEARCH_TERMS, POPULAR_VN_SEARCHES } from "./vndb-constants"
+import { logger } from "./logger"
+import {
+  type StaffResult,
+  type ProducerResult,
+  type CharacterResult,
+  KNOWN_PRODUCER_IDS,
+  STAFF_SEARCH_TERMS,
+  POPULAR_VN_SEARCHES,
+  STAFF_SEARCH_FIELDS,
+  STAFF_SEARCH_RESULTS,
+  processStaffResults,
+  processProducerResults,
+  processCharacterResults,
+} from "./vndb-shared"
 import { cleanTags } from "./vndb-tags"
 
 interface VNDBCharacter {
@@ -84,11 +97,14 @@ interface VNDBSearchResult {
   more: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UndiciDispatcher = any
+
 class VNDBClient {
   // 使用 HTTP API endpoint
   private baseUrl = "https://api.vndb.org/kana"
   private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
-  private dispatcher: any = null
+  private dispatcher: UndiciDispatcher = null
   private proxyInitialized = false
   
   // 熔断器：当 VNDB 不可达时快速失败，避免长时间阻塞
@@ -111,36 +127,36 @@ class VNDBClient {
 
       if (proxyUrl) {
         this.dispatcher = new undici.ProxyAgent(proxyUrl)
-        console.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+        logger.db.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
       } else {
         // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
         // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
         this.dispatcher = new undici.Agent({ connect: { family: 4 } })
-        console.debug("[VNDB] 未配置代理，强制 IPv4 直连")
+        logger.db.debug("[VNDB] 未配置代理，强制 IPv4 直连")
       }
     } catch (e) {
-      console.warn("[VNDB] 无法加载 undici Agent，将使用默认 fetch:", e)
+      logger.db.warn("[VNDB] 无法加载 undici Agent，将使用默认 fetch:", e)
     }
   }
 
   /**
    * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  private async sendRequest(endpoint: string, data: any, retries = 2): Promise<any> {
+  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<VNDBSearchResult> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
-      console.debug("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
+      logger.db.debug("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
       throw new Error("VNDB API 不可达（熔断器已触发）")
     }
     
     await this.initProxy()
     
     const url = `${this.baseUrl}/${endpoint}`
-    console.debug("[VNDB] 发送 HTTP 请求:", url)
+    logger.db.debug("[VNDB] 发送 HTTP 请求:", url)
     
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const fetchOptions: any = {
+        const fetchOptions: RequestInit & { dispatcher?: UndiciDispatcher } = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -170,26 +186,27 @@ class VNDBClient {
         }
 
         const result = await response.json()
-        console.debug("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
+        logger.db.debug("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
         return result
-      } catch (error: any) {
-        const isTimeout = error?.code === 'ETIMEDOUT' || error?.code === 'UND_ERR_CONNECT_TIMEOUT' || error?.name === 'TimeoutError'
+      } catch (error: unknown) {
+        const err = error as Error & { code?: string; cause?: { code?: string } }
+        const isTimeout = err?.code === 'ETIMEDOUT' || err?.code === 'UND_ERR_CONNECT_TIMEOUT' || err?.name === 'TimeoutError'
         const isLastAttempt = attempt === retries
         
         if (isLastAttempt) {
-          console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, error.message)
+          console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, err.message)
           // 触发熔断器：网络不可达时，后续请求快速失败
-          if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+          if (isTimeout || err?.message?.includes('fetch failed') || err?.code === 'ECONNREFUSED' || err?.code === 'ENOTFOUND') {
             this.circuitBroken = true
             this.circuitBrokenUntil = Date.now() + this.CIRCUIT_BREAK_DURATION
-            console.debug(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
+            logger.db.debug(`[VNDB] 熔断器已触发，${this.CIRCUIT_BREAK_DURATION / 1000}秒内不再尝试`)
           }
           throw error
         }
-        
-        if (isTimeout || error?.message?.includes('fetch failed') || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+
+        if (isTimeout || err?.message?.includes('fetch failed') || err?.code === 'ECONNREFUSED' || err?.code === 'ENOTFOUND') {
           const delay = attempt * 500 // 递增延迟: 500ms
-          console.debug(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
+          logger.db.debug(`[VNDB] 请求超时，${delay}ms 后重试 (${attempt}/${retries})...`)
           await new Promise(r => setTimeout(r, delay))
         } else {
           throw error // 非网络错误直接抛出
@@ -265,50 +282,27 @@ class VNDBClient {
    * 获取随机 galgame 创作者（脚本家、画师、音乐人等）
    * 使用多个搜索关键词获取更多创作者
    */
-  async getRandomDoujinCreator(): Promise<{
-    id: string
-    name: string
-    original?: string
-    image?: string
-    vndbId: string
-    type?: string
-    description?: string
-  } | null> {
+  async getRandomDoujinCreator(): Promise<ProducerResult | null> {
     try {
-      console.debug("[VNDB] 开始获取随机 galgame 创作者...")
-      
+      logger.db.debug("[VNDB] 开始获取随机 galgame 创作者...")
+
       // 直接通过 ID 获取随机创作者（避免搜索 API 不稳定）
       const randomId = KNOWN_PRODUCER_IDS[Math.floor(Math.random() * KNOWN_PRODUCER_IDS.length)]
-      console.debug(`[VNDB] 直接获取创作者: ${randomId}`)
-      
+      logger.db.debug(`[VNDB] 直接获取创作者: ${randomId}`)
+
       const data = await this.sendRequest("producer", {
         filters: ["id", "=", randomId],
         fields: "id,name,original,description,type",
         results: 1,
       })
-      
-      const producers = data.results || []
 
-      if (producers.length === 0) {
-        console.debug("[VNDB] 未找到创作者数据")
-        return null
+      const result = processProducerResults(data)
+      if (result) {
+        logger.db.debug(`[VNDB] 选中创作者: ${result.name} (ID: ${result.id})`)
       }
-
-      const producer = producers[0]
-
-      console.debug(`[VNDB] 选中创作者: ${producer.name} (ID: ${producer.id})`)
-
-      return {
-        id: producer.id,
-        name: producer.name || "未知创作者",
-        original: producer.original,
-        image: producer.image?.url,
-        vndbId: producer.id.replace("p", ""),
-        type: producer.type,
-        description: producer.description,
-      }
+      return result
     } catch (error) {
-      console.error("[VNDB] Failed to fetch random creator:", error)
+      logger.db.error("[VNDB] Failed to fetch random creator:", error)
       return null
     }
   }
@@ -316,76 +310,35 @@ class VNDBClient {
   /**
    * 获取随机创作者（staff - 个人创作者，有明确角色如脚本/原画/音乐）
    */
-  async getRandomStaffMember(): Promise<{
-    id: string
-    name: string
-    original?: string
-    description?: string
-    gender?: string
-    vndbId: string
-    roles: string[]
-    vns: Array<{
-      id: string
-      title: string
-      original?: string
-      role: string
-      rating?: number
-      image?: string
-    }>
-  } | null> {
+  async getRandomStaffMember(): Promise<StaffResult | null> {
     // 打乱顺序，尝试最多 5 个不同的搜索词（增加命中率）
     const shuffled = [...STAFF_SEARCH_TERMS].sort(() => Math.random() - 0.5)
     const attempts = shuffled.slice(0, 5)
-    
+
     for (const term of attempts) {
       try {
-        console.debug(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
-        
+        logger.db.debug(`[VNDB] 尝试搜索 staff，关键词: "${term}"`)
+
         const data = await this.sendRequest("staff", {
           filters: ["search", "=", term],
-          fields: "id,name,original,description,gender,vns.role,vns.title,vns.id",
-          results: 25,
+          fields: STAFF_SEARCH_FIELDS,
+          results: STAFF_SEARCH_RESULTS,
         })
-        
-        const staffList = (data.results || []).filter((s: any) => s.id)
-        if (staffList.length > 0) {
-          // 优先选择有作品的 staff
-          const withWorks = staffList.filter((s: any) => s.vns && s.vns.length > 0)
-          const pool = withWorks.length > 0 ? withWorks : staffList
-          
-          const staff = pool[Math.floor(Math.random() * pool.length)]
-          console.debug(`[VNDB] 选中 staff: ${staff.name} (ID: ${staff.id}, 作品数: ${staff.vns?.length || 0})`)
-          
-          const roles = [...new Set((staff.vns || []).map((v: any) => v.role).filter(Boolean))] as string[]
-          const vns = (staff.vns || []).slice(0, 10).map((v: any) => ({
-            id: v.id || "",
-            title: v.title || "",
-            original: v.original || "",
-            role: v.role || "",
-            rating: v.rating,
-            image: v.image?.url,
-          }))
-          
-          return {
-            id: staff.id,
-            name: staff.name,
-            original: staff.original,
-            description: staff.description,
-            gender: staff.gender,
-            vndbId: staff.id.replace("s", ""),
-            roles,
-            vns,
-          }
+
+        const result = processStaffResults(data)
+        if (result) {
+          logger.db.debug(`[VNDB] 选中 staff: ${result.name} (ID: ${result.id}, 作品数: ${result.vns?.length || 0})`)
+          return result
         }
-        
-        console.debug(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
+
+        logger.db.debug(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
       } catch (error) {
         console.warn(`[VNDB] 关键词 "${term}" 搜索失败:`, error instanceof Error ? error.message : error)
         // 继续尝试下一个关键词
       }
     }
-    
-    console.warn("[VNDB] 所有搜索关键词均未获取到 staff 数据")
+
+    logger.db.warn("[VNDB] 所有搜索关键词均未获取到 staff 数据")
     return null
   }
 
@@ -434,7 +387,7 @@ class VNDBClient {
         }
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("[VNDB] Failed to fetch staff detail:", error)
+      logger.db.error("[VNDB] Failed to fetch staff detail:", error)
       return null
     }
   }
@@ -633,13 +586,13 @@ class VNDBClient {
           description: c.description || "",
           aliases: c.aliases || [],
           traits: (c.traits || [])
-            .filter((t: any) => t.spoiler === 0)
-            .map((t: any) => ({ name: t.name, groupName: t.group_name })),
+            .filter((t: { spoiler: number }) => t.spoiler === 0)
+            .map((t: { name: string; group_name: string }) => ({ name: t.name, groupName: t.group_name })),
           vnTitle: vn?.title || "",
         }
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("[VNDB] Failed to fetch character detail:", error)
+      logger.db.error("[VNDB] Failed to fetch character detail:", error)
       return null
     }
   }
@@ -647,33 +600,13 @@ class VNDBClient {
   /**
    * 获取随机游戏角色
    */
-  async getRandomCharacter(): Promise<{
-    id: string
-    name: string
-    original?: string
-    image?: string
-    role?: string
-    gender?: string[]
-    age?: number | string
-    birthday?: number[]
-    bloodType?: string
-    height?: number | string
-    weight?: number | string
-    bust?: number | string
-    waist?: number | string
-    hips?: number | string
-    cup?: string
-    description?: string
-    aliases?: string[]
-    traits?: Array<{ name: string; groupName: string }>
-    vnTitle?: string
-  } | null> {
+  async getRandomCharacter(): Promise<CharacterResult | null> {
     try {
-      console.debug("[VNDB] 开始获取随机游戏角色...")
-      
+      logger.db.debug("[VNDB] 开始获取随机游戏角色...")
+
       // 搜索热门角色（通过搜索知名VN获取角色）
       const randomSearch = POPULAR_VN_SEARCHES[Math.floor(Math.random() * POPULAR_VN_SEARCHES.length)]
-      
+
       const vnData = await this.sendRequest("vn", {
         filters: ["search", "=", randomSearch],
         fields: "id,title,va.character.id,va.character.name,va.character.original,va.character.aliases,va.character.description,va.character.image.url,va.character.blood_type,va.character.birthday,va.character.age,va.character.gender,va.character.height,va.character.weight,va.character.bust,va.character.waist,va.character.hips,va.character.cup,va.character.traits.id,va.character.traits.name,va.character.traits.group_id,va.character.traits.group_name,va.character.traits.spoiler",
@@ -682,69 +615,13 @@ class VNDBClient {
         reverse: true,
       })
 
-      const vns = vnData.results || []
-      if (vns.length === 0) {
-        console.debug("[VNDB] 未找到VN数据")
-        return null
+      const result = processCharacterResults(vnData)
+      if (result) {
+        logger.db.debug(`[VNDB] 选中角色: ${result.name} (ID: ${result.id})`)
       }
-
-      // 收集所有角色
-      const allCharacters: Array<{ character: any; vnTitle: string }> = []
-      for (const vn of vns) {
-        if (vn.va) {
-          for (const va of vn.va) {
-            if (va.character) {
-              allCharacters.push({ character: va.character, vnTitle: vn.title })
-            }
-          }
-        }
-      }
-
-      if (allCharacters.length === 0) {
-        console.debug("[VNDB] 未找到角色数据")
-        return null
-      }
-
-      // 随机选择一个角色
-      const randomIndex = Math.floor(Math.random() * allCharacters.length)
-      const { character, vnTitle } = allCharacters[randomIndex]
-
-      console.debug(`[VNDB] 选中角色: ${character.name} (ID: ${character.id})`)
-
-      // 处理图片URL
-      let imageUrl: string | undefined
-      if (character.image?.url) {
-        imageUrl = character.image.url
-      }
-
-      // 处理特征
-      const traits = character.traits
-        ?.filter((t: any) => t.spoiler === 0)
-        .map((t: any) => ({ name: t.name, groupName: t.group_name })) || []
-
-      return {
-        id: character.id,
-        name: character.name || "未知角色",
-        original: character.original,
-        image: imageUrl,
-        role: character.role,
-        gender: character.gender,
-        age: character.age,
-        birthday: character.birthday,
-        bloodType: character.blood_type,
-        height: character.height,
-        weight: character.weight,
-        bust: character.bust,
-        waist: character.waist,
-        hips: character.hips,
-        cup: character.cup,
-        description: character.description,
-        aliases: character.aliases,
-        traits,
-        vnTitle,
-      }
+      return result
     } catch (error) {
-      console.error("[VNDB] Failed to fetch random character:", error)
+      logger.db.error("[VNDB] Failed to fetch random character:", error)
       return null
     }
   }

@@ -36,7 +36,7 @@ export async function PUT(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const updates = body.updates as { key: string; value: string }[]
+  const updates = body.updates as Array<{ key: string; value: string }> | undefined
 
   if (!Array.isArray(updates)) {
     return NextResponse.json({ error: "参数错误" }, { status: 400 })

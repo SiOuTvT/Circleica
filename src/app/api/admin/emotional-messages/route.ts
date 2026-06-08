@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const { key, category, title, subtitle, imageUrl, emoji, enabled } = body
+  const key = body.key as string | undefined
+  const category = body.category as string | undefined
+  const title = body.title as string | undefined
+  const subtitle = body.subtitle as string | undefined
+  const imageUrl = body.imageUrl as string | undefined
+  const emoji = body.emoji as string | undefined
+  const enabled = body.enabled as boolean | undefined
   if (!key || !category) {
     return NextResponse.json({ error: "key 和 category 为必填项" }, { status: 400 })
   }

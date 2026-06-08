@@ -14,7 +14,14 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const { name, nameJa, avatar, bio, gender, twitterUrl, wikipediaUrl, vndbId } = body
+  const name = body.name as string | undefined
+  const nameJa = body.nameJa as string | undefined
+  const avatar = body.avatar as string | undefined
+  const bio = body.bio as string | undefined
+  const gender = body.gender as string | undefined
+  const twitterUrl = body.twitterUrl as string | undefined
+  const wikipediaUrl = body.wikipediaUrl as string | undefined
+  const vndbId = body.vndbId as string | undefined
 
   if (!name?.trim()) return NextResponse.json({ error: "名字不能为空" }, { status: 400 })
 

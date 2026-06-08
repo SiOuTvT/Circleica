@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { checkRateLimit, getClientIP, type RateLimitConfig } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
     // 优先使用 MyMemory（国内可访问），失败则尝试 Google
     let translated = await translateWithMyMemory(truncated)
     if (!translated) {
-      console.log("[Translate] MyMemory 失败，尝试 Google Translate...")
+      logger.api.debug("[Translate] MyMemory 失败，尝试 Google Translate...")
       translated = await translateWithGoogle(truncated)
     }
 

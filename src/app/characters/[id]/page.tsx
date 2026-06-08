@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function CharacterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  let character: any = null
+  let character: Awaited<ReturnType<typeof vndbClient.getCharacterDetail>> = null
   try {
     character = await vndbClient.getCharacterDetail(id)
   } catch (error) {

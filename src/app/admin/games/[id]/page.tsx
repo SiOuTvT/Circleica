@@ -34,10 +34,9 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
 
   if (!game) notFound()
 
-  let screenshots: string[] = []
-  let downloadLinks: { url: string; label: string }[] = []
-  try { screenshots = JSON.parse(game.screenshots || "[]") } catch { /* ignore */ }
-  try { downloadLinks = JSON.parse(game.downloadLinks || "[]") } catch { /* ignore */ }
+  // screenshots 和 downloadLinks 是 Json 类型，直接使用
+  const screenshots: string[] = Array.isArray(game.screenshots) ? game.screenshots as string[] : []
+  const downloadLinks: { url: string; label: string }[] = Array.isArray(game.downloadLinks) ? game.downloadLinks as { url: string; label: string }[] : []
 
   const gameData = {
     ...game,

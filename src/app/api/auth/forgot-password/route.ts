@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import crypto from "crypto"
@@ -81,14 +82,14 @@ export async function POST(req: NextRequest) {
           </div>
         `,
       })
-      console.log(`[密码重置邮件] 已发送至 ${user.email}`)
+      logger.auth.info(`密码重置邮件已发送至 ${user.email}`)
     } catch (error) {
-      console.error("[密码重置邮件] 发送失败:", error)
+      logger.auth.error("密码重置邮件发送失败", error)
       // 即使邮件发送失败，也返回成功（安全考虑）
     }
   } else {
     // 开发环境：在控制台打印链接
-    console.log(`[密码重置] ${user.email} → ${resetUrl}`)
+    logger.auth.debug(`密码重置链接: ${user.email} → ${resetUrl}`)
   }
 
   return NextResponse.json({ ok: true })

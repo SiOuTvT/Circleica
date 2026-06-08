@@ -148,10 +148,10 @@ export function handleZodError(error: ZodError) {
  * API 路由错误处理包装器
  * 自动捕获未处理的错误并返回标准化响应
  */
-export function withErrorHandler<T extends (...args: any[]) => Promise<NextResponse>>(
+export function withErrorHandler<T extends (...args: unknown[]) => Promise<NextResponse>>(
   handler: T
 ): T {
-  return (async (...args: any[]) => {
+  return (async (...args: unknown[]) => {
     try {
       return await handler(...args)
     } catch (error) {

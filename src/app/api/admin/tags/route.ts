@@ -24,15 +24,15 @@ export async function POST(req: NextRequest) {
   // 确保预设标签组存在（创建标签时可能引用默认组）
   await ensurePresetTagGroups()
 
-  let name: string, description: string | undefined, color: string | undefined, groupId: string | undefined, sortOrder: number | undefined, isVisible: boolean | undefined
+  let name: string | undefined, description: string | undefined, color: string | undefined, groupId: string | undefined, sortOrder: number | undefined, isVisible: boolean | undefined
   try {
     const body = await req.json()
-    name = body.name
-    description = body.description
-    color = body.color
-    groupId = body.groupId
-    sortOrder = body.sortOrder
-    isVisible = body.isVisible
+    name = body.name as string | undefined
+    description = body.description as string | undefined
+    color = body.color as string | undefined
+    groupId = body.groupId as string | undefined
+    sortOrder = body.sortOrder as number | undefined
+    isVisible = body.isVisible as boolean | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }

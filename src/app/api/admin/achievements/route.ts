@@ -26,7 +26,15 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const { name, description, icon, characterImage, category, conditionType, conditionTarget, points, hidden } = body
+  const name = body.name as string | undefined
+  const description = body.description as string | undefined
+  const icon = body.icon as string | undefined
+  const characterImage = body.characterImage as string | undefined
+  const category = body.category as string | undefined
+  const conditionType = body.conditionType as string | undefined
+  const conditionTarget = body.conditionTarget as number | undefined
+  const points = body.points as number | undefined
+  const hidden = body.hidden as boolean | undefined
 
   if (!name?.trim()) return NextResponse.json({ error: "名称不能为空" }, { status: 400 })
   if (!conditionType) return NextResponse.json({ error: "条件类型不能为空" }, { status: 400 })

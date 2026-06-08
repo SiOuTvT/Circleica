@@ -58,11 +58,9 @@ async function handleGamesList(req: NextRequest) {
     ])
 
     const data = games.map((g) => {
-      let downloadLinks: { label?: string; url: string; tags?: string[] }[] = []
-      try {
-        const parsed = JSON.parse(g.downloadLinks || "[]")
-        if (Array.isArray(parsed)) downloadLinks = parsed
-      } catch { /* ignore */ }
+      // downloadLinks 是 Json 类型，直接使用
+      const downloadLinks: { label?: string; url: string; tags?: string[] }[] =
+        Array.isArray(g.downloadLinks) ? g.downloadLinks as { label?: string; url: string; tags?: string[] }[] : []
 
       // 从所有资源中收集去重的 resourceTags（仅语言、运行方式、资源内容，不含平台）
       const resourceTags: string[] = [...new Set(

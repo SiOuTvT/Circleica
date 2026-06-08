@@ -54,7 +54,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   // 用 cuid 查询完整数据（因为 include 需要 id 字段）
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let user: any = null
+  let user: any = null // Prisma include 返回的复杂类型
   try {
     user = await prisma.user.findUnique({
       where: { id: resolved.id },

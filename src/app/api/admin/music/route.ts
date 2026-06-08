@@ -11,11 +11,11 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  let title: string, url: string
+  let title: string | undefined, url: string | undefined
   try {
     const body = await req.json()
-    title = body.title
-    url = body.url
+    title = body.title as string | undefined
+    url = body.url as string | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }

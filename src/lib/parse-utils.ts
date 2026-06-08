@@ -38,11 +38,14 @@ export function parseFileSizes(raw: string | null | undefined): FileSizeEntry[] 
 /**
  * 安全解析任意 JSON 字符串
  * 解析失败返回 fallback
+ * 兼容 Prisma Json 类型（已解析的对象直接返回）
  */
-export function safeParse<T>(raw: string | null | undefined, fallback: T): T {
+export function safeParse<T>(raw: string | unknown | null | undefined, fallback: T): T {
   if (!raw) return fallback
+  // Prisma Json 类型已经是对象，直接返回
+  if (typeof raw === "object") return raw as T
   try {
-    return JSON.parse(raw)
+    return JSON.parse(raw as string)
   } catch {
     return fallback
   }

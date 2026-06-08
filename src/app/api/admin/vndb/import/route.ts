@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
             favoriteCount: 0,
             viewCount: 0,
             coverImage: "",
-            screenshots: "[]",
-            downloadLinks: "[]",
+            screenshots: [],
+            downloadLinks: [],
           },
         })
 

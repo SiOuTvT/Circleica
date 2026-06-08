@@ -22,14 +22,18 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   const updateData: Record<string, unknown> = {}
 
   if (body.name !== undefined) {
-    if (!body.name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
-    const dup = await prisma.tag.findFirst({ where: { name: body.name.trim(), NOT: { id } } })
+    const name = body.name as string
+    if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
+    const dup = await prisma.tag.findFirst({ where: { name: name.trim(), NOT: { id } } })
     if (dup) return NextResponse.json({ error: "标签名已存在" }, { status: 409 })
-    updateData.name = body.name.trim()
+    updateData.name = name.trim()
   }
-  if (body.description !== undefined) updateData.description = body.description?.trim() ?? ""
-  if (body.color !== undefined) updateData.color = body.color
-  if (body.groupId !== undefined) updateData.groupId = body.groupId || null
+  if (body.description !== undefined) {
+    const description = body.description as string | undefined
+    updateData.description = description?.trim() ?? ""
+  }
+  if (body.color !== undefined) updateData.color = body.color as string
+  if (body.groupId !== undefined) updateData.groupId = (body.groupId as string) || null
   if (body.sortOrder !== undefined) updateData.sortOrder = typeof body.sortOrder === "number" ? body.sortOrder : 0
   if (body.isVisible !== undefined) updateData.isVisible = body.isVisible !== false
 
@@ -70,8 +74,8 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   let forceDelete: boolean | undefined, groupId: string | undefined
   try {
     const body = await req.json()
-    forceDelete = body.forceDelete
-    groupId = body.groupId
+    forceDelete = body.forceDelete as boolean | undefined
+    groupId = body.groupId as string | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }

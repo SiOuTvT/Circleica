@@ -99,6 +99,12 @@ export async function getRateLimit(key: string, config: RateLimitConfig): Promis
   return memoryRateLimit(key, config)
 }
 
+/**
+ * 获取客户端 IP 地址
+ * 注意：x-forwarded-for 在无反向代理时可被客户端伪造。
+ * 生产环境应确保有反向代理（nginx/Cloudflare）设置此头。
+ * 仅用于速率限制等临时场景，不用于永久存储。
+ */
 export function getClientIP(req: Request): string {
   const forwarded = req.headers.get("x-forwarded-for")
   if (forwarded) {

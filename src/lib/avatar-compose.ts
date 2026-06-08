@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import fs from 'fs/promises'
+import { logger } from './logger'
 import path from 'path'
 import sharp from 'sharp'
 
@@ -98,10 +99,10 @@ export async function composeAvatar(
     // 保存合成后的图片
     await fs.writeFile(outputPath, composedBuffer)
 
-    console.log(`✓ 头像合成完成: ${filename}`)
+    logger.upload.info(`头像合成完成: ${filename}`)
     return `/uploads/avatars/${filename}`
   } catch (error) {
-    console.error('头像合成失败:', error)
+    logger.upload.error('头像合成失败', error)
     return avatarUrl // 失败时返回原头像
   }
 }
@@ -117,7 +118,7 @@ export async function cleanupOldComposedAvatar(composedUrl: string): Promise<voi
     try {
       const filePath = path.join(process.cwd(), 'public', composedUrl)
       await fs.unlink(filePath)
-      console.log(`✓ 已清理旧合成头像: ${composedUrl}`)
+      logger.upload.debug(`已清理旧合成头像: ${composedUrl}`)
     } catch {
       // 文件可能已被删除，忽略错误
     }

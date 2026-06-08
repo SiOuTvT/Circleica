@@ -21,16 +21,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const updateData: Record<string, unknown> = {}
 
   if (body.name !== undefined) {
-    if (!body.name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
-    const dup = await prisma.tagGroup.findFirst({ where: { name: body.name.trim(), NOT: { id } } })
+    const name = body.name as string
+    if (!name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
+    const dup = await prisma.tagGroup.findFirst({ where: { name: name.trim(), NOT: { id } } })
     if (dup) return NextResponse.json({ error: "标签组名已存在" }, { status: 409 })
-    updateData.name = body.name.trim()
+    updateData.name = name.trim()
   }
-  if (body.description !== undefined) updateData.description = body.description?.trim() ?? ""
-  if (body.color !== undefined) updateData.color = body.color
+  if (body.description !== undefined) {
+    const description = body.description as string | undefined
+    updateData.description = description?.trim() ?? ""
+  }
+  if (body.color !== undefined) updateData.color = body.color as string
   if (body.positions !== undefined) {
+    const positions = body.positions as string[] | undefined
     updateData.positions = JSON.stringify(
-      Array.isArray(body.positions) ? body.positions.filter((p: string) => isValidPosition(p)) : []
+      Array.isArray(positions) ? positions.filter((p: string) => isValidPosition(p)) : []
     )
   }
 
@@ -68,7 +73,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   let forceDelete: boolean | undefined
   try {
     const body = await req.json()
-    forceDelete = body.forceDelete
+    forceDelete = body.forceDelete as boolean | undefined
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }

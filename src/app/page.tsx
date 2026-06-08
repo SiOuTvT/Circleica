@@ -55,14 +55,9 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
   } catch {}
 
   const mapped = games.map((g) => {
-    // downloadLinks 是 JSON 字符串，需要解析为对象数组
-    let downloadLinks: { label?: string; url: string; platform?: string }[] = []
-    try {
-      const parsed = JSON.parse(g.downloadLinks || "[]")
-      if (Array.isArray(parsed)) {
-        downloadLinks = parsed
-      }
-    } catch { /* ignore */ }
+    // downloadLinks 是 Json 类型，直接使用
+    const downloadLinks: { label?: string; url: string; platform?: string }[] =
+      Array.isArray(g.downloadLinks) ? g.downloadLinks as { label?: string; url: string; platform?: string }[] : []
     // 从资源中收集去重的 resourceTags（统一颜色）
     const seen = new Set<string>()
     const resourceTags: { name: string; color: string }[] = []

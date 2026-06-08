@@ -1,3 +1,4 @@
+import { logger } from "./logger"
 import { prisma } from "./prisma"
 
 /** 预设情感消息种子数据 */
@@ -49,10 +50,10 @@ export async function ensureEmotionalMessages() {
           data: toCreate,
           skipDuplicates: true,
         })
-        console.log(`[emotional-messages] Created ${toCreate.length} preset messages`)
+        logger.db.info(`[emotional-messages] Created ${toCreate.length} preset messages`)
       }
     } catch (error) {
-      console.error("[emotional-messages] Failed:", error)
+      logger.db.error("[emotional-messages] Failed:", error)
       initPromise = null // 失败时允许重试
     }
   })()
