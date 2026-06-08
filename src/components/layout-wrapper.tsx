@@ -47,29 +47,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
   /* ── 内容区偏移：在页面居中 ── */
-  const [contentOffset, setContentOffset] = useState(0)
-
-  useEffect(() => {
-    if (!isDesktop) { setContentOffset(0); return }
-    const sw = window.innerWidth
-    const available = sw - leftWidth - rightWidth
-    const centerOfAvailable = leftWidth + available / 2
-    const centerOfPage = sw / 2
-    setContentOffset(centerOfAvailable - centerOfPage)
-  }, [isDesktop, leftWidth, rightWidth])
-
-  useEffect(() => {
-    if (!isDesktop) return
-    const onResize = () => {
-      const sw = window.innerWidth
-      const available = sw - leftWidth - rightWidth
-      const centerOfAvailable = leftWidth + available / 2
-      const centerOfPage = sw / 2
-      setContentOffset(centerOfAvailable - centerOfPage)
-    }
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [isDesktop, leftWidth, rightWidth])
+  const contentOffset = isDesktop ? -(leftWidth - rightWidth) / 2 : 0
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -104,8 +82,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           children
         ) : (
           <div
-            className="min-h-screen transition-[margin] duration-300 ease-out"
-            style={{ marginLeft, marginRight }}
+            className="min-h-screen transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="px-4 pb-8">
               <div className="mx-auto max-w-[1140px]">
