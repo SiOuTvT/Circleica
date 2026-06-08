@@ -56,7 +56,17 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { name, description, color, positions } = await req.json()
+
+  let name: string, description: string | undefined, color: string | undefined, positions: string[] | undefined
+  try {
+    const body = await req.json()
+    name = body.name
+    description = body.description
+    color = body.color
+    positions = body.positions
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
 
   const exists = await prisma.tagGroup.findUnique({ where: { name: name.trim() } })

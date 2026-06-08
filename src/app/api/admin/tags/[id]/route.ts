@@ -7,7 +7,13 @@ type Ctx = { params: Promise<{ id: string }> }
 export async function PUT(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const body = await req.json()
+
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   const existing = await prisma.tag.findUnique({ where: { id } })
   if (!existing) return NextResponse.json({ error: "标签不存在" }, { status: 404 })
@@ -60,7 +66,15 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
 export async function PATCH(req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
-  const { forceDelete, groupId } = await req.json()
+
+  let forceDelete: boolean | undefined, groupId: string | undefined
+  try {
+    const body = await req.json()
+    forceDelete = body.forceDelete
+    groupId = body.groupId
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   // 强制删除
   if (forceDelete) {

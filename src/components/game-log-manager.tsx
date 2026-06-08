@@ -43,7 +43,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   }
 
   return (
-    <div className="rounded-xl bg-card bg-card p-5 ring-1 ring-border space-y-3">
+    <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
       <h2 className="text-sm font-semibold text-foreground">更新日志</h2>
       <form onSubmit={add} className="flex gap-2">
         <input value={content} onChange={e => setContent(e.target.value)}

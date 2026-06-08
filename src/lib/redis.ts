@@ -1,4 +1,5 @@
 import { features } from "./env"
+import { logger } from "./logger"
 
 /**
  * Redis 客户端（带内存缓存降级）
@@ -110,7 +111,7 @@ class RedisCache implements CacheClient {
   }
 }
 
-// ============ 内存缓存实现 ============
+// ============ 内存缓存实现 (LRU) ============
 
 interface MemoryEntry {
   value: unknown
@@ -125,6 +126,20 @@ class MemoryCache implements CacheClient {
     this.maxSize = maxSize
   }
 
+  /** 将 key 移到 Map 末尾（标记为最近使用） */
+  private touch(key: string, entry: MemoryEntry): void {
+    this.store.delete(key)
+    this.store.set(key, entry)
+  }
+
+  /** 淘汰最久未使用的条目 */
+  private evict(): void {
+    if (this.store.size >= this.maxSize) {
+      const firstKey = this.store.keys().next().value
+      if (firstKey) this.store.delete(firstKey)
+    }
+  }
+
   async get<T>(key: string): Promise<T | null> {
     const entry = this.store.get(key)
     if (!entry) return null
@@ -135,15 +150,15 @@ class MemoryCache implements CacheClient {
       return null
     }
 
+    // LRU：访问时移到末尾
+    this.touch(key, entry)
     return entry.value as T
   }
 
   async set(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
-    // 如果超过最大容量，删除最早的条目
-    if (this.store.size >= this.maxSize) {
-      const firstKey = this.store.keys().next().value
-      if (firstKey) this.store.delete(firstKey)
-    }
+    // 如果 key 已存在，先删除再重新插入（更新位置）
+    this.store.delete(key)
+    this.evict()
 
     this.store.set(key, {
       value,
@@ -175,10 +190,7 @@ class MemoryCache implements CacheClient {
     const entry = this.store.get(key)
     if (!entry || (entry.expiresAt && Date.now() > entry.expiresAt)) {
       // 新建或已过期
-      if (this.store.size >= this.maxSize) {
-        const firstKey = this.store.keys().next().value
-        if (firstKey) this.store.delete(firstKey)
-      }
+      this.evict()
       this.store.set(key, {
         value: 1,
         expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : null,
@@ -187,6 +199,8 @@ class MemoryCache implements CacheClient {
     }
     const newVal = (entry.value as number) + 1
     entry.value = newVal
+    // LRU：更新时移到末尾
+    this.touch(key, entry)
     return newVal
   }
 }
@@ -195,14 +209,14 @@ class MemoryCache implements CacheClient {
 
 function createCache(): CacheClient {
   if (features.redis) {
-    console.log("🔴 Redis 缓存已启用")
+    logger.db.info("Redis 缓存已启用")
     return new RedisCache(
       process.env.UPSTASH_REDIS_REST_URL!,
       process.env.UPSTASH_REDIS_REST_TOKEN!
     )
   }
 
-  console.log("💾 使用内存缓存（配置 UPSTASH_REDIS_REST_URL 以启用 Redis）")
+  logger.db.info("使用内存缓存（配置 UPSTASH_REDIS_REST_URL 以启用 Redis）")
   return new MemoryCache()
 }
 

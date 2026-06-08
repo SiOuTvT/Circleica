@@ -1,15 +1,16 @@
+import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    console.log("=== 开始获取随机游戏角色（VNDB） ===")
-    
+    logger.api.debug("开始获取随机游戏角色（VNDB）")
+
     const character = await vndbClient.getRandomCharacter()
-    
+
     if (character) {
-      console.log("✓ 从 VNDB 获取到角色:", character.name, "ID:", character.id)
-      
+      logger.api.debug(`从 VNDB 获取到角色: ${character.name} (ID: ${character.id})`)
+
       return NextResponse.json({
         id: character.id,
         name: character.name,
@@ -34,13 +35,13 @@ export async function GET() {
       })
     }
 
-    console.error("✗ VNDB 未返回角色数据")
+    logger.api.error("VNDB 未返回角色数据")
     return NextResponse.json(
       { error: "暂无角色数据，请稍后重试" },
       { status: 404 }
     )
   } catch (error) {
-    console.error("✗ Failed to get random character:", error)
+    logger.api.error("Failed to get random character", error)
     return NextResponse.json(
       { error: "获取失败，请稍后重试" },
       { status: 500 }

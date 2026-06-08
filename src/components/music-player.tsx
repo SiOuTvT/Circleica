@@ -76,7 +76,7 @@ export function MusicPlayer() {
       <div className={cn(
         "fixed right-5 z-50 flex flex-col overflow-hidden rounded-2xl",
         "ring-1 ring-border",
-        "bg-card/95 bg-card/95",
+        "bg-card/95",
         "shadow-2xl backdrop-blur-xl transition-all duration-300",
         expanded ? "w-64" : "w-12"
       )} style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>

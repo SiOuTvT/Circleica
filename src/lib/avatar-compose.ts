@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import fs from 'fs/promises'
 import path from 'path'
 import sharp from 'sharp'
@@ -88,9 +89,9 @@ export async function composeAvatar(
       .webp({ quality: 85 })
       .toBuffer()
 
-    // 生成唯一文件名
+    // 生成唯一文件名（使用 crypto 避免碰撞）
     const timestamp = Date.now()
-    const random = Math.random().toString(36).slice(2, 8)
+    const random = crypto.randomBytes(6).toString("hex")
     const filename = `composed-${frameId}-${timestamp}-${random}.webp`
     const outputPath = path.join(OUTPUT_DIR, filename)
 

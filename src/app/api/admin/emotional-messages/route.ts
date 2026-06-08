@@ -17,7 +17,13 @@ export async function GET(req: NextRequest) {
 /** POST: 创建新的情感化消息 */
 export async function POST(req: NextRequest) {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const body = await req.json()
+
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   const { key, category, title, subtitle, imageUrl, emoji, enabled } = body
   if (!key || !category) {
     return NextResponse.json({ error: "key 和 category 为必填项" }, { status: 400 })

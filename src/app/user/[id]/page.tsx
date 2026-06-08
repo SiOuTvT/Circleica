@@ -92,8 +92,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   // 使用 serialId 作为排名（自增 ID 近似等于注册顺序，避免 O(n) count 查询）
   const userRank = user.serialId
-  const favGames = user.favorites.map((f) => f.game)
-  const allFavGames = user.favorites.map(f => f.game)
+  const favGames = user.favorites.map(f => f.game)
   const playStatusGames = user.playStatuses.map(p => ({ game: p.game, status: p.status }))
   const isSelf = session?.user?.id === user.id
 
@@ -115,7 +114,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).replace(/\//g, "/")
+  })
 
   const uidDisplay = user.uid || String(user.serialId)
 
@@ -225,7 +224,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <div className="flex flex-col items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
                       <Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} />
-                      <span className="text-lg font-bold text-foreground">{allFavGames.length}</span>
+                      <span className="text-lg font-bold text-foreground">{favGames.length}</span>
                     </div>
                     <span className="text-[11px] text-muted-foreground">收藏</span>
                   </div>

@@ -20,7 +20,12 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   const { name, description, icon, characterImage, category, conditionType, conditionTarget, points, hidden } = body
 
   if (!name?.trim()) return NextResponse.json({ error: "名称不能为空" }, { status: 400 })

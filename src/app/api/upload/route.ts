@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { saveFile } from "@/lib/storage"
+import crypto from "crypto"
 import { NextResponse } from "next/server"
 import sharp from "sharp"
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
     }
     const ext = mimeToExt[file.type] || file.name.split(".").pop() || "png"
     const timestamp = Date.now()
-    const random = Math.random().toString(36).slice(2, 8)
+    const random = crypto.randomBytes(6).toString("hex")
     const filename = `${timestamp}-${random}.${ext}`
 
     const arrayBuffer = await file.arrayBuffer()
