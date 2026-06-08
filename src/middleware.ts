@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
 
+// 生成随机 nonce（16 字节 base64）
+function generateNonce(): string {
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return btoa(String.fromCharCode(...array))
+}
+
 // CSP 策略
-function buildCSP(): string {
+function buildCSP(nonce: string): string {
   // 开发模式需要 unsafe-eval：React 使用 eval() 重建调用栈用于调试
   const scriptSrc = process.env.NODE_ENV === "development"
     ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
-    : `script-src 'self' 'unsafe-inline'`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
 
   const directives = [
     `default-src 'self'`,
-    // unsafe-inline 保留：Next.js SSR 内联脚本 + Tailwind CSS 动态注入需要
-    // 后续可迁移至 nonce-based 方案进一步加固
     scriptSrc,
-    // unsafe-inline 保留：Tailwind CSS 运行时样式注入需要
+    // style-src 保留 unsafe-inline：Tailwind CSS 运行时样式注入需要
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: https:`,
     `font-src 'self' data: https://fonts.gstatic.com`,
@@ -57,7 +62,8 @@ export async function middleware(req: NextRequest) {
   res.headers.set("X-Content-Type-Options", "nosniff")
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
   res.headers.set("X-Frame-Options", "DENY")
-  res.headers.set("X-XSS-Protection", "1; mode=block")
+  // X-XSS-Protection 已废弃，设为 0 禁用（依赖 CSP 防护）
+  res.headers.set("X-XSS-Protection", "0")
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 
   // HSTS：仅在生产环境 HTTPS 下启用（避免 HTTP 站点误设导致无法访问）
@@ -70,14 +76,10 @@ export async function middleware(req: NextRequest) {
 
   // CSP 仅对页面路由设置，不对 API 设置（避免干扰 NextAuth）
   if (!pathname.startsWith("/api/")) {
-    res.headers.set("Content-Security-Policy", buildCSP())
-  }
-
-  // 读取当前 CSP 并移除 upgrade-insecure-requests（HTTP 站点不需要）
-  const csp = res.headers.get("Content-Security-Policy")
-  if (csp) {
-    const cleaned = csp.replace(/upgrade-insecure-requests;?\s*/g, "").trim()
-    res.headers.set("Content-Security-Policy", cleaned)
+    const nonce = generateNonce()
+    res.headers.set("Content-Security-Policy", buildCSP(nonce))
+    // 传递 nonce 给 Next.js，使其在内联脚本上自动添加 nonce 属性
+    res.headers.set("x-nonce", nonce)
   }
 
   return res
