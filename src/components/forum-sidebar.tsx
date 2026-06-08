@@ -27,9 +27,10 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           "fixed z-40 flex flex-col",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
-          "bg-background border-l border-border",
         )}
         style={{
+          background: "var(--sidebar)",
+          borderLeft: "1px solid var(--sidebar-border)",
           width: expanded ? 360 : 280,
           transform: open ? "translateX(0)" : "translateX(100%)",
           opacity: open ? 1 : 0,
