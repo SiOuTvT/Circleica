@@ -39,7 +39,7 @@ interface GameWithTag {
   favoriteCount: number
   viewCount: number
   downloadCount: number
-  downloadLinks: string | null
+  downloadLinks: unknown
   updatedAt: Date
   createdAt: Date
   tags: { tag: { name: string; color: string } }[]
@@ -109,11 +109,15 @@ async function SearchResults({
 
   const totalPages = Math.ceil(total / limit)
 
-  function parseDlLinks(raw: string | null): { label?: string; url: string; platform?: string }[] {
-    try {
-      const parsed = JSON.parse(raw || "[]")
-      return Array.isArray(parsed) ? parsed : []
-    } catch { return [] }
+  function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: string }[] {
+    if (Array.isArray(raw)) return raw as { label?: string; url: string; platform?: string }[]
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw)
+        return Array.isArray(parsed) ? parsed : []
+      } catch { return [] }
+    }
+    return []
   }
 
   const games = rawGames.map((g) => ({

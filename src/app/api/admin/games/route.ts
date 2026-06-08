@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   if (!title?.trim()) return NextResponse.json({ error: "标题不能为空" }, { status: 400 })
 
   // 处理创作者：支持 VNDB 拉取的 creators 和手动选择的 gameCreators
-  let creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
+  const creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
 
   if (creators?.length) {
     // VNDB 拉取的创作者：自动创建或查找已有的 Creator 记录
@@ -90,8 +90,10 @@ export async function POST(req: NextRequest) {
       originalWork: originalWork?.trim() ?? "",
       description: description?.trim() ?? "",
       coverImage: coverImage ?? "",
-      screenshots: screenshots ?? [],
-      downloadLinks: downloadLinks ?? [],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      screenshots: (screenshots ?? []) as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      downloadLinks: (downloadLinks ?? []) as any,
       status: status ?? "完结",
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",

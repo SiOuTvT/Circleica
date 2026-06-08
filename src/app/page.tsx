@@ -3,6 +3,7 @@ import { GameCard, GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
 import { Suspense } from "react"
@@ -130,7 +131,7 @@ export default async function HomePage({
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <p className="text-lg text-muted-foreground">数据加载失败，请稍后重试</p>
-        <a href="/" className="text-sm text-primary hover:underline">刷新页面</a>
+        <Link href="/" className="text-sm text-primary hover:underline">刷新页面</Link>
       </div>
     )
   }

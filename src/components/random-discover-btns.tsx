@@ -14,7 +14,7 @@ export function RandomCreatorBtn() {
     try {
       // 动态导入 VNDB 客户端，避免首屏加载
       const { getRandomStaff, getRandomProducer } = await import("@/lib/vndb-client")
-      let creator: { vndbId?: string; [key: string]: unknown } | null = await getRandomStaff()
+      let creator: { vndbId?: string; id?: string; name?: string } | null = await getRandomStaff()
       if (!creator) {
         creator = await getRandomProducer()
       }

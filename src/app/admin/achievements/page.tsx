@@ -232,7 +232,7 @@ export default function AdminAchievementsPage() {
               </tr>
             ))}
             {achievements.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">暂无成就，点击上方"新建成就"创建第一个</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">暂无成就，点击上方「新建成就」创建第一个</td></tr>
             )}
           </tbody>
         </table>

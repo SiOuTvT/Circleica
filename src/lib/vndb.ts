@@ -127,7 +127,7 @@ class VNDBClient {
 
       if (proxyUrl) {
         this.dispatcher = new undici.ProxyAgent(proxyUrl)
-        logger.db.debug("[VNDB] 已配置代理:", proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"))
+        logger.db.debug("[VNDB] 已配置代理", { proxy: proxyUrl.replace(/\/\/[^:]+:[^@]+@/, "//***:***@") })
       } else {
         // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
         // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
@@ -135,24 +135,26 @@ class VNDBClient {
         logger.db.debug("[VNDB] 未配置代理，强制 IPv4 直连")
       }
     } catch (e) {
-      logger.db.warn("[VNDB] 无法加载 undici Agent，将使用默认 fetch:", e)
+      logger.db.warn("[VNDB] 无法加载 undici Agent，将使用默认 fetch", { error: e instanceof Error ? e.message : String(e) })
     }
   }
 
   /**
    * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<VNDBSearchResult> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<any> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
-      logger.db.debug("[VNDB] 熔断器已触发，快速失败（剩余", Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000), "秒）")
+      const remaining = Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000)
+      logger.db.debug("[VNDB] 熔断器已触发，快速失败", { remaining })
       throw new Error("VNDB API 不可达（熔断器已触发）")
     }
-    
+
     await this.initProxy()
-    
+
     const url = `${this.baseUrl}/${endpoint}`
-    logger.db.debug("[VNDB] 发送 HTTP 请求:", url)
+    logger.db.debug("[VNDB] 发送 HTTP 请求", { url })
     
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -186,7 +188,7 @@ class VNDBClient {
         }
 
         const result = await response.json()
-        logger.db.debug("[VNDB] 响应成功，结果数量:", result.results?.length || 0)
+        logger.db.debug("[VNDB] 响应成功", { resultCount: result.results?.length || 0 })
         return result
       } catch (error: unknown) {
         const err = error as Error & { code?: string; cause?: { code?: string } }
@@ -302,7 +304,7 @@ class VNDBClient {
       }
       return result
     } catch (error) {
-      logger.db.error("[VNDB] Failed to fetch random creator:", error)
+      logger.db.error("[VNDB] Failed to fetch random creator", error)
       return null
     }
   }
@@ -387,7 +389,7 @@ class VNDBClient {
         }
       }, this.CACHE_TTL)
     } catch (error) {
-      logger.db.error("[VNDB] Failed to fetch staff detail:", error)
+      logger.db.error("[VNDB] Failed to fetch staff detail", error)
       return null
     }
   }
@@ -592,7 +594,7 @@ class VNDBClient {
         }
       }, this.CACHE_TTL)
     } catch (error) {
-      logger.db.error("[VNDB] Failed to fetch character detail:", error)
+      logger.db.error("[VNDB] Failed to fetch character detail", error)
       return null
     }
   }
@@ -621,7 +623,7 @@ class VNDBClient {
       }
       return result
     } catch (error) {
-      logger.db.error("[VNDB] Failed to fetch random character:", error)
+      logger.db.error("[VNDB] Failed to fetch random character", error)
       return null
     }
   }

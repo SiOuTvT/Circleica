@@ -91,20 +91,13 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const openLightbox = useCallback(() => setLightboxOpen(true), [])
   const closeLightbox = useCallback(() => setLightboxOpen(false), [])
 
-  if (galleryImages.length === 0) {
-    return (
-      <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/40">
-        暂无预览图
-      </div>
-    )
-  }
-
-  const activeImage = galleryImages[activeIndex]
+  const activeImage = galleryImages[activeIndex] ?? ""
 
   // Track previous image for crossfade
   const prevImageRef = useRef<string>(activeImage)
   const [fading, setFading] = useState(false)
   useEffect(() => {
+    if (!activeImage) return
     if (prevImageRef.current !== activeImage) {
       setFading(true)
       const timer = setTimeout(() => {
@@ -114,6 +107,14 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       return () => clearTimeout(timer)
     }
   }, [activeImage])
+
+  if (galleryImages.length === 0) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/40">
+        暂无预览图
+      </div>
+    )
+  }
 
   return (
     <>
@@ -171,7 +172,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
     <div className="group relative h-full w-full overflow-hidden">
       {/* Previous image underneath for crossfade */}
-      {prevImageRef.current !== activeImage && (
+      {fading && prevImageRef.current && prevImageRef.current !== activeImage && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={prevImageRef.current}

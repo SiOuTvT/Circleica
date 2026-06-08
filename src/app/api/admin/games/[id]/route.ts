@@ -59,7 +59,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   await prisma.gameCreator.deleteMany({ where: { gameId: id } })
 
   // 处理创作者：支持 VNDB 拉取的 creators 和手动选择的 gameCreators
-  let creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
+  const creatorConnect: Array<{ creatorId: string; role: string }> = gameCreators || []
 
   if (creators?.length) {
     for (const c of creators) {
@@ -94,8 +94,10 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       originalWork: originalWork?.trim() ?? "",
       description: description?.trim() ?? "",
       coverImage: coverImage ?? "",
-      screenshots: screenshots ?? [],
-      downloadLinks: downloadLinks ?? [],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      screenshots: (screenshots ?? []) as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      downloadLinks: (downloadLinks ?? []) as any,
       status: status ?? "完结",
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",

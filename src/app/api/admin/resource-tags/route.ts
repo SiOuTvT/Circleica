@@ -54,7 +54,8 @@ export async function PUT(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
-  const { group, options } = body as { group: string; options: string[] }
+  const group = body.group as string | undefined
+  const options = body.options as string[] | undefined
 
   const key = TAG_KEYS[group as keyof typeof TAG_KEYS]
   if (!key) return NextResponse.json({ error: "无效的标签组" }, { status: 400 })
