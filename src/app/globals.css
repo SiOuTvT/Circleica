@@ -168,18 +168,30 @@ main > * {
 
 /* ── 深色主题（默认）— 内敛奢华 ── */
 :root {
-  /* 深空黑基调 — 微调避免纯黑"死黑"感 */
-  --background:    #08080a; /* 带蓝调深黑，更有质感 */
-  --foreground:    #e8e8ec; /* 冷白文字，清晰锐利 */
-  --card:          #121214; /* 卡片底色，比背景亮一点 */
-  --card-hover:    #18181b; /* 卡片悬停提亮 */
+  /* ═══ 层级系统：背景 → 侧边栏 → 卡片 → 悬浮元素 ═══ */
+  --background:    #08080a;       /* L0 最底层 */
+  --foreground:    #e8e8ec;
+
+  /* L1 侧边栏 / 面板：比背景亮 3-4 个色阶 */
+  --sidebar:       #0d0d10;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* L2 卡片：比侧边栏亮 5-6 个色阶，清晰可辨 */
+  --card:          #151518;
+  --card-hover:    #1c1c20;
   --card-foreground: #e8e8ec;
-  --popover:       #101012;
+  --card-border:   rgba(255, 255, 255, 0.08);
+
+  /* L3 悬浮元素（导航栏、弹窗）：最高层 */
+  --surface-float: #1a1a1e;
+  --surface-float-border: rgba(255, 255, 255, 0.1);
+
+  --popover:       #16161a;
   --popover-foreground: #e8e8ec;
-  --muted:         #111113; /* 极深中性灰底 */
-  --muted-foreground: #a1a1b5; /* 提亮灰字，确保 ≥4.5:1 对比度 */
-  --border:        rgba(255, 255, 255, 0.06); /* 更细腻的分隔线 */
-  --input:         rgba(255, 255, 255, 0.06);
+  --muted:         #111114;
+  --muted-foreground: #a1a1b5;
+  --border:        rgba(255, 255, 255, 0.08);
+  --input:         rgba(255, 255, 255, 0.08);
   --secondary:     #0e0e10;
   --secondary-foreground: #e8e8ec;
   --accent:        #0e0e10;
@@ -202,14 +214,15 @@ main > * {
   --text-tertiary: #71717a;
   --text-disabled: #52525b;
 
-  /* 统一阴影系统 — 深色模式 */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
-  --shadow-glow: 0 0 30px rgba(232, 120, 154, 0.15); /* 品牌色光晕 */
+  /* ═══ 阴影系统：深度递进 ═══ */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-xl:  0 24px 60px rgba(0,0,0,0.7), 0 8px 20px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 40px rgba(224, 168, 124, 0.12);
   --card-shadow: var(--shadow-md);
   --card-shadow-hover: var(--shadow-lg);
-  --ring:          #252528;
+  --ring:          #2a2a2e;
   --radius:        0.75rem;
 
   /* ═══ 动画令牌 ═══ */
@@ -257,24 +270,37 @@ main > * {
 
 /* ── 亮色主题 — 暖白优雅 ── */
 :root.light, .light {
-  --background:    #fafafa; /* 带暖调的白 */
-  --foreground:    #1a1a1e; /* 柔和的深色，避免刺眼纯黑 */
-  --card:          #ffffff; /* 纯白卡片 */
-  --card-hover:    #f5f5f7; /* 卡片悬停 */
+  /* ═══ 层级系统 ═══ */
+  --background:    #fafafa;
+  --foreground:    #1a1a1e;
+
+  /* L1 侧边栏 */
+  --sidebar:       #f0f0f2;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+
+  /* L2 卡片 */
+  --card:          #ffffff;
+  --card-hover:    #f8f8fa;
   --card-foreground: #1a1a1e;
+  --card-border:   rgba(0, 0, 0, 0.08);
+
+  /* L3 悬浮元素 */
+  --surface-float: #ffffff;
+  --surface-float-border: rgba(0, 0, 0, 0.1);
+
   --popover:       #ffffff;
   --popover-foreground: #1a1a1e;
-  --muted:         #f5f5f7; /* 微灰 muted */
-  --muted-foreground: #52525b; /* 中灰，确保可读 */
-  --border:        rgba(0, 0, 0, 0.06); /* 极淡分割线 */
-  --input:         rgba(0, 0, 0, 0.06);
+  --muted:         #f5f5f7;
+  --muted-foreground: #52525b;
+  --border:        rgba(0, 0, 0, 0.08);
+  --input:         rgba(0, 0, 0, 0.08);
   --secondary:     #f5f5f7;
   --secondary-foreground: #1a1a1e;
   --accent:        #f5f5f7;
   --accent-foreground: #1a1a1e;
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
-  --primary:       #C89060; /* 暖桃-浅色模式 */
+  --primary:       #C89060;
 
   /* 语义色 - 浅色模式 */
   --success:       #059669;
@@ -292,10 +318,11 @@ main > * {
   --text-tertiary: #71717a;
   --text-disabled: #a1a1aa;
 
-  /* 统一阴影系统 — 亮色模式 */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  /* ═══ 阴影系统 ═══ */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl:  0 24px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08);
   --card-shadow: var(--shadow-md);
   --card-shadow-hover: var(--shadow-lg);
   --primary-foreground: #ffffff;
