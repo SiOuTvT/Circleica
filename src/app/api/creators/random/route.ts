@@ -62,10 +62,7 @@ export async function GET() {
   } catch (error) {
     console.error("✗ Failed to get random creator:", error)
     return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : "获取失败",
-        details: error instanceof Error ? error.stack : undefined
-      },
+      { error: "获取失败，请稍后重试" },
       { status: 500 }
     )
   }
