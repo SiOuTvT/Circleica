@@ -9,7 +9,13 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
 
   const { id: gameId } = await params
-  const { score } = await req.json()
+  let score: number
+  try {
+    const body = await req.json()
+    score = body.score
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!score || score < 1 || score > 5) return NextResponse.json({ error: "评分需在1-5之间" }, { status: 400 })
 
   await prisma.gameRating.upsert({

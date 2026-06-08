@@ -7,7 +7,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
   const { id: gameId } = await params
-  const { status } = await req.json()
+  let status: string
+  try {
+    const body = await req.json()
+    status = body.status
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   if (!["想玩", "在玩", "玩过"].includes(status))
     return NextResponse.json({ error: "无效状态" }, { status: 400 })

@@ -3,7 +3,14 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 export async function POST(req: NextRequest) {
-  const { token, password } = await req.json()
+  let token: string, password: string
+  try {
+    const body = await req.json()
+    token = body.token
+    password = body.password
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!token || !password) return NextResponse.json({ error: "参数缺失" }, { status: 400 })
   if (password.length < 6) return NextResponse.json({ error: "密码至少6位" }, { status: 400 })
 

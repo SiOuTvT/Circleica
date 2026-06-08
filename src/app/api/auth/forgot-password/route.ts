@@ -20,7 +20,13 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { email } = await req.json()
+  let email: string
+  try {
+    const body = await req.json()
+    email = body.email
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!email?.trim()) return NextResponse.json({ error: "请输入邮箱" }, { status: 400 })
 
   const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } })
