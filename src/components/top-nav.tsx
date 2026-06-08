@@ -331,39 +331,3 @@ export function TopNav({ navCollapsed, onToggleNav, forumOpen, forumExpanded, on
   )
 }
 
-function ForumSidebarPosts() {
-  const [posts, setPosts] = useState<{ id: string; title: string; user: { username: string }; isSolved?: boolean; createdAt?: string }[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch("/api/forum/posts", { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => { setPosts(data.slice(0, 20)); setLoading(false) })
-      .catch(() => setLoading(false))
-    return () => controller.abort()
-  }, [])
-
-  if (loading) return <p className="p-4 text-xs text-muted-foreground">加载中…</p>
-  if (!posts.length) return <p className="p-4 text-xs text-muted-foreground">暂无帖子</p>
-
-  return (
-    <div className="space-y-1.5">
-      {posts.map(p => (
-        <Link key={p.id} href={`/forum?post=${p.id}`}
-          className="block rounded-lg p-2.5 transition-all hover:border-primary/20"
-          style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.04)" }}>
-          <p className="line-clamp-2 text-xs font-medium text-foreground leading-relaxed">{p.title}</p>
-          <div className="flex items-center gap-2 mt-1.5">
-            {p.isSolved !== undefined && (
-              <span className={`text-[9px] px-1.5 py-0.5 rounded ${p.isSolved ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/10 text-primary"}`}>
-                {p.isSolved ? "已解决" : "未解决"}
-              </span>
-            )}
-            <span className="text-[10px] text-muted-foreground">{p.user.username}</span>
-          </div>
-        </Link>
-      ))}
-    </div>
-  )
-}
