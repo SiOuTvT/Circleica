@@ -49,36 +49,40 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   /* ── 内容区偏移 ── */
   const [contentOffset, setContentOffset] = useState(0)
 
-  useEffect(() => {
-    if (!isDesktop) { setContentOffset(0); return }
+  const calcOffset = useCallback(() => {
+    if (!isDesktop) return 0
     const sw = window.innerWidth
-    const available = sw - leftWidth - rightWidth
-    const centerOfAvailable = leftWidth + available / 2
-    const centerOfPage = sw / 2
-    let offset = centerOfAvailable - centerOfPage
-
-    // 只开左边时，内容往左靠一点
+    const pageCenter = sw / 2
     const onlyLeft = !navCollapsed && !forumOpen
-    if (onlyLeft) offset -= leftWidth / 5
+    const onlyRight = navCollapsed && forumOpen
 
-    setContentOffset(offset)
+    if (onlyRight) {
+      // 只开右边：保持和右边的距离跟两边都开时一样
+      const bothOpenAvailable = sw - LEFT_W - RIGHT_W
+      const bothOpenCenter = LEFT_W + bothOpenAvailable / 2
+      const distFromRight = sw - bothOpenCenter - RIGHT_W
+      const targetCenter = sw - rightWidth - distFromRight
+      return targetCenter - pageCenter
+    }
+
+    // 其他状态：在可用空间居中
+    const available = sw - leftWidth - rightWidth
+    const center = leftWidth + available / 2
+    let offset = center - pageCenter
+    if (onlyLeft) offset -= leftWidth / 5 // 只开左边往左靠
+    return offset
   }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
+
+  useEffect(() => {
+    setContentOffset(calcOffset())
+  }, [calcOffset])
 
   useEffect(() => {
     if (!isDesktop) return
-    const onResize = () => {
-      const sw = window.innerWidth
-      const available = sw - leftWidth - rightWidth
-      const centerOfAvailable = leftWidth + available / 2
-      const centerOfPage = sw / 2
-      let offset = centerOfAvailable - centerOfPage
-      const onlyLeft = !navCollapsed && !forumOpen
-      if (onlyLeft) offset -= leftWidth / 5
-      setContentOffset(offset)
-    }
+    const onResize = () => setContentOffset(calcOffset())
     window.addEventListener("resize", onResize)
     return () => window.removeEventListener("resize", onResize)
-  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
+  }, [isDesktop, calcOffset])
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
