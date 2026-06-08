@@ -209,7 +209,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             {previewUrl && (
               <div className="px-3 pt-3">
                 <div className="relative inline-block group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={previewUrl} alt="预览" className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" />
                   <button type="button" onClick={removePreview}
                     className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-red-500/80 hover:text-white"
@@ -370,8 +370,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               {c.content && <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">{c.content}</p>}
               {c.imageUrl && (
                 <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-xs">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.imageUrl} alt="评论图片" className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition-all" />
+                  <Image src={c.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition-all" unoptimized />
                 </a>
               )}
               <button onClick={() => isLoggedIn && likeComment(c.id)}

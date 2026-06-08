@@ -2,6 +2,7 @@
 
 import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import {
   ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, Flag, FolderTree, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
@@ -192,7 +193,7 @@ export function AdminNav() {
           {!collapsed ? (
             <div className="flex items-center gap-2.5 min-w-0 px-2 py-1.5">
               {session?.user?.image ? (
-                <img src={session.user.image} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+                <Image src={session.user.image} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover" unoptimized />
               ) : (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/80 text-sm font-bold text-primary-foreground">
                   {session?.user?.name?.charAt(0)?.toUpperCase() || "A"}
@@ -207,7 +208,7 @@ export function AdminNav() {
             </div>
           ) : (
             session?.user?.image ? (
-              <img src={session.user.image} alt="" className="mx-auto h-7 w-7 shrink-0 rounded-full object-cover" />
+              <Image src={session.user.image} alt="" width={28} height={28} className="mx-auto h-7 w-7 shrink-0 rounded-full object-cover" unoptimized />
             ) : (
               <div className="mx-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-primary-foreground">
                 {session?.user?.name?.charAt(0)?.toUpperCase() || "A"}

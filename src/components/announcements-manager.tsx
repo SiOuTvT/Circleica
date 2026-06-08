@@ -4,6 +4,7 @@ import { ImageUpload } from "@/components/image-upload"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import Image from "next/image"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
@@ -303,8 +304,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                   )}
                   {ann.imageUrl && (
                     <div className="mt-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={ann.imageUrl} alt="" className="h-16 rounded-lg object-cover ring-1 ring-border" />
+                      <Image src={ann.imageUrl} alt="" width={128} height={64} className="h-16 rounded-lg object-cover ring-1 ring-border" unoptimized />
                     </div>
                   )}
                   <div className="mt-1.5 flex items-center gap-2">

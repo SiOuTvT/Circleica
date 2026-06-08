@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useId } from "react"
 
 /**
@@ -28,7 +29,7 @@ export function AvatarFrame({
   size = 48,
   className = "",
   children,
-  overlay = false,
+  overlay: _overlay = false,
 }: AvatarFrameProps) {
   // 没有头像框，直接渲染children
   if ((!frameId || frameId === "none") && !frameImageUrl) {
@@ -45,11 +46,13 @@ export function AvatarFrame({
         <div className="h-full w-full overflow-hidden rounded-full">
           {children}
         </div>
-        <img
+        <Image
           src={frameImageUrl}
           alt="头像框"
-          className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+          fill
+          className="pointer-events-none object-contain"
           loading="eager"
+          unoptimized
         />
       </div>
     )
@@ -113,7 +116,7 @@ function SlimeFrame({ size, className = "", children }: { size: number; classNam
 }
 
 /** 可爱的蓝色史莱姆，趴在右上角 */
-function SlimeOnCorner({ size, containerSize }: { size: number; containerSize: number }) {
+function SlimeOnCorner({ size, containerSize: _containerSize }: { size: number; containerSize: number }) {
   const id = useId()
   return (
     <div
@@ -213,10 +216,13 @@ export function AvatarFrameMini({
   // DB头像框图片
   if (frameImageUrl) {
     return (
-      <img
+      <Image
         src={frameImageUrl}
         alt="头像框"
+        width={130}
+        height={130}
         className={`pointer-events-none absolute inset-0 h-full w-full object-contain ${className}`}
+        unoptimized
       />
     )
   }

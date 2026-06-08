@@ -1,8 +1,10 @@
 "use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
+import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
+import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { useCallback, useEffect, useState, useTransition } from "react"
 
@@ -27,7 +29,7 @@ export function AvatarFrameSelector({
   const { update } = useSession()
   const [selected, setSelected] = useState<string | null>(currentFrameId)
   const [saving, setSaving] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -41,7 +43,7 @@ export function AvatarFrameSelector({
         setFrames(data.frames || [])
       }
     } catch (e) {
-      console.error("加载头像框列表失败:", e)
+      logger.upload.error("加载头像框列表失败", e)
     } finally {
       setLoading(false)
     }
@@ -119,7 +121,7 @@ export function AvatarFrameSelector({
                 <div className="relative w-20 h-20">
                   <div className="w-full h-full rounded-full overflow-hidden bg-primary/80 flex items-center justify-center">
                     {userImage ? (
-                      <img src={userImage} alt={userName} className="h-full w-full object-cover" />
+                      <Image src={userImage} alt={userName} width={80} height={80} className="h-full w-full object-cover" unoptimized />
                     ) : (
                       <span className="text-2xl font-bold text-white">{userName[0].toUpperCase()}</span>
                     )}
@@ -127,7 +129,7 @@ export function AvatarFrameSelector({
                   {selected && (() => {
                     const f = frames.find(fr => fr.id === selected)
                     return f ? (
-                      <img src={f.imageUrl} alt={f.name} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                      <Image src={f.imageUrl} alt={f.name} width={80} height={80} className="absolute inset-0 w-full h-full object-contain pointer-events-none" unoptimized />
                     ) : null
                   })()}
                 </div>
@@ -174,12 +176,12 @@ export function AvatarFrameSelector({
                       <div className="relative w-14 h-14">
                         <div className="w-full h-full rounded-full overflow-hidden bg-primary/80 flex items-center justify-center">
                           {userImage ? (
-                            <img src={userImage} alt="" className="h-full w-full object-cover" />
+                            <Image src={userImage} alt="" width={56} height={56} className="h-full w-full object-cover" unoptimized />
                           ) : (
                             <span className="text-sm font-bold text-white">{userName[0].toUpperCase()}</span>
                           )}
                         </div>
-                        <img src={f.imageUrl} alt={f.name} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                        <Image src={f.imageUrl} alt={f.name} width={56} height={56} className="absolute inset-0 w-full h-full object-contain pointer-events-none" unoptimized />
                       </div>
                       <div className="text-center">
                         <div className="text-xs font-medium text-foreground truncate max-w-[80px]">{f.name}</div>

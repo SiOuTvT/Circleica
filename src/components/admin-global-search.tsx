@@ -18,9 +18,9 @@ interface SearchResult {
 
 const TYPE_CONFIG = {
   game:  { label: "游戏", icon: Gamepad2,      href: (id: string) => `/admin/games?edit=${id}` },
-  user:  { label: "用户", icon: Users,          href: (id: string) => `/admin/users` },
-  tag:   { label: "标签", icon: Tag,            href: (id: string) => `/admin/tags` },
-  forum: { label: "论坛", icon: MessageSquare,  href: (id: string) => `/admin/forum` },
+  user:  { label: "用户", icon: Users,          href: (_id: string) => `/admin/users` },
+  tag:   { label: "标签", icon: Tag,            href: (_id: string) => `/admin/tags` },
+  forum: { label: "论坛", icon: MessageSquare,  href: (_id: string) => `/admin/forum` },
 } as const
 
 export function AdminGlobalSearch() {

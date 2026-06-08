@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Crop, RotateCw, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useState } from "react"
 import Cropper from "react-easy-crop"
