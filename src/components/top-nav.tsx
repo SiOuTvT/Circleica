@@ -198,7 +198,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     <>
       <header
         className={cn(
-          "flex h-12 items-center rounded-xl border backdrop-blur-xl transition-all duration-200",
+          "flex h-14 items-center rounded-xl border backdrop-blur-xl transition-all duration-200",
           "bg-background/80",
           scrolled
             ? "shadow-[0_4px_24px_rgba(0,0,0,0.3)] border-border/60"
