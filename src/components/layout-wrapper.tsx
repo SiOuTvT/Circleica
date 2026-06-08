@@ -14,11 +14,11 @@ import { useCallback, useEffect, useState } from "react"
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量
    ═══════════════════════════════════════════════════ */
-const LEFT_W = 220          // 左侧栏正常宽度
-const LEFT_EXPANDED_W = 260 // 左侧栏展开（只开左边时）
+const LEFT_W = 200          // 左侧栏正常宽度
+const LEFT_EXPANDED_W = 240 // 左侧栏展开（只开左边时）
 const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
-const RIGHT_W = 280         // 右侧栏正常宽度
-const RIGHT_EXPANDED_W = 360 // 右侧栏展开（只开右边时）
+const RIGHT_W = 260         // 右侧栏正常宽度
+const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
 
 /* 两边都开时，内容区在左右之间的基准中心点 */
 function getBaseCenter(sw: number) {
@@ -92,23 +92,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const onlyLeft = isDesktop && !navCollapsed && !forumOpen
   const onlyRight = isDesktop && navCollapsed && forumOpen
 
-  /* ── 内容区偏移 ── */
-  const [contentOffset, setContentOffset] = useState(0)
-
-  useEffect(() => {
-    if (!isDesktop) { setContentOffset(0); return }
-    setContentOffset(calcContentOffset(window.innerWidth, leftWidth, rightWidth, onlyLeft, onlyRight))
-  }, [isDesktop, leftWidth, rightWidth, onlyLeft, onlyRight])
-
-  // 窗口大小变化时重新计算
-  useEffect(() => {
-    if (!isDesktop) return
-    const onResize = () => {
-      setContentOffset(calcContentOffset(window.innerWidth, leftWidth, rightWidth, onlyLeft, onlyRight))
-    }
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [isDesktop, leftWidth, rightWidth, onlyLeft, onlyRight])
+  /* ── 内容区 margin ── */
+  const marginLeft = isDesktop ? leftWidth : 0
+  const marginRight = isDesktop ? rightWidth : 0
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -143,10 +129,10 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           children
         ) : (
           <div
-            className="min-h-screen transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(${contentOffset}px)` }}
+            className="min-h-screen transition-[margin] duration-300 ease-out"
+            style={{ marginLeft, marginRight }}
           >
-            <div className="px-4 pb-8">
+            <div className="px-5 pb-8">
               <div className="mx-auto max-w-[1100px]">
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
