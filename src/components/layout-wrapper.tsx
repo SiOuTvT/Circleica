@@ -46,8 +46,39 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  /* ── 内容区偏移：在页面居中 ── */
-  const contentOffset = isDesktop ? -(leftWidth - rightWidth) / 2 : 0
+  /* ── 内容区偏移 ── */
+  const [contentOffset, setContentOffset] = useState(0)
+
+  useEffect(() => {
+    if (!isDesktop) { setContentOffset(0); return }
+    const sw = window.innerWidth
+    const available = sw - leftWidth - rightWidth
+    const centerOfAvailable = leftWidth + available / 2
+    const centerOfPage = sw / 2
+    let offset = centerOfAvailable - centerOfPage
+
+    // 只开左边时，内容往左靠一点
+    const onlyLeft = !navCollapsed && !forumOpen
+    if (onlyLeft) offset -= leftWidth / 5
+
+    setContentOffset(offset)
+  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
+
+  useEffect(() => {
+    if (!isDesktop) return
+    const onResize = () => {
+      const sw = window.innerWidth
+      const available = sw - leftWidth - rightWidth
+      const centerOfAvailable = leftWidth + available / 2
+      const centerOfPage = sw / 2
+      let offset = centerOfAvailable - centerOfPage
+      const onlyLeft = !navCollapsed && !forumOpen
+      if (onlyLeft) offset -= leftWidth / 5
+      setContentOffset(offset)
+    }
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
