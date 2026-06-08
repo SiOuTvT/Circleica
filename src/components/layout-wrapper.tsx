@@ -102,10 +102,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               <div className="mx-auto max-w-[1100px]">
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav
-                    navCollapsed={navCollapsed}
                     onToggleNav={toggleNav}
-                    forumOpen={forumOpen}
-                    forumExpanded={rightExpanded}
                     onToggleForum={toggleForum}
                   />
                 </div>
