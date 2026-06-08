@@ -11,12 +11,56 @@ import { useOnlineStatus } from "@/hooks/use-online-status"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
-// 侧边栏宽度常量
-const LEFT_W = 220
-const LEFT_EXPANDED_W = 260
-const LEFT_COLLAPSED_W = 60
-const RIGHT_W = 280
-const RIGHT_EXPANDED_W = 360
+/* ═══════════════════════════════════════════════════
+   侧边栏宽度常量
+   ═══════════════════════════════════════════════════ */
+const LEFT_W = 220          // 左侧栏正常宽度
+const LEFT_EXPANDED_W = 260 // 左侧栏展开（只开左边时）
+const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
+const RIGHT_W = 280         // 右侧栏正常宽度
+const RIGHT_EXPANDED_W = 360 // 右侧栏展开（只开右边时）
+
+/* 两边都开时，内容区在左右之间的基准中心点 */
+function getBaseCenter(sw: number) {
+  return LEFT_W + (sw - LEFT_W - RIGHT_W) / 2
+}
+
+/* ═══════════════════════════════════════════════════
+   内容区偏移计算
+
+   四种状态：
+   1. 两边都开 → 内容在左右之间居中
+   2. 只开左边 → 内容居中后往左靠一点（nudge）
+   3. 只开右边 → 内容和右边的距离保持和两边都开时一样
+   4. 都关     → 内容在页面居中
+   ═══════════════════════════════════════════════════ */
+function calcContentOffset(
+  sw: number,
+  leftW: number,
+  rightW: number,
+  onlyLeft: boolean,
+  onlyRight: boolean,
+): number {
+  const pageCenter = sw / 2
+
+  // 只开右边：保持和右边的距离不变
+  if (onlyRight) {
+    const baseCenter = getBaseCenter(sw)
+    const baseDistFromRight = sw - baseCenter - RIGHT_W
+    const targetCenter = sw - rightW - baseDistFromRight
+    return targetCenter - pageCenter
+  }
+
+  // 其他状态：在可用空间内居中
+  const available = sw - leftW - rightW
+  const center = leftW + available / 2
+  let offset = center - pageCenter
+
+  // 只开左边：往左靠一点
+  if (onlyLeft) offset -= leftW / 5
+
+  return offset
+}
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -26,7 +70,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isFullscreenRoute = pathname === "/login" || pathname === "/register"
   const isNormalRoute = !isAdminRoute && !isFullscreenRoute
 
-  // ── 侧边栏状态 ──
+  /* ── 侧边栏状态 ── */
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [navMobileOpen, setNavMobileOpen] = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
@@ -40,39 +84,33 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const leftExpanded = isDesktop && !navCollapsed && !forumOpen
   const rightExpanded = isDesktop && navCollapsed && forumOpen
 
-  // 左侧栏实际宽度
+  // 实际宽度
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
-  // 右侧栏实际宽度
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  // ── 内容区定位 ──
+  // 状态标记
+  const onlyLeft = isDesktop && !navCollapsed && !forumOpen
+  const onlyRight = isDesktop && navCollapsed && forumOpen
+
+  /* ── 内容区偏移 ── */
   const [contentOffset, setContentOffset] = useState(0)
 
   useEffect(() => {
     if (!isDesktop) { setContentOffset(0); return }
-    const sw = window.innerWidth
-    const pageCenter = sw / 2
+    setContentOffset(calcContentOffset(window.innerWidth, leftWidth, rightWidth, onlyLeft, onlyRight))
+  }, [isDesktop, leftWidth, rightWidth, onlyLeft, onlyRight])
 
-    // 两边都开时的基准距离
-    const baseCenter = LEFT_W + (sw - LEFT_W - RIGHT_W) / 2
-    const baseDistFromRight = sw - baseCenter - RIGHT_W
-
-    if (navCollapsed && forumOpen) {
-      // 只开右边：保持和右边同样的距离
-      const targetCenter = sw - rightWidth - baseDistFromRight
-      setContentOffset(targetCenter - pageCenter)
-    } else {
-      // 两边都开 / 只开左边 / 都关：原来的居中逻辑
-      const available = sw - leftWidth - rightWidth
-      const centerOfAvailable = leftWidth + available / 2
-      let offset = centerOfAvailable - pageCenter
-      // 只开左边时，内容往左靠一点
-      if (!navCollapsed && !forumOpen) offset -= leftWidth / 5
-      setContentOffset(offset)
+  // 窗口大小变化时重新计算
+  useEffect(() => {
+    if (!isDesktop) return
+    const onResize = () => {
+      setContentOffset(calcContentOffset(window.innerWidth, leftWidth, rightWidth, onlyLeft, onlyRight))
     }
-  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [isDesktop, leftWidth, rightWidth, onlyLeft, onlyRight])
 
-  // ── 切换函数 ──
+  /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
     if (window.innerWidth < 1024) setNavMobileOpen(v => !v)
     else setNavCollapsed(v => !v)
@@ -111,10 +149,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <div className="px-4 pb-8">
               <div className="mx-auto max-w-[1100px]">
                 <div className="sticky top-0 z-30 pt-3 pb-4">
-                  <TopNav
-                    onToggleNav={toggleNav}
-                    onToggleForum={toggleForum}
-                  />
+                  <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
                 </div>
                 <div className="py-4">
                   <Breadcrumb />
