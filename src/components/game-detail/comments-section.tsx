@@ -1,65 +1,44 @@
 "use client"
 
 import { CommentItem } from "./comment-item"
-import type { Comment } from "./use-comments"
+import type { useComments } from "./use-comments"
+
+type CommentsState = ReturnType<typeof useComments>
 
 interface CommentsSectionProps {
   isLoggedIn: boolean
-  comments: Comment[]
-  commentCount: number
-  commentStatus: number
-  commentText: string
-  setCommentText: (v: string) => void
-  commentImage: string
-  setCommentImage: (v: string) => void
-  replyTo: { id: string; username: string } | null
-  setReplyTo: (v: { id: string; username: string } | null) => void
-  commentBoxRef: React.RefObject<HTMLTextAreaElement | null>
-  commentLoading: boolean
-  commentSort: "newest" | "hot"
-  setCommentSort: (v: "newest" | "hot") => void
-  commentHasMore: boolean
-  commentPage: number
-  handleSubmit: () => void
-  handleLike: (id: string) => void
-  handleReply: (id: string) => void
-  handleDelete: (id: string) => void
-  handleUploadImage: (file: File) => Promise<string | null>
-  handleDrop: (e: React.DragEvent<HTMLTextAreaElement>) => void
-  handlePaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void
-  loadMore: () => void
-  SUBMITTING: number
-  SUBMITTED: number
+  comments: CommentsState
 }
 
-export function CommentsSection({
-  isLoggedIn,
-  comments,
-  commentCount,
-  commentStatus,
-  commentText,
-  setCommentText,
-  commentImage,
-  setCommentImage,
-  replyTo,
-  setReplyTo,
-  commentBoxRef,
-  commentLoading,
-  commentSort,
-  setCommentSort,
-  commentHasMore,
-  commentPage,
-  handleSubmit,
-  handleLike,
-  handleReply,
-  handleDelete,
-  handleUploadImage,
-  handleDrop,
-  handlePaste,
-  loadMore,
-  SUBMITTING,
-  SUBMITTED,
-}: CommentsSectionProps) {
+export function CommentsSection({ isLoggedIn, comments }: CommentsSectionProps) {
+  const {
+    comments: commentList,
+    commentCount,
+    commentStatus,
+    commentText,
+    setCommentText,
+    commentImage,
+    setCommentImage,
+    replyTo,
+    setReplyTo,
+    commentBoxRef,
+    commentLoading,
+    commentSort,
+    setCommentSort,
+    commentHasMore,
+    commentPage,
+    handleSubmit,
+    handleLike,
+    handleReply,
+    handleDelete,
+    handleUploadImage,
+    handleDrop,
+    handlePaste,
+    loadMore,
+    SUBMITTING,
+    SUBMITTED,
+  } = comments
+
   return (
     <div className="space-y-4">
       {isLoggedIn && (
@@ -161,14 +140,14 @@ export function CommentsSection({
           </div>
         </div>
 
-        {commentLoading && comments.length === 0 ? (
+        {commentLoading && commentList.length === 0 ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mx-auto" />
             <p className="mt-4 text-sm text-muted-foreground">加载评论中...</p>
           </div>
         ) : (
           <>
-            {comments.map((c) => (
+            {commentList.map((c) => (
               <CommentItem
                 key={c.id}
                 comment={c}

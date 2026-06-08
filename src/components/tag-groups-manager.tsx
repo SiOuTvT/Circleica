@@ -1,15 +1,18 @@
 "use client"
 
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
-import { TAG_POSITIONS, getPositionsByGroup } from "@/lib/tag-positions"
+import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { ColorPicker } from "./color-picker"
+import { TagInlineEditor } from "./tag-inline-editor"
+import { PositionCheckboxGroup } from "./tag-position-checkbox"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
 /* ──────────────────── 类型 ──────────────────── */
 
-interface TagInGroup {
+export interface TagInGroup {
   id: string
   name: string
   color: string
@@ -33,219 +36,6 @@ export interface TagGroup {
 /* ──────────────────── 常量 ──────────────────── */
 
 const PRESET_COLORS = TAG_PRESET_COLORS
-
-const POSITION_GROUPS = getPositionsByGroup()
-
-/* ──────────────────── 方位选择组件 ──────────────────── */
-
-function PositionCheckboxGroup({
-  selected,
-  onChange,
-  disabled,
-}: {
-  selected: string[]
-  onChange: (positions: string[]) => void
-  disabled?: boolean
-}) {
-  function toggle(key: string) {
-    if (disabled) return
-    onChange(
-      selected.includes(key)
-        ? selected.filter((k) => k !== key)
-        : [...selected, key]
-    )
-  }
-
-  return (
-    <div className="space-y-3">
-      {Object.entries(POSITION_GROUPS).map(([groupName, positions]) => (
-        <div key={groupName}>
-          <p className="text-xs font-medium text-muted-foreground mb-1.5">{groupName}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {positions.map((pos) => {
-              const checked = selected.includes(pos.key)
-              return (
-                <button
-                  key={pos.key}
-                  type="button"
-                  onClick={() => toggle(pos.key)}
-                  disabled={disabled}
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition-all ${
-                    checked
-                      ? "bg-primary/15 text-primary ring-primary/30"
-                      : "bg-secondary text-muted-foreground ring-border hover:bg-accent hover:text-foreground"
-                  } ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-                  title={pos.description}
-                >
-                  <span>{pos.icon}</span>
-                  <span>{pos.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-/* ──────────────────── 颜色选择器（色盘 + hex 输入） ──────────────────── */
-
-function ColorPicker({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (color: string) => void
-}) {
-  const [hexInput, setHexInput] = useState(value)
-
-  function handleHexChange(v: string) {
-    setHexInput(v)
-    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-      onChange(v)
-    }
-  }
-
-  function handlePresetClick(c: string) {
-    setHexInput(c)
-    onChange(c)
-  }
-
-  // 同步外部 value 变化
-  useEffect(() => {
-    setHexInput(value)
-  }, [value])
-
-  return (
-    <div className="space-y-2">
-      {/* 色盘 */}
-      <div className="flex flex-wrap gap-1.5">
-        {PRESET_COLORS.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => handlePresetClick(c)}
-            className={`h-6 w-6 rounded-full transition-all ${
-              value.toLowerCase() === c.toLowerCase()
-                ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
-                : "hover:scale-110"
-            }`}
-            style={{ background: c }}
-          />
-        ))}
-      </div>
-      {/* hex 输入 + 原生颜色选择器 */}
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => {
-            setHexInput(e.target.value)
-            onChange(e.target.value)
-          }}
-          className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent"
-          title="点击打开调色盘"
-        />
-        <input
-          type="text"
-          value={hexInput}
-          onChange={(e) => handleHexChange(e.target.value)}
-          placeholder="#000000"
-          className="w-24 rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground font-mono ring-1 ring-border outline-none focus:ring-ring"
-        />
-        <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} title="当前颜色预览" />
-      </div>
-    </div>
-  )
-}
-
-/* ──────────────────── 标签内联编辑弹窗 ──────────────────── */
-
-function TagInlineEditor({
-  tag,
-  groups,
-  onSave,
-  onCancel,
-  saving,
-}: {
-  tag: TagInGroup & { description?: string; groupId?: string | null; sortOrder?: number; isVisible?: boolean }
-  groups: TagGroup[]
-  onSave: (data: { name: string; description: string; color: string; groupId: string | null; sortOrder: number; isVisible: boolean }) => void
-  onCancel: () => void
-  saving: boolean
-}) {
-  const [name, setName] = useState(tag.name)
-  const [desc, setDesc] = useState(tag.description ?? "")
-  const [color, setColor] = useState(tag.color)
-  const [groupId, setGroupId] = useState(tag.groupId ?? "")
-  const [sortOrder, setSortOrder] = useState(tag.sortOrder ?? 0)
-  const [isVisible, setIsVisible] = useState(tag.isVisible !== false)
-
-  return (
-    <div className="rounded-xl bg-secondary/50 p-4 space-y-3 ring-1 ring-border">
-      <div className="flex gap-2">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="标签名称"
-          className="flex-1 rounded-lg bg-background px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
-          autoFocus
-        />
-        <select
-          value={groupId}
-          onChange={(e) => setGroupId(e.target.value)}
-          className="w-32 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
-        >
-          <option value="">未分组</option>
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>{g.name}</option>
-          ))}
-        </select>
-        <input
-          type="number"
-          value={sortOrder}
-          onChange={(e) => setSortOrder(Number(e.target.value))}
-          title="排序值（小的在前）"
-          className="w-16 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
-        />
-        <button
-          type="button"
-          onClick={() => setIsVisible(!isVisible)}
-          title={isVisible ? "可见" : "隐藏"}
-          className={`shrink-0 rounded-lg px-2 py-1 text-xs ring-1 ring-border transition-colors ${
-            isVisible ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
-          }`}
-        >
-          {isVisible ? "👁" : "🚫"}
-        </button>
-      </div>
-      <input
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-        placeholder="标签描述（可选）"
-        className="w-full rounded-lg bg-background px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
-      />
-      <ColorPicker value={color} onChange={setColor} />
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onSave({ name: name.trim(), description: desc, color, groupId: groupId || null, sortOrder, isVisible })}
-          disabled={saving || !name.trim()}
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
-        >
-          {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-          保存
-        </button>
-        <button
-          onClick={onCancel}
-          className="rounded-lg bg-background px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          取消
-        </button>
-      </div>
-    </div>
-  )
-}
 
 /* ──────────────────── 主组件 ──────────────────── */
 

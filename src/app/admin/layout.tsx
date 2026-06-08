@@ -3,6 +3,15 @@ import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
 import dynamic from "next/dynamic"
 import { headers } from "next/headers"
 
+/**
+ * 需要 SUPER_ADMIN 权限的路由前缀列表
+ *
+ * ⚠️ 维护提醒：
+ * 新增 /admin/* 页面时，如果是 SUPER_ADMIN 专属功能，
+ * 必须在此数组中添加对应路径，否则 ADMIN 用户也能访问。
+ *
+ * "use client" 页面无法自行检查服务端权限，完全依赖此列表。
+ */
 const SUPER_ADMIN_PATHS = [
   "/admin/emotional-messages",
   "/admin/resource-tags",
