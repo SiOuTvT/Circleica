@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { cache, isRedisAvailable } from "@/lib/redis"
 import { NextResponse } from "next/server"
@@ -27,7 +28,7 @@ export async function GET() {
     await prisma.$queryRaw`SELECT 1`
     checks.database = { status: "ok", latency: Date.now() - dbStart }
   } catch (error) {
-    console.error("[Health] Database check failed:", error)
+    logger.db.error("[Health] Database check failed", error)
   }
 
   // 检查 Redis（只读，不修改状态）
@@ -38,7 +39,7 @@ export async function GET() {
       await cache.get("health:ping")
       checks.redis = { status: "ok", latency: Date.now() - redisStart }
     } catch (error) {
-      console.error("[Health] Redis check failed:", error)
+      logger.db.error("[Health] Redis check failed", error)
       checks.redis = { status: "error" }
     }
   }

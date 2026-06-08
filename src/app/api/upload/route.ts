@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { saveFile } from "@/lib/storage"
 import crypto from "crypto"
 import { NextResponse } from "next/server"
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
       type: file.type,
     })
   } catch (error) {
-    console.error("上传失败:", error)
+    logger.upload.error("上传失败", error)
     return NextResponse.json(
       {
         error: "上传失败",

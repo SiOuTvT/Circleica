@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(updated)
   } catch (error) {
-    console.error("[Profile Edit]", error)
+    logger.user.error("[Profile Edit]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

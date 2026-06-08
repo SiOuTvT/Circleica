@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -40,7 +41,7 @@ export async function POST(
 
     return NextResponse.json({ counted: true })
   } catch (error) {
-    console.error("[Game View]", error)
+    logger.game.error("[Game View]", error)
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
   }
 }

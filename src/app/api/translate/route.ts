@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger"
-import { checkRateLimit, getClientIP, type RateLimitConfig } from "@/lib/rate-limit"
+import { checkRateLimit, type RateLimitConfig } from "@/lib/rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 
 // 翻译专用限流：每分钟 10 次
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ translated })
   } catch (error) {
-    console.error("[Translate] Error:", error)
+    logger.api.error("[Translate] Error", error)
     return NextResponse.json({ error: "翻译失败" }, { status: 500 })
   }
 }

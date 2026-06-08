@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -20,7 +21,6 @@ export async function GET(
     })
 
     // 统计每个用户的已发布资源数量
-    const userIds = [...new Set(resources.map(r => r.userId))]
     const userResourceCounts = await prisma.gameResource.groupBy({
       by: ["userId"],
       where: { gameId },
@@ -52,7 +52,7 @@ export async function GET(
 
     return NextResponse.json({ resources: formatted })
   } catch (error) {
-    console.error("[Resources GET]", error)
+    logger.db.error("[Resources GET]", error)
     return NextResponse.json({ error: "获取资源失败" }, { status: 500 })
   }
 }
@@ -147,7 +147,7 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error("[Resources POST]", error)
+    logger.db.error("[Resources POST]", error)
     return NextResponse.json({ error: "提交资源失败" }, { status: 500 })
   }
 }

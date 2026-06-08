@@ -1,5 +1,6 @@
 import { handleZodError, serverError, success } from "@/lib/api-response"
 import { buildGameSearchFilter } from "@/lib/filters"
+import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
@@ -66,14 +67,13 @@ async function handleGamesList(req: NextRequest) {
       const resourceTags: string[] = [...new Set(
         g.resources.flatMap((r) => {
           const tags: string[] = []
-          try { tags.push(...JSON.parse(r.language)) } catch { console.warn("[GamesAPI] Failed to parse resource language") }
-          try { tags.push(...JSON.parse(r.runType)) } catch { console.warn("[GamesAPI] failed to parse resource runType") }
-          try { tags.push(...JSON.parse(r.resourceContent)) } catch { console.warn("[GamesAPI] failed to parse resourceContent") }
+          try { tags.push(...JSON.parse(r.language)) } catch { logger.db.warn("[GamesAPI] Failed to parse resource language") }
+          try { tags.push(...JSON.parse(r.runType)) } catch { logger.db.warn("[GamesAPI] failed to parse resource runType") }
+          try { tags.push(...JSON.parse(r.resourceContent)) } catch { logger.db.warn("[GamesAPI] failed to parse resourceContent") }
           return tags
         })
       )]
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { resources: _ignored, ...rest } = g
       return {
         ...rest,
@@ -85,7 +85,7 @@ async function handleGamesList(req: NextRequest) {
 
     return success({ games: data, total, page, limit })
   } catch (error) {
-    console.error("[Games API] 查询失败:", error)
+    logger.db.error("[Games API] 查询失败", error)
     return serverError("获取游戏列表失败")
   }
 }
