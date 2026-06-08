@@ -10,20 +10,27 @@ import { useOnlineStatus } from "@/hooks/use-online-status"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
+// 侧边栏宽度常量
+const LEFT_W = 220
+const LEFT_EXPANDED_W = 260
+const LEFT_COLLAPSED_W = 60
+const RIGHT_W = 280
+const RIGHT_EXPANDED_W = 360
+
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   useOnlineStatus()
   useKeyboardShortcuts()
   const isAdminRoute = pathname.startsWith("/admin")
   const isFullscreenRoute = pathname === "/login" || pathname === "/register"
+  const isNormalRoute = !isAdminRoute && !isFullscreenRoute
 
-  // 侧边栏状态
+  // ── 侧边栏状态 ──
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [navMobileOpen, setNavMobileOpen] = useState(false)
-  const [isDesktop, setIsDesktop] = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
 
-  // 只在客户端初始化桌面状态
   useEffect(() => {
     const desktop = window.innerWidth >= 1024
     setIsDesktop(desktop)
@@ -31,44 +38,39 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   }, [])
 
   // 只开一边时那一边变大
-  const leftExpanded = !navCollapsed && !forumOpen
-  const rightExpanded = navCollapsed && forumOpen
+  const leftExpanded = isDesktop && !navCollapsed && !forumOpen
+  const rightExpanded = isDesktop && navCollapsed && forumOpen
 
-  const LEFT_NORMAL = 220, LEFT_EXPANDED = 260, LEFT_COLLAPSED = 60
-  const RIGHT_NORMAL = 280, RIGHT_EXPANDED = 360
+  // 左侧栏实际宽度
+  const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
+  // 右侧栏实际宽度
+  const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  // 计算内容区偏移（居中 + 往侧边栏靠）
+  // ── 内容区偏移：居中 + 往侧边栏靠 ──
   const [contentOffset, setContentOffset] = useState(0)
 
   useEffect(() => {
     if (!isDesktop) { setContentOffset(0); return }
     const sw = window.innerWidth
-    const lw = navCollapsed ? LEFT_COLLAPSED : (leftExpanded ? LEFT_EXPANDED : LEFT_NORMAL)
-    const rw = forumOpen ? (rightExpanded ? RIGHT_EXPANDED : RIGHT_NORMAL) : 0
-    const available = sw - lw - rw
-    const centerOfAvailable = lw + available / 2
+    const available = sw - leftWidth - rightWidth
+    const centerOfAvailable = leftWidth + available / 2
     const centerOfPage = sw / 2
     let offset = centerOfAvailable - centerOfPage
-    if (navCollapsed && forumOpen) offset += rw / 5
-    else if (!navCollapsed && !forumOpen) offset -= lw / 5
+    if (navCollapsed && forumOpen) offset += rightWidth / 5
+    else if (!navCollapsed && !forumOpen) offset -= leftWidth / 5
     setContentOffset(offset)
-  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded])
+  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded, leftWidth, rightWidth])
 
+  // ── 切换函数 ──
   const toggleNav = useCallback(() => {
-    if (window.innerWidth < 1024) {
-      setNavMobileOpen(v => !v)
-    } else {
-      setNavCollapsed(v => !v)
-    }
+    if (window.innerWidth < 1024) setNavMobileOpen(v => !v)
+    else setNavCollapsed(v => !v)
   }, [])
 
-  const toggleForum = useCallback(() => {
-    setForumOpen(v => !v)
-  }, [])
+  const toggleForum = useCallback(() => setForumOpen(v => !v), [])
 
   return (
     <BreadcrumbProvider>
-      {/* Skip to content - accessibility */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -76,8 +78,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         跳到主要内容
       </a>
 
-      {/* 左侧导航栏 - 独立全高，不依赖顶栏 */}
-      {!isAdminRoute && !isFullscreenRoute && (
+      {/* 左侧导航栏 */}
+      {isNormalRoute && (
         <NavSidebar
           collapsed={navCollapsed}
           expanded={leftExpanded}
@@ -87,22 +89,16 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      <main id="main-content" role="main" className={(isAdminRoute || isFullscreenRoute) ? "min-h-screen overflow-x-clip" : "min-h-screen overflow-x-clip"}>
-        {isAdminRoute ? (
-          children
-        ) : isFullscreenRoute ? (
+      <main id="main-content" role="main" className="min-h-screen overflow-x-clip">
+        {isAdminRoute || isFullscreenRoute ? (
           children
         ) : (
-          /* 前台页面：顶栏在内容区内 */
           <div
             className="min-h-screen transition-transform duration-300 ease-out"
-            style={{
-              transform: isDesktop ? `translateX(${contentOffset}px)` : undefined,
-            }}
+            style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="px-4 pb-8">
               <div className="mx-auto max-w-[1100px]">
-                {/* 悬浮卡片导航栏 - 在 1100px 内容区上方 */}
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav
                     navCollapsed={navCollapsed}
@@ -118,7 +114,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
             </div>
-            {/* Footer 也在内容区内 */}
             <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
               <div className="mx-auto max-w-[1100px] px-4">
                 <p>同人游戏站 · 资源大厅</p>
@@ -133,6 +128,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </main>
+
       <MusicPlayer />
     </BreadcrumbProvider>
   )
