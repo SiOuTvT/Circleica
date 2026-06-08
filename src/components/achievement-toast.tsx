@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils"
 import { Award, X } from "lucide-react"
-import { useEffect, useState } from "react"
+import Image from "next/image"
+import { useCallback, useEffect, useState } from "react"
 
 export interface AchievementToastData {
   id: string
@@ -29,6 +30,11 @@ export function AchievementToast({ achievement, onClose }: Props) {
   const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
 
+  const handleClose = useCallback(() => {
+    setExiting(true)
+    setTimeout(onClose, 300) // 等退出动画结束
+  }, [onClose])
+
   useEffect(() => {
     // 入场延迟（等 DOM 挂载后触发动画）
     requestAnimationFrame(() => setVisible(true))
@@ -36,12 +42,7 @@ export function AchievementToast({ achievement, onClose }: Props) {
     // 4秒后自动退出
     const timer = setTimeout(() => handleClose(), 4000)
     return () => clearTimeout(timer)
-  }, [])
-
-  function handleClose() {
-    setExiting(true)
-    setTimeout(onClose, 300) // 等退出动画结束
-  }
+  }, [handleClose])
 
   return (
     <div
@@ -69,10 +70,13 @@ export function AchievementToast({ achievement, onClose }: Props) {
       {/* 左侧：角色立绘 */}
       {achievement.characterImage && (
         <div className="absolute -bottom-1 -left-2 h-[100px] w-[80px] pointer-events-none">
-          <img
+          <Image
             src={achievement.characterImage}
             alt=""
+            width={80}
+            height={100}
             className="h-full w-full object-contain object-bottom drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
+            unoptimized
           />
         </div>
       )}
@@ -85,7 +89,7 @@ export function AchievementToast({ achievement, onClose }: Props) {
         {/* 上行：成就图标 + 名称 */}
         <div className="flex items-center gap-1.5">
           {achievement.icon ? (
-            <img src={achievement.icon} alt="" className="h-4 w-4 shrink-0" />
+            <Image src={achievement.icon} alt="" width={16} height={16} className="h-4 w-4 shrink-0" unoptimized />
           ) : (
             <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
           )}

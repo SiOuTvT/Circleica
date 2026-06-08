@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
 import { CreatorDetailClient } from "./creator-detail-client"
@@ -101,7 +102,7 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
       }
     }
   } catch (error) {
-    console.error(`[CreatorPage] VNDB API error for ${id}:`, error)
+    logger.db.error(`[CreatorPage] VNDB API error for ${id}`, error)
   }
 
   if (!creator) notFound()

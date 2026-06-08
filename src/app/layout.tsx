@@ -1,7 +1,6 @@
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
-import { auth } from "@/lib/auth"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
 import NextTopLoader from "nextjs-toploader"
@@ -46,12 +45,12 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth()
 
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
         {/* 字体引入：Noto Serif SC (标题) + Noto Sans SC (正文) */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
           rel="stylesheet"

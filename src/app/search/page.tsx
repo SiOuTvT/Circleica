@@ -3,6 +3,7 @@ import { MobileSortDropdown } from "@/components/mobile-sort-dropdown"
 import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { TagCloud } from "@/components/tag-cloud"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { Clock, Heart, TrendingUp, X } from "lucide-react"
 import { unstable_cache } from "next/cache"
@@ -104,7 +105,7 @@ async function SearchResults({
     rawGames = gamesResult
     total = countResult
   } catch (error) {
-    console.error("[SearchResults] Database query failed:", error)
+    logger.db.error("[SearchResults] Database query failed", error)
   }
 
   const totalPages = Math.ceil(total / limit)
@@ -145,7 +146,7 @@ async function SearchResults({
         },
       })
     } catch (error) {
-      console.error("[SearchResults] Recommended games query failed:", error)
+      logger.db.error("[SearchResults] Recommended games query failed", error)
     }
 
     const recommended = rawRecommended.map((g) => ({

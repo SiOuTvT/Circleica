@@ -43,7 +43,7 @@ export default async function CollectionsPage() {
   // 4. 按系列排序输出
   const sorted: [string, typeof allGames][] = groupCounts
     .map(g => [g.originalWork, gamesBySeries.get(g.originalWork) ?? []] as [string, typeof allGames])
-    .filter(([_, games]) => games.length > 0)
+    .filter(([, games]) => games.length > 0)
 
   return (
     <ThemeText className="space-y-8">

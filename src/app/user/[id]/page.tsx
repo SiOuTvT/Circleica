@@ -5,6 +5,7 @@ import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
 import { SafeAvatar } from "@/components/safe-avatar"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
@@ -85,7 +86,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
       },
     })
   } catch (error) {
-    console.error("[UserProfilePage] Database query failed:", error)
+    logger.db.error("[UserProfilePage] Database query failed", error)
   }
 
   if (!user) notFound()

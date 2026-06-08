@@ -1,8 +1,9 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
-import { GameCard, GameCardSkeleton } from "@/components/game-card"
+import { GameCardSkeleton } from "@/components/game-card"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
+import { logger } from "@/lib/logger"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { getSiteSetting } from "@/lib/site-settings"
@@ -121,11 +122,9 @@ export default async function HomePage({
       }),
     ])
   } catch (error) {
-    console.error("[HomePage] Database query failed:", error)
+    logger.db.error("[HomePage] Database query failed", error)
     dbError = true
   }
-
-  const placeholder = await getSiteSetting("default_placeholder_image")
 
   if (dbError) {
     return (

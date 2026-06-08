@@ -12,6 +12,7 @@ import {
   UserPlus,
 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import Image from "next/image"
 import Link from "next/link"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { useCallback, useEffect, useState } from "react"
@@ -44,25 +45,25 @@ const TYPE_CONFIG: Record<
   forum_post_like: {
     icon: Heart,
     text: (actor) => `${actor} 赞了你的帖子`,
-    href: (_type, _id) => "/forum",
+    href: () => "/forum",
     category: "like",
   },
   forum_comment_like: {
     icon: Heart,
     text: (actor) => `${actor} 赞了你的评论`,
-    href: (_type, _id) => "/forum",
+    href: () => "/forum",
     category: "like",
   },
   forum_comment_new: {
     icon: MessageSquare,
     text: (actor) => `${actor} 评论了你的帖子`,
-    href: (_type, _id) => "/forum",
+    href: () => "/forum",
     category: "comment",
   },
   follow: {
     icon: UserPlus,
     text: (actor) => `${actor} 关注了你`,
-    href: (_type, id) => `/user/${id}`,
+    href: (_targetType: string, id: string) => `/user/${id}`,
     category: "follow",
   },
 }
@@ -377,10 +378,13 @@ export default function NotificationsClient({
                   <div className="relative shrink-0">
                     {n.actor.avatar ? (
                     <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
-                        <img
+                        <Image
                           src={n.actor.avatar}
                           alt=""
-                          className="h-10 w-10 rounded-full object-cover"
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover"
+                          unoptimized
                         />
                       </Link>
                     ) : (

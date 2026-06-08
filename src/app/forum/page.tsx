@@ -1,5 +1,6 @@
 import { ForumClient, type Post as ForumPost } from "@/components/forum-client"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
 export const revalidate = 30
@@ -36,7 +37,7 @@ export default async function ForumPage() {
     }))
     totalPosts = count
   } catch (error) {
-    console.error("[ForumPage] Database query failed:", error)
+    logger.db.error("[ForumPage] Database query failed", error)
   }
 
   const totalPages = Math.ceil(totalPosts / 20)

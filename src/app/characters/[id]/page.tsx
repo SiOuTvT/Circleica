@@ -1,4 +1,5 @@
 import { CharacterDetailClient } from "@/components/character-detail-client"
+import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
 
@@ -20,7 +21,7 @@ export default async function CharacterPage({ params }: { params: Promise<{ id: 
   try {
     character = await vndbClient.getCharacterDetail(id)
   } catch (error) {
-    console.error(`[CharacterPage] VNDB API error for ${id}:`, error)
+    logger.db.error(`[CharacterPage] VNDB API error for ${id}`, error)
   }
 
   if (!character) notFound()

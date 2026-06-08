@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { cleanupOldComposedAvatar, composeAvatar } from "@/lib/avatar-compose"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
       composedAvatarUrl: composedUrl || null,
     })
   } catch (error) {
-    console.error("选择头像框失败:", error)
+    logger.upload.error("选择头像框失败", error)
     return NextResponse.json({ error: "操作失败" }, { status: 500 })
   }
 }

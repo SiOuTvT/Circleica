@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Award, Lock, X } from "lucide-react"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 interface Achievement {
@@ -22,7 +23,7 @@ interface Props {
   lockedText?: string
 }
 
-export function AchievementModal({ compact, emptyText = "暂无成就，继续探索吧~", lockedText = "???" }: Props) {
+export function AchievementModal({ compact, emptyText: _emptyText = "暂无成就，继续探索吧~", lockedText = "???" }: Props) {
   const [open, setOpen] = useState(false)
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [loading, setLoading] = useState(false)
@@ -114,7 +115,7 @@ export function AchievementModal({ compact, emptyText = "暂无成就，继续�
                       )}
                     >
                       {ach.icon ? (
-                        <img src={ach.icon} alt="" className="h-10 w-10" />
+                        <Image src={ach.icon} alt="" width={40} height={40} className="h-10 w-10" unoptimized />
                       ) : (
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
                           <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
@@ -194,10 +195,13 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
       {/* 左侧立绘 */}
       {achievement.characterImage && (
         <div className="absolute -bottom-1 -left-2 h-[108px] w-[85px] pointer-events-none">
-          <img
+          <Image
             src={achievement.characterImage}
             alt=""
+            width={85}
+            height={108}
             className="h-full w-full object-contain object-bottom drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+            unoptimized
           />
         </div>
       )}
@@ -209,7 +213,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
       )}>
         <div className="flex items-center gap-1.5">
           {achievement.icon ? (
-            <img src={achievement.icon} alt="" className="h-4 w-4 shrink-0" />
+            <Image src={achievement.icon} alt="" width={16} height={16} className="h-4 w-4 shrink-0" unoptimized />
           ) : (
             <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
           )}
