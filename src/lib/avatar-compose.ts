@@ -31,7 +31,7 @@ export async function composeAvatar(
       // DB头像框：从远程URL获取图片
       const frameRes = await fetch(frameImageUrl)
       if (!frameRes.ok) {
-        console.warn(`DB头像框图片获取失败: ${frameImageUrl}`)
+        logger.upload.warn("DB头像框图片获取失败", { frameImageUrl })
         return avatarUrl
       }
       const frameArrayBuf = await frameRes.arrayBuffer()
@@ -42,7 +42,7 @@ export async function composeAvatar(
       try {
         await fs.access(framePath)
       } catch {
-        console.warn(`头像框文件不存在: ${framePath}`)
+        logger.upload.warn("头像框文件不存在", { framePath })
         return avatarUrl
       }
       frameBuffer = await fs.readFile(framePath)
@@ -53,7 +53,7 @@ export async function composeAvatar(
     if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
       const avatarRes = await fetch(avatarUrl)
       if (!avatarRes.ok) {
-        console.warn(`远程头像获取失败: ${avatarUrl}`)
+        logger.upload.warn("远程头像获取失败", { avatarUrl })
         return avatarUrl
       }
       avatarBuffer = Buffer.from(await avatarRes.arrayBuffer())

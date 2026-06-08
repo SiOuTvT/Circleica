@@ -2,6 +2,7 @@
  * 启动时安全检查
  * 在开发环境检测弱密码等安全问题并输出警告
  */
+import { logger } from "./logger"
 
 const WEAK_SECRETS = [
   "local-dev-secret-key-for-fangame",
@@ -50,8 +51,6 @@ export function checkSecurity() {
   }
 
   if (issues.length > 0) {
-    console.warn("\n⚠️  安全警告:")
-    issues.forEach(issue => console.warn(`  - ${issue}`))
-    console.warn("")
+    logger.db.warn("安全警告", { issues: issues.join("; ") })
   }
 }

@@ -13,7 +13,7 @@ export const ourFileRouter = {
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      return { url: file.ufsUrl, userId: metadata.userId }
+      return { url: file.url, userId: metadata.userId }
     }),
 
   // 通用图片上传：用于公告封面、游戏截图等，最大 8MB
@@ -24,7 +24,7 @@ export const ourFileRouter = {
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ file }) => {
-      return { url: file.ufsUrl }
+      return { url: file.url }
     }),
 
   // 音乐上传：管理员专用，最大 32MB
@@ -40,7 +40,7 @@ export const ourFileRouter = {
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ file }) => {
-      return { url: file.ufsUrl, name: file.name }
+      return { url: file.url, name: file.name }
     }),
 } satisfies FileRouter
 

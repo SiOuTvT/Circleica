@@ -3,6 +3,7 @@
  * 统一所有 API 路由的响应格式
  */
 
+import { logger } from "@/lib/logger"
 import { NextResponse } from "next/server"
 import { ZodError } from "zod"
 
@@ -158,7 +159,7 @@ export function withErrorHandler<T extends (...args: unknown[]) => Promise<NextR
       if (error instanceof ZodError) {
         return handleZodError(error)
       }
-      console.error("[API Error]", error)
+      logger.api.error("[API Error]", error)
       return serverError()
     }
   }) as T

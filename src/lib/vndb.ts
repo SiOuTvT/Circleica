@@ -172,6 +172,7 @@ class VNDBClient {
         if (this.dispatcher) {
         const undici = await import("undici")
           fetchOptions.dispatcher = this.dispatcher
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response = await (undici.fetch as any)(url, fetchOptions)
         } else {
           response = await fetch(url, fetchOptions)
@@ -179,7 +180,7 @@ class VNDBClient {
 
         if (!response.ok) {
           const errorBody = await response.text().catch(() => "unknown")
-          console.error(`[VNDB] HTTP error body:`, errorBody)
+          logger.db.error("[VNDB] HTTP error body", undefined, { errorBody })
           // 400 错误不重试（参数问题）
           if (response.status === 400) {
             throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText} - ${errorBody}`)
@@ -196,7 +197,7 @@ class VNDBClient {
         const isLastAttempt = attempt === retries
         
         if (isLastAttempt) {
-          console.error(`[VNDB] 请求失败（已重试 ${retries} 次）:`, err.message)
+          logger.db.error(`[VNDB] 请求失败（已重试 ${retries} 次）`, err)
           // 触发熔断器：网络不可达时，后续请求快速失败
           if (isTimeout || err?.message?.includes('fetch failed') || err?.code === 'ECONNREFUSED' || err?.code === 'ENOTFOUND') {
             this.circuitBroken = true
@@ -232,7 +233,7 @@ class VNDBClient {
         })
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("VNDB search failed:", error)
+      logger.db.error("VNDB search failed", error)
       throw error
     }
   }
@@ -256,7 +257,7 @@ class VNDBClient {
         return data.results[0]
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("Failed to fetch VN details:", error)
+      logger.db.error("Failed to fetch VN details", error)
       return null
     }
   }
@@ -275,7 +276,7 @@ class VNDBClient {
         })
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("VNDB producer search failed:", error)
+      logger.db.error("VNDB producer search failed", error)
       throw error
     }
   }
@@ -335,7 +336,7 @@ class VNDBClient {
 
         logger.db.debug(`[VNDB] 关键词 "${term}" 未找到 staff 数据，尝试下一个...`)
       } catch (error) {
-        console.warn(`[VNDB] 关键词 "${term}" 搜索失败:`, error instanceof Error ? error.message : error)
+        logger.db.warn(`[VNDB] 关键词 "${term}" 搜索失败`, { error: error instanceof Error ? error.message : String(error) })
         // 继续尝试下一个关键词
       }
     }
@@ -444,7 +445,7 @@ class VNDBClient {
         return producer
       }, this.CACHE_TTL)
     } catch (error) {
-      console.error("Failed to fetch producer details:", error)
+      logger.db.error("Failed to fetch producer details", error)
       return null
     }
   }
@@ -478,7 +479,7 @@ class VNDBClient {
         tags: vn.tags?.map(t => t.name),
       }
     } catch (error) {
-      console.error("Failed to validate VNDB work:", error)
+      logger.db.error("Failed to validate VNDB work", error)
       return { isValid: false, isDoujin: false }
     }
   }
@@ -522,7 +523,7 @@ class VNDBClient {
         creators,
       }
     } catch (error) {
-      console.error("Failed to auto-fill from VNDB:", error)
+      logger.db.error("Failed to auto-fill from VNDB", error)
       return null
     }
   }

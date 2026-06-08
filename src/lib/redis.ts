@@ -93,7 +93,7 @@ class RedisCache implements CacheClient {
   async clear(): Promise<void> {
     // Upstash 不支持通配符删除，需要逐个删除
     // 建议使用 key 前缀 + SCAN
-    console.warn("Redis clear() not implemented for Upstash - use key prefixes and del()")
+    logger.db.warn("Redis clear() not implemented for Upstash - use key prefixes and del()")
   }
 
   async incr(key: string, ttlSeconds?: number): Promise<number> {

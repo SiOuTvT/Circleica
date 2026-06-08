@@ -89,5 +89,5 @@ export function SafeImage(props: ImageProps) {
   }
 
   // 正常使用 next/image
-  return <Image {...props} onError={handleNextImageError} />
+  return <Image {...props} alt={props.alt ?? ""} onError={handleNextImageError} />
 }

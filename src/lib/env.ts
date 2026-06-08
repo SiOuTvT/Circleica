@@ -1,3 +1,4 @@
+import { logger } from "./logger"
 import { z } from "zod"
 
 /**
@@ -82,13 +83,7 @@ function validateEnv() {
   const parsed = envSchema.safeParse(process.env)
 
   if (!parsed.success) {
-    console.error("❌ 环境变量验证失败:")
-    console.error("")
-    for (const issue of parsed.error.issues) {
-      console.error(`  • ${issue.path.join(".")}: ${issue.message}`)
-    }
-    console.error("")
-    console.error("请检查 .env 文件并补充缺失的变量。参考 .env.example")
+    logger.db.error("环境变量验证失败", undefined, { issues: parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ") })
     
     // 在开发环境给出警告但不崩溃，在生产环境直接退出
     if (process.env.NODE_ENV === "production") {

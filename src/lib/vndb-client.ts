@@ -5,6 +5,7 @@
  * 数据处理逻辑共享自 vndb-shared.ts
  */
 
+import { logger } from "./logger"
 import {
   type VNDBResponse,
   type StaffResult,
@@ -77,7 +78,7 @@ export async function getRandomStaff(): Promise<StaffResult | null> {
       const result = processStaffResults(data)
       if (result) return result
     } catch (error) {
-      console.warn(`[VNDB Client] 关键词 "${term}" 搜索失败:`, error instanceof Error ? error.message : error)
+      logger.db.warn(`[VNDB Client] 关键词 "${term}" 搜索失败`, { error: error instanceof Error ? error.message : String(error) })
     }
   }
 
