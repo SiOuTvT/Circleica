@@ -2,6 +2,7 @@
 
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
+import { ForumSidebar } from "@/components/forum-sidebar"
 import { MusicPlayer } from "@/components/music-player"
 import { NavSidebar } from "@/components/nav-sidebar"
 import { TopNav } from "@/components/top-nav"
