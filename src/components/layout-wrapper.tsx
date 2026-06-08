@@ -33,9 +33,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
-    const desktop = window.innerWidth >= 1024
-    setIsDesktop(desktop)
-    setForumOpen(desktop)
+    setIsDesktop(window.innerWidth >= 1024)
   }, [])
 
   // 只开一边时那一边变大
@@ -47,20 +45,32 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   // 右侧栏实际宽度
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  // ── 内容区偏移：居中 + 往侧边栏靠 ──
+  // ── 内容区定位 ──
   const [contentOffset, setContentOffset] = useState(0)
 
   useEffect(() => {
     if (!isDesktop) { setContentOffset(0); return }
     const sw = window.innerWidth
-    const available = sw - leftWidth - rightWidth
-    const centerOfAvailable = leftWidth + available / 2
-    const centerOfPage = sw / 2
-    let offset = centerOfAvailable - centerOfPage
-    if (navCollapsed && forumOpen) offset += rightWidth / 5
-    else if (!navCollapsed && !forumOpen) offset -= leftWidth / 5
-    setContentOffset(offset)
-  }, [isDesktop, navCollapsed, forumOpen, leftExpanded, rightExpanded, leftWidth, rightWidth])
+    const pageCenter = sw / 2
+
+    // 两边都开时的基准距离
+    const baseCenter = LEFT_W + (sw - LEFT_W - RIGHT_W) / 2
+    const baseDistFromRight = sw - baseCenter - RIGHT_W
+
+    if (navCollapsed && forumOpen) {
+      // 只开右边：保持和右边同样的距离
+      const targetCenter = sw - rightWidth - baseDistFromRight
+      setContentOffset(targetCenter - pageCenter)
+    } else {
+      // 两边都开 / 只开左边 / 都关：原来的居中逻辑
+      const available = sw - leftWidth - rightWidth
+      const centerOfAvailable = leftWidth + available / 2
+      let offset = centerOfAvailable - pageCenter
+      // 只开左边时，内容往左靠一点
+      if (!navCollapsed && !forumOpen) offset -= leftWidth / 5
+      setContentOffset(offset)
+    }
+  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
 
   // ── 切换函数 ──
   const toggleNav = useCallback(() => {
