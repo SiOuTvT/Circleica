@@ -8,6 +8,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
 model User {
   id            String         @id @default(cuid())
   serialId      Int            @unique @default(autoincrement())
@@ -20,7 +26,7 @@ model User {
   composedAvatarUrl String?    @default("")
   banner        String         @default("")
   bio           String         @default("")
-  role          String         @default("USER")
+  role          UserRole       @default(USER)
   faveGameId    String?
   createdAt     DateTime       @default(now())
   avatarFrame   AvatarFrame?   @relation(fields: [avatarFrameId], references: [id], onDelete: SetNull)
@@ -47,7 +53,6 @@ model User {
   achievements     UserAchievement[]
 
   @@index([role])
-  @@index([serialId])
   @@index([avatarFrameId])
 }
 
@@ -91,6 +96,7 @@ model Account {
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -99,6 +105,7 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
 }
 
 model Game {
@@ -137,10 +144,9 @@ model Game {
   logs          GameLog[]
 
   @@index([isPublished, isNsfw, createdAt])
-  @@index([isPublished, createdAt])
   @@index([title])
   @@index([vndbId])
-  @@index([serialId])
+  @@index([publisherId])
 }
 
 model TagGroup {
@@ -267,6 +273,7 @@ model PlayStatus {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   @@unique([userId, gameId])
+  @@index([gameId])
 }
 
 model GameReport {
@@ -340,16 +347,17 @@ model GameCreator {
 }
 
 model GameRating {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   gameId    String
   userId    String
-  score     Int      // 1-5
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int       @db.SmallInt // 1-5，应用层验证
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([gameId, userId])
   @@index([gameId])
+  @@index([userId])
 }
 
 model PasswordResetToken {

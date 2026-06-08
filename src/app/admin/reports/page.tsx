@@ -34,7 +34,7 @@ export default async function AdminReportsPage({
   // 构建查询条件
   const where: Record<string, unknown> = {}
   if (q) {
-    where.game = { title: { contains: q } }
+    where.game = { title: { contains: q, mode: "insensitive" } }
   }
 
   const [reports, total] = await Promise.all([

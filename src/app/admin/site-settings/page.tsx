@@ -168,7 +168,7 @@ export default function SiteSettingsPage() {
           >
             <span
               className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${
-                registrationEnabled ? "translate-x-5.5" : "translate-x-0.5"
+                registrationEnabled ? "translate-x-5" : "translate-x-0.5"
               } mt-0.5`}
             />
           </button>
