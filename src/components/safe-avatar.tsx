@@ -1,6 +1,7 @@
 "use client"
 
 import { getRandomAvatarColor } from "@/lib/utils"
+import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 
 /**
@@ -52,18 +53,17 @@ export function SafeAvatar({
     )
   }
 
-  // 直接使用原始 URL（缓存由 CDN/浏览器自然管理）
-  const cacheBustedSrc = src
-
   return (
-    <img
-      src={cacheBustedSrc}
+    <Image
+      src={src}
       alt={alt}
+      width={size}
+      height={size}
       className={`object-cover rounded-full ${className || ""}`}
-      style={{ width: size, height: size }}
       onError={handleError}
       loading="lazy"
       decoding="async"
+      unoptimized
     />
   )
 }

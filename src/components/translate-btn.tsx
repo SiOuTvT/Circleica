@@ -1,5 +1,6 @@
 "use client"
 
+import { logger } from "@/lib/logger";
 import { Languages, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -24,10 +25,10 @@ export function TranslateBtn({ text, onTranslated }: { text: string; onTranslate
         onTranslated(data.translated)
         setDone(true)
       } else {
-        console.error("翻译失败:", data.error)
+        logger.api.warn("翻译失败", { error: data.error })
       }
     } catch (err) {
-      console.error("翻译失败:", err)
+      logger.api.error("翻译失败", err)
     } finally {
       setLoading(false)
     }

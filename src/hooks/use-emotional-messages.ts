@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 interface EmMsg {
   id: string
@@ -62,6 +62,7 @@ export function useEmotionalMessage(key: string) {
 export function useEmotionalMessages(keys: string[]) {
   const [messages, setMessages] = useState<Record<string, EmMsg>>({})
   const [loading, setLoading] = useState(true)
+  const keysKey = useMemo(() => keys.join(","), [keys])
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +77,7 @@ export function useEmotionalMessages(keys: string[]) {
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [keys.join(",")])
+  }, [keysKey, keys])
 
   return { messages, loading }
 }

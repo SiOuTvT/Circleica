@@ -4,6 +4,7 @@ import { AvatarFrame } from "@/components/avatar-frame"
 import { NotificationBell } from "@/components/notification-bell"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import {
   CalendarCheck,
   LogOut,
@@ -89,7 +90,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     setNsfw(nsfwVal)
 
     return () => mq.removeEventListener("change", handler)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅 mount 时执行一次客户端同步
   }, [])
 
   useEffect(() => {
@@ -244,10 +244,10 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                   className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
-                      ? <img src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                      ? <Image src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={40} height={40} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
                       : <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
                           {(localAvatar || user.image)
-                            ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} className="h-full w-full object-cover rounded-full" onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                            ? <Image src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={40} height={40} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
                             : <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                           }
                         </AvatarFrame>
@@ -259,7 +259,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/80 text-xs font-bold text-white ring-1 ring-border">
                         {(localAvatar || user.image)
-                          ? <img src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt="" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentText('beforeend', (user.name ?? "U")[0].toUpperCase()); }} />
+                          ? <Image src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt="" width={36} height={36} className="h-full w-full object-cover" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.insertAdjacentText('beforeend', (user.name ?? "U")[0].toUpperCase()); }} />
                           : (user.name ?? "U")[0].toUpperCase()}
                       </div>
                       <span className="truncate text-sm font-semibold text-foreground">{user.name}</span>

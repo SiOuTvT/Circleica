@@ -3,10 +3,17 @@
 import { useState } from "react"
 import { Database, CheckCircle2, XCircle, Loader2 } from "lucide-react"
 
+interface ImportResult {
+  vndbId: string
+  status: "success" | "failed" | "skipped"
+  reason?: string
+  gameId?: string
+}
+
 export function VNDBImportManager() {
   const [vndbIds, setVndbIds] = useState("")
   const [importing, setImporting] = useState(false)
-  const [results, setResults] = useState<any[]>([])
+  const [results, setResults] = useState<ImportResult[]>([])
   const [message, setMessage] = useState("")
 
   async function handleImport() {
@@ -43,7 +50,7 @@ export function VNDBImportManager() {
       } else {
         setMessage(`❌ ${data.error}`)
       }
-    } catch (error) {
+    } catch {
       setMessage("❌ 导入失败，请稍后重试")
     } finally {
       setImporting(false)

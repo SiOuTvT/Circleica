@@ -53,7 +53,7 @@ function doApply(s: FullThemeSettings) {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<FullThemeSettings>(DEFAULT_SETTINGS)
-  const [loaded, setLoaded] = useState(false)
+  const [, setLoaded] = useState(false)
 
   // Fetch from server on mount
   useEffect(() => {
