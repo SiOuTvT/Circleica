@@ -40,7 +40,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "未登录" }, { status: 401 })
   }
 
-  const { ids } = await req.json()
+  let ids: string[] | undefined
+  try {
+    const body = await req.json()
+    ids = body.ids
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   if (ids && Array.isArray(ids) && ids.length > 0) {
     // 标记指定通知为已读
@@ -66,7 +72,13 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "未登录" }, { status: 401 })
   }
 
-  const { ids } = await req.json()
+  let ids: string[] | undefined
+  try {
+    const body = await req.json()
+    ids = body.ids
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
 
   if (ids && Array.isArray(ids) && ids.length > 0) {
     await prisma.notification.deleteMany({

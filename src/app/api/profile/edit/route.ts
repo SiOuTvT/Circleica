@@ -7,7 +7,17 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
 
-  const { username, bio, avatar, oldPassword, newPassword } = await req.json()
+  let username: string, bio: string, avatar: string, oldPassword: string, newPassword: string
+  try {
+    const body = await req.json()
+    username = body.username
+    bio = body.bio
+    avatar = body.avatar
+    oldPassword = body.oldPassword
+    newPassword = body.newPassword
+  } catch {
+    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  }
   if (!username?.trim()) return NextResponse.json({ error: "用户名不能为空" }, { status: 400 })
 
   const conflict = await prisma.user.findFirst({
