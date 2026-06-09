@@ -15,13 +15,13 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://fangame:password@localhost:5432/fangame}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?请在 .env 中设置 NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:?请在 .env 中设置 NEXTAUTH_URL}
-      PORT: "80"
+      PORT: "3000"
       SENTRY_ORG: ${SENTRY_ORG:-}
       SENTRY_PROJECT: ${SENTRY_PROJECT:-}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_ACCESS_KEY_SECRET: ${R2_ACCESS_KEY_SECRET:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
       UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN:-}
@@ -29,12 +29,21 @@ services:
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
     volumes:
       - uploads_data:/app/public/uploads
+    # 资源限制（根据服务器配置调整）
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 40s
 
 volumes:
   uploads_data:

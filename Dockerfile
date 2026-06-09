@@ -1,4 +1,6 @@
 # ═══════════════════════════════════════════
+# 🎮 Fangame - Galgame/Visual Novel Community
+# ═══════════════════════════════════════════
 # Stage 1: Dependencies
 # ═══════════════════════════════════════════
 FROM node:20-bookworm-slim AS deps
@@ -104,7 +106,13 @@ RUN chmod +x /docker-entrypoint.sh
 RUN chown -R nextjs:nodejs /app
 
 # Expose port
-EXPOSE 80
+EXPOSE 3000
+
+# Labels
+LABEL org.opencontainers.image.title="Fangame"
+LABEL org.opencontainers.image.description="Galgame/Visual Novel Community Platform"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/your-repo/fangame"
 
 # Environment variables
 ENV NODE_ENV=production
