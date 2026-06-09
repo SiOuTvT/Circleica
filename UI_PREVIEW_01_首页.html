@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页预览 - Fangame</title>
+  <style>
+    :root {
+      --bg: #08080a;
+      --card: #151518;
+      --border: rgba(255,255,255,0.08);
+      --text: #e8e8ec;
+      --text-muted: #a1a1b5;
+      --primary: #C89060;
+      --accent: #0e0e10;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); color: var(--text); }
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: var(--accent); color: var(--text); border: 1px solid var(--border); }
+    .tag { display: inline-flex; padding: 4px 10px; border-radius: 8px; font-size: 12px; background: var(--accent); color: var(--text-muted); border: 1px solid var(--border); }
+    .tag.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .game-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+    .game-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); border-color: var(--primary); }
+    .game-card-cover { aspect-ratio: 3/4; background: linear-gradient(135deg, #1a1a2e, #16213e); position: relative; }
+    .game-card-info { padding: 12px; }
+    .game-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .game-card-meta { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); }
+    .hero { display: grid; grid-template-columns: 2fr 3fr; gap: 24px; margin-bottom: 40px; }
+    .hero-brand { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; }
+    .hero-title { font-size: 32px; font-weight: 700; }
+    .hero-subtitle { color: var(--text-muted); margin-top: 8px; }
+    .hero-stats { display: flex; gap: 24px; margin-top: 24px; }
+    .stat-number { font-size: 32px; font-weight: 700; }
+    .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+    .hero-buttons { display: flex; gap: 8px; margin-top: 24px; }
+    .hero-announce { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    .grid { display: grid; gap: 16px; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; } .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="container" style="padding-top: 24px; padding-bottom: 48px;">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">首页</h1>
+    <p style="color: var(--text-muted); margin-bottom: 32px;">品牌卡 + 公告轮播 + 游戏网格</p>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-brand">
+        <div>
+          <h2 class="hero-title">同人游戏站</h2>
+          <p class="hero-subtitle">GalGame 同人世界的一站式入口</p>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-number">1,234</div><div class="stat-label">个游戏</div></div>
+          <div><div class="stat-number">56</div><div class="stat-label">本周新增</div></div>
+          <div><div class="stat-number">89</div><div class="stat-label">今日签到</div></div>
+        </div>
+        <div class="hero-buttons">
+          <button class="btn btn-secondary">👥 随机创作者</button>
+          <button class="btn btn-secondary">🎭 随机角色</button>
+        </div>
+      </div>
+      <div class="hero-announce">
+        <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">📢 最新公告</div>
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">v2.0 更新公告</div>
+        <div style="font-size: 14px; color: var(--text-muted);">新增制作组图鉴、成就系统、性能优化...</div>
+      </div>
+    </div>
+
+    <!-- 游戏网格 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 600;">最新资源</h3>
+      <span style="font-size: 14px; color: var(--text-muted);">1,234 个</span>
+    </div>
+    <div class="grid grid-4">
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Fate/stay night</div><div class="game-card-meta"><span>❤️ 128</span><span>👁️ 1.2k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">CLANNAD</div><div class="game-card-meta"><span>❤️ 256</span><span>👁️ 2.4k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Steins;Gate</div><div class="game-card-meta"><span>❤️ 192</span><span>👁️ 1.8k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">AIR</div><div class="game-card-meta"><span>❤️ 96</span><span>👁️ 800</span></div></div></div>
+    </div>
+  </div>
+</body>
+</html>

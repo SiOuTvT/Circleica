@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fangame UI/UX 重构预览</title>
+  <style>
+    :root {
+      --bg: #08080a; --card: #151518; --border: rgba(255,255,255,0.08);
+      --text: #e8e8ec; --text-muted: #a1a1b5; --primary: #C89060;
+      --accent: #0e0e10; --success: #6ee7b7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+
+    /* 导航 */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 4px; overflow-x: auto; white-space: nowrap; }
+    .nav-item { padding: 12px 16px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .nav-item:hover { color: var(--text); }
+    .nav-item.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* 页面容器 */
+    .page { display: none; padding: 80px 24px 48px; max-width: 1200px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* 通用组件 */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: var(--accent); color: var(--text); border: 1px solid var(--border); }
+    .input { width: 100%; padding: 10px 16px; border-radius: 12px; background: var(--accent); border: 1px solid var(--border); color: var(--text); font-size: 14px; outline: none; }
+    .input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(200,144,96,0.15); }
+    .input::placeholder { color: var(--text-muted); }
+    .badge { display: inline-flex; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+    .badge-primary { background: var(--primary); color: white; }
+    .badge-muted { background: var(--accent); color: var(--text-muted); border: 1px solid var(--border); }
+    .tag { display: inline-flex; padding: 4px 10px; border-radius: 8px; font-size: 12px; background: var(--accent); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+    .tag:hover { border-color: var(--primary); color: var(--primary); }
+    .tag.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 768px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+
+    /* 游戏卡片 */
+    .game-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+    .game-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); border-color: var(--primary); }
+    .game-card-cover { aspect-ratio: 3/4; background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .game-card-info { padding: 12px; }
+    .game-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .game-card-meta { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); }
+
+    /* 创作者卡片 */
+    .creator-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--accent); border: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
+    .creator-card:hover { border-color: var(--primary); background: var(--card); }
+    .creator-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+    /* 通知项 */
+    .notification-item { display: flex; gap: 12px; padding: 16px; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
+    .notification-item:hover { background: var(--accent); }
+    .notification-item.unread { background: rgba(200,144,96,0.05); border-left: 3px solid var(--primary); }
+    .notification-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+    /* 面包屑 */
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-muted); margin: 24px 0; }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--text); }
+
+    /* 侧边栏 */
+    .sidebar { width: 200px; min-height: 100vh; background: var(--card); border-right: 1px solid var(--border); padding: 16px; }
+    .sidebar-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px; padding: 0 8px; }
+    .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; font-size: 14px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .sidebar-item:hover { background: var(--accent); color: var(--text); }
+    .sidebar-item.active { background: var(--accent); color: var(--text); }
+
+    /* Tab */
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab { padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* 空状态 */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 24px; text-align: center; }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+
+    /* Hero */
+    .hero { display: grid; grid-template-columns: 2fr 3fr; gap: 24px; margin-bottom: 40px; }
+    .hero-brand { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; }
+    .hero-title { font-size: 32px; font-weight: 700; }
+    .hero-subtitle { color: var(--text-muted); margin-top: 8px; }
+    .hero-stats { display: flex; gap: 24px; margin-top: 24px; }
+    .stat-number { font-size: 32px; font-weight: 700; }
+    .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+    .hero-announce { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; } }
+
+    /* 搜索框 */
+    .search-box { position: relative; margin-bottom: 24px; }
+    .search-box input { width: 100%; padding: 12px 16px 12px 44px; border-radius: 12px; background: var(--accent); border: 1px solid var(--border); color: var(--text); font-size: 14px; outline: none; }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); }
+
+    /* 分页 */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 32px; }
+    .page-btn { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; background: transparent; color: var(--text-muted); border: 1px solid var(--border); transition: all 0.2s; }
+    .page-btn:hover { background: var(--accent); }
+    .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+  <!-- 导航 -->
+  <nav class="nav">
+    <div class="nav-item active" onclick="showPage('home')">首页</div>
+    <div class="nav-item" onclick="showPage('search')">搜索</div>
+    <div class="nav-item" onclick="showPage('game')">游戏详情</div>
+    <div class="nav-item" onclick="showPage('forum')">论坛</div>
+    <div class="nav-item" onclick="showPage('collections')">精选合集</div>
+    <div class="nav-item" onclick="showPage('credits')">制作组图鉴</div>
+    <div class="nav-item" onclick="showPage('notifications')">通知中心</div>
+    <div class="nav-item" onclick="showPage('user')">用户主页</div>
+    <div class="nav-item" onclick="showPage('login')">登录</div>
+    <div class="nav-item" onclick="showPage('register')">注册</div>
+    <div class="nav-item" onclick="showPage('notfound')">404</div>
+    <div class="nav-item" onclick="showPage('components')">组件</div>
+    <div class="nav-item" onclick="showPage('sidebar')">侧边栏</div>
+    <div class="nav-item" onclick="showPage('colors')">颜色</div>
+  </nav>
+
+  <!-- ═══ 1. 首页 ═══ -->
+  <div id="page-home" class="page active">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">首页（/）</h1>
+    <div class="hero">
+      <div class="hero-brand">
+        <div><h2 class="hero-title">同人游戏站</h2><p class="hero-subtitle">GalGame 同人世界的一站式入口</p></div>
+        <div class="hero-stats">
+          <div><div class="stat-number">1,234</div><div class="stat-label">个游戏</div></div>
+          <div><div class="stat-number">56</div><div class="stat-label">本周新增</div></div>
+          <div><div class="stat-number">89</div><div class="stat-label">今日签到</div></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary">👥 随机创作者</button>
+          <button class="btn btn-secondary">🎭 随机角色</button>
+        </div>
+      </div>
+      <div class="hero-announce">
+        <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">📢 最新公告</div>
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">v2.0 更新公告</div>
+        <div style="font-size: 14px; color: var(--text-muted);">新增制作组图鉴、成就系统、性能优化...</div>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 600;">最新资源</h3>
+      <span style="font-size: 14px; color: var(--text-muted);">1,234 个</span>
+    </div>
+    <div class="grid grid-4">
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Fate/stay night</div><div class="game-card-meta"><span>❤️ 128</span><span>👁️ 1.2k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">CLANNAD</div><div class="game-card-meta"><span>❤️ 256</span><span>👁️ 2.4k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Steins;Gate</div><div class="game-card-meta"><span>❤️ 192</span><span>👁️ 1.8k</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">AIR</div><div class="game-card-meta"><span>❤️ 96</span><span>👁️ 800</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ 2. 搜索页 ═══ -->
+  <div id="page-search" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">搜索页（/search）</h1>
+    <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="搜索游戏名、创作者、标签..."></div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+      <span class="tag active">全部</span><span class="tag">东方Project</span><span class="tag">月姬</span><span class="tag">Fate</span><span class="tag">Key</span><span class="tag">催泪</span><span class="tag">治愈</span><span class="tag">悬疑</span>
+    </div>
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <button class="btn btn-primary" style="font-size: 12px;">最新</button>
+      <button class="btn btn-secondary" style="font-size: 12px;">最热</button>
+      <button class="btn btn-secondary" style="font-size: 12px;">收藏最多</button>
+    </div>
+    <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">找到 1,234 个结果</div>
+    <div class="grid grid-4">
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Fate/stay night</div><div class="game-card-meta"><span>❤️ 128</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">CLANNAD</div><div class="game-card-meta"><span>❤️ 256</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Steins;Gate</div><div class="game-card-meta"><span>❤️ 192</span></div></div></div>
+      <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">AIR</div><div class="game-card-meta"><span>❤️ 96</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ 3. 游戏详情页 ═══ -->
+  <div id="page-game" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">游戏详情页（/games/[id]）</h1>
+    <div class="breadcrumb"><a href="#">首页</a><span style="color: var(--text-muted); opacity: 0.4;">›</span><span>Fate/stay night</span></div>
+    <div style="display: flex; gap: 24px; margin-bottom: 32px;">
+      <div style="width: 200px; height: 280px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 12px; flex-shrink: 0;"></div>
+      <div style="flex: 1;">
+        <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Fate/stay night</h1>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <span class="badge" style="background: rgba(200,144,96,0.15); color: var(--primary);">脚本</span>
+          <span class="badge" style="background: rgba(167,139,250,0.15); color: #a78bfa;">原画</span>
+          <span class="badge" style="background: rgba(96,165,250,0.15); color: #60a5fa;">音乐</span>
+        </div>
+        <div style="display: flex; gap: 16px; font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
+          <span>❤️ 128 收藏</span><span>👁️ 1.2k 浏览</span><span>⬇️ 800 下载</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary">❤️ 收藏</button>
+          <button class="btn btn-secondary">📥 下载</button>
+          <button class="btn btn-secondary">🔗 分享</button>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active">简介</div><div class="tab">资源</div><div class="tab">评论 (128)</div>
+    </div>
+    <div style="font-size: 14px; line-height: 1.8; color: var(--text-muted);">
+      <p>Fate/stay night 是由 TYPE-MOON 于 2004 年发售的视觉小说游戏。故事讲述了魔术师卫宫士郎为了守护冬木市的和平，参加了争夺圣杯的战争——"圣杯战争"的故事。</p>
+      <p style="margin-top: 12px;">本作以其深刻的世界观、丰富的人物塑造和多路线的剧情设计而闻名，是视觉小说领域的经典之作。</p>
+    </div>
+    <div style="margin-top: 24px;">
+      <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">制作人员</h3>
+      <div class="grid grid-4">
+        <div class="creator-card"><div class="creator-avatar">奈</div><div><div style="font-size: 14px; font-weight: 600;">奈須蘑菇</div><div style="font-size: 12px; color: var(--text-muted);">脚本</div></div></div>
+        <div class="creator-card"><div class="creator-avatar">武</div><div><div style="font-size: 14px; font-weight: 600;">武内崇</div><div style="font-size: 12px; color: var(--text-muted);">原画</div></div></div>
+        <div class="creator-card"><div class="creator-avatar">芳</div><div><div style="font-size: 14px; font-weight: 600;">芳賀一</div><div style="font-size: 12px; color: var(--text-muted);">原画</div></div></div>
+        <div class="creator-card"><div class="creator-avatar">カ</div><div><div style="font-size: 14px; font-weight: 600;">カワイ</div><div style="font-size: 12px; color: var(--text-muted);">音乐</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 4. 论坛 ═══ -->
+  <div id="page-forum" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">求档中心（/forum）</h1>
+    <div style="display: flex; gap: 24px;">
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; gap: 8px;">
+            <span class="tag active">全部</span><span class="tag">未解决</span><span class="tag">已解决</span>
+          </div>
+          <button class="btn btn-primary" style="font-size: 12px;">✏️ 发帖</button>
+        </div>
+        <div class="card" style="margin-bottom: 8px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between;">
+            <div><div style="font-size: 14px; font-weight: 600;">求助：CLANNAD 汉化版问题</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Alice · 2 小时前</div></div>
+            <span class="badge badge-muted">未解决</span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 8px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between;">
+            <div><div style="font-size: 14px; font-weight: 600;">分享：Fate/stay night 攻略</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Bob · 5 小时前</div></div>
+            <span class="badge" style="background: rgba(110,231,183,0.15); color: #6ee7b7;">已解决</span>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 8px; cursor: pointer;">
+          <div style="display: flex; justify-content: space-between;">
+            <div><div style="font-size: 14px; font-weight: 600;">讨论：Steins;Gate 剧情分析</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Charlie · 1 天前</div></div>
+            <span class="badge badge-muted">未解决</span>
+          </div>
+        </div>
+      </div>
+      <div style="width: 240px; flex-shrink: 0;">
+        <div class="card">
+          <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">热门帖子</h3>
+          <div style="font-size: 13px; color: var(--text-muted); line-height: 2;">
+            <div>Fate/stay night 攻略</div>
+            <div>CLANNAD 汉化版问题</div>
+            <div>Steins;Gate 剧情分析</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 5. 精选合集 ═══ -->
+  <div id="page-collections" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">精选合集（/collections）</h1>
+    <div class="grid grid-3">
+      <div class="card" style="cursor: pointer;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #2d1b36, #1a1a2e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1b2d36, #1a1a2e); border-radius: 6px;"></div>
+        </div>
+        <div style="font-size: 16px; font-weight: 600;">Fate 系列</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">12 个游戏</div>
+      </div>
+      <div class="card" style="cursor: pointer;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #2d1b36, #1a1a2e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1b2d36, #1a1a2e); border-radius: 6px;"></div>
+        </div>
+        <div style="font-size: 16px; font-weight: 600;">Key 社作品</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">8 个游戏</div>
+      </div>
+      <div class="card" style="cursor: pointer;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #2d1b36, #1a1a2e); border-radius: 6px;"></div>
+          <div style="width: 40px; height: 52px; background: linear-gradient(135deg, #1b2d36, #1a1a2e); border-radius: 6px;"></div>
+        </div>
+        <div style="font-size: 16px; font-weight: 600;">东方Project</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">24 个游戏</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 6. 制作组图鉴 ═══ -->
+  <div id="page-credits" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">制作组图鉴</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">探索每部作品背后的创作者</p>
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <div class="search-box" style="flex: 1; max-width: 320px; margin-bottom: 0;"><span class="search-icon">🔍</span><input type="text" placeholder="搜索..."></div>
+      <div style="display: flex; gap: 8px;">
+        <span class="tag active">全部</span><span class="tag">脚本</span><span class="tag">原画</span><span class="tag">音乐</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+        <div style="width: 56px; height: 72px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 8px;"></div>
+        <div><div style="font-size: 16px; font-weight: 600;">Fate/stay night</div><div style="font-size: 12px; color: var(--text-muted);">8 位创作者 · 2004</div></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <div class="creator-card"><div class="creator-avatar" style="width: 28px; height: 28px; font-size: 12px;">奈</div><div><div style="font-size: 12px; font-weight: 600;">奈須蘑菇</div><div style="font-size: 10px; color: var(--text-muted);">脚本</div></div></div>
+        <div class="creator-card"><div class="creator-avatar" style="width: 28px; height: 28px; font-size: 12px;">武</div><div><div style="font-size: 12px; font-weight: 600;">武内崇</div><div style="font-size: 10px; color: var(--text-muted);">原画</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 7. 通知中心 ═══ -->
+  <div id="page-notifications" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">消息通知</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">3 条未读消息</p>
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <button class="btn btn-secondary" style="font-size: 12px;">全部已读</button>
+      <button class="btn btn-secondary" style="font-size: 12px;">删除已读</button>
+    </div>
+    <div class="notification-item unread"><div class="notification-avatar">A</div><div style="flex: 1;"><div style="font-size: 14px;"><strong>Alice</strong> 赞了你的评论</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">2 分钟前</div></div></div>
+    <div class="notification-item unread"><div class="notification-avatar">B</div><div style="flex: 1;"><div style="font-size: 14px;"><strong>Bob</strong> 回复了你的帖子</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">15 分钟前</div></div></div>
+    <div class="notification-item"><div class="notification-avatar">C</div><div style="flex: 1;"><div style="font-size: 14px;"><strong>Charlie</strong> 关注了你</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">2 小时前</div></div></div>
+  </div>
+
+  <!-- ═══ 8. 用户主页 ═══ -->
+  <div id="page-user" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">用户主页（/user/[id]）</h1>
+    <div style="display: flex; gap: 24px;">
+      <div style="width: 280px; flex-shrink: 0;">
+        <div class="card" style="text-align: center;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 12px;">A</div>
+          <div style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Alice</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">UID 00001 · 站长</div>
+          <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">这个人很懒，什么都没留下。</div>
+          <div style="display: flex; justify-content: center; gap: 24px; margin-bottom: 16px;">
+            <div><div style="font-size: 18px; font-weight: 700;">128</div><div style="font-size: 12px; color: var(--text-muted);">关注</div></div>
+            <div><div style="font-size: 18px; font-weight: 700;">256</div><div style="font-size: 12px; color: var(--text-muted);">粉丝</div></div>
+          </div>
+          <button class="btn btn-primary" style="width: 100%;">关注</button>
+        </div>
+      </div>
+      <div style="flex: 1;">
+        <div class="tabs"><div class="tab active">收藏 (64)</div><div class="tab">评论 (32)</div><div class="tab">签到</div></div>
+        <div class="grid grid-3">
+          <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Fate/stay night</div></div></div>
+          <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">CLANNAD</div></div></div>
+          <div class="game-card"><div class="game-card-cover"></div><div class="game-card-info"><div class="game-card-title">Steins;Gate</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 9. 登录 ═══ -->
+  <div id="page-login" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">登录（/login）</h1>
+    <div style="max-width: 400px; margin: 0 auto;">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">欢迎回来</h2>
+          <p style="font-size: 14px; color: var(--text-muted);">登录你的同人游戏站账号</p>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">用户名或邮箱</label>
+          <input class="input" type="text" placeholder="请输入用户名或邮箱">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">密码</label>
+          <input class="input" type="password" placeholder="请输入密码">
+          <div style="text-align: right; margin-top: 4px;"><a href="#" style="font-size: 12px; color: var(--primary); text-decoration: none;">忘记密码？</a></div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;">登录</button>
+        <div style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--text-muted);">还没有账号？ <a href="#" style="color: var(--primary); text-decoration: none;">注册</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 10. 注册 ═══ -->
+  <div id="page-register" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">注册（/register）</h1>
+    <div style="max-width: 400px; margin: 0 auto;">
+      <div class="card">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">创建账号</h2>
+          <p style="font-size: 14px; color: var(--text-muted);">加入同人游戏站</p>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">用户名</label>
+          <input class="input" type="text" placeholder="3-20 个字符">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">邮箱</label>
+          <input class="input" type="email" placeholder="your@email.com">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">密码</label>
+          <input class="input" type="password" placeholder="至少 8 位">
+        </div>
+        <button class="btn btn-primary" style="width: 100%;">注册</button>
+        <div style="text-align: center; margin-top: 16px; font-size: 14px; color: var(--text-muted);">已有账号？ <a href="#" style="color: var(--primary); text-decoration: none;">登录</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 11. 404 ═══ -->
+  <div id="page-notfound" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">404 页面</h1>
+    <div class="empty-state">
+      <div style="font-size: 96px; font-weight: 700; color: var(--text-muted); opacity: 0.2; margin-bottom: 16px;">404</div>
+      <div class="empty-icon">🎮</div>
+      <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">迷路了？</div>
+      <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">这个页面似乎已经被传送到了另一个世界。<br>别担心，搜索或点击下方按钮回到安全区域。</div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary">🏠 返回首页</button>
+        <button class="btn btn-secondary">← 返回上页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 12. 组件 ═══ -->
+  <div id="page-components" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">通用组件</h1>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">按钮</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button class="btn btn-primary">主要按钮</button>
+          <button class="btn btn-secondary">次要按钮</button>
+          <button class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;">禁用状态</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">标签</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span class="badge badge-primary">主要标签</span>
+          <span class="badge badge-muted">次要标签</span>
+          <span class="tag">普通标签</span>
+          <span class="tag active">选中标签</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">输入框</h3>
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">用户名</label>
+          <input class="input" type="text" placeholder="请输入用户名">
+        </div>
+        <div>
+          <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px;">密码</label>
+          <input class="input" type="password" placeholder="请输入密码">
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">卡片</h3>
+        <div class="game-card" style="max-width: 200px;">
+          <div class="game-card-cover" style="height: 120px;"></div>
+          <div class="game-card-info"><div class="game-card-title">游戏标题</div><div class="game-card-meta"><span>❤️ 128</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 13. 侧边栏 ═══ -->
+  <div id="page-sidebar" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">侧边栏导航</h1>
+    <div style="display: flex; gap: 24px;">
+      <div class="sidebar">
+        <div style="margin-bottom: 24px;">
+          <div class="sidebar-title">发现</div>
+          <div class="sidebar-item active">🏠 首页</div>
+          <div class="sidebar-item">🎮 游戏库</div>
+          <div class="sidebar-item">👥 制作组图鉴</div>
+          <div class="sidebar-item">📚 精选合集</div>
+          <div class="sidebar-item">🏷️ 标签浏览</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="sidebar-title">我的</div>
+          <div class="sidebar-item">❤️ 我的收藏</div>
+          <div class="sidebar-item">🔔 消息通知</div>
+          <div class="sidebar-item">🏆 我的成就</div>
+          <div class="sidebar-item">📅 每日签到</div>
+        </div>
+        <div>
+          <div class="sidebar-title">社区动态</div>
+          <div style="padding: 8px; font-size: 12px; color: var(--text-muted);">
+            <div style="margin-bottom: 8px;"><div style="font-size: 13px; color: var(--text);">求助：CLANNAD 汉化版问题</div><div style="font-size: 11px;">Alice · 未解决</div></div>
+            <div><div style="font-size: 13px; color: var(--text);">分享：Fate/stay night 攻略</div><div style="font-size: 11px;">Bob · 已解决</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex: 1;">
+        <div class="card">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">侧边栏特点</h3>
+          <ul style="font-size: 14px; color: var(--text-muted); line-height: 2;">
+            <li>固定定位，不随页面滚动</li>
+            <li>可折叠，节省屏幕空间</li>
+            <li>社区动态实时更新</li>
+            <li>当前页面高亮显示</li>
+            <li>移动端隐藏，通过汉堡菜单打开</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 14. 颜色系统 ═══ -->
+  <div id="page-colors" class="page">
+    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 32px;">颜色系统</h1>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">深色主题</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #08080a; border: 1px solid var(--border);"></div><span style="font-size: 12px;">背景 #08080a</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #151518; border: 1px solid var(--border);"></div><span style="font-size: 12px;">卡片 #151518</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #e8e8ec;"></div><span style="font-size: 12px;">文字 #e8e8ec</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #a1a1b5;"></div><span style="font-size: 12px;">次要文字 #a1a1b5</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #C89060;"></div><span style="font-size: 12px;">主题色 #C89060</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #6ee7b7;"></div><span style="font-size: 12px;">成功 #6ee7b7</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">浅色主题</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #fafafa; border: 1px solid #ddd;"></div><span style="font-size: 12px;">背景 #fafafa</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #ffffff; border: 1px solid #ddd;"></div><span style="font-size: 12px;">卡片 #ffffff</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #1a1a1e;"></div><span style="font-size: 12px;">文字 #1a1a1e</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #52525b;"></div><span style="font-size: 12px;">次要文字 #52525b</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #C89060;"></div><span style="font-size: 12px;">主题色 #C89060</span></div>
+          <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 24px; height: 24px; border-radius: 6px; background: #10b981;"></div><span style="font-size: 12px;">成功 #10b981</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+      document.getElementById('page-' + pageId).classList.add('active')
+      event.target.classList.add('active')
+    }
+  </script>
+</body>
+</html>

@@ -12,12 +12,21 @@ interface SortOption {
 export function MobileSortDropdown({
   currentSort,
   options,
-  buildHref,
+  basePath,
+  extraParams,
 }: {
   currentSort: string
   options: SortOption[]
-  buildHref: (sort: string) => string
+  basePath: string
+  extraParams?: Record<string, string>
 }) {
+  function buildHref(sortKey: string) {
+    const p = new URLSearchParams(extraParams)
+    if (sortKey !== "newest") p.set("sort", sortKey)
+    else p.delete("sort")
+    const s = p.toString()
+    return `${basePath}${s ? `?${s}` : ""}`
+  }
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
   useEffect(() => {
