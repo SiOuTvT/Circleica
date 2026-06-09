@@ -119,10 +119,6 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               )}
             </div>
 
-            {/* 参与作品数 */}
-            <div className="text-sm text-muted-foreground">
-              参与作品: {creator.vns.length} 部
-            </div>
           </div>
         </div>
       </div>
