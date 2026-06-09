@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function CreditsPage() {
   return (
-    <div className="py-6 sm:py-8">
+    <div>
       <CreditsClient />
     </div>
   )
