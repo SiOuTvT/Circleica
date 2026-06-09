@@ -368,25 +368,82 @@ class VNDBClient {
     const key = cacheKey("vndb", "staff_detail", vndbId)
     try {
       return await cached(key, async () => {
-        const data = await this.sendRequest("staff", {
+        // 1. 获取 staff 基本信息（含别名）
+        const staffData = await this.sendRequest("staff", {
           filters: ["id", "=", `s${vndbId}`],
-          fields: "id,name,original,description,gender",
+          fields: "id,name,original,description,gender,aliases.name",
           results: 1,
         })
 
-        if (!data.results || data.results.length === 0) return null
+        if (!staffData.results || staffData.results.length === 0) return null
 
-        const staff = data.results[0] as Record<string, unknown>
+        const staff = staffData.results[0] as Record<string, unknown>
+        const staffName = staff.name as string
+        const staffOriginal = staff.original as string | undefined
+        const aliases = (staff.aliases || []) as Array<{ name: string }>
+
+        // 2. 收集所有可能的搜索名字
+        const searchNames = [staffName]
+        if (staffOriginal && staffOriginal !== staffName) searchNames.push(staffOriginal)
+        for (const alias of aliases) {
+          if (alias.name && !searchNames.includes(alias.name)) searchNames.push(alias.name)
+        }
+
+        // 3. 用多个名字搜索 VN，获取其参与的作品
+        const vns: Array<{
+          id: string
+          title: string
+          original?: string
+          role: string
+          rating?: number
+          image?: string
+        }> = []
+
+        const roles = new Set<string>()
+        const seenVnIds = new Set<string>()
+
+        for (const searchName of searchNames.slice(0, 3)) { // 最多搜 3 个名字
+          try {
+            const vnData = await this.sendRequest("vn", {
+              filters: ["search", "=", searchName],
+              fields: "id,title,staff.id,staff.name,staff.role",
+              results: 25,
+            })
+
+            if (vnData.results) {
+              for (const vn of vnData.results as Array<Record<string, unknown>>) {
+                const vnId = vn.id as string
+                if (seenVnIds.has(vnId)) continue
+
+                const staffList = (vn.staff || []) as Array<{ id: string; name: string; role: string }>
+                const staffRoles = staffList.filter(s => s.id === `s${vndbId}`)
+                if (staffRoles.length > 0) {
+                  seenVnIds.add(vnId)
+                  for (const sr of staffRoles) {
+                    roles.add(sr.role)
+                    vns.push({
+                      id: vnId,
+                      title: vn.title as string,
+                      role: sr.role,
+                    })
+                  }
+                }
+              }
+            }
+          } catch {
+            // 单个名字搜索失败不影响其他名字
+          }
+        }
 
         return {
           id: staff.id as string,
-          name: staff.name as string,
+          name: staffName,
           original: staff.original as string | undefined,
           description: staff.description as string | undefined,
           gender: staff.gender as string | undefined,
-          vndbId: (staff.id as string).replace("s", ""),
-          roles: [],
-          vns: [], // VNDB API 不支持查询 staff 的作品列表
+          vndbId,
+          roles: [...roles],
+          vns: vns.slice(0, 20),
         }
       }, this.CACHE_TTL)
     } catch (error) {
