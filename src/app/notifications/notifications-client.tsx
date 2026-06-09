@@ -1,16 +1,6 @@
 "use client"
 
-import {
-  ArrowLeft,
-  Bell,
-  Check,
-  CheckCheck,
-  Heart,
-  MessageSquare,
-  RefreshCw,
-  Trash2,
-  UserPlus,
-} from "lucide-react"
+import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import Image from "next/image"
 import Link from "next/link"
@@ -33,48 +23,32 @@ interface NotificationItem {
   }
 }
 
-const TYPE_CONFIG: Record<
-  string,
-  {
-    icon: typeof Heart
-    text: (actor: string) => string
-    href: (targetType: string, targetId: string) => string
-    category: string
-  }
-> = {
+const TYPE_CONFIG: Record<string, {
+  icon: typeof Bell
+  text: (actor: string) => string
+  href: (targetType: string, targetId: string) => string
+}> = {
   forum_post_like: {
-    icon: Heart,
+    icon: Bell,
     text: (actor) => `${actor} 赞了你的帖子`,
     href: () => "/forum",
-    category: "like",
   },
   forum_comment_like: {
-    icon: Heart,
+    icon: Bell,
     text: (actor) => `${actor} 赞了你的评论`,
     href: () => "/forum",
-    category: "like",
   },
   forum_comment_new: {
-    icon: MessageSquare,
+    icon: Bell,
     text: (actor) => `${actor} 评论了你的帖子`,
     href: () => "/forum",
-    category: "comment",
   },
   follow: {
-    icon: UserPlus,
+    icon: Bell,
     text: (actor) => `${actor} 关注了你`,
-    href: (_targetType: string, id: string) => `/user/${id}`,
-    category: "follow",
+    href: (_targetType, id) => `/user/${id}`,
   },
 }
-
-const FILTER_TABS = [
-  { key: "all", label: "全部" },
-  { key: "unread", label: "未读" },
-  { key: "like", label: "点赞" },
-  { key: "comment", label: "评论" },
-  { key: "follow", label: "关注" },
-] as const
 
 export default function NotificationsClient({
   initialNotifications,
@@ -85,15 +59,12 @@ export default function NotificationsClient({
 }) {
   const [notifications, setNotifications] = useState(initialNotifications)
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount)
-  const [filter, setFilter] = useState<string>("all")
-  const [loading, setLoading] = useState(false)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [selectMode, setSelectMode] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const { message: emptyNotifMsg } = useEmotionalMessage("empty_notifications")
 
+  // 进入页面时标记所有为已读
   useEffect(() => {
     if (unreadCount > 0) {
       fetch("/api/notifications", {
@@ -117,26 +88,9 @@ export default function NotificationsClient({
       const data = await res.json()
       setNotifications((prev) => [...prev, ...(data.notifications ?? [])])
       setNextCursor(data.nextCursor)
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
     setLoadingMore(false)
   }, [nextCursor, loadingMore])
-
-  const refresh = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await fetch("/api/notifications")
-      if (res.ok) {
-        const data = await res.json()
-        setNotifications(data.notifications ?? [])
-        setNextCursor(data.nextCursor)
-      }
-    } catch {
-      // ignore
-    }
-    setLoading(false)
-  }, [])
 
   async function markRead(ids: string[]) {
     try {
@@ -145,12 +99,14 @@ export default function NotificationsClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
       })
-      setNotifications((prev) =>
-        prev.map((n) => (ids.includes(n.id) ? { ...n, isRead: true } : n))
-      )
-    } catch {
-      // ignore
-    }
+      setNotifications((prev) => prev.map((n) => ids.includes(n.id) ? { ...n, isRead: true } : n))
+      setUnreadCount((c) => Math.max(0, c - ids.length))
+    } catch { /* ignore */ }
+  }
+
+  async function markAllRead() {
+    const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id)
+    if (unreadIds.length > 0) await markRead(unreadIds)
   }
 
   async function deleteNotifications(ids: string[]) {
@@ -162,18 +118,18 @@ export default function NotificationsClient({
       })
       setNotifications((prev) => prev.filter((n) => !ids.includes(n.id)))
       setUnreadCount((c) => {
-        const deletedUnread = notifications.filter(
-          (n) => ids.includes(n.id) && !n.isRead
-        ).length
+        const deletedUnread = notifications.filter(n => ids.includes(n.id) && !n.isRead).length
         return Math.max(0, c - deletedUnread)
       })
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
+  }
+
+  async function deleteRead() {
+    const readIds = notifications.filter(n => n.isRead).map(n => n.id)
+    if (readIds.length > 0) await deleteNotifications(readIds)
   }
 
   async function deleteAll() {
-    setLoading(true)
     try {
       await fetch("/api/notifications", {
         method: "DELETE",
@@ -182,266 +138,125 @@ export default function NotificationsClient({
       })
       setNotifications([])
       setUnreadCount(0)
-    } catch {
-      // ignore
-    }
-    setLoading(false)
+    } catch { /* ignore */ }
   }
-
-  function toggleSelect(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  function toggleSelectAll() {
-    const visible = filteredNotifications
-    if (selectedIds.size === visible.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(visible.map((n) => n.id)))
-    }
-  }
-
-  function handleDeleteSelected() {
-    if (selectedIds.size === 0) return
-    deleteNotifications(Array.from(selectedIds))
-    setSelectedIds(new Set())
-    setSelectMode(false)
-  }
-
-  function handleMarkSelectedRead() {
-    const unreadSelected = Array.from(selectedIds).filter(
-      (id) => !notifications.find((n) => n.id === id)?.isRead
-    )
-    if (unreadSelected.length > 0) markRead(unreadSelected)
-    setSelectedIds(new Set())
-    setSelectMode(false)
-  }
-
-  const filteredNotifications = notifications.filter((n) => {
-    if (filter === "unread") return !n.isRead
-    if (filter === "all") return true
-    const config = TYPE_CONFIG[n.type]
-    return config?.category === filter
-  })
 
   return (
-    <div className="mx-auto max-w-3xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div className="flex items-center gap-2 flex-1">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <h1 className="text-xl font-bold text-foreground">
-              消息中心
-            </h1>
-            {unreadCount > 0 && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </div>
+    <div>
+      {/* 标题 */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <Bell className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">消息通知</h1>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {unreadCount > 0 ? `${unreadCount} 条未读消息` : "暂无未读消息"}
+        </p>
+      </div>
+
+      {/* 操作栏 */}
+      {notifications.length > 0 && (
+        <div className="flex gap-2 mb-4">
           <button
-            onClick={refresh}
-            disabled={loading}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
-            title="刷新"
+            onClick={markAllRead}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition-all"
           >
-            <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+            <CheckCheck className="h-3.5 w-3.5" />
+            全部已读
+          </button>
+          <button
+            onClick={deleteRead}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition-all"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            删除已读
+          </button>
+          <button
+            onClick={() => setShowClearConfirm(true)}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:text-red-500 hover:ring-red-500/30 transition-all ml-auto"
+          >
+            清空全部
           </button>
         </div>
+      )}
 
-        {/* Filter Tabs */}
-        <div className="mb-4 flex gap-1 overflow-x-auto scrollbar-hide">
-          {FILTER_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => {
-                setFilter(tab.key)
-                setSelectMode(false)
-                setSelectedIds(new Set())
-              }}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                filter === tab.key
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
-            >
-              {tab.label}
-              {tab.key === "unread" && unreadCount > 0 && (
-                <span className="ml-1.5 text-xs opacity-60">
-                  ({unreadCount})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Action Bar */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setSelectMode(!selectMode)
-                setSelectedIds(new Set())
-              }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              {selectMode ? "取消选择" : "管理"}
-            </button>
-            {selectMode && (
-              <>
-                <button
-                  onClick={toggleSelectAll}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                >
-                  {selectedIds.size === filteredNotifications.length
-                    ? "取消全选"
-                    : "全选"}
-                </button>
-                {selectedIds.size > 0 && (
-                  <>
-                    <button
-                      onClick={handleMarkSelectedRead}
-                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-secondary"
-                    >
-                      <CheckCheck className="h-3.5 w-3.5" />
-                      标记已读
-                    </button>
-                    <button
-                      onClick={handleDeleteSelected}
-                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-secondary"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      删除 ({selectedIds.size})
-                    </button>
-                  </>
-                )}
-              </>
-            )}
+      {/* 通知列表 */}
+      <div className="space-y-1">
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Bell className="mb-4 h-12 w-12 text-muted-foreground/30" />
+            <p className="text-sm text-muted-foreground">
+              {emptyNotifMsg ? `${emptyNotifMsg.emoji} ${emptyNotifMsg.title}` : "暂时没有新消息~"}
+            </p>
           </div>
-          {notifications.length > 0 && !selectMode && (
-            <button
-              onClick={() => setShowClearConfirm(true)}
-              disabled={loading}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-red-500"
-            >
-              清空全部
-            </button>
-          )}
-        </div>
-
-        {/* Notification List */}
-        <div className="space-y-1">
-          {filteredNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Bell className="mb-4 h-12 w-12 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                {emptyNotifMsg ? `${emptyNotifMsg.emoji} ${emptyNotifMsg.title}，${emptyNotifMsg.subtitle}` : (filter === "unread" ? "所有消息都看过了~" : "暂时没有新消息~")}
-              </p>
-            </div>
-          ) : (
-            filteredNotifications.map((n) => {
-              const config = TYPE_CONFIG[n.type]
-              if (!config) return null
-              const Icon = config.icon
-              const href = config.href(n.targetType, n.targetId)
-              return (
-                <div
-                  key={n.id}
-                  className={`group flex items-start gap-3 rounded-xl px-4 py-3 transition-colors ${
-                    !n.isRead
-                      ? "bg-card/80"
-                      : "hover:bg-secondary/40"
-                  } ${selectMode && selectedIds.has(n.id) ? "ring-1 ring-primary/50 bg-primary/5" : ""}`}
-                >
-                  {selectMode && (
-                    <button
-                      onClick={() => toggleSelect(n.id)}
-                      className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-border transition-colors"
-                    >
-                      {selectedIds.has(n.id) && (
-                        <Check className="h-3 w-3 text-primary" />
-                      )}
-                    </button>
+        ) : (
+          notifications.map((n) => {
+            const config = TYPE_CONFIG[n.type]
+            if (!config) return null
+            const href = config.href(n.targetType, n.targetId)
+            return (
+              <Link
+                key={n.id}
+                href={href}
+                onClick={() => { if (!n.isRead) markRead([n.id]) }}
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all cursor-pointer ${
+                  !n.isRead
+                    ? "bg-primary/5 border-l-2 border-primary"
+                    : "hover:bg-accent"
+                }`}
+              >
+                {/* 头像 */}
+                <div className="relative shrink-0">
+                  {n.actor.avatar ? (
+                    <Image
+                      src={n.actor.avatar}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {n.actor.username[0]?.toUpperCase()}
+                    </div>
                   )}
-
-                  <div className="relative shrink-0">
-                    {n.actor.avatar ? (
-                    <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
-                        <Image
-                          src={n.actor.avatar}
-                          alt=""
-                          width={40}
-                          height={40}
-                          className="rounded-full object-cover"
-                          unoptimized
-                        />
-                      </Link>
-                    ) : (
-                      <Link href={`/user/${n.actor.serialId || n.actor.id}`}>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-                          <Icon
-                            className="h-4 w-4 text-muted-foreground"
-                            strokeWidth={1.5}
-                          />
-                        </div>
-                      </Link>
-                    )}
-                    {!n.isRead && (
-                      <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />
-                    )}
-                  </div>
-
-                  <Link
-                    href={href}
-                    onClick={() => {
-                      if (!n.isRead) markRead([n.id])
-                    }}
-                    className="min-w-0 flex-1"
-                  >
-                    <p className="text-sm leading-snug text-foreground">
-                      {config.text(n.actor.username)}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {timeAgo(n.createdAt)}
-                    </p>
-                  </Link>
-
-                  {!selectMode && (
-                    <button
-                      onClick={() => deleteNotifications([n.id])}
-className="mt-1 shrink-0 rounded-lg p-1.5 text-muted-foreground sm:opacity-0 transition-all sm:group-hover:opacity-100 hover:text-red-500"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                  {!n.isRead && (
+                    <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />
                   )}
                 </div>
-              )
-            })
-          )}
-        </div>
 
-        {nextCursor && (
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={fetchMore}
-              disabled={loadingMore}
-              className="rounded-full px-6 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              {loadingMore ? "加载中…" : "加载更多"}
-            </button>
-          </div>
+                {/* 内容 */}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-foreground">{config.text(n.actor.username)}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.createdAt)}</p>
+                </div>
+
+                {/* 删除按钮 */}
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteNotifications([n.id]) }}
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </Link>
+            )
+          })
         )}
+      </div>
+
+      {/* 加载更多 */}
+      {nextCursor && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={fetchMore}
+            disabled={loadingMore}
+            className="rounded-lg px-4 py-2 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground disabled:opacity-50 transition-all"
+          >
+            {loadingMore ? "加载中…" : "加载更多"}
+          </button>
+        </div>
+      )}
 
       <ConfirmDialog
         open={showClearConfirm}

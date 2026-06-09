@@ -53,15 +53,7 @@ async function SearchResults({
 }) {
   // 没有搜索词和标签时不显示结果
   if (!q && !tag) {
-    return (
-      <div className="py-12 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <span className="text-3xl">🔍</span>
-        </div>
-        <p className="text-sm font-medium text-foreground">搜索你感兴趣的游戏</p>
-        <p className="mt-1 text-xs text-muted-foreground">输入游戏名、创作者名或标签开始搜索</p>
-      </div>
-    )
+    return null
   }
 
   const where = {
