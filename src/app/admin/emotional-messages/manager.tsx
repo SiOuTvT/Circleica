@@ -146,7 +146,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
           ...CATEGORIES.map(c => ({ key: c, label: CATEGORY_META[c].label })),
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${filter === f.key ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${filter === f.key ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
             {f.label}
             {f.key !== "all" && (
               <span className="ml-1 opacity-60">{items.filter(i => i.category === f.key).length}</span>
@@ -245,7 +245,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                         <Save className="h-3.5 w-3.5" /> 保存
                       </button>
                       <button onClick={() => setEditing(null)}
-                        className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent">
+                        className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
                         取消
                       </button>
                     </div>

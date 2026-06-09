@@ -180,7 +180,7 @@ export default function AdminAchievementsPage() {
                   <label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" checked={editing.isActive !== false} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} className="rounded" />启用</label>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setEditing(null)} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary">取消</button>
+                  <button onClick={() => setEditing(null)} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">取消</button>
                   <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
                     {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}保存
                   </button>

@@ -250,7 +250,7 @@ export function CreditsClient() {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent disabled:opacity-50 transition-all"
+            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground disabled:opacity-50 transition-all"
           >
             上一页
           </button>
@@ -260,7 +260,7 @@ export function CreditsClient() {
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent disabled:opacity-50 transition-all"
+            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground disabled:opacity-50 transition-all"
           >
             下一页
           </button>

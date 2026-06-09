@@ -32,7 +32,7 @@ export default function NotFound() {
         </Link>
         <button
           onClick={() => window.history.back()}
-          className="rounded-xl px-6 py-3 text-sm font-semibold text-muted-foreground border border-border transition-colors hover:bg-muted btn-spring"
+          className="rounded-xl px-6 py-3 text-sm font-semibold text-muted-foreground border border-border transition-colors hover:bg-muted hover:text-foreground btn-spring"
         >
           ← 返回上页
         </button>

@@ -263,7 +263,7 @@ function FavoritesTab({
           <div className="flex gap-2">
             <button
               onClick={() => { setShowCreateFolder(false); setNewFolderName(""); setNewFolderPublic(true) }}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
             >
               取消
             </button>
