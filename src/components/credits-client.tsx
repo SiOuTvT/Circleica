@@ -168,7 +168,7 @@ export function CreditsClient() {
                   className="flex items-center gap-4 group/game"
                 >
                   {game.coverImage ? (
-                    <div className="relative h-20 w-14 sm:h-24 sm:w-[68px] rounded-lg overflow-hidden shrink-0 ring-1 ring-border">
+                    <div className="relative h-16 w-28 sm:h-20 sm:w-36 rounded-lg overflow-hidden shrink-0 ring-1 ring-border">
                       <Image
                         src={game.coverImage}
                         alt={game.title}
@@ -178,7 +178,7 @@ export function CreditsClient() {
                       />
                     </div>
                   ) : (
-                    <div className="h-20 w-14 sm:h-24 sm:w-[68px] rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border">
+                    <div className="h-16 w-28 sm:h-20 sm:w-36 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 ring-1 ring-border">
                       <span className="text-lg text-primary/40">?</span>
                     </div>
                   )}
