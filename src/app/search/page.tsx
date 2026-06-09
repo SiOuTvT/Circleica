@@ -5,27 +5,8 @@ import { SearchBar } from "@/components/search-bar"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { Clock, Heart, TrendingUp, X } from "lucide-react"
-import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Suspense } from "react"
-
-// 缓存标签查询（24 小时）
-const getCachedDiscoverTags = unstable_cache(
-  async () => {
-    const discoverGroup = await prisma.tagGroup.findUnique({
-      where: { id: "preset_discover" },
-      select: { color: true },
-    })
-    const discoverColor = discoverGroup?.color || "#a78bfa"
-    const rawTags = await prisma.tag.findMany({
-      orderBy: { name: "asc" },
-      include: { group: { select: { color: true } } },
-    })
-    return rawTags.map(t => ({ ...t, color: discoverColor }))
-  },
-  ["search-page-tags"],
-  { revalidate: 86400, tags: ["tags"] }
-)
 
 type SortKey = "newest" | "popular" | "mostFaved"
 
@@ -70,6 +51,19 @@ async function SearchResults({
 }: {
   q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
 }) {
+  // 没有搜索词和标签时不显示结果
+  if (!q && !tag) {
+    return (
+      <div className="py-12 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+          <span className="text-3xl">🔍</span>
+        </div>
+        <p className="text-sm font-medium text-foreground">搜索你感兴趣的游戏</p>
+        <p className="mt-1 text-xs text-muted-foreground">输入游戏名、创作者名或标签开始搜索</p>
+      </div>
+    )
+  }
+
   const where = {
     isPublished: true,
     ...(nsfw ? {} : { isNsfw: false }),
@@ -227,8 +221,6 @@ export default async function SearchPage({
   const nsfw = sp.nsfw === "1"
   const page = Math.max(1, parseInt(sp.page || "1"))
 
-  const tags = await getCachedDiscoverTags()
-
   function buildHref(overrides: Record<string, string>) {
     const p = new URLSearchParams()
     if (q) p.set("q", q)
@@ -244,29 +236,6 @@ export default async function SearchPage({
     <div className="space-y-5">
       {/* 搜索框 */}
       <SearchBar defaultValue={q} />
-
-      {/* 标签筛选 - 横向滚动 */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-        <Link
-          href="/search"
-          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-            !tag ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          全部
-        </Link>
-        {tags.map((t) => (
-          <Link
-            key={t.id}
-            href={buildHref({ tag: t.name })}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-              tag === t.name ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t.name}
-          </Link>
-        ))}
-      </div>
 
       {/* 当前筛选 + 排序 */}
       <div className="flex items-center justify-between">
