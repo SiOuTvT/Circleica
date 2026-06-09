@@ -1,6 +1,7 @@
 "use client"
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
+import DOMPurify from "isomorphic-dompurify"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -233,7 +234,11 @@ export default function GameDetailClient({
                         <div
                           className="prose prose-invert max-w-none leading-relaxed"
                           style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
-                          dangerouslySetInnerHTML={{ __html: d.text }}
+                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(d.text, {
+                            ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
+                            ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
+                            ALLOW_DATA_ATTR: false,
+                          }) }}
                         />
                         {/* 分隔线（非最后一个） */}
                         {idx < allDescriptions.length - 1 && (
@@ -246,7 +251,11 @@ export default function GameDetailClient({
                   <div
                     className="prose prose-invert max-w-none leading-relaxed"
                     style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
-                    dangerouslySetInnerHTML={{ __html: description }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description, {
+                      ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
+                      ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
+                      ALLOW_DATA_ATTR: false,
+                    }) }}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>

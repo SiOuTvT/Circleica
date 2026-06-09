@@ -6,7 +6,6 @@ import { RelatedGames } from "@/components/related-games"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { auth } from "@/lib/auth"
-import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { prisma } from "@/lib/prisma"
@@ -108,9 +107,10 @@ export default async function GameDetailPage({
   const resourceTags: string[] = [...new Set(
     game.resources.flatMap((r) => {
       const items: string[] = []
-      try { items.push(...JSON.parse(r.language)) } catch { logger.db.warn("[GameDetail] Failed to parse resource language") }
-      try { items.push(...JSON.parse(r.runType)) } catch { logger.db.warn("[GameDetail] Failed to parse resource runType") }
-      try { items.push(...JSON.parse(r.resourceContent)) } catch { logger.db.warn("[GameDetail] Failed to parse resourceContent") }
+      const lang = Array.isArray(r.language) ? r.language as string[] : []
+      const run = Array.isArray(r.runType) ? r.runType as string[] : []
+      const content = Array.isArray(r.resourceContent) ? r.resourceContent as string[] : []
+      items.push(...lang, ...run, ...content)
       return items
     })
   )]

@@ -206,14 +206,14 @@ model GameResource {
   userId          String
   resourceName    String           @default("")
   resourceNote    String           @default("")
-  /// JSON 字符串数组：平台标签 ["PC", "Android", ...]
-  platform        String           @default("[]")
-  /// JSON 字符串数组：语言标签 ["中文", "日文", ...]
-  language        String           @default("[]")
-  /// JSON 字符串数组：运行方式 ["ONS", "Kirikiri", ...]
-  runType         String           @default("[]")
-  /// JSON 字符串数组：资源内容 ["本体", "存档", ...]
-  resourceContent String           @default("[]")
+  /// JSON 数组：平台标签 ["PC", "Android", ...]
+  platform        Json             @default("[]")
+  /// JSON 数组：语言标签 ["中文", "日文", ...]
+  language        Json             @default("[]")
+  /// JSON 数组：运行方式 ["ONS", "Kirikiri", ...]
+  runType         Json             @default("[]")
+  /// JSON 数组：资源内容 ["本体", "存档", ...]
+  resourceContent Json             @default("[]")
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   game            Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)

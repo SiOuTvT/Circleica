@@ -66,7 +66,7 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     for (const r of g.resources) {
       for (const field of [r.language, r.runType, r.resourceContent]) {
         try {
-          const arr: string[] = JSON.parse(field)
+          const arr: string[] = Array.isArray(field) ? field as string[] : []
           for (const name of arr) {
             if (!seen.has(name)) {
               seen.add(name)

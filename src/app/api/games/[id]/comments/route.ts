@@ -5,6 +5,7 @@ import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
 import { sanitizeString } from "@/lib/sanitize"
+import crypto from "crypto"
 import { mkdir, writeFile } from "fs/promises"
 import { NextRequest } from "next/server"
 import path from "path"
@@ -56,7 +57,7 @@ async function handleComment(req: NextRequest, context: { params: Promise<{ id: 
     // 保存到 public/uploads/
     const uploadDir = path.join(process.cwd(), "public", "uploads")
     await mkdir(uploadDir, { recursive: true })
-    const filename = `comment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+    const filename = `comment-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.jpg`
     await writeFile(path.join(uploadDir, filename), compressed)
     imageUrl = `/uploads/${filename}`
   }

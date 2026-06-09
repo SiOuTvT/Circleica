@@ -195,7 +195,7 @@ interface ResourceEntry {
 
 function createEmptyEntry(): ResourceEntry {
   return {
-    id: Math.random().toString(36).slice(2, 9),
+    id: crypto.randomUUID().slice(0, 8),
     url: "",
     extractCode: "",
     decompressCode: "",
@@ -327,7 +327,7 @@ export function AddResourceDialog({
     setSubmitting(true)
 
     const resource: SubmittedResource = {
-      id: isEditMode && editData ? editData.id : Math.random().toString(36).slice(2, 11),
+      id: isEditMode && editData ? editData.id : crypto.randomUUID().slice(0, 10),
       entries: entries.map(e => ({
         url: e.url.trim(),
         extractCode: e.extractCode.trim(),
