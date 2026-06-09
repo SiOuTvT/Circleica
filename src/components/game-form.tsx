@@ -5,7 +5,7 @@ import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { Loader2, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 
@@ -25,6 +25,34 @@ interface Props {
     englishName?: string; aliases?: string
   }
 }
+
+/** 截图项组件（memo 避免上传时全部重渲染导致闪屏） */
+const ScreenshotItem = memo(function ScreenshotItem({
+  src, index, onUpdate, onRemove,
+}: {
+  src: string
+  index: number
+  onUpdate: (url: string) => void
+  onRemove: () => void
+}) {
+  return (
+    <div className="group relative">
+      <ImageUpload
+        value={src}
+        onChange={(url: string) => {
+          if (!url) {
+            onRemove()
+          } else {
+            onUpdate(url)
+          }
+        }}
+        aspectRatio={16 / 10}
+        maxSizeMB={5}
+        placeholder="上传截图"
+      />
+    </div>
+  )
+})
 
 export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, initialData }: Props) {
   const router = useRouter()
@@ -781,21 +809,17 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         <h2 className="text-base font-semibold text-foreground">截图</h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
           {screenshots.map((src, i) => (
-            <div key={i} className="group relative">
-              <ImageUpload
-                value={src}
-                onChange={(url) => {
-                  if (!url) {
-                    setScreenshots((p) => p.filter((_, idx) => idx !== i))
-                  } else {
-                    setScreenshots((p) => p.map((s, idx) => idx === i ? url : s))
-                  }
-                }}
-                aspectRatio={16 / 10}
-                maxSizeMB={5}
-                placeholder="上传截图"
-              />
-            </div>
+            <ScreenshotItem
+              key={`screenshot-${i}-${src.slice(-8)}`}
+              src={src}
+              index={i}
+              onUpdate={(url) => {
+                setScreenshots((p) => p.map((s, idx) => idx === i ? url : s))
+              }}
+              onRemove={() => {
+                setScreenshots((p) => p.filter((_, idx) => idx !== i))
+              }}
+            />
           ))}
         </div>
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
