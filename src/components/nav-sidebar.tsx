@@ -8,6 +8,7 @@ import {
   Home,
   Layers,
   Tag,
+  Users,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -19,6 +20,7 @@ const NAV_SECTIONS = [
     items: [
       { icon: Home, label: "首页", href: "/" },
       { icon: Gamepad2, label: "游戏库", href: "/search" },
+      { icon: Users, label: "制作组图鉴", href: "/credits" },
       { icon: Layers, label: "精选合集", href: "/collections" },
       { icon: Tag, label: "标签浏览", href: "/search?showTags=1" },
     ],
