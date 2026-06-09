@@ -18,8 +18,8 @@ RUN npm config set registry https://registry.npmmirror.com
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install all dependencies
-RUN npm ci --no-audit --no-fund
+# Install all dependencies (--legacy-peer-deps 解决 @uploadthing/react 与 React 19 的冲突)
+RUN npm ci --no-audit --no-fund --legacy-peer-deps
 
 # Generate Prisma client
 COPY prisma ./prisma/
