@@ -28,7 +28,7 @@ interface Props {
 
 /** 截图项组件（memo 避免上传时全部重渲染导致闪屏） */
 const ScreenshotItem = memo(function ScreenshotItem({
-  src, index, onUpdate, onRemove,
+  src, index: _index, onUpdate, onRemove,
 }: {
   src: string
   index: number
