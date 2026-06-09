@@ -29,15 +29,6 @@ services:
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
     volumes:
       - uploads_data:/app/public/uploads
-    # 资源限制（根据服务器配置调整）
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
