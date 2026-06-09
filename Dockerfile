@@ -7,6 +7,9 @@ FROM node:20-bookworm-slim AS deps
 
 WORKDIR /app
 
+# 使用国内 Debian 镜像加速 apt 安装
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
+
 # Install system dependencies for sharp and prisma
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
@@ -31,6 +34,9 @@ RUN npx prisma generate
 FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
+
+# 使用国内 Debian 镜像
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
 
 # Install openssl for Prisma engine detection
 RUN apt-get update -qq && \
@@ -66,12 +72,13 @@ FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
-# Install runtime dependencies
+# 使用国内 Debian 镜像
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
+
+# Install runtime dependencies (只装 openssl，不需要 curl)
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends \
-      openssl \
-      curl \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends openssl && \
+    rm -rf /var/lib/apt/lists/*
 
 # 使用国内 npm 镜像
 RUN npm config set registry https://registry.npmmirror.com
@@ -119,9 +126,9 @@ ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+# Health check (使用 node 替代 curl，减少镜像体积)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 # Start application via entrypoint
 ENTRYPOINT ["/docker-entrypoint.sh"]
