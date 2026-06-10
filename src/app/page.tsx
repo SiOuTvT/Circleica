@@ -4,9 +4,10 @@ import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { logger } from "@/lib/logger"
-import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
 import { getSiteSetting } from "@/lib/site-settings"
+import Link from "next/link"
 import { Suspense } from "react"
 
 export const revalidate = 60
@@ -105,22 +106,36 @@ export default async function HomePage({
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
   let dbError = false
 
+  // 统计数据缓存 key（按日期和 nsfw 状态区分）
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const dateStr = today.toISOString().slice(0, 10)
+  const statsCacheKey = cacheKey("homepage:stats", dateStr, nsfw ? "1" : "0")
+
   try {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
     const weekAgo = new Date(today)
     weekAgo.setDate(weekAgo.getDate() - 7)
-    ;[total, todayCheckins, weekNewGames, announcements] = await Promise.all([
-      prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
-      prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
-      prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
-      prisma.announcement.findMany({
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: { id: true, title: true, content: true, imageUrl: true, link: true },
-      }),
-    ])
+
+    // 尝试从缓存获取统计数据（TTL 5 分钟）
+    const cached = await cache.get<{ total: number; todayCheckins: number; weekNewGames: number; announcements: typeof announcements }>(statsCacheKey)
+    if (cached) {
+      ;({ total, todayCheckins, weekNewGames } = cached)
+      announcements = cached.announcements
+    } else {
+      ;[total, todayCheckins, weekNewGames, announcements] = await Promise.all([
+        prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
+        prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
+        prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
+        prisma.announcement.findMany({
+          where: { isActive: true },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, title: true, content: true, imageUrl: true, link: true },
+        }),
+      ])
+      // 缓存 5 分钟
+      await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)
+    }
   } catch (error) {
     logger.db.error("[HomePage] Database query failed", error)
     dbError = true

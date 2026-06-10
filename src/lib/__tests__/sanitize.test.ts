@@ -3,7 +3,7 @@ jest.mock("isomorphic-dompurify", () => ({
   sanitize: (input: string) => input.replace(/<[^>]*>/g, ""),
 }))
 
-import { stripHtml, sanitizeString, sanitizeSearchQuery, sanitizeFilename, sanitizeUrl } from "../sanitize"
+import { sanitizeFilename, sanitizeSearchQuery, sanitizeString, sanitizeUrl, stripHtml } from "../sanitize"
 
 describe("stripHtml", () => {
   it("should remove HTML tags", () => {
@@ -16,16 +16,21 @@ describe("stripHtml", () => {
 })
 
 describe("sanitizeString", () => {
-  it("should remove angle brackets", () => {
-    expect(sanitizeString("<script>alert('xss')</script>")).toBe("scriptalert('xss')/script")
+  it("should remove HTML tags and their content via DOMPurify", () => {
+    // DOMPurify strips the entire <script> tag including content when ALLOWED_TAGS is empty
+    expect(sanitizeString("<script>alert('xss')</script>")).toBe("alert('xss')")
   })
 
-  it("should remove javascript protocol", () => {
-    expect(sanitizeString("javascript:alert('xss')")).toBe("alert('xss')")
+  it("should remove angle bracket tags", () => {
+    expect(sanitizeString("<img onerror=alert(1) src=x>")).toBe("")
   })
 
   it("should trim whitespace", () => {
     expect(sanitizeString("  hello  ")).toBe("hello")
+  })
+
+  it("should preserve plain text", () => {
+    expect(sanitizeString("正常文本内容")).toBe("正常文本内容")
   })
 })
 

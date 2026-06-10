@@ -3,33 +3,23 @@
 import { cn } from "@/lib/utils"
 import {
   Compass,
-  Gamepad2,
-  Heart,
   Home,
   Layers,
   Tag,
   Users,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 
 const NAV_SECTIONS = [
   {
     label: "发现",
     items: [
       { icon: Home, label: "首页", href: "/" },
-      { icon: Gamepad2, label: "游戏库", href: "/search" },
       { icon: Users, label: "制作组图鉴", href: "/credits" },
       { icon: Layers, label: "精选合集", href: "/collections" },
       { icon: Tag, label: "标签浏览", href: "/search?showTags=1" },
-    ],
-  },
-  {
-    label: "我的",
-    items: [
-      { icon: Heart, label: "我的收藏", href: "/favorites" },
-      { icon: Compass, label: "随机发现", href: "/random" },
     ],
   },
 ]
@@ -52,7 +42,24 @@ interface NavSidebarProps {
 
 export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [forumPosts, setForumPosts] = useState<ForumPost[]>([])
+  const [randomLoading, setRandomLoading] = useState(false)
+
+  const handleRandomDiscover = useCallback(async () => {
+    if (randomLoading) return
+    setRandomLoading(true)
+    try {
+      const res = await fetch("/api/games/random")
+      if (!res.ok) throw new Error("获取失败")
+      const data = await res.json()
+      router.push(`/games/${data.serialId}`)
+    } catch {
+      // 静默失败
+    } finally {
+      setRandomLoading(false)
+    }
+  }, [randomLoading, router])
 
   useEffect(() => {
     fetch("/api/forum/posts")
@@ -118,6 +125,23 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               })}
             </div>
           ))}
+
+          {/* 随机发现 */}
+          <div className="mb-2">
+            <button
+              onClick={handleRandomDiscover}
+              disabled={randomLoading}
+              className={cn(
+                "flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap w-full",
+                collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
+                "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
+              )}
+              title={collapsed ? "随机发现" : undefined}
+            >
+              <Compass className={cn("h-5 w-5 shrink-0", randomLoading && "animate-spin")} strokeWidth={2} />
+              {!collapsed && <span>{randomLoading ? "发现中..." : "随机发现"}</span>}
+            </button>
+          </div>
 
           {/* 社区动态 */}
           {forumPosts.length > 0 && !collapsed && (

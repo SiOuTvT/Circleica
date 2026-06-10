@@ -58,6 +58,17 @@ const nextConfig: NextConfig = {
   },
   // 关闭 StrictMode（开发环境双重渲染影响调试体验）
   reactStrictMode: false,
+
+  webpack(config, { isServer }) {
+    // 客户端构建时将 isomorphic-dompurify 替换为轻量 dompurify（~10KB vs ~500KB jsdom）
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "isomorphic-dompurify": "dompurify",
+      }
+    }
+    return config
+  },
 };
 
 export default withSentryConfig(nextConfig, {

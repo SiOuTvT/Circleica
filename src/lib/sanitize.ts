@@ -14,13 +14,15 @@ export function stripHtml(input: string): string {
 
 /**
  * 清理字符串，移除危险字符
+ * 使用 DOMPurify 替代正则替换，防止绕过（如编码攻击、大小写变体等）
  */
 export function sanitizeString(input: string): string {
-  return input
-    .replace(/[<>]/g, "") // 移除尖括号
-    .replace(/javascript:/gi, "") // 移除 javascript: 协议
-    .replace(/on\w+=/gi, "") // 移除事件处理器
-    .trim()
+  // 先用 DOMPurify 剥离所有 HTML 标签和危险内容
+  const cleaned = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+  })
+  return cleaned.trim()
 }
 
 /**

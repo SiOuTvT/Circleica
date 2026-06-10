@@ -103,23 +103,34 @@ const imgDomains = [
 
 #### 🟡 中优先级
 
-**3. `sanitizeString()` 可被绕过**
+**3. ~~`sanitizeString()` 可被绕过~~ ✅ 已修复**
 ```typescript
-// src/lib/sanitize.ts:18-24
+// src/lib/sanitize.ts — 已改用 DOMPurify 替代正则替换
 export function sanitizeString(input: string): string {
-  return input
-    .replace(/[<>]/g, "")
-    .replace(/javascript:/gi, "")
-    .replace(/on\w+=/gi, "")
-    .trim()
+  const cleaned = DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+  })
+  return cleaned.trim()
 }
 ```
-- 正则替换方式不如 DOMPurify 可靠，例如 `JaVaScRiPt:` 可能绕过大小写检测（虽然当前用了 `/gi`）
-- 建议：统一使用 `DOMPurify.sanitize()` 替代自定义正则
+- **状态**：已修复，使用 DOMPurify 确保所有 HTML 标签和危险内容被可靠清除
 
-**4. `isomorphic-dompurify` 客户端包体积**
-- `DOMPurify` 在客户端引入会增加约 20-30KB gzipped 包体积
-- 建议：仅在需要富文本渲染的组件中动态引入
+**4. ~~`isomorphic-dompurify` 客户端包体积~~ ✅ 已修复**
+```typescript
+// next.config.ts — 客户端构建时将 isomorphic-dompurify 别名为轻量 dompurify
+webpack(config, { isServer }) {
+  if (!isServer) {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "isomorphic-dompurify": "dompurify",
+    }
+  }
+  return config
+}
+```
+- **状态**：已修复，客户端使用原生 `dompurify`（~10KB）替代 `isomorphic-dompurify`（~500KB 含 jsdom）
+- 服务端仍使用 `isomorphic-dompurify`，所有现有 `import` 语句无需修改
 
 **5. 管理员删除用户未清理关联数据的软删除策略**
 - `DELETE /api/admin/users` 直接硬删除用户，但 Prisma cascade 会删除关联数据
@@ -151,13 +162,14 @@ export function sanitizeString(input: string): string {
 
 #### 🟡 中优先级
 
-**1. 首页服务器组件数据库查询过多**
+**1. ~~首页服务器组件数据库查询过多~~ ✅ 已修复**
 ```typescript
-// src/app/page.tsx — 单次请求执行 5+ 个数据库查询
-const [total, todayCheckins, weekNewGames, announcements] = await Promise.all([...])
-// + GameGridServer 中又有 3 个查询
+// src/app/page.tsx — 统计数据已缓存到 Redis（TTL 5 分钟）
+const cached = await cache.get(statsCacheKey)
+if (cached) { /* 命中缓存，跳过数据库查询 */ }
+else { /* 查询数据库并缓存结果 */ }
 ```
-- 建议：将统计数据缓存到 Redis，TTL 5 分钟
+- **状态**：已修复，统计查询（total、todayCheckins、weekNewGames、announcements）通过 Redis/内存缓存，5 分钟 TTL
 
 **2. 游戏详情页 N+1 查询风险**
 ```typescript
@@ -169,9 +181,8 @@ const relatedGames = await prisma.game.findMany({
 - 当标签数量多时，查询可能较慢
 - 建议：限制 `tagNames` 数量或使用 Redis 缓存相关游戏
 
-**3. `isomorphic-dompurify` 客户端引入**
-- 在 `game-detail-client.tsx` 和 `rich-text-content.tsx` 中直接 import
-- 建议：仅在服务端使用 DOMPurify，客户端使用轻量级方案
+**3. ~~`isomorphic-dompurify` 客户端引入~~ ✅ 已修复**
+- **状态**：已修复，通过 webpack alias 客户端自动使用轻量 `dompurify`（~10KB），详见中优先级 #4
 
 **4. Prisma 客户端单例**
 ```typescript
@@ -286,14 +297,14 @@ src/
 
 ### 🟡 中优先级（建议近期修复）
 
-| # | 问题 | 文件 | 影响 |
-|---|------|------|------|
-| 3 | `sanitizeString` 可被绕过 | `lib/sanitize.ts` | 潜在 XSS |
-| 4 | 首页查询过多 | `app/page.tsx` | 首页加载慢 |
-| 5 | DOMPurify 客户端体积 | 多个组件 | 包体积增大 |
-| 6 | 组件过大需拆分 | `game-detail-client.tsx` | 可维护性 |
-| 7 | 测试覆盖不足 | 全局 | 回归风险 |
-| 8 | `any` 类型使用 | `lib/validations/` | 类型安全 |
+| # | 问题 | 文件 | 影响 | 状态 |
+|---|------|------|------|------|
+| 3 | `sanitizeString` 可被绕过 | `lib/sanitize.ts` | 潜在 XSS | ✅ 已修复 |
+| 4 | 首页查询过多 | `app/page.tsx` | 首页加载慢 | ✅ 已修复 |
+| 5 | DOMPurify 客户端体积 | 多个组件 | 包体积增大 | ✅ 已修复 |
+| 6 | 组件过大需拆分 | `game-detail-client.tsx` | 可维护性 | ⚪ 待处理 |
+| 7 | 测试覆盖不足 | 全局 | 回归风险 | ⚪ 待处理 |
+| 8 | `any` 类型使用 | `lib/validations/` | 类型安全 | ⚪ 待处理 |
 
 ### 🟢 低优先性（建议长期改进）
 

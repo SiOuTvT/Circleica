@@ -214,11 +214,14 @@ model GameResource {
   runType         Json             @default("[]")
   /// JSON 数组：资源内容 ["本体", "存档", ...]
   resourceContent Json             @default("[]")
+  isReported      Boolean          @default(false)
+  reportedAt      DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   game            Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries         GameResourceEntry[]
+  reports         ResourceReport[]
 
   @@index([gameId])
   @@index([userId])
@@ -235,6 +238,19 @@ model GameResourceEntry {
   resource        GameResource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@index([resourceId])
+}
+
+model ResourceReport {
+  id         String       @id @default(cuid())
+  resourceId String
+  userId     String
+  createdAt  DateTime     @default(now())
+  resource   GameResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceId, userId])
+  @@index([resourceId])
+  @@index([userId])
 }
 
 model Favorite {
