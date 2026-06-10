@@ -186,19 +186,23 @@ model GameTag {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   gameId    String
   userId    String
   content   String
-  imageUrl  String   @default("")
-  likeCount Int      @default(0)
-  createdAt DateTime @default(now())
-  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl  String    @default("")
+  likeCount Int       @default(0)
+  parentId  String?
+  createdAt DateTime  @default(now())
+  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   Comment[] @relation("CommentReplies")
   likes     CommentLike[]
 
   @@index([gameId, createdAt])
   @@index([userId])
+  @@index([parentId])
 }
 
 model GameResource {
@@ -298,6 +302,7 @@ model GameReport {
   id        String   @id @default(cuid())
   gameId    String
   ip        String
+  reason    String   @default("")
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   @@unique([gameId, ip])

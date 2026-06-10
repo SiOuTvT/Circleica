@@ -44,7 +44,7 @@ export default async function AdminReportsPage({
       where,
       skip, take: limit,
       select: {
-        id: true, ip: true, createdAt: true,
+        id: true, ip: true, reason: true, createdAt: true,
         game: { select: { id: true, serialId: true, title: true, coverImage: true, isPublished: true } },
       },
     }),
@@ -149,6 +149,9 @@ export default async function AdminReportsPage({
                 </div>
                 <p className="text-xs text-muted-foreground">
                   举报IP: <span className="font-mono">{report.ip}</span> · {new Date(report.createdAt).toLocaleString("zh-CN")}
+                  {report.reason && (
+                    <> · <span className="text-destructive">{report.reason}</span></>
+                  )}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">

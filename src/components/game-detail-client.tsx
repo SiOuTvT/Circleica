@@ -1,13 +1,14 @@
 "use client"
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
-import { Building2, Calendar, Clock, ExternalLink, Gamepad2 } from "lucide-react"
+import { Building2, Calendar, Clock, ExternalLink, Flag, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { ArchiveCard } from "./game-detail/archive-card"
 import { IntroTab } from "./game-detail/intro-tab"
+import { ReportDialog } from "./game-detail/report-dialog"
 import { ResourceTab } from "./game-detail/resource-tab"
 
 /** 评论 */
@@ -100,6 +101,31 @@ export default function GameDetailClient({
   const [mobileArchiveOpen, setMobileArchiveOpen] = useState(true)
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // 举报
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportSubmitting, setReportSubmitting] = useState(false)
+  const handleReport = useCallback(async (reason: string) => {
+    if (!reason || reportSubmitting) return
+    setReportSubmitting(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      })
+      if (res.ok) {
+        toast.success("举报已提交，感谢反馈")
+        setReportOpen(false)
+      } else {
+        toast.error("举报失败，请稍后重试")
+      }
+    } catch {
+      toast.error("举报失败，请稍后重试")
+    } finally {
+      setReportSubmitting(false)
+    }
+  }, [gameId, reportSubmitting])
 
   // Sliding block animation
   useEffect(() => {
@@ -355,7 +381,27 @@ export default function GameDetailClient({
             )}
           </div>
         </div>
+
+        {/* 举报 */}
+        {isLoggedIn && (
+          <div className="mt-5 pt-4 border-t border-border">
+            <button
+              onClick={() => setReportOpen(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <Flag className="h-3.5 w-3.5" strokeWidth={2} />
+              举报游戏
+            </button>
+          </div>
+        )}
       </div>
+
+      <ReportDialog
+        show={reportOpen}
+        onClose={() => setReportOpen(false)}
+        reportSubmitting={reportSubmitting}
+        onSubmit={handleReport}
+      />
     </div>
   )
 }
