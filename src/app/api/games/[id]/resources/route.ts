@@ -48,8 +48,8 @@ export async function GET(
       username: r.user.username,
       userAvatar: r.user.composedAvatarUrl || r.user.avatar,
       userResourceCount: countMap.get(r.userId) || 0,
-      isReported: r.isReported,
-      isReportedByMe: currentUserId ? (r as { reports?: { id: string }[] }).reports?.length > 0 : false,
+      isReported: Boolean(currentUserId && Array.isArray((r as unknown as { reports?: { id: string }[] }).reports) && (r as unknown as { reports?: { id: string }[] }).reports!.length > 0),
+      isReportedByMe: Boolean(currentUserId && Array.isArray((r as unknown as { reports?: { id: string }[] }).reports) && (r as unknown as { reports?: { id: string }[] }).reports!.length > 0),
       entries: r.entries.map(e => ({
         id: e.id,
         url: e.url,

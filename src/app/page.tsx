@@ -103,7 +103,7 @@ export default async function HomePage({
   let total = 0
   let todayCheckins = 0
   let weekNewGames = 0
-  let announcements: { id: string; title: string; content: string; imageUrl: string; link: string }[] = []
+  let announcements: { id: string; title: string; content: string; imageUrl: string; link: string; createdAt: string; authorName: string; authorAvatar: string }[] = []
   let dbError = false
 
   // 统计数据缓存 key（按日期和 nsfw 状态区分）
@@ -130,8 +130,8 @@ export default async function HomePage({
           where: { isActive: true },
           orderBy: { createdAt: "desc" },
           take: 5,
-          select: { id: true, title: true, content: true, imageUrl: true, link: true },
-        }),
+          select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },
+        }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
       ])
       // 缓存 5 分钟
       await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)

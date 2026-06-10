@@ -17,6 +17,13 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const ann = await prisma.announcement.findFirst({ where: { id, isActive: true } })
   if (!ann) notFound()
 
+  const createdDate = new Date(ann.createdAt)
+  const updatedDate = new Date(ann.updatedAt)
+  const isEdited = createdDate.getTime() !== updatedDate.getTime()
+
+  const formatDate = (d: Date) =>
+    d.toLocaleString("zh-CN", { year: "numeric", month: "long", day: "numeric" })
+
   return (
     <div className="w-full">
       <Link href="/" className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -37,9 +44,16 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       )}
 
       <h1 className="text-2xl font-bold leading-tight text-foreground">{ann.title}</h1>
-      <p className="mt-2 text-xs text-muted-foreground">
-        {new Date(ann.createdAt).toLocaleString("zh-CN", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-      </p>
+      <div className="mt-2 flex flex-col gap-0.5">
+        <p className="text-xs text-muted-foreground">
+          发布于：{formatDate(createdDate)}
+        </p>
+        {isEdited && (
+          <p className="text-xs text-muted-foreground/70">
+            最后更新：{formatDate(updatedDate)}
+          </p>
+        )}
+      </div>
 
       <div className="mt-6 text-sm leading-relaxed text-muted-foreground">
         <RichTextContent html={ann.content} />

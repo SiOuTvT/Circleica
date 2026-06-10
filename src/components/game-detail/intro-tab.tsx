@@ -3,33 +3,66 @@
 import DOMPurify from "isomorphic-dompurify"
 import Image from "next/image"
 
-/* ─── 制作人员 ─── */
-type Creator = {
-  id: string
-  name: string
-  nameJa: string | null
-  avatar: string | null
-  role: string
-}
-
-interface IntroTabProps {
-  description: string | null
-  creators?: Creator[]
-  roleLabels?: Record<string, string>
-}
-
-export function IntroTab({ description, creators = [], roleLabels }: IntroTabProps) {
+export function IntroTab({
+  description,
+  allDescriptions,
+  creators,
+}: {
+  description: string
+  allDescriptions?: { lang: string; label: string; text: string }[]
+  creators: {
+    id: string
+    role: string
+    name: string
+    avatar?: string | null
+    nameJa?: string | null
+    aliases?: string[]
+  }[]
+}) {
   return (
-    <div className="space-y-6">
-      {/* 游戏简介 */}
-      {description ? (
+    <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
+      {allDescriptions && allDescriptions.length > 0 ? (
+        <div className="space-y-5">
+          {allDescriptions.map((d, idx) => (
+            <div key={d.lang}>
+              {allDescriptions.length > 1 && (
+                <div className="mb-2">
+                  <span
+                    className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-medium"
+                    style={{
+                      background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.1)",
+                      color: "var(--muted-foreground)",
+                    }}
+                  >
+                    {d.label}
+                  </span>
+                </div>
+              )}
+              <div
+                className="prose prose-invert max-w-none leading-relaxed"
+                style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(d.text, {
+                    ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
+                    ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
+                    ALLOW_DATA_ATTR: false,
+                  }),
+                }}
+              />
+              {idx < allDescriptions.length - 1 && (
+                <div className="mt-4 border-t border-border/50" />
+              )}
+            </div>
+          ))}
+        </div>
+      ) : description ? (
         <div
-          className="prose prose-sm prose-invert max-w-none text-muted-foreground leading-relaxed"
-          style={{ fontSize: "14px", lineHeight: "1.85" }}
+          className="prose prose-invert max-w-none leading-relaxed"
+          style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(description, {
-              ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span", "table", "thead", "tbody", "tr", "th", "td"],
-              ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class", "style", "width", "height"],
+              ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
+              ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
               ALLOW_DATA_ATTR: false,
             }),
           }}
@@ -40,7 +73,7 @@ export function IntroTab({ description, creators = [], roleLabels }: IntroTabPro
 
       {/* 制作人员网格 */}
       {creators.length > 0 && (
-        <div>
+        <div className="mt-6">
           <h3 className="mb-3 text-sm font-semibold text-foreground">制作人员</h3>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {creators.map((c) => (
@@ -66,7 +99,7 @@ export function IntroTab({ description, creators = [], roleLabels }: IntroTabPro
                 <div className="min-w-0">
                   <p className="truncate text-xs font-medium text-foreground">{c.nameJa || c.name}</p>
                   <p className="truncate text-[10px] text-muted-foreground">
-                    {roleLabels?.[c.role] ?? c.role}
+                    {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
                   </p>
                 </div>
               </a>

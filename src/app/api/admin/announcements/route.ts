@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
       imageUrl: true,
       link: true,
       createdAt: true,
+      authorName: true,
+      authorAvatar: true,
       ...(isAdmin ? { sortOrder: true, isActive: true } : {}),
     }
   })
@@ -31,7 +33,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  const session = await getAdminSession()
+  if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
 
   let title: string | undefined, content: string | undefined, imageUrl: string | undefined, link: string | undefined
   try {
@@ -44,8 +47,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
   if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
+
+  // 从管理员 session 获取发布者信息
+  const adminUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { username: true, avatar: true },
+  })
+
   const ann = await prisma.announcement.create({
-    data: { title: title.trim(), content: content.trim(), imageUrl: imageUrl?.trim() ?? "", link: link?.trim() ?? "" },
+    data: {
+      title: title.trim(),
+      content: content.trim(),
+      imageUrl: imageUrl?.trim() ?? "",
+      link: link?.trim() ?? "",
+      authorName: adminUser?.username ?? "",
+      authorAvatar: adminUser?.avatar ?? "",
+    },
   })
   return NextResponse.json(ann, { status: 201 })
 }
