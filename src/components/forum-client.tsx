@@ -3,20 +3,27 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
-import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
+import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Plus, Search, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
 import { RichTextEditor } from "./rich-text-editor-wrapper"
 
 export interface User { id: string; username: string; avatar: string }
-export interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
-export interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; createdAt: string; user: User; comments?: Comment[] }
+export interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
+export interface Post { id: string; title: string; content: string; imageUrl: string; likeCount: number; commentCount: number; isSolved: boolean; isPinned: boolean; isLocked: boolean; category: string; viewCount: number; updatedAt: string; createdAt: string; user: User; comments?: Comment[] }
 
-// 表情列表
+const CATEGORIES = [
+  { value: "discussion", label: "讨论", icon: "💬" },
+  { value: "help", label: "求档", icon: "🔍" },
+  { value: "resource", label: "资源", icon: "📦" },
+  { value: "offtopic", label: "杂谈", icon: "☕" },
+]
+const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(CATEGORIES.map(c => [c.value, `${c.icon} ${c.label}`]))
+
 const EMOJI_LIST = [
   "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
   "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
@@ -42,11 +49,16 @@ function fmtDate(d: string) {
 export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, totalPages: initialTotalPages }: {
   initialPosts: Post[]; isLoggedIn: boolean; currentUser?: User | null; isAdmin?: boolean; totalPages?: number
 }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [posts, setPosts] = useState(initialPosts)
   const [activePost, setActivePost] = useState<(Post & { comments: Comment[] }) | null>(null)
   const [showNew, setShowNew] = useState(false)
   const [newTitle, setNewTitle] = useState("")
   const [newContent, setNewContent] = useState("")
+  const [newCategory, setNewCategory] = useState("discussion")
   const [submitting, setSubmitting] = useState(false)
   const [loadingPost, setLoadingPost] = useState(false)
   const [commentText, setCommentText] = useState("")
@@ -62,8 +74,51 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   const [loadingMore, setLoadingMore] = useState(false)
   const commentInputRef = useRef<HTMLInputElement>(null)
 
-  const hasAnyModal = confirmOpen || showNew || !!activePost
+  // Search & filter
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
+  const [activeCategory, setActiveCategory] = useState(searchParams.get("category") || "")
+
+  // Edit states
+  const [editingPost, setEditingPost] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [editContent, setEditContent] = useState("")
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const [editingComment, setEditingComment] = useState<string | null>(null)
+  const [editCommentText, setEditCommentText] = useState("")
+
+  const hasAnyModal = confirmOpen || showNew || !!activePost || !!editingPost
   useBodyScrollLock(hasAnyModal)
+
+  // Fetch posts with filters
+  const fetchPosts = useCallback(async (page: number, reset: boolean, category?: string, search?: string) => {
+    const params = new URLSearchParams()
+    params.set("page", String(page))
+    params.set("limit", "20")
+    if (category) params.set("category", category)
+    if (search) params.set("search", search)
+
+    try {
+      const res = await fetch(`/api/forum/posts?${params}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (reset) {
+          setPosts(data.posts)
+        } else {
+          setPosts(prev => [...prev, ...data.posts])
+        }
+        setCurrentPage(data.page)
+        setTotalPages(data.totalPages)
+      }
+    } catch (error) {
+      logger.forum.error("Failed to fetch posts", error)
+    }
+  }, [])
+
+  // Apply filter changes
+  useEffect(() => {
+    fetchPosts(1, true, activeCategory, searchQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory, searchQuery])
 
   const openPost = useCallback(async (id: string) => {
     setLoadingPost(true)
@@ -77,7 +132,12 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
     setLoadingMore(true)
     try {
       const nextPage = currentPage + 1
-      const res = await fetch(`/api/forum/posts?page=${nextPage}&limit=20`)
+      const params = new URLSearchParams()
+      params.set("page", String(nextPage))
+      params.set("limit", "20")
+      if (activeCategory) params.set("category", activeCategory)
+      if (searchQuery) params.set("search", searchQuery)
+      const res = await fetch(`/api/forum/posts?${params}`)
       if (res.ok) {
         const data = await res.json()
         setPosts(prev => [...prev, ...data.posts])
@@ -91,13 +151,10 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
     }
   }
 
-  // 从 URL 参数自动打开帖子（侧边栏跳转）
-  const searchParams = useSearchParams()
+  // URL param auto-open
   useEffect(() => {
     const postId = searchParams.get("post")
-    if (postId && !activePost) {
-      openPost(postId)
-    }
+    if (postId && !activePost) openPost(postId)
   }, [searchParams, activePost, openPost])
 
   async function likePost(id: string) {
@@ -163,10 +220,58 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
     setSubmitting(true)
     const fd = new FormData()
     fd.append("title", newTitle.trim()); fd.append("content", newContent.trim())
+    fd.append("category", newCategory)
     const res  = await fetch("/api/forum/posts", { method: "POST", body: fd })
     const data = await res.json()
     if (res.ok) { setPosts(p => [data, ...p]); setShowNew(false); setNewTitle(""); setNewContent("") }
     setSubmitting(false)
+  }
+
+  // Edit post
+  async function submitEditPost(id: string) {
+    if (!editTitle.trim() || !editContent.trim()) return
+    setEditSubmitting(true)
+    try {
+      const res = await fetch(`/api/forum/posts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setPosts(p => p.map(x => x.id === id ? { ...x, title: updated.title, content: updated.content, updatedAt: updated.updatedAt } : x))
+        if (activePost?.id === id) setActivePost(p => p && { ...p, title: updated.title, content: updated.content, updatedAt: updated.updatedAt })
+        setEditingPost(null)
+      }
+    } finally {
+      setEditSubmitting(false)
+    }
+  }
+
+  function startEditPost(post: Post) {
+    setEditingPost(post.id)
+    setEditTitle(post.title)
+    setEditContent(post.content)
+  }
+
+  // Edit comment
+  async function submitEditComment(commentId: string) {
+    if (!editCommentText.trim()) return
+    try {
+      const res = await fetch(`/api/forum/comments/${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: editCommentText.trim() }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setActivePost(p => p && {
+          ...p,
+          comments: p.comments.map(c => c.id === commentId ? { ...c, content: updated.content, updatedAt: updated.updatedAt } : c),
+        })
+        setEditingComment(null)
+      }
+    } catch { /* ignore */ }
   }
 
   async function submitComment(e: React.FormEvent) {
@@ -229,6 +334,42 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         )}
       </div>
 
+      {/* 搜索 + 分类标签 */}
+      <div className="mb-4 space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="搜索帖子标题或内容…"
+            className="w-full rounded-xl bg-card pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+          />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setActiveCategory("")}
+            className={cn(
+              "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+              !activeCategory ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
+            )}
+          >
+            全部
+          </button>
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.value}
+              onClick={() => setActiveCategory(cat.value)}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+                activeCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
+              )}
+            >
+              {cat.icon} {cat.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-3">
         {posts.map(post => (
           <Link key={post.id} href={`/forum/${post.id}`}
@@ -238,11 +379,23 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               <span className="text-sm text-muted-foreground">{post.user.username}</span>
               <span className="text-xs text-muted-foreground/60">·</span>
               <span className="text-xs text-muted-foreground/60">{fmtDate(post.createdAt)}</span>
+              {post.updatedAt !== post.createdAt && (
+                <span className="text-[10px] text-muted-foreground/50">(已编辑)</span>
+              )}
+              <span className={cn(
+                "ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium",
+                post.category === "discussion" ? "bg-blue-500/10 text-blue-400" :
+                post.category === "help" ? "bg-amber-500/10 text-amber-400" :
+                post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :
+                "bg-purple-500/10 text-purple-400"
+              )}>{CATEGORY_LABEL[post.category] || post.category}</span>
             </div>
             <p className="mt-3 line-clamp-2 text-base font-semibold text-foreground leading-relaxed">{post.title}</p>
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}</span>
               <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />{post.commentCount}</span>
+              {post.isPinned && <span className="text-amber-400">📌 置顶</span>}
+              {post.isLocked && <span className="text-red-400">🔒 已锁定</span>}
             </div>
           </Link>
         ))}
@@ -282,7 +435,15 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               onDeletePost={() => deletePost(activePost.id)}
               onDeleteComment={deleteComment}
               onCommentImage={handleCommentImage}
-              onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }} />
+              onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }}
+              onStartEditPost={() => startEditPost(activePost)}
+              editingComment={editingComment}
+              editCommentText={editCommentText}
+              setEditCommentText={setEditCommentText}
+              onStartEditComment={(id, text) => { setEditingComment(id); setEditCommentText(text) }}
+              onCancelEditComment={() => setEditingComment(null)}
+              onSubmitEditComment={submitEditComment}
+            />
           </div>
         </div>
       )}
@@ -318,16 +479,27 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
               </button>
             </div>
             <form onSubmit={submitPost} className="space-y-4">
+              <div className="flex gap-2">
+                {CATEGORIES.map(cat => (
+                  <button key={cat.value} type="button"
+                    onClick={() => setNewCategory(cat.value)}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+                      newCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-secondary text-muted-foreground ring-border"
+                    )}
+                  >{cat.icon} {cat.label}</button>
+                ))}
+              </div>
               <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
                 placeholder="标题（如：求《xxx》下载地址）" maxLength={100} required
                 className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
-              
+
               <RichTextEditor
                 content={newContent}
                 onChange={setNewContent}
                 placeholder="详细描述你的需求… 支持富文本格式和图片上传"
               />
-              
+
               <button type="submit" disabled={submitting}
                 className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
                 {submitting ? "发布中…" : "发 布"}
@@ -336,11 +508,41 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
           </div>
         </div>
       )}
+
+      {/* 编辑帖子弹窗 */}
+      {editingPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-border">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-foreground">编辑帖子</h2>
+              <button onClick={() => setEditingPost(null)} aria-label="关闭" className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
+                placeholder="标题" maxLength={100} required
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all" />
+              <RichTextEditor content={editContent} onChange={setEditContent} placeholder="内容" />
+              <div className="flex gap-3">
+                <button onClick={() => setEditingPost(null)}
+                  className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
+                  取消
+                </button>
+                <button onClick={() => submitEditPost(editingPost)} disabled={editSubmitting}
+                  className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
+                  {editSubmitting ? "保存中…" : "保存"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, setCommentText, commentImagePreview, showCommentEmoji, setShowCommentEmoji, commentInputRef, onInsertEmoji, onLikePost, onLikeComment, onSubmitComment, onToggleSolve, onDeletePost, onDeleteComment, onCommentImage, onRemoveCommentImage }: {
+function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, setCommentText, commentImagePreview, showCommentEmoji, setShowCommentEmoji, commentInputRef, onInsertEmoji, onLikePost, onLikeComment, onSubmitComment, onToggleSolve, onDeletePost, onDeleteComment, onCommentImage, onRemoveCommentImage, onStartEditPost, editingComment, editCommentText, setEditCommentText, onStartEditComment, onCancelEditComment, onSubmitEditComment }: {
   post: Post & { comments: Comment[] }
   isLoggedIn: boolean
   currentUserId?: string
@@ -360,6 +562,13 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
   onDeleteComment: (id: string) => void
   onCommentImage: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRemoveCommentImage: () => void
+  onStartEditPost: () => void
+  editingComment: string | null
+  editCommentText: string
+  setEditCommentText: (v: string) => void
+  onStartEditComment: (id: string, text: string) => void
+  onCancelEditComment: () => void
+  onSubmitEditComment: (id: string) => void
 }) {
   const isAuthor = currentUserId === post.user.id
   const commentFileRef = useRef<HTMLInputElement>(null)
@@ -371,7 +580,10 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
           <Avatar user={post.user} size={8} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">{post.user.username}</p>
-            <p className="text-[10px] text-muted-foreground">{fmtDate(post.createdAt)}</p>
+            <p className="text-[10px] text-muted-foreground">
+              {fmtDate(post.createdAt)}
+              {post.updatedAt !== post.createdAt && " · 已编辑"}
+            </p>
           </div>
           {post.isSolved && (
             <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500 ring-1 ring-emerald-500/20">
@@ -381,9 +593,9 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
         </div>
 
         <h2 className="mb-3 text-base font-bold text-foreground">{post.title}</h2>
-        
+
         <RichTextContent html={post.content} />
-        
+
         {post.imageUrl && <Image src={post.imageUrl} alt={post.title} width={480} height={320} className="mt-3 max-w-full rounded-xl object-cover" sizes="(max-width: 640px) 100vw, 480px" />}
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -392,16 +604,24 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
             <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
           </button>
           {isAuthor && (
-            <button onClick={onToggleSolve}
-              className={cn(
-                "flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
-                post.isSolved
-                  ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
-                  : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
-              )}>
-              <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-              {post.isSolved ? "取消已解决" : "标记已解决"}
-            </button>
+            <>
+              <button onClick={onToggleSolve}
+                className={cn(
+                  "flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
+                  post.isSolved
+                    ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
+                    : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
+                )}>
+                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                {post.isSolved ? "取消已解决" : "标记已解决"}
+              </button>
+              {!post.isLocked && (
+                <button onClick={onStartEditPost}
+                  className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground">
+                  <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />编辑
+                </button>
+              )}
+            </>
           )}
           {(isAuthor || isAdmin) && (
             <button onClick={onDeletePost}
@@ -423,8 +643,22 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-xs font-medium text-foreground">{c.user.username}</span>
                   <span className="text-[10px] text-muted-foreground">{fmtDate(c.createdAt)}</span>
+                  {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[10px] text-muted-foreground/50">已编辑</span>}
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground break-words">{c.content}</p>
+                {editingComment === c.id ? (
+                  <div className="space-y-2">
+                    <input value={editCommentText} onChange={e => setEditCommentText(e.target.value)}
+                      className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
+                    <div className="flex gap-2">
+                      <button onClick={() => onSubmitEditComment(c.id)}
+                        className="rounded-lg bg-primary px-2.5 py-1 text-[10px] font-medium text-primary-foreground hover:opacity-90">保存</button>
+                      <button onClick={onCancelEditComment}
+                        className="rounded-lg bg-secondary px-2.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground">取消</button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs leading-relaxed text-muted-foreground break-words">{c.content}</p>
+                )}
                 {c.imageUrl && (
                   <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-1.5 block max-w-[200px]">
                     <Image src={c.imageUrl} alt="评论图片" width={200} height={128} className="rounded-lg object-cover ring-1 ring-border max-h-32 hover:ring-border transition-all" unoptimized />
@@ -435,6 +669,12 @@ function PostDetail({ post, isLoggedIn, currentUserId, isAdmin, commentText, set
                     className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-primary disabled:opacity-40">
                     <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                   </button>
+                  {currentUserId === c.user.id && editingComment !== c.id && (
+                    <button onClick={() => onStartEditComment(c.id, c.content)}
+                      className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
+                      <Edit3 className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
+                  )}
                   {(currentUserId === c.user.id || isAdmin) && (
                     <button onClick={() => onDeleteComment(c.id)}
                       className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-red-400">

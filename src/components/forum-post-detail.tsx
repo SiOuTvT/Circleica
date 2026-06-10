@@ -1,15 +1,16 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { CheckCircle2, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
+import { CheckCircle2, Edit3, Heart, Image as ImageIcon, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
 import { useEffect, useRef, useState } from "react"
 import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
+import { RichTextEditor } from "./rich-text-editor-wrapper"
 
 interface User { id: string; username: string; avatar: string }
-interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; user: User }
+interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
 interface PostData {
   id: string; title: string; content: string; imageUrl: string
   likeCount: number; commentCount: number; isSolved: boolean
@@ -61,6 +62,14 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
   const commentInputRef = useRef<HTMLInputElement>(null)
   const commentFileRef = useRef<HTMLInputElement>(null)
   const isAuthor = currentUserId === post.user.id
+
+  // Edit states
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(post.title)
+  const [editContent, setEditContent] = useState(post.content)
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const [editingComment, setEditingComment] = useState<string | null>(null)
+  const [editCommentText, setEditCommentText] = useState("")
 
   // 注入面包屑动态标签
   const { setDynamicLabel } = useBreadcrumb()
@@ -240,14 +249,20 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
           </button>
           <div className="ml-auto flex items-center gap-1">
             {isAuthor && (
-              <button onClick={toggleSolve}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
-                  post.isSolved ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
-                )}>
-                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                {post.isSolved ? "已解决" : "标记解决"}
-              </button>
+              <>
+                <button onClick={toggleSolve}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
+                    post.isSolved ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
+                  )}>
+                  <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  {post.isSolved ? "已解决" : "标记解决"}
+                </button>
+                <button onClick={() => { setEditing(true); setEditTitle(post.title); setEditContent(post.content) }}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground hover:bg-secondary">
+                  <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />编辑
+                </button>
+              </>
             )}
             {(isAuthor || isAdmin) && (
               <button onClick={confirmDeletePost}
@@ -279,10 +294,32 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.user.username}</span>
                     <span className="text-xs text-muted-foreground/50">{fmtDate(c.createdAt)}</span>
+                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[10px] text-muted-foreground/40">已编辑</span>}
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed break-words">
-                    {renderCommentContent(c.content)}
-                  </p>
+                  {editingComment === c.id ? (
+                    <div className="space-y-2 mt-1">
+                      <input value={editCommentText} onChange={e => setEditCommentText(e.target.value)}
+                        className="w-full rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
+                      <div className="flex gap-2">
+                        <button onClick={async () => {
+                          if (!editCommentText.trim()) return
+                          const res = await fetch(`/api/forum/comments/${c.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: editCommentText.trim() }) })
+                          if (res.ok) {
+                            const data = await res.json()
+                            setComments(cs => cs.map(x => x.id === c.id ? { ...x, content: data.content, updatedAt: data.updatedAt } : x))
+                            setEditingComment(null)
+                          }
+                        }}
+                          className="rounded-lg bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:opacity-90">保存</button>
+                        <button onClick={() => setEditingComment(null)}
+                          className="rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground">取消</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed break-words">
+                      {renderCommentContent(c.content)}
+                    </p>
+                  )}
                   {c.imageUrl && (
                     <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-[240px]">
                       <NextImage src={c.imageUrl} alt="评论图片" width={240} height={160}
@@ -298,6 +335,12 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500 px-2 py-1 rounded transition-colors hover:bg-red-500/5 disabled:opacity-40">
                       <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                     </button>
+                    {currentUserId === c.user.id && (
+                      <button onClick={() => { setEditingComment(c.id); setEditCommentText(c.content) }}
+                        className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors hover:bg-secondary">
+                        <Edit3 className="h-3 w-3" strokeWidth={1.5} />
+                      </button>
+                    )}
                     {(currentUserId === c.user.id || isAdmin) && (
                       <button onClick={() => confirmDeleteComment(c.id)}
                         className="text-xs text-muted-foreground hover:text-red-500 px-2 py-1 rounded transition-colors hover:bg-red-500/5">
@@ -396,6 +439,51 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       {imageError && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-foreground/90 px-5 py-2.5 text-sm text-background shadow-xl backdrop-blur-sm">
           {imageError}
+        </div>
+      )}
+
+      {/* 编辑帖子弹窗 */}
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-border">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-foreground">编辑帖子</h2>
+              <button onClick={() => setEditing(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
+                placeholder="标题" maxLength={100}
+                className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
+              <RichTextEditor content={editContent} onChange={setEditContent} placeholder="内容" />
+              <div className="flex gap-3">
+                <button onClick={() => setEditing(false)}
+                  className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border hover:text-foreground">
+                  取消
+                </button>
+                <button onClick={async () => {
+                  if (!editTitle.trim() || !editContent.trim()) return
+                  setEditSubmitting(true)
+                  const res = await fetch(`/api/forum/posts/${post.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
+                  })
+                  if (res.ok) {
+                    const data = await res.json()
+                    setPost(p => ({ ...p, title: data.title, content: data.content }))
+                    setEditing(false)
+                  }
+                  setEditSubmitting(false)
+                }}
+                  disabled={editSubmitting}
+                  className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                  {editSubmitting ? "保存中…" : "保存"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </>

@@ -2,6 +2,7 @@
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
+import { apiGet } from "@/lib/api-client"
 import { Calendar, Eye, FolderHeart, Gamepad2, Lock, MessageSquare, Plus, Trash2, Unlock, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -23,11 +24,13 @@ interface CommentLite {
   game: { id: string; serialId?: number; title: string }
 }
 
-interface CollectionFolder {
+interface CollectionData {
   id: string
   name: string
-  isPublic: boolean
-  games: GameLite[]
+  description: string
+  isDefault: boolean
+  sortOrder: number
+  favorites: { game: GameLite }[]
 }
 
 interface Props {
@@ -47,85 +50,62 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
 export function ProfileContentTabs({ favGames, playStatusGames, comments }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
 
-  // 构建收藏夹（默认一个 + localStorage 持久化自定义文件夹）
-  const STORAGE_KEY = "profile-collection-folders"
-
-  const defaultFolder: CollectionFolder = {
-    id: "default",
-    name: "默认收藏夹",
-    isPublic: true,
-    games: favGames,
-  }
-
-  const loadFolders = (): CollectionFolder[] => {
-    if (typeof window === "undefined") return [defaultFolder]
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const saved = JSON.parse(raw) as Omit<CollectionFolder, "games">[]
-        // 合并：默认文件夹 + localStorage 中的自定义文件夹（不含游戏数据，仅结构）
-        const customFolders = saved.filter(f => f.id !== "default").map(f => ({
-          ...f,
-          games: [] as GameLite[],
-        }))
-        return [defaultFolder, ...customFolders]
-      }
-    } catch {}
-    return [defaultFolder]
-  }
-
-  const [folders, setFolders] = useState<CollectionFolder[]>([defaultFolder])
-  const [modalFolder, setModalFolder] = useState<CollectionFolder | null>(null)
+  // Collections loaded from DB API
+  const [collections, setCollections] = useState<CollectionData[]>([])
+  const [collectionsLoading, setCollectionsLoading] = useState(true)
   const [showCreateFolder, setShowCreateFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState("")
-  const [newFolderPublic, setNewFolderPublic] = useState(true)
+  const [modalCollection, setModalCollection] = useState<CollectionData | null>(null)
 
-  // 客户端加载 localStorage
+  // Load collections from API
+  const loadCollections = useCallback(async () => {
+    try {
+      const data = await apiGet<{ collections: CollectionData[]; ungroupedCount: number; totalFavorites: number }>("/api/collections")
+      setCollections(data.collections ?? [])
+    } catch {
+      // fallback: show default folder with all favGames
+    } finally {
+      setCollectionsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
-    setFolders(loadFolders())
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    loadCollections()
+  }, [loadCollections])
 
-  // 保存到 localStorage（排除默认文件夹的 games 数据）
-  const persistFolders = useCallback((updated: CollectionFolder[]) => {
-    const toSave = updated.filter(f => f.id !== "default").map(({ id, name, isPublic }) => ({ id, name, isPublic }))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
-  }, [])
-
-  const handleCreateFolder = () => {
+  const handleCreateCollection = async () => {
     const name = newFolderName.trim()
     if (!name) return
-    const newFolder: CollectionFolder = {
-      id: `folder-${Date.now()}`,
-      name,
-      isPublic: newFolderPublic,
-      games: [],
-    }
-    const updated = [...folders, newFolder]
-    setFolders(updated)
-    persistFolders(updated)
-    setNewFolderName("")
-    setNewFolderPublic(true)
-    setShowCreateFolder(false)
+    try {
+      const res = await fetch("/api/collections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      })
+      if (res.ok) {
+        await loadCollections()
+        setNewFolderName("")
+        setShowCreateFolder(false)
+      }
+    } catch { /* ignore */ }
   }
 
-  const handleToggleVisibility = (folderId: string) => {
-    const updated = folders.map(f =>
-      f.id === folderId ? { ...f, isPublic: !f.isPublic } : f
-    )
-    setFolders(updated)
-    persistFolders(updated)
+  const handleDeleteCollection = async (id: string) => {
+    try {
+      await fetch(`/api/collections/${id}`, { method: "DELETE" })
+      await loadCollections()
+    } catch { /* ignore */ }
   }
 
-  const handleDeleteFolder = (folderId: string) => {
-    if (folderId === "default") return
-    const updated = folders.filter(f => f.id !== folderId)
-    setFolders(updated)
-    persistFolders(updated)
-  }
+  // Build display: default folder + DB collections
+  const defaultFolderGames = favGames.filter(g => {
+    // Game is in default if not in any DB collection
+    const inCollection = collections.some(c => c.favorites?.some(f => f.game.id === g.id))
+    return !inCollection
+  })
 
-  // 弹窗打开时锁定背景滚动
-  useBodyScrollLock(!!modalFolder)
+  // Modal
+  useBodyScrollLock(!!modalCollection)
 
   return (
     <div className="flex flex-col">
@@ -168,17 +148,17 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
       <div className="p-4 sm:p-5 profile-scroll-area">
         {active === "favorites" && (
           <FavoritesTab
-            folders={folders}
-            onOpenFolder={setModalFolder}
+            defaultFolderGames={defaultFolderGames}
+            collections={collections}
+            favGames={favGames}
+            onOpenFolder={(col) => setModalCollection(col)}
             showCreateFolder={showCreateFolder}
             setShowCreateFolder={setShowCreateFolder}
             newFolderName={newFolderName}
             setNewFolderName={setNewFolderName}
-            newFolderPublic={newFolderPublic}
-            setNewFolderPublic={setNewFolderPublic}
-            onCreateFolder={handleCreateFolder}
-            onToggleVisibility={handleToggleVisibility}
-            onDeleteFolder={handleDeleteFolder}
+            onCreateFolder={handleCreateCollection}
+            onDeleteFolder={handleDeleteCollection}
+            loading={collectionsLoading}
           />
         )}
         {active === "comments" && <CommentsTab comments={comments} />}
@@ -186,8 +166,12 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
       </div>
 
       {/* 收藏夹详情弹窗 */}
-      {modalFolder && (
-        <FolderModal folder={modalFolder} onClose={() => setModalFolder(null)} />
+      {modalCollection && (
+        <FolderModal
+          name={modalCollection.name}
+          games={modalCollection.favorites?.map(f => f.game) ?? []}
+          onClose={() => setModalCollection(null)}
+        />
       )}
     </div>
   )
@@ -195,29 +179,29 @@ export function ProfileContentTabs({ favGames, playStatusGames, comments }: Prop
 
 /* ==================== 收藏夹 Tab ==================== */
 function FavoritesTab({
-  folders,
+  defaultFolderGames,
+  collections,
+  favGames,
   onOpenFolder,
   showCreateFolder,
   setShowCreateFolder,
   newFolderName,
   setNewFolderName,
-  newFolderPublic,
-  setNewFolderPublic,
   onCreateFolder,
-  onToggleVisibility,
   onDeleteFolder,
+  loading,
 }: {
-  folders: CollectionFolder[]
-  onOpenFolder: (f: CollectionFolder) => void
+  defaultFolderGames: GameLite[]
+  collections: CollectionData[]
+  favGames: GameLite[]
+  onOpenFolder: (col: CollectionData) => void
   showCreateFolder: boolean
   setShowCreateFolder: (v: boolean) => void
   newFolderName: string
   setNewFolderName: (v: string) => void
-  newFolderPublic: boolean
-  setNewFolderPublic: (v: boolean) => void
   onCreateFolder: () => void
-  onToggleVisibility: (id: string) => void
   onDeleteFolder: (id: string) => void
+  loading: boolean
 }) {
   const { messages: favMsgs } = useEmotionalMessages(["empty_favorites", "empty_play_status"])
   return (
@@ -234,35 +218,9 @@ function FavoritesTab({
             autoFocus
             onKeyDown={(e) => { if (e.key === "Enter") onCreateFolder() }}
           />
-          {/* 公开/私密选择 */}
-          <div className="mb-3 flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">可见性：</span>
-            <button
-              type="button"
-              onClick={() => setNewFolderPublic(true)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                newFolderPublic
-                  ? "bg-emerald-500/15 text-emerald-500 ring-1 ring-emerald-500/30"
-                  : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Unlock className="h-3 w-3" /> 公开
-            </button>
-            <button
-              type="button"
-              onClick={() => setNewFolderPublic(false)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                !newFolderPublic
-                  ? "bg-muted-foreground/15 text-muted-foreground ring-1 ring-muted-foreground/30"
-                  : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Lock className="h-3 w-3" /> 私密
-            </button>
-          </div>
           <div className="flex gap-2">
             <button
-              onClick={() => { setShowCreateFolder(false); setNewFolderName(""); setNewFolderPublic(true) }}
+              onClick={() => { setShowCreateFolder(false); setNewFolderName("") }}
               className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
             >
               取消
@@ -286,92 +244,106 @@ function FavoritesTab({
         </button>
       )}
 
-      {/* 收藏夹卡片流 */}
-      {folders.length === 0 && !showCreateFolder ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      ) : (
+        <>
+          {/* 默认收藏夹 */}
+          <CollectionCard
+            id="default"
+            name="默认收藏夹"
+            gameCount={defaultFolderGames.length}
+            coverGames={defaultFolderGames}
+            onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })}
+            isDefault
+          />
+
+          {/* DB 收藏夹 */}
+          {collections.map((col) => (
+            <CollectionCard
+              key={col.id}
+              id={col.id}
+              name={col.name}
+              gameCount={col.favorites?.length ?? 0}
+              coverGames={col.favorites?.map(f => f.game) ?? []}
+              onOpen={() => onOpenFolder(col)}
+              onDelete={() => onDeleteFolder(col.id)}
+            />
+          ))}
+        </>
+      )}
+
+      {(defaultFolderGames.length === 0 && collections.length === 0 && !loading && !showCreateFolder) && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FolderHeart className="h-10 w-10 text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">{favMsgs.empty_favorites ? `${favMsgs.empty_favorites.emoji} ${favMsgs.empty_favorites.title}，${favMsgs.empty_favorites.subtitle}` : "还没有收藏夹"}</p>
         </div>
-      ) : (
-        folders.map((folder) => (
-          <div
-            key={folder.id}
-            className="group w-full rounded-xl bg-secondary/40 p-4 transition-all hover:bg-secondary/60"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <button
-                onClick={() => onOpenFolder(folder)}
-                className="flex items-center gap-2.5 min-w-0 text-left"
-              >
-                <FolderHeart className="h-5 w-5 text-primary/80 shrink-0" strokeWidth={2} />
-                <span className="text-sm font-semibold text-foreground truncate">{folder.name}</span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground shrink-0">
-                  {folder.games.length} 部
-                </span>
-              </button>
-              <div className="flex items-center gap-1 shrink-0">
-                {/* 公开/私密切换按钮 */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); onToggleVisibility(folder.id) }}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all ${
-                    folder.isPublic
-                      ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-                      : "bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20"
-                  }`}
-                  title={folder.isPublic ? "点击设为私密" : "点击设为公开"}
-                >
-                  {folder.isPublic ? <Unlock className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                  {folder.isPublic ? "公开" : "私密"}
-                </button>
-                {/* 删除按钮（非默认文件夹） */}
-                {folder.id !== "default" && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder.id) }}
-                    className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-500"
-                    title="删除收藏夹"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-            {/* 预览缩略图（可点击打开） */}
-            <button
-              onClick={() => onOpenFolder(folder)}
-              className="w-full text-left"
-            >
-              {folder.games.length > 0 ? (
-                <div className="flex gap-1.5 overflow-hidden">
-                  {folder.games.slice(0, 5).map((g) => (
-                    <div key={g.id} className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
-                      {g.coverImage ? (
-                        <Image src={g.coverImage} alt={g.title} width={48} height={64} className="h-full w-full object-cover" unoptimized />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
-                          <FolderHeart className="h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {folder.games.length > 5 && (
-                    <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground">
-                      +{folder.games.length - 5}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">空收藏夹 · 点击查看详情</p>
-              )}
-            </button>
-          </div>
-        ))
       )}
     </div>
   )
 }
 
+function CollectionCard({ id, name, gameCount, coverGames, onOpen, onDelete, isDefault }: {
+  id: string
+  name: string
+  gameCount: number
+  coverGames: GameLite[]
+  onOpen: () => void
+  onDelete?: () => void
+  isDefault?: boolean
+}) {
+  return (
+    <div className="group w-full rounded-xl bg-secondary/40 p-4 transition-all hover:bg-secondary/60">
+      <div className="flex items-center justify-between mb-3">
+        <button onClick={onOpen} className="flex items-center gap-2.5 min-w-0 text-left">
+          <FolderHeart className="h-5 w-5 text-primary/80 shrink-0" strokeWidth={2} />
+          <span className="text-sm font-semibold text-foreground truncate">{name}</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground shrink-0">
+            {gameCount} 部
+          </span>
+        </button>
+        {!isDefault && onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete() }}
+            className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-500"
+            title="删除收藏夹"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      <button onClick={onOpen} className="w-full text-left">
+        {gameCount > 0 ? (
+          <div className="flex gap-1.5 overflow-hidden">
+            {coverGames.slice(0, 5).map((g) => (
+              <div key={g.id} className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
+                {g.coverImage ? (
+                  <Image src={g.coverImage} alt={g.title} width={48} height={64} className="h-full w-full object-cover" unoptimized />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                    <FolderHeart className="h-4 w-4" />
+                  </div>
+                )}
+              </div>
+            ))}
+            {gameCount > 5 && (
+              <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-[10px] font-bold text-muted-foreground">
+                +{gameCount - 5}
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">空收藏夹 · 点击查看详情</p>
+        )}
+      </button>
+    </div>
+  )
+}
+
 /* ==================== 收藏夹弹窗（毛玻璃） ==================== */
-function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: () => void }) {
+function FolderModal({ name, games, onClose }: { name: string; games: GameLite[]; onClose: () => void }) {
   const overlayRef = useRef<HTMLDivElement>(null)
 
   function handleOverlayClick(e: React.MouseEvent) {
@@ -413,15 +385,9 @@ function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: (
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <div className="flex items-center gap-3">
               <FolderHeart className="h-5 w-5 text-primary" strokeWidth={2} />
-              <h2 className="text-base font-bold text-foreground">{folder.name}</h2>
+              <h2 className="text-base font-bold text-foreground">{name}</h2>
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                {folder.games.length} 部
-              </span>
-              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                folder.isPublic ? "bg-emerald-500/10 text-emerald-500" : "bg-muted-foreground/10 text-muted-foreground"
-              }`}>
-                {folder.isPublic ? <Unlock className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
-                {folder.isPublic ? "公开" : "私密"}
+                {games.length} 部
               </span>
             </div>
             <button
@@ -434,14 +400,14 @@ function FolderModal({ folder, onClose }: { folder: CollectionFolder; onClose: (
 
           {/* 游戏网格 — 独立滚动 */}
           <div className="flex-1 overflow-y-auto p-5 folder-scroll-area" style={{ maxHeight: "calc(80vh - 72px)" }}>
-            {folder.games.length === 0 ? (
+            {games.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <FolderHeart className="h-12 w-12 text-muted-foreground/20 mb-3" />
                 <p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-                {folder.games.map((g) => (
+                {games.map((g) => (
                   <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
                     {g.coverImage ? (
                       <Image

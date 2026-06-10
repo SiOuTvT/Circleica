@@ -9,12 +9,13 @@ export async function POST(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
 
-    let username: string, bio: string, avatar: string, oldPassword: string, newPassword: string
+    let username: string, bio: string, avatar: string, banner: string, oldPassword: string, newPassword: string
     try {
       const body = await req.json()
       username = body.username
       bio = body.bio
       avatar = body.avatar
+      banner = body.banner
       oldPassword = body.oldPassword
       newPassword = body.newPassword
     } catch {
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
       username: username.trim(),
       bio: bio?.trim() ?? "",
       ...(avatar ? { avatar } : {}),
+      ...(banner !== undefined ? { banner: banner?.trim() ?? "" } : {}),
     }
 
     if (newPassword) {

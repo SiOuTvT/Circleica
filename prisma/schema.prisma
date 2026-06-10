@@ -416,6 +416,11 @@ model ForumPost {
   imageUrl  String         @default("")
   likeCount Int            @default(0)
   isSolved  Boolean        @default(false)
+  isPinned  Boolean        @default(false)
+  isLocked  Boolean        @default(false)
+  category  String         @default("discussion")
+  viewCount Int            @default(0)
+  updatedAt DateTime       @default(now()) @updatedAt
   createdAt DateTime       @default(now())
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  ForumComment[]
@@ -423,6 +428,7 @@ model ForumPost {
 
   @@index([userId])
   @@index([createdAt])
+  @@index([category])
 }
 
 model ForumComment {
@@ -432,6 +438,7 @@ model ForumComment {
   content   String
   imageUrl  String    @default("")
   likeCount Int       @default(0)
+  updatedAt DateTime  @updatedAt
   createdAt DateTime  @default(now())
   post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)

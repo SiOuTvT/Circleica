@@ -19,6 +19,7 @@ export function ProfileEditForm({ user }: Props) {
   const [username, setUsername] = useState(user.username)
   const [bio, setBio] = useState(user.bio)
   const [avatarData, setAvatarData] = useState(user.avatar)
+  const [bannerData, setBannerData] = useState(user.banner)
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [showOld, setShowOld] = useState(false)
