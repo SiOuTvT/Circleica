@@ -16,8 +16,8 @@ RUN npm config set registry https://registry.npmmirror.com
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install all dependencies
-RUN npm ci --no-audit --no-fund
+# Install all dependencies (--legacy-peer-deps for React 19 compat with uploadthing)
+RUN npm ci --no-audit --no-fund --legacy-peer-deps
 
 # Generate Prisma client
 COPY prisma ./prisma/
