@@ -1,11 +1,11 @@
 "use client"
 
-import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { timeAgo } from "@/lib/time-ago"
+import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
-import { timeAgo } from "@/lib/time-ago"
 
 interface NotificationItem {
   id: string
@@ -46,6 +46,16 @@ const TYPE_CONFIG: Record<string, {
     icon: Bell,
     text: (actor) => `${actor} 关注了你`,
     href: (_targetType, id) => `/user/${id}`,
+  },
+  resource_reported: {
+    icon: Bell,
+    text: (actor) => `${actor} 反馈了你的资源链接已失效`,
+    href: (_targetType, id) => `/games/${id}`,
+  },
+  game_resource_new: {
+    icon: Bell,
+    text: (actor) => `${actor} 发布了新资源`,
+    href: (_targetType, id) => `/games/${id}`,
   },
 }
 

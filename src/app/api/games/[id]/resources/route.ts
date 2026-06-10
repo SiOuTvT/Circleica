@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
+import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -11,11 +12,17 @@ export async function GET(
   try {
     const { id: gameId } = await params
 
+    const session = await auth()
+    const currentUserId = session?.user?.id
+
     const resources = await prisma.gameResource.findMany({
       where: { gameId },
       include: {
         entries: true,
         user: { select: { id: true, username: true, avatar: true, composedAvatarUrl: true } },
+        reports: currentUserId
+          ? { where: { userId: currentUserId }, select: { id: true }, take: 1 }
+          : false,
       },
       orderBy: { createdAt: "desc" },
     })
@@ -41,6 +48,8 @@ export async function GET(
       username: r.user.username,
       userAvatar: r.user.composedAvatarUrl || r.user.avatar,
       userResourceCount: countMap.get(r.userId) || 0,
+      isReported: r.isReported,
+      isReportedByMe: currentUserId ? (r as { reports?: { id: string }[] }).reports?.length > 0 : false,
       entries: r.entries.map(e => ({
         id: e.id,
         url: e.url,
@@ -123,6 +132,32 @@ export async function POST(
       },
       include: { entries: true, user: { select: { id: true, username: true, avatar: true, composedAvatarUrl: true } } },
     })
+
+    // 通知收藏了该游戏的用户
+    try {
+      const favorites = await prisma.favorite.findMany({
+        where: {
+          gameId,
+          userId: { not: session.user.id },
+        },
+        select: { userId: true },
+      })
+      if (favorites.length > 0) {
+        await Promise.all(
+          favorites.map((f) =>
+            createNotification({
+              userId: f.userId,
+              actorId: session.user.id,
+              type: "game_resource_new",
+              targetType: "game",
+              targetId: String(game.serialId),
+            })
+          )
+        )
+      }
+    } catch (notifyErr) {
+      logger.db.error("[Resources POST] notify favorites error:", notifyErr)
+    }
 
     return NextResponse.json({
       resource: {

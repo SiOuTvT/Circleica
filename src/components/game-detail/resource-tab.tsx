@@ -2,7 +2,7 @@
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { timeAgo } from "@/lib/time-ago"
-import { ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
+import { AlertTriangle, ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -23,6 +23,8 @@ type Creator = {
 /* ─── API返回的资源类型（含服务器提供的字段） ─── */
 interface ApiResource extends SubmittedResource {
   userResourceCount: number
+  isReported?: boolean
+  isReportedByMe?: boolean
 }
 
 interface ResourceTabProps {
@@ -108,6 +110,7 @@ const ResourceCard = memo(function ResourceCard({
   isGamePublisher,
   onEdit,
   onDelete,
+  onReport,
   resourceTagColor,
 }: {
   resource: ApiResource
@@ -115,6 +118,7 @@ const ResourceCard = memo(function ResourceCard({
   isGamePublisher: boolean
   onEdit: () => void
   onDelete: () => void
+  onReport: () => void
   resourceTagColor?: string
 }) {
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set())
@@ -137,7 +141,11 @@ const ResourceCard = memo(function ResourceCard({
 
   return (
     <div
-      className="relative rounded-xl border border-foreground/10 bg-card hover:border-foreground/20 overflow-hidden transition-all duration-200 hover:shadow-md"
+      className={`relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md ${
+        resource.isReported
+          ? "border-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10 hover:border-amber-300/70"
+          : "border-foreground/10 bg-card hover:border-foreground/20"
+      }`}
       style={{ boxShadow: "var(--card-shadow)" }}
     >
       {/* ── 第一行：胶囊标签流 ── */}
@@ -178,6 +186,16 @@ const ResourceCard = memo(function ResourceCard({
           </p>
         </div>
       </div>
+
+      {/* ── 失效标记 ── */}
+      {resource.isReported && (
+        <div className="px-4 pb-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            <AlertTriangle className="w-3 h-3" />
+            链接已失效
+          </span>
+        </div>
+      )}
 
       {/* ── 第三行：资源名称 ── */}
       {resource.resourceName && (
@@ -252,29 +270,47 @@ const ResourceCard = memo(function ResourceCard({
         <CollapsibleNote text={resource.resourceNote} maxLines={3} />
       )}
 
-      {/* ── 右下角：编辑 & 删除按钮 ── */}
-      {(isOwner || isGamePublisher) && (
-        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1">
-          {isOwner && (
-            <button
-              type="button"
-              onClick={onEdit}
-              className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200"
-              title="编辑"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-          )}
+      {/* ── 右下角：反馈/编辑/删除按钮 ── */}
+      <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1">
+        {/* 非本人可以看到反馈按钮 */}
+        {!isOwner && !isGamePublisher && (
           <button
             type="button"
-            onClick={onDelete}
-            className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200"
-            title="删除"
+            onClick={onReport}
+            disabled={resource.isReportedByMe}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              resource.isReportedByMe
+                ? "text-amber-500/60 cursor-default"
+                : "text-muted-foreground/40 hover:text-amber-500 hover:bg-amber-500/10"
+            }`}
+            title={resource.isReportedByMe ? "已反馈" : "反馈链接失效"}
           >
-            <Trash2 className="w-4 h-4" />
+            <AlertTriangle className="w-4 h-4" />
           </button>
-        </div>
-      )}
+        )}
+        {(isOwner || isGamePublisher) && (
+          <>
+            {isOwner && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200"
+                title="编辑"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onDelete}
+              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200"
+              title="删除"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 })
@@ -303,6 +339,8 @@ export function ResourceTab({
   const [editOpen, setEditOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ApiResource | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [reportTarget, setReportTarget] = useState<ApiResource | null>(null)
+  const [reportOpen, setReportOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
   /* ── 从API加载资源 ── */
@@ -388,6 +426,37 @@ export function ResourceTab({
     }
   }, [gameId, editingResource])
 
+  /* ── 反馈链接失效 ── */
+  const handleReportConfirm = useCallback(async () => {
+    if (!reportTarget) return
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/games/${gameId}/resources/${reportTarget.id}/report`, {
+        method: "POST",
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "反馈失败")
+      }
+      if (data.alreadyReported) {
+        toast.info("你已经反馈过了")
+      } else {
+        toast.success("已反馈，感谢你的帮助！")
+        setResources(prev => prev.map(r =>
+          r.id === reportTarget.id
+            ? { ...r, isReported: true, isReportedByMe: true }
+            : r
+        ))
+      }
+      setReportTarget(null)
+      setReportOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "反馈失败")
+    } finally {
+      setActionLoading(false)
+    }
+  }, [gameId, reportTarget])
+
   /* ── 删除资源 ── */
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteTarget) return
@@ -470,6 +539,14 @@ export function ResourceTab({
                   setDeleteTarget(res)
                   setDeleteOpen(true)
                 }}
+                onReport={() => {
+                  if (!isLoggedIn) {
+                    toast.error("请先登录")
+                    return
+                  }
+                  setReportTarget(res)
+                  setReportOpen(true)
+                }}
               />
             )
           })}
@@ -499,6 +576,16 @@ export function ResourceTab({
           hideTrigger
         />
       )}
+
+      {/* 反馈确认弹窗 */}
+      <ConfirmDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        title="反馈链接失效"
+        description={`确定要反馈"${reportTarget?.resourceName || "此资源"}"的下载链接已失效吗？`}
+        confirmText={actionLoading ? "提交中..." : "确定反馈"}
+        onConfirm={handleReportConfirm}
+      />
 
       {/* 删除确认弹窗 */}
       <ConfirmDialog

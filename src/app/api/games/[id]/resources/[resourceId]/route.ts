@@ -62,8 +62,10 @@ export async function PUT(
     }
 
     // 更新：先删旧entries，再建新的（事务）
+    // 同时重置失效状态和清除所有举报记录
     const resource = await prisma.$transaction(async (tx) => {
       await tx.gameResourceEntry.deleteMany({ where: { resourceId } })
+      await tx.resourceReport.deleteMany({ where: { resourceId } })
       return tx.gameResource.update({
         where: { id: resourceId },
         data: {
@@ -73,6 +75,8 @@ export async function PUT(
           language: language || [],
           runType: runType || [],
           resourceContent: resourceContent || [],
+          isReported: false,
+          reportedAt: null,
           entries: {
             create: entries.map((e: { url: string; extractCode?: string; decompressCode?: string; fileSize?: string }) => ({
               url: e.url.trim(),
