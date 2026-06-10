@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, ChevronLeft, Heart, ImageIcon, MessageSquare, Plus, Send, Smile, Trash2, X } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { ConfirmDialog } from "./ui/confirm-dialog"
@@ -215,10 +216,10 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   return (
     <div>
       {/* 页头 */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-foreground">求档 · 论坛</h1>
-          <p className="mt-0.5 text-xs text-muted-foreground">找不到资源？发帖求档，社区互助</p>
+          <h1 className="text-xl font-bold text-foreground">求档 · 论坛</h1>
+          <p className="mt-1 text-sm text-muted-foreground">找不到资源？发帖求档，社区互助</p>
         </div>
         {isLoggedIn && (
           <button onClick={() => setShowNew(true)}
@@ -228,79 +229,34 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1.4fr]">
-        {/* 左：帖子列表 */}
-        <div className="space-y-2">
-          {posts.length === 0 && (
-            <p className="py-16 text-center text-sm text-muted-foreground">
-              还没有人发过帖，来开个头吧~
-            </p>
-          )}
-          {posts.map(post => (
-            <button key={post.id}
-              onClick={() => openPost(post.id)}
-              className={cn(
-                "w-full rounded-xl bg-card p-4 text-left ring-1 transition-all hover:bg-secondary",
-                activePost?.id === post.id ? "ring-primary" : "ring-border hover:ring-border"
-              )}>
-              <div className="mb-2 flex items-center gap-2">
-                <Avatar user={post.user} size={6} />
-                <span className="text-xs text-muted-foreground">{post.user.username}</span>
-                {post.isSolved && (
-                  <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-500 ring-1 ring-emerald-500/20">
-                    <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={2} />已解决
-                  </span>
-                )}
-                <span className="ml-auto text-[10px] text-muted-foreground">{fmtDate(post.createdAt)}</span>
-              </div>
-              <p className="line-clamp-2 text-sm font-medium text-foreground">{post.title}</p>
-              <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1"><Heart className="h-3 w-3" strokeWidth={1.5} />{post.likeCount}</span>
-                <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" strokeWidth={1.5} />{post.commentCount}</span>
-              </div>
-            </button>
-          ))}
-
-          {/* 加载更多 */}
-          {currentPage < totalPages && (
-            <button
-              onClick={loadMore}
-              disabled={loadingMore}
-              className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
-            >
-              {loadingMore ? "加载中..." : "加载更多帖子"}
-            </button>
-          )}
-        </div>
-
-        {/* 右：帖子详情 */}
-        <div className="hidden md:block">
-          {loadingPost && (
-            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-border">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+      <div className="space-y-3">
+        {posts.map(post => (
+          <Link key={post.id} href={`/forum/${post.id}`}
+            className="block rounded-2xl bg-card p-5 ring-1 ring-border transition-all hover:ring-primary/30 hover:shadow-lg hover:shadow-primary/5">
+            <div className="flex items-center gap-2.5">
+              <Avatar user={post.user} size={7} />
+              <span className="text-sm text-muted-foreground">{post.user.username}</span>
+              <span className="text-xs text-muted-foreground/60">·</span>
+              <span className="text-xs text-muted-foreground/60">{fmtDate(post.createdAt)}</span>
             </div>
-          )}
-          {!loadingPost && !activePost && (
-            <div className="flex h-64 items-center justify-center rounded-2xl bg-card ring-1 ring-border">
-              <p className="text-sm text-muted-foreground">点击左侧帖子查看详情</p>
+            <p className="mt-3 line-clamp-2 text-base font-semibold text-foreground leading-relaxed">{post.title}</p>
+            <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}</span>
+              <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />{post.commentCount}</span>
             </div>
-          )}
-          {!loadingPost && activePost && (
-            <PostDetail post={activePost} isLoggedIn={isLoggedIn} currentUserId={currentUser?.id} isAdmin={isAdmin}
-              commentText={commentText} setCommentText={setCommentText}
-              commentImagePreview={commentImagePreview}
-              showCommentEmoji={showCommentEmoji} setShowCommentEmoji={setShowCommentEmoji}
-              commentInputRef={commentInputRef}
-              onInsertEmoji={insertCommentEmoji}
-              onLikePost={() => likePost(activePost.id)}
-              onLikeComment={likeComment} onSubmitComment={submitComment}
-              onToggleSolve={() => toggleSolve(activePost.id)}
-              onDeletePost={() => deletePost(activePost.id)}
-              onDeleteComment={deleteComment}
-              onCommentImage={handleCommentImage}
-              onRemoveCommentImage={() => { setCommentImageFile(null); setCommentImagePreview(null) }} />
-          )}
-        </div>
+          </Link>
+        ))}
+
+        {/* 加载更多 */}
+        {currentPage < totalPages && (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50"
+          >
+            {loadingMore ? "加载中..." : "加载更多帖子"}
+          </button>
+        )}
       </div>
 
       {/* 移动端全屏详情 */}
