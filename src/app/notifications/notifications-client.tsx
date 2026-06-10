@@ -20,11 +20,13 @@ interface NotificationItem {
     username: string
     avatar: string
   }
+  targetGame?: { id: string; title: string } | null
 }
 
 const TYPE_CONFIG: Record<string, {
   icon: typeof Bell
-  text: (actor: string) => string
+  text: (actor: string, gameTitle?: string) => string
+  subtitle?: (actor: string, gameTitle?: string) => string
   href: (targetType: string, targetId: string) => string
 }> = {
   forum_post_like: {
@@ -49,13 +51,23 @@ const TYPE_CONFIG: Record<string, {
   },
   resource_reported: {
     icon: Bell,
-    text: (actor) => `${actor} 反馈了你的资源链接已失效`,
-    href: (_targetType, id) => `/games/${id}`,
+    text: (actor, gameTitle) =>
+      gameTitle
+        ? `${actor} 反馈了「${gameTitle}」中你的某条资源链接已失效，请检查并更新。`
+        : `${actor} 反馈了你的某条资源链接已失效，请检查并更新。`,
+    href: (_targetType, id) => `/games/${id}?tab=resource`,
   },
   game_resource_new: {
     icon: Bell,
-    text: (actor) => `${actor} 发布了新资源`,
-    href: (_targetType, id) => `/games/${id}`,
+    text: (_actor, gameTitle) =>
+      gameTitle
+        ? `你收藏的「${gameTitle}」有新资源上传了`
+        : `你收藏的游戏有新资源上传了`,
+    subtitle: (actor, gameTitle) =>
+      gameTitle
+        ? `${actor} 在「${gameTitle}」发布了新资源`
+        : `${actor} 发布了新资源`,
+    href: (_targetType, id) => `/games/${id}?tab=resource`,
   },
 }
 
@@ -233,7 +245,10 @@ export default function NotificationsClient({
 
                 {/* 内容 */}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">{config.text(n.actor.username)}</p>
+                  <p className="text-sm text-foreground">{config.text(n.actor.username, n.targetGame?.title)}</p>
+                  {config.subtitle && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">{config.subtitle(n.actor.username, n.targetGame?.title)}</p>
+                  )}
                   <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.createdAt)}</p>
                 </div>
 

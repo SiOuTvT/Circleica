@@ -3,8 +3,9 @@
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import DOMPurify from "isomorphic-dompurify"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2 } from "lucide-react"
-import Image from "next/image"
 import dynamic from "next/dynamic"
+import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { ResourceTab } from "./game-detail/resource-tab"
@@ -86,7 +87,12 @@ export default function GameDetailClient({
   resourceTagColor?: string
   publisherId?: string
 }) {
-  const [tab, setTab] = useState<"intro" | "resource" | "comments">("intro")
+  const searchParams = useSearchParams()
+  const [tab, setTab] = useState<"intro" | "resource" | "comments">(() => {
+    const t = searchParams.get("tab")
+    if (t === "resource" || t === "intro" || t === "comments") return t
+    return "intro"
+  })
   const [fav, setFav] = useState(isFav)
   const [favCnt, setFavCnt] = useState(favCount)
   const [favPending, setFavPending] = useState(false)

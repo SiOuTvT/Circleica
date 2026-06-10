@@ -28,9 +28,32 @@ export async function GET(req: NextRequest) {
     where: { userId: session.user.id, isRead: false },
   })
 
+  // 批量获取关联的游戏信息
+  const gameIds = [...new Set(
+    notifications
+      .filter(n => n.targetType === "game")
+      .map(n => n.targetId)
+  )]
+  const gameMap: Record<string, { id: string; title: string }> = {}
+  if (gameIds.length > 0) {
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, title: true },
+    })
+    for (const g of games) {
+      gameMap[g.id] = { id: g.id, title: g.title }
+    }
+  }
+
+  // 附加游戏信息到通知
+  const enrichedNotifications = notifications.map(n => ({
+    ...n,
+    targetGame: n.targetType === "game" ? gameMap[n.targetId] ?? null : null,
+  }))
+
   const nextCursor = notifications.length === limit ? notifications[limit - 1].id : null
 
-  return NextResponse.json({ notifications, unreadCount, nextCursor })
+  return NextResponse.json({ notifications: enrichedNotifications, unreadCount, nextCursor })
 }
 
 // POST /api/notifications/read - 标记通知为已读
