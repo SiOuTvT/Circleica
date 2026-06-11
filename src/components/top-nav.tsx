@@ -99,23 +99,23 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     const controller = new AbortController()
     fetch("/api/checkin", { signal: controller.signal })
       .then(r => r.json())
-      .then(data => setCheckedIn(data.checkedIn))
+      .then(data => setCheckedIn(data.data?.checkedIn ?? false))
       .catch(() => setCheckedIn(false))
     return () => controller.abort()
   }, [])
 
   // 获取用户总印记数
   useEffect(() => {
-    if (!user?.id || !userOpen) return
+    if (!user?.id) return
     fetch("/api/user/stats")
       .then(r => r.json())
       .then(data => {
-        if (data.totalMarks !== undefined) {
-          setTotalMarks(data.totalMarks)
+        if (data.data?.totalMarks !== undefined) {
+          setTotalMarks(data.data.totalMarks)
         }
       })
       .catch(() => {})
-  }, [user?.id, userOpen])
+  }, [user?.id])
 
   // 监听滚动，用于导航栏背景透明度渐变
   useEffect(() => {

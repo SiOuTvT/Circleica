@@ -11,20 +11,20 @@ async function handleGet() {
   try {
     const userId = session.user.id
 
-    // 使用缓存避免频繁查询
-    const cacheKeyUserStats = cacheKey("user:stats", userId)
+    // 使用专用缓存 key（避免和 achievements.ts 的 getUserStats 冲突）
+    const cacheKeyUserStats = cacheKey("user:totalMarks", userId)
+
     const cached = await cache.get<{ totalMarks: number }>(cacheKeyUserStats)
     if (cached) {
       return ok(cached)
     }
 
     // 查询用户所有签到的印记总和
-    const result = await prisma.checkIn.aggregate({
+    const checkIns = await prisma.checkIn.findMany({
       where: { userId },
-      _sum: { marks: true },
+      select: { marks: true },
     })
-
-    const totalMarks = result._sum.marks ?? 0
+    const totalMarks = checkIns.reduce((sum, c) => sum + (c.marks || 0), 0)
 
     // 缓存 5 分钟
     await cache.set(cacheKeyUserStats, { totalMarks }, 300)

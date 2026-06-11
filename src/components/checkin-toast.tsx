@@ -26,6 +26,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
   const [visible, setVisible] = useState(false)
   const [config, setConfig] = useState<CheckInConfig>(DEFAULT_CONFIG)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
 
   // 获取签到配置
   useEffect(() => {
@@ -39,11 +40,14 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     // 进入动画：下一帧显示
     const id = requestAnimationFrame(() => setVisible(true))
 
-    // 2 秒后淡出
-    timerRef.current = setTimeout(() => {
-      setVisible(false)
-      setTimeout(onClose, 300) // 等淡出动画完成
-    }, 2000)
+    // 4 秒后淡出（如果用户没有 hover）
+    const startTimer = () => {
+      timerRef.current = setTimeout(() => {
+        setVisible(false)
+        setTimeout(onClose, 300)
+      }, 4000)
+    }
+    startTimer()
 
     return () => {
       cancelAnimationFrame(id)
@@ -51,7 +55,24 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     }
   }, [onClose])
 
+  // 鼠标悬停时暂停计时，离开后重新开始
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    timerRef.current = setTimeout(() => {
+      setVisible(false)
+      setTimeout(onClose, 300)
+    }, 2000)
+  }
+
   const handleClose = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
     setVisible(false)
     setTimeout(onClose, 300)
   }
@@ -66,6 +87,8 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     <div
       role="alert"
       aria-live="polite"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`
         fixed left-1/2 top-[70%] z-[9999]
         flex items-center gap-5

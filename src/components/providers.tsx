@@ -11,6 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <Toaster
           position="top-center"
           richColors
+          closeButton
           toastOptions={{
             className: "text-sm",
             duration: 3000,

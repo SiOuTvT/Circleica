@@ -69,13 +69,20 @@ async function handleGetCheckinStatus() {
   if (!session?.user?.id) return ok({ checkedIn: false, total: 0 })
 
   try {
+    // 使用 Asia/Shanghai 时区计算今天的日期
     const now = new Date()
     const todayStr = now.toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" })
     const today = new Date(todayStr + "T00:00:00.000Z")
-    const [existing, total] = await Promise.all([
-      prisma.checkIn.findUnique({ where: { userId_date: { userId: session.user.id, date: today } } }),
-      prisma.checkIn.count({ where: { userId: session.user.id } }),
-    ])
+
+    // 使用 findFirst 查询今天的签到记录
+    const existing = await prisma.checkIn.findFirst({
+      where: {
+        userId: session.user.id,
+        date: today,
+      },
+    })
+
+    const total = await prisma.checkIn.count({ where: { userId: session.user.id } })
 
     return ok({ checkedIn: !!existing, total })
   } catch (error) {

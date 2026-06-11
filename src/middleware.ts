@@ -70,9 +70,9 @@ export async function middleware(req: NextRequest) {
     if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
       return NextResponse.redirect(new URL("/", req.url))
     }
-    // SUPER_ADMIN 专属路由：用户管理、站点设置、主题、文案、头像框、情感消息、资源标签
+    // SUPER_ADMIN 专属路由：用户管理、站点设置、主题、头像框、情感消息、资源标签
     const superAdminRoutes = [
-      "/admin/users", "/admin/site-settings", "/admin/theme", "/admin/copy",
+      "/admin/users", "/admin/site-settings", "/admin/theme",
       "/admin/avatar-frames", "/admin/emotional-messages", "/admin/resource-tags",
       "/admin/achievements",
     ]

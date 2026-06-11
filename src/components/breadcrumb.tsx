@@ -43,7 +43,6 @@ const ROUTE_NAMES: Record<string, string> = {
   "avatar-frames": "头像框管理",
   "resource-tags": "资源标签",
   achievements: "成就管理",
-  copy: "文案管理",
 }
 
 /**

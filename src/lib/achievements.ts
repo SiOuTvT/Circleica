@@ -154,6 +154,9 @@ function getStatValue(stats: Awaited<ReturnType<typeof getUserStats>>, condition
 export async function invalidateUserStats(userId: string) {
   const key = cacheKey("user-stats", userId)
   await cache.del(key)
+  // 同时清除 totalMarks 缓存
+  const marksKey = cacheKey("user:totalMarks", userId)
+  await cache.del(marksKey)
 }
 
 /**

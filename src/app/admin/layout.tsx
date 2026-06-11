@@ -20,7 +20,6 @@ const SUPER_ADMIN_PATHS = [
   "/admin/site-settings",
   "/admin/pages",
   "/admin/achievements",
-  "/admin/copy",
   "/admin/theme",
 ]
 
