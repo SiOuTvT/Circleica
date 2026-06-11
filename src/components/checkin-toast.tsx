@@ -10,15 +10,36 @@ interface CheckInToastProps {
   onClose: () => void
 }
 
-export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
+interface CheckInConfig {
+  title: string
+  subtitle: string
+  imageUrl: string
+}
+
+const DEFAULT_CONFIG: CheckInConfig = {
+  title: "签到成功",
+  subtitle: "获得 {marks} 印记",
+  imageUrl: "",
+}
+
+export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckInToastProps) {
   const [visible, setVisible] = useState(false)
+  const [config, setConfig] = useState<CheckInConfig>(DEFAULT_CONFIG)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // 获取签到配置
+  useEffect(() => {
+    fetch("/api/admin/checkin-config")
+      .then((r) => r.json())
+      .then((data) => setConfig(data))
+      .catch(() => setConfig(DEFAULT_CONFIG))
+  }, [])
 
   useEffect(() => {
     // 进入动画：下一帧显示
     const id = requestAnimationFrame(() => setVisible(true))
 
-    // 3 秒后淡出
+    // 2 秒后淡出
     timerRef.current = setTimeout(() => {
       setVisible(false)
       setTimeout(onClose, 300) // 等淡出动画完成
@@ -35,14 +56,20 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
     setTimeout(onClose, 300)
   }
 
+  // 使用配置的 imageUrl，如果没有则使用 props 传入的
+  const displayImageUrl = config.imageUrl || propImageUrl
+
+  // 替换 subtitle 中的 {marks} 占位符
+  const displaySubtitle = (config.subtitle || "获得 {marks} 印记").replace("{marks}", String(marks))
+
   return (
     <div
       role="alert"
       aria-live="polite"
       className={`
         fixed left-1/2 top-[70%] z-[9999]
-        flex items-center gap-4
-        rounded-[1.5rem] bg-card px-6 py-5
+        flex items-center gap-5
+        rounded-[1.75rem] bg-card px-7 py-5
         ring-1 ring-border
         shadow-2xl
         transition-all duration-300 ease-out
@@ -50,32 +77,32 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
       `}
       style={{
         transform: visible ? "translate(-50%, 0) scale(1)" : "translate(-50%, 1rem) scale(0.95)",
-        minWidth: "320px",
-        maxWidth: "420px",
+        minWidth: "350px",
+        maxWidth: "450px",
       }}
     >
-      {/* 图片区：48×48px，有图时显示，无图时隐藏 */}
-      {imageUrl ? (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted/50 ring-1 ring-border">
-          <Image src={imageUrl} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
+      {/* 图片区：56×56px，有图时显示，无图时隐藏 */}
+      {displayImageUrl ? (
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted/50 ring-1 ring-border">
+          <Image src={displayImageUrl} alt="" width={56} height={56} className="h-full w-full object-cover" unoptimized />
         </div>
       ) : (
-        <div className="flex h-12 w-12 shrink-0" />
+        <div className="flex h-14 w-14 shrink-0" />
       )}
 
       {/* 文案区 */}
       <div className="min-w-0 flex-1">
-        <p className="text-base font-bold text-foreground">签到成功</p>
-        <p className="text-sm text-muted-foreground mt-0.5">获得 {marks} 印记</p>
+        <p className="text-lg font-bold text-foreground">{config.title || "签到成功"}</p>
+        <p className="text-base text-muted-foreground mt-0.5">{displaySubtitle}</p>
       </div>
 
       {/* 关闭按钮 */}
       <button
         onClick={handleClose}
         aria-label="关闭通知"
-        className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="shrink-0 rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <X className="h-5 w-5" strokeWidth={2} />
+        <X className="h-6 w-6" strokeWidth={2} />
       </button>
     </div>
   )

@@ -8,6 +8,10 @@ const CheckinDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ defau
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
+const CheckInConfigEditor = dynamic(() => import("@/components/admin/checkin-config-editor").then(m => ({ default: m.CheckInConfigEditor })), {
+  loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" />,
+})
+
 export const metadata = { title: "签到记录 · 管理后台" }
 
 export default async function AdminCheckInsPage({
@@ -49,7 +53,10 @@ export default async function AdminCheckInsPage({
       orderBy: { createdAt: "desc" },
       skip, take: limit,
       select: {
-        id: true, date: true, createdAt: true,
+        id: true,
+        date: true,
+        createdAt: true,
+        marks: true,
         user: { select: { id: true, username: true, avatar: true } },
       },
     }),
@@ -86,6 +93,9 @@ export default async function AdminCheckInsPage({
         </form>
       </div>
 
+      {/* 签到配置编辑器 */}
+      <CheckInConfigEditor />
+
       {checkIns.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
           <CalendarCheck className="h-12 w-12 text-muted-foreground/40" />
@@ -106,8 +116,13 @@ export default async function AdminCheckInsPage({
                   {ci.user.username}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  签到日期: {new Date(ci.date).toLocaleDateString("zh-CN")} · 创建时间: {new Date(ci.createdAt).toLocaleString("zh-CN")}
+                  签到日期：{new Date(ci.date).toLocaleDateString("zh-CN")} · 创建时间：{new Date(ci.createdAt).toLocaleString("zh-CN")}
                 </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="inline-flex items-center rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-500">
+                  +{ci.marks} 印记
+                </span>
               </div>
               <CheckinDeleteBtn id={ci.id} />
             </div>

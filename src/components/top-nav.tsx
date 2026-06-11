@@ -50,6 +50,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkinLoading, setCheckinLoading] = useState(false)
   const [toastMarks, setToastMarks] = useState<number | null>(null)
+  const [totalMarks, setTotalMarks] = useState<number>(0)
   // 用于强制头像重新渲染的版本号
   const [avatarVersion, setAvatarVersion] = useState(0)
   // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie），从 localStorage 恢复
@@ -102,6 +103,19 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       .catch(() => setCheckedIn(false))
     return () => controller.abort()
   }, [])
+
+  // 获取用户总印记数
+  useEffect(() => {
+    if (!user?.id || !userOpen) return
+    fetch("/api/user/stats")
+      .then(r => r.json())
+      .then(data => {
+        if (data.totalMarks !== undefined) {
+          setTotalMarks(data.totalMarks)
+        }
+      })
+      .catch(() => {})
+  }, [user?.id, userOpen])
 
   // 监听滚动，用于导航栏背景透明度渐变
   useEffect(() => {
@@ -272,6 +286,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
                 {userOpen && (
                   <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
+                    {/* 用户信息区 */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/80 text-xs font-bold text-white ring-1 ring-border">
                         {(localAvatar || user.image)
@@ -281,6 +296,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                       <span className="truncate text-sm font-semibold text-foreground">{user.name}</span>
                     </div>
 
+                    {/* 印记信息区 */}
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
+                      <span className="text-sm text-muted-foreground">印记</span>
+                      <span className="text-lg font-bold text-amber-500">{totalMarks}</span>
+                    </div>
+
+                    {/* 功能菜单 */}
                     <Link href={`/user/${user.serialId || user.id}`} onClick={() => setUserOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                       <User className="h-5 w-5 shrink-0" strokeWidth={2} />

@@ -441,6 +441,7 @@ model CheckIn {
   id        String   @id @default(cuid())
   userId    String
   date      DateTime @db.Date
+  marks     Int      @default(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, date])

@@ -25,7 +25,7 @@ async function handleCheckin(_req: NextRequest) {
       return conflict("今日已签到", { alreadyDone: true })
     }
 
-    await prisma.checkIn.create({ data: { userId: session.user.id, date: today } })
+    await prisma.checkIn.create({ data: { userId: session.user.id, date: today, marks } })
 
     const total = await prisma.checkIn.count({ where: { userId: session.user.id } })
 
