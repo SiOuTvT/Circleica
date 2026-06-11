@@ -40,18 +40,18 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
       role="alert"
       aria-live="polite"
       className={`
-        fixed bottom-8 left-1/2 z-[9999]
-        flex items-center gap-3
-        rounded-2xl bg-card px-5 py-4
+        fixed left-1/2 top-[75%] z-[9999]
+        flex items-center gap-4
+        rounded-3xl bg-card px-6 py-5
         ring-1 ring-border
         shadow-2xl
         transition-all duration-300 ease-out
-        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"}
+        ${visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}
       `}
       style={{
-        transform: visible ? "translate(-50%, 0)" : "translate(-50%, 100%)",
-        minWidth: "280px",
-        maxWidth: "400px",
+        transform: visible ? "translate(-50%, 0) scale(1)" : "translate(-50%, 1rem) scale(0.95)",
+        minWidth: "320px",
+        maxWidth: "450px",
       }}
     >
       {/* 图片区：48×48px，有图时显示，无图时隐藏 */}
