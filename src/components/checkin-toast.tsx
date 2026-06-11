@@ -40,9 +40,9 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
       role="alert"
       aria-live="polite"
       className={`
-        fixed left-1/2 top-[75%] z-[9999]
+        fixed left-1/2 top-[70%] z-[9999]
         flex items-center gap-4
-        rounded-3xl bg-card px-6 py-5
+        rounded-[1.5rem] bg-card px-6 py-5
         ring-1 ring-border
         shadow-2xl
         transition-all duration-300 ease-out
@@ -51,12 +51,12 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
       style={{
         transform: visible ? "translate(-50%, 0) scale(1)" : "translate(-50%, 1rem) scale(0.95)",
         minWidth: "320px",
-        maxWidth: "450px",
+        maxWidth: "420px",
       }}
     >
       {/* 图片区：48×48px，有图时显示，无图时隐藏 */}
       {imageUrl ? (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/50">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted/50 ring-1 ring-border">
           <Image src={imageUrl} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
         </div>
       ) : (
@@ -65,8 +65,8 @@ export function CheckInToast({ marks, imageUrl, onClose }: CheckInToastProps) {
 
       {/* 文案区 */}
       <div className="min-w-0 flex-1">
-        <p className="text-base font-semibold text-foreground">签到成功</p>
-        <p className="text-sm text-muted-foreground">获得 {marks} 印记</p>
+        <p className="text-base font-bold text-foreground">签到成功</p>
+        <p className="text-sm text-muted-foreground mt-0.5">获得 {marks} 印记</p>
       </div>
 
       {/* 关闭按钮 */}
