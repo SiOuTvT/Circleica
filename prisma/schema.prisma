@@ -124,7 +124,11 @@ model Game {
   viewCount     Int          @default(0)
   downloadCount Int          @default(0)
   favoriteCount Int          @default(0)
-  isPublished   Boolean      @default(true)
+  isPublished   Boolean      @default(false)
+  publishedAt   DateTime?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  rejectReason  String       @default("")
   releaseDate   DateTime?
   gameDuration  String       @default("")
   studioName    String       @default("")
@@ -326,13 +330,27 @@ model Announcement {
   @@index([sortOrder])
 }
 
-model Music {
+model Playlist {
   id        String   @id @default(cuid())
-  title     String
-  filename  String
-  url       String   @default("")
-  isActive  Boolean  @default(true)
+  name      String
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+  music     Music[]
+
+  @@index([sortOrder])
+}
+
+model Music {
+  id         String    @id @default(cuid())
+  title      String
+  filename   String
+  url        String    @default("")
+  isActive   Boolean   @default(true)
+  playlistId String?
+  createdAt  DateTime  @default(now())
+  playlist   Playlist? @relation(fields: [playlistId], references: [id], onDelete: SetNull)
+
+  @@index([playlistId])
 }
 
 model GameLog {
@@ -343,6 +361,20 @@ model GameLog {
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
   @@index([gameId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // delete_post / ban_user / update_settings / approve_game / reject_game / etc
+  target    String   @default("") // target entity id or description
+  detail    String   @default("") // human-readable detail
+  ip        String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 model Creator {

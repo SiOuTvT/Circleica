@@ -17,17 +17,17 @@ export function MusicPlayer() {
   const [expanded, setExpanded] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+  const isSuperAdmin = session?.user?.role === "SUPER_ADMIN"
 
   useEffect(() => {
-    if (!isAdmin) return
+    if (!isSuperAdmin) return
     const controller = new AbortController()
     fetch("/api/music", { signal: controller.signal })
       .then(r => r.json())
       .then(data => { if (Array.isArray(data) && data.length) setTracks(data) })
       .catch(() => {})
     return () => controller.abort()
-  }, [isAdmin])
+  }, [isSuperAdmin])
 
   // 切换曲目时加载
   useEffect(() => {

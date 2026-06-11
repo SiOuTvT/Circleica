@@ -1,15 +1,20 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
-import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload, X } from "lucide-react"
+import { useState, useRef, useCallback, useEffect } from "react"
+import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload, X, ListMusic } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
-interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean }
+interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
+interface PlaylistItem { id: string; name: string; _count: { music: number } }
 
 export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   const [list, setList]   = useState(initialMusic)
+  const [playlists, setPlaylists] = useState<PlaylistItem[]>([])
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>("")
+  const [newPlaylistName, setNewPlaylistName] = useState("")
+  const [editingPlaylist, setEditingPlaylist] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [url, setUrl]     = useState("")
   const [file, setFile]   = useState<File | null>(null)
@@ -23,6 +28,16 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   const [editUrl, setEditUrl] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Load playlists
+  const fetchPlaylists = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/playlists")
+      if (res.ok) setPlaylists(await res.json())
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchPlaylists() }, [fetchPlaylists])
 
   const togglePlay = useCallback((id: string, musicUrl: string) => {
     // 如果点击的是当前正在播放的曲目，则暂停/恢复
@@ -97,13 +112,40 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     const res = await fetch("/api/admin/music", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: title.trim(), url: musicUrl }),
+      body: JSON.stringify({ title: title.trim(), url: musicUrl, playlistId: selectedPlaylistId || undefined }),
     })
     const data = await res.json()
     setAdding(false)
     if (!res.ok) { setError(data.error); return }
     setList(p => [data, ...p])
     setTitle(""); setUrl(""); setFile(null)
+  }
+
+  // Playlist CRUD
+  async function createPlaylist() {
+    if (!newPlaylistName.trim()) return
+    const res = await fetch("/api/admin/playlists", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newPlaylistName.trim() }),
+    })
+    if (res.ok) { await fetchPlaylists(); setNewPlaylistName("") }
+  }
+
+  async function renamePlaylist(id: string, name: string) {
+    if (!name.trim()) return
+    await fetch(`/api/admin/playlists/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim() }),
+    })
+    await fetchPlaylists()
+    setEditingPlaylist(null)
+  }
+
+  async function deletePlaylist(id: string) {
+    await fetch(`/api/admin/playlists/${id}`, { method: "DELETE" })
+    await fetchPlaylists()
   }
 
   async function toggle(id: string, current: boolean) {
@@ -143,12 +185,63 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
 
   return (
     <div className="space-y-4">
+      {/* 播放列表管理 */}
+      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+        <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <ListMusic className="h-4 w-4" strokeWidth={1.5} />播放列表
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {playlists.map(pl => (
+            <div key={pl.id} className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-colors",
+              selectedPlaylistId === pl.id ? "bg-primary/10 text-primary ring-primary/30" : "bg-secondary text-muted-foreground ring-border"
+            )}>
+              {editingPlaylist === pl.id ? (
+                <input
+                  autoFocus
+                  defaultValue={pl.name}
+                  className="w-20 bg-transparent text-foreground outline-none"
+                  onKeyDown={e => {
+                    if (e.key === "Enter") renamePlaylist(pl.id, e.currentTarget.value)
+                    if (e.key === "Escape") setEditingPlaylist(null)
+                  }}
+                  onBlur={e => renamePlaylist(pl.id, e.target.value)}
+                />
+              ) : (
+                <button onClick={() => setSelectedPlaylistId(pl.id === selectedPlaylistId ? "" : pl.id)} className="hover:text-foreground">
+                  {pl.name} ({pl._count.music})
+                </button>
+              )}
+              <button onClick={() => setEditingPlaylist(pl.id)} className="text-muted-foreground hover:text-foreground"><Pencil className="h-2.5 w-2.5" /></button>
+              <button onClick={() => deletePlaylist(pl.id)} className="text-muted-foreground hover:text-red-400"><X className="h-2.5 w-2.5" /></button>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <input value={newPlaylistName} onChange={e => setNewPlaylistName(e.target.value)}
+            placeholder="新建播放列表" className={cn(inputCls, "flex-1 text-xs")}
+            onKeyDown={e => { if (e.key === "Enter") createPlaylist() }}
+          />
+          <button onClick={createPlaylist} disabled={!newPlaylistName.trim()}
+            className="shrink-0 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40">
+            创建
+          </button>
+        </div>
+      </div>
+
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
         <h2 className="text-sm font-semibold text-foreground">添加音乐</h2>
         <p className="text-xs text-muted-foreground">上传音频文件（最大 32MB）或填入直链 URL</p>
         {error && <p className="text-xs text-red-400">{error}</p>}
         <form onSubmit={add} className="space-y-2">
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="曲目名称" required className={inputCls} />
+          <div className="flex items-center gap-2">
+            <SelectPlaylist
+              playlists={playlists}
+              value={selectedPlaylistId}
+              onChange={setSelectedPlaylistId}
+            />
+          </div>
           <div className="flex gap-2">
             <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（或直接上传文件）" className={cn(inputCls, "flex-1")} />
             <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
@@ -233,5 +326,19 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
         onConfirm={confirmDelete}
       />
     </div>
+  )
+}
+
+function SelectPlaylist({ playlists, value, onChange }: {
+  playlists: PlaylistItem[]; value: string; onChange: (v: string) => void
+}) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)}
+      className="rounded-xl bg-muted px-3 py-2.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all">
+      <option value="">未分类</option>
+      {playlists.map(pl => (
+        <option key={pl.id} value={pl.id}>{pl.name}</option>
+      ))}
+    </select>
   )
 }

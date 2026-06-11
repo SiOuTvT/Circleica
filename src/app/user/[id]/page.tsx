@@ -1,6 +1,7 @@
 import { AchievementModal } from "@/components/achievement-modal"
 import { AvatarFrameSelector } from "@/components/avatar-frame-selector"
 import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
+import { CardGenerateBtn } from "@/components/card-generate-btn"
 import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
 import { SafeAvatar } from "@/components/safe-avatar"
@@ -277,14 +278,33 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                       <span className="text-xs font-medium text-foreground">编辑资料</span>
                     </Link>
 
-                    {/* 生成名片（占位） */}
-                    <button
-                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
-                      disabled
-                    >
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
-                      <span className="text-xs font-medium text-foreground">生成名片</span>
-                    </button>
+                    {/* 生成名片 */}
+                    {isSelf && (
+                      <CardGenerateBtn data={{
+                        username: user.username,
+                        uid: user.uid,
+                        avatar: user.avatar,
+                        composedAvatarUrl: user.composedAvatarUrl,
+                        banner: user.banner,
+                        bio: user.bio || "",
+                        role: user.role,
+                        createdAt: user.createdAt.toISOString(),
+                        favCount: user.favorites.length,
+                        commentCount: user.comments.length,
+                        followerCount: user._count.followers,
+                        followingCount: user._count.following,
+                      }} />
+                    )}
+                    {/* 非本人时显示占位 */}
+                    {!isSelf && (
+                      <button
+                        className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
+                        disabled
+                      >
+                        <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+                        <span className="text-xs font-medium text-foreground">生成名片</span>
+                      </button>
+                    )}
 
                     {/* 成就 */}
                     <AchievementModal compact />

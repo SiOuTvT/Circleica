@@ -3,6 +3,7 @@ import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
+import { serialIdToUid } from "@/lib/serial-id"
 import { parseBody, registerSchema } from "@/lib/validations"
 import bcrypt from "bcryptjs"
 import { NextRequest } from "next/server"
@@ -34,10 +35,17 @@ async function handleRegister(req: NextRequest) {
 
     const user = await prisma.user.create({
       data: { username, email, password: hashed, role },
-      select: { id: true, username: true, email: true },
+      select: { id: true, serialId: true, username: true, email: true },
     })
 
-    return created(user)
+    // 根据 serialId 生成零填充 UID 并回写
+    const uid = serialIdToUid(user.serialId)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { uid },
+    })
+
+    return created({ id: user.id, username: user.username, email: user.email, uid })
   } catch (error) {
     logger.auth.error("Registration error", error)
     return serverError("注册失败，请稍后再试")

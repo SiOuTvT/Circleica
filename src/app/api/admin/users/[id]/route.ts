@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getAdminSession } from "@/lib/admin"
+import { logAudit } from "@/lib/audit-log"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 
@@ -8,7 +9,8 @@ type Ctx = { params: Promise<{ id: string }> }
 
 // 重置密码 + 切换角色
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  const session = await getAdminSession("SUPER_ADMIN")
+  if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
 
   let newPassword: string | undefined, role: string | undefined
@@ -46,6 +48,12 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     data,
     select: { id: true, username: true, role: true },
   })
+
+  const actions: string[] = []
+  if (role) actions.push(`角色 → ${role}`)
+  if (newPassword) actions.push("重置密码")
+  logAudit({ userId: session.user.id, action: "update_user", target: id, detail: `${user.username}: ${actions.join(", ")}` })
+
   return NextResponse.json(user)
 }
 
