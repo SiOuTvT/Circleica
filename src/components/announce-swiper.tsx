@@ -22,7 +22,7 @@ interface Ann {
 
 /** 判断是否显示 NEW 标记：最新一条 + 发布 ≤7 天 */
 function shouldShowNew(announcements: Ann[], index: number): boolean {
-  if (index !== 0) return false // 只有最新的一条（排序后第一条）
+  if (index !== 0) return false
   const created = new Date(announcements[0].createdAt)
   const now = new Date()
   const diffMs = now.getTime() - created.getTime()
@@ -30,7 +30,7 @@ function shouldShowNew(announcements: Ann[], index: number): boolean {
   return diffDays <= 7
 }
 
-export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
+export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: { announcements: Ann[]; siteName?: string }) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -39,7 +39,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   useEffect(() => { setImgError(false) }, [cur])
   const [paused, setPaused] = useState(false)
 
-  // 监听滚动，实现视差效果
+  // 视差滚动
   useEffect(() => {
     let ticking = false
     const handleScroll = () => {
@@ -73,12 +73,11 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
   const href = ann.link || `/announcements/${ann.id}`
   const showNew = shouldShowNew(announcements, cur)
   const summary = stripHtml(ann.content)
-  const summaryText = summary.length > 80 ? summary.slice(0, 80) + "…" : summary
 
   return (
     <div
       ref={scrollRef}
-      className="relative w-full min-h-[220px] lg:h-[310px] overflow-hidden rounded-2xl"
+      className="relative w-full min-h-[220px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -90,7 +89,7 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700"
             style={{ transform: "scale(1.1)" }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
@@ -105,12 +104,12 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         )}
       </div>
 
-      {/* 底部渐变遮罩：从透明到深色 */}
+      {/* 底部渐变遮罩 */}
       <div
         className="absolute inset-x-0 bottom-0 z-[1]"
         style={{
-          height: "75%",
-          background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.15) 70%, transparent 100%)",
+          height: "80%",
+          background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 35%, rgba(0,0,0,0.2) 65%, transparent 100%)",
         }}
       />
 
@@ -119,38 +118,38 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="absolute inset-0 z-[2] flex flex-col justify-end p-4 sm:p-5 lg:p-6"
+        className="group absolute inset-0 z-[2] flex flex-col justify-end p-5 sm:p-6 lg:p-8"
       >
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2 max-w-2xl">
           {/* 发布者信息 */}
-          {(ann.authorName || ann.authorAvatar) && (
-            <div className="flex items-center gap-2">
-              {ann.authorAvatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={ann.authorAvatar}
-                  alt={ann.authorName}
-                  className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20"
-                />
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-white/20" />
-              )}
-              <span className="text-xs font-medium text-white/80">{ann.authorName}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {ann.authorAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={ann.authorAvatar}
+                alt={ann.authorName || siteName}
+                className="h-6 w-6 rounded-full object-cover ring-1 ring-white/20"
+              />
+            ) : (
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px] font-bold text-white/80">
+                {(ann.authorName || siteName).charAt(0)}
+              </div>
+            )}
+            <span className="text-xs font-medium text-white/70">{ann.authorName || siteName}</span>
+          </div>
 
           {/* 标题 + NEW */}
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug text-white line-clamp-1">
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-xl sm:text-2xl lg:text-[28px] font-bold leading-tight text-white line-clamp-1 drop-shadow-sm">
               {ann.title}
             </h3>
             {showNew && (
               <span
-                className="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider"
                 style={{
                   background: "var(--primary, #e11d48)",
                   color: "#fff",
-                  opacity: 0.85,
+                  opacity: 0.9,
                 }}
               >
                 NEW
@@ -159,16 +158,16 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           </div>
 
           {/* 摘要 — 单行省略 */}
-          {summaryText && (
-            <p className="text-sm text-white/70 line-clamp-1 leading-relaxed">
-              {summaryText}
+          {summary && (
+            <p className="text-sm text-white/60 line-clamp-1 leading-relaxed">
+              {summary}
             </p>
           )}
 
-          {/* 查看详情 CTA */}
-          <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-white/50 transition-colors group-hover:text-white/80">
+          {/* 查看详情 */}
+          <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-white/40 transition-colors group-hover:text-white/70">
             查看详情
-            <span className="inline-block transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+            <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
           </span>
         </div>
       </Link>
@@ -192,14 +191,14 @@ export function AnnounceSwiper({ announcements }: { announcements: Ann[] }) {
           </button>
 
           {/* 分页点 */}
-          <div className="absolute bottom-3 right-4 z-10 flex gap-1.5">
+          <div className="absolute bottom-4 right-5 z-10 flex gap-1.5">
             {announcements.map((_, i) => (
               <button
                 key={i}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-4 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
+                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
               />
             ))}
           </div>
