@@ -64,18 +64,22 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         id: true, serialId: true, uid: true, username: true, avatar: true,
         avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
         role: true, createdAt: true,
+        // 只加载前 20 条，其余通过客户端分页加载
         favorites: {
+          take: 20,
           include: {
             game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
           },
         },
         playStatuses: {
+          take: 20,
           include: {
             game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } },
           },
         },
         comments: {
           orderBy: { createdAt: "desc" },
+          take: 20,
           include: { game: { select: { id: true, serialId: true, title: true } } },
         },
         _count: {
