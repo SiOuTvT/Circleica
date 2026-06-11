@@ -1,8 +1,19 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache } from "@/lib/redis"
 import { NextRequest, NextResponse } from "next/server"
 
 type Ctx = { params: Promise<{ id: string }> }
+
+// 清除 admin games 列表缓存
+async function invalidateAdminGamesCache() {
+  const pattern = "fangame:admin:games:*"
+  // MemoryCache 不支持通配符，Redis 也没有简单方式
+  // 简单处理：清除所有以 admin:games 开头的 key（需要知道 page 范围）
+  for (let i = 1; i <= 10; i++) {
+    await cache.del(`fangame:admin:games:${i}`)
+  }
+}
 
 export async function GET(_req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
@@ -117,6 +128,9 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     include: { tags: { select: { tag: true } }, creators: true },
   })
 
+  // 清除缓存
+  await invalidateAdminGamesCache()
+
   return NextResponse.json({ ...game, tags: game.tags.map((t) => t.tag) })
 }
 
@@ -124,5 +138,7 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
   const { id } = await params
   await prisma.game.delete({ where: { id } })
+  // 清除缓存
+  await invalidateAdminGamesCache()
   return NextResponse.json({ ok: true })
 }

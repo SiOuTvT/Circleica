@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 
 interface Tab {
   key: string
@@ -18,8 +18,8 @@ export function TabBar({ tabs, activeKey, onTabChange, commentCount }: TabBarPro
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // 滑块动画
-  useEffect(() => {
+  // 滑块动画 - 用 useLayoutEffect 避免布局抖动
+  useLayoutEffect(() => {
     const container = containerRef.current
     const slider = sliderRef.current
     if (!container || !slider) return

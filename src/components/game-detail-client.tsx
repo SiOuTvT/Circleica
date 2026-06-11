@@ -4,7 +4,7 @@ import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Building2, Calendar, Clock, ExternalLink, Flag, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { ArchiveCard } from "./game-detail/archive-card"
 import { IntroTab } from "./game-detail/intro-tab"
@@ -127,8 +127,8 @@ export default function GameDetailClient({
     }
   }, [gameId, reportSubmitting])
 
-  // Sliding block animation
-  useEffect(() => {
+  // Sliding block animation - 用 useLayoutEffect 避免布局抖动
+  useLayoutEffect(() => {
     const container = containerRef.current
     const slider = sliderRef.current
     if (!container || !slider) return
