@@ -182,19 +182,23 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     fetch("/api/checkin", { method: "POST" })
       .then(r => r.json())
       .then(data => {
+        // 成功响应
         if (data.success && data.data) {
-          const d = data.data as { alreadyDone?: boolean; marks?: number }
-          if (d.alreadyDone) {
-            setCheckedIn(true)
-            toast.success(checkinDupMsg ? `${checkinDupMsg.emoji} ${checkinDupMsg.title}` : "今日已签到~")
-          } else {
+          const d = data.data as { ok?: boolean; alreadyDone?: boolean; marks?: number; total?: number }
+          if (d.ok) {
             setCheckedIn(true)
             setToastMarks(d.marks ?? 0)
-            toast.success(checkinMsg ? `${checkinMsg.emoji} ${checkinMsg.title}` : "签到成功！")
+            return
           }
-        } else {
-          toast.error("签到失败，请稍后重试")
         }
+        // 409 conflict: alreadyDone 在 data.data 里
+        if (data.data?.alreadyDone) {
+          setCheckedIn(true)
+          return
+        }
+        // 其他情况视为失败
+        const errorMsg = data.error || "签到失败，请稍后重试"
+        toast.error(errorMsg)
       })
       .catch(() => { toast.error("签到失败，请稍后重试") })
       .finally(() => { setCheckinLoading(false) })
