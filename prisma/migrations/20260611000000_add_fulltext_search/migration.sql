@@ -1,8 +1,8 @@
 -- AlterTable
 ALTER TABLE "Game" ADD COLUMN "searchVector" tsvector;
 
--- CreateIndex
-CREATE INDEX "Game_searchVector_idx" ON "Game" USING GIN ("searchVector" gin_trgm_ops);
+-- CreateIndex (GIN index for full-text search, not trigram)
+CREATE INDEX "Game_searchVector_idx" ON "Game" USING GIN ("searchVector");
 
 -- Fill searchVector for existing rows
 UPDATE "Game" SET "searchVector" =
@@ -25,7 +25,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- CreateTable
+-- CreateTrigger
 CREATE TRIGGER game_search_vector_update
 BEFORE INSERT OR UPDATE ON "Game"
 FOR EACH ROW EXECUTE FUNCTION game_search_vector_update();
