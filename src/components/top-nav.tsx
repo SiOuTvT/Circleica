@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { AvatarFrame } from "@/components/avatar-frame"
+import { CheckInToast } from "@/components/checkin-toast"
 import { NotificationBell } from "@/components/notification-bell"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
@@ -48,6 +49,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkinLoading, setCheckinLoading] = useState(false)
+  const [toastMarks, setToastMarks] = useState<number | null>(null)
   // 用于强制头像重新渲染的版本号
   const [avatarVersion, setAvatarVersion] = useState(0)
   // 本地覆盖的头像 URL（避免将 base64 存入 JWT cookie），从 localStorage 恢复
@@ -180,12 +182,16 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     fetch("/api/checkin", { method: "POST" })
       .then(r => r.json())
       .then(data => {
-        if (data.alreadyDone) {
-          setCheckedIn(true)
-          toast.success(checkinDupMsg ? `${checkinDupMsg.emoji} ${checkinDupMsg.title}` : "今日已签到~")
-        } else if (data.ok) {
-          setCheckedIn(true)
-          toast.success(checkinMsg ? `${checkinMsg.emoji} ${checkinMsg.title}` : "签到成功！积分 +1")
+        if (data.success && data.data) {
+          const d = data.data as { alreadyDone?: boolean; marks?: number }
+          if (d.alreadyDone) {
+            setCheckedIn(true)
+            toast.success(checkinDupMsg ? `${checkinDupMsg.emoji} ${checkinDupMsg.title}` : "今日已签到~")
+          } else {
+            setCheckedIn(true)
+            setToastMarks(d.marks ?? 0)
+            toast.success(checkinMsg ? `${checkinMsg.emoji} ${checkinMsg.title}` : "签到成功！")
+          }
         } else {
           toast.error("签到失败，请稍后重试")
         }
@@ -325,6 +331,12 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
         </div>
       </header>
 
+      {toastMarks !== null && (
+        <CheckInToast
+          marks={toastMarks}
+          onClose={() => setToastMarks(null)}
+        />
+      )}
     </>
   )
 }
