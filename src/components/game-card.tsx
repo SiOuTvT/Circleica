@@ -96,7 +96,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
               loading="lazy"
               decoding="async"
               quality={65}
-              placeholder="blur"
+              placeholder="empty"
             />
           )
         ) : (
