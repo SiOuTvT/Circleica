@@ -1,5 +1,6 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
@@ -8,6 +9,14 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
   const limit = 20
   const skip = (page - 1) * limit
+
+  const cacheKeyAdmin = cacheKey("admin:games", String(page))
+
+  // 尝试从缓存获取
+  const cached = await cache.get<{ games: any[], total: number }>(cacheKeyAdmin)
+  if (cached) {
+    return NextResponse.json({ ...cached, page, limit })
+  }
 
   const [games, total] = await Promise.all([
     prisma.game.findMany({
@@ -22,10 +31,15 @@ export async function GET(req: NextRequest) {
     prisma.game.count(),
   ])
 
-  return NextResponse.json({
+  const result = {
     games: games.map((g) => ({ ...g, tags: g.tags.map((t) => t.tag) })),
-    total, page, limit,
-  })
+    total,
+  }
+
+  // 缓存 2 分钟
+  await cache.set(cacheKeyAdmin, result, 120)
+
+  return NextResponse.json({ ...result, page, limit })
 }
 
 export async function POST(req: NextRequest) {

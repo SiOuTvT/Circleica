@@ -35,7 +35,6 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
         downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
-        resources: { select: { language: true, runType: true, resourceContent: true } },
       },
     }),
     prisma.game.count({ where }),
@@ -61,29 +60,13 @@ async function GameGridServer({ tag, q, nsfw }: { tag: string; q: string; nsfw: 
     // downloadLinks 是 Json 类型，直接使用
     const downloadLinks: { label?: string; url: string; platform?: string }[] =
       Array.isArray(g.downloadLinks) ? g.downloadLinks as { label?: string; url: string; platform?: string }[] : []
-    // 从资源中收集去重的 resourceTags（统一颜色）
-    const seen = new Set<string>()
-    const resourceTags: { name: string; color: string }[] = []
-    for (const r of g.resources) {
-      for (const field of [r.language, r.runType, r.resourceContent]) {
-        try {
-          const arr: string[] = Array.isArray(field) ? field as string[] : []
-          for (const name of arr) {
-            if (!seen.has(name)) {
-              seen.add(name)
-              resourceTags.push({ name, color: cardTagColor })
-            }
-          }
-        } catch {}
-      }
-    }
 
     return {
       ...g,
       coverImage: g.coverImage || placeholder,
       tags: g.tags.map((t) => t.tag),
       downloadLinks,
-      resourceTags,
+      resourceTags: [], // 首页不显示资源标签，节省带宽
     }
   })
 

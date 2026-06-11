@@ -136,6 +136,8 @@ model Game {
   englishName   String       @default("")
   aliases       String       @default("")
   publisherId   String?
+  /// PostgreSQL 全文搜索向量
+  searchVector  String       @default("") @db.Text
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   publisher     User?        @relation(fields: [publisherId], references: [id], onDelete: SetNull)
@@ -153,6 +155,7 @@ model Game {
   @@index([title])
   @@index([vndbId])
   @@index([publisherId])
+  @@index([searchVector])
 }
 
 model TagGroup {

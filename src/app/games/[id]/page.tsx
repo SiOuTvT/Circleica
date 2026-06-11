@@ -126,21 +126,31 @@ export default async function GameDetailPage({
     })
   )]
 
-  // 相关游戏推荐：按共同标签匹配
+  // 相关游戏推荐：按共同标签匹配 - 使用缓存
   const tagNames = tags.map((t) => t.name)
-  const relatedGames =
-    tagNames.length > 0
-      ? await prisma.game.findMany({
-          where: {
-            id: { not: resolved.id },
-            isPublished: true,
-            tags: { some: { tag: { name: { in: tagNames } } } },
-          },
-          select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true },
-          orderBy: { favoriteCount: "desc" },
-          take: 8,
-        })
-      : []
+  const relatedCacheKey = cacheKey("related", resolved.id, tagNames.sort().join(","))
+  let relatedGames: { id: string; serialId: number; title: string; coverImage: string; originalWork: string }[]
+
+  if (tagNames.length === 0) {
+    relatedGames = []
+  } else {
+    const cachedRelated = await cache.get<typeof relatedGames>(relatedCacheKey)
+    if (cachedRelated) {
+      relatedGames = cachedRelated
+    } else {
+      relatedGames = await prisma.game.findMany({
+        where: {
+          id: { not: resolved.id },
+          isPublished: true,
+          tags: { some: { tag: { name: { in: tagNames } } } },
+        },
+        select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true },
+        orderBy: { favoriteCount: "desc" },
+        take: 8,
+      })
+      await cache.set(relatedCacheKey, relatedGames, 1800) // 缓存 30 分钟
+    }
+  }
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
 

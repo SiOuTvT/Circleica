@@ -21,7 +21,7 @@ export async function GET(
       tags: { select: { tag: { select: { name: true, color: true } } } },
       comments: {
         orderBy: { createdAt: "desc" },
-        take: 50, // 限制评论数量
+        take: 10, // 首次只加载 10 条，其余通过分页 API 加载
         include: {
           user: { select: { id: true, username: true, avatar: true } },
         },

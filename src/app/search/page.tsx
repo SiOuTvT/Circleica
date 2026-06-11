@@ -61,11 +61,7 @@ async function SearchResults({
     ...(nsfw ? {} : { isNsfw: false }),
     ...(q && {
       OR: [
-        { title: { contains: q, mode: "insensitive" as const } },
-        { originalWork: { contains: q, mode: "insensitive" as const } },
-        { englishName: { contains: q, mode: "insensitive" as const } },
-        { aliases: { contains: q, mode: "insensitive" as const } },
-        { description: { contains: q, mode: "insensitive" as const } },
+        { searchVector: { search: q } },
         { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
       ],
     }),
