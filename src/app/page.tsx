@@ -114,11 +114,12 @@ export default async function HomePage({
   const statsCacheKey = cacheKey("homepage:stats", dateStr, nsfw ? "1" : "0")
 
   // 全局去重 Map，防止并发请求同时 miss 缓存
-  const globalCachePending = (globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] as Map<string, Promise<typeof statsResponse>> | undefined
-  if (!globalCachePending) {
-    ;(globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] = new Map()
+  const PENDING_KEY = "homepage:stats:pending"
+  let pendingMap = (globalThis as Record<string, unknown>)[PENDING_KEY] as Map<string, Promise<[number, number, number, typeof announcements]>> | undefined
+  if (!pendingMap) {
+    pendingMap = new Map()
+    ;(globalThis as Record<string, unknown>)[PENDING_KEY] = pendingMap
   }
-  const pendingMap = (globalThis as Record<string, unknown>)[ Symbol.for("homepage:stats:pending") ] as Map<string, Promise<typeof statsResponse>>
 
   try {
     const weekAgo = new Date(today)
@@ -151,12 +152,15 @@ export default async function HomePage({
             select: { id: true, title: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true },
           }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
         ]).finally(() => {
-          pendingMap.delete(statsCacheKey)
+          pendingMap!.delete(statsCacheKey)
         })
         pendingMap.set(statsCacheKey, pending)
       }
-      const statsResponse = await pending
-      ;[total, todayCheckins, weekNewGames, announcements] = statsResponse
+      const [totalResult, todayCheckinsResult, weekNewGamesResult, announcementsResult] = await pending
+      total = totalResult
+      todayCheckins = todayCheckinsResult
+      weekNewGames = weekNewGamesResult
+      announcements = announcementsResult
       // 缓存 5 分钟
       await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)
     }
