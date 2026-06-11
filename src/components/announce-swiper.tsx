@@ -132,7 +132,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="group absolute inset-0 z-[2] flex flex-col justify-end p-4 sm:p-5 lg:p-6"
+        className="group absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5"
       >
         <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-4 py-3 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
@@ -155,7 +155,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1">
+            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white/70 line-clamp-1 transition-colors group-hover:text-white">
               {ann.title}
             </h3>
             {showNew && (
@@ -177,8 +177,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 查看详情 */}
           <span
-            className="inline-flex items-center gap-1 text-xs font-medium transition-colors"
-            style={{ color: "var(--primary)" }}
+            className="inline-flex items-center gap-1 text-xs font-medium text-white/50 transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
           >
             查看详情
             <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
