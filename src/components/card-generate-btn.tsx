@@ -44,8 +44,9 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       const canvas = document.createElement("canvas")
       canvas.width = W * 2
       canvas.height = H * 2
-      const ctx = canvas.getContext("2d")
+      let ctx = canvas.getContext("2d")
       if (!ctx) { toast.error("浏览器不支持 Canvas"); setGenerating(false); return }
+      ctx = ctx! // TypeScript narrow
       ctx.scale(2, 2)
       log("canvas created")
 
@@ -71,18 +72,19 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       await new Promise(r => setTimeout(r, 0)) // 让浏览器喘口气
 
       const R = 20
+      const ctx2 = ctx!
       function roundRect(x: number, y: number, w: number, h: number, r: number) {
-        ctx.beginPath()
-        ctx.moveTo(x + r, y)
-        ctx.lineTo(x + w - r, y)
-        ctx.arcTo(x + w, y, x + w, y + r, r)
-        ctx.lineTo(x + w, y + h - r)
-        ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-        ctx.lineTo(x + r, y + h)
-        ctx.arcTo(x, y + h, x, y + h - r, r)
-        ctx.lineTo(x, y + r)
-        ctx.arcTo(x, y, x + r, y, r)
-        ctx.closePath()
+        ctx2.beginPath()
+        ctx2.moveTo(x + r, y)
+        ctx2.lineTo(x + w - r, y)
+        ctx2.arcTo(x + w, y, x + w, y + r, r)
+        ctx2.lineTo(x + w, y + h - r)
+        ctx2.arcTo(x + w, y + h, x + w - r, y + h, r)
+        ctx2.lineTo(x + r, y + h)
+        ctx2.arcTo(x, y + h, x, y + h - r, r)
+        ctx2.lineTo(x, y + r)
+        ctx2.arcTo(x, y, x + r, y, r)
+        ctx2.closePath()
       }
 
       roundRect(0, 0, W, H, R)
@@ -111,24 +113,23 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.lineWidth = 1
       ctx.stroke()
 
-      // ── 头像 ──
+      // ── 头像绘制 ──
       const acx = 80, acy = 105, ar = 48
       let avatarOk = false
 
-      const avatarSrc = data.composedAvatarUrl || data.avatar
-      if (avatarSrc) {
+      if (avatarImg) {
         try {
-          const img = await loadImageSafe(avatarSrc)
           ctx.save()
           ctx.beginPath()
           ctx.arc(acx, acy, ar, 0, Math.PI * 2)
           ctx.closePath()
           ctx.clip()
-          ctx.drawImage(img, acx - ar, acy - ar, ar * 2, ar * 2)
+          ctx.drawImage(avatarImg, acx - ar, acy - ar, ar * 2, ar * 2)
           ctx.restore()
           avatarOk = true
+          log("avatar drawn")
         } catch {
-          // 头像加载失败，用 fallback
+          // 头像绘制失败
         }
       }
 
@@ -159,7 +160,8 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       ctx.arc(acx, acy, ar + 2, 0, Math.PI * 2)
       ctx.stroke()
 
-      // ── 文字 ──
+      await new Promise(r => setTimeout(r, 0))
+      log("drawing text...")
       const textX = acx + ar + 20
       ctx.textAlign = "start"
       ctx.textBaseline = "alphabetic"
@@ -205,7 +207,8 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         })
       }
 
-      // ── 分隔线 ──
+      await new Promise(r => setTimeout(r, 0))
+      log("drawing stats...")
       ctx.strokeStyle = "rgba(255,255,255,0.05)"
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -236,7 +239,8 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         ctx.fillText(formatNum(s.value), cx, statsY + 42)
       })
 
-      // ── 底部分隔线 ──
+      await new Promise(r => setTimeout(r, 0))
+      log("drawing bottom...")
       ctx.strokeStyle = "rgba(255,255,255,0.05)"
       ctx.beginPath()
       ctx.moveTo(50, 345)
@@ -268,12 +272,15 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
 
       if (abortRef.current) { setGenerating(false); return }
 
+      log("converting to blob...")
+      await new Promise(r => setTimeout(r, 0))
       // ── 下载 ──
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/png")
       )
       if (!blob) { toast.error("生成失败"); setGenerating(false); return }
 
+      log("downloading...")
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
