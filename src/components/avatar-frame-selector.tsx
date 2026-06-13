@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
-import { useCallback, useEffect, useState, useTransition } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 
 interface FrameItem {
   id: string
@@ -29,7 +30,6 @@ export function AvatarFrameSelector({
   const { update } = useSession()
   const [selected, setSelected] = useState<string | null>(currentFrameId)
   const [saving, setSaving] = useState(false)
-  const [, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
   const [frames, setFrames] = useState<FrameItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -66,10 +66,8 @@ export function AvatarFrameSelector({
         body: JSON.stringify({ frameId }),
       })
       if (res.ok) {
-        startTransition(async () => {
           await update({ avatarFrameId: frameId })
-        })
-      }
+        }
     } finally {
       setSaving(false)
     }
@@ -101,7 +99,7 @@ export function AvatarFrameSelector({
         </button>
       )}
 
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
           <div
             className="mx-4 w-full max-w-md rounded-2xl bg-card ring-1 ring-border overflow-hidden"
@@ -199,7 +197,8 @@ export function AvatarFrameSelector({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

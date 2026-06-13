@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { Award, Lock, X } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 
 interface Achievement {
   id: string
@@ -66,7 +67,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
       )}
 
       {/* 弹窗 */}
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => { setOpen(false); setSelected(null) }}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div
@@ -154,7 +155,8 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
               onClose={() => setSelected(null)}
             />
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

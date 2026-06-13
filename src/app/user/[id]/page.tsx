@@ -151,20 +151,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                       </button>
                     )}
                     {/* AchievementModal 和 AvatarFrameSelector 有闪屏问题，暂时注释 */}
-                    <button
-                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
-                      disabled
-                    >
-                      <span className="text-xl leading-none">🏆</span>
-                      <span className="text-xs font-medium text-foreground">成就</span>
-                    </button>
-                    <button
-                      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed"
-                      disabled
-                    >
-                      <span className="text-xl leading-none">🎭</span>
-                      <span className="text-xs font-medium text-foreground">头像框</span>
-                    </button>
+                    <AchievementModal compact />
+                    <AvatarFrameSelector currentFrameId={user.avatarFrameId || null} userImage={user.composedAvatarUrl || user.avatar} userName={user.username} compact />
                   </div>
                 )}
               </div>
