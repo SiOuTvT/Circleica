@@ -161,8 +161,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         </aside>
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
           <div className="rounded-2xl bg-card ring-1 ring-border h-full shadow-none">
-            {/* TODO: ProfileContentTabs 有 bug 导致页面卡死，暂时注释 */}
-            <div className="p-4 text-center text-muted-foreground">内容区暂时维护中</div>
+            <ProfileContentTabs
+              favGames={favGames}
+              playStatusGames={playStatusGames}
+              comments={user.comments}
+            />
           </div>
         </main>
       </div>
