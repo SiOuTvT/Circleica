@@ -65,7 +65,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
   const groups = await prisma.tagGroup.findMany({
     where: {
       // 只显示"发现页标签"组的标签（用于搜索筛选和标签云）
-      positions: { array_contains: "discover" },
+      positions: { contains: "discover" },
     },
     include: {
       tags: {
