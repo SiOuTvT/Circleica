@@ -20,11 +20,15 @@ export function RichTextContent({ html }: { html: string }) {
 
   return (
     <div
-      className="prose prose-invert prose-sm max-w-none break-words
-        prose-p:my-1 prose-a:text-muted-foreground prose-a:underline prose-a:underline-offset-2
-        prose-img:rounded-lg prose-img:max-w-full
-        prose-headings:text-foreground prose-headings:mt-3 prose-headings:mb-1
-        prose-ul:list-disc prose-ol:list-decimal prose-li:my-0.5"
+      className="space-y-6
+        [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-3
+        [&>p]:text-sm [&>p]:text-muted-foreground [&>p]:leading-relaxed [&>p]:mb-4
+        [&>ul]:space-y-2 [&>ul]:text-sm [&>ul]:text-muted-foreground [&>ul]:leading-relaxed [&>ul]:list-disc [&>ul]:pl-5
+        [&>ol]:space-y-2 [&>ol]:text-sm [&>ol]:text-muted-foreground [&>ol]:leading-relaxed [&>ol]:list-decimal [&>ol]:pl-5
+        [&>li]:mb-0
+        [&>a]:text-primary [&>a]:underline [&>a]:underline-offset-2 [&>a]:hover:text-primary/80
+        [&>strong]:font-semibold [&>strong]:text-foreground
+      "
       dangerouslySetInnerHTML={{ __html: clean }}
     />
   )

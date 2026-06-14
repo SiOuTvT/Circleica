@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, X, ArrowUp, ArrowDown } from "lucide-react"
+import { Plus, X, ArrowUp, ArrowDown, Type, List, Pilcrow } from "lucide-react"
 
 interface Block {
   id: string
@@ -18,6 +18,7 @@ interface StructuredEditorProps {
 }
 
 function parseHTMLToBlocks(html: string): Block[] {
+  if (!html) return []
   const blocks: Block[] = []
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, "text/html")
@@ -61,7 +62,7 @@ function blocksToHTML(blocks: Block[]): string {
         return `<p>${block.content}</p>`
       }
       if (block.type === "list") {
-        const tag = block.content === "ul" ? "ul" : "ul"
+        const tag = block.content === "ol" ? "ol" : "ul"
         const items = block.items?.map(item => `<li>${item}</li>`).join("") || ""
         return `<${tag}>${items}</${tag}>`
       }
@@ -78,16 +79,14 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
     onChange(blocksToHTML(newBlocks))
   }
 
-  const addBlock = (type: Block["type"], afterIndex: number) => {
+  const addBlock = (type: Block["type"]) => {
     const newBlock: Block = {
       id: `${type}-${Date.now()}`,
       type,
       content: type === "list" ? "ul" : "",
       items: type === "list" ? [""] : undefined,
     }
-    const newBlocks = [...blocks]
-    newBlocks.splice(afterIndex + 1, 0, newBlock)
-    onChange(blocksToHTML(newBlocks))
+    onChange(blocksToHTML([...blocks, newBlock]))
   }
 
   const removeBlock = (index: number) => {
@@ -125,139 +124,159 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {blocks.map((block, index) => (
-        <div key={block.id} className="group relative rounded-lg border border-border bg-card p-3">
-          {/* 移动/删除按钮 */}
-          <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => moveBlock(index, "up")}
-              disabled={index === 0}
-              className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
-              title="上移"
-            >
-              <ArrowUp className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => moveBlock(index, "down")}
-              disabled={index === blocks.length - 1}
-              className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
-              title="下移"
-            >
-              <ArrowDown className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => removeBlock(index)}
-              className="p-1 text-muted-foreground hover:text-red-500"
-              title="删除"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* 块类型标签 */}
-          <div className="mb-2 flex items-center gap-2">
-            <span className="text-[10px] uppercase font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-              {block.type === "heading" && "标题"}
-              {block.type === "paragraph" && "段落"}
-              {block.type === "list" && "列表"}
-            </span>
-          </div>
-
-          {/* 编辑区域 */}
-          {block.type === "heading" && (
-            <Input
-              value={block.content}
-              onChange={e => updateBlock(index, { content: e.target.value })}
-              placeholder="输入标题..."
-              className="h-9 text-sm"
-            />
-          )}
-
-          {block.type === "paragraph" && (
-            <Textarea
-              value={block.content}
-              onChange={e => updateBlock(index, { content: e.target.value })}
-              placeholder="输入段落内容..."
-              className="min-h-[60px] text-sm"
-              rows={2}
-            />
-          )}
-
-          {block.type === "list" && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <select
-                  value={block.content}
-                  onChange={e => updateBlock(index, { content: e.target.value })}
-                  className="text-xs border border-border rounded-md px-2 py-1 bg-background"
-                >
-                  <option value="ul">无序列表</option>
-                  <option value="ol">有序列表</option>
-                </select>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => addListItem(index)}
-                  className="h-7 text-xs"
-                >
-                  <Plus className="h-3 w-3 mr-1" />添加项
-                </Button>
-              </div>
-              {block.items?.map((item, itemIndex) => (
-                <div key={itemIndex} className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-4">{itemIndex + 1}.</span>
-                  <Input
-                    value={item}
-                    onChange={e => updateListItem(index, itemIndex, e.target.value)}
-                    placeholder={`第${itemIndex + 1}项`}
-                    className="h-8 text-sm flex-1"
-                  />
-                  <button
-                    onClick={() => removeListItem(index, itemIndex)}
-                    className="p-1 text-muted-foreground hover:text-red-500"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+    <div className="space-y-4">
+      {blocks.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-lg">
+          <p className="text-sm">暂无内容，点击下方按钮添加</p>
         </div>
-      ))}
+      ) : (
+        <div className="space-y-3">
+          {blocks.map((block, index) => (
+            <div
+              key={block.id}
+              className="group relative rounded-lg border border-border bg-card transition-all hover:shadow-sm"
+            >
+              {/* 工具栏 - hover 显示 */}
+              <div className="absolute -top-3 right-2 flex items-center gap-1 bg-background border border-border rounded-md px-1.5 py-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <button
+                  onClick={() => moveBlock(index, "up")}
+                  disabled={index === 0}
+                  className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="上移"
+                >
+                  <ArrowUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => moveBlock(index, "down")}
+                  disabled={index === blocks.length - 1}
+                  className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="下移"
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                </button>
+                <div className="w-px h-4 bg-border mx-0.5" />
+                <button
+                  onClick={() => removeBlock(index)}
+                  className="p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-500"
+                  title="删除"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
-      {/* 添加块按钮 */}
-      <div className="flex gap-2">
+              {/* 内容区域 */}
+              <div className="p-4 pt-6">
+                {block.type === "heading" && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/10 text-primary">
+                      <Type className="h-3.5 w-3.5" />
+                    </div>
+                    <Input
+                      value={block.content}
+                      onChange={e => updateBlock(index, { content: e.target.value })}
+                      placeholder="输入标题..."
+                      className="h-9 text-sm font-semibold flex-1 border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:bg-muted/50 rounded-none"
+                    />
+                  </div>
+                )}
+
+                {block.type === "paragraph" && (
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-500/10 text-blue-500 flex-shrink-0 mt-0.5">
+                      <Pilcrow className="h-3.5 w-3.5" />
+                    </div>
+                    <Textarea
+                      value={block.content}
+                      onChange={e => updateBlock(index, { content: e.target.value })}
+                      placeholder="输入段落内容..."
+                      className="min-h-[80px] text-sm flex-1 border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:bg-muted/50 rounded-none resize-none"
+                      rows={3}
+                    />
+                  </div>
+                )}
+
+                {block.type === "list" && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-md bg-green-500/10 text-green-500">
+                        <List className="h-3.5 w-3.5" />
+                      </div>
+                      <select
+                        value={block.content}
+                        onChange={e => updateBlock(index, { content: e.target.value })}
+                        className="text-xs border border-border rounded-md px-2 py-1.5 bg-background text-muted-foreground cursor-pointer hover:bg-accent/50"
+                      >
+                        <option value="ul">无序列表</option>
+                        <option value="ol">有序列表</option>
+                      </select>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => addListItem(index)}
+                        className="h-7 text-xs ml-auto"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="space-y-1.5 pl-9">
+                      {block.items?.map((item, itemIndex) => (
+                        <div key={itemIndex} className="flex items-center gap-2 group/item">
+                          <span className="text-xs text-muted-foreground w-5 flex-shrink-0 text-right">
+                            {block.content === "ol" ? `${itemIndex + 1}.` : "•"}
+                          </span>
+                          <Input
+                            value={item}
+                            onChange={e => updateListItem(index, itemIndex, e.target.value)}
+                            placeholder={`列表项...`}
+                            className="h-8 text-sm flex-1 border-0 bg-transparent border-b border-border/50 focus-visible:border-foreground/20 rounded-none px-0 focus-visible:ring-0"
+                          />
+                          <button
+                            onClick={() => removeListItem(index, itemIndex)}
+                            className="opacity-0 group-hover/item:opacity-100 p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-500 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 底部添加按钮 */}
+      <div className="flex gap-2 pt-2 border-t border-border mt-4">
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => addBlock("heading", blocks.length - 1)}
-          className="flex-1"
+          onClick={() => addBlock("heading")}
+          className="flex-1 h-9 text-sm hover:bg-primary/10 hover:text-primary"
         >
-          <Plus className="h-3.5 w-3.5 mr-1" />添加标题
+          <Type className="h-4 w-4 mr-2" />
+          标题
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => addBlock("paragraph", blocks.length - 1)}
-          className="flex-1"
+          onClick={() => addBlock("paragraph")}
+          className="flex-1 h-9 text-sm hover:bg-blue-500/10 hover:text-blue-500"
         >
-          <Plus className="h-3.5 w-3.5 mr-1" />添加段落
+          <Pilcrow className="h-4 w-4 mr-2" />
+          段落
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => addBlock("list", blocks.length - 1)}
-          className="flex-1"
+          onClick={() => addBlock("list")}
+          className="flex-1 h-9 text-sm hover:bg-green-500/10 hover:text-green-500"
         >
-          <Plus className="h-3.5 w-3.5 mr-1" />添加列表
+          <List className="h-4 w-4 mr-2" />
+          列表
         </Button>
       </div>
-
-      {/* 提示 */}
-      <p className="text-xs text-muted-foreground text-center">
-        鼠标悬停在块上可移动或删除 · 块顺序与前台显示顺序一致
-      </p>
     </div>
   )
 }

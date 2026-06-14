@@ -85,11 +85,11 @@ export function PagesManager({ initial }: Props) {
             )}
           </div>
 
-          <div className="p-5">
+          <div className="px-5 pb-5">
             {editingKey === page.key ? (
               <StructuredEditor html={draft} onChange={setDraft} />
             ) : (
-              <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
+              <div className="rounded-2xl bg-card ring-1 ring-border p-6">
                 {contents[page.key] ? (
                   <RichTextContent html={contents[page.key]} />
                 ) : (
