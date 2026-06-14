@@ -3,7 +3,7 @@
 import { AvatarFrame } from "@/components/avatar-frame"
 import { CheckInToast } from "@/components/checkin-toast"
 import { NotificationBell } from "@/components/notification-bell"
-import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
+import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
