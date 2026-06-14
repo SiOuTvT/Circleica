@@ -78,7 +78,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
             },
           },
         },
-        orderBy: { tag: { name: "asc" } },
+        orderBy: { name: "asc" },
       },
     },
     orderBy: { name: "asc" },
