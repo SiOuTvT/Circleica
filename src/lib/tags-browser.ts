@@ -69,15 +69,6 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
     },
     include: {
       tags: {
-        include: {
-          tag: {
-            select: {
-              id: true,
-              name: true,
-              color: true,
-            },
-          },
-        },
         orderBy: { name: "asc" },
       },
     },
@@ -88,17 +79,17 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
   const tagGroups: TagGroupWithTags[] = await Promise.all(
     groups.map(async (group) => {
       const tags: TagInfo[] = await Promise.all(
-        group.tags.map(async (gt) => {
+        group.tags.map(async (tag) => {
           const gameCount = await prisma.gameTag.count({
             where: {
-              tagId: gt.tag.id,
+              tagId: tag.id,
               game: { isPublished: true },
             },
           })
           return {
-            id: gt.tag.id,
-            name: gt.tag.name,
-            color: gt.tag.color || group.color,
+            id: tag.id,
+            name: tag.name,
+            color: tag.color || group.color,
             gameCount,
           }
         })
