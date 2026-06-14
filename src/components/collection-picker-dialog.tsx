@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api-client"
 import { Check, Folder, FolderPlus, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -42,33 +43,28 @@ export function CollectionPickerDialog({
 
   useEffect(() => {
     if (!open) return
-    const controller = new AbortController()
     setLoading(true)
-    fetch("/api/collections", { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data) => { setCollections(data.collections || []) })
+    apiGet<{ success: boolean; data: { collections: Collection[] } }>("/api/collections")
+      .then((data) => { setCollections(data.data?.collections ?? []) })
       .catch(() => {})
       .finally(() => setLoading(false))
-    return () => controller.abort()
   }, [open])
 
   async function handleCreate() {
     if (!newName.trim() || creating) return
     setCreating(true)
     try {
-      const res = await fetch("/api/collections", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim() }),
-      })
-      if (res.ok) {
-        const col = await res.json()
-        setCollections((prev) => [...prev, col])
+      const col = await apiPost<{ success: boolean; data: Collection }>("/api/collections", { name: newName.trim() })
+      if (col.success && col.data) {
+        setCollections((prev) => [...prev, col.data!])
         setNewName("")
         setShowCreate(false)
-        // Auto-select the new collection
-        handleSelect(col.id)
+        handleSelect(col.data.id)
+      } else {
+        alert("创建收藏集失败")
       }
+    } catch {
+      alert("创建收藏集失败，请重试")
     } finally {
       setCreating(false)
     }
@@ -78,28 +74,14 @@ export function CollectionPickerDialog({
     setSubmitting(collectionId || "__none__")
     try {
       if (!isFav) {
-        // Not yet favorited -> POST to favorite with collection
-        const res = await fetch(`/api/games/${gameId}/favorite`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ collectionId }),
-        })
-        if (res.ok) {
-          onSelect(collectionId)
-          onOpenChange(false)
-        }
+        await apiPost(`/api/games/${gameId}/favorite`, { collectionId })
       } else {
-        // Already favorited -> PATCH to update collection
-        const res = await fetch(`/api/games/${gameId}/favorite`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ collectionId }),
-        })
-        if (res.ok) {
-          onSelect(collectionId)
-          onOpenChange(false)
-        }
+        await apiPut(`/api/games/${gameId}/favorite`, { collectionId })
       }
+      onSelect(collectionId)
+      onOpenChange(false)
+    } catch {
+      // 失败时不关闭弹窗，用户可重试
     } finally {
       setSubmitting(null)
     }
