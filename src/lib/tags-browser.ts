@@ -81,7 +81,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
         orderBy: { tag: { name: "asc" } },
       },
     },
-    orderBy: { sortOrder: "asc" },
+    orderBy: { name: "asc" },
   })
 
   // 并行获取每个标签的游戏数量
