@@ -6,23 +6,38 @@ import { FileText } from "lucide-react"
 export const metadata = { title: "页面管理 · 管理后台" }
 
 // 默认页面内容（与前台页面保持一致）
+// 注意：这些 HTML 结构与前台 DefaultAbout 组件的视觉效果一致
 const DEFAULT_CONTENTS: Record<string, string> = {
   page_about: `<h2>我们是谁</h2>
 <p>同人游戏站是一个面向 Galgame/视觉小说爱好者的社区平台。</p>
 <p>我们致力于为玩家提供一个发现、分享、讨论同人游戏的一站式入口。</p>
 <h2>核心功能</h2>
-<h3>游戏收录</h3>
-<p>收录海量同人游戏资源，支持标签筛选、搜索、收藏</p>
-<h3>制作组图鉴</h3>
-<p>通过 VNDB 数据展示脚本家、画师、音乐人等创作者信息</p>
-<h3>社区论坛</h3>
-<p>求档、讨论、分享，社区互助的讨论空间</p>
-<h3>收藏合集</h3>
-<p>自由创建收藏夹，管理你的游戏库</p>
-<h3>成就系统</h3>
-<p>签到、收藏、评论解锁成就徽章</p>
-<h3>角色图鉴</h3>
-<p>浏览游戏角色设定，随机发现新角色</p>
+<div class="grid gap-3 sm:grid-cols-2">
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">游戏收录</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">收录海量同人游戏资源，支持标签筛选、搜索、收藏</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">制作组图鉴</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">通过 VNDB 数据展示脚本家、画师、音乐人等创作者信息</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">社区论坛</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">求档、讨论、分享，社区互助的讨论空间</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">收藏合集</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">自由创建收藏夹，管理你的游戏库</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">成就系统</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">签到、收藏、评论解锁成就徽章</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">角色图鉴</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">浏览游戏角色设定，随机发现新角色</p>
+</div>
+</div>
 <h2>技术栈</h2>
 <p>Next.js 16 · React 19 · Prisma ORM · PostgreSQL · NextAuth v5 · Cloudflare R2 · Upstash Redis · TipTap 富文本编辑器 · shadcn/ui · Tailwind CSS</p>`,
   page_rules: `<h2>一、用户行为准则</h2>

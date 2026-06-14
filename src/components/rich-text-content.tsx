@@ -19,6 +19,9 @@ export function RichTextContent({ html }: { html: string }) {
   })
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: clean }} />
+    <div
+      className="prose prose-sm dark:prose-invert max-w-none"
+      dangerouslySetInnerHTML={{ __html: clean }}
+    />
   )
 }

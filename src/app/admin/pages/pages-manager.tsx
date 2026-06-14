@@ -90,13 +90,11 @@ export function PagesManager({ initial }: Props) {
               <StructuredEditor html={draft} onChange={setDraft} />
             ) : (
               <div className="rounded-2xl bg-card ring-1 ring-border p-6">
-                <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-                  {contents[page.key] ? (
-                    <RichTextContent html={contents[page.key]} />
-                  ) : (
-                    <p className="text-xs text-muted-foreground italic">暂无自定义内容，页面将显示默认内容</p>
-                  )}
-                </div>
+                {contents[page.key] ? (
+                  <RichTextContent html={contents[page.key]} />
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">暂无自定义内容，页面将显示默认内容</p>
+                )}
               </div>
             )}
           </div>
