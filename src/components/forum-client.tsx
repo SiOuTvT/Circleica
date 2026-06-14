@@ -117,8 +117,7 @@ export function ForumClient({ initialPosts, isLoggedIn, currentUser, isAdmin, to
   // Apply filter changes
   useEffect(() => {
     fetchPosts(1, true, activeCategory, searchQuery)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, searchQuery])
+  }, [fetchPosts, activeCategory, searchQuery])
 
   const openPost = useCallback(async (id: string) => {
     setLoadingPost(true)
