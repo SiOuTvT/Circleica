@@ -32,6 +32,9 @@ function setCookie(name: string, value: string) {
   document.cookie = `${name}=${value};path=/;max-age=31536000`
 }
 
+// 签到情感消息 key 常量
+const CHECKIN_MSG_KEYS = ["checkin_success", "checkin_duplicate"] as const
+
 interface TopNavProps {
   navCollapsed?: boolean
   onToggleNav?: () => void
