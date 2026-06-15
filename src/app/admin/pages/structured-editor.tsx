@@ -379,14 +379,14 @@ function BlockEditor({
             </div>
             <div className="rounded-xl border border-border bg-secondary p-3 space-y-2">
               <Input
-                value={data.text}
-                onChange={e => onUpdate({ content: JSON.stringify({ ...data, text: e.target.value }) })}
+                value={data?.text || ""}
+                onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), text: e.target.value }) })}
                 placeholder="按钮文字..."
                 className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0"
               />
               <Input
-                value={data.href}
-                onChange={e => onUpdate({ content: JSON.stringify({ ...data, href: e.target.value }) })}
+                value={data?.href || ""}
+                onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), href: e.target.value }) })}
                 placeholder="链接地址..."
                 className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-mono text-xs"
               />
@@ -440,15 +440,15 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
               total={blocks.length}
               onUpdate={updates => updateBlock(i, updates)}
               onRemove={() => {
-                const new = blocks.filter((_, idx) => idx !== i)
-                onChange(blocksToHTML(new))
+                const newBlocks = blocks.filter((_, idx) => idx !== i)
+                onChange(blocksToHTML(newBlocks))
               }}
               onMove={dir => {
                 const newIdx = dir === "up" ? i - 1 : i + 1
                 if (newIdx < 0 || newIdx >= blocks.length) return
-                const new = [...blocks]
-                ;[new[i], new[newIdx]] = [new[newIdx], new[i]]
-                onChange(blocksToHTML(new))
+                const newBlocks = [...blocks]
+                ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
+                onChange(blocksToHTML(newBlocks))
               }}
             />
           ))}
