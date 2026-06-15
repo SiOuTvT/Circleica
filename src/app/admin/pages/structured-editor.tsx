@@ -28,16 +28,16 @@ function parseHTMLToBlocks(html: string): Block[] {
   let listId = 0
   let cardId = 0
 
-  const walk = (node: Element) => {
+  const processElement = (node: Element) => {
     const tagName = node.tagName.toLowerCase()
 
-    // 1. 卡片 (rounded-xl bg-secondary/40)
+    // 1. 卡片 (rounded-xl bg-secondary)
     if (tagName === "div" && node.classList.contains("rounded-xl") && node.classList.contains("bg-secondary")) {
       const titleEl = node.querySelector("h3, h2, h1")
       const descEl = node.querySelector("p")
+      const text = node.textContent || ""
 
       // 检查是否是 Q&A 卡片
-      const text = node.textContent || ""
       if (text.includes("Q:") && text.includes("A:")) {
         blocks.push({
           id: `qa-${cardId++}`,
@@ -57,7 +57,7 @@ function parseHTMLToBlocks(html: string): Block[] {
           }),
         })
       }
-      return
+      return true // 已处理，不再递归
     }
 
     // 2. 链接卡片
@@ -70,45 +70,36 @@ function parseHTMLToBlocks(html: string): Block[] {
           href: node.getAttribute("href") || "",
         }),
       })
-      return
+      return true
     }
 
-    // 3. 网格容器 - 递归处理里面的卡片
-    if (tagName === "div" && node.classList.contains("grid")) {
-      Array.from(node.children).forEach(walk)
-      return
-    }
-
-    // 4. Section 容器 - 递归处理
-    if (tagName === "section") {
-      Array.from(node.children).forEach(walk)
-      return
-    }
-
-    // 5. 标题
+    // 3. 标题 (不在卡片内)
     if (tagName.startsWith("h") && !node.closest(".rounded-xl")) {
-      blocks.push({
-        id: `heading-${blocks.length}`,
-        type: "heading",
-        content: node.textContent?.trim() || "",
-      })
-      return
+      const text = node.textContent?.trim()
+      if (text) {
+        blocks.push({
+          id: `heading-${blocks.length}`,
+          type: "heading",
+          content: text,
+        })
+      }
+      return true
     }
 
-    // 6. 段落 (不在卡片内)
+    // 4. 段落 (不在卡片内)
     if (tagName === "p" && !node.closest(".rounded-xl")) {
-      const text = node.textContent?.trim() || ""
+      const text = node.textContent?.trim()
       if (text) {
         blocks.push({
           id: `paragraph-${blocks.length}`,
           type: "paragraph",
-          content: node.innerHTML || "",
+          content: node.innerHTML,
         })
       }
-      return
+      return true
     }
 
-    // 7. 列表
+    // 5. 列表 (不在卡片内)
     if ((tagName === "ul" || tagName === "ol") && !node.closest(".rounded-xl")) {
       const items = Array.from(node.querySelectorAll("li")).map(li => li.textContent?.trim() || "")
       if (items.length > 0) {
@@ -119,14 +110,30 @@ function parseHTMLToBlocks(html: string): Block[] {
           items,
         })
       }
-      return
+      return true
     }
 
-    // 递归处理子节点
-    Array.from(node.children).forEach(walk)
+    // 6. 容器元素 (div, section) - 递归处理子元素
+    if (tagName === "div" || tagName === "section") {
+      Array.from(node.children).forEach(child => processElement(child))
+      return true
+    }
+
+    return false // 未处理，继续递归
   }
 
-  walk(doc.body)
+  // 处理 body 的直接子元素
+  Array.from(doc.body.children).forEach(child => processElement(child))
+
+  // 如果 body 没有直接子元素，可能是纯文本包裹在单个元素里
+  if (doc.body.children.length === 0 && doc.body.textContent?.trim()) {
+    // 尝试解析单个元素
+    const firstChild = doc.body.firstChild
+    if (firstChild) {
+      processElement(firstChild as Element)
+    }
+  }
+
   return blocks
 }
 
