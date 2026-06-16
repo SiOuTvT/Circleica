@@ -7,7 +7,7 @@ import { Plus, X, ArrowUp, ArrowDown, Type, List, Pilcrow, LayoutTemplate, Exter
 
 interface Block {
   id: string
-  type: "heading" | "paragraph" | "list" | "card" | "link-card" | "qa"
+  type: "heading" | "paragraph" | "list" | "card" | "small-card" | "link-card" | "qa"
   content: string
   items?: string[]
 }
@@ -28,11 +28,11 @@ function parseHTMLToBlocks(html: string): Block[] {
   let listId = 0
   let cardId = 0
 
-  const processElement = (node: Element) => {
+  const processElement = (node: Element, parentIsGrid: boolean = false): boolean => {
     const tagName = node.tagName.toLowerCase()
 
     // 1. 卡片 (rounded-xl bg-secondary)
-    if (tagName === "div" && node.classList.contains("rounded-xl") && node.classList.contains("bg-secondary")) {
+    if (tagName === "div" && node.classList.contains("rounded-xl") && node.className.includes("bg-secondary")) {
       const titleEl = node.querySelector("h3, h2, h1")
       const descEl = node.querySelector("p")
       const text = node.textContent || ""
@@ -45,19 +45,27 @@ function parseHTMLToBlocks(html: string): Block[] {
           content: JSON.stringify({
             q: text.match(/Q:\s*(.+)/)?.[1]?.replace(/\s*A:.*/, "")?.trim() || "",
             a: text.match(/A:\s*(.+)/)?.[1]?.trim() || "",
+            isGrid: parentIsGrid,
           }),
         })
+        console.log("解析 Q&A 卡片:", blocks[blocks.length - 1])
       } else {
+        const title = titleEl?.textContent?.trim() || ""
+        const hasDesc = descEl && descEl.innerHTML.trim().length > 20 // 描述超过 20 字就算大卡片
+        const isSmall = node.classList.contains("bg-secondary/20") || !hasDesc
+
         blocks.push({
-          id: `card-${cardId++}`,
-          type: "card",
+          id: isSmall ? `small-card-${cardId++}` : `card-${cardId++}`,
+          type: isSmall ? "small-card" : "card",
           content: JSON.stringify({
-            title: titleEl?.textContent?.trim() || "",
-            desc: descEl?.textContent?.trim() || "",
+            title: title,
+            desc: descEl?.innerHTML?.trim() || "",
+            isGrid: parentIsGrid,
           }),
         })
+        console.log("解析卡片:", { type: isSmall ? "small" : "card", title, isGrid: parentIsGrid })
       }
-      return true // 已处理，不再递归
+      return true
     }
 
     // 2. 链接卡片
@@ -113,24 +121,27 @@ function parseHTMLToBlocks(html: string): Block[] {
       return true
     }
 
-    // 6. 容器元素 (div, section) - 递归处理子元素
+    // 6. 容器元素 - 递归处理子元素
     if (tagName === "div" || tagName === "section") {
-      Array.from(node.children).forEach(child => processElement(child))
+      const isGrid = node.classList.contains("grid") || node.classList.contains("grid-cols")
+      const isStack = node.classList.contains("space-y")
+      Array.from(node.children).forEach(child => processElement(child, isGrid && !isStack))
       return true
     }
 
-    return false // 未处理，继续递归
+    return false
   }
 
   // 处理 body 的直接子元素
-  Array.from(doc.body.children).forEach(child => processElement(child))
+  Array.from(doc.body.children).forEach(child => processElement(child, false))
 
-  // 如果 body 没有直接子元素，可能是纯文本包裹在单个元素里
+  console.log("解析结果 blocks:", blocks)
+
+  // 如果 body 没有直接子元素，尝试解析单个元素
   if (doc.body.children.length === 0 && doc.body.textContent?.trim()) {
-    // 尝试解析单个元素
     const firstChild = doc.body.firstChild
     if (firstChild) {
-      processElement(firstChild as Element)
+      processElement(firstChild as Element, false)
     }
   }
 
@@ -142,26 +153,37 @@ function parseHTMLToBlocks(html: string): Block[] {
  */
 function blocksToHTML(blocks: Block[]): string {
   const parts: string[] = []
-  let cardGroup: Block[] = []
+  let cardGroup: { block: Block; layout: "grid" | "stack" }[] = []
 
   const flushCardGroup = () => {
     if (cardGroup.length === 0) return
 
-    if (cardGroup.length > 1) {
+    const firstCardLayout = cardGroup[0].layout
+    const allSameLayout = cardGroup.every(c => c.layout === firstCardLayout)
+
+    if (cardGroup.length > 1 && firstCardLayout === "grid") {
+      // 网格布局
       parts.push(`<div class="grid gap-3 sm:grid-cols-2">`)
-      for (const card of cardGroup) {
-        parts.push(cardToHTML(card))
+      for (const { block } of cardGroup) {
+        parts.push(cardToHTML(block))
       }
       parts.push(`</div>`)
-    } else if (cardGroup.length === 1) {
-      parts.push(cardToHTML(cardGroup[0]))
+    } else {
+      // 竖直布局（space-y）
+      parts.push(`<div class="space-y-3">`)
+      for (const { block } of cardGroup) {
+        parts.push(cardToHTML(block))
+      }
+      parts.push(`</div>`)
     }
     cardGroup = []
   }
 
   for (const block of blocks) {
-    if (block.type === "card" || block.type === "qa") {
-      cardGroup.push(block)
+    if (block.type === "card" || block.type === "small-card" || block.type === "qa") {
+      const data = JSON.parse(block.content)
+      const layout: "grid" | "stack" = data.isGrid ? "grid" : "stack"
+      cardGroup.push({ block, layout })
     } else {
       flushCardGroup()
       parts.push(blockToHTML(block))
@@ -174,12 +196,20 @@ function blocksToHTML(blocks: Block[]): string {
 
 function cardToHTML(block: Block): string {
   const data = JSON.parse(block.content)
+
   if (block.type === "qa") {
     return `<div class="rounded-xl bg-secondary/20 p-4">
 <p class="text-sm font-medium text-foreground mb-1">Q: ${data.q || ""}</p>
 <p class="text-xs text-muted-foreground">A: ${data.a || ""}</p>
 </div>`
   }
+
+  if (block.type === "small-card") {
+    return `<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">${data.title || ""}</h3>
+</div>`
+  }
+
   return `<div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">${data.title || ""}</h3>
 <p class="text-xs text-muted-foreground leading-relaxed">${data.desc || ""}</p>
@@ -332,41 +362,53 @@ function BlockEditor({
           </div>
         )}
 
-        {(block.type === "card" || block.type === "qa") && (
+        {(block.type === "card" || block.type === "small-card" || block.type === "qa") && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-7 h-7 rounded-md bg-purple-500/10 text-purple-500">
                 <LayoutTemplate className="h-4 w-4" />
               </div>
-              <span className="text-xs text-muted-foreground uppercase">{block.type === "qa" ? "Q&A 卡片" : "内容卡片"}</span>
+              <span className="text-xs text-muted-foreground uppercase">
+                {block.type === "qa" ? "Q&A 卡片" : block.type === "small-card" ? "小卡片" : "内容卡片"}
+              </span>
             </div>
             {block.type === "qa" ? (
               <div className="rounded-xl border border-border bg-secondary/20 p-3 space-y-2">
                 <Input
-                  value={data.q}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...data, q: e.target.value }) })}
+                  value={data?.q || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), q: e.target.value }) })}
                   placeholder="问题..."
                   className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-medium"
                 />
                 <Textarea
-                  value={data.a}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...data, a: e.target.value }) })}
+                  value={data?.a || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), a: e.target.value }) })}
                   placeholder="答案..."
                   className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
                   rows={2}
                 />
               </div>
+            ) : block.type === "small-card" ? (
+              <div className="rounded-xl border border-border bg-secondary/40 p-3 space-y-2">
+                <Input
+                  value={data?.title || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), title: e.target.value }) })}
+                  placeholder="小卡片标题..."
+                  className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
+                />
+                <p className="text-xs text-muted-foreground">小卡片只显示标题，更简洁紧凑</p>
+              </div>
             ) : (
               <div className="rounded-xl border border-border bg-secondary/40 p-3 space-y-2">
                 <Input
-                  value={data.title}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...data, title: e.target.value }) })}
+                  value={data?.title || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), title: e.target.value }) })}
                   placeholder="卡片标题..."
                   className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
                 />
                 <Textarea
-                  value={data.desc}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...data, desc: e.target.value }) })}
+                  value={data?.desc || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: e.target.value }) })}
                   placeholder="卡片描述..."
                   className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
                   rows={2}
@@ -418,9 +460,10 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       heading: "",
       paragraph: "",
       list: "ul",
-      card: JSON.stringify({ title: "", desc: "" }),
+      card: JSON.stringify({ title: "", desc: "", isGrid: false }), // 大卡片 - 有标题和描述
+      "small-card": JSON.stringify({ title: "", isGrid: false }), // 小卡片 - 只有标题
       "link-card": JSON.stringify({ text: "点击这里", href: "https://" }),
-      qa: JSON.stringify({ q: "", a: "" }),
+      qa: JSON.stringify({ q: "", a: "", isGrid: false }),
     }
     const newBlock: Block = {
       id: `${type}-${Date.now()}`,
@@ -431,6 +474,50 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
     onChange(blocksToHTML([...blocks, newBlock]))
   }
 
+  // 检测连续的同类型卡片组（都是 grid 或都是 stack）
+  const getCardGroup = (index: number): { start: number; end: number; isGrid: boolean } | null => {
+    const block = blocks[index]
+    if (block.type !== "card" && block.type !== "small-card" && block.type !== "qa") return null
+
+    const blockData = JSON.parse(block.content)
+    const blockIsGrid = !!blockData.isGrid
+
+    let start = index
+    let end = index
+
+    while (start > 0) {
+      const prev = blocks[start - 1]
+      if (prev.type !== "card" && prev.type !== "small-card" && prev.type !== "qa") break
+      const prevData = JSON.parse(prev.content)
+      if (!!prevData.isGrid !== blockIsGrid) break
+      start--
+    }
+
+    while (end < blocks.length - 1) {
+      const next = blocks[end + 1]
+      if (next.type !== "card" && next.type !== "small-card" && next.type !== "qa") break
+      const nextData = JSON.parse(next.content)
+      if (!!nextData.isGrid !== blockIsGrid) break
+      end++
+    }
+
+    return { start, end, isGrid: blockIsGrid }
+  }
+
+  // 切换卡片布局（grid <-> stack）
+  const toggleLayout = (index: number) => {
+    const block = blocks[index]
+    if (block.type !== "card" && block.type !== "small-card" && block.type !== "qa") return
+    const data = JSON.parse(block.content)
+    const newBlocks = blocks.map((b, i) => {
+      if (i === index) {
+        return { ...b, content: JSON.stringify({ ...data, isGrid: !data.isGrid }) }
+      }
+      return b
+    })
+    onChange(blocksToHTML(newBlocks))
+  }
+
   return (
     <div className="space-y-4">
       {blocks.length === 0 ? (
@@ -439,26 +526,93 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {blocks.map((block, i) => (
-            <BlockEditor
-              key={block.id}
-              block={block}
-              index={i}
-              total={blocks.length}
-              onUpdate={updates => updateBlock(i, updates)}
-              onRemove={() => {
-                const newBlocks = blocks.filter((_, idx) => idx !== i)
-                onChange(blocksToHTML(newBlocks))
-              }}
-              onMove={dir => {
-                const newIdx = dir === "up" ? i - 1 : i + 1
-                if (newIdx < 0 || newIdx >= blocks.length) return
-                const newBlocks = [...blocks]
-                ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
-                onChange(blocksToHTML(newBlocks))
-              }}
-            />
-          ))}
+          {blocks.map((block, i) => {
+            const isCard = block.type === "card" || block.type === "small-card" || block.type === "qa"
+            const group = isCard ? getCardGroup(i) : null
+            const isInMultiCardGroup = group && (group.end - group.start + 1) > 1
+            const isStartOfGroup = group && i === group.start
+            const isGrid = group?.isGrid
+
+            // 如果是多卡片组的第一项，渲染容器
+            if (isInMultiCardGroup && isStartOfGroup) {
+              const groupBlocks = blocks.slice(group.start, group.end + 1)
+              return (
+                <div key={`group-${group.start}`} className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground">
+                      {isGrid ? "网格布局（一行两个）" : "竖直布局（一行一个）"}
+                    </span>
+                    <button
+                      onClick={() => {
+                        // 切换整个组的布局
+                        const newBlocks = blocks.map((b, idx) => {
+                          if (idx >= group.start && idx <= group.end) {
+                            const data = JSON.parse(b.content)
+                            return { ...b, content: JSON.stringify({ ...data, isGrid: !isGrid }) }
+                          }
+                          return b
+                        })
+                        onChange(blocksToHTML(newBlocks))
+                      }}
+                      className="text-xs text-primary hover:text-primary/80"
+                    >
+                      切换为{isGrid ? "竖直" : "网格"}
+                    </button>
+                  </div>
+                  <div className={isGrid ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "space-y-3"}>
+                    {groupBlocks.map((b, idxInGroup) => (
+                      <BlockEditor
+                        key={b.id}
+                        block={b}
+                        index={group.start + idxInGroup}
+                        total={blocks.length}
+                        onUpdate={updates => updateBlock(group.start + idxInGroup, updates)}
+                        onRemove={() => {
+                          const newBlocks = blocks.filter((_, idx) => idx !== group.start + idxInGroup)
+                          onChange(blocksToHTML(newBlocks))
+                        }}
+                        onMove={dir => {
+                          const currentIdx = group.start + idxInGroup
+                          const newIdx = dir === "up" ? currentIdx - 1 : currentIdx + 1
+                          if (newIdx < 0 || newIdx >= blocks.length) return
+                          const newBlocks = [...blocks]
+                          ;[newBlocks[currentIdx], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[currentIdx]]
+                          onChange(blocksToHTML(newBlocks))
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+            // 如果是多卡片组的非第一项，跳过（已在上一个迭代中渲染）
+            else if (isInMultiCardGroup && !isStartOfGroup) {
+              return null
+            }
+            // 单个卡片或非卡片块
+            else {
+              return (
+                <BlockEditor
+                  key={block.id}
+                  block={block}
+                  index={i}
+                  total={blocks.length}
+                  onUpdate={updates => updateBlock(i, updates)}
+                  onRemove={() => {
+                    const newBlocks = blocks.filter((_, idx) => idx !== i)
+                    onChange(blocksToHTML(newBlocks))
+                  }}
+                  onMove={dir => {
+                    const newIdx = dir === "up" ? i - 1 : i + 1
+                    if (newIdx < 0 || newIdx >= blocks.length) return
+                    const newBlocks = [...blocks]
+                    ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
+                    onChange(blocksToHTML(newBlocks))
+                  }}
+                />
+              )
+            }
+          })}
         </div>
       )}
 
@@ -474,7 +628,10 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
           <List className="h-3.5 w-3.5 mr-1.5" /> 列表
         </Button>
         <Button variant="ghost" size="sm" onClick={() => addBlock("card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-purple-500/10 hover:text-purple-500">
-          <LayoutTemplate className="h-3.5 w-3.5 mr-1.5" /> 卡片
+          <LayoutTemplate className="h-3.5 w-3.5 mr-1.5" /> 大卡片
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => addBlock("small-card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-pink-500/10 hover:text-pink-500">
+          <LayoutTemplate className="h-3 w-3 mr-1.5" /> 小卡片
         </Button>
         <Button variant="ghost" size="sm" onClick={() => addBlock("qa")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-amber-500/10 hover:text-amber-500">
           Q&A
@@ -485,7 +642,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
-        鼠标悬停在块上可移动/删除 · 连续卡片会自动组成网格
+        大卡片有标题和描述 · 小卡片只有标题更紧凑 · 虚线框内为卡片组
       </p>
     </div>
   )
