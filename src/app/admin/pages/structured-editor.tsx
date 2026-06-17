@@ -390,13 +390,23 @@ function BlockEditor({
               </div>
             ) : block.type === "small-card" ? (
               <div className="rounded-xl border border-border bg-secondary/40 p-3 space-y-2">
-                <Input
-                  value={data?.title || ""}
-                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), title: e.target.value }) })}
-                  placeholder="小卡片标题..."
-                  className="h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
-                />
-                <p className="text-xs text-muted-foreground">小卡片只显示标题，更简洁紧凑</p>
+                <div className="flex items-center justify-between">
+                  <Input
+                    value={data?.title || ""}
+                    onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), title: e.target.value }) })}
+                    placeholder="小卡片标题..."
+                    className="flex-1 h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
+                  />
+                  <button
+                    onClick={() => toggleSmallCardLayout(index)}
+                    className="ml-2 text-xs text-primary hover:text-primary/80 whitespace-nowrap"
+                  >
+                    {data?.isGrid ? "切换为竖向" : "切换为网格"}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {data?.isGrid ? "网格布局：一行两个（半行一个）" : "竖向布局：一行一个"}
+                </p>
               </div>
             ) : (
               <div className="rounded-xl border border-border bg-secondary/40 p-3 space-y-2">
@@ -460,8 +470,8 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       heading: "",
       paragraph: "",
       list: "ul",
-      card: JSON.stringify({ title: "", desc: "", isGrid: false }), // 大卡片 - 有标题和描述
-      "small-card": JSON.stringify({ title: "", isGrid: false }), // 小卡片 - 只有标题
+      card: JSON.stringify({ title: "", desc: "", isGrid: false }), // 大卡片 - 可切换网格/竖直
+      "small-card": JSON.stringify({ title: "", isGrid: false }), // 小卡片 - 支持网格/竖直切换
       "link-card": JSON.stringify({ text: "点击这里", href: "https://" }),
       qa: JSON.stringify({ q: "", a: "", isGrid: false }),
     }
@@ -475,6 +485,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
   }
 
   // 检测连续的同类型卡片组（都是 grid 或都是 stack）
+  // 注意：小卡片 (small-card) 现在也支持网格布局（一行两个）
   const getCardGroup = (index: number): { start: number; end: number; isGrid: boolean } | null => {
     const block = blocks[index]
     if (block.type !== "card" && block.type !== "small-card" && block.type !== "qa") return null
@@ -518,6 +529,20 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
     onChange(blocksToHTML(newBlocks))
   }
 
+  // 单独切换小卡片布局
+  const toggleSmallCardLayout = (index: number) => {
+    const block = blocks[index]
+    if (block.type !== "small-card") return
+    const data = JSON.parse(block.content)
+    const newBlocks = blocks.map((b, i) => {
+      if (i === index) {
+        return { ...b, content: JSON.stringify({ ...data, isGrid: !data.isGrid }) }
+      }
+      return b
+    })
+    onChange(blocksToHTML(newBlocks))
+  }
+
   return (
     <div className="space-y-4">
       {blocks.length === 0 ? (
@@ -532,6 +557,9 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
             const isInMultiCardGroup = group && (group.end - group.start + 1) > 1
             const isStartOfGroup = group && i === group.start
             const isGrid = group?.isGrid
+            // 单个小卡片也需要检查自身的 isGrid
+            const blockData = block.type === "small-card" ? JSON.parse(block.content) : null
+            const isSmallCardGrid = blockData?.isGrid
 
             // 如果是多卡片组的第一项，渲染容器
             if (isInMultiCardGroup && isStartOfGroup) {
@@ -591,6 +619,36 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
             }
             // 单个卡片或非卡片块
             else {
+              // 单个小卡片如果是网格布局，也显示为半行一个
+              if (block.type === "small-card" && isSmallCardGrid) {
+                return (
+                  <div key={block.id} className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-3">
+                    <div className="mb-2">
+                      <span className="text-xs text-muted-foreground">网格布局（一行两个）</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <BlockEditor
+                        key={block.id}
+                        block={block}
+                        index={i}
+                        total={blocks.length}
+                        onUpdate={updates => updateBlock(i, updates)}
+                        onRemove={() => {
+                          const newBlocks = blocks.filter((_, idx) => idx !== i)
+                          onChange(blocksToHTML(newBlocks))
+                        }}
+                        onMove={dir => {
+                          const newIdx = dir === "up" ? i - 1 : i + 1
+                          if (newIdx < 0 || newIdx >= blocks.length) return
+                          const newBlocks = [...blocks]
+                          ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
+                          onChange(blocksToHTML(newBlocks))
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              }
               return (
                 <BlockEditor
                   key={block.id}
