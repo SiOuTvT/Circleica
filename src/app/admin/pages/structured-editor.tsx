@@ -51,7 +51,7 @@ function parseHTMLToBlocks(html: string): Block[] {
         console.log("解析 Q&A 卡片:", blocks[blocks.length - 1])
       } else {
         const title = titleEl?.textContent?.trim() || ""
-        const hasDesc = descEl && descEl.innerHTML.trim().length > 20 // 描述超过 20 字就算大卡片
+        const hasDesc = descEl && descEl.innerHTML.trim().length > 5 // 描述超过 5 字就算大卡片
         const isSmall = node.classList.contains("bg-secondary/20") || !hasDesc
 
         blocks.push({
@@ -204,6 +204,13 @@ function cardToHTML(block: Block): string {
   }
 
   if (block.type === "small-card") {
+    const hasDesc = data.desc && data.desc.length > 0
+    if (hasDesc) {
+      return `<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1">${data.title || ""}</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">${data.desc}</p>
+</div>`
+    }
     return `<div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">${data.title || ""}</h3>
 </div>`
@@ -405,6 +412,13 @@ function BlockEditor({
                     {data?.isGrid ? "切换为竖向" : "切换为网格"}
                   </button>
                 </div>
+                <Textarea
+                  value={data?.desc || ""}
+                  onChange={e => onUpdate({ content: JSON.stringify({ ...(data || {}), desc: e.target.value }) })}
+                  placeholder="小卡片描述（可选）..."
+                  className="border-0 bg-transparent px-0 focus-visible:ring-0 resize-none"
+                  rows={2}
+                />
                 <p className="text-xs text-muted-foreground">
                   {data?.isGrid ? "网格布局：一行两个（半行一个）" : "竖向布局：一行一个"}
                 </p>
