@@ -51,7 +51,8 @@ function parseHTMLToBlocks(html: string): Block[] {
         console.log("解析 Q&A 卡片:", blocks[blocks.length - 1])
       } else {
         const title = titleEl?.textContent?.trim() || ""
-        const hasDesc = descEl && descEl.innerHTML.trim().length > 5 // 描述超过 5 字就算大卡片
+        // 大小卡片由是否有描述内容决定：有 p 标签且内容非空就是大卡片
+        const hasDesc = descEl && descEl.textContent && descEl.textContent.trim().length > 0
         const isSmall = node.classList.contains("bg-secondary/20") || !hasDesc
 
         blocks.push({
@@ -59,11 +60,11 @@ function parseHTMLToBlocks(html: string): Block[] {
           type: isSmall ? "small-card" : "card",
           content: JSON.stringify({
             title: title,
-            desc: descEl?.innerHTML?.trim() || "",
+            desc: hasDesc ? descEl?.innerHTML?.trim() || "" : "",
             isGrid: parentIsGrid,
           }),
         })
-        console.log("解析卡片:", { type: isSmall ? "small" : "card", title, isGrid: parentIsGrid })
+        console.log("解析卡片:", { type: isSmall ? "small" : "card", title, hasDesc, isGrid: parentIsGrid })
       }
       return true
     }
