@@ -245,6 +245,7 @@ function BlockEditor({
   onUpdate,
   onRemove,
   onMove,
+  onToggleSmallCardLayout,
 }: {
   block: Block
   index: number
@@ -252,6 +253,7 @@ function BlockEditor({
   onUpdate: (updates: Partial<Block>) => void
   onRemove: () => void
   onMove: (dir: "up" | "down") => void
+  onToggleSmallCardLayout?: (index: number) => void
 }) {
   const isCard = block.type === "card" || block.type === "qa"
   const data = isCard ? JSON.parse(block.content) : null
@@ -397,7 +399,7 @@ function BlockEditor({
                     className="flex-1 h-8 border-0 bg-transparent px-0 focus-visible:ring-0 font-semibold"
                   />
                   <button
-                    onClick={() => toggleSmallCardLayout(index)}
+                    onClick={() => onToggleSmallCardLayout?.(index)}
                     className="ml-2 text-xs text-primary hover:text-primary/80 whitespace-nowrap"
                   >
                     {data?.isGrid ? "切换为竖向" : "切换为网格"}
@@ -606,6 +608,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
                           ;[newBlocks[currentIdx], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[currentIdx]]
                           onChange(blocksToHTML(newBlocks))
                         }}
+                        onToggleSmallCardLayout={toggleSmallCardLayout}
                       />
                     ))}
                   </div>
@@ -659,6 +662,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
                           ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
                           onChange(blocksToHTML(newBlocks))
                         }}
+                        onToggleSmallCardLayout={toggleSmallCardLayout}
                       />
                     </div>
                   </div>
@@ -682,6 +686,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
                     ;[newBlocks[i], newBlocks[newIdx]] = [newBlocks[newIdx], newBlocks[i]]
                     onChange(blocksToHTML(newBlocks))
                   }}
+                  onToggleSmallCardLayout={toggleSmallCardLayout}
                 />
               )
             }
