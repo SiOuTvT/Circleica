@@ -159,10 +159,9 @@ function blocksToHTML(blocks: Block[]): string {
     if (cardGroup.length === 0) return
 
     const firstCardLayout = cardGroup[0].layout
-    const allSameLayout = cardGroup.every(c => c.layout === firstCardLayout)
 
-    if (cardGroup.length > 1 && firstCardLayout === "grid") {
-      // 网格布局
+    if (firstCardLayout === "grid") {
+      // 网格布局（单个或多个都包 grid）
       parts.push(`<div class="grid gap-3 sm:grid-cols-2">`)
       for (const { block } of cardGroup) {
         parts.push(cardToHTML(block))
