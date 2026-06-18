@@ -470,10 +470,10 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       heading: "",
       paragraph: "",
       list: "ul",
-      card: JSON.stringify({ title: "", desc: "", isGrid: false }), // 大卡片 - 可切换网格/竖直
-      "small-card": JSON.stringify({ title: "", isGrid: false }), // 小卡片 - 支持网格/竖直切换
+      card: JSON.stringify({ title: "", desc: "", isGrid: true }),
+      "small-card": JSON.stringify({ title: "", isGrid: true }),
       "link-card": JSON.stringify({ text: "点击这里", href: "https://" }),
-      qa: JSON.stringify({ q: "", a: "", isGrid: false }),
+      qa: JSON.stringify({ q: "", a: "", isGrid: true }),
     }
     const newBlock: Block = {
       id: `${type}-${Date.now()}`,
@@ -619,12 +619,28 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
             }
             // 单个卡片或非卡片块
             else {
-              // 单个小卡片如果是网格布局，也显示为半行一个
-              if (block.type === "small-card" && isSmallCardGrid) {
+              // 单个卡片如果是网格布局，显示为半行一个
+              const singleCardData = isCard ? JSON.parse(block.content) : null
+              if (isCard && singleCardData?.isGrid) {
                 return (
                   <div key={block.id} className="rounded-xl border-2 border-dashed border-border bg-muted/30 p-3">
                     <div className="mb-2">
                       <span className="text-xs text-muted-foreground">网格布局（一行两个）</span>
+                      <button
+                        onClick={() => {
+                          const newBlocks = blocks.map((b, idx) => {
+                            if (idx === i) {
+                              const data = JSON.parse(b.content)
+                              return { ...b, content: JSON.stringify({ ...data, isGrid: false }) }
+                            }
+                            return b
+                          })
+                          onChange(blocksToHTML(newBlocks))
+                        }}
+                        className="ml-2 text-xs text-primary hover:text-primary/80"
+                      >
+                        切换为竖向
+                      </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <BlockEditor

@@ -87,7 +87,7 @@ Next.js 16 · React 19 · Prisma ORM · PostgreSQL · NextAuth v5 · Cloudflare 
 </section>
 </div>`,
   page_contact: `<h2>反馈渠道</h2>
-<div class="space-y-3">
+<div class="grid gap-3 sm:grid-cols-2">
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">论坛反馈</h3>
 <p class="text-xs text-muted-foreground">
@@ -121,7 +121,7 @@ GitHub 仓库
 </div>
 
 <h2>常见问题</h2>
-<div class="space-y-3">
+<div class="grid gap-3 sm:grid-cols-2">
 <div class="rounded-xl bg-secondary/20 p-4">
 <p class="text-sm font-medium text-foreground mb-1">Q: 如何注册账号？</p>
 <p class="text-xs text-muted-foreground">A: 点击右上角登录按钮，选择注册即可。</p>
@@ -141,8 +141,11 @@ export default async function AdminPagesPage() {
   await requireAdmin()
   const settings = await getSiteSettings()
 
-  // 合并数据库内容和默认内容：数据库优先级更高
-  const contents = { ...DEFAULT_CONTENTS, ...settings }
+  // 合并数据库内容和默认内容：数据库优先级更高，但空值不覆盖默认内容
+  const contents: Record<string, string> = { ...DEFAULT_CONTENTS }
+  for (const [k, v] of Object.entries(settings)) {
+    if (v) contents[k] = v
+  }
 
   return (
     <div className="space-y-6">

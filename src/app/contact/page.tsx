@@ -4,7 +4,7 @@ import { RichTextContent } from "@/components/rich-text-content-wrapper"
 export const metadata = { title: "联系我们 · 同人游戏站" }
 
 const DEFAULT_CONTACT_HTML = `<h2>反馈渠道</h2>
-<div class="space-y-3">
+<div class="grid gap-3 sm:grid-cols-2">
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">论坛反馈</h3>
 <p class="text-xs text-muted-foreground">
@@ -38,7 +38,7 @@ GitHub 仓库
 </div>
 
 <h2>常见问题</h2>
-<div class="space-y-3">
+<div class="grid gap-3 sm:grid-cols-2">
 <div class="rounded-xl bg-secondary/20 p-4">
 <p class="text-sm font-medium text-foreground mb-1">Q: 如何注册账号？</p>
 <p class="text-xs text-muted-foreground">A: 点击右上角登录按钮，选择注册即可。</p>

@@ -24,7 +24,7 @@ export function PagesManager({ initial }: Props) {
 
   function startEdit(key: string) {
     setEditingKey(key)
-    setDraft(initial[key] ?? "")
+    setDraft(contents[key] ?? "")
   }
 
   function cancelEdit() {
