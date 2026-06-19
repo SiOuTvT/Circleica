@@ -4,6 +4,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 import { Clock, Heart, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -32,12 +33,6 @@ const SORT_OPTIONS: { key: SortKey; label: string; icon: typeof Clock }[] = [
   { key: "mostFaved", label: "最多收藏", icon: Heart },
 ]
 
-const ORDER_MAP: Record<SortKey, object> = {
-  newest: { createdAt: "desc" },
-  popular: { viewCount: "desc" },
-  mostFaved: { favoriteCount: "desc" },
-}
-
 function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: string }[] {
   if (Array.isArray(raw)) return raw as { label?: string; url: string; platform?: string }[]
   if (typeof raw === "string") {
@@ -46,38 +41,31 @@ function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: s
   return []
 }
 
-async function SearchResults({
-  q, tag, sort, nsfw, page = 1,
-}: {
-  q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
-}) {
-  // 没有搜索词和标签时不显示结果
-  if (!q && !tag) {
-    return null
-  }
+// 缓存搜索结果查询（5 分钟）
+const getCachedSearchResults = unstable_cache(
+  async (q: string, tag: string, sort: SortKey, nsfw: boolean, page: number, limit: number) => {
+    const where = {
+      isPublished: true,
+      ...(nsfw ? {} : { isNsfw: false }),
+      ...(q && {
+        OR: [
+          { searchVector: { search: q } },
+          { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
+        ],
+      }),
+      ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
+    }
 
-  const where = {
-    isPublished: true,
-    ...(nsfw ? {} : { isNsfw: false }),
-    ...(q && {
-      OR: [
-        { searchVector: { search: q } },
-        { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
-      ],
-    }),
-    ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
-  }
+    const skip = (page - 1) * limit
 
-  const limit = 24
-  const skip = (page - 1) * limit
-
-  let rawGames: GameWithTag[] = []
-  let total = 0
-  try {
     const [gamesResult, countResult] = await Promise.all([
       prisma.game.findMany({
         where,
-        orderBy: ORDER_MAP[sort],
+        orderBy: {
+          newest: { createdAt: "desc" },
+          popular: { viewCount: "desc" },
+          mostFaved: { favoriteCount: "desc" },
+        }[sort],
         skip,
         take: limit,
         select: {
@@ -90,8 +78,51 @@ async function SearchResults({
       }),
       prisma.game.count({ where }),
     ])
-    rawGames = gamesResult
-    total = countResult
+
+    return { games: gamesResult, total: countResult }
+  },
+  ["search-results"],
+  { revalidate: 300 } // 5 分钟缓存
+)
+
+// 缓存推荐游戏查询（10 分钟）
+const getCachedRecommendedGames = unstable_cache(
+  async (nsfw: boolean) => {
+    const rawRecommended = await prisma.game.findMany({
+      where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
+      orderBy: { viewCount: "desc" },
+      take: 8,
+      select: {
+        id: true, serialId: true, title: true, coverImage: true, status: true,
+        isNsfw: true, favoriteCount: true, viewCount: true,
+        downloadCount: true, downloadLinks: true,
+        updatedAt: true, createdAt: true,
+        tags: { select: { tag: { select: { name: true, color: true } } } },
+      },
+    })
+    return rawRecommended
+  },
+  ["recommended-games"],
+  { revalidate: 600 } // 10 分钟缓存
+)
+
+async function SearchResults({
+  q, tag, sort, nsfw, page = 1,
+}: {
+  q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
+}) {
+  // 没有搜索词和标签时不显示结果
+  if (!q && !tag) {
+    return null
+  }
+
+  const limit = 24
+  let rawGames: GameWithTag[] = []
+  let total = 0
+  try {
+    const { games, total: count } = await getCachedSearchResults(q, tag, sort, nsfw, page, limit)
+    rawGames = games
+    total = count
   } catch (error) {
     logger.db.error("[SearchResults] Database query failed", error)
   }
@@ -108,18 +139,7 @@ async function SearchResults({
   if (!games.length) {
     let rawRecommended: GameWithTag[] = []
     try {
-      rawRecommended = await prisma.game.findMany({
-        where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
-        orderBy: { viewCount: "desc" },
-        take: 8,
-        select: {
-          id: true, serialId: true, title: true, coverImage: true, status: true,
-          isNsfw: true, favoriteCount: true, viewCount: true,
-          downloadCount: true, downloadLinks: true,
-          updatedAt: true, createdAt: true,
-          tags: { select: { tag: { select: { name: true, color: true } } } },
-        },
-      })
+      rawRecommended = await getCachedRecommendedGames(nsfw)
     } catch (error) {
       logger.db.error("[SearchResults] Recommended games query failed", error)
     }
