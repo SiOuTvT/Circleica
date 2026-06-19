@@ -1,4 +1,5 @@
-import { ForumClient, type Post as ForumPost } from "@/components/forum-client"
+import { ForumClient } from "@/components/forum"
+import type { Post as ForumPost } from "@/components/forum"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
