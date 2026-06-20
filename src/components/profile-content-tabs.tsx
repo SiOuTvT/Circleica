@@ -18,7 +18,6 @@ interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
 }
 interface Props {
-  favGames?: GameLite[]; playStatusGames?: { game: GameLite; status: string }[]; comments?: CommentLite[]
   userId: string
 }
 type TabKey = "favorites" | "comments" | "play"
@@ -33,7 +32,7 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
 const FAV_MSG_KEYS = ["empty_favorites", "empty_play_status"] as const
 const PLAY_MSG_KEY = "empty_play_status" as const
 
-export function ProfileContentTabs({ favGames = [], playStatusGames = [], comments = [], userId }: Props) {
+export function ProfileContentTabs({ userId }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
   const [collections, setCollections] = useState<CollectionData[]>([])
   const [collectionsLoading, setCollectionsLoading] = useState(true)
@@ -43,13 +42,13 @@ export function ProfileContentTabs({ favGames = [], playStatusGames = [], commen
   const [creating, setCreating] = useState(false)
   const [loadError, setLoadError] = useState(false)
 
-  // 客户端按需加载数据
-  const [loadedFav, setLoadedFav] = useState(favGames.length > 0)
-  const [loadedPlay, setLoadedPlay] = useState(playStatusGames.length > 0)
-  const [loadedComments, setLoadedComments] = useState(comments.length > 0)
-  const [localFav, setLocalFav] = useState<GameLite[]>(favGames)
-  const [localPlay, setLocalPlay] = useState<{ game: GameLite; status: string }[]>(playStatusGames)
-  const [localComments, setLocalComments] = useState<CommentLite[]>(comments)
+  // 客户端按需加载数据 - 初始为空
+  const [loadedFav, setLoadedFav] = useState(false)
+  const [loadedPlay, setLoadedPlay] = useState(false)
+  const [loadedComments, setLoadedComments] = useState(false)
+  const [localFav, setLocalFav] = useState<GameLite[]>([])
+  const [localPlay, setLocalPlay] = useState<{ game: GameLite; status: string }[]>([])
+  const [localComments, setLocalComments] = useState<CommentLite[]>([])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
@@ -163,8 +162,12 @@ export function ProfileContentTabs({ favGames = [], playStatusGames = [], commen
             onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
             loading={collectionsLoading} creating={creating} />
         )}
-        {active === "comments" && <CommentsTab comments={comments} />}
-        {active === "play" && <PlayTab playStatusGames={playStatusGames} />}
+        {active === "comments" && (
+          loadedComments ? <CommentsTab comments={localComments} /> : <TabLoadingSkeleton />
+        )}
+        {active === "play" && (
+          loadedPlay ? <PlayTab playStatusGames={localPlay} /> : <TabLoadingSkeleton />
+        )}
       </div>
 
       {/* 收藏夹弹窗 - 预渲染 DOM，使用 inert 和 CSS 控制显示/隐藏 */}
@@ -317,6 +320,20 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
           </div>
           <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
         </Link>
+      ))}
+    </div>
+  )
+}
+
+// 加载占位骨架屏
+function TabLoadingSkeleton() {
+  return (
+    <div className="flex flex-col gap-2.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="rounded-xl bg-secondary/40 p-3.5 animate-pulse">
+          <div className="h-3 w-1/3 rounded bg-muted-foreground/20 mb-2" />
+          <div className="h-4 w-full rounded bg-muted-foreground/20" />
+        </div>
       ))}
     </div>
   )

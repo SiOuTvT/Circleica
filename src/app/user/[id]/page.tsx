@@ -39,37 +39,29 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   let user: any = null
   try {
-    // 只加载用户基本信息，不加载关联数据（改为客户端按需加载）
+    // 只加载用户基本信息和数量统计，关联数据改为客户端按需加载
     user = await prisma.user.findUnique({
       where: { id: resolved.id },
       select: {
         id: true, serialId: true, uid: true, username: true, avatar: true,
         avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
         role: true, createdAt: true,
-        _count: { select: { followers: true, following: true } }
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            favorites: true,
+            comments: true,
+            playStatuses: true
+          }
+        }
       },
     })
   } catch (error) { logger.db.error("[UserProfilePage] Database query failed", error) }
   if (!user) notFound()
 
   const userRank = user.serialId
-  // 预加载数据但限制数量，改为每 tab 只加载前 10 条（而非各 20 条）
-  const [favGamesData, playStatusesData, commentsData] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: resolved.id },
-      select: { favorites: { take: 10, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } } },
-    }).then(u => u?.favorites.map((f: { game: unknown }) => f.game) || []),
-    prisma.user.findUnique({
-      where: { id: resolved.id },
-      select: { playStatuses: { take: 10, include: { game: { select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true } } } } },
-    }).then(u => u?.playStatuses.map((p: { game: unknown; status: string }) => ({ game: p.game, status: p.status })) || []),
-    prisma.user.findUnique({
-      where: { id: resolved.id },
-      select: { comments: { orderBy: { createdAt: "desc" }, take: 10, include: { game: { select: { id: true, serialId: true, title: true } } } } },
-    }).then(u => u?.comments || []),
-  ])
-  const favGames = favGamesData
-  const playStatusGames = playStatusesData
+  // 关联数据改为客户端按需加载，这里只传递数量统计
   const isSelf = session?.user?.id === user.id
 
   let isFollowing = false
@@ -128,9 +120,9 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.followers}</span><span className="text-xs text-muted-foreground mt-0.5">粉丝</span></div>
                 </div>
                 <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10">
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{favGames.length}</span></div><span className="text-[11px] text-muted-foreground">收藏</span></div>
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user.comments.length}</span></div><span className="text-[11px] text-muted-foreground">评论</span></div>
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user.playStatuses.length}</span></div><span className="text-[11px] text-muted-foreground">玩过</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.favorites}</span></div><span className="text-[11px] text-muted-foreground">收藏</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.comments}</span></div><span className="text-[11px] text-muted-foreground">评论</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.playStatuses}</span></div><span className="text-[11px] text-muted-foreground">玩过</span></div>
                 </div>
                 {!isSelf && session?.user && (
                   <div className="mt-6"><FollowButton targetUserId={user.id} initialFollowing={isFollowing} /></div>
@@ -175,9 +167,6 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
           <div className="rounded-2xl bg-card ring-1 ring-border h-full shadow-none">
             <ProfileContentTabs
-              favGames={favGames}
-              playStatusGames={playStatusGames}
-              comments={commentsData}
               userId={user.id}
             />
           </div>
