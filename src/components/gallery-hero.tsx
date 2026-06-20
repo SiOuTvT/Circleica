@@ -81,17 +81,32 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     goTo((activeIndex + 1) % galleryImages.length)
   }, [activeIndex, galleryImages.length, goTo])
 
+  // 键盘事件监听 - 仅在 Lightbox 打开时监听
+  useEffect(() => {
+    if (!lightboxOpen) return
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrev()
+      if (e.key === "ArrowRight") goNext()
+      if (e.key === "Escape") closeLightbox()
+    }
+
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [lightboxOpen, goPrev, goNext, closeLightbox])
+
+  // 画廊预览键盘导航 - 仅在多图且可见时监听
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") goPrev()
       if (e.key === "ArrowRight") goNext()
     }
-    // 仅在组件挂载且可见时监听键盘事件
-    if (screenshots.length > 1) {
+    // 使用 useCallback 包装 handler，确保清理函数正确移除
+    if (screenshots.length > 1 && !lightboxOpen) {
       window.addEventListener("keydown", handler)
       return () => window.removeEventListener("keydown", handler)
     }
-  }, [goPrev, goNext, screenshots.length])
+  }, [goPrev, goNext, screenshots.length, lightboxOpen])
 
   // Lightbox 状态
   const [lightboxOpen, setLightboxOpen] = useState(false)
