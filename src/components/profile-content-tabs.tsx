@@ -6,7 +6,7 @@ import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { Calendar, Eye, FolderHeart, Gamepad2, MessageSquare, Plus, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 
 interface GameLite {
@@ -117,9 +117,21 @@ export function ProfileContentTabs({ favGames = [], playStatusGames = [], commen
     try { await apiDelete(`/api/collections/${id}`); await loadCollections() } catch { alert("删除失败，请重试") }
   }
 
-  const defaultFolderGames = localFav.filter(g => {
-    return !collections.some(c => c.favorites?.some(f => f.game.id === g.id))
-  })
+  // 使用 Set 缓存已收藏 ID，将复杂度从 O(n*m) 降为 O(n)
+  const defaultFolderGames = useMemo(() => {
+    if (collections.length === 0) return localFav
+    // 收集所有已在收藏夹中的游戏 ID
+    const favoritedIds = new Set<string>()
+    for (const collection of collections) {
+      if (collection.favorites) {
+        for (const fav of collection.favorites) {
+          favoritedIds.add(fav.game.id)
+        }
+      }
+    }
+    // 过滤出默认收藏夹的游戏
+    return localFav.filter(g => !favoritedIds.has(g.id))
+  }, [localFav, collections])
 
   useBodyScrollLock(!!modalCollection)
 
