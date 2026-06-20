@@ -14,6 +14,15 @@ type Suggestion = {
   originalWork: string | null
 }
 
+// 根据输入长度动态调整 debounce 时间
+// 短词 (1-2 字): 200ms, 中等长度 (3-5 字): 300ms, 长词 (6 字以上): 400ms
+function getDebounceDelay(q: string): number {
+  const len = q.trim().length
+  if (len <= 2) return 200
+  if (len <= 5) return 300
+  return 400
+}
+
 export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
   const router = useRouter()
   const [value, setValue] = useState(defaultValue)
@@ -58,11 +67,36 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     const v = e.target.value
     setValue(v)
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 300)
+    // 空输入立即清除，非空根据长度动态延迟
+    if (!v.trim()) {
+      setSuggestions([])
+      setShowSuggestions(false)
+    } else {
+      const delay = getDebounceDelay(v)
+      debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), delay)
+    }
   }
+
+  // 立即发送当前建议请求（用户按回车时）
+  const fetchSuggestionsImmediately = useCallback(() => {
+    const q = value.trim()
+    if (!q) return
+    if (abortRef.current) abortRef.current.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+    fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+      .then(r => r.json())
+      .then(data => {
+        setSuggestions(data)
+        setShowSuggestions(data.length > 0)
+      })
+      .catch(() => {})
+  }, [value])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    // 用户按回车时立即发送建议请求，然后跳转
+    fetchSuggestionsImmediately()
     setShowSuggestions(false)
     const q = value.trim()
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search")
