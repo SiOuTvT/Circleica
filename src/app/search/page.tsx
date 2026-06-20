@@ -41,7 +41,7 @@ function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: s
   return []
 }
 
-// 缓存搜索结果查询（5 分钟）
+// 缓存搜索结果查询（2 分钟）- 缩短缓存时间以提高搜索结果新鲜度
 const getCachedSearchResults = unstable_cache(
   async (q: string, tag: string, sort: SortKey, nsfw: boolean, page: number, limit: number) => {
     const where = {
@@ -82,7 +82,7 @@ const getCachedSearchResults = unstable_cache(
     return { games: gamesResult, total: countResult }
   },
   ["search-results"],
-  { revalidate: 300 } // 5 分钟缓存
+  { revalidate: 120 } // 2 分钟缓存
 )
 
 // 缓存推荐游戏查询（10 分钟）
@@ -294,7 +294,7 @@ export default async function SearchPage({
 
       {/* 结果 */}
       <Suspense fallback={<ResultsSkeleton />}>
-        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
+        <SearchResultsWrapper q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
       </Suspense>
     </div>
   )

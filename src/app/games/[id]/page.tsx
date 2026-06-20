@@ -206,7 +206,7 @@ export default async function GameDetailPage({
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c').replace(/>/g, '\\u003e') }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/<\/script>/g, '\\u003c\\u002fscript\\u003e') }}
       />
       <ViewCounter gameId={resolved.id} />
       <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />

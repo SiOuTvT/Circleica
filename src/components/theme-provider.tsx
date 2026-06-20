@@ -48,6 +48,9 @@ export function useThemeColor() {
 }
 
 function doApply(s: FullThemeSettings) {
+  // 使用 data-theme 属性持久化主题设置
+  document.documentElement.setAttribute("data-theme", "custom")
+  // 同时设置 CSS 变量
   applyThemeColor(s.themeColor, s.themeRadius, s.themeShadowIntensity, s.themeAlpha)
 }
 
@@ -63,6 +66,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(cached) as FullThemeSettings
         setSettings(parsed)
         doApply(parsed)
+        // 设置 data-theme 属性
+        document.documentElement.setAttribute("data-theme", "custom")
       }
     } catch {}
 
@@ -80,6 +85,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           setSettings(s)
           doApply(s)
           localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
+          // 设置 data-theme 属性
+          document.documentElement.setAttribute("data-theme", "custom")
         }
       })
       .catch(() => {})
@@ -100,6 +107,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const next = { ...prev, ...patch }
       doApply(next)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      // 设置 data-theme 属性
+      document.documentElement.setAttribute("data-theme", "custom")
       return next
     })
   }, [])
@@ -112,6 +121,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setSettings(s)
     doApply(s)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
+    // 设置 data-theme 属性
+    document.documentElement.setAttribute("data-theme", "custom")
   }, [])
 
   const value = useMemo(() => ({ settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll }), [settings, setColor, setRadius, setShadowIntensity, setAlpha, applyAll])

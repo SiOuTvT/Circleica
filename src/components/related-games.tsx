@@ -17,7 +17,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
   return (
     <div className="py-4 sm:py-6 lg:py-8">
       <h2 className="mb-3 text-base font-bold text-foreground">相关游戏推荐</h2>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20">
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
         {games.map((g) => (
           <Link
             key={g.id}
