@@ -31,6 +31,43 @@ interface RichTextEditorProps {
   onChange?: (html: string) => void
   placeholder?: string
   className?: string
+  maxSizeMB?: number
+  maxWidth?: number
+  maxHeight?: number
+  quality?: number
+}
+
+/** 压缩图片到指定尺寸和质量 */
+async function compressImage(file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      let { width, height } = img
+      // 计算等比缩放后的尺寸
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height)
+        width = Math.floor(width * ratio)
+        height = Math.floor(height * ratio)
+      }
+      // 创建 canvas 并绘制压缩后的图片
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext("2d")!
+      ctx.drawImage(img, 0, 0, width, height)
+      // 压缩输出
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob)
+          else reject(new Error("图片压缩失败"))
+        },
+        "image/jpeg",
+        quality
+      )
+    }
+    img.onerror = reject
+    img.src = URL.createObjectURL(file)
+  })
 }
 
 
@@ -39,6 +76,10 @@ export function RichTextEditor({
   onChange,
   placeholder = "输入内容...",
   className,
+  maxSizeMB = 5,
+  maxWidth = 1920,
+  maxHeight = 1080,
+  quality = 0.85,
 }: RichTextEditorProps) {
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
@@ -92,19 +133,33 @@ export function RichTextEditor({
         toast.error("请选择图片文件")
         return
       }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("图片大小不能超过 5MB")
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        toast.error(`图片大小不能超过 ${maxSizeMB}MB`)
         return
       }
 
       setUploading(true)
       try {
+        // 压缩图片（JPEG 格式，自动缩放至最大 1920x1080）
+        const compressedBlob = await compressImage(file, maxWidth, maxHeight, quality)
+        const compressedFile = new File([compressedBlob], file.name.replace(/\.[^.]+$/, ".jpg"), {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        })
+
         const formData = new FormData()
-        formData.append("file", file)
+        formData.append("file", compressedFile)
         const res = await fetch("/api/upload", { method: "POST", body: formData })
         const data = await res.json()
         if (res.ok && data.url) {
           addImage(data.url)
+          // 显示压缩效果提示
+          const originalSize = (file.size / 1024).toFixed(1)
+          const compressedSize = (compressedBlob.size / 1024).toFixed(1)
+          const savings = ((1 - compressedBlob.size / file.size) * 100).toFixed(0)
+          if (savings > 10) {
+            toast.success(`图片已上传（压缩 ${savings}%：${originalSize}KB → ${compressedSize}KB）`)
+          }
         } else {
           throw new Error(data.error || "上传失败")
         }
@@ -115,7 +170,7 @@ export function RichTextEditor({
         setUploading(false)
       }
     },
-    [addImage]
+    [addImage, maxSizeMB, maxWidth, maxHeight, quality]
   )
 
   const handleFileUpload = useCallback(

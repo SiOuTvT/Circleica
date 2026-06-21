@@ -1,5 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 import { Pagination } from "@/components/ui/pagination"
 import { CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
@@ -24,19 +26,46 @@ export default async function AdminReviewPage({
   const skip = (page - 1) * limit
   const where = { isPublished: false }
 
-  const [games, total] = await Promise.all([
-    prisma.game.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true,
-        status: true, isNsfw: true, createdAt: true, rejectReason: true,
-        publisher: { select: { id: true, username: true } },
-      },
-    }),
-    prisma.game.count({ where }),
-  ])
+  // 使用缓存减少频繁刷新带来的查询压力（1 分钟 TTL）
+  const cacheKeyReview = cacheKey("admin:review", String(page), String(limit))
+  let cachedData: { games: any[]; total: number } | null = null
+
+  try {
+    cachedData = await cache.get<typeof cachedData>(cacheKeyReview)
+  } catch (e) {
+    logger.db.error("[AdminReview] Cache get failed", e)
+  }
+
+  let games: any[]
+  let total: number
+
+  if (cachedData) {
+    ({ games, total } = cachedData)
+  } else {
+    const [gamesResult, totalResult] = await Promise.all([
+      prisma.game.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        select: {
+          id: true, serialId: true, title: true, coverImage: true,
+          status: true, isNsfw: true, createdAt: true, rejectReason: true,
+          publisher: { select: { id: true, username: true } },
+        },
+      }),
+      prisma.game.count({ where }),
+    ])
+    games = gamesResult
+    total = totalResult
+
+    // 写入缓存
+    try {
+      await cache.set(cacheKeyReview, { games, total }, 60)
+    } catch (e) {
+      logger.db.error("[AdminReview] Cache set failed", e)
+    }
+  }
+
   const totalPages = Math.ceil(total / limit)
 
   return (

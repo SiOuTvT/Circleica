@@ -42,7 +42,10 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
       },
     }),
     prisma.game.count({ where }),
-  ])
+  ]).catch((err) => {
+    logger.db.error("[HomePage] Game query failed", err)
+    return [[], 0] as [any[], number]
+  })
 
   if (!games.length) {
     return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} />
@@ -235,7 +238,7 @@ export default async function HomePage({
           <span className="text-sm text-muted-foreground">{total} 个</span>
         </div>
         <Suspense fallback={<GameGridSkeleton />}>
-          <GameGridServer tag={activeTag} q={q} nsfw={nsfw} />
+          <GameGridServer tag={activeTag} q={q} nsfw={nsfw} page={page} />
         </Suspense>
       </section>
 

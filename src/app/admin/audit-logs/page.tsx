@@ -27,7 +27,8 @@ export default async function AdminAuditLogsPage({
   const where: Record<string, unknown> = {}
   if (action) where.action = action
 
-  const [logs, total] = await Promise.all([
+  // 优化：并发查询日志列表和 distinct actions
+  const [logs, total, distinctActions] = await Promise.all([
     prisma.auditLog.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -35,16 +36,14 @@ export default async function AdminAuditLogsPage({
       include: { user: { select: { id: true, username: true, avatar: true } } },
     }),
     prisma.auditLog.count({ where }),
+    prisma.auditLog.findMany({
+      select: { action: true },
+      distinct: ["action"],
+      orderBy: { action: "asc" },
+    }),
   ])
 
   const totalPages = Math.ceil(total / limit)
-
-  // Get unique actions for filter tabs
-  const distinctActions = await prisma.auditLog.findMany({
-    select: { action: true },
-    distinct: ["action"],
-    orderBy: { action: "asc" },
-  })
 
   return (
     <div className="space-y-6">

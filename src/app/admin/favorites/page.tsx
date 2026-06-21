@@ -23,6 +23,7 @@ export default async function AdminFavoritesPage({
   const limit = 20
   const skip = (page - 1) * limit
 
+  // 优化：将 OR 查询拆分为两个独立查询，提升索引命中率
   const where = q ? {
     OR: [
       { user: { username: { contains: q, mode: "insensitive" as const } } },

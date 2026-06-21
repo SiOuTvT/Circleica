@@ -21,7 +21,23 @@ export default async function AdminAnnouncementsPage({
   const skip = (page - 1) * limit
 
   const [anns, total] = await Promise.all([
-    prisma.announcement.findMany({ orderBy: { sortOrder: "asc" }, skip, take: limit }),
+    prisma.announcement.findMany({
+      orderBy: { sortOrder: "asc" },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        imageUrl: true,
+        link: true,
+        isActive: true,
+        sortOrder: true,
+        startAt: true,
+        endAt: true,
+        createdAt: true,
+      },
+    }),
     prisma.announcement.count(),
   ])
 

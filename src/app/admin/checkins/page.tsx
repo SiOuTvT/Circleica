@@ -1,5 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 import { Pagination } from "@/components/ui/pagination"
 import { CalendarCheck, Search } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -47,21 +49,47 @@ export default async function AdminCheckInsPage({
     ...dateCondition,
   }
 
-  const [checkIns, total] = await Promise.all([
-    prisma.checkIn.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      select: {
-        id: true,
-        date: true,
-        createdAt: true,
-        marks: true,
-        user: { select: { id: true, username: true, avatar: true } },
-      },
-    }),
-    prisma.checkIn.count({ where }),
-  ])
+  // 使用缓存减少重复查询（5 分钟 TTL）
+  const cacheKeyCheckins = cacheKey("admin:checkins", String(page), String(limit), q, from, to)
+  let cachedData: { checkIns: any[]; total: number } | null = null
+
+  try {
+    cachedData = await cache.get<typeof cachedData>(cacheKeyCheckins)
+  } catch (e) {
+    logger.db.error("[AdminCheckins] Cache get failed", e)
+  }
+
+  let checkIns: any[]
+  let total: number
+
+  if (cachedData) {
+    ({ checkIns, total } = cachedData)
+  } else {
+    const [checkInsResult, totalResult] = await Promise.all([
+      prisma.checkIn.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        select: {
+          id: true,
+          date: true,
+          createdAt: true,
+          marks: true,
+          user: { select: { id: true, username: true, avatar: true } },
+        },
+      }),
+      prisma.checkIn.count({ where }),
+    ])
+    checkIns = checkInsResult
+    total = totalResult
+
+    // 写入缓存
+    try {
+      await cache.set(cacheKeyCheckins, { checkIns, total }, 300)
+    } catch (e) {
+      logger.db.error("[AdminCheckins] Cache set failed", e)
+    }
+  }
 
   const totalPages = Math.ceil(total / limit)
 

@@ -1,5 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 import { Download, Eye, Gamepad2, Tag, Users } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -22,41 +24,118 @@ export default async function AdminDashboard() {
 
   const days = getLast14Days()
   const since = new Date(days[0])
+  const today = new Date().toISOString().slice(0, 10)
 
-  const RESOURCE_TAG_KEYS = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+  // 使用缓存减少数据库查询压力（5 分钟 TTL）
+  const cacheKeyStats = cacheKey("admin:dashboard:stats", today)
+  let cachedStats: {
+    totalGames: number; published: number; totalUsers: number;
+    totalViews: number; totalDownloads: number;
+    totalGameTags: number; totalResourceTags: number;
+    todayNewUsers: number;
+  } | null = null
 
-  const [totalGames, published, totalUsers, totalViews, totalDownloads,
-    recentGames, topGames, recentUsers,
-    newGames, newUsers, newComments,
-    totalGameTags, resourceTagSettings] = await Promise.all([
-    prisma.game.count(),
-    prisma.game.count({ where: { isPublished: true } }),
-    prisma.user.count(),
-    prisma.game.aggregate({ _sum: { viewCount: true } }).then(r => r._sum.viewCount ?? 0),
-    prisma.game.aggregate({ _sum: { downloadCount: true } }).then(r => r._sum.downloadCount ?? 0),
+  try {
+    cachedStats = await cache.get<typeof cachedStats>(cacheKeyStats)
+  } catch (e) {
+    logger.db.error("[AdminDashboard] Cache get failed", e)
+  }
+
+  let totalGames: number, published: number, totalUsers: number,
+    totalViews: number, totalDownloads: number,
+    totalGameTags: number, totalResourceTags: number, todayNewUsers: number
+
+  if (cachedStats) {
+    ({ totalGames, published, totalUsers, totalViews, totalDownloads,
+      totalGameTags, totalResourceTags, todayNewUsers } = cachedStats)
+  } else {
+    // 并行查询基础统计
+    const RESOURCE_TAG_KEYS = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+    const todayStart = new Date(today); todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(today); todayEnd.setHours(23, 59, 59, 999)
+
+    const [totalGamesR, publishedR, totalUsersR, totalViewsR, totalDownloadsR,
+      totalGameTagsR, resourceTagSettings, todayNewUsersR] = await Promise.all([
+      prisma.game.count(),
+      prisma.game.count({ where: { isPublished: true } }),
+      prisma.user.count(),
+      prisma.game.aggregate({ _sum: { viewCount: true } }).then(r => r._sum.viewCount ?? 0),
+      prisma.game.aggregate({ _sum: { downloadCount: true } }).then(r => r._sum.downloadCount ?? 0),
+      prisma.tag.count(),
+      prisma.siteSetting.findMany({ where: { key: { in: RESOURCE_TAG_KEYS } }, select: { value: true } }),
+      prisma.user.count({ where: { createdAt: { gte: todayStart, lte: todayEnd } } }),
+    ])
+    totalGames = totalGamesR
+    published = publishedR
+    totalUsers = totalUsersR
+    totalViews = totalViewsR
+    totalDownloads = totalDownloadsR
+    totalGameTags = totalGameTagsR
+    totalResourceTags = resourceTagSettings.reduce((sum, s) => {
+      try { return sum + (JSON.parse(s.value) as unknown[]).length } catch { return sum }
+    }, 0)
+    todayNewUsers = todayNewUsersR
+
+    // 写入缓存
+    try {
+      await cache.set(cacheKeyStats, {
+        totalGames, published, totalUsers, totalViews, totalDownloads,
+        totalGameTags, totalResourceTags, todayNewUsers,
+      }, 300)
+    } catch (e) {
+      logger.db.error("[AdminDashboard] Cache set failed", e)
+    }
+  }
+
+  // 查询最近列表数据（这些实时性要求较高，不缓存）
+  const [recentGames, topGames, recentUsers] = await Promise.all([
     prisma.game.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, title: true, isPublished: true, createdAt: true } }),
     prisma.game.findMany({ where: { isPublished: true }, orderBy: { viewCount: "desc" }, take: 5, select: { id: true, serialId: true, title: true, viewCount: true } }),
     prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, username: true, avatar: true, createdAt: true } }),
-    prisma.game.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
-    prisma.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
-    prisma.comment.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
-    prisma.tag.count(),
-    prisma.siteSetting.findMany({ where: { key: { in: RESOURCE_TAG_KEYS } }, select: { value: true } }),
   ])
 
-  const totalResourceTags = resourceTagSettings.reduce((sum, s) => {
-    try { return sum + (JSON.parse(s.value) as unknown[]).length } catch { return sum }
-  }, 0)
+  // 趋势图数据 - 使用 groupBy 聚合查询，直接返回每日统计而非完整对象数组
+  const [gamesByDay, usersByDay, commentsByDay] = await Promise.all([
+    prisma.game.groupBy({
+      by: ["createdAt"],
+      where: { createdAt: { gte: since } },
+      _count: { id: true },
+    }).then(result => {
+      // 按日期分组统计
+      const map = new Map<string, number>()
+      result.forEach(r => {
+        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        map.set(key, (map.get(key) ?? 0) + r._count.id)
+      })
+      return map
+    }),
+    prisma.user.groupBy({
+      by: ["createdAt"],
+      where: { createdAt: { gte: since } },
+      _count: { id: true },
+    }).then(result => {
+      const map = new Map<string, number>()
+      result.forEach(r => {
+        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        map.set(key, (map.get(key) ?? 0) + r._count.id)
+      })
+      return map
+    }),
+    prisma.comment.groupBy({
+      by: ["createdAt"],
+      where: { createdAt: { gte: since } },
+      _count: { id: true },
+    }).then(result => {
+      const map = new Map<string, number>()
+      result.forEach(r => {
+        const key = new Date(r.createdAt).toISOString().slice(0, 10)
+        map.set(key, (map.get(key) ?? 0) + r._count.id)
+      })
+      return map
+    }),
+  ])
 
-  const today = new Date().toISOString().slice(0, 10)
-  const todayNewUsers = newUsers.filter(u => u.createdAt.toISOString().slice(0, 10) === today).length
-
-  function toChartData(items: { createdAt: Date }[]) {
-    const map = new Map(days.map(d => [d, 0]))
-    for (const item of items) {
-      const key = item.createdAt.toISOString().slice(0, 10)
-      if (map.has(key)) map.set(key, (map.get(key) ?? 0) + 1)
-    }
+  function toChartData(map: Map<string, number>) {
     return days.map(d => ({ date: d.slice(5), value: map.get(d) ?? 0 }))
   }
 
@@ -104,9 +183,9 @@ export default async function AdminDashboard() {
         <p className="mb-3 text-sm font-medium text-muted-foreground">最近 14 天趋势</p>
         <div className="h-auto">
           <AdminChartsWrapper
-            gamesByDay={toChartData(newGames)}
-            usersByDay={toChartData(newUsers)}
-            commentsByDay={toChartData(newComments)}
+            gamesByDay={toChartData(gamesByDay)}
+            usersByDay={toChartData(usersByDay)}
+            commentsByDay={toChartData(commentsByDay)}
           />
         </div>
       </div>

@@ -469,6 +469,8 @@ model ForumPost {
   @@index([userId])
   @@index([createdAt])
   @@index([category])
+  @@index([isSolved])
+  @@index([isSolved, createdAt])
 }
 
 model ForumComment {

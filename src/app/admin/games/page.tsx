@@ -25,6 +25,7 @@ export default async function AdminGamesPage({
   } : {}
 
   const [games, total, published, draft] = await Promise.all([
+    // 使用 take 限制 tags 返回数量（表格只显示前 3 个标签）
     prisma.game.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -32,7 +33,7 @@ export default async function AdminGamesPage({
       select: {
         id: true, title: true, status: true, isNsfw: true,
         isPublished: true, viewCount: true, favoriteCount: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
+        tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
       },
     }),
     prisma.game.count({ where }),

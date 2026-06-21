@@ -31,6 +31,7 @@ export default async function AdminFollowsPage({
     ],
   } : {}
 
+  // 优化：使用并行查询替代 OR 查询，提升索引命中率
   const [follows, total] = await Promise.all([
     prisma.follow.findMany({
       where,

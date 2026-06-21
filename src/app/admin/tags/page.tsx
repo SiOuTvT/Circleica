@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
-import { prisma } from "@/lib/prisma"
+import { prisma, Prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
 
 export const dynamic = "force-dynamic"
@@ -34,20 +34,51 @@ export default async function TagsOverviewPage() {
     } catch {}
   }
 
-  const groups = await prisma.tagGroup.findMany({
-    orderBy: [{ isPreset: "desc" }, { name: "asc" }],
-    include: {
-      tags: {
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: {
-          id: true,
-          name: true,
-          color: true,
-          _count: { select: { games: true } },
+  // 优化：合并查询，同时获取标签组和未分组标签
+  const [groups, ungroupedTags] = await Promise.all([
+    prisma.tagGroup.findMany({
+      orderBy: [{ isPreset: "desc" }, { name: "asc" }],
+      include: {
+        tags: {
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
         },
       },
-    },
-  })
+    }),
+    prisma.tag.findMany({
+      where: { groupId: null },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        description: true,
+        sortOrder: true,
+        isVisible: true,
+      },
+    }),
+  ])
+
+  // 一次性获取所有标签的游戏计数
+  const groupedTags = groups.flatMap(g => g.tags)
+  const allTagIds = [...groupedTags.map(t => t.id), ...ungroupedTags.map(t => t.id)]
+
+  // 使用 Prisma 的参数化查询防止 SQL 注入
+  const gameTagCounts = allTagIds.length > 0
+    ? await prisma.$queryRaw<Array<{ tagId: string; _count: number }>>`
+        SELECT "tagId", COUNT(*)::int as "_count"
+        FROM "_GameToTag"
+        WHERE "tagId" IN (${Prisma.join(allTagIds)})
+        GROUP BY "tagId"
+      `
+    : []
+  const countMap = new Map(gameTagCounts.map(r => [r.tagId, r._count]))
+
+  const getGameCount = (tagId: string) => countMap.get(tagId) ?? 0
 
   const mappedGroups = groups.map((g) => ({
     id: g.id,
@@ -62,28 +93,14 @@ export default async function TagsOverviewPage() {
       : g.id === "preset_resource_tab"
         ? totalResourceTagCount
         : g.isPreset ? totalTagCount : g.tags.length,
-    totalGames: g.tags.reduce((s, t) => s + t._count.games, 0),
+    totalGames: g.tags.reduce((s, t) => s + getGameCount(t.id), 0),
   }))
-
-  const ungroupedTags = await prisma.tag.findMany({
-    where: { groupId: null },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      color: true,
-      description: true,
-      sortOrder: true,
-      isVisible: true,
-      _count: { select: { games: true } },
-    },
-  })
 
   const mappedUngrouped = ungroupedTags.map((t) => ({
     id: t.id,
     name: t.name,
     color: t.color,
-    gameCount: t._count.games,
+    gameCount: getGameCount(t.id),
     description: t.description,
     sortOrder: t.sortOrder,
     isVisible: t.isVisible,

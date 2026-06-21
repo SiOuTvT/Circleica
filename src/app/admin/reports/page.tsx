@@ -38,39 +38,44 @@ export default async function AdminReportsPage({
     where.game = { title: { contains: q, mode: "insensitive" } }
   }
 
-  const [reports, total] = await Promise.all([
+  // 优化：一次性获取举报列表和举报最多的游戏，避免重复查询
+  const [reports, total, gameReportCounts] = await Promise.all([
     prisma.gameReport.findMany({
       orderBy: { createdAt: "desc" },
       where,
       skip, take: limit,
       select: {
-        id: true, ip: true, reason: true, createdAt: true,
+        id: true, ip: true, reason: true, createdAt: true, gameId: true,
         game: { select: { id: true, serialId: true, title: true, coverImage: true, isPublished: true } },
       },
     }),
     prisma.gameReport.count({ where }),
+    // 同时获取举报最多的游戏（用于概览）
+    prisma.gameReport.groupBy({
+      by: ["gameId"],
+      where,
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 10, // 只取前 10 个用于概览显示
+    }),
   ])
-
-  // 按游戏分组统计举报数
-  const gameReportCounts = await prisma.gameReport.groupBy({
-    by: ["gameId"],
-    where,
-    _count: { id: true },
-    orderBy: { _count: { id: "desc" } },
-    take: 50,
-  })
 
   const totalPages = Math.ceil(total / limit)
 
-  // 按游戏分组的举报（用于概览）
-  const topReportedGames = gameReportCounts.slice(0, 10)
+  // 从举报列表中 extract 游戏信息，避免重复查询
+  const topReportedGames = gameReportCounts
   const topGameIds = topReportedGames.map(g => g.gameId)
-  const topGames = topGameIds.length > 0
+
+  // 如果举报列表中的游戏不在概览中，补充查询
+  const reportedGameIdsInList = reports.map(r => r.gameId)
+  const missingGameIds = topGameIds.filter(id => !reportedGameIdsInList.includes(id))
+
+  const topGames = missingGameIds.length > 0
     ? await prisma.game.findMany({
         where: { id: { in: topGameIds } },
         select: { id: true, serialId: true, title: true, coverImage: true, isPublished: true },
       })
-    : []
+    : reports.map(r => r.game) // 直接使用举报列表中的游戏信息
 
   return (
     <div className="space-y-6">
@@ -92,7 +97,8 @@ export default async function AdminReportsPage({
           <h2 className="mb-3 text-sm font-semibold text-foreground">举报最多的游戏</h2>
           <div className="flex flex-wrap gap-2">
             {topReportedGames.map((item) => {
-              const game = topGames.find(g => g.id === item.gameId)
+              // 优先从举报列表中获取游戏信息，否则从补充查询中获取
+              const game = reports.find(r => r.gameId === item.gameId)?.game || topGames.find(g => g.id === item.gameId)
               if (!game) return null
               return (
                 <Link
