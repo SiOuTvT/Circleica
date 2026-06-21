@@ -6,7 +6,7 @@ import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { Calendar, Eye, FolderHeart, Gamepad2, MessageSquare, Plus, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
@@ -146,7 +146,7 @@ export function ProfileContentTabs({ userId }: Props) {
                 style={{ backgroundColor: isActive ? "var(--tab-active)" : "transparent", color: isActive ? "var(--tab-active-text)" : "var(--tab-inactive-text)", boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.12)" : "none", fontWeight: isActive ? 700 : 500 }}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
-                {tab.key === "comments" && comments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary leading-none">{comments.length}</span>}
+                {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary leading-none">{localComments.length}</span>}
               </button>
             )
           })}

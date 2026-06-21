@@ -145,7 +145,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                         username: user.username, uid: user.uid, avatar: user.avatar,
                         composedAvatarUrl: user.composedAvatarUrl, banner: user.banner,
                         bio: user.bio || "", role: user.role, createdAt: user.createdAt.toISOString(),
-                        favCount: user.favorites.length, commentCount: user.comments.length,
+                        favCount: user._count.favorites, commentCount: user._count.comments,
                         followerCount: user._count.followers, followingCount: user._count.following,
                       }} />
                     )}
