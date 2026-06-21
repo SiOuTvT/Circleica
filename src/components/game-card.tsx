@@ -97,7 +97,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               sizes={sizes}
               onError={handleNextImageError}
-              loading="lazy"
+              loading={game.serialId !== undefined && game.serialId <= 4 ? "eager" : "lazy"}
               decoding="async"
               quality={85}
               priority={game.serialId !== undefined && game.serialId <= 4}

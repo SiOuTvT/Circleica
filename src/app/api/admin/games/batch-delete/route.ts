@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
   try {
     const result = await prisma.$transaction(async (tx) => {
       // 删除游戏关联的标签关系
-      await tx.gameToTag.deleteMany({ where: { gameId: { in: ids } } })
+      await tx.gameTag.deleteMany({ where: { gameId: { in: ids } } })
       // 删除游戏关联的资源
-      await tx.resource.deleteMany({ where: { gameId: { in: ids } } })
+      await tx.gameResource.deleteMany({ where: { gameId: { in: ids } } })
       // 删除游戏关联的评论
       await tx.comment.deleteMany({ where: { gameId: { in: ids } } })
       // 删除游戏关联的收藏

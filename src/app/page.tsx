@@ -88,7 +88,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
     return {
       ...g,
       coverImage: g.coverImage || placeholder,
-      tags: g.tags.map((t) => t.tag),
+      tags: g.tags.map((t: { tag: { name: string; color: string } }) => t.tag),
       downloadLinks,
       resourceTags,
     }

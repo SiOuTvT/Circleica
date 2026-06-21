@@ -40,7 +40,7 @@ interface RichTextEditorProps {
 /** 压缩图片到指定尺寸和质量 */
 async function compressImage(file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const img = new Image()
+    const img = new (window.Image)()
     img.onload = () => {
       let { width, height } = img
       // 计算等比缩放后的尺寸
@@ -157,7 +157,8 @@ export function RichTextEditor({
           const originalSize = (file.size / 1024).toFixed(1)
           const compressedSize = (compressedBlob.size / 1024).toFixed(1)
           const savings = ((1 - compressedBlob.size / file.size) * 100).toFixed(0)
-          if (savings > 10) {
+          const savingsNum = parseFloat(savings)
+          if (savingsNum > 10) {
             toast.success(`图片已上传（压缩 ${savings}%：${originalSize}KB → ${compressedSize}KB）`)
           }
         } else {
