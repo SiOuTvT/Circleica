@@ -81,7 +81,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
       <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0 flex-1">
         <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden" style={{ boxShadow: 'var(--card-shadow-hover)' }}>
+            <div className="rounded-2xl bg-card">
               {user.banner && (
                 <div className="relative h-36 w-full overflow-hidden">
                   <NextImage src={user.banner} alt="" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 380px" loading="eager" />
@@ -119,7 +119,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.following}</span><span className="text-xs text-muted-foreground mt-0.5">关注</span></div>
                   <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.followers}</span><span className="text-xs text-muted-foreground mt-0.5">粉丝</span></div>
                 </div>
-                <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10">
+                <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10 flex-wrap">
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.favorites}</span></div><span className="text-[11px] text-muted-foreground">收藏</span></div>
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.comments}</span></div><span className="text-[11px] text-muted-foreground">评论</span></div>
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.playStatuses}</span></div><span className="text-[11px] text-muted-foreground">玩过</span></div>
@@ -129,7 +129,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 )}
               </div>
             </div>
-            <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden" style={{ boxShadow: 'var(--card-shadow)' }}>
+            <div className="rounded-2xl bg-card">
               <div className="px-5 py-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>第 {userRank} 位成员</span><span>{joinDate} 加入</span>
@@ -165,7 +165,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           </div>
         </aside>
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
-          <div className="rounded-2xl bg-card ring-1 ring-border h-full shadow-none">
+          <div className="bg-card shadow-none">
             <ProfileContentTabs
               userId={user.id}
             />
