@@ -135,8 +135,8 @@ export function ProfileContentTabs({ userId }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
-        <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: "var(--tab-trough)" }}>
+      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-4 pt-4 pb-2 sm:px-5 sm:pt-5 border-b border-border">
+        <div className="flex gap-1 rounded-xl px-1 py-1">
           {tabs.map((tab) => {
             const Icon = tab.icon; const isActive = active === tab.key
             return (
@@ -152,7 +152,7 @@ export function ProfileContentTabs({ userId }: Props) {
         </div>
       </div>
 
-      <div className="p-4 sm:p-5 profile-scroll-area">
+      <div className="p-4 sm:p-5 profile-scroll-area" style={{ overflowY: 'auto', overflowX: 'hidden' }}>
         {active === "favorites" && (
           <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections}
             onOpenFolder={(col) => setModalCollection(col)}

@@ -1388,33 +1388,12 @@ a[href]:active {
 /* ═══ 个人中心：局部滚动条美化 ═══ */
 .profile-scroll-area,
 .folder-scroll-area {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(128,128,128,0.25) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .profile-scroll-area::-webkit-scrollbar,
 .folder-scroll-area::-webkit-scrollbar {
-  width: 5px;
-}
-.profile-scroll-area::-webkit-scrollbar-track,
-.folder-scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-.profile-scroll-area::-webkit-scrollbar-thumb,
-.folder-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(128,128,128,0.25);
-  border-radius: 99px;
-}
-.profile-scroll-area::-webkit-scrollbar-thumb:hover,
-.folder-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: rgba(128,128,128,0.45);
-}
-.dark .profile-scroll-area::-webkit-scrollbar-thumb,
-.dark .folder-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(200,200,200,0.15);
-}
-.dark .profile-scroll-area::-webkit-scrollbar-thumb:hover,
-.dark .folder-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: rgba(200,200,200,0.3);
+  display: none;
 }
 
 /* ═══ dvh 单位降级（老浏览器 fallback） ═══ */

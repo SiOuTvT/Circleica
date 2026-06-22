@@ -78,7 +78,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   return (
     <div className="flex flex-col">
       <BreadcrumbSetter segment={String(user.serialId)} label={user.username} />
-      <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-4 lg:gap-0 flex-1">
+      <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-0 flex-1">
         <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
             <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden" style={{ boxShadow: 'var(--card-shadow-hover)' }}>
@@ -165,7 +165,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           </div>
         </aside>
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
-          <div className="rounded-2xl bg-card ring-1 ring-border h-full shadow-none overflow-hidden">
+          <div className="rounded-2xl bg-card h-full shadow-none">
             <ProfileContentTabs
               userId={user.id}
             />
