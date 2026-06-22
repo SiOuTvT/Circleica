@@ -135,13 +135,13 @@ export function ProfileContentTabs({ userId }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-0 sm:px-5 sm:pt-5">
-        <div className="flex gap-1 rounded-xl px-1 py-1">
+      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
+        <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: "var(--tab-trough)" }}>
           {tabs.map((tab) => {
             const Icon = tab.icon; const isActive = active === tab.key
             return (
               <button key={tab.key} onClick={() => setActive(tab.key)}
-                className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ease-out outline-none"
+                className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
                 style={{ backgroundColor: isActive ? "var(--tab-active)" : "transparent", color: isActive ? "var(--tab-active-text)" : "var(--tab-inactive-text)", boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.12)" : "none", fontWeight: isActive ? 700 : 500 }}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
