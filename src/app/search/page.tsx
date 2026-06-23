@@ -294,7 +294,7 @@ export default async function SearchPage({
 
       {/* 结果 */}
       <Suspense fallback={<ResultsSkeleton />}>
-        <SearchResultsWrapper q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
+        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
       </Suspense>
     </div>
   )

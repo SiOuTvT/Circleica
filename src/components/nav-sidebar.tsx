@@ -89,13 +89,16 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     }
   }, [randomLoading, router])
 
-  // 关闭移动端侧边栏当路由变化
+  // 关闭移动端侧边栏当路由变化（用 ref 避免初次渲染误关）
+  const prevPathname = useRef(pathname)
   useEffect(() => {
-    if (mobileOpen && onMobileToggle) {
-      onMobileToggle()
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname
+      if (mobileOpen && onMobileToggle) {
+        onMobileToggle()
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, mobileOpen, onMobileToggle])
 
   return (
     <>
@@ -117,7 +120,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
         style={{
           background: "var(--sidebar)",
           borderRight: "1px solid var(--sidebar-border)",
-          width: collapsed ? 60 : expanded ? 240 : 200,
+          width: collapsed ? 60 : expanded ? 240 : mobileOpen ? 180 : 200,
           transition: "width 0.3s ease",
         }}
       >
