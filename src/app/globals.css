@@ -1392,6 +1392,7 @@ a[href]:active {
   overflow-x: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background-color: var(--card);
 }
 .profile-scroll-area::-webkit-scrollbar,
 .folder-scroll-area::-webkit-scrollbar {

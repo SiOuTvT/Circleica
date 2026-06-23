@@ -81,7 +81,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
       <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-0 flex-1">
         <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden" style={{ boxShadow: 'var(--card-shadow-hover)' }}>
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
               {user.banner && (
                 <div className="relative h-36 w-full overflow-hidden">
                   <NextImage src={user.banner} alt="" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 380px" loading="eager" />
@@ -129,7 +129,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 )}
               </div>
             </div>
-            <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden" style={{ boxShadow: 'var(--card-shadow)' }}>
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
               <div className="px-5 py-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>第 {userRank} 位成员</span><span>{joinDate} 加入</span>
@@ -165,7 +165,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           </div>
         </aside>
         <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none">
-          <div className="rounded-2xl bg-card h-full shadow-none">
+          <div className="rounded-2xl bg-card h-full shadow-none relative z-10">
             <ProfileContentTabs
               userId={user.id}
             />
