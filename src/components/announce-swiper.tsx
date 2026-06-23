@@ -109,7 +109,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
   return (
     <div
       ref={scrollRef}
-      className="relative w-full min-h-[160px] sm:min-h-[200px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="relative w-full h-[150px] sm:h-[180px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -121,8 +121,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
             src={ann.imageUrl}
             alt={ann.title}
             fill
-            className="object-cover transition-transform duration-700"
-            style={{ transform: "scale(1.1)" }}
+            className="object-cover"
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
             fetchPriority={cur === 0 ? "high" : "low"}
@@ -152,7 +151,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="group absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-4 py-3 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-2 mb-2">
             {ann.authorAvatar ? (
@@ -175,7 +174,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h3 className="text-2xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
+            <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
               {ann.title}
             </h3>
             {showNew && (
