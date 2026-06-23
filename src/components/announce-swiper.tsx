@@ -109,19 +109,20 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
   return (
     <div
       ref={scrollRef}
-      className="relative w-full h-[150px] sm:h-[180px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="relative w-full h-[200px] sm:h-[220px] lg:h-[310px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       {/* 背景图 */}
       <div className="absolute inset-0 overflow-hidden">
         {ann.imageUrl && !imgError ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            fill
-            className="object-cover"
+            className="absolute inset-0 object-cover"
+            style={{ width: "100%", height: "100%" }}
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
             fetchPriority={cur === 0 ? "high" : "low"}
