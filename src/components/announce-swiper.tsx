@@ -109,7 +109,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
   return (
     <div
       ref={scrollRef}
-      className="relative w-full min-h-[220px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="relative w-full min-h-[160px] sm:min-h-[200px] lg:h-[320px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

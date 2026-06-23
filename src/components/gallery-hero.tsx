@@ -81,6 +81,13 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     goTo((activeIndex + 1) % galleryImages.length)
   }, [activeIndex, galleryImages.length, goTo])
 
+  // Lightbox 状态（必须在使用它的 useEffect 之前声明）
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  useBodyScrollLock(lightboxOpen)
+
+  const openLightbox = useCallback(() => setLightboxOpen(true), [])
+  const closeLightbox = useCallback(() => setLightboxOpen(false), [])
+
   // 键盘事件监听 - 仅在 Lightbox 打开时监听，使用 VisibilityObserver 检测页面可见性
   useEffect(() => {
     // 仅在 Lightbox 打开且页面可见时监听键盘事件
@@ -108,13 +115,6 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     window.addEventListener("keydown", handler)
     return () => window.removeEventListener("keydown", handler)
   }, [goPrev, goNext, screenshots.length, lightboxOpen])
-
-  // Lightbox 状态
-  const [lightboxOpen, setLightboxOpen] = useState(false)
-  useBodyScrollLock(lightboxOpen)
-
-  const openLightbox = useCallback(() => setLightboxOpen(true), [])
-  const closeLightbox = useCallback(() => setLightboxOpen(false), [])
 
   const activeImage = galleryImages[activeIndex] ?? ""
 
