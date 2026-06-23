@@ -12,6 +12,15 @@ interface ForumSidebarProps {
 }
 
 export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarProps) {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)")
+    setIsMobile(mql.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener("change", handler)
+    return () => mql.removeEventListener("change", handler)
+  }, [])
+
   return (
     <>
       {/* 移动端遮罩 */}
@@ -24,16 +33,15 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
 
       <aside
         className={cn(
-          "fixed z-40 flex flex-col",
+          "fixed z-40 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,transform]",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
         )}
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          width: expanded ? 340 : 260,
+          width: isMobile ? 200 : expanded ? 340 : 260,
           transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.3s ease, width 0.3s ease",
         }}
       >
         {open && (
