@@ -120,7 +120,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             className="flex min-h-screen flex-col transition-transform duration-300 ease-out"
             style={{ transform: `translateX(${contentOffset}px)` }}
           >
-            <div className="flex-1 px-4 pb-8">
+            <div className="flex-1 px-3 sm:px-4 pb-8">
               <div className="mx-auto max-w-[1140px]">
                 <div className="sticky top-0 z-30 pt-3 pb-4">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
