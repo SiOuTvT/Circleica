@@ -76,7 +76,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
       }}
     >
       {/* ─── 封面：固定像素高度 ─── */}
-      <div className="relative w-full h-[130px] sm:h-[155px] lg:h-[175px]">
+      <div className="relative w-full h-[105px] sm:h-[140px] lg:h-[175px]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -172,7 +172,7 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card card-shadow">
       {/* 封面 */}
-      <div className="w-full h-[130px] sm:h-[155px] lg:h-[175px] skeleton-shimmer" />
+      <div className="w-full h-[105px] sm:h-[140px] lg:h-[175px] skeleton-shimmer" />
       {/* 内容 */}
       <div className="flex flex-col flex-1 px-2.5 pt-2 pb-2.5 sm:px-4 sm:pt-3 sm:pb-4">
         <div className="h-4 w-full rounded skeleton-shimmer" />

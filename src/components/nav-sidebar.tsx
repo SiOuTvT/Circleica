@@ -123,8 +123,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           width: collapsed ? 60 : expanded ? 240 : mobileOpen ? 180 : 200,
         }}
       >
-        {/* 导航列表 - flex column, 底部放折叠按钮 */}
-        <nav className="flex flex-col overflow-y-auto overflow-x-hidden px-2 py-3 h-full" style={{ width: collapsed ? 60 : (expanded ? 240 : 200) }}>
+        <nav className="flex flex-col overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-2">
               {section.items.map(({ icon: Icon, label, href }) => {
@@ -134,7 +133,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     key={href}
                     href={href}
                     className={cn(
-                      "flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap",
+                      "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap",
                       collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
                       isActive
                         ? "bg-accent text-foreground"
@@ -156,7 +155,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               onClick={handleRandomDiscover}
               disabled={randomLoading}
               className={cn(
-                "flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap w-full",
+                "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full",
                 collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
                 "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
               )}
@@ -167,9 +166,9 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </button>
           </div>
 
-          {/* 社区动态 */}
+          {/* 社区动态 — 手机端隐藏 */}
           {forumPosts.length > 0 && !collapsed && (
-            <div className="border-t border-border pt-3 mt-3">
+            <div className="hidden lg:block border-t border-border pt-3 mt-3">
               <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
                 社区动态
               </p>
@@ -194,9 +193,9 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </div>
           )}
 
-          {/* 热门游戏 */}
+          {/* 热门游戏 — 手机端隐藏 */}
           {hotGames.length > 0 && !collapsed && (
-            <div className="border-t border-border pt-3 mt-3">
+            <div className="hidden lg:block border-t border-border pt-3 mt-3">
               <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap flex items-center gap-1">
                 <Flame className="h-3 w-3" strokeWidth={2} />热门游戏
               </p>
