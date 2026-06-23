@@ -111,7 +111,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
       </div>
 
       {/* ─── 内容区：自然撑开 ─── */}
-      <div className="game-card-body flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 overflow-hidden">
+      <div className="game-card-body flex flex-col flex-1 px-2.5 pt-2 pb-2.5 sm:px-4 sm:pt-3 sm:pb-4 overflow-hidden">
         {/* 第1行：游戏名称 */}
         <h3 className="game-card-title text-base font-semibold leading-snug line-clamp-2">
           {game.title}
@@ -151,7 +151,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium shrink-0"
+                className="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium shrink-0"
                 style={{
                   background: tag.color ? `${tag.color}18` : undefined,
                   color: tag.color || undefined,
@@ -174,7 +174,7 @@ export function GameCardSkeleton() {
       {/* 封面 */}
       <div className="w-full h-[130px] sm:h-[155px] lg:h-[175px] skeleton-shimmer" />
       {/* 内容 */}
-      <div className="flex flex-col flex-1 px-3 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4">
+      <div className="flex flex-col flex-1 px-2.5 pt-2 pb-2.5 sm:px-4 sm:pt-3 sm:pb-4">
         <div className="h-4 w-full rounded skeleton-shimmer" />
         <div className="game-card-spacer" />
         <div className="flex gap-3">
