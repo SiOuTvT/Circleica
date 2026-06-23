@@ -33,28 +33,26 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           borderLeft: "1px solid var(--sidebar-border)",
           width: expanded ? 340 : 260,
           transform: open ? "translateX(0)" : "translateX(100%)",
-          opacity: open ? 1 : 0,
-          transition: "transform 0.3s ease, opacity 0.3s ease, width 0.3s ease",
-          boxShadow: "none",
+          transition: "transform 0.3s ease, width 0.3s ease",
         }}
       >
         {open && (
           <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-border via-transparent to-transparent" />
         )}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-muted/50">
+        <div className="flex items-center justify-between border-b border-border px-3 py-2.5 lg:px-5 lg:py-4 bg-muted/50">
           <span className="text-sm font-semibold text-foreground">论坛动态</span>
           <button onClick={onToggle} className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
             <X className="h-5 w-5" strokeWidth={2.5} />
           </button>
         </div>
-        <div className="border-b border-border p-3 bg-muted/50">
+        <div className="border-b border-border p-2 lg:p-3 bg-muted/50">
           <Link href="/forum" onClick={onToggle}
-            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground">
-            <MessageSquare className="h-5 w-5" strokeWidth={2} />
+            className="flex w-full items-center justify-center gap-2 rounded-xl py-2 lg:py-2.5 text-sm font-medium transition-all bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground">
+            <MessageSquare className="h-4 w-4 lg:h-5 lg:w-5" strokeWidth={2} />
             进入求档区
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto p-3">
+        <div className="flex-1 overflow-y-auto p-2 lg:p-3">
           {open && <ForumSidebarPosts />}
         </div>
       </aside>
