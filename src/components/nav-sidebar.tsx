@@ -114,14 +114,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       {/* 侧边栏 */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full overflow-hidden",
+          "fixed left-0 top-0 z-50 h-full overflow-hidden transition-transform duration-300 ease-out lg:transition-[width,transform]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         style={{
           background: "var(--sidebar)",
           borderRight: "1px solid var(--sidebar-border)",
           width: collapsed ? 60 : expanded ? 240 : mobileOpen ? 180 : 200,
-          transition: "width 0.3s ease",
         }}
       >
         {/* 导航列表 - flex column, 底部放折叠按钮 */}
