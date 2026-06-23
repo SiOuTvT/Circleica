@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, memo } from "react"
+import { useState, useRef, useCallback, useMemo, memo } from "react"
 import Image from "next/image"
 import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
