@@ -153,7 +153,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
       >
         <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
               <Image
                 src={ann.authorAvatar}
@@ -187,16 +187,16 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
             )}
           </div>
 
-          {/* 摘要 — 单行省略 */}
+          {/* 摘要 — 单行省略（手机端隐藏节省空间） */}
           {summary && (
-            <p className="text-sm text-white/70 line-clamp-1 leading-relaxed mb-2.5">
+            <p className="hidden sm:block text-sm text-white/70 line-clamp-1 leading-relaxed mb-2.5">
               {summary}
             </p>
           )}
 
-          {/* 查看详情 */}
+          {/* 查看详情（手机端隐藏） */}
           <span
-            className="inline-flex items-center gap-1 text-xs font-medium text-white transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
           >
             查看详情
             <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
