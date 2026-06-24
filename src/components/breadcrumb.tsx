@@ -188,10 +188,10 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="my-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
+      <nav className="mt-1 mb-3 lg:mt-2 lg:mb-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-gray-500 leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none transition-colors hover:text-foreground"
         >
           首页
         </Link>
@@ -201,13 +201,13 @@ export function Breadcrumb() {
             <span key={`${crumb.href}-${i}`} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
               <CrumbSeparator />
               {isLast ? (
-                <span className="inline-flex items-center font-medium leading-none text-muted-foreground max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
+                <span className="inline-flex items-center font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="inline-flex items-center leading-none text-muted-foreground transition-colors hover:text-foreground"
+                  className="inline-flex items-center leading-none transition-colors hover:text-foreground"
                 >
                   {crumb.label}
                 </Link>
@@ -263,7 +263,7 @@ export function Breadcrumb() {
   if (allCrumbs.length === 0) return null
 
   return (
-    <nav className="my-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
+    <nav className="my-3 lg:my-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm leading-none" aria-label="面包屑导航">
       <Link
         href="/"
         className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
@@ -276,7 +276,7 @@ export function Breadcrumb() {
           <span key={`${crumb.href}-${i}`} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
             <CrumbSeparator />
             {isLast ? (
-              <span className="inline-flex items-center font-medium leading-none text-muted-foreground max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
+              <span className="inline-flex items-center font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
                 {crumb.label}
               </span>
             ) : (
