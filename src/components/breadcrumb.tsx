@@ -188,7 +188,7 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="mt-1 mb-3 lg:mt-2 lg:mb-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-gray-500 leading-none" aria-label="面包屑导航">
+      <nav className="my-2 lg:my-4 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-gray-500 leading-none" aria-label="面包屑导航">
         <Link
           href="/"
           className="inline-flex items-center shrink-0 leading-none transition-colors hover:text-foreground"
