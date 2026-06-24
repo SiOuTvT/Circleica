@@ -66,11 +66,11 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     dataFetched.current = true
     fetch("/api/forum/posts")
       .then(r => r.json())
-      .then(data => setForumPosts((data || []).slice(0, 5)))
+      .then(data => setForumPosts(((data.posts) || []).slice(0, 5)))
       .catch(() => {})
     fetch("/api/games?sort=popular&limit=8")
       .then(r => r.json())
-      .then(data => setHotGames((data.games || []).slice(0, 8)))
+      .then(data => setHotGames(((data.games) || []).slice(0, 8)))
       .catch(() => {})
   }, [mobileOpen])
 
@@ -166,27 +166,27 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </button>
           </div>
 
-          {/* 社区动态 — 手机端隐藏 */}
+          {/* 社区动态 */}
           {forumPosts.length > 0 && !collapsed && (
-            <div className="hidden lg:block border-t border-border pt-3 mt-3">
-              <p className="px-2 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
+            <div className="border-t border-border pt-2 mt-2 lg:pt-3 lg:mt-3">
+              <p className="px-2 mb-1.5 lg:mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 whitespace-nowrap">
                 社区动态
               </p>
               {forumPosts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/forum?post=${post.id}`}
-                  className="block px-2 py-1.5 rounded-lg hover:bg-accent/40 transition-colors"
+                  className="block px-2 py-1 lg:py-1.5 rounded-lg hover:bg-accent/40 transition-colors"
                 >
                   <p className="text-xs text-foreground truncate whitespace-nowrap">{post.title}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 whitespace-nowrap">
+                  <p className="hidden lg:block text-[10px] text-muted-foreground mt-0.5 whitespace-nowrap">
                     {post.user.username} · {post.isSolved ? "已解决" : "未解决"}
                   </p>
                 </Link>
               ))}
               <Link
                 href="/forum"
-                className="block px-2 py-1.5 text-xs text-primary hover:underline mt-1 whitespace-nowrap"
+                className="block px-2 py-1 lg:py-1.5 text-xs text-primary hover:underline mt-1 whitespace-nowrap"
               >
                 查看全部 →
               </Link>

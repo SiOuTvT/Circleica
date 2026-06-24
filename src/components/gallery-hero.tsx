@@ -132,7 +132,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       const prevIdx = (activeIndex - i + galleryImages.length) % galleryImages.length
       ;[nextIdx, prevIdx].forEach(idx => {
         if (galleryImages[idx]) {
-          const img = new Image()
+          const img = new window.Image()
           img.src = galleryImages[idx]
         }
       })

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, useMemo, memo } from "react"
+import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
 import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -23,11 +23,11 @@ const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: num
   return <div className={`${s} rounded-full bg-primary/80 flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0`}>{user.username[0].toUpperCase()}</div>
 })
 
-const EMOJI_LIST = useMemo(() => [
+const EMOJI_LIST = [
   "😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺",
   "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡",
   "👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯",
-], [])
+]
 
 // 表情面板组件 - 使用 memo 避免不必要的重渲染
 const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
