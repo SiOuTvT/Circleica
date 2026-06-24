@@ -122,7 +122,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           >
             <div className="flex-1 px-3 sm:px-4 pb-8">
               <div className="mx-auto max-w-[1140px]">
-                <div className="sticky top-0 z-30 pt-2 lg:pt-3">
+                <div className="sticky top-0 z-30">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
                 </div>
                 <div>
