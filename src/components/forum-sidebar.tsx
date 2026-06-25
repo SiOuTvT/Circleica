@@ -76,7 +76,7 @@ function ForumSidebarPosts() {
     const controller = new AbortController()
     fetch("/api/forum/posts", { signal: controller.signal })
       .then(r => r.json())
-      .then(data => { setPosts(data.slice(0, 20)); setLoading(false) })
+      .then(data => { setPosts((data.posts || []).slice(0, 20)); setLoading(false) })
       .catch(() => setLoading(false))
     return () => controller.abort()
   }, [])
@@ -85,18 +85,18 @@ function ForumSidebarPosts() {
   if (!posts.length) return <p className="p-4 text-xs text-muted-foreground">暂无帖子</p>
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       {posts.map(p => (
         <Link key={p.id} href={`/forum?post=${p.id}`}
-          className="block rounded-lg p-2 lg:p-2.5 bg-muted/40 ring-1 ring-border/50 transition-all hover:ring-primary/20">
-          <p className="line-clamp-2 text-xs font-medium text-foreground leading-relaxed">{p.title}</p>
-          <div className="flex items-center gap-1.5 mt-1">
+          className="flex flex-col gap-1 rounded-xl px-3 py-2.5 transition-all hover:bg-accent/50">
+          <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{p.title}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">{p.user.username}</span>
             {p.isSolved !== undefined && (
-              <span className={`text-[9px] px-1 py-0.5 rounded ${p.isSolved ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/10 text-primary"}`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${p.isSolved ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"}`}>
                 {p.isSolved ? "已解决" : "未解决"}
               </span>
             )}
-            <span className="text-[10px] text-muted-foreground">{p.user.username}</span>
           </div>
         </Link>
       ))}

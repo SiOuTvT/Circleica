@@ -96,6 +96,14 @@ export function PostDetailModal({
   const [editCommentText, setEditCommentText] = useState("")
   const commentFileRef = useRef<HTMLInputElement>(null)
 
+  // 本地评论列表，支持提交/编辑后即时更新
+  const [localComments, setLocalComments] = useState<Comment[]>(post?.comments ?? [])
+  // 当 post 变化时同步评论
+  useEffect(() => {
+    setLocalComments(post?.comments ?? [])
+    setEditingComment(null)
+  }, [post?.id])
+
   // Esc 键关闭表情面板
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -151,13 +159,24 @@ export function PostDetailModal({
     if (commentImageFile) fd.append("image", commentImageFile)
     const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
     const data = await res.json()
-    if (res.ok) {
+    if (res.ok && data) {
       setCommentText("")
       setCommentImagePreview(null)
       setCommentImageFile(null)
       setShowCommentEmoji(false)
+      // 追加新评论到本地列表
+      const newComment: Comment = {
+        id: data.id,
+        content: data.content ?? "",
+        imageUrl: data.imageUrl ?? "",
+        likeCount: data.likeCount ?? 0,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt ?? data.createdAt,
+        user: data.user ?? { id: currentUserId ?? "", username: "", avatar: "" },
+      }
+      setLocalComments((prev) => [...prev, newComment])
     }
-  }, [commentText, commentImageFile, post.id])
+  }, [commentText, commentImageFile, post.id, currentUserId])
 
   const handleLikeComment = useCallback((id: string) => {
     onLikeComment?.(id)
@@ -183,6 +202,10 @@ export function PostDetailModal({
       if (res.ok) {
         const updated = await res.json()
         setEditingComment(null)
+        // 更新本地评论内容
+        setLocalComments((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, content: updated.content ?? editCommentText.trim(), updatedAt: updated.updatedAt } : c))
+        )
       }
     } catch { /* ignore */ }
   }, [editCommentText])
@@ -262,10 +285,10 @@ export function PostDetailModal({
 
           {/* 评论区 */}
           <div className="border-t border-border p-5">
-            <p className="mb-3 text-xs font-semibold text-muted-foreground">评论 {post.comments.length}</p>
+            <p className="mb-3 text-xs font-semibold text-muted-foreground">评论 {localComments.length}</p>
             <div className="mb-4 max-h-64 space-y-3 overflow-y-auto">
-              {post.comments.length === 0 && <p className="text-xs text-muted-foreground">还没有人回复，来说点什么吧~</p>}
-              {post.comments.map(c => (
+              {localComments.length === 0 && <p className="text-xs text-muted-foreground">还没有人回复，来说点什么吧~</p>}
+              {localComments.map(c => (
                 <div key={c.id} className="flex gap-2.5">
                   <Avatar user={c.user} size={6} />
                   <div className="flex-1 min-w-0">
