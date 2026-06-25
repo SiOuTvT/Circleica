@@ -326,7 +326,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                         className="rounded-lg object-cover ring-1 ring-border max-h-40 hover:ring-primary/30 transition-all" unoptimized />
                     </a>
                   )}
-                  <div className="mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mt-2 flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setReplyTo(`@${c.user.username} `); commentInputRef.current?.focus() }}
                       className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors hover:bg-secondary">
                       回复
