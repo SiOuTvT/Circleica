@@ -223,6 +223,7 @@ export function ProfileEditForm({ user }: Props) {
                   value={oldPassword}
                   onChange={e => setOldPassword(e.target.value)}
                   placeholder="输入当前密码"
+                  autoComplete="current-password"
                   className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 />
                 <button
@@ -242,6 +243,7 @@ export function ProfileEditForm({ user }: Props) {
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="设置新密码（至少6位）"
+                  autoComplete="new-password"
                   className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
                 />
                 <button

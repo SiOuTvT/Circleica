@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface Comment {
   id: string
@@ -22,6 +22,7 @@ interface Props {
   comments: Comment[]
   isLoggedIn: boolean
   currentUserId?: string
+  onCountChange?: (count: number) => void
 }
 
 type SortMode = "newest" | "hottest"
@@ -49,7 +50,7 @@ const EMOJI_CATEGORIES = [
   }
 ]
 
-export function CommentSection({ gameId, comments: init, isLoggedIn, currentUserId }: Props) {
+export function CommentSection({ gameId, comments: init, isLoggedIn, currentUserId, onCountChange }: Props) {
   const [comments, setComments] = useState(init)
   const [content, setContent] = useState("")
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -60,6 +61,11 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // 同步评论数量到父组件
+  useEffect(() => {
+    onCountChange?.(comments.length)
+  }, [comments.length, onCountChange])
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { message: emptyMsg } = useEmotionalMessage("empty_comments")
@@ -280,7 +286,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                       {EMOJI_CATEGORIES.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
                           <p className="mb-1.5 text-[10px] font-medium text-muted-foreground">{cat.name}</p>
-                          <div className="grid grid-cols-10 gap-1">
+                          <div className="grid grid-cols-8 sm:grid-cols-10 gap-1">
                             {cat.emojis.map((emoji) => (
                               <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}
                                 className="flex h-8 w-8 items-center justify-center rounded-lg text-lg hover:bg-secondary transition-colors active:scale-90">

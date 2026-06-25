@@ -39,7 +39,7 @@ const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (
         role="dialog"
         aria-label="表情选择器"
       >
-        <div className="grid grid-cols-10 gap-1">
+        <div className="grid grid-cols-8 sm:grid-cols-10 gap-1">
           {EMOJI_LIST.map((emoji) => (
             <button
               key={emoji}

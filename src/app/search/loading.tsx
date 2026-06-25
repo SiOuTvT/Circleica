@@ -6,10 +6,10 @@ export default function SearchLoading() {
         <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
       </div>
 
-      {/* 筛选栏骨架 */}
+      {/* 排序栏骨架 */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {["w-16", "w-20", "w-24", "w-16", "w-20"].map((w, i) => (
-          <div key={i} className={`h-8 ${w} rounded-full bg-muted animate-pulse`} />
+        {["w-16", "w-20", "w-16"].map((w, i) => (
+          <div key={i} className={`h-8 ${w} rounded-lg bg-muted animate-pulse`} />
         ))}
       </div>
 

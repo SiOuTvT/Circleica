@@ -100,6 +100,7 @@ export default function GameDetailClient({
   })
   const [fav, setFav] = useState(isFav)
   const [favCnt, setFavCnt] = useState(favCount)
+  const [commentCnt, setCommentCnt] = useState(comments.length)
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
   const { messages: favMsgs } = useEmotionalMessages(favMsgKeys)
@@ -253,8 +254,8 @@ export default function GameDetailClient({
                 }}
               >
                 {t.label}
-                {t.key === "comments" && comments.length > 0 && (
-                  <span className="ml-1.5 text-[10px] opacity-60">{comments.length}</span>
+                {t.key === "comments" && commentCnt > 0 && (
+                  <span className="ml-1.5 text-[10px] opacity-60">{commentCnt}</span>
                 )}
               </button>
             ))}
@@ -299,14 +300,15 @@ export default function GameDetailClient({
                   comments={comments}
                   isLoggedIn={isLoggedIn}
                   currentUserId={currentUserId}
+                  onCountChange={setCommentCnt}
                 />
               </div>
             )}
           </div>
         </div>
 
-        {/* ─── 移动端档案信息（折叠面板，仅简介tab显示）─ 提取至 ArchiveCard 组件 ─── */}
-        {tab === "intro" && (
+        {/* ─── 移动端档案信息（折叠面板，全 tab 可见）─ 提取至 ArchiveCard 组件 ─── */}
+        <div className="lg:hidden">
           <ArchiveCard
             releaseDate={releaseDate}
             studioName={studioName}
@@ -316,7 +318,7 @@ export default function GameDetailClient({
             isOpen={mobileArchiveOpen}
             onToggle={() => setMobileArchiveOpen(v => !v)}
           />
-        )}
+        </div>
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
         <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6"
@@ -403,20 +405,20 @@ export default function GameDetailClient({
             )}
           </div>
         </div>
-
-        {/* 举报 */}
-        {isLoggedIn && (
-          <div className="mt-5 pt-4 border-t border-border">
-            <button
-              onClick={() => setReportOpen(true)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-            >
-              <Flag className="h-3.5 w-3.5" strokeWidth={2} />
-              举报游戏
-            </button>
-          </div>
-        )}
       </div>
+
+      {/* 举报 */}
+      {isLoggedIn && (
+        <div className="mt-5 pt-4 border-t border-border">
+          <button
+            onClick={() => setReportOpen(true)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+          >
+            <Flag className="h-3.5 w-3.5" strokeWidth={2} />
+            举报游戏
+          </button>
+        </div>
+      )}
 
       <ReportDialog
         show={reportOpen}

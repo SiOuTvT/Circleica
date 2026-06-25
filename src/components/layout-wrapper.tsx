@@ -36,6 +36,10 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024)
+    const mql = window.matchMedia("(min-width: 1024px)")
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mql.addEventListener("change", handler)
+    return () => mql.removeEventListener("change", handler)
   }, [])
 
   // 只开一边时那一边变大

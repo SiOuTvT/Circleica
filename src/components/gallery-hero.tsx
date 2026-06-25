@@ -193,7 +193,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         <button
           type="button"
           onClick={closeLightbox}
-          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
           aria-label="关闭"
         >
           <X className="h-5 w-5" />
@@ -230,7 +230,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           </button>
         )}
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/70">
+        <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 text-sm text-white/70">
           {activeIndex + 1} / {galleryImages.length}
         </div>
       </div>

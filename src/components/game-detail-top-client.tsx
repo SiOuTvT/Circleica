@@ -117,23 +117,13 @@ export function GameDetailTopClient({
           </button>
 
           {/* 下载 */}
-          {downloadLinks.length > 0 ? (
-            <button
-              onClick={handleDownloadClick}
-              className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
-            >
-              <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
-              <span>下载</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleDownloadClick}
-              className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
-            >
-              <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
-              <span>下载</span>
-            </button>
-          )}
+          <button
+            onClick={handleDownloadClick}
+            className={cn(btnBase, "py-2.5 px-3.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 text-xs")}
+          >
+            <Download className="w-[18px] h-[18px]" strokeWidth={2.5} />
+            <span>{downloadLinks.length > 0 ? "下载" : "资源"}</span>
+          </button>
         </div>
 
         <CollectionPickerDialog

@@ -65,10 +65,10 @@ function DialogContent({
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button
               variant="ghost"
-              className="absolute top-2 right-2 h-7 w-7"
-              size="icon-sm"
+              className="absolute top-2 right-2 h-10 w-10"
+              size="icon"
             >
-              <XIcon className="h-3.5 w-3.5" />
+              <XIcon className="h-4 w-4" />
               <span className="sr-only">关闭</span>
             </Button>
           </DialogPrimitive.Close>
