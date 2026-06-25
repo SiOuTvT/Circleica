@@ -101,7 +101,7 @@ async function handleCreatePost(req: NextRequest) {
     return NextResponse.json({
       id: post.id, title: post.title, content: post.content,
       imageUrl: post.imageUrl, likeCount: post.likeCount,
-      category: post.category, isPinned: post.isPinned, isLocked: post.isLocked,
+      category: post.category, isPinned: post.isPinned, isLocked: post.isLocked, isSolved: post.isSolved,
       viewCount: post.viewCount, updatedAt: post.updatedAt.toISOString(),
       createdAt: post.createdAt.toISOString(),
       user: post.user, commentCount: 0,

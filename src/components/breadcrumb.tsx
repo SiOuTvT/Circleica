@@ -188,10 +188,10 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="my-3 lg:my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-gray-500 leading-none" aria-label="面包屑导航">
+      <nav className="my-3 lg:my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="inline-flex items-center shrink-0 leading-none transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
         >
           首页
         </Link>
@@ -207,7 +207,7 @@ export function Breadcrumb() {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="inline-flex items-center leading-none transition-colors hover:text-foreground"
+                  className="inline-flex items-center leading-none text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {crumb.label}
                 </Link>
@@ -263,7 +263,7 @@ export function Breadcrumb() {
   if (allCrumbs.length === 0) return null
 
   return (
-    <nav className="my-3 lg:my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-gray-500 leading-none" aria-label="面包屑导航">
+    <nav className="my-3 lg:my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
         className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"

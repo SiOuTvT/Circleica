@@ -9,7 +9,7 @@ export const metadata = { title: "编辑资料 · 同人游戏站" }
 
 export default async function ProfileEditPage() {
   const session = await auth()
-  if (!session?.user?.id) redirect("/login")
+  if (!session?.user?.id) redirect("/login?callbackUrl=/profile/edit")
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },

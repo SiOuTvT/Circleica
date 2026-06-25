@@ -63,6 +63,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
       {currentPage > 1 && (
         <Link
           href={buildUrl(baseUrl, currentPage - 1, extraParams)}
+          scroll
           className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
           aria-label="上一页"
         >
@@ -80,6 +81,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
           <Link
             key={p}
             href={buildUrl(baseUrl, p, extraParams)}
+            scroll
             className={`flex h-11 min-w-11 items-center justify-center rounded-xl px-3 text-sm transition-colors ${
               p === currentPage
                 ? "bg-primary/15 text-primary font-medium ring-1 ring-primary/20"
@@ -96,6 +98,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
       {currentPage < totalPages && (
         <Link
           href={buildUrl(baseUrl, currentPage + 1, extraParams)}
+          scroll
           className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
           aria-label="下一页"
         >

@@ -2,7 +2,7 @@
 
 import { ChevronDown } from "lucide-react"
 import Link from "next/link"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface SortOption {
   key: string
@@ -22,6 +22,18 @@ export function MobileSortDropdown({
 }) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // click-outside 关闭
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [open])
 
   function buildHref(sortKey: string) {
     const p = new URLSearchParams(extraParams)

@@ -9,7 +9,12 @@ import { toast } from "sonner"
 import { ArchiveCard } from "./game-detail/archive-card"
 import { IntroTab } from "./game-detail/intro-tab"
 import { ReportDialog } from "./game-detail/report-dialog"
-import { ResourceTab } from "./game-detail/resource-tab"
+
+/** 资源 Tab — 懒加载 */
+const ResourceTab = dynamic(() => import("./game-detail/resource-tab").then(m => ({ default: m.ResourceTab })), {
+  loading: () => <div className="mt-4 h-40 animate-pulse rounded-xl bg-muted" />,
+  ssr: false,
+})
 
 /** 评论 */
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
