@@ -102,6 +102,17 @@ export default function GameDetailClient({
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // 同步来自 GameDetailTopClient 的收藏状态变化
+  useEffect(() => {
+    function onFavChange(e: Event) {
+      const detail = (e as CustomEvent).detail as { isFav: boolean }
+      setFav(detail.isFav)
+      setFavCnt((c) => detail.isFav ? c + 1 : Math.max(0, c - 1))
+    }
+    window.addEventListener("game-fav-change", onFavChange)
+    return () => window.removeEventListener("game-fav-change", onFavChange)
+  }, [])
+
   // 举报
   const [reportOpen, setReportOpen] = useState(false)
   const [reportSubmitting, setReportSubmitting] = useState(false)
@@ -179,6 +190,7 @@ export default function GameDetailClient({
         if (!controller.signal.aborted) {
           setFav(data.isFav)
           setFavCnt(data.count)
+          window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: data.isFav } }))
           toast.success(data.isFav
             ? (favMsgs.favorite_added ? `${favMsgs.favorite_added.emoji} ${favMsgs.favorite_added.title}` : "已收藏")
             : (favMsgs.favorite_removed ? `${favMsgs.favorite_removed.emoji} ${favMsgs.favorite_removed.title}` : "已取消收藏"))

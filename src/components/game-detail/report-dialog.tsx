@@ -21,9 +21,15 @@ const REASONS = [
 
 export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: ReportDialogProps) {
   const [reason, setReason] = useState("")
+  const [otherText, setOtherText] = useState("")
+
+  function handleSubmit() {
+    const finalReason = reason === "other" && otherText.trim() ? `other: ${otherText.trim()}` : reason
+    onSubmit(finalReason)
+  }
 
   return (
-    <Dialog open={show} onOpenChange={(open) => { if (!open) { onClose(); setReason("") } }}>
+    <Dialog open={show} onOpenChange={(open) => { if (!open) { onClose(); setReason(""); setOtherText("") } }}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>举报游戏</DialogTitle>
@@ -42,16 +48,25 @@ export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: Repo
               <span className="text-sm text-foreground">{r.label}</span>
             </label>
           ))}
+          {reason === "other" && (
+            <textarea
+              value={otherText}
+              onChange={(e) => setOtherText(e.target.value)}
+              placeholder="请描述举报原因…"
+              rows={3}
+              className="w-full rounded-xl bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 resize-none"
+            />
+          )}
         </div>
         <DialogFooter>
-          <Button variant="outline" size="sm" onClick={() => { onClose(); setReason("") }}>
+          <Button variant="outline" size="sm" onClick={() => { onClose(); setReason(""); setOtherText("") }}>
             取消
           </Button>
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onSubmit(reason)}
-            disabled={!reason || reportSubmitting}
+            onClick={handleSubmit}
+            disabled={!reason || reportSubmitting || (reason === "other" && !otherText.trim())}
           >
             {reportSubmitting ? "提交中…" : "提交举报"}
           </Button>

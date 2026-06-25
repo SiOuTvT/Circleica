@@ -48,6 +48,7 @@ export function GameDetailTopClient({
       })
       if (res.ok) {
         setFav(false)
+        window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: false } }))
       }
     } finally {
       setUnfavoriting(false)
@@ -56,6 +57,7 @@ export function GameDetailTopClient({
 
   function handleSelect(_collectionId: string | null) {
     setFav(true)
+    window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: true } }))
   }
 
   function handleShare() {

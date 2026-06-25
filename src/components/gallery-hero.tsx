@@ -233,7 +233,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
         loading={activeIndex === 0 ? "eager" : "lazy"}
-        unoptimized
+        sizes="(max-width: 768px) 100vw, 60vw"
         onPointerUp={(e) => {
           if (e.pointerType === 'touch' || isTouchDevice) {
             openLightbox()
