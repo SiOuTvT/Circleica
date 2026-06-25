@@ -34,7 +34,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
       select: {
         id: true, serialId: true, title: true, coverImage: true, status: true,
         isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true,
+        downloadCount: true, downloadLinks: true,
         updatedAt: true, createdAt: true,
         tags: { select: { tag: { select: { name: true, color: true } } } },
         resources: { select: { language: true, runType: true, resourceContent: true } },
@@ -47,7 +47,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
   })
 
   if (!games.length) {
-    return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} />
+    return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} page={page} />
   }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
@@ -93,7 +93,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
     }
   })
 
-  return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} />
+  return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} page={page} />
 }
 
 export default async function HomePage({

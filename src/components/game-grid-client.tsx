@@ -9,11 +9,12 @@ interface Props {
   tag: string
   q: string
   nsfw: boolean
+  page: number
 }
 
 const GAMES_PER_PAGE = 24
 
-export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
+export function GameGridClient({ initialGames, total, tag, q, nsfw, page }: Props) {
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
 
   function buildHref(page: number): string {
@@ -38,7 +39,7 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw }: Props) {
       {totalPages > 1 && (
         <div className="mt-8">
           <Pagination
-            currentPage={1}
+            currentPage={page}
             totalPages={totalPages}
             baseUrl={tag && tag !== "全部" ? "/search" : "/"}
             extraParams={{

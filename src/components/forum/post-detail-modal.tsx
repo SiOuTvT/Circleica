@@ -184,6 +184,7 @@ export function PostDetailModal({
 
   const handleDeleteComment = useCallback((id: string) => {
     onDeleteComment?.(id)
+    setLocalComments((prev) => prev.filter((c) => c.id !== id))
   }, [onDeleteComment])
 
   const startEditComment = useCallback((id: string, text: string) => {
