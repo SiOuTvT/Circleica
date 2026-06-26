@@ -14,7 +14,7 @@ interface User { id: string; username: string; avatar: string }
 interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
 interface PostData {
   id: string; title: string; content: string; imageUrl: string
-  likeCount: number; commentCount: number; isSolved: boolean
+  likeCount: number; commentCount: number; isSolved: boolean; isLocked?: boolean
   createdAt: string; user: User
 }
 
@@ -224,6 +224,11 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                 <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} />已解决
               </span>
             )}
+            {post.isLocked && (
+              <span className="flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-500 ring-1 ring-rose-500/20">
+                🔒 已锁定
+              </span>
+            )}
           </div>
         </div>
 
@@ -262,10 +267,12 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                   <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                   {post.isSolved ? "已解决" : "标记解决"}
                 </button>
-                <button onClick={() => { setEditing(true); setEditTitle(post.title); setEditContent(post.content) }}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground hover:bg-secondary">
-                  <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />编辑
-                </button>
+                {!post.isLocked && (
+                  <button onClick={() => { setEditing(true); setEditTitle(post.title); setEditContent(post.content) }}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground hover:bg-secondary">
+                    <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />编辑
+                  </button>
+                )}
               </>
             )}
             {(isAuthor || isAdmin) && (
@@ -360,7 +367,11 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
 
         {/* ── 评论输入框 ── */}
         <div className="border-t border-border p-4 md:px-8 md:py-5">
-          {isLoggedIn ? (
+          {post.isLocked ? (
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              🔒 帖子已锁定，无法发表评论
+            </p>
+          ) : isLoggedIn ? (
             <form onSubmit={submitComment} className="space-y-2">
               {/* 回复提示 */}
               {replyTo && (

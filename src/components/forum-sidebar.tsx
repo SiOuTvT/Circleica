@@ -26,14 +26,14 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
       {/* 移动端遮罩 */}
       {open && (
         <div
-          className="fixed inset-0 z-30 backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
+          className="fixed inset-0 z-[32] backdrop-blur-sm fade-in lg:hidden bg-black/40 touch-none"
           onClick={onToggle}
         />
       )}
 
       <aside
         className={cn(
-          "fixed z-40 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,transform]",
+          "fixed z-50 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,transform]",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
         )}
