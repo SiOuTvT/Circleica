@@ -187,7 +187,7 @@ export default async function HomePage({
   }
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8 pt-4">
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
       {/* Hero：品牌卡 + 公告 */}
