@@ -56,9 +56,9 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
       </div>
       <p className="mt-3 line-clamp-2 text-base font-semibold text-foreground leading-relaxed">{post.title}</p>
       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}</span>
-        <span className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />{post.commentCount}</span>
-        <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5" strokeWidth={1.5} />{post.viewCount}</span>
+        <span className="flex items-center gap-1.5"><Heart className="w-4 h-4" strokeWidth={1.5} />{post.likeCount}</span>
+        <span className="flex items-center gap-1.5"><MessageSquare className="w-4 h-4" strokeWidth={1.5} />{post.commentCount}</span>
+        <span className="flex items-center gap-1.5"><Eye className="w-4 h-4" strokeWidth={1.5} />{post.viewCount}</span>
         {post.isPinned && <span className="text-amber-400">📌 置顶</span>}
         {post.isLocked && <span className="text-red-400">🔒 已锁定</span>}
       </div>
