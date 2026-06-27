@@ -710,7 +710,7 @@ main > * {
 }
 
 .btn-spring:active {
-  transform: translateY(0) scale(0.99);
+  transform: translateY(1px);
 }
 
 /* 卡片 - 优雅悬浮 */
@@ -729,7 +729,7 @@ main > * {
 }
 
 .card-spring:active {
-  transform: translateY(-1px) scale(0.998);
+  transform: translateY(1px);
 }
 
 /* ── Skeleton shimmer - 更柔和 ── */
@@ -1039,10 +1039,10 @@ input:focus, textarea:focus, select:focus {
   border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
 }
 
-/* ── 全局按钮按压反馈 — 微缩放 ── */
+/* ── 全局按钮按压反馈 — 下压 1px ── */
 button:not([data-slot]):active:not(:disabled),
 a[href]:active {
-  transform: scale(0.98);
+  transform: translateY(1px);
   transition: transform 0.1s ease;
 }
 
