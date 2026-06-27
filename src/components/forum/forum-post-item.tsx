@@ -37,7 +37,7 @@ const Avatar = memo(function Avatar({ user, size = 6 }: { user: User; size?: num
 export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItemProps) {
   return (
     <Link href={`/forum/${post.id}`}
-      className="block rounded-2xl bg-card p-5 ring-1 ring-border transition-all hover:ring-primary/30 hover:shadow-lg hover:shadow-primary/5">
+      className="game-card block rounded-2xl bg-card p-4 sm:p-5 ring-1 ring-border transition-all hover:ring-primary/30">
       <div className="flex items-center gap-2.5">
         <Avatar user={post.user} size={7} />
         <span className="text-sm text-muted-foreground">{post.user.username}</span>
