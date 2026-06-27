@@ -193,9 +193,14 @@ interface ResourceEntry {
   fileSize: string
 }
 
+function genId(len = 8) {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID().slice(0, len)
+  return Math.random().toString(36).slice(2, 2 + len)
+}
+
 function createEmptyEntry(): ResourceEntry {
   return {
-    id: crypto.randomUUID().slice(0, 8),
+    id: genId(),
     url: "",
     extractCode: "",
     decompressCode: "",
@@ -327,7 +332,7 @@ export function AddResourceDialog({
     setSubmitting(true)
 
     const resource: SubmittedResource = {
-      id: isEditMode && editData ? editData.id : crypto.randomUUID().slice(0, 10),
+      id: isEditMode && editData ? editData.id : genId(10),
       entries: entries.map(e => ({
         url: e.url.trim(),
         extractCode: e.extractCode.trim(),

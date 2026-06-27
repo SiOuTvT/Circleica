@@ -321,12 +321,8 @@ export default function GameDetailClient({
         </div>
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
-        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6"
-          style={{
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-          }}>
+        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border"
+          style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
 
           {/* 档案行列表 */}
           <div className="space-y-3.5">
@@ -334,10 +330,10 @@ export default function GameDetailClient({
             {/* 发售日期 */}
             {releaseDate && (
               <div className="flex items-start gap-2.5">
-                <Calendar className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <Calendar className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>发售日期：</span>
-                  <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>{releaseDate}</span>
+                  <span className="text-sm font-medium shrink-0 text-muted-foreground">发售日期：</span>
+                  <span className="text-sm font-semibold text-foreground">{releaseDate}</span>
                 </div>
               </div>
             )}
@@ -345,10 +341,10 @@ export default function GameDetailClient({
             {/* 制作会社 */}
             {studioName && (
               <div className="flex items-start gap-2.5">
-                <Building2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <Building2 className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>制作会社：</span>
-                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>{studioName}</span>
+                  <span className="text-sm font-medium shrink-0 text-muted-foreground">制作会社：</span>
+                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold bg-secondary text-foreground">{studioName}</span>
                 </div>
               </div>
             )}
@@ -356,10 +352,10 @@ export default function GameDetailClient({
             {/* 游戏时长 */}
             {gameDuration && (
               <div className="flex items-start gap-2.5">
-                <Clock className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <Clock className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏时长：</span>
-                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: "var(--secondary)", color: "var(--foreground)" }}>
+                  <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏时长：</span>
+                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold bg-secondary text-foreground">
                     {gameDuration}
                   </span>
                 </div>
@@ -372,15 +368,14 @@ export default function GameDetailClient({
               const numericId = rawId.replace(/^v/, "")
               return (
                 <div className="flex items-start gap-2.5">
-                  <ExternalLink className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                  <ExternalLink className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
                   <div className="flex items-center gap-x-1.5 min-w-0">
-                    <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>VNDB：</span>
+                    <span className="text-sm font-medium shrink-0 text-muted-foreground">VNDB：</span>
                     <a
                       href={`https://vndb.org/v${numericId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80"
-                      style={{ background: "var(--secondary)", color: "var(--foreground)" }}
+                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80 bg-secondary text-foreground"
                     >
                       v{numericId}
                     </a>
@@ -392,11 +387,11 @@ export default function GameDetailClient({
             {/* 游戏标签 */}
             {gameTags && gameTags.length > 0 && (
               <div className="flex items-start gap-2.5">
-                <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "var(--muted-foreground)" }} strokeWidth={2} />
+                <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0" style={{ color: "var(--muted-foreground)" }}>游戏标签：</span>
+                  <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签：</span>
                   {gameTags.map((tag, i) => (
-                    <span key={i} className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>
+                    <span key={i} className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold" style={{ background: tag.color ? `${tag.color}20` : "var(--secondary)", color: tag.color || "var(--foreground)" }}>
                       {tag.name}
                     </span>
                   ))}
