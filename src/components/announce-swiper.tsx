@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 /** 去除 HTML 标签，返回纯文本 */
 function stripHtml(html: string): string {
@@ -48,48 +48,10 @@ function shouldShowNew(announcements: Ann[], index: number): boolean {
 export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: { announcements: Ann[]; siteName?: string }) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
-  const scrollRef = useRef<HTMLDivElement>(null)
   const [imgError, setImgError] = useState(false)
-  const componentVisibleRef = useRef(false)
 
   useEffect(() => { setImgError(false) }, [cur])
   const [paused, setPaused] = useState(false)
-
-  // 视差滚动优化：仅在组件可见时监听
-  useEffect(() => {
-    let ticking = false
-    const handleScroll = () => {
-      if (!ticking && componentVisibleRef.current) {
-        ticking = true
-        requestAnimationFrame(() => {
-          const img = scrollRef.current?.querySelector("img")
-          if (img) {
-            const safeY = Math.max(0, window.scrollY)
-            img.style.transform = `translateY(${safeY * 0.15}px) scale(1.1)`
-          }
-          ticking = false
-        })
-      }
-    }
-
-    // 使用 IntersectionObserver 检测组件可见性
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        componentVisibleRef.current = entry.isIntersecting
-      },
-      { threshold: 0 }
-    )
-
-    if (scrollRef.current) {
-      observer.observe(scrollRef.current)
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => {
-      observer.disconnect()
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
 
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])
   const prev = useCallback(() => setCur((i) => (i - 1 + len) % len), [len])
@@ -109,7 +71,6 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
   return (
     <div
-      ref={scrollRef}
       className="relative w-full h-[200px] sm:h-[220px] lg:h-[310px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -122,8 +83,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
             key={ann.imageUrl}
             src={ann.imageUrl}
             alt={ann.title}
-            className="absolute inset-0 object-cover"
-            style={{ width: "100%", height: "100%" }}
+            className="absolute inset-0 object-cover scale-105 lg:scale-110"
             loading={cur === 0 ? "eager" : "lazy"}
             decoding="async"
             fetchPriority={cur === 0 ? "high" : "low"}
