@@ -1046,12 +1046,8 @@ a[href]:active {
   transition: transform 0.1s ease;
 }
 
-/* ── 卡片悬停反馈 — 微上浮 ── */
-.game-card:hover,
-[class*="ring-1"][class*="bg-card"]:hover {
-  transform: translateY(-1px);
-  transition: transform 0.2s ease;
-}
+/* ── 卡片悬停反馈 — 仅 .game-card 生效（见下方 1265 行完整规则） ── */
+/* 移除了 [class*="ring-1"][class*="bg-card"] 选择器，避免误伤非交互元素 */
 
 /* ═══════════════════════════════════════════════════════
    亮色模式对比度修复
