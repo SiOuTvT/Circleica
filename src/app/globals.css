@@ -1253,7 +1253,7 @@ a[href]:active {
 /* ── 卡片：干净、自然、带统一阴影层次 ── */
 .game-card {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
 }
@@ -1261,11 +1261,11 @@ a[href]:active {
 .game-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--card-shadow-hover);
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--foreground));
 }
 
 .game-card:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0);
 }
 
 .game-card-title {
@@ -1274,18 +1274,6 @@ a[href]:active {
 
 .game-card-stat {
   color: var(--muted-foreground);
-}
-
-.light .game-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  box-shadow: var(--card-shadow);
-}
-
-.light .game-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: rgba(0, 0, 0, 0.20);
 }
 
 .light .game-card-title {
