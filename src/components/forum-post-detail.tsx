@@ -14,7 +14,7 @@ interface User { id: string; username: string; avatar: string }
 interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
 interface PostData {
   id: string; title: string; content: string; imageUrl: string
-  likeCount: number; commentCount: number; isSolved: boolean; isLocked?: boolean
+  likeCount: number; commentCount: number; viewCount?: number; isSolved: boolean; isLocked?: boolean
   createdAt: string; user: User
 }
 
@@ -216,7 +216,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{post.user.username}</p>
               <p className="text-xs text-muted-foreground/60 mt-0.5">
-                {fmtFullDate(post.createdAt)} · 浏览 {post.commentCount + post.likeCount}
+                {fmtFullDate(post.createdAt)} · 浏览 {post.viewCount ?? (post.commentCount + post.likeCount)}
               </p>
             </div>
             {post.isSolved && (

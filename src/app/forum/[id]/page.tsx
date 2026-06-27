@@ -52,6 +52,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
     imageUrl: post.imageUrl ?? "",
     likeCount: post.likeCount,
     commentCount: post._count?.comments ?? post.comments.length,
+    viewCount: post.viewCount,
     isSolved: post.isSolved,
     isLocked: post.isLocked,
     createdAt: post.createdAt.toISOString(),
