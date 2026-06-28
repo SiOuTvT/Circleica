@@ -27,7 +27,7 @@ export function MicroRichEditor({
         heading: false,
         codeBlock: false,
         horizontalRule: false,
-        history: true,
+        history: {},
       }),
       Link.configure({
         openOnClick: false,

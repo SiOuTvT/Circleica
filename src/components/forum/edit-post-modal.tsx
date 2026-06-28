@@ -27,7 +27,7 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
   if (!post) return null
 
   async function handleSubmit() {
-    if (!title.trim() || !content.trim()) return
+    if (!post || !title.trim() || !content.trim()) return
     setSubmitting(true)
     await onSave(post.id, title.trim(), content.trim())
     setSubmitting(false)

@@ -8,6 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import { Tag } from "@/components/ui/tag"
 
 interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
@@ -30,8 +31,8 @@ const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
 ]
 
 // 情感消息 key 常量，避免每次渲染传入新数组
-const FAV_MSG_KEYS = ["empty_favorites", "empty_play_status"] as const
-const PLAY_MSG_KEY = "empty_play_status" as const
+const FAV_MSG_KEYS: string[] = ["empty_favorites", "empty_play_status"]
+const PLAY_MSG_KEY = "empty_play_status"
 
 export function ProfileContentTabs({ userId }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")

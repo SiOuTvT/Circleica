@@ -33,7 +33,7 @@ function setCookie(name: string, value: string) {
 }
 
 // 签到情感消息 key 常量
-const CHECKIN_MSG_KEYS = ["checkin_success", "checkin_duplicate"] as const
+const CHECKIN_MSG_KEYS: string[] = ["checkin_success", "checkin_duplicate"]
 
 interface TopNavProps {
   navCollapsed?: boolean

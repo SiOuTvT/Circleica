@@ -77,7 +77,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
           return (
             <div
               key={letter}
-              ref={(el) => (sectionRefs.current[letter] = el)}
+              ref={(el) => { sectionRefs.current[letter] = el }}
               data-letter={letter}
               className="mb-6 last:mb-0"
             >

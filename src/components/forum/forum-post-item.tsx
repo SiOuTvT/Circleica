@@ -6,7 +6,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { memo } from "react"
 import { Tag } from "@/components/ui/tag"
-import type { User, Post } from "../forum-client"
+import type { User, Post } from "./forum-client-root"
 
 const CATEGORY_LABELS: Record<string, string> = {
   discussion: "讨论",

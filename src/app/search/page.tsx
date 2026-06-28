@@ -4,6 +4,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 import { Clock, Heart, TrendingUp, X } from "lucide-react"
 import Link from "next/link"
@@ -54,18 +55,20 @@ const getCachedSearchResults = unstable_cache(
         ],
       }),
       ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
-    }
+    } as Prisma.GameWhereInput
 
     const skip = (page - 1) * limit
+
+    const orderBy: Prisma.GameOrderByWithRelationInput = {
+      newest: { createdAt: "desc" as const },
+      popular: { viewCount: "desc" as const },
+      mostFaved: { favoriteCount: "desc" as const },
+    }[sort]
 
     const [gamesResult, countResult] = await Promise.all([
       prisma.game.findMany({
         where,
-        orderBy: {
-          newest: { createdAt: "desc" },
-          popular: { viewCount: "desc" },
-          mostFaved: { favoriteCount: "desc" },
-        }[sort],
+        orderBy,
         skip,
         take: limit,
         select: {
@@ -137,9 +140,9 @@ async function SearchResults({
   let rawGames: GameWithTag[] = []
   let total = 0
   try {
-    const { games, total: count } = await getCachedSearchResults(q, tag, sort, nsfw, page, limit)
-    rawGames = games
-    total = count
+    const result = await getCachedSearchResults(q, tag, sort, nsfw, page, limit)
+    rawGames = result.games as GameWithTag[]
+    total = result.total
   } catch (error) {
     logger.db.error("[SearchResults] Database query failed", error)
   }
