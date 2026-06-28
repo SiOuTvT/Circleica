@@ -88,7 +88,7 @@ function ForumSidebarPosts() {
   return (
     <div className="space-y-2">
       {posts.map(p => (
-        <Link key={p.id} href={`/forum?post=${p.id}`}
+        <Link key={p.id} href={`/forum/${p.id}`}
           className="flex flex-col gap-1 rounded-xl px-3 py-2.5 transition-all hover:bg-accent/50">
           <p className="text-sm font-medium text-foreground leading-snug line-clamp-2">{p.title}</p>
           <div className="flex items-center gap-2">

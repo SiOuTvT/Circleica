@@ -38,12 +38,26 @@ export default async function NotificationsPage() {
     : []
   const gameMap = new Map(games.map(g => [String(g.serialId), { id: g.id, title: g.title }]))
 
+  // 批量查询评论点赞通知对应的帖子 ID
+  const commentIds = notifications
+    .filter(n => n.type === "forum_comment_like" && n.targetId)
+    .map(n => n.targetId)
+  const commentPostMap = new Map<string, string>()
+  if (commentIds.length > 0) {
+    const comments = await prisma.forumComment.findMany({
+      where: { id: { in: commentIds } },
+      select: { id: true, postId: true },
+    })
+    comments.forEach(c => commentPostMap.set(c.id, c.postId))
+  }
+
   return (
     <NotificationsClient
       initialNotifications={notifications.map(n => ({
         ...n,
         createdAt: n.createdAt.toISOString(),
         targetGame: n.targetType === "game" && n.targetId ? gameMap.get(n.targetId) ?? null : null,
+        postId: n.type === "forum_comment_like" && n.targetId ? commentPostMap.get(n.targetId) ?? null : null,
       }))}
       initialUnreadCount={unreadCount}
     />

@@ -8,6 +8,7 @@ import { NavSidebar } from "@/components/nav-sidebar"
 import { TopNav } from "@/components/top-nav"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
+import { ChevronUp } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 
@@ -160,6 +161,29 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       )}
 
       <MusicPlayer />
+      <BackToTop />
     </BreadcrumbProvider>
+  )
+}
+
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > window.innerHeight)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  if (!visible) return null
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      className="fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm ring-1 ring-border text-muted-foreground transition-all hover:text-foreground hover:ring-foreground/20 shadow-md"
+      aria-label="回到顶部"
+    >
+      <ChevronUp className="h-5 w-5" strokeWidth={2} />
+    </button>
   )
 }

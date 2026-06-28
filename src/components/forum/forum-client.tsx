@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Plus } from "lucide-react"
+import { toast } from "sonner"
 import { ConfirmDialog } from "../ui/confirm-dialog"
 import { ForumFilters } from "./forum-filters"
 import { ForumPostItem } from "./forum-post-item"
@@ -145,9 +146,13 @@ export function ForumClient({
       const data = await res.json()
       if (res.ok) {
         setPosts(p => [data, ...p])
+        toast.success("发帖成功")
+      } else {
+        toast.error(data.error || "发帖失败，请稍后再试")
       }
     } catch (error) {
       logger.forum.error("Failed to create post", error)
+      toast.error("网络错误，请稍后再试")
     }
   }, [])
 

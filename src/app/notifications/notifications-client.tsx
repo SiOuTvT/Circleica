@@ -32,7 +32,7 @@ const TYPE_CONFIG: Record<string, {
   forum_post_like: {
     icon: Bell,
     text: (actor) => `${actor} 赞了你的帖子`,
-    href: () => "/forum",
+    href: (_targetType, id) => `/forum/${id}`,
   },
   forum_comment_like: {
     icon: Bell,
@@ -42,7 +42,7 @@ const TYPE_CONFIG: Record<string, {
   forum_comment_new: {
     icon: Bell,
     text: (actor) => `${actor} 评论了你的帖子`,
-    href: () => "/forum",
+    href: (_targetType, id) => `/forum/${id}`,
   },
   follow: {
     icon: Bell,

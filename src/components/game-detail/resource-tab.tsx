@@ -564,7 +564,21 @@ export function ResourceTab({
 
       {/* 空状态 */}
       {!loading && !loadError && resources.length === 0 && downloadLinks.length === 0 && (
-        <p className="text-sm text-muted-foreground/60 text-center py-4">还没有人分享资源，等一等~</p>
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {isLoggedIn ? "还没有人分享资源，成为第一个分享者吧！" : "还没有人分享资源，等一等~"}
+          </p>
+          {isLoggedIn && (
+            <AddResourceDialog
+              gameId={gameId}
+              userId={currentUserId || ""}
+              username={username || ""}
+              userAvatar={userAvatar ?? null}
+              isLoggedIn={isLoggedIn}
+              onAdd={handleAdd}
+            />
+          )}
+        </div>
       )}
 
       {/* 编辑资源弹窗 */}

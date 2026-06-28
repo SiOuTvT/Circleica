@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Download, Heart, Loader2, Share2 } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
@@ -49,6 +50,7 @@ export function GameDetailTopClient({
       if (res.ok) {
         setFav(false)
         window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: false } }))
+        toast.success("已取消收藏")
       }
     } finally {
       setUnfavoriting(false)
@@ -58,6 +60,7 @@ export function GameDetailTopClient({
   function handleSelect(_collectionId: string | null) {
     setFav(true)
     window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: true } }))
+    toast.success("已收藏")
   }
 
   function handleShare() {
