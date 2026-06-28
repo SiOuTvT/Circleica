@@ -36,7 +36,10 @@ export function ArchiveCard({
           style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
-      {isOpen && (
+      <div
+        className="overflow-hidden transition-all duration-300 ease-out"
+        style={{ maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0 }}
+      >
         <div className="mt-2 space-y-3 rounded-2xl p-4 bg-card ring-1 ring-border">
           {releaseDate && (
             <div className="flex items-center gap-2.5">
@@ -75,7 +78,7 @@ export function ArchiveCard({
               <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
               <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 min-w-0">
                 <span className="text-xs shrink-0 text-muted-foreground">游戏标签</span>
-              {gameTags.map((tag, i) => (
+                {gameTags.map((tag, i) => (
                   <Tag
                     key={i}
                     color={tag.color || undefined}
@@ -88,7 +91,7 @@ export function ArchiveCard({
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
