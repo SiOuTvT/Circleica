@@ -14,6 +14,7 @@ interface NotificationItem {
   targetId: string
   isRead: boolean
   createdAt: string
+  postId?: string | null
   actor: {
     id: string
     serialId: number | null
