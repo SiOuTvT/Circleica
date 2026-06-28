@@ -22,6 +22,7 @@ export function ArchiveCard({
 }) {
   return (
     <div className="mt-6 lg:hidden">
+      {/* 触发按钮 */}
       <button
         type="button"
         onClick={onToggle}
@@ -36,9 +37,15 @@ export function ArchiveCard({
           style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </button>
+
+      {/* 过渡容器：overflow-hidden 只裁剪高度，border 在内层卡片上 */}
       <div
-        className="overflow-hidden transition-all duration-300 ease-out"
-        style={{ maxHeight: isOpen ? "500px" : "0px", opacity: isOpen ? 1 : 0 }}
+        className="transition-all duration-300 ease-out"
+        style={{
+          maxHeight: isOpen ? "2000px" : "0px",
+          opacity: isOpen ? 1 : 0,
+          overflow: "hidden",
+        }}
       >
         <div className="mt-2 space-y-3 rounded-2xl p-4 bg-card ring-1 ring-border">
           {releaseDate && (
