@@ -222,38 +222,16 @@ export default async function HomePage({
           </div>
         </div>
 
-        {/* 品牌卡 - 移动端：紧凑横排 */}
-        <div className="flex md:hidden rounded-2xl bg-card ring-1 ring-border overflow-hidden">
-          <div className="flex flex-col flex-1 px-4 py-4 gap-3">
-            <div className="flex items-baseline gap-3">
-              <h2 className="text-xl font-bold text-foreground tracking-tight">同人游戏站</h2>
-              <p className="text-xs text-muted-foreground">GalGame 同人世界的一站式入口</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-foreground">{total}</span>
-                <span className="text-xs text-muted-foreground">游戏</span>
-              </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-foreground">{weekNewGames}</span>
-                <span className="text-xs text-muted-foreground">本周新增</span>
-              </div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-bold text-foreground">{todayCheckins}</span>
-                <span className="text-xs text-muted-foreground">今日签到</span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <RandomCreatorBtn />
-              <RandomCharacterBtn />
-            </div>
-          </div>
-        </div>
-
         {/* 公告区 */}
         {announcements.length > 0 && (
           <AnnounceSwiper announcements={announcements} />
         )}
+      </div>
+
+      {/* 手机端：随机发现按钮 */}
+      <div className="flex md:hidden gap-2">
+        <div className="flex-1"><RandomCreatorBtn fullWidth /></div>
+        <div className="flex-1"><RandomCharacterBtn fullWidth /></div>
       </div>
 
       {/* 游戏网格 */}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
-export function RandomCreatorBtn() {
+export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   const router  = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -51,7 +51,7 @@ export function RandomCreatorBtn() {
     <button
       onClick={go}
       disabled={loading}
-      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-[16px] text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
+      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-[16px] text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
       title="随机发现同人创作者（脚本家、画师、音乐人等）"
     >
       {loading
@@ -63,7 +63,7 @@ export function RandomCreatorBtn() {
   )
 }
 
-export function RandomCharacterBtn() {
+export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -98,7 +98,7 @@ export function RandomCharacterBtn() {
     <button
       onClick={go}
       disabled={loading}
-      className="flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-[16px] text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group"
+      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-[16px] text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
       title="随机查看游戏角色（完整角色设定）"
     >
       {loading

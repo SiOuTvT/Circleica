@@ -41,7 +41,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          width: isMobile ? "min(75vw, 260px)" : expanded ? 340 : 260,
+          width: isMobile ? "min(55vw, 220px)" : expanded ? 340 : 260,
           transform: open ? "translateX(0)" : "translateX(100%)",
         }}
       >
