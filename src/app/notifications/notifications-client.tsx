@@ -28,7 +28,7 @@ const TYPE_CONFIG: Record<string, {
   icon: typeof Bell
   text: (actor: string, gameTitle?: string) => string
   subtitle?: (actor: string, gameTitle?: string) => string
-  href: (targetType: string, targetId: string) => string
+  href: (targetType: string, targetId: string, postId?: string | null) => string
 }> = {
   forum_post_like: {
     icon: Bell,
@@ -211,7 +211,7 @@ export default function NotificationsClient({
           notifications.map((n) => {
             const config = TYPE_CONFIG[n.type]
             if (!config) return null
-            const href = config.href(n.targetType, n.targetId)
+            const href = config.href(n.targetType, n.targetId, n.postId)
             return (
               <Link
                 key={n.id}
