@@ -308,18 +308,20 @@ export default function GameDetailClient({
           </div>
         </div>
 
-        {/* ─── 移动端档案信息（折叠面板，全 tab 可见）─ 提取至 ArchiveCard 组件 ─── */}
-        <div className="lg:hidden">
-          <ArchiveCard
-            releaseDate={releaseDate}
-            studioName={studioName}
-            gameDuration={gameDuration}
-            vndbId={vndbId}
-            gameTags={gameTags}
-            isOpen={mobileArchiveOpen}
-            onToggle={() => setMobileArchiveOpen(v => !v)}
-          />
-        </div>
+        {/* ─── 移动端档案信息（折叠面板，仅简介 tab）─ */}
+        {tab === "intro" && (
+          <div className="lg:hidden">
+            <ArchiveCard
+              releaseDate={releaseDate}
+              studioName={studioName}
+              gameDuration={gameDuration}
+              vndbId={vndbId}
+              gameTags={gameTags}
+              isOpen={mobileArchiveOpen}
+              onToggle={() => setMobileArchiveOpen(v => !v)}
+            />
+          </div>
+        )}
 
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
         <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border card-shadow">
