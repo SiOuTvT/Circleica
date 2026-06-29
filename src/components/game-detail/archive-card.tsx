@@ -47,7 +47,7 @@ export function ArchiveCard({
           overflow: "hidden",
         }}
       >
-        <div className="mt-2 space-y-3 rounded-2xl p-4 bg-card ring-1 ring-border">
+        <div className="mt-2 space-y-3 rounded-2xl p-4 bg-card border border-border">
           {releaseDate && (
             <div className="flex items-center gap-2.5">
               <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />

@@ -3,7 +3,7 @@
 import DOMPurify from "isomorphic-dompurify"
 import { ChevronDown } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 
 export function IntroTab({
   description,
@@ -87,15 +87,10 @@ function CreatorsSection({
   creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
   const [expanded, setExpanded] = useState(creators.length <= 5)
-  const contentRef = useRef<HTMLDivElement>(null)
 
   const toggle = useCallback(() => {
     setExpanded((v) => !v)
   }, [])
-
-  // 计算展开高度：根据行数估算（每行约 56px + 8px gap）
-  const rows = Math.ceil(creators.length / 2) // 手机端 2 列
-  const expandedHeight = rows * 64 + 16 // 64px per row + padding
 
   return (
     <div className="mt-6">
@@ -112,21 +107,13 @@ function CreatorsSection({
         />
       </button>
 
-      {/* 动画容器：只控制高度裁剪，不设置 border/ring/rounded */}
-      <div
-        className="overflow-hidden transition-all duration-300 ease-out"
-        style={{
-          maxHeight: expanded ? `${expandedHeight}px` : "0px",
-          opacity: expanded ? 1 : 0,
-        }}
-      >
-        {/* 内容网格：卡片样式在这里，不受外层 overflow 影响 */}
-        <div ref={contentRef} className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+      {expanded && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 animate-fade-in-up">
           {creators.map((c) => (
             <a
               key={`${c.id}-${c.role}`}
               href={`/creators/${c.id}`}
-              className="flex items-center gap-2.5 rounded-xl bg-card p-3 ring-1 ring-border transition-all hover:ring-primary/40 hover:shadow-sm"
+              className="flex items-center gap-2.5 rounded-xl bg-card p-3 border border-border transition-all hover:border-primary/40 hover:shadow-sm"
             >
               {c.avatar ? (
                 <Image
@@ -151,7 +138,7 @@ function CreatorsSection({
             </a>
           ))}
         </div>
-      </div>
+      )}
     </div>
   )
 }
