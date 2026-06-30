@@ -321,19 +321,19 @@ export function ArchiveCard({
           ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string; href?: string; isTag?: boolean }[]).map((row, i) => (
             <div key={i} className="flex items-center gap-3 h-9">
               {row.icon}
-              <span className="text-[13px] text-muted-foreground shrink-0">{row.label}</span>
+              <span className="text-sm text-muted-foreground shrink-0">{row.label}</span>
               {row.href ? (
                 <a href={row.href} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center no-underline">
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
+                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[13px] font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
                     {row.value}
                   </span>
                 </a>
               ) : row.isTag ? (
-                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground leading-none">
+                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[13px] font-medium bg-secondary text-foreground leading-none">
                   {row.value}
                 </span>
               ) : (
-                <span className="ml-auto text-[13px] font-medium text-foreground">{row.value}</span>
+                <span className="ml-auto text-sm font-medium text-foreground">{row.value}</span>
               )}
             </div>
           ))}
@@ -342,14 +342,14 @@ export function ArchiveCard({
         {/* 游戏标签 — 第一行内联跟随标题，后续换行全宽 */}
         {gameTags && gameTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
               <Gamepad2 className="h-4 w-4" />
               游戏标签
             </span>
             {gameTags.map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center rounded-md px-2 text-[11px] font-medium shrink-0"
+                className="inline-flex items-center rounded-md px-2 text-xs font-medium shrink-0"
                 style={{
                   background: tag.color ? `${tag.color}18` : "var(--secondary)",
                   color: tag.color || "var(--foreground)",
