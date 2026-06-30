@@ -1307,8 +1307,8 @@ a[href]:active {
   background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
   color: var(--clr-blue);
   border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 3px 10px;
+  font-size: 12px;
   transition: background-color 0.2s;
 }
 .game-card-tag:hover {
