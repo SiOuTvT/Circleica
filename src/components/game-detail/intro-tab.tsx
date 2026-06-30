@@ -341,9 +341,9 @@ export function ArchiveCard({
 
         {/* 游戏标签 — 第一行内联跟随标题，后续换行全宽 */}
         {gameTags && gameTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground shrink-0">
-              <Gamepad2 className="h-4 w-4" />
+          <div className="flex flex-wrap items-start gap-1.5">
+            <span className="inline-flex items-start gap-1.5 text-sm text-muted-foreground shrink-0 leading-[22px]">
+              <Gamepad2 className="h-4 w-4 shrink-0 mt-[1px]" />
               游戏标签
             </span>
             {gameTags.map((tag, i) => (
