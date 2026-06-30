@@ -56,7 +56,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       {/* 返回 */}
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
         返回首页
@@ -64,7 +64,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
       {/* 封面图 */}
       {ann.imageUrl && (
-        <div className="mb-8 overflow-hidden rounded-xl">
+        <div className="mb-5 overflow-hidden rounded-xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ann.imageUrl}

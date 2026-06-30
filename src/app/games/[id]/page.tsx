@@ -224,7 +224,7 @@ export default async function GameDetailPage({
             {/* ①号位：封面图 16:9，融入卡片顶部 */}
             <div className="shrink-0 min-w-0">
               <div
-                className="relative overflow-hidden w-full aspect-[16/10] sm:aspect-[16/9] rounded-t-2xl"
+                className="relative overflow-hidden w-full aspect-[5/3] sm:aspect-[16/9] rounded-t-2xl"
               >
                 {game.coverImage ? (
                   <SafeImage

@@ -87,7 +87,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <NextImage src={user.banner} alt="" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 380px" loading="eager" />
                 </div>
               )}
-              <div className="px-6 py-8 flex flex-col items-center text-center">
+              <div className="px-4 sm:px-6 py-5 sm:py-8 flex flex-col items-center text-center">
                 <div className={user.banner ? "-mt-16 sm:-mt-22 mb-4 sm:mb-5" : "mb-4 sm:mb-5"}>
                   <div className="relative h-[100px] w-[100px] sm:h-[130px] sm:w-[130px]">
                     {user.composedAvatarUrl ? (
