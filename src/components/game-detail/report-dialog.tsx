@@ -96,7 +96,7 @@ export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: Repo
             onClick={handleSubmit}
             disabled={!selected || reportSubmitting}
             className="text-primary-foreground hover:opacity-90"
-            style={{ background: "color-mix(in srgb, var(--primary) 85%, white)" }}
+            style={{ background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.75)" }}
           >
             {reportSubmitting ? "提交中…" : "提交反馈"}
           </Button>

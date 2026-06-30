@@ -123,7 +123,7 @@ export function GameDetailTopClient({
             onClick={handleDownloadClick}
             className={cn(btnBase, "py-1 px-2 sm:py-2.5 sm:px-3.5 rounded-xl text-xs font-medium")}
             style={{
-              background: "color-mix(in srgb, var(--primary) 80%, white)",
+              background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.75)",
               color: "var(--primary-foreground)",
             }}
           >
