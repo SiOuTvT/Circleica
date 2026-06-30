@@ -348,7 +348,7 @@ export function ArchiveCard({
               {gameTags.map((tag, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center rounded-md px-2 text-xs font-medium shrink-0"
+                  className="inline-flex items-center rounded-md px-2 text-[13px] font-medium shrink-0"
                   style={{
                     background: tag.color ? `${tag.color}18` : "var(--secondary)",
                     color: tag.color || "var(--foreground)",
