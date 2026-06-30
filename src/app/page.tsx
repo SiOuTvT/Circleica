@@ -190,48 +190,50 @@ export default async function HomePage({
     <div className="flex flex-col gap-6 sm:gap-8 pt-4">
       <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
 
-      {/* Hero：品牌卡 + 公告 */}
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 mb-2 lg:mb-3 items-start">
-        {/* 品牌卡 - 桌面端：完整卡片 */}
-        <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
-          <div className="flex flex-col flex-1 px-7 py-8 justify-between">
-            <div>
-              <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
-              <p className="text-base text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
-            </div>
-            {/* 统计行 */}
-            <div className="flex gap-6">
+      {/* Hero + 手机端随机按钮 — 紧密组合 */}
+      <div className="flex flex-col gap-3 sm:gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
+          {/* 品牌卡 - 桌面端：完整卡片 */}
+          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
+            <div className="flex flex-col flex-1 px-7 py-8 justify-between">
               <div>
-                <p className="text-3xl font-bold text-foreground leading-none">{total}</p>
-                <p className="text-sm text-muted-foreground mt-1.5">个游戏</p>
+                <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
+                <p className="text-base text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
               </div>
-              <div>
-                <p className="text-3xl font-bold text-foreground leading-none">{weekNewGames}</p>
-                <p className="text-sm text-muted-foreground mt-1.5">本周新增</p>
+              {/* 统计行 */}
+              <div className="flex gap-6">
+                <div>
+                  <p className="text-3xl font-bold text-foreground leading-none">{total}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">个游戏</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-foreground leading-none">{weekNewGames}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">本周新增</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-foreground leading-none">{todayCheckins}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">今日签到</p>
+                </div>
               </div>
-              <div>
-                <p className="text-3xl font-bold text-foreground leading-none">{todayCheckins}</p>
-                <p className="text-sm text-muted-foreground mt-1.5">今日签到</p>
+              {/* 按钮行 */}
+              <div className="flex gap-2">
+                <RandomCreatorBtn />
+                <RandomCharacterBtn />
               </div>
-            </div>
-            {/* 按钮行 */}
-            <div className="flex gap-2">
-              <RandomCreatorBtn />
-              <RandomCharacterBtn />
             </div>
           </div>
+
+          {/* 公告区 */}
+          {announcements.length > 0 && (
+            <AnnounceSwiper announcements={announcements} />
+          )}
         </div>
 
-        {/* 公告区 */}
-        {announcements.length > 0 && (
-          <AnnounceSwiper announcements={announcements} />
-        )}
-      </div>
-
-      {/* 手机端：随机发现按钮 */}
-      <div className="flex md:hidden gap-2">
-        <div className="flex-1"><RandomCreatorBtn fullWidth /></div>
-        <div className="flex-1"><RandomCharacterBtn fullWidth /></div>
+        {/* 手机端：随机发现按钮 */}
+        <div className="flex md:hidden gap-2">
+          <div className="flex-1"><RandomCreatorBtn fullWidth /></div>
+          <div className="flex-1"><RandomCharacterBtn fullWidth /></div>
+        </div>
       </div>
 
       {/* 游戏网格 */}
