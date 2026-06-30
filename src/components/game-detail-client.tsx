@@ -1,7 +1,7 @@
 "use client"
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
-import { Building2, Calendar, Clock, ExternalLink, Flag, Gamepad2 } from "lucide-react"
+import { Building2, Calendar, Clock, ExternalLink, Gamepad2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -400,19 +400,6 @@ export default function GameDetailClient({
           </div>
         </div>
       </div>
-
-      {/* 举报 */}
-      {isLoggedIn && (
-        <div className="mt-5 pt-4 border-t border-border">
-          <button
-            onClick={() => setReportOpen(true)}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
-          >
-            <Flag className="h-3.5 w-3.5" strokeWidth={2} />
-            举报游戏
-          </button>
-        </div>
-      )}
 
       <ReportDialog
         show={reportOpen}

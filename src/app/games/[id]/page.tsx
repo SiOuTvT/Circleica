@@ -5,6 +5,7 @@ import { GameGallery } from "@/components/game-gallery"
 import { RelatedGames } from "@/components/related-games"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
+import { FeedbackBtn } from "@/components/feedback-btn"
 import { auth } from "@/lib/auth"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
@@ -323,6 +324,7 @@ export default async function GameDetailPage({
                   <Heart className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
+                <FeedbackBtn gameId={resolved.id} isLoggedIn={!!session} />
               </div>
             </div>
           </div>
@@ -336,7 +338,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           下方内容区 — Tab 式详情
       ═══════════════════════════════════════════════ */}
-      <div className="pt-2 pb-6 sm:py-8 lg:py-12">
+      <div className="pt-3 pb-6 sm:py-8 lg:py-12">
           <GameDetailClient
             description={getDescriptionText(game.description)}
             allDescriptions={getAllDescriptions(game.description)}

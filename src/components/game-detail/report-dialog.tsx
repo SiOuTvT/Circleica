@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
+import { MessageSquare } from "lucide-react"
 import { useState } from "react"
 
 interface ReportDialogProps {
@@ -11,64 +13,92 @@ interface ReportDialogProps {
   onSubmit: (reason: string) => void
 }
 
-const REASONS = [
-  { value: "illegal", label: "违法违规" },
-  { value: "pornographic", label: "色情低俗" },
-  { value: "spam", label: "垃圾广告" },
-  { value: "abuse", label: "辱骂骚扰" },
+const FEEDBACK_TYPES = [
+  { value: "info_wrong", label: "资料信息有误" },
+  { value: "image_wrong", label: "封面或截图有误" },
+  { value: "tag_wrong", label: "分类或标签错误" },
+  { value: "display_bug", label: "页面显示异常" },
+  { value: "duplicate", label: "重复收录" },
   { value: "other", label: "其他" },
 ]
 
 export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: ReportDialogProps) {
-  const [reason, setReason] = useState("")
-  const [otherText, setOtherText] = useState("")
+  const [selected, setSelected] = useState("")
+  const [detail, setDetail] = useState("")
 
   function handleSubmit() {
-    const finalReason = reason === "other" && otherText.trim() ? `other: ${otherText.trim()}` : reason
-    onSubmit(finalReason)
+    if (!selected) return
+    const text = detail.trim()
+    const reason = text ? `${selected}: ${text}` : selected
+    onSubmit(reason)
+  }
+
+  function handleClose() {
+    onClose()
+    setSelected("")
+    setDetail("")
   }
 
   return (
-    <Dialog open={show} onOpenChange={(open) => { if (!open) { onClose(); setReason(""); setOtherText("") } }}>
-      <DialogContent className="sm:max-w-sm">
+    <Dialog open={show} onOpenChange={(open) => { if (!open) handleClose() }}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>举报游戏</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            游戏反馈
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-2">
-          {REASONS.map((r) => (
-            <label key={r.value} className="flex items-center gap-3 p-3 rounded-xl bg-background border border-input cursor-pointer hover:bg-accent transition-colors min-h-[44px]">
-              <input
-                type="radio"
-                name="reason"
-                value={r.value}
-                checked={reason === r.value}
-                onChange={() => setReason(r.value)}
-                className="accent-red-500"
-              />
-              <span className="text-sm text-foreground">{r.label}</span>
-            </label>
-          ))}
-          {reason === "other" && (
+
+        <div className="space-y-4">
+          {/* 反馈类型 — Chip 选择 */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">选择反馈类型</p>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {FEEDBACK_TYPES.map((t) => {
+                const isActive = selected === t.value
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setSelected(t.value)}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+                      isActive
+                        ? "bg-primary/15 text-primary ring-primary/30"
+                        : "bg-transparent text-muted-foreground ring-border hover:text-foreground hover:ring-foreground/20"
+                    )}
+                  >
+                    {t.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* 详细描述 — 始终显示 */}
+          <div>
             <textarea
-              value={otherText}
-              onChange={(e) => setOtherText(e.target.value)}
-              placeholder="请描述举报原因…"
+              value={detail}
+              onChange={(e) => setDetail(e.target.value)}
+              placeholder="请详细描述具体问题，例如哪项资料有误、哪张图片有问题、哪个位置显示异常……"
               rows={3}
-              className="w-full rounded-xl bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 resize-none"
+              className="w-full rounded-xl bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 resize-none transition-all"
             />
-          )}
+          </div>
         </div>
+
         <DialogFooter>
-          <Button variant="outline" size="sm" onClick={() => { onClose(); setReason(""); setOtherText("") }}>
+          <Button variant="outline" size="sm" onClick={handleClose}>
             取消
           </Button>
           <Button
-            variant="destructive"
             size="sm"
             onClick={handleSubmit}
-            disabled={!reason || reportSubmitting || (reason === "other" && !otherText.trim())}
+            disabled={!selected || reportSubmitting}
+            className="text-primary-foreground hover:opacity-90"
+            style={{ background: "color-mix(in srgb, var(--primary) 85%, white)" }}
           >
-            {reportSubmitting ? "提交中…" : "提交举报"}
+            {reportSubmitting ? "提交中…" : "提交反馈"}
           </Button>
         </DialogFooter>
       </DialogContent>
