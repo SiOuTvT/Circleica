@@ -307,8 +307,8 @@ export function ArchiveCard({
         isOpen={isOpen}
         onToggle={onToggle}
       >
-        <div className="mb-3">
-          {/* 信息行 — 统一 h-9，items-center */}
+        <div className="space-y-2">
+          {/* 信息行 — 统一 gap-3, h-9 */}
           {([
             releaseDate ? { icon: <Calendar className="h-4 w-4 text-muted-foreground" />, label: "发售日期", value: releaseDate } : null,
             studioName ? { icon: <Building2 className="h-4 w-4 text-muted-foreground" />, label: "制作会社", value: studioName, isTag: true } : null,
@@ -337,31 +337,31 @@ export function ArchiveCard({
               )}
             </div>
           ))}
-        </div>
 
-        {/* 游戏标签 — 第一行内联跟随标题，后续换行全宽 */}
-        {gameTags && gameTags.length > 0 && (
-          <div className="flex flex-wrap items-start gap-1.5">
-            <span className="inline-flex items-start gap-1.5 text-sm text-muted-foreground shrink-0 leading-[22px]">
-              <Gamepad2 className="h-4 w-4 shrink-0 mt-[1px]" />
-              游戏标签
-            </span>
-            {gameTags.map((tag, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center rounded-md px-2 text-xs font-medium shrink-0"
-                style={{
-                  background: tag.color ? `${tag.color}18` : "var(--secondary)",
-                  color: tag.color || "var(--foreground)",
-                  border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
-                  lineHeight: "22px",
-                }}
-              >
-                {tag.name}
+          {/* 游戏标签 — 第一行内联，后续换行全宽，与信息行同 gap */}
+          {gameTags && gameTags.length > 0 && (
+            <div className="flex flex-wrap items-start gap-3">
+              <span className="inline-flex items-center gap-3 text-sm text-muted-foreground shrink-0 leading-[22px]">
+                <Gamepad2 className="h-4 w-4 shrink-0" />
+                游戏标签
               </span>
-            ))}
-          </div>
-        )}
+              {gameTags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center rounded-md px-2 text-xs font-medium shrink-0"
+                  style={{
+                    background: tag.color ? `${tag.color}18` : "var(--secondary)",
+                    color: tag.color || "var(--foreground)",
+                    border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
+                    lineHeight: "22px",
+                  }}
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </CollapsibleCard>
     </div>
   )
