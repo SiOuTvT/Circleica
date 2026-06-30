@@ -308,7 +308,8 @@ export function ArchiveCard({
         isOpen={isOpen}
         onToggle={onToggle}
       >
-        <div className="space-y-2.5">
+        {/* 信息行 */}
+        <div className="space-y-2.5 mb-3">
           {releaseDate && (
             <div className="flex items-center gap-2.5 h-8">
               <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -341,24 +342,28 @@ export function ArchiveCard({
               </div>
             )
           })()}
-          {gameTags && gameTags.length > 0 && (
-            <div className="flex items-start gap-2">
-              <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
-              <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
-                <span className="text-xs shrink-0 text-muted-foreground">游戏标签</span>
-                {gameTags.map((tag, i) => (
-                  <Tag
-                    key={i}
-                    color={tag.color || undefined}
-                    href={`/games?tag=${encodeURIComponent(tag.name)}`}
-                  >
-                    {tag.name}
-                  </Tag>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* 游戏标签 — 独立一行，占满宽度 */}
+        {gameTags && gameTags.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">游戏标签</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {gameTags.map((tag, i) => (
+                <Tag
+                  key={i}
+                  color={tag.color || undefined}
+                  href={`/games?tag=${encodeURIComponent(tag.name)}`}
+                >
+                  {tag.name}
+                </Tag>
+              ))}
+            </div>
+          </div>
+        )}
       </CollapsibleCard>
     </div>
   )
