@@ -389,8 +389,8 @@ export default function GameDetailClient({
             {gameTags && gameTags.length > 0 && (
               <div className="flex items-start gap-2.5">
                 <Gamepad2 className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签：</span>
+                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                  <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签</span>
                   {gameTags.map((tag, i) => (
                     <Tag key={i} color={tag.color || undefined}>{tag.name}</Tag>
                   ))}
