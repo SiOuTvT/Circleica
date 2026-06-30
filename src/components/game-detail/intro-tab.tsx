@@ -149,7 +149,7 @@ export function ArchiveCard({
   onToggle: () => void
 }) {
   return (
-    <div className="mt-5 lg:hidden">
+    <div className="mt-3 lg:hidden">
       <CollapsibleCard
         icon={<Calendar className="h-4 w-4 opacity-60" />}
         label="游戏档案"
@@ -245,7 +245,7 @@ function CollapsibleCard({
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center gap-2 px-4 py-2.5 hover:bg-secondary/30 transition-colors"
+        className="flex w-full items-center gap-2 px-4 py-3 hover:bg-secondary/30 transition-colors"
       >
         {icon}
         <span className="text-[15px] font-semibold text-foreground">{label}</span>
