@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Tag } from "@/components/ui/tag"
 
 /* ═══════════════════════════════════════════════
    语言优先级：中文 > English > 日本語 > 其他
@@ -308,60 +307,58 @@ export function ArchiveCard({
         isOpen={isOpen}
         onToggle={onToggle}
       >
-        {/* 信息行 */}
-        <div className="space-y-2.5 mb-3">
-          {releaseDate && (
-            <div className="flex items-center gap-2.5 h-8">
-              <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-xs shrink-0 text-muted-foreground">发售日期</span>
-              <span className="ml-auto text-xs font-semibold text-foreground">{releaseDate}</span>
+        <div className="mb-3">
+          {/* 信息行 — 统一 h-9，items-center */}
+          {([
+            releaseDate ? { icon: <Calendar className="h-4 w-4 text-muted-foreground" />, label: "发售日期", value: releaseDate } : null,
+            studioName ? { icon: <Building2 className="h-4 w-4 text-muted-foreground" />, label: "制作会社", value: studioName, isTag: true } : null,
+            gameDuration ? { icon: <Clock className="h-4 w-4 text-muted-foreground" />, label: "游戏时长", value: gameDuration, isTag: true } : null,
+            vndbId ? (() => {
+              const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
+              const numericId = rawId.replace(/^v/, "")
+              return { icon: <ExternalLink className="h-4 w-4 text-muted-foreground" />, label: "VNDB", value: `v${numericId}`, href: `https://vndb.org/v${numericId}`, isTag: true }
+            })() : null,
+          ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string; href?: string; isTag?: boolean }[]).map((row, i) => (
+            <div key={i} className="flex items-center gap-3 h-9">
+              {row.icon}
+              <span className="text-[13px] text-muted-foreground shrink-0">{row.label}</span>
+              {row.href ? (
+                <a href={row.href} target="_blank" rel="noopener noreferrer"
+                  className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground hover:opacity-80 transition-opacity leading-none">
+                  {row.value}
+                </a>
+              ) : row.isTag ? (
+                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground leading-none">
+                  {row.value}
+                </span>
+              ) : (
+                <span className="ml-auto text-[13px] font-medium text-foreground">{row.value}</span>
+              )}
             </div>
-          )}
-          {studioName && (
-            <div className="flex items-center gap-2.5 h-8">
-              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-xs shrink-0 text-muted-foreground">制作会社</span>
-              <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-secondary text-foreground">{studioName}</span>
-            </div>
-          )}
-          {gameDuration && (
-            <div className="flex items-center gap-2.5 h-8">
-              <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-xs shrink-0 text-muted-foreground">游戏时长</span>
-              <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-secondary text-foreground">{gameDuration}</span>
-            </div>
-          )}
-          {vndbId && (() => {
-            const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
-            const numericId = rawId.replace(/^v/, "")
-            return (
-              <div className="flex items-center gap-2.5 h-8">
-                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="text-xs shrink-0 text-muted-foreground">VNDB</span>
-                <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 bg-secondary text-foreground">v{numericId}</a>
-              </div>
-            )
-          })()}
+          ))}
         </div>
 
-        {/* 游戏标签 — 独立一行，占满宽度 */}
+        {/* 游戏标签 — 第一行内联跟随标题，后续换行全宽 */}
         {gameTags && gameTags.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">游戏标签</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {gameTags.map((tag, i) => (
-                <Tag
-                  key={i}
-                  color={tag.color || undefined}
-                  href={`/games?tag=${encodeURIComponent(tag.name)}`}
-                >
-                  {tag.name}
-                </Tag>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+              <Gamepad2 className="h-4 w-4" />
+              游戏标签
+            </span>
+            {gameTags.map((tag, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-md px-2 text-[11px] font-medium shrink-0"
+                style={{
+                  background: tag.color ? `${tag.color}18` : "var(--secondary)",
+                  color: tag.color || "var(--foreground)",
+                  border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
+                  lineHeight: "22px",
+                }}
+              >
+                {tag.name}
+              </span>
+            ))}
           </div>
         )}
       </CollapsibleCard>
