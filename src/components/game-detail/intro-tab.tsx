@@ -340,7 +340,7 @@ export function ArchiveCard({
 
           {/* 游戏标签 — 第一行内联，后续换行全宽，与信息行同 gap */}
           {gameTags && gameTags.length > 0 && (
-            <div className="flex flex-wrap items-start gap-3">
+            <div className="flex flex-wrap items-start gap-2">
               <span className="inline-flex items-center gap-3 text-sm text-muted-foreground shrink-0 leading-[22px]">
                 <Gamepad2 className="h-4 w-4 shrink-0" />
                 游戏标签
