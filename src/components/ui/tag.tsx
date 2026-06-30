@@ -47,10 +47,10 @@ interface TagProps extends TagBaseProps {
 
 const variantStyles: Record<TagVariant, string> = {
   content: cn(
-    // 手机端: px-2 无垂直padding, 桌面端: px-2.5 py-1
+    // 手机端: px-2 py-px, 桌面端: px-2.5 py-1
     "inline-flex items-center shrink-0",
     "rounded-lg",
-    "px-2 sm:px-2.5 sm:py-1",
+    "px-2 py-px sm:px-2.5 sm:py-1",
     "text-xs font-semibold",
     "transition-colors",
   ),

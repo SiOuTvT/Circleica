@@ -308,43 +308,44 @@ export function ArchiveCard({
         isOpen={isOpen}
         onToggle={onToggle}
       >
-        <div className="space-y-0">
+        <div className="space-y-2.5">
           {releaseDate && (
-            <div className="flex items-center gap-2.5 min-h-[28px]">
-              <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="text-[11px] shrink-0 text-muted-foreground">发售日期</span>
-              <span className="ml-auto text-[11px] font-medium text-foreground">{releaseDate}</span>
+            <div className="flex items-center gap-2.5 h-8">
+              <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="text-xs shrink-0 text-muted-foreground">发售日期</span>
+              <span className="ml-auto text-xs font-semibold text-foreground">{releaseDate}</span>
             </div>
           )}
           {studioName && (
-            <div className="flex items-center gap-2.5 min-h-[28px]">
-              <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="text-[11px] shrink-0 text-muted-foreground">制作会社</span>
-              <span className="ml-auto inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-secondary text-foreground">{studioName}</span>
+            <div className="flex items-center gap-2.5 h-8">
+              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="text-xs shrink-0 text-muted-foreground">制作会社</span>
+              <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-secondary text-foreground">{studioName}</span>
             </div>
           )}
           {gameDuration && (
-            <div className="flex items-center gap-2.5 min-h-[28px]">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="text-[11px] shrink-0 text-muted-foreground">游戏时长</span>
-              <span className="ml-auto inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-secondary text-foreground">{gameDuration}</span>
+            <div className="flex items-center gap-2.5 h-8">
+              <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="text-xs shrink-0 text-muted-foreground">游戏时长</span>
+              <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium bg-secondary text-foreground">{gameDuration}</span>
             </div>
           )}
           {vndbId && (() => {
             const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
             const numericId = rawId.replace(/^v/, "")
             return (
-              <div className="flex items-center gap-2.5 min-h-[28px]">
-                <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                <span className="text-[11px] shrink-0 text-muted-foreground">VNDB</span>
-                <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium transition-all hover:opacity-80 bg-secondary text-foreground">v{numericId}</a>
+              <div className="flex items-center gap-2.5 h-8">
+                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-xs shrink-0 text-muted-foreground">VNDB</span>
+                <a href={`https://vndb.org/v${numericId}`} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium transition-all hover:opacity-80 bg-secondary text-foreground">v{numericId}</a>
               </div>
             )
           })()}
           {gameTags && gameTags.length > 0 && (
-            <div className="flex items-start gap-2.5 pt-1">
-              <Gamepad2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
-              <div className="flex flex-wrap gap-1 min-w-0 flex-1">
+            <div className="flex items-start gap-2">
+              <Gamepad2 className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+              <div className="flex flex-wrap items-center gap-1 min-w-0 flex-1">
+                <span className="text-xs shrink-0 text-muted-foreground">游戏标签</span>
                 {gameTags.map((tag, i) => (
                   <Tag
                     key={i}
