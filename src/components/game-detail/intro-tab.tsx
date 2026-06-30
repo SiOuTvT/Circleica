@@ -338,10 +338,10 @@ export function ArchiveCard({
             </div>
           ))}
 
-          {/* 游戏标签 — 图标跨行，标签从左边缘开始 */}
+          {/* 游戏标签 — 图标跨行，标签和文字左对齐 */}
           {gameTags && gameTags.length > 0 && (
-            <div className="grid" style={{ gridTemplateColumns: "16px 1fr", columnGap: "12px", rowGap: "6px" }}>
-              <Gamepad2 className="h-4 w-4 text-muted-foreground row-span-2 self-start mt-[1px]" />
+            <div className="grid items-start" style={{ gridTemplateColumns: "16px 1fr", columnGap: "12px", rowGap: "6px" }}>
+              <Gamepad2 className="h-4 w-4 text-muted-foreground row-span-2 mt-[1px]" />
               <span className="text-xs sm:text-sm text-muted-foreground leading-[22px]">游戏标签</span>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {gameTags.map((tag, i) => (
