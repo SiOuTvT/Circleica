@@ -1,6 +1,7 @@
 "use client"
 
 import DOMPurify from "isomorphic-dompurify"
+import { cn } from "@/lib/utils"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -38,7 +39,7 @@ function DescriptionContent({ html }: { html: string }) {
 }
 
 /* ═══════════════════════════════════════════════
-   语言 Segmented Tab
+   语言导航 Tab — 下划线滑动指示器
    ═══════════════════════════════════════════════ */
 function LangTabs({
   descriptions,
@@ -50,47 +51,82 @@ function LangTabs({
   onChange: (lang: string) => void
 }) {
   const barRef = useRef<HTMLDivElement>(null)
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 })
 
-  // 横向滚动到激活项
+  // 计算指示器位置
   useEffect(() => {
     if (!barRef.current) return
     const active = barRef.current.querySelector(`[data-lang="${activeLang}"]`) as HTMLElement | null
     if (active) {
       const bar = barRef.current
-      const left = active.offsetLeft - bar.offsetWidth / 2 + active.offsetWidth / 2
-      bar.scrollTo({ left, behavior: "smooth" })
+      setIndicator({
+        left: active.offsetLeft - bar.scrollLeft,
+        width: active.offsetWidth,
+      })
+      // 横向滚动到激活项
+      const target = active.offsetLeft - bar.offsetWidth / 2 + active.offsetWidth / 2
+      bar.scrollTo({ left: target, behavior: "smooth" })
     }
   }, [activeLang])
 
+  // 监听滚动更新指示器位置
+  useEffect(() => {
+    const bar = barRef.current
+    if (!bar) return
+    const onScroll = () => {
+      const active = bar.querySelector(`[data-lang="${activeLang}"]`) as HTMLElement | null
+      if (active) {
+        setIndicator({ left: active.offsetLeft - bar.scrollLeft, width: active.offsetWidth })
+      }
+    }
+    bar.addEventListener("scroll", onScroll, { passive: true })
+    return () => bar.removeEventListener("scroll", onScroll)
+  }, [activeLang])
+
   return (
-    <div
-      ref={barRef}
-      className="flex items-center gap-1 overflow-x-auto scrollbar-hide"
-      role="tablist"
-      aria-label="简介语言切换"
-    >
-      {descriptions.map((d) => {
-        const isActive = d.lang === activeLang
-        return (
-          <button
-            key={d.lang}
-            type="button"
-            role="tab"
-            data-lang={d.lang}
-            aria-selected={isActive}
-            onClick={() => onChange(d.lang)}
-            className={`
-              shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition-all duration-150
-              ${isActive
-                ? "bg-primary/15 text-primary ring-1 ring-primary/25"
-                : "text-muted-foreground hover:text-foreground ring-1 ring-border hover:ring-foreground/20"
-              }
-            `}
-          >
-            {d.label}
-          </button>
-        )
-      })}
+    <div className="relative">
+      {/* Tab 栏 */}
+      <div
+        ref={barRef}
+        className="flex items-center gap-5 overflow-x-auto scrollbar-hide pb-2.5"
+        role="tablist"
+        aria-label="简介语言切换"
+      >
+        {descriptions.map((d) => {
+          const isActive = d.lang === activeLang
+          return (
+            <button
+              key={d.lang}
+              type="button"
+              role="tab"
+              data-lang={d.lang}
+              aria-selected={isActive}
+              onClick={() => onChange(d.lang)}
+              className={cn(
+                "shrink-0 text-sm font-medium transition-colors duration-150",
+                isActive
+                  ? "text-foreground"
+                  : "text-muted-foreground/60 hover:text-muted-foreground"
+              )}
+            >
+              {d.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 滑动下划线指示器 */}
+      <div
+        className="absolute bottom-0 h-[2px] rounded-full bg-primary transition-all duration-200 ease-out"
+        style={{
+          left: indicator.left,
+          width: indicator.width,
+          opacity: indicator.width > 0 ? 1 : 0,
+        }}
+      />
+
+      {/* 底部分割线 */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-border/50" />
     </div>
   )
 }
