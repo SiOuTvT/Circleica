@@ -336,7 +336,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           下方内容区 — Tab 式详情
       ═══════════════════════════════════════════════ */}
-      <div className="pt-4 pb-6 sm:py-8 lg:py-12">
+      <div className="pt-2 pb-6 sm:py-8 lg:py-12">
           <GameDetailClient
             description={getDescriptionText(game.description)}
             allDescriptions={getAllDescriptions(game.description)}
