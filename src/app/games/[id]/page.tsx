@@ -221,10 +221,10 @@ export default async function GameDetailPage({
             className="flex flex-col min-w-0 rounded-2xl bg-card border border-border overflow-hidden"
             style={{ boxShadow: "var(--card-shadow)" }}
           >
-            {/* ①号位：封面图 16:10，融入卡片顶部 */}
+            {/* ①号位：封面图 2:1，融入卡片顶部 */}
             <div className="shrink-0 min-w-0">
               <div
-                className="relative overflow-hidden w-full aspect-[16/10] rounded-t-2xl"
+                className="relative overflow-hidden w-full aspect-[2/1] rounded-t-2xl"
               >
                 {game.coverImage ? (
                   <SafeImage
@@ -245,24 +245,21 @@ export default async function GameDetailPage({
               </div>
             </div>
 
-            {/* ②号位：标题 → 标签 → 按钮 → 发布者 → 数据 */}
-            <div className="flex flex-col flex-1 px-2.5 sm:px-5 pb-3 sm:pb-4 pt-2 min-h-0 min-w-0">
+            {/* ②号位：标题 → 标签 → 发布者+按钮 → 数据 */}
+            <div className="flex flex-col flex-1 px-2.5 sm:px-5 pb-3 sm:pb-5 pt-2 sm:pt-3 min-h-0 min-w-0">
 
               {/* ① 游戏标题 */}
-              <div className="mb-0.5">
-                <h1
-                  className="font-bold leading-tight text-foreground"
-                  style={{ fontSize: "clamp(18px, 2.5vw, 24px)" }}
-                >
+              <div className="mb-1 sm:mb-1.5">
+                <h1 className="font-bold leading-tight text-foreground text-lg sm:text-2xl">
                   {game.title}
                 </h1>
                 {game.originalWork && (
-                  <p className="mt-0.5 text-xs text-muted-foreground/60">原作：{game.originalWork}</p>
+                  <p className="mt-0.5 sm:mt-1 text-xs text-muted-foreground/60">原作：{game.originalWork}</p>
                 )}
               </div>
 
               {/* ② 标签行 */}
-              <TagGroup className="mt-2 mb-1.5">
+              <TagGroup className="mt-1.5 sm:mt-2 mb-2 sm:mb-3">
                 {/* SFW/NSFW 标识 */}
                 <Tag color={game.isNsfw ? "#d87070" : undefined} className={game.isNsfw ? "" : "bg-blue-500/10 text-blue-500 border-blue-500/20"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
@@ -275,57 +272,55 @@ export default async function GameDetailPage({
                 ))}
               </TagGroup>
 
-              {/* ③ 功能按钮行（紧凑模式，等宽三列） */}
-              <div className="mb-2">
-                <GameDetailTopClient
-                  gameId={resolved.id}
-                  downloadLinks={downloadLinks}
-                  isFav={isFav}
-                  isLoggedIn={!!session}
-                  compact
-                  scrollToResources
-                />
-              </div>
-
-              {/* ④ 发布者信息 */}
-              <div className="flex items-center gap-2.5">
+              {/* ③ 发布者信息 + 功能按钮 */}
+              <div className="flex items-center gap-2.5 sm:gap-3 mt-auto">
                 {game.publisher?.avatar ? (
                   <Image
                     src={game.publisher.avatar}
                     alt={game.publisher.username}
-                    width={40}
-                    height={40}
-                    className="rounded-full object-cover shrink-0"
+                    width={48}
+                    height={48}
+                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover shrink-0"
                     loading="lazy"
                   />
                 ) : (
                   <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full text-sm sm:text-base font-bold text-white"
                     style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
                   >
                     {game.publisher ? game.publisher.username[0] : "?"}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground/80 truncate">
+                  <p className="text-sm sm:text-[15px] font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
-                  <p className="text-[11px] text-muted-foreground/50">{timeAgo}</p>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>
+                </div>
+                <div className="ml-auto shrink-0">
+                  <GameDetailTopClient
+                    gameId={resolved.id}
+                    downloadLinks={downloadLinks}
+                    isFav={isFav}
+                    isLoggedIn={!!session}
+                    compact
+                    scrollToResources
+                  />
                 </div>
               </div>
 
-              {/* ⑤ 人气数据 */}
-              <div className="flex items-center gap-4 mt-auto pt-3">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Eye className="w-3.5 h-3.5" />
+              {/* ④ 人气数据 */}
+              <div className="flex items-center gap-4 sm:gap-5 pt-3 sm:pt-4 mt-2 sm:mt-3 border-t border-border/40">
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Download className="w-3.5 h-3.5" />
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Heart className="w-3.5 h-3.5" />
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                  <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
               </div>
