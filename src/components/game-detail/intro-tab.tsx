@@ -323,9 +323,10 @@ export function ArchiveCard({
               {row.icon}
               <span className="text-[13px] text-muted-foreground shrink-0">{row.label}</span>
               {row.href ? (
-                <a href={row.href} target="_blank" rel="noopener noreferrer"
-                  className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground hover:opacity-80 transition-opacity leading-none">
-                  {row.value}
+                <a href={row.href} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center no-underline">
+                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
+                    {row.value}
+                  </span>
                 </a>
               ) : row.isTag ? (
                 <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground leading-none">
