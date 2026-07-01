@@ -217,17 +217,10 @@ export function IntroTab({
         <DescriptionContent html={activeDesc.text} />
       </div>
 
-      {/* 制作人员折叠卡片 */}
+      {/* 制作人员折叠卡片 — 桌面默认展开，手机默认收起 */}
       {creators.length > 0 && (
         <div className="mt-5">
-          <CollapsibleCard
-            icon={<Users className="h-4 w-4 opacity-60" />}
-            label="制作人员"
-            count={creators.length}
-            defaultOpen={creators.length <= 5}
-          >
-            <CreatorsGrid creators={creators} />
-          </CollapsibleCard>
+          <CreatorsSection creators={creators} />
         </div>
       )}
     </div>
@@ -237,6 +230,28 @@ export function IntroTab({
 /* ═══════════════════════════════════════════════
    CreatorsGrid — 制作人员网格
    ═══════════════════════════════════════════════ */
+
+function CreatorsSection({
+  creators,
+}: {
+  creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
+}) {
+  const [defaultOpen, setDefaultOpen] = useState(false)
+  useEffect(() => {
+    setDefaultOpen(window.innerWidth >= 1024)
+  }, [])
+
+  return (
+    <CollapsibleCard
+      icon={<Users className="h-4 w-4 opacity-60" />}
+      label="制作人员"
+      count={creators.length}
+      defaultOpen={defaultOpen}
+    >
+      <CreatorsGrid creators={creators} />
+    </CollapsibleCard>
+  )
+}
 
 function CreatorsGrid({
   creators,
@@ -249,25 +264,25 @@ function CreatorsGrid({
         <a
           key={`${c.id}-${c.role}`}
           href={`/creators/${c.id}`}
-          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-2.5 transition-all hover:bg-secondary/70"
+          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition-all hover:bg-secondary/70"
         >
           {c.avatar ? (
             <Image
               src={c.avatar}
               alt={c.name}
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 rounded-full object-cover"
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 rounded-full object-cover"
               unoptimized
             />
           ) : (
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
               {(c.nameJa || c.name)[0]}
             </div>
           )}
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-foreground">{c.nameJa || c.name}</p>
-            <p className="truncate text-[10px] text-muted-foreground">
+            <p className="truncate text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
+            <p className="truncate text-xs text-muted-foreground">
               {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
             </p>
           </div>
