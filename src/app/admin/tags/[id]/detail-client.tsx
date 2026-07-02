@@ -302,7 +302,7 @@ export function TagGroupDetailClient({
                     )}
                   </div>
                   {tag.description && (
-                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">{tag.description}</p>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{tag.description}</p>
                   )}
                 </div>
 
@@ -362,7 +362,7 @@ export function TagGroupDetailClient({
                     <button
                       type="button"
                       onClick={() => setEditVisible(!editVisible)}
-                      className={`rounded-lg px-3 py-2 text-[11px] ring-1 ring-border transition-colors cursor-pointer ${
+                      className={`rounded-lg px-3 py-2 text-xs ring-1 ring-border transition-colors cursor-pointer ${
                         editVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
                       }`}
                     >

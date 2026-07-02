@@ -9,6 +9,7 @@ import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Tag } from "@/components/ui/tag"
+import { cn } from "@/lib/utils"
 
 interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
@@ -143,8 +144,12 @@ export function ProfileContentTabs({ userId }: Props) {
             const Icon = tab.icon; const isActive = active === tab.key
             return (
               <button key={tab.key} onClick={() => setActive(tab.key)}
-                className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out"
-                style={{ backgroundColor: isActive ? "var(--tab-active)" : "transparent", color: isActive ? "var(--tab-active-text)" : "var(--tab-inactive-text)", fontWeight: isActive ? 700 : 500 }}>
+                className={cn(
+                  "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out",
+                  isActive
+                    ? "bg-[var(--tab-active)] text-[var(--tab-active-text)] font-bold"
+                    : "bg-transparent text-[var(--tab-inactive-text)] font-medium"
+                )}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
                 {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary leading-none">{localComments.length}</span>}
@@ -300,7 +305,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
               <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
                 {g.coverImage ? <Image src={g.coverImage} alt={g.title} width={120} height={160} className="aspect-[3/4] w-full rounded-lg object-cover" unoptimized />
                   : <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-muted"><FolderHeart className="h-6 w-6" /></div>}
-                <p className="mt-1.5 text-[11px] font-medium text-foreground truncate">{g.title}</p>
+                <p className="mt-1.5 text-xs font-medium text-foreground truncate">{g.title}</p>
               </Link>
             ))}
           </div>
@@ -316,7 +321,7 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
     <div className="flex flex-col gap-2.5">
       {comments.map((c) => (
         <Link key={c.id} href={`/games/${c.game.serialId ?? c.game.id}`} className="group rounded-xl bg-secondary/40 p-3.5 hover:bg-secondary/70">
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-1.5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
             <span className="font-medium text-foreground group-hover:text-primary">{c.game.title}</span><span>·</span><Calendar className="h-3 w-3" /><span>{new Date(c.createdAt).toLocaleDateString("zh-CN")}</span>
           </div>
           <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>

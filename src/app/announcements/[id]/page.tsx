@@ -105,7 +105,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
       {/* 正文 */}
       <div
-        className="text-[15px] leading-[1.85] text-foreground/80 sm:text-base"
+        className="text-sm leading-[1.85] text-foreground/80 sm:text-base"
         style={{ maxWidth: "65ch" }}
       >
         <RichTextContent html={ann.content} />
@@ -117,8 +117,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           href={ann.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:underline"
-          style={{ color: "var(--primary)" }}
+          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:underline"
         >
           查看详情
           <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />

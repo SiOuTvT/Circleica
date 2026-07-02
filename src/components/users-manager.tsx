@@ -123,7 +123,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
               复制
             </button>
           </div>
-          <p className="text-[11px] text-muted-foreground">将此链接发给用户，点击后可设置新密码</p>
+          <p className="text-xs text-muted-foreground">将此链接发给用户，点击后可设置新密码</p>
         </div>
       )}
 
@@ -162,7 +162,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-foreground truncate max-w-[120px]">{u.username}</p>
-                          <p className="text-[11px] text-muted-foreground sm:hidden truncate max-w-[120px]">{u.email}</p>
+                          <p className="text-xs text-muted-foreground sm:hidden truncate max-w-[120px]">{u.email}</p>
                         </div>
                       </div>
                     </td>
@@ -189,7 +189,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
 
                     {/* 角色标签 */}
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${roleCfg.className}`}>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleCfg.className}`}>
                         {roleCfg.label}
                       </span>
                     </td>

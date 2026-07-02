@@ -85,7 +85,7 @@ main > * {
 
 /* ═══ 后台侧边栏折叠时，主内容区响应 ═══ */
 .admin-main {
-  transition: padding-left 0.3s ease-in-out;
+  transition: padding-left var(--duration-slow) ease-in-out;
 }
 @media (min-width: 768px) {
   [data-admin-collapsed="true"] .admin-main {
@@ -244,6 +244,21 @@ main > * {
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  /* ═══ Design System Token Variables ═══ */
+  /* Section Gap 三档 */
+  --section-gap-s: 1rem;           /* 16px — 后台、论坛、设置 */
+  --section-gap-m: 1.25rem;        /* 20px — 游戏详情、资源、搜索 */
+  --section-gap-l: 1.5rem;         /* 24px — 首页、品牌展示 */
+  /* Card Padding 四级 */
+  --card-padding-compact: 0.75rem; /* 12px — 评论卡、通知项 */
+  --card-padding-default: 1rem;    /* 16px — 游戏卡片、论坛帖子 */
+  --card-padding-comfortable: 1.25rem; /* 20px — 详情页、中等内容 */
+  --card-padding-large: 1.5rem;   /* 24px — 弹窗、表单 */
+  /* Tag / Badge */
+  --tag-min-height: 18px;
+  --tag-radius: 0.5rem;           /* 8px — rounded-md */
+  --badge-radius: 9999px;         /* rounded-full */
+
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
   --theme-radius:  12px;
   --theme-alpha:   0.15;
@@ -390,7 +405,7 @@ main > * {
     /* 使用 Noto Sans SC 作为正文字体 */
     font-family: var(--font-sans);
     /* 平滑主题切换 - 仅对 body 自身生效 */
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color var(--duration-slow) ease, color var(--duration-slow) ease;
     /* 优化排版 */
     line-height: 1.7;
     letter-spacing: 0.01em;
@@ -424,7 +439,8 @@ main > * {
   }
   
   /* ── 标题层级 — 统一 Type Scale ── */
-  /* h1=24px  h2=20px  h3=16px  h4=14px  h5/h6=12px */
+  /* Display=32px  h1=24px  h2=20px  h3=16px  h4=14px  h5/h6=12px */
+  /* Body=15~16px(responsive)  Small=14px  Caption=12px */
   /* 全部使用黑体 */
   h1 {
     line-height: 1.3;
@@ -467,7 +483,7 @@ main > * {
   .bg-muted,
   .bg-secondary,
   .bg-accent {
-    transition: background-color 0.3s ease;
+    transition: background-color var(--duration-slow) ease;
   }
   .text-foreground,
   .text-card-foreground,
@@ -475,11 +491,11 @@ main > * {
   .text-muted-foreground,
   .text-secondary-foreground,
   .text-accent-foreground {
-    transition: color 0.3s ease;
+    transition: color var(--duration-slow) ease;
   }
   .border-border,
   .border-input {
-    transition: border-color 0.3s ease;
+    transition: border-color var(--duration-slow) ease;
   }
 }
 
@@ -701,7 +717,7 @@ main > * {
 
 /* 按钮 - 精致悬浮 */
 .btn-spring {
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition: transform var(--duration-normal) ease-out, box-shadow var(--duration-normal) ease-out;
 }
 
 .btn-spring:hover {
@@ -937,7 +953,7 @@ main > * {
   background: var(--muted-foreground);
   opacity: 0.3;
   border-radius: 4px;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-normal) ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -982,7 +998,7 @@ main > * {
 /* ── 链接下划线 - 精致渐变 ── */
 a {
   text-decoration-color: transparent;
-  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+  transition: text-decoration-color var(--duration-normal) ease, color var(--duration-normal) ease;
 }
 
 /* ── 全局链接颜色 — 跟随主题色 ── */
@@ -1010,7 +1026,7 @@ a[class*="text-primary"]:hover {
 /* ── 分页按钮 — 跟随主题色 ── */
 .pagination-btn,
 button[class*="pagination"] {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color var(--duration-normal) ease, color var(--duration-normal) ease, border-color var(--duration-normal) ease;
 }
 .pagination-btn.active,
 .pagination-btn[aria-current="true"],
@@ -1255,7 +1271,7 @@ a[href]:active {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
+  transition: transform var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), border-color var(--duration-slow) ease;
 }
 
 .game-card:hover {
@@ -1293,7 +1309,7 @@ a[href]:active {
 
 .game-card-spacer {
   flex: 1 1 0%;
-  min-height: 10px; /* 默认间距 */
+  min-height: 12px; /* token: sp-3 */
 }
 @media (min-width: 640px) {
   .game-card-spacer {
@@ -1307,14 +1323,14 @@ a[href]:active {
   background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
   color: var(--clr-blue);
   border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: 12px;
-  transition: background-color 0.2s;
+  transition: background-color var(--duration-normal);
 }
 @media (max-width: 639px) {
   .game-card-tag {
-    padding: 5px 12px;
-    font-size: 13px;
+    padding: 4px 12px;
+    font-size: 12px;
     font-weight: 600;
   }
 }
@@ -1521,10 +1537,10 @@ svg {
 
 /* ═══ 审计修复：统一 hover 过渡（平滑不突兀） ═══ */
 .hover-transition {
-  transition: all 0.2s ease;
+  transition: color var(--duration-normal) ease, background-color var(--duration-normal) ease, border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease, transform var(--duration-normal) ease;
 }
 .hover-transition-slow {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: color var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), background-color var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), border-color var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), transform var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ═══ 情感消息管理 - 表单输入样式 ═══ */
@@ -1535,9 +1551,9 @@ svg {
   border: 1px solid var(--border);
   background: var(--card);
   padding: 6px 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--foreground);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
 }
 .em-input:focus {
   outline: none;
@@ -1631,7 +1647,7 @@ body[data-has-bottom-nav="true"] {
 
 /* ═══ 导航栏滚动透明过渡 ═══ */
 .nav-header {
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color var(--duration-slow) ease, border-color var(--duration-slow) ease;
 }
 .nav-header.nav-scrolled {
   background-color: transparent !important;

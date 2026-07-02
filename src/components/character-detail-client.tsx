@@ -139,7 +139,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             <div className="mb-3">
               <div className="flex flex-wrap gap-1.5">
                 {character.aliases.slice(0, 8).map((alias, i) => (
-              <span key={i} className="rounded-full bg-pink-400/10 px-2.5 py-0.5 text-[11px] text-pink-300 ring-1 ring-pink-400/20">
+              <span key={i} className="rounded-full bg-pink-400/10 px-2.5 py-0.5 text-xs text-pink-300 ring-1 ring-pink-400/20">
                     {alias}
                   </span>
                 ))}

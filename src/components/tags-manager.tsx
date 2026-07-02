@@ -213,7 +213,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                       <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">隐藏</span>
                     )}
                   </div>
-                  {tag.description && <p className="text-[11px] text-muted-foreground truncate mt-0.5">{tag.description}</p>}
+                  {tag.description && <p className="text-xs text-muted-foreground truncate mt-0.5">{tag.description}</p>}
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground">{tag.gameCount} 个游戏</span>
                 <span className="shrink-0 text-[10px] text-muted-foreground/60">#{tag.sortOrder ?? 0}</span>

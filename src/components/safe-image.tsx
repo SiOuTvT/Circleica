@@ -16,8 +16,7 @@ import { useCallback, useState } from "react"
 // 占位图组件 - 使用 useMemo 缓存
 const ImageOffPlaceholder = () => (
   <div
-    className="absolute inset-0 flex flex-col items-center justify-center gap-2"
-    style={{ background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}
+    className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted text-muted-foreground"
   >
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={0.4}>
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />

@@ -49,7 +49,7 @@ const variantStyles: Record<TagVariant, string> = {
   content: cn(
     // 手机端: px-2 无垂直padding, 桌面端: px-2.5 py-1
     "inline-flex items-center shrink-0",
-    "rounded-lg",
+    "rounded-md",
     "px-2 sm:px-2.5 sm:py-1",
     "text-xs font-semibold",
     "transition-colors",
@@ -57,7 +57,7 @@ const variantStyles: Record<TagVariant, string> = {
   cloud: cn(
     // 手机端: px-2.5 py-0.5, 桌面端: px-3 py-1
     "inline-flex items-center shrink-0",
-    "rounded-full",
+    "rounded-md",
     "px-2.5 py-0.5 sm:px-3 sm:py-1",
     "text-xs font-medium",
     "transition-all hover:scale-[1.03]",

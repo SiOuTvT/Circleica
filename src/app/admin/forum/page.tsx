@@ -135,7 +135,7 @@ export default async function AdminForumPage({
                   </div>
                   <ForumDeleteBtn id={post.id} />
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>发布者：{post.user.username}</span>
                   <span>·</span>
                   <span>{new Date(post.createdAt).toLocaleDateString("zh-CN")}</span>

@@ -201,7 +201,7 @@ export default async function AdminDashboard() {
             ) : recentGames.map(g => (
               <div key={g.id} className="flex items-center justify-between py-2.5">
                 <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
-                <span className={`ml-2 shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
+                <span className={`ml-2 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                   {g.isPublished ? "已发布" : "草稿"}
                 </span>
               </div>
@@ -217,7 +217,7 @@ export default async function AdminDashboard() {
               <p className="py-4 text-center text-sm text-muted-foreground">暂无数据</p>
             ) : topGames.map((g, i) => (
               <div key={g.id} className="flex items-center gap-3 py-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">{i + 1}</span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>
                 <Link href={`/games/${g.serialId}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
                 <span className="shrink-0 text-sm tabular-nums font-medium text-muted-foreground">{fmtNum(g.viewCount)}</span>
               </div>

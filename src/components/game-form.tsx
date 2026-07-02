@@ -603,7 +603,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           {translateSuccess && (
             <div className="mt-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 ring-1 ring-emerald-500/20">{translateSuccess}</div>
           )}
-          <p className="mt-1 text-[11px] text-muted-foreground/50">
+          <p className="mt-1 text-xs text-muted-foreground/50">
             前台默认优先展示中文，缺少的语种将按{"中文 > 英文 > 日文 > 其他"}的优先级自动回退。
             {activeDescLang === "en" && " VNDB 拉取的英文简介将自动填入此栏，可点击翻译按钮一键生成中文。"}
           </p>

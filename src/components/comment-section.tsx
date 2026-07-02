@@ -381,7 +381,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               )}
               <button onClick={() => isLoggedIn && likeComment(c.id)}
                 className={cn(
-                  "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-[11px] transition-colors",
+                  "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-xs transition-colors",
                   isLoggedIn ? "text-muted-foreground hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
                 )}
                 aria-label={c.likeCount > 0 ? `${c.likeCount} 个赞` : "点赞"}

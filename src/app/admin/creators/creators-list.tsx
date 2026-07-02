@@ -51,7 +51,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-medium text-foreground truncate">{creator.name}</span>
                 {creator.nameJa && (
-                  <span className="text-[11px] text-muted-foreground truncate">({creator.nameJa})</span>
+                  <span className="text-xs text-muted-foreground truncate">({creator.nameJa})</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-0.5">

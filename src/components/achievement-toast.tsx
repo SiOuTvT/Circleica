@@ -94,14 +94,14 @@ export function AchievementToast({ achievement, onClose }: Props) {
           ) : (
             <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
           )}
-          <span className="text-[13px] font-bold text-amber-400 tracking-tight leading-none truncate">
+          <span className="text-sm font-bold text-amber-400 tracking-tight leading-none truncate">
             {achievement.name}
           </span>
         </div>
 
         {/* 下行：描述 + 积分 */}
         <div className="mt-1.5 flex items-end justify-between gap-2">
-          <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2 flex-1">
+          <p className="text-xs text-muted-foreground leading-tight line-clamp-2 flex-1">
             {achievement.description}
           </p>
           <Tag variant="badge" color="#f59e0b" className="tabular-nums">

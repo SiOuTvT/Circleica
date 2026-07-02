@@ -97,7 +97,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     href={href}
                     className={cn(
                       "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap",
-                      collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
+                      collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base",
                       isActive
                         ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
@@ -119,7 +119,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               disabled={randomLoading}
               className={cn(
                 "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full",
-                collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[15px]",
+                collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base",
                 "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
               )}
               title={collapsed ? "随机发现" : undefined}

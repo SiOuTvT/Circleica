@@ -103,15 +103,15 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">{user.username}</h1>
                 <div className="mt-2 flex items-center justify-center gap-2.5">
-                  <span className="text-[13px] text-muted-foreground/60">UID {uidDisplay}</span>
+                  <span className="text-sm text-muted-foreground/60">UID {uidDisplay}</span>
                   {user.role === "SUPER_ADMIN" && (
-                    <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-[13px] font-medium text-amber-500 light:text-amber-600 ring-1 ring-amber-500/20">站长</span>
+                    <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-sm font-medium text-amber-500 light:text-amber-600 ring-1 ring-amber-500/20">站长</span>
                   )}
                   {user.role === "ADMIN" && (
-                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-[13px] font-medium text-blue-500 light:text-blue-600 ring-1 ring-blue-500/20">管理员</span>
+                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-sm font-medium text-blue-500 light:text-blue-600 ring-1 ring-blue-500/20">管理员</span>
                   )}
                   {user.role === "USER" && (
-                    <span className="rounded-full bg-muted-foreground/10 px-2.5 py-1 text-[13px] font-medium text-muted-foreground ring-1 ring-muted-foreground/15">用户</span>
+                    <span className="rounded-full bg-muted-foreground/10 px-2.5 py-1 text-sm font-medium text-muted-foreground ring-1 ring-muted-foreground/15">用户</span>
                   )}
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 px-4">{user.bio || "这个人很懒，什么都没留下。"}</p>
@@ -120,9 +120,9 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.followers}</span><span className="text-xs text-muted-foreground mt-0.5">粉丝</span></div>
                 </div>
                 <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10">
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.favorites}</span></div><span className="text-[11px] text-muted-foreground">收藏</span></div>
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.comments}</span></div><span className="text-[11px] text-muted-foreground">评论</span></div>
-                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.playStatuses}</span></div><span className="text-[11px] text-muted-foreground">玩过</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.favorites}</span></div><span className="text-xs text-muted-foreground">收藏</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.comments}</span></div><span className="text-xs text-muted-foreground">评论</span></div>
+                  <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2.5} /><span className="text-lg font-bold text-foreground">{user._count.playStatuses}</span></div><span className="text-xs text-muted-foreground">玩过</span></div>
                 </div>
                 {!isSelf && session?.user && (
                   <div className="mt-6"><FollowButton targetUserId={user.id} initialFollowing={isFollowing} /></div>

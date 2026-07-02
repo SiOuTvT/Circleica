@@ -196,7 +196,7 @@ const ResourceCard = memo(function ResourceCard({
       {/* ── 第三行：资源名称 ── */}
       {resource.resourceName && (
         <div className="px-4 pb-2.5">
-          <p className="text-[15px] font-semibold text-foreground leading-snug">
+          <p className="text-base font-semibold text-foreground leading-snug">
             {resource.resourceName}
           </p>
         </div>

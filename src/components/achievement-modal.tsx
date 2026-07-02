@@ -124,7 +124,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                         </div>
                       )}
                       <div className="text-center">
-                        <p className="text-[11px] font-semibold leading-tight text-foreground">{ach.name}</p>
+                        <p className="text-xs font-semibold leading-tight text-foreground">{ach.name}</p>
                         <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight line-clamp-2">{ach.description}</p>
                       </div>
                     </button>
@@ -140,7 +140,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                         <Lock className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
                       </div>
                       <div className="text-center">
-                        <p className="text-[11px] font-semibold leading-tight text-muted-foreground">{lockedText}</p>
+                        <p className="text-xs font-semibold leading-tight text-muted-foreground">{lockedText}</p>
                       </div>
                     </div>
                   ))}
@@ -220,12 +220,12 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
           ) : (
             <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
           )}
-          <span className="text-[13px] font-bold text-amber-400 tracking-tight leading-none truncate">
+          <span className="text-sm font-bold text-amber-400 tracking-tight leading-none truncate">
             {achievement.name}
           </span>
         </div>
         <div className="mt-1.5 flex items-end justify-between gap-2">
-          <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2 flex-1">
+          <p className="text-xs text-muted-foreground leading-tight line-clamp-2 flex-1">
             {achievement.description}
           </p>
           <Tag variant="badge" color="#f59e0b" className="tabular-nums">

@@ -142,7 +142,7 @@ export function CollectionPickerDialog({
               ) : (
                 <button
                   onClick={() => setShowCreate(true)}
-                  className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-[15px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
                   <FolderPlus className="w-5 h-5 shrink-0" />
                   <span>新建收藏集</span>
@@ -153,7 +153,7 @@ export function CollectionPickerDialog({
               <button
                 onClick={() => handleSelect(null)}
                 disabled={submitting !== null}
-                className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-[15px] font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
               >
                 <Folder className="w-5 h-5 text-muted-foreground shrink-0" />
                 <span className="flex-1 truncate">默认收藏夹</span>
@@ -171,7 +171,7 @@ export function CollectionPickerDialog({
                   key={col.id}
                   onClick={() => handleSelect(col.id)}
                   disabled={submitting !== null}
-                  className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-[15px] font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                  className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
                 >
                   <Folder className="w-5 h-5 text-muted-foreground shrink-0" />
                   <span className="flex-1 truncate">{col.name}</span>

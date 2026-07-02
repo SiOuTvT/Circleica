@@ -30,8 +30,7 @@ const SANITIZE_CONFIG = {
 function DescriptionContent({ html }: { html: string }) {
   return (
     <div
-      className="prose dark:prose-invert max-w-none leading-relaxed"
-      style={{ fontSize: "15px", lineHeight: "1.9", color: "var(--foreground)" }}
+      className="prose dark:prose-invert max-w-none text-sm leading-[1.9] text-foreground"
       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html, SANITIZE_CONFIG) }}
     />
   )
@@ -339,12 +338,12 @@ export function ArchiveCard({
               <span className="text-sm text-muted-foreground shrink-0">{row.label}</span>
               {row.href ? (
                 <a href={row.href} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center no-underline">
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[13px] font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
+                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-sm font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
                     {row.value}
                   </span>
                 </a>
               ) : row.isTag ? (
-                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-[13px] font-medium bg-secondary text-foreground leading-none">
+                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-sm font-medium bg-secondary text-foreground leading-none">
                   {row.value}
                 </span>
               ) : (
@@ -355,7 +354,7 @@ export function ArchiveCard({
 
           {/* 游戏标签 — flex，第二行从 x=0 开始 */}
           {gameTags && gameTags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" style={{ marginLeft: "-16px", paddingLeft: "16px" }}>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 -mx-4 px-4">
               <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" />
               <span className="text-sm text-muted-foreground shrink-0 leading-[22px]">游戏标签</span>
               {gameTags.map((tag, i) => (
@@ -413,7 +412,7 @@ function CollapsibleCard({
         className="flex w-full items-center gap-2 px-4 py-3 hover:bg-secondary/30 transition-colors"
       >
         {icon}
-        <span className="text-[15px] font-semibold text-foreground">{label}</span>
+        <span className="text-base font-semibold text-foreground">{label}</span>
         {count != null && (
           <span className="text-xs font-medium text-muted-foreground">({count})</span>
         )}

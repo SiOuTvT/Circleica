@@ -387,7 +387,7 @@ export default function GameDetailClient({
 
             {/* 游戏标签 */}
             {gameTags && gameTags.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5" style={{ marginLeft: "-16px", paddingLeft: "16px" }}>
+              <div className="flex flex-wrap items-center gap-1.5 -mx-4 px-4">
                 <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签</span>
                 {gameTags.map((tag, i) => (

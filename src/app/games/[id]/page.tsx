@@ -293,7 +293,7 @@ export default async function GameDetailPage({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-[15px] sm:text-base lg:text-lg font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
+                  <p className="text-sm sm:text-base lg:text-lg font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>
@@ -312,15 +312,15 @@ export default async function GameDetailPage({
 
               {/* ④ 人气数据 */}
               <div className="flex items-center gap-4 sm:gap-5 pt-3 sm:pt-4 mt-2 sm:mt-3 border-t border-border/40">
-                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] lg:text-base text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
                   <Eye className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] lg:text-base text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
                   <Download className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
-                <span className="flex items-center gap-1.5 text-sm sm:text-[15px] lg:text-base text-muted-foreground">
+                <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
                   <Heart className="w-4 h-4" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>

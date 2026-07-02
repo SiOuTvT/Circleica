@@ -127,7 +127,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
                 unoptimized
               />
             ) : (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold text-white/90">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white/90">
                 {(ann.authorName || siteName).charAt(0)}
               </div>
             )}

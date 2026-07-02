@@ -242,7 +242,7 @@ export function TagsOverviewClient({
             {/* 标签数 */}
             <div className="text-right shrink-0">
               <span className="text-2xl font-bold text-foreground">{g.tagCount}</span>
-              <p className="text-[11px] text-muted-foreground">个标签</p>
+              <p className="text-xs text-muted-foreground">个标签</p>
             </div>
 
             {/* 箭头 */}
