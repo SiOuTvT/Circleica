@@ -191,7 +191,7 @@ export function Breadcrumb() {
       <nav className="my-3 lg:mb-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm sm:text-[15px] text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
         >
           首页
         </Link>
@@ -266,7 +266,7 @@ export function Breadcrumb() {
     <nav className="my-3 lg:mb-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm sm:text-[15px] text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
-        className="inline-flex items-center shrink-0 leading-none text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center shrink-0 leading-none text-muted-foreground/60 transition-colors hover:text-foreground"
       >
         首页
       </Link>
