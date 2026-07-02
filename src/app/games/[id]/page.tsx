@@ -214,7 +214,7 @@ export default async function GameDetailPage({
       {/* ═══════════════════════════════════════════════
           顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
       ═══════════════════════════════════════════════ */}
-      <div className="pt-2 sm:pt-4 lg:pt-6 overflow-hidden min-w-0">
+      <div className="overflow-hidden min-w-0">
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr] min-w-0">
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
