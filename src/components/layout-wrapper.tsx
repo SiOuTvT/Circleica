@@ -130,7 +130,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                 <div className="sticky top-0 z-30">
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
                 </div>
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-2 sm:space-y-3">
                   <Breadcrumb />
                   {children}
                 </div>
