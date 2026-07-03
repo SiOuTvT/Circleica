@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect, useRef, memo } from "react"
-import { Plus, X } from "lucide-react"
+import { Loader2, Plus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
 
@@ -101,7 +101,7 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
             disabled={submitting}
             className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {submitting ? "发布中…" : "发 布"}
+            {submitting ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />发布中…</span> : "发 布"}
           </button>
         </form>
       </div>

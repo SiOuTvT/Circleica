@@ -1,6 +1,6 @@
 "use client"
 
-import { ImageIcon, Upload, X } from "lucide-react"
+import { ImageIcon, Loader2, Upload, X } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -209,7 +209,7 @@ export function CheckInConfigEditor() {
 
       <div className="pt-2">
         <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
-          {loading ? "保存中..." : "保存配置"}
+          {loading ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中...</span> : "保存配置"}
         </Button>
       </div>
     </div>

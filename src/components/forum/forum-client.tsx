@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Plus } from "lucide-react"
+import { MessageSquare, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "../ui/confirm-dialog"
 import { ForumFilters } from "./forum-filters"
@@ -197,6 +197,14 @@ export function ForumClient({
 
       {/* 帖子列表 */}
       <div className="space-y-3">
+        {posts.length === 0 && !loadingMore && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <MessageSquare className="h-12 w-12 text-muted-foreground/30" />
+            <p className="mt-3 text-sm text-muted-foreground">
+              {activeCategory ? "该分类下暂无帖子" : "暂无帖子，来发布第一篇吧"}
+            </p>
+          </div>
+        )}
         {posts.map(post => (
           <ForumPostItem key={post.id} post={post} />
         ))}

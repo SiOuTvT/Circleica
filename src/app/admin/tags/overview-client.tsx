@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDown, ExternalLink, FolderInput, List } from "lucide-react"
+import { ChevronDown, ExternalLink, FolderInput, List, Loader2 } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { useRouter } from "next/navigation"
@@ -122,7 +122,7 @@ function ColorEditPopover({
           disabled={saving || value.toLowerCase() === color.toLowerCase()}
           className="flex-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50 cursor-pointer"
         >
-          {saving ? "保存中…" : "保存"}
+          {saving ? <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" />保存中…</span> : "保存"}
         </button>
         <button
           type="button"

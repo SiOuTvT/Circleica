@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
 import type { Post } from "./forum-client-root"
@@ -71,7 +71,7 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
               disabled={submitting}
               className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
             >
-              {submitting ? "保存中…" : "保存"}
+              {submitting ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中…</span> : "保存"}
             </button>
           </div>
         </div>

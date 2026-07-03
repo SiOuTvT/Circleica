@@ -1,7 +1,7 @@
 "use client"
 
 import { adminInput } from "@/lib/admin-styles"
-import { Globe, Image as ImageIcon, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
+import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -246,7 +246,7 @@ export default function SiteSettingsPage() {
         disabled={saving}
         className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
       >
-        <Save className="h-4 w-4" />
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         {saving ? "保存中…" : "保存所有设置"}
       </button>
     </div>

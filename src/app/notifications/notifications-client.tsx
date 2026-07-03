@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { timeAgo } from "@/lib/time-ago"
 import { Bell, CheckCheck, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
@@ -124,7 +125,7 @@ export default function NotificationsClient({
       })
       setNotifications((prev) => prev.map((n) => ids.includes(n.id) ? { ...n, isRead: true } : n))
       setUnreadCount((c) => Math.max(0, c - ids.length))
-    } catch { /* ignore */ }
+    } catch { toast.error("标记已读失败，请稍后再试") }
   }
 
   async function markAllRead() {
@@ -144,7 +145,7 @@ export default function NotificationsClient({
         const deletedUnread = notifications.filter(n => ids.includes(n.id) && !n.isRead).length
         return Math.max(0, c - deletedUnread)
       })
-    } catch { /* ignore */ }
+    } catch { toast.error("删除通知失败，请稍后再试") }
   }
 
   async function deleteRead() {
@@ -161,7 +162,7 @@ export default function NotificationsClient({
       })
       setNotifications([])
       setUnreadCount(0)
-    } catch { /* ignore */ }
+    } catch { toast.error("清空通知失败，请稍后再试") }
   }
 
   return (
@@ -208,6 +209,7 @@ export default function NotificationsClient({
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Bell className="h-12 w-12 text-muted-foreground/30" />
+            <p className="mt-3 text-sm text-muted-foreground">暂无新通知</p>
           </div>
         ) : (
           notifications.map((n) => {
