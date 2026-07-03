@@ -137,25 +137,30 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
     e.preventDefault()
     if (!commentText.trim() && !commentImageFile) return
     setSubmitting(true)
-    const fd = new FormData()
-    const text = replyTo ? `${replyTo} ${commentText.trim()}` : commentText.trim()
-    fd.append("content", text)
-    if (commentImageFile) fd.append("image", commentImageFile)
-    const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
-    if (res.ok) {
-      const data = await res.json()
-      setComments(cs => [...cs, data])
-      setPost(p => ({ ...p, commentCount: p.commentCount + 1 }))
-      setCommentText("")
-      setCommentImagePreview(null)
-      setCommentImageFile(null)
-      setShowEmoji(false)
-      setReplyTo(null)
-    } else {
-      const err = await res.json().catch(() => null)
-      toast.error(err?.error || "评论发送失败，请稍后再试")
+    try {
+      const fd = new FormData()
+      const text = replyTo ? `${replyTo} ${commentText.trim()}` : commentText.trim()
+      fd.append("content", text)
+      if (commentImageFile) fd.append("image", commentImageFile)
+      const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
+      if (res.ok) {
+        const data = await res.json()
+        setComments(cs => [...cs, data])
+        setPost(p => ({ ...p, commentCount: p.commentCount + 1 }))
+        setCommentText("")
+        setCommentImagePreview(null)
+        setCommentImageFile(null)
+        setShowEmoji(false)
+        setReplyTo(null)
+      } else {
+        const err = await res.json().catch(() => null)
+        toast.error(err?.error || "评论发送失败，请稍后再试")
+      }
+    } catch {
+      toast.error("网络错误，请检查网络后重试")
+    } finally {
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   function handleCommentImage(e: React.ChangeEvent<HTMLInputElement>) {

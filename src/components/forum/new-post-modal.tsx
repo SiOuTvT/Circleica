@@ -37,11 +37,16 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
     e.preventDefault()
     if (!title.trim() || !content.trim()) return
     setSubmitting(true)
-    await onSubmit(title.trim(), content.trim(), category)
-    setSubmitting(false)
-    setTitle("")
-    setContent("")
-    onClose()
+    try {
+      await onSubmit(title.trim(), content.trim(), category)
+      setTitle("")
+      setContent("")
+      onClose()
+    } catch {
+      // onSubmit 内部已处理 toast，此处仅确保按钮恢复
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
