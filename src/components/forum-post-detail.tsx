@@ -144,8 +144,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
       if (commentImageFile) fd.append("image", commentImageFile)
       const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
       if (res.ok) {
-        const data = await res.json()
-        setComments(cs => [...cs, data])
+        const json = await res.json()
+        const comment = json.data ?? json
+        setComments(cs => [...cs, comment])
         setPost(p => ({ ...p, commentCount: p.commentCount + 1 }))
         setCommentText("")
         setCommentImagePreview(null)

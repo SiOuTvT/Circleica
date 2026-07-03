@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
 import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
@@ -93,6 +94,7 @@ export function PostDetailModal({
   const [commentImageFile, setCommentImageFile] = useState<File | null>(null)
   const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
   const [showCommentEmoji, setShowCommentEmoji] = useState(false)
+  const [commentSubmitting, setCommentSubmitting] = useState(false)
   const [editingComment, setEditingComment] = useState<string | null>(null)
   const [editCommentText, setEditCommentText] = useState("")
   const commentFileRef = useRef<HTMLInputElement>(null)
@@ -155,12 +157,19 @@ export function PostDetailModal({
   const handleSubmitComment = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!commentText.trim() && !commentImageFile) return
-    const fd = new FormData()
-    fd.append("content", commentText.trim())
-    if (commentImageFile) fd.append("image", commentImageFile)
-    const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
-    const data = await res.json()
-    if (res.ok && data) {
+    setCommentSubmitting(true)
+    try {
+      const fd = new FormData()
+      fd.append("content", commentText.trim())
+      if (commentImageFile) fd.append("image", commentImageFile)
+      const res = await fetch(`/api/forum/posts/${post.id}/comments`, { method: "POST", body: fd })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        toast.error(err?.error || "评论发送失败，请稍后再试")
+        return
+      }
+      const json = await res.json()
+      const data = json.data ?? json
       setCommentText("")
       setCommentImagePreview(null)
       setCommentImageFile(null)
@@ -176,6 +185,10 @@ export function PostDetailModal({
         user: data.user ?? { id: currentUserId ?? "", username: "", avatar: "" },
       }
       setLocalComments((prev) => [...prev, newComment])
+    } catch {
+      toast.error("网络错误，请检查网络后重试")
+    } finally {
+      setCommentSubmitting(false)
     }
   }, [commentText, commentImageFile, post.id, currentUserId])
 
@@ -395,7 +408,7 @@ export function PostDetailModal({
                   </div>
                   <input ref={commentInputRef} value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="写下评论…"
                     className="flex-1 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all min-h-[44px]" />
-                  <button type="submit" disabled={!commentText.trim() && !commentImagePreview}
+                  <button type="submit" disabled={commentSubmitting || (!commentText.trim() && !commentImagePreview)}
                     aria-label="发送评论"
                     className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">
                     <Send className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />

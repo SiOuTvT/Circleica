@@ -275,21 +275,20 @@ export function ForumClient({
         post={editingPost}
         onClose={() => setEditingPost(null)}
         onSave={async (id, title, content) => {
-          try {
-            const res = await fetch(`/api/forum/posts/${id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ title, content }),
-            })
-            if (res.ok) {
-              const updated = await res.json()
-              setPosts(p => p.map(x => x.id === id ? { ...x, title: updated.title, content: updated.content, updatedAt: updated.updatedAt } : x))
-              setActivePost(p => p && { ...p, title: updated.title, content: updated.content, updatedAt: updated.updatedAt })
-              setEditingPost(null)
-            }
-          } catch (error) {
-            logger.forum.error("Failed to update post", error)
+          const res = await fetch(`/api/forum/posts/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, content }),
+          })
+          if (!res.ok) {
+            const err = await res.json().catch(() => null)
+            throw new Error(err?.error || "保存失败，请稍后再试")
           }
+          const updated = await res.json()
+          const wrapped = updated.data ?? updated
+          setPosts(p => p.map(x => x.id === id ? { ...x, title: wrapped.title, content: wrapped.content, updatedAt: wrapped.updatedAt } : x))
+          setActivePost(p => p && { ...p, title: wrapped.title, content: wrapped.content, updatedAt: wrapped.updatedAt })
+          setEditingPost(null)
         }}
       />
 

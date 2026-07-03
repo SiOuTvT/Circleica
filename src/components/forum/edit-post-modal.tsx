@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
+import { toast } from "sonner"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
 import type { Post } from "./forum-client-root"
 
@@ -29,9 +30,14 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
   async function handleSubmit() {
     if (!post || !title.trim() || !content.trim()) return
     setSubmitting(true)
-    await onSave(post.id, title.trim(), content.trim())
-    setSubmitting(false)
-    onClose()
+    try {
+      await onSave(post.id, title.trim(), content.trim())
+      onClose()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "保存失败，请稍后再试")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
