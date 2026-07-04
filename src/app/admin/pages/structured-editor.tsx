@@ -49,7 +49,6 @@ function parseHTMLToBlocks(html: string): Block[] {
             isGrid: parentIsGrid,
           }),
         })
-        console.log("解析 Q&A 卡片:", blocks[blocks.length - 1])
       } else {
         const title = titleEl?.textContent?.trim() || ""
         // 大小卡片由是否有描述内容决定：有 p 标签且内容非空就是大卡片
@@ -65,7 +64,6 @@ function parseHTMLToBlocks(html: string): Block[] {
             isGrid: parentIsGrid,
           }),
         })
-        console.log("解析卡片:", { type: isSmall ? "small" : "card", title, hasDesc, isGrid: parentIsGrid })
       }
       return true
     }
@@ -137,7 +135,6 @@ function parseHTMLToBlocks(html: string): Block[] {
   // 处理 body 的直接子元素
   Array.from(doc.body.children).forEach(child => processElement(child, false))
 
-  console.log("解析结果 blocks:", blocks)
 
   // 如果 body 没有直接子元素，尝试解析单个元素
   if (doc.body.children.length === 0 && doc.body.textContent?.trim()) {

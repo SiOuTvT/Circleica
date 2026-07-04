@@ -32,6 +32,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
       _count: { select: { comments: true } },
       comments: {
         orderBy: { createdAt: "asc" },
+        take: 100,
         include: { user: { select: { id: true, username: true, avatar: true } } },
       },
     },

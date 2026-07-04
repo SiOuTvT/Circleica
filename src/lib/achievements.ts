@@ -222,13 +222,15 @@ export async function checkAchievements(userId: string): Promise<{
     skipDuplicates: true,
   })
 
-  // 6. 更新成就解锁计数
-  for (const ach of newUnlocks) {
-    await prisma.achievement.update({
-      where: { id: ach.id },
-      data: { unlockCount: { increment: 1 } },
-    })
-  }
+  // 6. 更新成就解锁计数（并行执行）
+  await Promise.all(
+    newUnlocks.map(ach =>
+      prisma.achievement.update({
+        where: { id: ach.id },
+        data: { unlockCount: { increment: 1 } },
+      })
+    )
+  )
 
   // 7. 创建通知
   for (const ach of newUnlocks) {

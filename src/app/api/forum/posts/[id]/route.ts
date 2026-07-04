@@ -27,6 +27,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       user: { select: { id: true, username: true, avatar: true } },
       comments: {
         orderBy: { createdAt: "asc" },
+        take: 100,
         include: { user: { select: { id: true, username: true, avatar: true } } },
       },
     },

@@ -162,6 +162,7 @@ function LoginContent() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="用户名或邮箱"
+                  aria-label="用户名或邮箱"
                   required
                   autoComplete="username"
                   className={inputInnerCls}
@@ -176,6 +177,7 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="密码"
+                  aria-label="密码"
                   required
                   autoComplete="current-password"
                   className={inputInnerCls}
@@ -210,6 +212,7 @@ function LoginContent() {
                     value={regForm[key]}
                     onChange={setReg(key)}
                     placeholder={placeholder}
+                    aria-label={placeholder}
                     required
                     autoComplete={autoComplete}
                     minLength={minLength}

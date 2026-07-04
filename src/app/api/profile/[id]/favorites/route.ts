@@ -10,12 +10,13 @@ export async function GET(
   try {
     const favorites = await prisma.favorite.findMany({
       where: { userId: id },
-      include: {
+      select: {
         game: {
           select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true, originalWork: true },
         },
       },
       orderBy: { createdAt: "desc" },
+      take: 200,
     })
     return ok({ favorites: favorites.map((f) => f.game) })
   } catch (error) {

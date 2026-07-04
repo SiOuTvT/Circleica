@@ -99,6 +99,7 @@ export function MusicPlayer() {
           {/* 音乐图标按钮（收起时点击展开） */}
           <button
             onClick={() => setExpanded(v => !v)}
+            aria-label={expanded ? "收起播放器" : "展开播放器"}
             className={cn(
               "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
               playing
@@ -119,16 +120,16 @@ export function MusicPlayer() {
 
               {/* 控制按钮 */}
               <div className="flex items-center gap-0.5">
-                <button onClick={prev} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={prev} aria-label="上一曲" className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   <SkipBack className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:text-foreground">
+                <button onClick={togglePlay} aria-label={playing ? "暂停" : "播放"} className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:text-foreground">
                   {playing ? <Pause className="h-4 w-4" strokeWidth={1.5} /> : <Play className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
-                <button onClick={next} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={next} aria-label="下一曲" className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   <SkipForward className="h-4 w-4" strokeWidth={1.5} />
                 </button>
-                <button onClick={() => setMuted(v => !v)} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
+                <button onClick={() => setMuted(v => !v)} aria-label={muted ? "取消静音" : "静音"} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground">
                   {muted ? <VolumeX className="h-4 w-4" strokeWidth={1.5} /> : <Volume2 className="h-4 w-4" strokeWidth={1.5} />}
                 </button>
               </div>

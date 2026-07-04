@@ -472,6 +472,7 @@ model ForumPost {
   @@index([userId])
   @@index([createdAt])
   @@index([category])
+  @@index([category, createdAt])
   @@index([isSolved])
   @@index([isSolved, createdAt])
 }

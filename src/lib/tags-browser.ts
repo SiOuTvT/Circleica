@@ -75,35 +75,32 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
     orderBy: { name: "asc" },
   })
 
-  // 并行获取每个标签的游戏数量
-  const tagGroups: TagGroupWithTags[] = await Promise.all(
-    groups.map(async (group) => {
-      const tags: TagInfo[] = await Promise.all(
-        group.tags.map(async (tag) => {
-          const gameCount = await prisma.gameTag.count({
-            where: {
-              tagId: tag.id,
-              game: { isPublished: true },
-            },
-          })
-          return {
-            id: tag.id,
-            name: tag.name,
-            color: tag.color || group.color,
-            gameCount,
-          }
-        })
-      )
+  // 批量获取所有标签的游戏数量（单次查询替代 N+1）
+  const allTagIds = groups.flatMap(g => g.tags.map(t => t.id))
+  const gameCounts = await prisma.gameTag.groupBy({
+    by: ["tagId"],
+    where: {
+      tagId: { in: allTagIds },
+      game: { isPublished: true },
+    },
+    _count: { tagId: true },
+  })
+  const countMap = new Map(gameCounts.map(r => [r.tagId, r._count.tagId]))
 
-      return {
-        id: group.id,
-        name: group.name,
-        color: group.color,
-        description: group.description,
-        tags: tags.filter(t => t.gameCount > 0), // 只显示有游戏的标签
-      }
-    })
-  )
+  const tagGroups: TagGroupWithTags[] = groups.map((group) => ({
+    id: group.id,
+    name: group.name,
+    color: group.color,
+    description: group.description,
+    tags: group.tags
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        color: tag.color || group.color,
+        gameCount: countMap.get(tag.id) ?? 0,
+      }))
+      .filter(t => t.gameCount > 0),
+  }))
 
   return tagGroups.filter(g => g.tags.length > 0)
 }

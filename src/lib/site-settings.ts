@@ -32,7 +32,9 @@ export async function getDefaultPlaceholderImage(): Promise<string | null> {
  */
 export const getSiteSettings = unstable_cache(
   async (): Promise<Record<string, string>> => {
-    const settings = await prisma.siteSetting.findMany()
+    const settings = await prisma.siteSetting.findMany({
+      select: { key: true, value: true },
+    })
     return Object.fromEntries(settings.map(s => [s.key, s.value]))
   },
   ["all-site-settings"],

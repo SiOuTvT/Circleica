@@ -73,14 +73,14 @@ function ResetForm() {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" aria-label="新密码" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
               <button type="button" onClick={() => setShowPwd(v => !v)} className="text-muted-foreground hover:text-foreground">
                 {showPwd ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" aria-label="确认新密码" required className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
             </div>
             <button type="submit" disabled={saving}
               className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">

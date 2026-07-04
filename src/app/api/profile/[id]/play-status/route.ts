@@ -10,12 +10,14 @@ export async function GET(
   try {
     const playStatuses = await prisma.playStatus.findMany({
       where: { userId: id },
-      include: {
+      select: {
+        status: true,
         game: {
           select: { id: true, serialId: true, title: true, coverImage: true, isNsfw: true, originalWork: true },
         },
       },
       orderBy: { id: "desc" },
+      take: 200,
     })
     return ok({ playStatuses: playStatuses.map((ps) => ({ game: ps.game, status: ps.status })) })
   } catch (error) {
