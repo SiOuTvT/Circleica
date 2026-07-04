@@ -242,13 +242,15 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   return (
     <>
       <header
-        className="flex h-14 items-center rounded-xl border transition-all duration-200 lg:backdrop-blur-2xl"
+        className={cn(
+          "flex h-14 items-center rounded-xl border transition-all duration-300 lg:backdrop-blur-2xl",
+          scrolled ? "shadow-lg backdrop-blur-xl" : "shadow-none backdrop-blur-none"
+        )}
         style={{
-          background: "color-mix(in srgb, var(--surface-float) 70%, transparent)",
+          background: scrolled
+            ? "color-mix(in srgb, var(--surface-float) 85%, transparent)"
+            : "color-mix(in srgb, var(--surface-float) 60%, transparent)",
           borderColor: scrolled ? "var(--surface-float-border)" : "var(--border)",
-          boxShadow: scrolled
-            ? "var(--shadow-lg)"
-            : "var(--shadow-md)",
         }}
       >
         <div className="flex h-full w-full items-center gap-1 sm:gap-3">
