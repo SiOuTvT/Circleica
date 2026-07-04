@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
 import { rateLimits } from "@/lib/rate-limit"
+import { sanitizeString } from "@/lib/sanitize"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
@@ -75,8 +76,8 @@ async function handleCreatePost(req: NextRequest) {
     if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
 
     const fd = await req.formData()
-    const title = (fd.get("title") as string)?.trim()
-    const content = (fd.get("content") as string)?.trim()
+    const title = sanitizeString((fd.get("title") as string)?.trim())
+    const content = sanitizeString((fd.get("content") as string)?.trim())
     const category = (fd.get("category") as string)?.trim() || "discussion"
     if (!title || !content) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
 

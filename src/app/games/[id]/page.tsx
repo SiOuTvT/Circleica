@@ -290,7 +290,7 @@ export default async function GameDetailPage({
                     className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full text-sm sm:text-base font-bold text-white"
                     style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
                   >
-                    {game.publisher ? game.publisher.username[0] : "?"}
+                    {game.publisher?.username?.[0] || "?"}
                   </div>
                 )}
                 <div className="min-w-0">

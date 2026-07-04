@@ -117,7 +117,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             {character.age && (
               <div><span className="text-muted-foreground">年龄: </span><span className="text-foreground">{character.age}</span></div>
             )}
-            {character.birthday && (
+            {character.birthday && character.birthday.length >= 2 && (
               <div><span className="text-muted-foreground">生日: </span><span className="text-foreground">{character.birthday[0]}月{character.birthday[1]}日</span></div>
             )}
             {character.bloodType && (

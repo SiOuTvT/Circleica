@@ -1,7 +1,11 @@
+import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
+  const session = await getAdminSession()
+  if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
+
   try {
     const body = await req.json()
     const { vndbId, name } = body

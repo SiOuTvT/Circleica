@@ -140,9 +140,13 @@ main > * {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* 字体系统：Noto Serif SC (标题) + Noto Sans SC (正文) */
-  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
-  --font-sans: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* 字体系统：next/font 通过 --font-sans / --font-serif CSS 变量注入，
+     Tailwind 工具类 font-sans / font-serif 使用这些变量。
+     CSS 变量在 html 元素的 class 上定义（next/font），
+     具体性高于 @theme 的 :root，因此会被正确覆盖。
+     中文回退字体写死在主题中，确保即使 next/font 未加载也有合理显示。 */
+  --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
+  --font-serif: 'SimSun', 'Source Han Serif SC', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
   --color-ring: var(--ring);
   --color-input: var(--input);

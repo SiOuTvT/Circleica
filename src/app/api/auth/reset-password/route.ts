@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import bcrypt from "bcryptjs"
 
 export async function POST(req: NextRequest) {
+  const rateLimit = await checkRateLimit(rateLimits.passwordReset)
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "请求过于频繁，请稍后再试" }, { status: 429 })
+  }
+
   let token: string, password: string
   try {
     const body = await req.json()
@@ -12,7 +18,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
   }
   if (!token || !password) return NextResponse.json({ error: "参数缺失" }, { status: 400 })
-  if (password.length < 6) return NextResponse.json({ error: "密码至少6位" }, { status: 400 })
+  if (password.length < 6 || password.length > 128) return NextResponse.json({ error: "密码长度应在6-128位之间" }, { status: 400 })
 
   const record = await prisma.passwordResetToken.findUnique({ where: { token } })
 
@@ -44,5 +50,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ valid: false })
   }
 
-  return NextResponse.json({ valid: true, email: record.user.email })
+  // Mask email to prevent full address leakage: "user@example.com" → "us***@example.com"
+  const email = record.user.email
+  const [local, domain] = email.split("@")
+  const masked = `${local.slice(0, 2)}${"*".repeat(Math.max(3, local.length - 2))}@${domain}`
+
+  return NextResponse.json({ valid: true, email: masked })
 }

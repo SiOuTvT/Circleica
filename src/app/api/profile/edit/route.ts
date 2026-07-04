@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger"
+import { sanitizeString, sanitizeUrl } from "@/lib/sanitize"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
@@ -23,6 +24,10 @@ export async function POST(req: NextRequest) {
     }
     if (!username?.trim()) return NextResponse.json({ error: "用户名不能为空" }, { status: 400 })
 
+    // Validate URLs if provided
+    if (avatar && !sanitizeUrl(avatar)) return NextResponse.json({ error: "头像 URL 无效" }, { status: 400 })
+    if (banner && !sanitizeUrl(banner)) return NextResponse.json({ error: "封面 URL 无效" }, { status: 400 })
+
     const conflict = await prisma.user.findFirst({
       where: { username: username.trim(), id: { not: session.user.id } },
     })
@@ -30,8 +35,8 @@ export async function POST(req: NextRequest) {
 
     // 修改密码逻辑
     const updateData: Record<string, string> = {
-      username: username.trim(),
-      bio: bio?.trim() ?? "",
+      username: sanitizeString(username.trim()),
+      bio: sanitizeString(bio?.trim() ?? ""),
       ...(avatar ? { avatar } : {}),
       ...(banner !== undefined ? { banner: banner?.trim() ?? "" } : {}),
     }

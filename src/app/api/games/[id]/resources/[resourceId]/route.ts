@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { roleAtLeast } from "@/lib/admin";
 import { NextRequest, NextResponse } from "next/server";
 
 /* ─── PUT: 编辑资源（仅本人或管理员） ─── */
@@ -32,7 +33,7 @@ export async function PUT(
       where: { id: session.user.id },
       select: { role: true },
     })
-    if (existing.userId !== session.user.id && user?.role !== "ADMIN") {
+    if (existing.userId !== session.user.id && !roleAtLeast(user?.role ?? "USER", "ADMIN")) {
       return NextResponse.json({ error: "无权编辑" }, { status: 403 })
     }
 
@@ -150,7 +151,7 @@ export async function DELETE(
       where: { id: session.user.id },
       select: { role: true },
     })
-    if (existing.userId !== session.user.id && user?.role !== "ADMIN") {
+    if (existing.userId !== session.user.id && !roleAtLeast(user?.role ?? "USER", "ADMIN")) {
       return NextResponse.json({ error: "无权删除" }, { status: 403 })
     }
 

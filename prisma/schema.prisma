@@ -152,6 +152,8 @@ model Game {
   logs          GameLog[]
 
   @@index([isPublished, isNsfw, createdAt])
+  @@index([isPublished, viewCount])
+  @@index([isPublished, favoriteCount])
   @@index([title])
   @@index([vndbId])
   @@index([publisherId])
@@ -446,6 +448,7 @@ model CheckIn {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, date])
   @@index([userId])
+  @@index([createdAt])
 }
 
 model ForumPost {

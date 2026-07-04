@@ -156,7 +156,7 @@ export function RichTextEditor({
           // 显示压缩效果提示
           const originalSize = (file.size / 1024).toFixed(1)
           const compressedSize = (compressedBlob.size / 1024).toFixed(1)
-          const savings = ((1 - compressedBlob.size / file.size) * 100).toFixed(0)
+          const savings = file.size > 0 ? ((1 - compressedBlob.size / file.size) * 100).toFixed(0) : "0"
           const savingsNum = parseFloat(savings)
           if (savingsNum > 10) {
             toast.success(`图片已上传（压缩 ${savings}%：${originalSize}KB → ${compressedSize}KB）`)

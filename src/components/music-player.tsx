@@ -62,6 +62,7 @@ export function MusicPlayer() {
     const audio = audioRef.current
     if (!audio || !audio.duration) return
     const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width === 0) return
     audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration
   }
 

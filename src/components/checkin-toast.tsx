@@ -27,14 +27,17 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
   const [visible, setVisible] = useState(false)
   const [config, setConfig] = useState<CheckInConfig>(DEFAULT_CONFIG)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const closeTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [isHovered, setIsHovered] = useState(false)
 
   // 获取签到配置
   useEffect(() => {
-    fetch("/api/admin/checkin-config")
+    const controller = new AbortController()
+    fetch("/api/admin/checkin-config", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => setConfig(data))
       .catch(() => setConfig(DEFAULT_CONFIG))
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     const startTimer = () => {
       timerRef.current = setTimeout(() => {
         setVisible(false)
-        setTimeout(onClose, 300)
+        closeTimerRef.current = setTimeout(onClose, 300)
       }, 4000)
     }
     startTimer()
@@ -53,6 +56,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     return () => {
       cancelAnimationFrame(id)
       if (timerRef.current) clearTimeout(timerRef.current)
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
     }
   }, [onClose])
 
@@ -68,14 +72,14 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     setIsHovered(false)
     timerRef.current = setTimeout(() => {
       setVisible(false)
-      setTimeout(onClose, 300)
+      closeTimerRef.current = setTimeout(onClose, 300)
     }, 2000)
   }
 
   const handleClose = () => {
     if (timerRef.current) clearTimeout(timerRef.current)
     setVisible(false)
-    setTimeout(onClose, 300)
+    closeTimerRef.current = setTimeout(onClose, 300)
   }
 
   // 使用配置的 imageUrl，如果没有则使用 props 传入的

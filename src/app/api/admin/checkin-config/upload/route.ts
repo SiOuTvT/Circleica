@@ -1,7 +1,9 @@
 import { requireAdmin } from "@/lib/admin"
 import { serverError, unauthorized, success } from "@/lib/api-response"
+import { sanitizeFilename } from "@/lib/sanitize"
 import { NextRequest } from "next/server"
 import { put } from "@vercel/blob"
+import crypto from "crypto"
 
 // POST /api/admin/checkin-config/upload - 上传签到卡片图片
 async function handlePost(req: NextRequest) {
@@ -20,8 +22,9 @@ async function handlePost(req: NextRequest) {
       return serverError("图片大小不能超过 5MB")
     }
 
-    // 使用 Vercel Blob 存储
-    const blob = await put(`checkin/${Date.now()}-${file.name}`, file, {
+    // 使用 Vercel Blob 存储（sanitizeFilename 防止路径遍历）
+    const safeName = sanitizeFilename(file.name) || `${crypto.randomBytes(4).toString("hex")}.jpg`
+    const blob = await put(`checkin/${Date.now()}-${safeName}`, file, {
       access: "public",
     })
 

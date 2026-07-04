@@ -132,7 +132,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
               </div>
             )}
             <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
-            <span className="text-xs text-white/50">· {relativeTime(ann.createdAt)}</span>
+            <span className="text-xs text-white/50" suppressHydrationWarning>· {relativeTime(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}

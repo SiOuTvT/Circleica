@@ -98,7 +98,7 @@ export default function NotificationsClient({
       }).then(() => {
         setUnreadCount(0)
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-      })
+      }).catch(() => {})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

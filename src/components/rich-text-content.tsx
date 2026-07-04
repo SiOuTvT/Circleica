@@ -13,7 +13,7 @@ export function RichTextContent({ html }: { html: string }) {
     ],
     ALLOWED_ATTR: [
       "href", "src", "alt", "title", "target", "rel",
-      "class", "style", "width", "height",
+      "class", "width", "height",
     ],
     ALLOW_DATA_ATTR: false,
   })

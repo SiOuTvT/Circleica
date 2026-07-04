@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { cache } from "@/lib/redis"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { NextResponse } from "next/server"
 
 /**
@@ -9,11 +10,16 @@ import { NextResponse } from "next/server"
  */
 
 export async function POST(req: Request) {
+  const rateLimit = await checkRateLimit(rateLimits.api)
+  if (!rateLimit.success) {
+    return NextResponse.json({ error: "请求过于频繁" }, { status: 429 })
+  }
+
   try {
     const body = await req.json()
     const { views } = body as { views: { gameId: string; ts: number }[] }
 
-    if (!views || !Array.isArray(views) || views.length === 0) {
+    if (!views || !Array.isArray(views) || views.length === 0 || views.length > 20) {
       return NextResponse.json({ error: "无效的浏览记录" }, { status: 400 })
     }
 

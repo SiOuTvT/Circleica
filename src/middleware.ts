@@ -42,9 +42,9 @@ function buildCSP(nonce: string): string {
     `default-src 'self'`,
     scriptSrc,
     // style-src 保留 unsafe-inline：Tailwind CSS 运行时样式注入需要
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+    `style-src 'self' 'unsafe-inline'`,
     `img-src ${imgDomains.join(" ")}`,
-    `font-src 'self' data: https://fonts.gstatic.com https://fonts.gstatic.font.im`,
+    `font-src 'self' data:`,
     `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
     `frame-ancestors 'none'`,
     `base-uri 'self'`,
@@ -88,6 +88,8 @@ export async function middleware(req: NextRequest) {
   // X-XSS-Protection 已废弃，设为 0 禁用（依赖 CSP 防护）
   res.headers.set("X-XSS-Protection", "0")
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+  res.headers.set("Cross-Origin-Opener-Policy", "same-origin")
+  res.headers.set("Cross-Origin-Resource-Policy", "same-origin")
 
   // HSTS：仅在生产环境 HTTPS 下启用（避免 HTTP 站点误设导致无法访问）
   const isSecure = req.nextUrl.protocol === "https"

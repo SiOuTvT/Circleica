@@ -2,15 +2,17 @@
 
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
-import { ForumSidebar } from "@/components/forum-sidebar"
-import { MusicPlayer } from "@/components/music-player"
-import { NavSidebar } from "@/components/nav-sidebar"
 import { TopNav } from "@/components/top-nav"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { ChevronUp } from "lucide-react"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+
+const NavSidebar = dynamic(() => import("@/components/nav-sidebar").then(m => ({ default: m.NavSidebar })), { ssr: false })
+const ForumSidebar = dynamic(() => import("@/components/forum-sidebar").then(m => ({ default: m.ForumSidebar })), { ssr: false })
+const MusicPlayer = dynamic(() => import("@/components/music-player").then(m => ({ default: m.MusicPlayer })), { ssr: false })
 
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量

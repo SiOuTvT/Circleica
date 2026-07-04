@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 interface Comment {
   id: string
@@ -186,10 +186,10 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     setDeletingId(null)
   }
 
-  const sortedComments = [...comments].sort((a, b) => {
+  const sortedComments = useMemo(() => [...comments].sort((a, b) => {
     if (sortMode === "hottest") return b.likeCount - a.likeCount
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  })
+  }), [comments, sortMode])
 
   return (
     <section>

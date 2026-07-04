@@ -38,9 +38,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       if (imageFile.size > 5 * 1024 * 1024) {
         return badRequest("图片太大啦，最多 5MB 哦")
       }
-      // 验证文件类型
-      if (!imageFile.type.startsWith("image/")) {
-        return badRequest("只能上传图片文件")
+      // 验证文件类型（只允许常见图片格式，排除 SVG 等可执行格式）
+      const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"]
+      if (!ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+        return badRequest("只支持 JPEG、PNG、GIF、WebP 格式的图片")
       }
       try {
         const buffer = Buffer.from(await imageFile.arrayBuffer())

@@ -121,7 +121,7 @@ export function ForumClient({
     } finally {
       setLoadingMore(false)
     }
-  }, [currentPage, totalPages, activeCategory, searchQuery, loadingMore])
+  }, [currentPage, totalPages, activeCategory, debouncedSearch, loadingMore])
 
   // 打开帖子详情
   const openPost = useCallback(async (id: string) => {
@@ -247,12 +247,14 @@ export function ForumClient({
             })
         }}
         onToggleSolve={async (id) => {
-          const res = await fetch(`/api/forum/posts/${id}/solve`, { method: "POST" })
-          const data = await res.json()
-          if (res.ok) {
-            setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: data.isSolved } : x))
-            setActivePost(p => p && { ...p, isSolved: data.isSolved })
-          }
+          try {
+            const res = await fetch(`/api/forum/posts/${id}/solve`, { method: "POST" })
+            const data = await res.json()
+            if (res.ok) {
+              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: data.isSolved } : x))
+              setActivePost(p => p && { ...p, isSolved: data.isSolved })
+            }
+          } catch {}
         }}
         onStartEdit={setEditingPost}
         onDelete={handleDeletePost}
@@ -265,15 +267,19 @@ export function ForumClient({
             .then(data => {
               setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c) })
             })
+            .catch(() => {})
         }}
         onDeleteComment={(id) => {
+          const targetPostId = activePost?.id
           setConfirmMessage("确定要删除这条评论吗？")
           setConfirmCallback(() => async () => {
-            const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-            if (res.ok) {
-              setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
-              setPosts(p => p.map(x => x.id === activePost?.id ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
-            }
+            try {
+              const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
+              if (res.ok) {
+                setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
+                setPosts(p => p.map(x => x.id === targetPostId ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
+              }
+            } catch {}
           })
           setConfirmOpen(true)
         }}

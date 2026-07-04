@@ -100,7 +100,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
               onError={handleNextImageError}
               loading={game.serialId != null && game.serialId <= 4 ? "eager" : "lazy"}
               decoding="async"
-              quality={85}
+              quality={75}
               priority={game.serialId != null && game.serialId <= 4}
             />
           )

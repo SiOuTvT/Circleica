@@ -97,24 +97,30 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
   // ── 点赞评论 ──
   async function likeComment(id: string) {
     if (!isLoggedIn) return
-    const res = await fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
-    const data = await res.json()
-    setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c))
+    try {
+      const res = await fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
+      const data = await res.json()
+      setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c))
+    } catch {}
   }
 
   // ── 标记已解决 ──
   async function toggleSolve() {
-    const res = await fetch(`/api/forum/posts/${post.id}/solve`, { method: "POST" })
-    const data = await res.json()
-    if (res.ok) setPost(p => ({ ...p, isSolved: data.isSolved }))
+    try {
+      const res = await fetch(`/api/forum/posts/${post.id}/solve`, { method: "POST" })
+      const data = await res.json()
+      if (res.ok) setPost(p => ({ ...p, isSolved: data.isSolved }))
+    } catch {}
   }
 
   // ── 删除帖子 ──
   function confirmDeletePost() {
     setConfirmMessage("确定要删除这个帖子吗？")
     setConfirmCallback(() => async () => {
-      const res = await fetch(`/api/forum/posts/${post.id}`, { method: "DELETE" })
-      if (res.ok) window.location.href = "/forum"
+      try {
+        const res = await fetch(`/api/forum/posts/${post.id}`, { method: "DELETE" })
+        if (res.ok) window.location.href = "/forum"
+      } catch {}
     })
     setConfirmOpen(true)
   }
@@ -123,11 +129,13 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
   function confirmDeleteComment(id: string) {
     setConfirmMessage("确定要删除这条评论吗？")
     setConfirmCallback(() => async () => {
-      const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-      if (res.ok) {
-        setComments(cs => cs.filter(c => c.id !== id))
-        setPost(p => ({ ...p, commentCount: Math.max(0, p.commentCount - 1) }))
-      }
+      try {
+        const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
+        if (res.ok) {
+          setComments(cs => cs.filter(c => c.id !== id))
+          setPost(p => ({ ...p, commentCount: Math.max(0, p.commentCount - 1) }))
+        }
+      } catch {}
     })
     setConfirmOpen(true)
   }

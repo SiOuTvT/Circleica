@@ -36,12 +36,14 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   }
 
   async function remove(logId: string) {
-    await fetch(`/api/admin/games/${gameId}/logs`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ logId }),
-    })
-    setLogs(p => p.filter(l => l.id !== logId))
+    try {
+      const res = await fetch(`/api/admin/games/${gameId}/logs`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logId }),
+      })
+      if (res.ok) setLogs(p => p.filter(l => l.id !== logId))
+    } catch {}
   }
 
   return (
