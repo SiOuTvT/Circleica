@@ -148,7 +148,7 @@ export default async function AdminCheckInsPage({
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="inline-flex items-center rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-500">
+                <span className="inline-flex items-center rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-400">
                   +{ci.marks} 印记
                 </span>
               </div>

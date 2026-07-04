@@ -52,7 +52,7 @@ export function PositionCheckboxGroup({
                   } ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                   title={pos.description}
                 >
-                  {Icon && <Icon className="w-3.5 h-3.5" strokeWidth={2} />}
+                  {Icon && <Icon className="h-3.5 w-3.5" strokeWidth={2} />}
                   <span>{pos.label}</span>
                 </button>
               )

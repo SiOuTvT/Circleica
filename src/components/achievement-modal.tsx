@@ -192,7 +192,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
         onClick={onClose}
         className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
       >
-        <X className="h-3 w-3" strokeWidth={2.5} />
+        <X className="h-3 w-3" strokeWidth={2} />
       </button>
 
       {/* 左侧立绘 */}
@@ -218,7 +218,7 @@ function AchievementUnlockCard({ achievement, onClose }: { achievement: Achievem
           {achievement.icon ? (
             <Image src={achievement.icon} alt="" width={16} height={16} className="h-4 w-4 shrink-0" unoptimized />
           ) : (
-            <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
+            <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2} />
           )}
           <span className="text-sm font-bold text-amber-400 tracking-tight leading-none truncate">
             {achievement.name}

@@ -491,7 +491,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={() => handleTranslate("zh")}
                 disabled={translating || !descLangs[activeDescLang].trim()}
-                className="flex items-center gap-2 rounded-lg bg-amber-500/10 text-amber-500 px-4 py-2 text-xs font-medium ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-amber-500/10 text-amber-400 px-4 py-2 text-xs font-medium ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -548,7 +548,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.en.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -566,7 +566,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.zh.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -584,7 +584,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.ja.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-500 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -681,7 +681,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                   {tag.name}
                   <button type="button" onClick={() => toggleTag(id)}
                     className="hover:text-red-400 transition-colors cursor-pointer">
-                    <X className="w-3 h-3" />
+                    <X className="h-3 w-3" />
                   </button>
                 </Tag>
               )

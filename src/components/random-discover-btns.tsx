@@ -55,8 +55,8 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
       title="随机发现同人创作者（脚本家、画师、音乐人等）"
     >
       {loading
-        ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2.5} />
-        : <User className="h-6 w-6 transition-transform group-hover:scale-110" strokeWidth={2.5} />
+        ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} />
+        : <User className="h-6 w-6 transition-transform group-hover:scale-110" strokeWidth={2} />
       }
       <span className="font-medium">随机创作者</span>
     </button>
@@ -102,8 +102,8 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
       title="随机查看游戏角色（完整角色设定）"
     >
       {loading
-        ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2.5} />
-        : <Sparkles className="h-6 w-6 transition-transform group-hover:scale-110" strokeWidth={2.5} />
+        ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} />
+        : <Sparkles className="h-6 w-6 transition-transform group-hover:scale-110" strokeWidth={2} />
       }
       <span className="font-medium">随机角色</span>
     </button>

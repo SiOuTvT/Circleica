@@ -92,11 +92,11 @@ function CollapsibleNote({ text, maxLines = 3 }: { text: string; maxLines?: numb
       >
         {expanded ? (
           <>
-            收起 <ChevronUp className="w-3 h-3" />
+            收起 <ChevronUp className="h-3 w-3" />
           </>
         ) : (
           <>
-            展开全部 <ChevronDown className="w-3 h-3" />
+            展开全部 <ChevronDown className="h-3 w-3" />
           </>
         )}
       </button>
@@ -187,7 +187,7 @@ const ResourceCard = memo(function ResourceCard({
       {resource.isReported && (
         <div className="px-4 pb-2">
           <Tag color="#f59e0b" className="gap-1.5">
-            <AlertTriangle className="w-3 h-3" />
+            <AlertTriangle className="h-3 w-3" />
             链接已失效
           </Tag>
         </div>
@@ -215,15 +215,15 @@ const ResourceCard = memo(function ResourceCard({
                   onClick={() => toggleEntry(i)}
                   className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/15 active:bg-primary/20 transition-all duration-200"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="h-3.5 w-3.5" />
                   {label}
                   {entry.fileSize && (
                     <span className="text-primary/60 ml-0.5">({entry.fileSize})</span>
                   )}
                   {isExpanded ? (
-                    <ChevronUp className="w-3.5 h-3.5 opacity-60" />
+                    <ChevronUp className="h-3.5 w-3.5 opacity-60" />
                   ) : (
-                    <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                   )}
                 </button>
                 {/* 展开区域：真实链接、提取码、解压码 */}
@@ -276,12 +276,12 @@ const ResourceCard = memo(function ResourceCard({
             disabled={resource.isReportedByMe}
             className={`p-2 rounded-lg transition-all duration-200 ${
               resource.isReportedByMe
-                ? "text-amber-500/60 cursor-default"
-                : "text-muted-foreground/40 hover:text-amber-500 hover:bg-amber-500/10"
+                ? "text-amber-400/60 cursor-default"
+                : "text-muted-foreground/40 hover:text-amber-400 hover:bg-amber-500/10"
             }`}
             title={resource.isReportedByMe ? "已反馈" : "反馈链接失效"}
           >
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="h-4 w-4" />
           </button>
         )}
         {(isOwner || isGamePublisher) && (
@@ -293,16 +293,16 @@ const ResourceCard = memo(function ResourceCard({
                 className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200"
                 title="编辑"
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="h-4 w-4" />
               </button>
             )}
             <button
               type="button"
               onClick={onDelete}
-              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200"
+              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
               title="删除"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             </button>
           </>
         )}
@@ -496,7 +496,7 @@ export function ResourceTab({
       {/* 加载中状态 */}
       {loading && (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">加载资源中...</span>
         </div>
       )}
@@ -504,7 +504,7 @@ export function ResourceTab({
       {/* 加载错误 */}
       {loadError && !loading && (
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-center">
-          <p className="text-sm text-red-500">{loadError}</p>
+          <p className="text-sm text-red-400">{loadError}</p>
           <button
             type="button"
             onClick={fetchResources}
@@ -632,7 +632,7 @@ export function ResourceTab({
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground bg-primary hover:opacity-90 transition-opacity"
             >
-              <Download className="w-4 h-4" strokeWidth={2} />
+              <Download className="h-4 w-4" strokeWidth={2} />
               {dl.label || "下载"}
             </a>
           ))}

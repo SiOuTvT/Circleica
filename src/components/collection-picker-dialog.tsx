@@ -98,7 +98,7 @@ export function CollectionPickerDialog({
         <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
@@ -122,7 +122,7 @@ export function CollectionPickerDialog({
                     className="h-8 px-3 text-xs"
                   >
                     {creating ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
                       "创建"
                     )}
@@ -144,7 +144,7 @@ export function CollectionPickerDialog({
                   onClick={() => setShowCreate(true)}
                   className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  <FolderPlus className="w-5 h-5 shrink-0" />
+                  <FolderPlus className="h-5 w-5 shrink-0" />
                   <span>新建收藏集</span>
                 </button>
               )}
@@ -155,13 +155,13 @@ export function CollectionPickerDialog({
                 disabled={submitting !== null}
                 className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
               >
-                <Folder className="w-5 h-5 text-muted-foreground shrink-0" />
+                <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
                 <span className="flex-1 truncate">默认收藏夹</span>
                 {currentCollectionId === null && isFav && (
-                  <Check className="w-5 h-5 text-primary shrink-0" />
+                  <Check className="h-5 w-5 text-primary shrink-0" />
                 )}
                 {submitting === "__none__" && (
-                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                  <Loader2 className="h-5 w-5 animate-spin shrink-0" />
                 )}
               </button>
 
@@ -173,14 +173,14 @@ export function CollectionPickerDialog({
                   disabled={submitting !== null}
                   className="flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-left text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
                 >
-                  <Folder className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
                   <span className="flex-1 truncate">{col.name}</span>
                   <span className="text-xs text-muted-foreground/50 mr-1">{col._count.favorites}</span>
                   {currentCollectionId === col.id && isFav && (
-                    <Check className="w-5 h-5 text-primary shrink-0" />
+                    <Check className="h-5 w-5 text-primary shrink-0" />
                   )}
                   {submitting === col.id && (
-                    <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                    <Loader2 className="h-5 w-5 animate-spin shrink-0" />
                   )}
                 </button>
               ))}

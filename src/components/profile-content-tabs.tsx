@@ -223,7 +223,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
         </div>
       ) : (
         <button onClick={() => setShowCreateFolder(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary/20 px-4 py-3.5 text-sm font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary transition-colors">
-          <Plus className="h-4 w-4" strokeWidth={2.5} />创建新收藏夹
+          <Plus className="h-4 w-4" strokeWidth={2} />创建新收藏夹
         </button>
       )}
 
@@ -292,7 +292,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
           <h2 className="text-base font-bold text-foreground">{name}</h2>
           <Tag variant="badge" className="bg-muted text-muted-foreground">{games.length} 部</Tag>
         </div>
-        <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2.5} /></button>
+        <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" strokeWidth={2} /></button>
       </div>
       <div className="flex-1 overflow-y-auto p-5 max-h-[calc(80vh-72px)]">
         {games.length === 0 ? (

@@ -197,7 +197,7 @@ export default function NotificationsClient({
           </button>
           <button
             onClick={() => setShowClearConfirm(true)}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:text-red-500 hover:ring-red-500/30 transition-all ml-auto"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:text-red-400 hover:ring-red-500/30 transition-all ml-auto"
           >
             清空全部
           </button>
@@ -260,7 +260,7 @@ export default function NotificationsClient({
                 {/* 删除按钮 */}
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSingleDeleteId(n.id) }}
-                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all"
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

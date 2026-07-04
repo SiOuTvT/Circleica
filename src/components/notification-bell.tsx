@@ -39,7 +39,7 @@ export function NotificationBell() {
       href="/notifications"
       className="relative flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
     >
-      <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+      <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
       {unreadCount > 0 && (
         <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
           {unreadCount > 99 ? "99+" : unreadCount}

@@ -51,7 +51,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         <div className="flex items-center justify-between border-b border-border px-3 py-2.5 lg:px-5 lg:py-4 bg-muted/50">
           <span className="text-sm font-semibold text-foreground">论坛动态</span>
           <button onClick={onToggle} aria-label="关闭论坛侧栏" className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground">
-            <X className="h-5 w-5" strokeWidth={2.5} />
+            <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
         <div className="border-b border-border p-2 lg:p-3 bg-muted/50">

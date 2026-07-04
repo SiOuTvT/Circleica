@@ -288,7 +288,7 @@ function BlockEditor({
         <div className="w-px h-4 bg-border mx-0.5" />
         <button
           onClick={onRemove}
-          className="p-1.5 hover:bg-red-500/10 rounded-md text-muted-foreground hover:text-red-500"
+          className="p-1.5 hover:bg-red-500/10 rounded-md text-muted-foreground hover:text-red-400"
           title="删除"
         >
           <X className="h-3.5 w-3.5" />
@@ -369,7 +369,7 @@ function BlockEditor({
                       const newItems = block.items?.filter((_, idx) => idx !== i)
                       if (newItems?.length) onUpdate({ items: newItems })
                     }}
-                    className="p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-500 opacity-0 hover:opacity-100"
+                    className="p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-400 opacity-0 hover:opacity-100"
                     title="删除此项"
                   >
                     <X className="h-3 w-3" />
@@ -732,7 +732,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
         <Button variant="ghost" size="sm" onClick={() => addBlock("small-card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-pink-500/10 hover:text-pink-500">
           <LayoutTemplate className="h-3 w-3 mr-1.5" /> 小卡片
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("qa")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-amber-500/10 hover:text-amber-500">
+        <Button variant="ghost" size="sm" onClick={() => addBlock("qa")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-amber-500/10 hover:text-amber-400">
           Q&A
         </Button>
         <Button variant="ghost" size="sm" onClick={() => addBlock("link-card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-orange-500/10 hover:text-orange-500">

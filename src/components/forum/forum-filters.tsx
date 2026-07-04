@@ -61,7 +61,7 @@ export function ForumFilters({
               activeCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
             )}
           >
-            <Icon className="w-3.5 h-3.5" strokeWidth={2} /> {cat.label}
+            <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {cat.label}
           </button>
           )
         })}

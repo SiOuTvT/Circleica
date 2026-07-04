@@ -30,7 +30,7 @@ export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-all hover:bg-emerald-500/10 hover:text-emerald-500"
+        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-all hover:bg-emerald-500/10 hover:text-emerald-400"
         title="标记为已处理"
       >
         <CheckCircle className="h-4 w-4" />

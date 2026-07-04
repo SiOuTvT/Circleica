@@ -218,7 +218,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                             onClick={() => setRoleConfirm({id: u.id, current: u.role})}
                             className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                               u.role === "ADMIN"
-                                ? "text-red-500 hover:bg-red-500/10"
+                                ? "text-red-400 hover:bg-red-500/10"
                                 : "text-blue-500 hover:bg-blue-500/10"
                             }`}
                             title={u.role === "ADMIN" ? "撤销管理员" : "设为管理员"}

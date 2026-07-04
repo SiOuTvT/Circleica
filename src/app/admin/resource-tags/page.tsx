@@ -143,7 +143,7 @@ export default function ResourceTagsPage() {
                   <span>{opt}</span>
                   <button
                     onClick={() => handleRemove(g.group, i)}
-                    className="ml-0.5 transition-opacity text-muted-foreground hover:text-red-500"
+                    className="ml-0.5 transition-opacity text-muted-foreground hover:text-red-400"
                     title="删除"
                   >
                     <X className="h-4 w-4" />

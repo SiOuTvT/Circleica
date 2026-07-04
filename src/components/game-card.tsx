@@ -105,7 +105,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
           )
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
-            <ImageOff className="w-8 h-8" aria-hidden="true" strokeWidth={1} />
+            <ImageOff className="h-8 w-8" aria-hidden="true" strokeWidth={1} />
           </div>
         )}
       </div>
@@ -124,19 +124,19 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
         <div className="game-card-stats flex items-center gap-3 flex-shrink-0">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Eye className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+              <Eye className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               {viewStr}
             </span>
           )}
           {dlStr && (
             <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Download className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+              <Download className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               {dlStr}
             </span>
           )}
           {favStr && (
             <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Heart className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
+              <Heart className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
               {favStr}
             </span>
           )}

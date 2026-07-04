@@ -233,7 +233,7 @@ export function PostDetailModal({
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
         </button>
         <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{post.title}</span>
-        {post.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" strokeWidth={1.5} />}
+        {post.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} />}
       </div>
 
       {/* 内容区 */}
@@ -275,7 +275,7 @@ export function PostDetailModal({
                     className={cn(
                       "flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
                       post.isSolved
-                        ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/20 hover:bg-emerald-500/20"
+                        ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 hover:bg-emerald-500/20"
                         : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
                     )}>
                     <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -291,7 +291,7 @@ export function PostDetailModal({
               )}
               {(isAuthor || isAdmin) && (
                 <button onClick={() => onDelete(post.id)}
-                  className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-500 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
+                  className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20 transition-all hover:bg-red-500/20">
                   <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
                 </button>
               )}

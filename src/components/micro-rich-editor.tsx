@@ -183,7 +183,7 @@ export function MicroRichEditor({
             onClick={removeLink}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
-              "text-red-500 hover:bg-red-500/10 hover:text-red-600"
+              "text-red-400 hover:bg-red-500/10 hover:text-red-600"
             )}
             title="移除链接"
           >

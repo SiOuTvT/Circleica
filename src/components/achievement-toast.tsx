@@ -65,7 +65,7 @@ export function AchievementToast({ achievement, onClose }: Props) {
         onClick={handleClose}
         className="absolute top-0 right-0 z-10 flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary/50"
       >
-        <X className="h-4 w-4" strokeWidth={2.5} />
+        <X className="h-4 w-4" strokeWidth={2} />
       </button>
 
       {/* 左侧：角色立绘 */}
@@ -92,7 +92,7 @@ export function AchievementToast({ achievement, onClose }: Props) {
           {achievement.icon ? (
             <Image src={achievement.icon} alt="" width={16} height={16} className="h-4 w-4 shrink-0" unoptimized />
           ) : (
-            <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2.5} />
+            <Award className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={2} />
           )}
           <span className="text-sm font-bold text-amber-400 tracking-tight leading-none truncate">
             {achievement.name}

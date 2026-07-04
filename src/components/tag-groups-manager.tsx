@@ -505,7 +505,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                     />
                     {group.isPreset && (
                       <span className="text-[10px] text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20 flex items-center gap-1">
-                        <Lock className="w-3 h-3" strokeWidth={2} /> 内置
+                        <Lock className="h-3 w-3" strokeWidth={2} /> 内置
                       </span>
                     )}
                   </div>

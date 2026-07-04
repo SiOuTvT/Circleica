@@ -78,7 +78,7 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
                   category === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-secondary text-muted-foreground ring-border"
                 )}
               >
-                <Icon className="w-3.5 h-3.5" strokeWidth={2} /> {cat.label}
+                <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {cat.label}
               </button>
               )
             })}

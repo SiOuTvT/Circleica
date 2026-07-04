@@ -76,7 +76,7 @@ export interface SubmittedResource {
 /* ─────────── 必填标记 ─────────── */
 
 function RequiredMark() {
-  return <span className="text-red-500 ml-0.5">*</span>
+  return <span className="text-red-400 ml-0.5">*</span>
 }
 
 /* ─────────── 浮动 Popover 多选组件 ─────────── */
@@ -168,7 +168,7 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
                     : "border-foreground/30"
                 )}>
                   {value.includes(opt) && (
-                    <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <svg className="h-3.5 w-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -377,7 +377,7 @@ export function AddResourceDialog({
               !isLoggedIn && "opacity-50 cursor-not-allowed"
             )}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
             添加资源
           </button>
         </DialogTrigger>
@@ -406,7 +406,7 @@ export function AddResourceDialog({
                 onClick={addEntry}
                 className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4" />
                 继续添加链接
               </button>
             </div>
@@ -422,13 +422,13 @@ export function AddResourceDialog({
                     onClick={() => removeEntry(entry.id)}
                     className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 )}
 
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground mb-1.5">
-                    <Link2 className="w-4 h-4 opacity-80" />
+                    <Link2 className="h-4 w-4 opacity-80" />
                     下载地址 <RequiredMark />
                   </label>
                   <input
@@ -499,7 +499,7 @@ export function AddResourceDialog({
                 </label>
                 <PopoverSelect
                   label="选择运行平台"
-                  icon={<Monitor className="w-4 h-4" />}
+                  icon={<Monitor className="h-4 w-4" />}
                   options={tagOptions.platforms}
                   value={platform}
                   onChange={setPlatform}
@@ -511,7 +511,7 @@ export function AddResourceDialog({
                 </label>
                 <PopoverSelect
                   label="选择游戏语言"
-                  icon={<Globe className="w-4 h-4" />}
+                  icon={<Globe className="h-4 w-4" />}
                   options={tagOptions.languages}
                   value={language}
                   onChange={setLanguage}
@@ -520,7 +520,7 @@ export function AddResourceDialog({
             </div>
 
             {submitAttempted && (platform.length === 0 || language.length === 0) && (
-              <p className="text-sm text-red-500 font-medium">请填写上方的平台和语言</p>
+              <p className="text-sm text-red-400 font-medium">请填写上方的平台和语言</p>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -530,7 +530,7 @@ export function AddResourceDialog({
                 </label>
                 <PopoverSelect
                   label="选择运行方式"
-                  icon={<HardDrive className="w-4 h-4" />}
+                  icon={<HardDrive className="h-4 w-4" />}
                   options={tagOptions.runTypes}
                   value={runType}
                   onChange={setRunType}
@@ -542,7 +542,7 @@ export function AddResourceDialog({
                 </label>
                 <PopoverSelect
                   label="选择资源类型"
-                  icon={<FileText className="w-4 h-4" />}
+                  icon={<FileText className="h-4 w-4" />}
                   options={tagOptions.contentTypes}
                   value={resourceContent}
                   onChange={setResourceContent}
@@ -551,7 +551,7 @@ export function AddResourceDialog({
             </div>
 
             {submitAttempted && (runType.length === 0 || resourceContent.length === 0) && (
-              <p className="text-sm text-red-500 font-medium">请填写运行方式和资源内容</p>
+              <p className="text-sm text-red-400 font-medium">请填写运行方式和资源内容</p>
             )}
           </div>
 

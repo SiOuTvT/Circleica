@@ -156,7 +156,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
         <div className="ml-auto flex gap-2">
           {items.length === 0 && (
             <button onClick={() => setShowSeedConfirm(true)} disabled={pending}
-              className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-500 transition-all hover:bg-amber-500/20">
+              className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 transition-all hover:bg-amber-500/20">
               <Sparkles className="h-3.5 w-3.5" /> 初始化预设
             </button>
           )}

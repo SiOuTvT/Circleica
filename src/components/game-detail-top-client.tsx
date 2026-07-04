@@ -100,10 +100,10 @@ export function GameDetailTopClient({
             )}
           >
             {unfavoriting ? (
-              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
             ) : (
               <Heart
-                className="w-4 h-4 sm:w-5 sm:h-5"
+                className="h-4 w-4 sm:h-5 sm:w-5"
                 strokeWidth={2}
                 fill={fav ? "currentColor" : "none"}
               />
@@ -115,7 +115,7 @@ export function GameDetailTopClient({
             onClick={handleShare}
             className={cn(btnBase, "p-2.5 sm:p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
           >
-            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+            <Share2 className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
           </button>
 
           {/* 下载 */}
@@ -127,7 +127,7 @@ export function GameDetailTopClient({
               color: "var(--primary-foreground)",
             }}
           >
-            <Download className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
+            <Download className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
             <span>{downloadLinks.length > 0 ? "下载" : "资源"}</span>
           </button>
         </div>
@@ -166,7 +166,7 @@ export function GameDetailTopClient({
             rel="noopener noreferrer"
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 px-4 text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-primary-foreground"
           >
-            <Download className="w-4 h-4" strokeWidth={2.5} />
+            <Download className="h-4 w-4" strokeWidth={2} />
             下载
           </a>
         )}
@@ -183,10 +183,10 @@ export function GameDetailTopClient({
           )}
         >
           {unfavoriting ? (
-            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           ) : (
             <Heart
-              className="w-4 h-4 transition-colors"
+              className="h-4 w-4 transition-colors"
               strokeWidth={2}
               fill={fav ? "currentColor" : "none"}
               style={fav ? { filter: "drop-shadow(0 1px 2px rgba(231,76,111,0.4))" } : undefined}
@@ -199,7 +199,7 @@ export function GameDetailTopClient({
           onClick={handleShare}
           className="flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-colors bg-secondary border border-border/70 text-muted-foreground"
         >
-          <Share2 className="w-4 h-4" strokeWidth={2} />
+          <Share2 className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
 

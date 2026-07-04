@@ -125,7 +125,7 @@ export default function AdminAchievementsPage() {
           <p className="mt-1 text-sm text-muted-foreground">管理用户可解锁的成就</p>
         </div>
         <button onClick={startCreate} className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90">
-          <Plus className="h-4 w-4" strokeWidth={2.5} />
+          <Plus className="h-4 w-4" strokeWidth={2} />
           新建成就
         </button>
       </div>

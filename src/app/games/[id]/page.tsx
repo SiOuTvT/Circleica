@@ -314,15 +314,15 @@ export default async function GameDetailPage({
               {/* ④ 人气数据 */}
               <div className="flex items-center gap-4 sm:gap-5 pt-3 sm:pt-4 mt-2 sm:mt-3 border-t border-border/40">
                 <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
-                  <Eye className="w-4 h-4" />
+                  <Eye className="h-4 w-4" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
-                  <Download className="w-4 h-4" />
+                  <Download className="h-4 w-4" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-sm sm:text-base text-muted-foreground">
-                  <Heart className="w-4 h-4" />
+                  <Heart className="h-4 w-4" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
                 <FeedbackBtn gameId={resolved.id} isLoggedIn={!!session} />

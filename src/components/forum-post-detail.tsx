@@ -241,7 +241,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
             )}
             {post.isLocked && (
               <Tag color="#f43f5e" className="gap-1">
-                <Lock className="w-3.5 h-3.5" strokeWidth={2} /> 已锁定
+                <Lock className="h-3.5 w-3.5" strokeWidth={2} /> 已锁定
               </Tag>
             )}
           </div>

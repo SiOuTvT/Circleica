@@ -35,11 +35,11 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  scenario: "bg-amber-500/15 text-amber-500",
+  scenario: "bg-amber-500/15 text-amber-400",
   art: "bg-pink-500/15 text-pink-500",
   chardesign: "bg-violet-500/15 text-violet-500",
   music: "bg-blue-500/15 text-blue-500",
-  songs: "bg-emerald-500/15 text-emerald-500",
+  songs: "bg-emerald-500/15 text-emerald-400",
   director: "bg-indigo-500/15 text-indigo-500",
   other: "bg-muted text-muted-foreground",
 }

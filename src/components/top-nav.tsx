@@ -258,12 +258,12 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
             aria-label="切换侧边栏"
           >
-            <Menu className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+            <Menu className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
           </button>
 
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+              <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
             </Link>
 
             {user && <NotificationBell />}
@@ -273,13 +273,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
               title="论坛"
             >
-              <MessageSquare className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
+              <MessageSquare className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
             </button>
 
             <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
-                : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
-                : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />}
+              {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />}
             </button>
 
             {user ? (
@@ -314,7 +314,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                     {/* 印记信息区 */}
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
                       <span className="text-sm text-muted-foreground">印记</span>
-                      <span className="text-lg font-bold text-amber-500">{totalMarks}</span>
+                      <span className="text-lg font-bold text-amber-400">{totalMarks}</span>
                     </div>
 
                     {/* 功能菜单 */}
