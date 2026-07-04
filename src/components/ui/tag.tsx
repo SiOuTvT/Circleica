@@ -72,19 +72,19 @@ const variantStyles: Record<TagVariant, string> = {
 
 /**
  * 生成标签的内联颜色样式
+ * 使用 CSS color-mix 确保文字颜色有足够的对比度
  */
 function tagColorStyle(color?: string, variant?: TagVariant): React.CSSProperties | undefined {
   if (!color) return undefined
   if (variant === "badge") {
-    // badge 用更深的背景
     return {
       backgroundColor: `${color}20`,
-      color,
+      color: `color-mix(in srgb, ${color} 85%, #000)`,
     }
   }
   return {
     backgroundColor: `${color}18`,
-    color,
+    color: `color-mix(in srgb, ${color} 80%, #000)`,
     border: `1px solid ${color}30`,
   }
 }

@@ -137,9 +137,9 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
               {ann.title}
-            </h3>
+            </h2>
             {showNew && (
               <span
                 className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white"

@@ -70,7 +70,6 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      aria-label={`查看游戏：${game.title}`}
       className="game-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         try { sessionStorage.setItem(`pending_view_${game.id}`, "1") } catch {}

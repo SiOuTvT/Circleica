@@ -262,7 +262,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
           </button>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/search" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+            <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2.5} />
             </Link>
 
