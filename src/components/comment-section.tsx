@@ -275,7 +275,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                 {showEmoji && (
                   <>
                     <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowEmoji(false)} />
-                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card bg-card p-3 ring-1 ring-border shadow-2xl">
+                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-xs font-medium text-foreground">选择表情</p>
                         <button type="button" onClick={() => setShowEmoji(false)}

@@ -1,6 +1,6 @@
 "use client"
 
-import { Crop, RotateCw, ZoomIn, ZoomOut } from "lucide-react"
+import { Crop, Loader2, RotateCw, ZoomIn, ZoomOut } from "lucide-react"
 import { useCallback, useState } from "react"
 import Cropper from "react-easy-crop"
 
@@ -110,7 +110,7 @@ export function CropDialog({ cropSrc, aspectRatio, shape, onConfirm, onCancel }:
         <div className="mt-5 flex items-center justify-end gap-2">
           <button type="button" onClick={onCancel} className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">取消</button>
           <button type="button" onClick={handleConfirm} disabled={isCropping} className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60 bg-primary">
-            {isCropping ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Crop className="h-4 w-4" />}
+            {isCropping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crop className="h-4 w-4" />}
             {isCropping ? "处理中…" : "确认裁剪"}
           </button>
         </div>
