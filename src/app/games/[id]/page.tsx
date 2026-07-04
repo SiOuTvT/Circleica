@@ -294,7 +294,7 @@ export default async function GameDetailPage({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm sm:text-base lg:text-lg font-medium sm:font-semibold text-foreground/80 sm:text-foreground truncate">
+                  <p className="text-xs sm:text-sm font-medium text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{timeAgo}</p>

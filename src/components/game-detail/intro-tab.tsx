@@ -235,17 +235,12 @@ function CreatorsSection({
 }: {
   creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
-  const [defaultOpen, setDefaultOpen] = useState(false)
-  useEffect(() => {
-    setDefaultOpen(window.innerWidth >= 1024)
-  }, [])
-
   return (
     <CollapsibleCard
       icon={<Users className="h-4 w-4 opacity-60" />}
       label="制作人员"
       count={creators.length}
-      defaultOpen={defaultOpen}
+      defaultOpen={true}
     >
       <CreatorsGrid creators={creators} />
     </CollapsibleCard>
