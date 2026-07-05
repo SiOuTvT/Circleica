@@ -65,10 +65,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-background">
       <AdminNav />
       {/* 桌面端：左边距为侧边栏留空间（收缩 68px / 展开 220px） */}
-      <main className="admin-main min-h-screen pt-14 md:pt-0 md:pl-[220px] transition-[padding] duration-300 ease-in-out">
+      <main className="admin-main min-h-screen pt-12 md:pt-0 md:pl-[220px] transition-[padding] duration-300 ease-in-out">
         {/* 全局搜索：隐藏触发按钮，保留 Ctrl+K 快捷键和 Dialog */}
         <div className="sr-only"><AdminGlobalSearch /></div>
-        <div className="mx-auto w-full max-w-[1400px] px-4 py-4 sm:px-8 sm:py-5">
+        <div className="mx-auto w-full max-w-[1400px] px-4 pt-0 pb-2 sm:px-8 sm:pb-3">
           {children}
         </div>
       </main>
