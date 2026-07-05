@@ -373,7 +373,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
       {/* 草稿恢复提示 */}
       {showDraftBanner && (
-        <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 ring-1 ring-amber-500/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 ring-1 ring-amber-500/20">
           <span>检测到未保存的草稿「{draft.title || "无标题"}」，是否恢复？</span>
           <div className="flex shrink-0 gap-2">
             <button type="button" onClick={restoreDraft}
@@ -613,7 +613,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       {/* 发布设置 */}
       <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
         <h2 className="text-base font-semibold text-foreground">发布设置</h2>
-        <div className="flex gap-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
           <div className="shrink-0">
             <label className={labelCls}>封面图</label>
             <ImageUpload
@@ -622,10 +622,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               aspectRatio={3 / 2}
               maxSizeMB={5}
               placeholder="上传封面"
-              className="w-[200px] sm:w-[240px]"
+              className="w-full sm:w-[240px]"
             />
           </div>
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 space-y-3 min-w-0">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className={labelCls}>VNDB ID</label>

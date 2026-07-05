@@ -71,7 +71,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
             </div>
 
             {/* 删除按钮 */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <CreatorDeleteBtn id={creator.id} />
             </div>
           </div>

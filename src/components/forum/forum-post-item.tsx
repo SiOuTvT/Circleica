@@ -39,16 +39,16 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
   return (
     <Link href={`/forum/${post.id}`}
       className="game-card block rounded-2xl bg-card p-4 sm:p-5 ring-1 ring-border transition-all hover:ring-primary/30">
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5 min-w-0">
         <Avatar user={post.user} size={7} />
-        <span className="text-sm text-muted-foreground">{post.user.username}</span>
-        <span className="text-xs text-muted-foreground/60">·</span>
-        <span className="text-xs text-muted-foreground/60">{fmtDate(post.createdAt)}</span>
+        <span className="text-sm text-muted-foreground truncate">{post.user.username}</span>
+        <span className="text-xs text-muted-foreground/60 shrink-0">·</span>
+        <span className="text-xs text-muted-foreground/60 shrink-0">{fmtDate(post.createdAt)}</span>
         {post.updatedAt !== post.createdAt && (
-          <span className="text-[10px] text-muted-foreground/50">(已编辑)</span>
+          <span className="text-[10px] text-muted-foreground/50 shrink-0">(已编辑)</span>
         )}
         <Tag variant="badge" className={cn(
-          "ml-auto",
+          "ml-auto shrink-0",
           post.category === "discussion" ? "bg-blue-500/10 text-blue-400" :
           post.category === "help" ? "bg-amber-500/10 text-amber-400" :
           post.category === "resource" ? "bg-emerald-500/10 text-emerald-400" :

@@ -46,15 +46,15 @@ export default async function AdminGamesPage({
   return (
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">游戏管理</h1>
           <p className="text-sm text-muted-foreground mt-1">
             共 {total} 个游戏，{published} 已发布，{draft} 草稿
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <form method="get" className="relative">
+        <div className="flex flex-wrap items-center gap-2">
+          <form method="get" className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索游戏…" aria-label="搜索游戏"
               className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-56" />
@@ -63,14 +63,14 @@ export default async function AdminGamesPage({
             href="/admin/games/import"
             className="flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:ring-primary/40"
           >
-            <Download className="h-4 w-4" strokeWidth={2} />
+            <Download className="h-4 w-4 shrink-0" strokeWidth={2} />
             VNDB 导入
           </Link>
           <Link
             href="/admin/games/new"
             className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
           >
-            <Plus className="h-4 w-4" strokeWidth={2} />
+            <Plus className="h-4 w-4 shrink-0" strokeWidth={2} />
             新增游戏
           </Link>
         </div>

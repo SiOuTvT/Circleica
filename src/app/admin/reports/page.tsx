@@ -128,7 +128,7 @@ export default async function AdminReportsPage({
           {reports.map((report) => (
             <div
               key={report.id}
-              className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              className="group flex items-start sm:items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {report.game.coverImage ? (
@@ -139,7 +139,7 @@ export default async function AdminReportsPage({
                   </div>
                 )}
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/admin/games/${report.game.serialId}`}
@@ -153,10 +153,10 @@ export default async function AdminReportsPage({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground break-all">
                   举报IP: <span className="font-mono">{report.ip}</span> · {new Date(report.createdAt).toLocaleString("zh-CN")}
                   {report.reason && (
-                    <> · <span className="text-destructive">{report.reason}</span></>
+                    <> · <span className="text-destructive break-words">{report.reason}</span></>
                   )}
                 </p>
               </div>

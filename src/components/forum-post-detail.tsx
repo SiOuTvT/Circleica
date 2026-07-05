@@ -259,7 +259,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
         </div>
 
         {/* 操作栏 */}
-        <div className="border-t border-border px-6 py-3 md:px-8 flex items-center gap-1">
+        <div className="border-t border-border px-4 py-3 sm:px-6 md:px-8 flex flex-wrap items-center gap-1">
           <button onClick={likePost} disabled={!isLoggedIn}
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-red-400 hover:bg-red-500/5 disabled:opacity-40">
             <Heart className="h-4 w-4" strokeWidth={1.5} />{post.likeCount}
@@ -271,7 +271,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary">
             <Share2 className="h-4 w-4" strokeWidth={1.5} />分享
           </button>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex flex-wrap items-center gap-1">
             {isAuthor && (
               <>
                 <button onClick={toggleSolve}
@@ -352,7 +352,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                         className="rounded-lg object-cover ring-1 ring-border max-h-40 hover:ring-primary/30 transition-all" unoptimized />
                     </a>
                   )}
-                  <div className="mt-2 flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="mt-2 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setReplyTo(`@${c.user.username} `); commentInputRef.current?.focus() }}
                       className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors hover:bg-secondary">
                       回复
@@ -412,20 +412,21 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
 
               <div className="flex items-center gap-2">
                 {/* 工具按钮 */}
-                <button type="button" onClick={() => commentFileRef.current?.click()}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground shrink-0">
-                  <ImageIcon className="h-4 w-4" strokeWidth={1.5} />
-                </button>
-                <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={handleCommentImage} />
-
-                <div className="relative">
-                  <button type="button" onClick={() => setShowEmoji(!showEmoji)}
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-lg transition-colors shrink-0",
-                      showEmoji ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    )}>
-                    <Smile className="h-4 w-4" strokeWidth={1.5} />
+                <div className="flex items-center gap-1 shrink-0">
+                  <button type="button" onClick={() => commentFileRef.current?.click()}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+                    <ImageIcon className="h-4 w-4" strokeWidth={1.5} />
                   </button>
+                  <input ref={commentFileRef} type="file" accept="image/*" className="hidden" onChange={handleCommentImage} />
+
+                  <div className="relative">
+                    <button type="button" onClick={() => setShowEmoji(!showEmoji)}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        showEmoji ? "bg-secondary text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      )}>
+                      <Smile className="h-4 w-4" strokeWidth={1.5} />
+                    </button>
                   {showEmoji && (
                     <>
                       <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowEmoji(false)} />
@@ -441,6 +442,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
                       </div>
                     </>
                   )}
+                </div>
                 </div>
 
                 <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)}

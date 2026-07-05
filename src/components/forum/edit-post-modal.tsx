@@ -41,8 +41,8 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl bg-card p-6 ring-1 ring-border">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-t-2xl sm:rounded-2xl bg-card p-5 sm:p-6 ring-1 ring-border max-h-[90dvh] overflow-y-auto">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground">编辑帖子</h2>
           <button onClick={onClose} aria-label="关闭" className="text-muted-foreground hover:text-foreground transition-colors">

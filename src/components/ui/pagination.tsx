@@ -58,7 +58,7 @@ export function Pagination({ currentPage, totalPages, baseUrl, extraParams }: Pa
   const pages = getPageNumbers(currentPage, totalPages)
 
   return (
-    <nav aria-label="分页" className="flex items-center justify-center gap-1.5">
+    <nav aria-label="分页" className="flex items-center justify-center gap-1.5 overflow-x-auto scrollbar-hide py-1">
       {/* 上一页 */}
       {currentPage > 1 && (
         <Link
