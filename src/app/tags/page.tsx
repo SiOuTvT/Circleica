@@ -4,6 +4,7 @@ import { TagCloud } from "@/components/tags/tag-cloud"
 import { TagCategory } from "@/components/tags/tag-category"
 import { TagIndex } from "@/components/tags/tag-index"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tag } from "lucide-react"
 
 import type { Metadata } from "next"
 
@@ -27,8 +28,8 @@ export default async function TagsPage() {
     <div className="space-y-6">
       {/* 页头 */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          🏷️ 标签浏览
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Tag className="h-6 w-6" strokeWidth={2} /> 标签浏览
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           通过标签发现游戏，共 {data.stats.totalTags} 个标签，{data.stats.totalGames} 部游戏
