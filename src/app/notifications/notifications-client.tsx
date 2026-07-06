@@ -7,7 +7,7 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface NotificationItem {
   id: string
@@ -89,9 +89,11 @@ export default function NotificationsClient({
   const [showReadConfirm, setShowReadConfirm] = useState(false)
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null)
 
-  // 进入页面时标记所有为已读
+  // 进入页面时标记所有为已读（使用 ref 保证仅执行一次，同时读取最新的 unreadCount）
+  const hasMarkedAllRead = useRef(false)
   useEffect(() => {
-    if (unreadCount > 0) {
+    if (!hasMarkedAllRead.current && unreadCount > 0) {
+      hasMarkedAllRead.current = true
       fetch("/api/notifications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,8 +103,7 @@ export default function NotificationsClient({
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
       }).catch(() => {})
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [unreadCount])
 
   const fetchMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return

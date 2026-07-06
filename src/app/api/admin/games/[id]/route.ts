@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache } from "@/lib/redis"
+import { Prisma } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 type Ctx = { params: Promise<{ id: string }> }
@@ -105,10 +106,8 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       originalWork: originalWork?.trim() ?? "",
       description: description?.trim() ?? "",
       coverImage: coverImage ?? "",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      screenshots: (screenshots ?? []) as any,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      downloadLinks: (downloadLinks ?? []) as any,
+      screenshots: (screenshots ?? []) as Prisma.InputJsonValue,
+      downloadLinks: (downloadLinks ?? []) as Prisma.InputJsonValue,
       status: status ?? "完结",
       isNsfw: !!isNsfw,
       vndbId: vndbId ?? "",

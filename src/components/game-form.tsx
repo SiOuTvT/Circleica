@@ -24,6 +24,7 @@ interface Props {
     tagIds: string[]
     releaseDate?: string; gameDuration?: string; studioName?: string
     englishName?: string; aliases?: string
+    creators?: Array<{ vndbId: string; name: string; nameJa: string; role: string }>
   }
 }
 
@@ -89,8 +90,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
   // 创作者（VNDB 拉取或手动添加）
   const [creators, setCreators] = useState<Array<{ vndbId: string; name: string; nameJa: string; role: string }>>(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (initialData as any)?.creators ?? []
+    initialData?.creators ?? []
   )
 
   // 标签搜索

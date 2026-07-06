@@ -29,15 +29,16 @@ export function MusicPlayer() {
     return () => controller.abort()
   }, [isSuperAdmin])
 
-  // 切换曲目时加载
+  // 切换曲目时加载（使用 playingRef 避免将 playing 加入 deps 导致循环）
+  const playingRef = useRef(playing)
+  useEffect(() => { playingRef.current = playing }, [playing])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !tracks[cur]) return
-    const wasPlaying = playing
     audio.src = tracks[cur].url
     audio.load()
-    if (wasPlaying) audio.play().catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (playingRef.current) audio.play().catch(() => {})
   }, [cur, tracks])
 
   function togglePlay() {
