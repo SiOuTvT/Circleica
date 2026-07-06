@@ -1,7 +1,7 @@
 services:
   # ── PostgreSQL ──────────────────────────────────────
   # 默认内置，零配置即可使用
-  # 如使用外部数据库，启动时加 app: docker compose up -d app
+  # 如使用外部数据库，启动时只启动 app: docker compose up -d app
   db:
     image: postgres:16-alpine
     container_name: fangame-db
@@ -19,9 +19,8 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
-    # 仅监听 127.0.0.1，不对局域网暴露
-    ports:
-      - "127.0.0.1:5432:5432"
+    networks:
+      - fangame
 
   # ── Fangame 应用 ────────────────────────────────────
   app:
@@ -34,9 +33,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    network_mode: host
+    ports:
+      - "${APP_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://fangame:fangame@localhost:5432/fangame}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://fangame:fangame@db:5432/fangame}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-}
       PORT: "3000"
@@ -59,6 +59,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    networks:
+      - fangame
+
+networks:
+  fangame:
 
 volumes:
   pg_data:
