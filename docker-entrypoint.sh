@@ -6,12 +6,8 @@ G='\033[0;32m'
 Y='\033[1;33m'
 R='\033[0;31m'
 B='\033[1m'
+D='\033[2m'
 N='\033[0m'
-
-echo ""
-printf "${C}${B}  同人游戏站 · Fangame${N}\n"
-echo "  ─────────────────────────────"
-echo ""
 
 # ── 密钥管理 ─────────────────────────
 SECRET_FILE="/app/.secret"
@@ -19,15 +15,12 @@ SECRET_FILE="/app/.secret"
 if [ -z "$NEXTAUTH_SECRET" ]; then
   if [ -f "$SECRET_FILE" ]; then
     export NEXTAUTH_SECRET=$(cat "$SECRET_FILE")
-    printf "  ${G}✓${N} NEXTAUTH_SECRET 已从持久化文件加载\n"
   else
     NEW_SECRET=$(openssl rand -base64 48)
     echo "$NEW_SECRET" > "$SECRET_FILE"
     chmod 600 "$SECRET_FILE" 2>/dev/null || true
     export NEXTAUTH_SECRET="$NEW_SECRET"
-    printf "  ${G}✓${N} NEXTAUTH_SECRET 已自动生成并保存到 ${SECRET_FILE}\n"
-    printf "  ${Y}!${N} 提示: 未显式设置密钥，容器重建后用户需重新登录\n"
-    printf "  ${Y}  ${N} 建议在 .env 中设置 NEXTAUTH_SECRET 以保持会话稳定\n"
+    printf "  ${Y}!${N} NEXTAUTH_SECRET 已自动生成，容器重建后用户需重新登录\n"
   fi
 fi
 
@@ -47,7 +40,6 @@ if [ -n "$DB_HOST" ]; then
   RETRY=0
   while [ $RETRY -lt $MAX_RETRIES ]; do
     if bash -c "echo > /dev/tcp/${DB_HOST}/${DB_PORT}" 2>/dev/null; then
-      printf "  ${G}✓${N} 数据库连接成功 (${DB_HOST}:${DB_PORT})\n"
       break
     fi
     RETRY=$((RETRY + 1))
@@ -66,24 +58,56 @@ fi
 PRISMA="./node_modules/prisma/build/index.js"
 
 # ── 数据库迁移 ───────────────────────
-if node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma >/dev/null 2>&1; then
-  printf "  ${G}✓${N} 数据库迁移完成\n"
-else
-  printf "  ${R}✗${N} 数据库迁移失败\n"
-  printf "  ${Y}!${N} 正在输出详细错误信息...\n"
+if ! node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma >/dev/null 2>&1; then
+  printf "  ${R}✗${N} 数据库迁移失败，正在输出详细错误信息...\n"
   echo ""
   node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1
   exit 1
 fi
 
-# ── 启动信息 ─────────────────────────
-echo ""
-printf "  ${G}${B}════════════════════════════════════${N}\n"
-printf "  ${G}${B}  服务已启动${N}\n"
-printf "  ${G}${B}════════════════════════════════════${N}\n"
-
+# ── 状态面板 ─────────────────────────
 APP_URL="${NEXTAUTH_URL:-http://localhost:3000}"
-printf "  ${B}访问地址:${N} ${APP_URL}\n"
+
+echo ""
+printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+printf "${C}${B} Fangame 已启动成功！${N}\n"
+printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+echo ""
+printf "  ${B}访问地址:${N}\n"
+printf "  ${G}${APP_URL}${N}\n"
+echo ""
+printf "  ${B}管理员:${N}\n"
+printf "  首次注册账号将自动成为 ${G}SUPER_ADMIN${N}\n"
+echo ""
+printf "  ${B}数据库:${N}\n"
+printf "  ${G}✓ PostgreSQL 已连接${N}\n"
+
+# Redis
+printf "  ${B}Redis:${N}\n"
+if [ -n "$UPSTASH_REDIS_REST_URL" ] && [ -n "$UPSTASH_REDIS_REST_TOKEN" ]; then
+  printf "  ${G}✓ 已连接${N}\n"
+else
+  printf "  ${Y}⚠ 未配置，已自动降级为内存模式${N}\n"
+fi
+
+# 对象存储
+printf "  ${B}对象存储:${N}\n"
+if [ -n "$R2_BUCKET_NAME" ] && [ -n "$R2_ACCOUNT_ID" ]; then
+  printf "  ${G}✓ Cloudflare R2${N}\n"
+else
+  printf "  ${Y}⚠ 未配置，使用本地存储${N}\n"
+fi
+
+# 邮件
+printf "  ${B}邮件:${N}\n"
+if [ -n "$RESEND_API_KEY" ]; then
+  printf "  ${G}✓ Resend 已配置${N}\n"
+else
+  printf "  ${Y}⚠ 未配置，邮件功能不可用${N}\n"
+fi
+
+echo ""
+printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 echo ""
 
 export NODE_ENV=production
