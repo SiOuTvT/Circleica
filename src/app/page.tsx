@@ -6,7 +6,7 @@ import { buildGameSearchFilter } from "@/lib/filters"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
-import { getSiteSetting } from "@/lib/site-settings"
+import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
 import Link from "next/link"
 import { Suspense } from "react"
 
@@ -115,6 +115,9 @@ export default async function HomePage({
   let announcements: { id: string; title: string; content: string; imageUrl: string; link: string; createdAt: string; authorName: string; authorAvatar: string }[] = []
   let dbError = false
 
+  // 获取站点品牌信息
+  const [siteName, siteDesc] = await Promise.all([getSiteName(), getSiteDescription()])
+
   // 统计数据缓存 key（按日期和 nsfw 状态区分）
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -188,7 +191,7 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pt-4">
-      <h1 className="sr-only">同人游戏站 · 资源大厅</h1>
+      <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
       {/* Hero + 手机端随机按钮 — 紧密组合 */}
       <div className="flex flex-col gap-4 sm:gap-5">
@@ -197,8 +200,8 @@ export default async function HomePage({
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
-                <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">同人游戏站</h2>
-                <p className="text-base text-muted-foreground mt-2">GalGame 同人世界的一站式入口</p>
+                <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>
+                <p className="text-base text-muted-foreground mt-2">{siteDesc || "GalGame 同人世界的一站式入口"}</p>
               </div>
               {/* 统计行 */}
               <div className="flex gap-6">

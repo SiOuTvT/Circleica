@@ -1,10 +1,12 @@
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
+import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo } from "@/lib/site-settings"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
 import { Noto_Sans_SC } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
+import { SetupWizard } from "@/components/setup-wizard"
 import "./globals.css"
 
 const notoSans = Noto_Sans_SC({
@@ -24,41 +26,71 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: "同人游戏站 · 资源大厅",
-    template: "%s · 同人游戏站",
-  },
-  description: "东方、月姬、Fate 等同人游戏资源一站式体验，提供下载、评论、收藏等功能",
-  keywords: ["同人游戏", "东方Project", "月姬", "Fate", "同人", "二次元游戏", "Galgame"],
-  authors: [{ name: "同人游戏站" }],
-  creator: "同人游戏站",
-  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
-  openGraph: {
-    type: "website",
-    locale: "zh_CN",
-    siteName: "同人游戏站",
-    title: "同人游戏站 · 资源大厅",
-    description: "东方、月姬、Fate 等同人游戏资源一站式体验",
-    images: ["/opengraph-image"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "同人游戏站 · 资源大厅",
-    description: "东方、月姬、Fate 等同人游戏资源一站式体验",
-    images: ["/opengraph-image"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
-  alternates: {
-    canonical: "/",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteName, siteDesc, siteLogo] = await Promise.all([
+    getSiteName(),
+    getSiteDescription(),
+    getSiteLogo(),
+  ])
+
+  const ogImages = siteLogo ? [siteLogo] : ["/opengraph-image"]
+
+  return {
+    title: {
+      default: `${siteName} · 资源大厅`,
+      template: `%s · ${siteName}`,
+    },
+    description: siteDesc,
+    keywords: ["同人游戏", "东方Project", "月姬", "Fate", "同人", "二次元游戏", "Galgame"],
+    authors: [{ name: siteName }],
+    creator: siteName,
+    metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+    openGraph: {
+      type: "website",
+      locale: "zh_CN",
+      siteName,
+      title: `${siteName} · 资源大厅`,
+      description: siteDesc,
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${siteName} · 资源大厅`,
+      description: siteDesc,
+      images: ogImages,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true },
+    },
+    alternates: {
+      canonical: "/",
+    },
+  }
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const initialized = await isSiteInitialized()
+
+  // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard
+  // 这样 Setup 中的 signIn() 可以正常工作
+  if (!initialized) {
+    return (
+      <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable}`} suppressHydrationWarning>
+        <head><ThemeScript /></head>
+        <body className="min-h-screen bg-background text-foreground">
+          <Providers>
+            <div className="min-h-screen flex items-center justify-center p-4">
+              <SetupWizard />
+            </div>
+          </Providers>
+        </body>
+      </html>
+    )
+  }
+
+  const siteName = await getSiteName()
 
   return (
     <html lang="zh-CN" className={`h-full antialiased ${notoSans.variable}`} suppressHydrationWarning>
@@ -79,7 +111,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           zIndex={9999}
         />
         <Providers>
-          <LayoutWrapper>
+          <LayoutWrapper siteName={siteName}>
             {children}
           </LayoutWrapper>
         </Providers>

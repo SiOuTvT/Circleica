@@ -23,7 +23,7 @@ const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
 const RIGHT_W = 260         // 右侧栏正常宽度
 const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
 
-export function LayoutWrapper({ children }: { children: React.ReactNode }) {
+export function LayoutWrapper({ children, siteName = "Fangame" }: { children: React.ReactNode; siteName?: string }) {
   const pathname = usePathname()
   useOnlineStatus()
   useKeyboardShortcuts()
@@ -140,7 +140,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             </div>
             <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
               <div className="mx-auto max-w-[1140px] px-4">
-                <p>同人游戏站 · 资源大厅</p>
+                <p>{siteName} · 资源大厅</p>
                 <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
                 <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
                   <a href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">关于我们</a>

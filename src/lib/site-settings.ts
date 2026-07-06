@@ -56,3 +56,42 @@ export async function updateSiteSettings(data: Record<string, unknown>): Promise
   revalidateTag("site-settings", "max")
   return getSiteSettings()
 }
+
+/**
+ * 检测站点是否已完成初始化
+ * 优先检查 initialized 标记，向后兼容检查用户表
+ */
+export const isSiteInitialized = unstable_cache(
+  async (): Promise<boolean> => {
+    try {
+      const setting = await prisma.siteSetting.findUnique({
+        where: { key: "initialized" },
+        select: { value: true },
+      })
+      if (setting?.value === "true") return true
+      // 向后兼容：已部署实例无 initialized 标记但已有用户
+      const userCount = await prisma.user.count()
+      return userCount > 0
+    } catch {
+      return false
+    }
+  },
+  ["site-initialized"],
+  { revalidate: 300, tags: ["site-settings"] }
+)
+
+/** 获取站点名称（带缓存） */
+export async function getSiteName(): Promise<string> {
+  return getSiteSetting("site_name", "Fangame")
+}
+
+/** 获取站点描述（带缓存） */
+export async function getSiteDescription(): Promise<string> {
+  return getSiteSetting("site_description", "Galgame/视觉小说社区平台")
+}
+
+/** 获取站点 Logo URL，未配置返回 null */
+export async function getSiteLogo(): Promise<string | null> {
+  const url = await getSiteSetting("site_logo", "")
+  return url || null
+}

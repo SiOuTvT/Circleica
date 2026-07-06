@@ -1,4 +1,4 @@
-import { badRequest, conflict, created, handleZodError, serverError } from "@/lib/api-response"
+import { badRequest, conflict, created, forbidden, handleZodError, serverError } from "@/lib/api-response"
 import { logger } from "@/lib/logger"
 import { withRateLimit } from "@/lib/middleware"
 import { prisma } from "@/lib/prisma"
@@ -18,6 +18,18 @@ async function handleRegister(req: NextRequest) {
   const { username, email, password } = parsed.data
 
   try {
+    // 检查注册是否开放（第一个用户注册时跳过此检查，兼容 Setup 流程）
+    const userCount = await prisma.user.count()
+    if (userCount > 0) {
+      const regSetting = await prisma.siteSetting.findUnique({
+        where: { key: "registration_enabled" },
+        select: { value: true },
+      })
+      if (regSetting?.value === "false") {
+        return forbidden("注册已关闭，请联系管理员")
+      }
+    }
+
     const exists = await prisma.user.findFirst({
       where: { OR: [{ username }, { email }] },
     })
@@ -29,8 +41,7 @@ async function handleRegister(req: NextRequest) {
 
     const hashed = await bcrypt.hash(password, 10)
 
-    // 第一个注册的用户自动成为站长
-    const userCount = await prisma.user.count()
+    // 第一个注册的用户自动成为站长（兼容未使用 Setup 的部署）
     const role = userCount === 0 ? "SUPER_ADMIN" : "USER"
 
     const user = await prisma.user.create({
