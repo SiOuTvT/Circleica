@@ -2,6 +2,7 @@
 
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
+import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -504,9 +505,9 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       autoFocus
                     />
                     {group.isPreset && (
-                      <span className="text-micro text-amber-400/80 bg-amber-500/10 rounded-full px-2 py-0.5 ring-1 ring-amber-500/20 flex items-center gap-1">
+                      <Badge variant="warning" size="sm">
                         <Lock className="h-3 w-3" strokeWidth={2} /> 内置
-                      </span>
+                      </Badge>
                     )}
                   </div>
                   <input
@@ -552,9 +553,9 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       <div className="h-4 w-4 shrink-0 rounded-full" style={{ background: group.color }} />
                       <span className="text-base font-semibold text-foreground">{group.name}</span>
                       {group.isPreset && (
-                        <span className="shrink-0 text-micro text-amber-400/80 bg-amber-500/10 rounded-full px-1.5 py-0.5 ring-1 ring-amber-500/20">
+                        <Badge variant="warning" size="sm">
                           内置
-                        </span>
+                        </Badge>
                       )}
                       {group.description && (
                         <span className="text-xs text-muted-foreground truncate hidden sm:inline">
@@ -604,13 +605,9 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         const def = TAG_POSITIONS.find((p) => p.key === posKey)
                         if (!def) return null
                         return (
-                          <span
-                            key={posKey}
-                            className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-micro font-medium bg-secondary text-muted-foreground ring-1 ring-border"
-                            title={def.description}
-                          >
+                          <Badge variant="secondary" size="sm" title={def.description}>
                             {def.icon} {def.label}
-                          </span>
+                          </Badge>
                         )
                       })}
                     </div>

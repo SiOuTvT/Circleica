@@ -3,6 +3,7 @@
 import { ChevronDown, ExternalLink, FolderInput, List, Loader2 } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
+import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -230,9 +231,9 @@ export function TagsOverviewClient({
                   {g.positions.map((pos) => {
                     const def = TAG_POSITIONS.find((p) => p.key === pos)
                     return def ? (
-                      <span key={pos} className="text-micro bg-secondary/80 rounded-full px-2 py-0.5 text-muted-foreground">
+                      <Badge key={pos} variant="secondary" size="sm">
                         {def.label}
-                      </span>
+                      </Badge>
                     ) : null
                   })}
                 </div>

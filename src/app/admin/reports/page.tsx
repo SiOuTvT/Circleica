@@ -108,8 +108,10 @@ export default async function AdminReportsPage({
                   className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                 >
                   <span className="truncate max-w-[150px]">{game.title}</span>
-                  <span className="shrink-0 rounded-full bg-red-500/15 px-1.5 py-0.5 text-micro font-bold text-red-400">
-                    {item._count.id}
+                  <span className="shrink-0">
+                    <Badge variant="destructive" size="sm">
+                      {item._count.id}
+                    </Badge>
                   </span>
                 </Link>
               )

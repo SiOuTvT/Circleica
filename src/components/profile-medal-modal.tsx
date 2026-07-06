@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { Tag } from "@/components/ui/tag"
+import { Badge } from "@/components/ui/badge"
 
 interface Medal {
   id: string
@@ -167,9 +168,9 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
             <Award className="h-4 w-4 text-amber-400" strokeWidth={2} />
             勋章墙
           </div>
-          <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-400">
+          <Badge variant="warning" size="sm">
             {earnedMedals.length}
-          </span>
+          </Badge>
         </button>
       )}
 

@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -141,12 +142,13 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
               {ann.title}
             </h2>
             {showNew && (
-              <span
-                className="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-micro font-bold tracking-wider text-white"
-                style={{ background: "var(--primary)" }}
+              <Badge
+                variant="default"
+                size="sm"
+                className="tracking-wider"
               >
                 NEW
-              </span>
+              </Badge>
             )}
           </div>
 

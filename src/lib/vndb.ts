@@ -142,7 +142,8 @@ class VNDBClient {
   /**
    * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<{ results: Record<string, unknown>[]; more: boolean }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<any> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
       const remaining = Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000)

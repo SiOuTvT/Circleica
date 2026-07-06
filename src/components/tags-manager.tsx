@@ -1,6 +1,7 @@
 "use client"
 
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
+import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -207,10 +208,10 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground truncate">{tag.name}</span>
                     {tag.groupName && (
-                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-micro font-medium text-primary ring-1 ring-primary/20">{tag.groupName}</span>
+                      <Badge variant="default" size="sm">{tag.groupName}</Badge>
                     )}
                     {tag.isVisible === false && (
-                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-micro font-medium text-muted-foreground">隐藏</span>
+                      <Badge variant="secondary" size="sm">隐藏</Badge>
                     )}
                   </div>
                   {tag.description && <p className="text-xs text-muted-foreground truncate mt-0.5">{tag.description}</p>}

@@ -2,6 +2,7 @@
 
 import { ArrowLeft, Layers, Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
+import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -148,15 +149,12 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
                   <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
                   <span className="flex-1 text-sm text-foreground truncate">{tag.name}</span>
                   {!tag.isVisible && (
-                    <span className="shrink-0 text-micro text-muted-foreground bg-secondary rounded-full px-1.5 py-0.5">隐藏</span>
+                    <Badge variant="secondary" size="sm">隐藏</Badge>
                   )}
                   {tag.groupName && (
-                    <span
-                      className="shrink-0 text-micro rounded-full px-1.5 py-0.5 font-medium"
-                      style={{ color: tag.groupColor ?? "#6b7280", background: `${tag.groupColor ?? "#6b7280"}15` }}
-                    >
+                    <Badge variant="default" size="sm">
                       {tag.groupName}
-                    </span>
+                    </Badge>
                   )}
                   <span className="shrink-0 text-xs tabular-nums font-medium text-muted-foreground min-w-[2rem] text-right">
                     {tag.gameCount}

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Tag } from "@/components/ui/tag"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface GameLite {
@@ -152,7 +153,7 @@ export function ProfileContentTabs({ userId }: Props) {
                 )}>
                 <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 {tab.label}
-                {tab.key === "comments" && localComments.length > 0 && <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-micro font-bold text-primary leading-none">{localComments.length}</span>}
+                {tab.key === "comments" && localComments.length > 0 && <Badge variant="default" size="sm">{localComments.length}</Badge>}
               </button>
             )
           })}

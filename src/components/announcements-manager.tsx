@@ -1,6 +1,7 @@
 ﻿"use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { Badge } from "@/components/ui/badge"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -315,9 +316,9 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`rounded-full px-2 py-0.5 text-micro font-medium ring-1 ${ann.isActive ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-border"}`}>
+                    <Badge variant={ann.isActive ? "success" : "secondary"} size="sm">
                       {ann.isActive ? "展示中" : "已隐藏"}
-                    </span>
+                    </Badge>
                     <span className="text-xs font-medium text-foreground truncate">{ann.title}</span>
                   </div>
                   {/* 内容预览：折叠时显示纯文本，展开时显示富文本 */}
