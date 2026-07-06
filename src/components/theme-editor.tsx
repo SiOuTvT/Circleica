@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { applyThemeColor } from "@/lib/theme-colors"
-import { Check, Database, FileText, Palette, RotateCcw, Save } from "lucide-react"
+import { Check, Database, FileText, Loader2, Palette, RotateCcw, Save } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -102,7 +102,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
           </Button>
           <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
             {saving ? (
-              <span className="h-4 w-4 mr-1.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
             ) : saved ? (
               <Check className="h-4 w-4 mr-1.5" />
             ) : (

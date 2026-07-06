@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
   CalendarCheck,
+  Loader2,
   LogOut,
   Menu,
   MessageSquare,
@@ -334,7 +335,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                           : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       )}>
                       {checkinLoading ? (
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <CalendarCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
                       )}

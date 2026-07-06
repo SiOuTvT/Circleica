@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Award, Lock, X } from "lucide-react"
+import { Award, Loader2, Lock, X } from "lucide-react"
 import Image from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
@@ -97,7 +97,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
             <div className="p-5">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                  <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
                 </div>
               ) : achievements.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">

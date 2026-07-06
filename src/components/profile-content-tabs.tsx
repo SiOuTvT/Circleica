@@ -3,7 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
-import { Calendar, Eye, FolderHeart, Gamepad2, MessageSquare, Plus, Trash2, X } from "lucide-react"
+import { Calendar, Eye, FolderHeart, Gamepad2, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -227,7 +227,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
         </button>
       )}
 
-      {loading ? <div className="flex items-center justify-center py-8"><div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div> : <>
+      {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div> : <>
         <CollectionCard id="default" name="默认收藏夹" gameCount={defaultFolderGames.length} coverGames={defaultFolderGames}
           onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
         {collections.map((col) => (

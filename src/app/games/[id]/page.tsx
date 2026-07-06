@@ -252,7 +252,7 @@ export default async function GameDetailPage({
 
               {/* ① 游戏标题 */}
               <div className="mb-1 sm:mb-1.5">
-                <h1 className="font-bold leading-tight text-foreground text-xl sm:text-2xl lg:text-[28px]">
+                <h1 className="font-bold leading-tight text-foreground text-xl sm:text-2xl lg:text-3xl">
                   {game.title}
                 </h1>
                 {game.originalWork && (

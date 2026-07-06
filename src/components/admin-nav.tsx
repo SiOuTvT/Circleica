@@ -329,7 +329,7 @@ export function AdminNav() {
                 {themeMode === "system" && (
                   <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
                     <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
-                    <Moon className="absolute h-[10px] w-[10px] translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
+                    <Moon className="absolute size-3 translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
                   </span>
                 )}
               </>
@@ -464,7 +464,7 @@ export function AdminNav() {
                 {themeMode === "system" && (
                   <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
                     <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
-                    <Moon className="absolute h-[10px] w-[10px] translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
+                    <Moon className="absolute size-3 translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
                   </span>
                 )}
               </>

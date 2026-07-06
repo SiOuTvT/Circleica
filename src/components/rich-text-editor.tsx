@@ -19,6 +19,7 @@ import {
   Link as LinkIcon,
   List,
   ListOrdered,
+  Loader2,
   Strikethrough,
   Underline as UnderlineIcon,
   Upload
@@ -386,7 +387,7 @@ export function RichTextEditor({
           title="插入图片"
         >
           {uploading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <ImageIcon className="h-4 w-4" strokeWidth={2} />
           )}

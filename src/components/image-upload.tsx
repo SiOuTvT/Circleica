@@ -3,14 +3,14 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
-import { Upload, X } from "lucide-react"
+import { Loader2, Upload, X } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 const CropDialog = dynamic(() => import("./crop-dialog").then(m => ({ default: m.CropDialog })), {
-  loading: () => <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"><div className="h-8 w-8 animate-spin rounded-full border-2 border-white border-t-transparent" /></div>,
+  loading: () => <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"><Loader2 className="h-8 w-8 animate-spin text-white" /></div>,
   ssr: false,
 })
 
@@ -196,7 +196,7 @@ export function ImageUpload({
           </div>
           {isUploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
             </div>
           )}
         </div>

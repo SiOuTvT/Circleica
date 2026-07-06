@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronUp, Plus, Save, X } from "lucide-react"
+import { ChevronUp, Loader2, Plus, Save, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -111,7 +111,7 @@ export default function ResourceTagsPage() {
         </div>
         <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
           {saving ? (
-            <span className="h-4 w-4 mr-1.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
           ) : (
             <Save className="h-4 w-4 mr-1.5" />
           )}

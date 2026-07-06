@@ -68,7 +68,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <main className="admin-main min-h-screen pt-8 md:pt-0 md:pl-[220px] transition-[padding] duration-300 ease-in-out">
         {/* 全局搜索：隐藏触发按钮，保留 Ctrl+K 快捷键和 Dialog */}
         <div className="sr-only"><AdminGlobalSearch /></div>
-        <div className="mx-auto w-full max-w-[1400px] px-4 pt-0 pb-2 sm:px-8 sm:pt-0 sm:pb-3">
+        <div className="mx-auto w-full max-w-[1400px] px-4 pt-0 pb-2 sm:px-8 sm:py-5">
           {children}
         </div>
       </main>
