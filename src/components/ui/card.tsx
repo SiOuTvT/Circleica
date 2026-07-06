@@ -5,19 +5,21 @@ import { cn } from "@/lib/utils"
 function Card({
   className,
   size = "default",
+  radius = "2xl",
   ...props
-}: React.ComponentProps<"div"> & { size?: "compact" | "default" | "comfortable" | "large" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "compact" | "default" | "comfortable" | "large"
+  radius?: "xl" | "2xl"
+}) {
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col overflow-hidden rounded-2xl bg-card text-sm text-card-foreground ring-1 ring-border has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
-        // Compact: p-3 gap-3 (评论卡、通知项、列表行)
-        // Default: p-4 gap-4 (游戏卡片、论坛帖子)
-        // Comfortable: p-5 gap-5 (详情页、中等内容)
-        // Large: p-6 gap-6 (弹窗、表单)
-        size === "compact" && "gap-3 py-3 data-[size=compact]:has-data-[slot=card-footer]:pb-0",
+        "group/card flex flex-col overflow-hidden bg-card text-sm text-card-foreground ring-1 ring-border has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0",
+        radius === "xl" && "rounded-xl *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        radius === "2xl" && "rounded-2xl *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
+        size === "compact" && "gap-3 py-3",
         size === "default" && "gap-4 py-4",
         size === "comfortable" && "gap-5 py-5",
         size === "large" && "gap-6 py-6",

@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { ArrowLeft, Loader2, Pencil, Plus, Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useRouter } from "next/navigation"
@@ -201,7 +202,7 @@ export function TagGroupDetailClient({
   return (
     <div className="space-y-5">
       {/* ── 顶部卡片 ── */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <button
@@ -237,7 +238,7 @@ export function TagGroupDetailClient({
             className="rounded-lg bg-muted pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full"
           />
         </div>
-      </div>
+      </Card>
 
       {error && (
         <div className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</div>
@@ -245,7 +246,7 @@ export function TagGroupDetailClient({
 
       {/* ── 新建标签表单 ── */}
       {showCreate && (
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        <Card size="comfortable" radius="xl" className="space-y-4">
           <h3 className="text-sm font-semibold text-foreground">新建标签</h3>
           <input
             value={newTagName}
@@ -272,16 +273,16 @@ export function TagGroupDetailClient({
               取消
             </button>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* ── 标签列表 ── */}
       {filteredTags.length === 0 ? (
-        <div className="rounded-xl bg-card p-12 text-center ring-1 ring-border">
+        <Card size="comfortable" radius="xl" className="p-12 text-center">
           <p className="text-sm text-muted-foreground">
             {searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签"}
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filteredTags.map((tag) => (
@@ -326,7 +327,7 @@ export function TagGroupDetailClient({
 
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
-                <div ref={editPanelRef} className="mt-2 rounded-xl bg-card p-4 ring-1 ring-border shadow-lg space-y-3">
+                <Card ref={editPanelRef} size="default" radius="xl" className="mt-2 shadow-lg space-y-3">
                   <div className="flex gap-2">
                     <input
                       value={editName}
@@ -386,7 +387,7 @@ export function TagGroupDetailClient({
                       取消
                     </button>
                   </div>
-                </div>
+                </Card>
               )}
             </div>
           ))}

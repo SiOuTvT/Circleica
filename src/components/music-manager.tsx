@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload, X, ListMusic } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -188,7 +189,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   return (
     <div className="space-y-4">
       {/* 播放列表管理 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+      <Card size="comfortable" radius="xl" className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <ListMusic className="h-4 w-4" strokeWidth={1.5} />播放列表
         </h2>
@@ -229,9 +230,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             创建
           </button>
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+      <Card size="comfortable" radius="xl" className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground">添加音乐</h2>
         <p className="text-xs text-muted-foreground">上传音频文件（最大 32MB）或填入直链 URL</p>
         {error && <p className="text-xs text-red-400">{error}</p>}
@@ -266,9 +267,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             {uploading ? "上传中…" : adding ? "添加中…" : "添加"}
           </button>
         </form>
-      </div>
+      </Card>
 
-      <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
+      <Card size="compact" radius="xl" className="overflow-hidden">
         <div className="border-b border-border px-4 py-3">
           <p className="text-xs text-muted-foreground">共 {list.length} 首，{list.filter(m => m.isActive).length} 首激活</p>
         </div>
@@ -317,7 +318,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={v => !v && setDeleteId(null)}

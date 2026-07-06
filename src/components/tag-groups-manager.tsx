@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { Badge } from "@/components/ui/badge"
@@ -433,9 +434,10 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
       {/* ── 新建标签组表单 ── */}
       {showCreateGroup && (
-        <form
-          onSubmit={handleCreateGroup}
-          className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4"
+        <Card
+          size="comfortable"
+          radius="xl"
+          className="space-y-4"
         >
           <input
             value={newGroupName}
@@ -468,17 +470,17 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             创建标签组
           </button>
-        </form>
+        </Card>
       )}
 
       {/* ── 标签组卡片列表 ── */}
       <div className="grid grid-cols-1 gap-4">
         {filteredGroups.length === 0 && (
-          <div className="col-span-full rounded-xl bg-card p-8 text-center ring-1 ring-border">
+          <Card size="comfortable" radius="xl" className="col-span-full p-8 text-center">
             <p className="text-sm text-muted-foreground">
               {searchQuery ? "没有找到匹配的标签" : "暂无标签组，点击上方「新建标签组」开始创建"}
             </p>
-          </div>
+          </Card>
         )}
 
         {filteredGroups.map((group) => {
@@ -487,9 +489,11 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           const isAddingTag = showCreateTag === group.id
 
           return (
-              <div
+              <Card
                 key={group.id}
-                className="rounded-xl bg-card ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                size="compact"
+                radius="xl"
+                className="transition-all duration-200 hover:ring-primary/40 hover:shadow-lg hover:shadow-primary/5"
               >
               {/* ── 标签组头部 ── */}
               {isEditingGroup ? (
@@ -734,7 +738,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                   )}
                 </div>
               )}
-            </div>
+            </Card>
           )
         })}
       </div>
@@ -743,7 +747,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
       {(() => {
         if (ungroupedTags.length === 0) return null
         return (
-          <div className="rounded-xl bg-card ring-1 ring-border p-4">
+          <Card size="default" radius="xl">
             <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
               <AlertTriangle className="h-4 w-4" strokeWidth={2} /> 未分组标签（{ungroupedTags.length}）
             </h3>
@@ -793,7 +797,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 </span>
               ))}
             </div>
-          </div>
+          </Card>
         )
       })()}
 

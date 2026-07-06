@@ -693,27 +693,6 @@ main > * {
   color: var(--primary-foreground);
 }
 
-/* ── 精致微动效 - 内敛克制 ── */
-@keyframes subtle-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.spring-in {
-  animation: subtle-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 页面级淡入过渡 */
-.animate-page-in {
-  animation: subtle-in 0.35s ease-out both;
-}
-
 .spring-bounce:hover {
   /* 移除弹跳动画，改用 CSS transition */
 }
@@ -729,25 +708,6 @@ main > * {
 }
 
 .btn-spring:active {
-  transform: translateY(1px);
-}
-
-/* 卡片 - 优雅悬浮 */
-.card-spring {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  background-image: radial-gradient(
-    ellipse at top left,
-    rgba(255, 255, 255, 0.025) 0%,
-    transparent 50%
-  );
-}
-
-.card-spring:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.card-spring:active {
   transform: translateY(1px);
 }
 
@@ -779,16 +739,6 @@ main > * {
 
 /* ── 优雅过渡动画（拒绝瞬移） ── */
 
-/* Fade 淡入淡出 */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 /* Gallery hero image fade-in */
 @keyframes heroFadeIn {
   from {
@@ -799,154 +749,17 @@ main > * {
   }
 }
 
-@keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-.fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-.fade-out {
-  animation: fade-out 0.2s ease-in;
-}
-
-/* Slide 滑动动画 */
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-left {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-right {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.slide-up {
-  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.slide-down {
-  animation: slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.slide-left {
-  animation: slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.slide-right {
-  animation: slide-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 组合动画：Fade + Slide */
-.fade-slide-up {
-  animation: fade-in 0.3s ease-out, slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fade-slide-down {
-  animation: fade-in 0.3s ease-out, slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fade-slide-left {
-  animation: fade-in 0.3s ease-out, slide-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.fade-slide-right {
-  animation: fade-in 0.3s ease-out, slide-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 弹窗/对话框专用动画 - 更沉稳 */
-.modal-enter {
-  animation: fade-in 0.15s ease-out, scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* 侧边栏专用动画 */
-.sidebar-enter {
-  animation: slide-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sidebar-exit {
-  animation: slide-left 0.2s ease-in;
-}
-
 /* ── 尊重用户减少动画偏好 ── */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton-shimmer,
-  .spring-in,
-  .animate-page-in,
-  .fade-in,
-  .fade-out,
-  .slide-up,
-  .slide-down,
-  .slide-left,
-  .slide-right,
-  .fade-slide-up,
-  .fade-slide-down,
-  .fade-slide-left,
-  .fade-slide-right,
-  .modal-enter,
-  .sidebar-enter,
-  .sidebar-exit {
+  .skeleton-shimmer {
     animation: none !important;
   }
-  .btn-spring,
-  .card-spring {
+  .btn-spring {
     transition: none !important;
   }
   .btn-spring:hover {
     transform: none;
   }
-  .card-spring:hover,
   .game-card:hover {
     transform: none;
   }
@@ -1580,47 +1393,6 @@ svg {
 .em-input::placeholder {
   color: var(--muted-foreground);
   opacity: 0.5;
-}
-
-/* ═══ 微动画：签到成功/收藏/关注按钮弹跳效果 ═══ */
-@keyframes micro-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.15); }
-  70%  { transform: scale(0.95); }
-  100% { transform: scale(1); }
-}
-.micro-pop {
-  animation: micro-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes micro-shake {
-  0%, 100% { transform: translateX(0); }
-  20%  { transform: translateX(-3px); }
-  40%  { transform: translateX(3px); }
-  60%  { transform: translateX(-2px); }
-  80%  { transform: translateX(1px); }
-}
-.micro-shake {
-  animation: micro-shake 0.4s ease-in-out;
-}
-
-@keyframes micro-confetti {
-  0%   { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-18px) scale(0.6); opacity: 0; }
-}
-.micro-confetti {
-  animation: micro-confetti 0.5s ease-out forwards;
-}
-
-/* 心跳动画（收藏按钮） */
-@keyframes micro-heartbeat {
-  0%, 100% { transform: scale(1); }
-  25%  { transform: scale(1.2); }
-  50%  { transform: scale(1); }
-  75%  { transform: scale(1.15); }
-}
-.micro-heartbeat {
-  animation: micro-heartbeat 0.5s ease-in-out;
 }
 
 /* ═══ P4-8: 锚点跳转补偿固定导航栏高度 ═══ */

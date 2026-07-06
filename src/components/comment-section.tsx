@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
@@ -228,13 +229,14 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             )}
 
             {/* 输入区域 */}
-            <textarea
+            <Textarea
+              variant="ghost"
               ref={textareaRef}
               value={content}
               onChange={(e) => { setContent(e.target.value); autoResize(e.target) }}
               placeholder={isDragging ? "释放以添加图片…" : "写下评论…"}
               rows={2}
-              className="w-full resize-none bg-transparent px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              className="resize-none px-4 py-3 text-sm"
               style={{ minHeight: "3.5rem" }}
             />
 

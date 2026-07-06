@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Textarea } from "@/components/ui/textarea"
 import { Database, CheckCircle2, XCircle, Loader2 } from "lucide-react"
 
 interface ImportResult {
@@ -70,12 +71,13 @@ export function VNDBImportManager() {
         示例：12345, 67890, 11111
       </p>
 
-      <textarea
+      <Textarea
+        variant="filled"
         value={vndbIds}
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="w-full resize-none rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+        className="resize-none px-4 py-3 text-sm"
       />
 
       <button

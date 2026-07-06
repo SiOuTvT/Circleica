@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "lucide-react"
@@ -123,7 +124,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
       )}
 
       {/* 新建标签 */}
-      <form onSubmit={handleCreate} className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
+      <Card size="comfortable" radius="xl" className="space-y-3">
         <div className="flex gap-2">
           <input value={name} onChange={e => setName(e.target.value)} placeholder="新标签名称" className={inputCls} />
           <select value={groupId} onChange={e => { const g = e.target.value; setGroupId(g); const gr = initialGroups.find(x => x.id === g); if (gr) { setColor(gr.color); setColorLocked(true) } else { setColorLocked(false) } }}
@@ -155,10 +156,10 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
             </span>
           )}
         </div>
-      </form>
+      </Card>
 
       {/* 标签列表 */}
-      <div className="rounded-xl bg-card ring-1 ring-border divide-y divide-border overflow-hidden">
+      <Card size="compact" radius="xl" className="divide-y divide-border overflow-hidden">
         {tags.length === 0 && <p className="px-5 py-8 text-center text-sm text-muted-foreground">暂无标签</p>}
         {tags.map(tag => (
           <div key={tag.id} className={`flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent/50 ${tag.isVisible === false ? "opacity-50" : ""}`}>
@@ -230,7 +231,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
             )}
           </div>
         ))}
-      </div>
+      </Card>
 
       <ConfirmDialog
         open={!!deleteConfirm}

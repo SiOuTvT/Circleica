@@ -1,4 +1,5 @@
 ﻿import { requireAdmin } from "@/lib/admin"
+import { Card } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -33,7 +34,7 @@ export default async function VNDBImportPage() {
 
       <VNDBImportManager />
 
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+      <Card size="comfortable" radius="xl">
         <h3 className="mb-3 text-sm font-semibold text-foreground">使用说明</h3>
         <ul className="space-y-2 text-xs text-muted-foreground">
           <li className="flex items-start gap-2">
@@ -57,7 +58,7 @@ export default async function VNDBImportPage() {
             <span>已存在的 VNDB ID 会被跳过，不会重复导入</span>
           </li>
         </ul>
-      </div>
+      </Card>
     </div>
   )
 }

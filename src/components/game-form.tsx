@@ -2,6 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { Tag } from "@/components/ui/tag"
+import { Textarea } from "@/components/ui/textarea"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { Loader2, Plus, X } from "lucide-react"
@@ -478,13 +479,14 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           </div>
           {DESCRIPTION_LANGUAGES.map(({ key, label }) => (
             activeDescLang === key && (
-              <textarea
+              <Textarea
+                variant="filled"
                 key={key}
                 value={descLangs[key]}
                 onChange={(e) => setDescLang(key, e.target.value)}
                 placeholder={`输入${label}…`}
                 rows={4}
-                className={`${inputCls} resize-none`}
+                className="resize-none px-4 py-2.5 text-sm placeholder:text-muted-foreground/50"
               />
             )
           ))}

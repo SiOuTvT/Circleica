@@ -1,7 +1,9 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
@@ -105,13 +107,13 @@ export default function AdminAchievementsPage() {
           </div>
           <div className="h-10 w-28 animate-pulse rounded-xl bg-muted" />
         </div>
-        <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
+        <Card size="compact" radius="xl" className="overflow-hidden">
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-14 animate-pulse rounded bg-muted" />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -132,7 +134,7 @@ export default function AdminAchievementsPage() {
 
       {/* 编辑表单 */}
       {editing && (
-        <div className="rounded-xl bg-card ring-1 ring-border p-5">
+        <Card size="comfortable" radius="xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-foreground">{editing.id ? "编辑成就" : "新建成就"}</h2>
             <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
@@ -171,7 +173,7 @@ export default function AdminAchievementsPage() {
                 <Field label="条件类型"><select value={editing.conditionType ?? "favorite_count"} onChange={(e) => setEditing({ ...editing, conditionType: e.target.value })} className={inputCls}>{CONDITION_TYPES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
                 <Field label="目标值"><input type="number" value={editing.conditionTarget ?? 1} onChange={(e) => setEditing({ ...editing, conditionTarget: Number(e.target.value) })} className={inputCls} min={1} /></Field>
                 <Field label="积分"><input type="number" value={editing.points ?? 10} onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })} className={inputCls} min={1} /></Field>
-                <div className="col-span-2"><Field label="描述"><textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={cn(inputCls, "min-h-[56px] resize-y")} placeholder="成就描述" /></Field></div>
+                <div className="col-span-2"><Field label="描述"><Textarea variant="filled" value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="min-h-[56px] resize-y text-sm" placeholder="成就描述" /></Field></div>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -188,11 +190,11 @@ export default function AdminAchievementsPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* 列表 */}
-      <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
+      <Card size="compact" radius="xl" className="overflow-hidden">
         <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -238,7 +240,7 @@ export default function AdminAchievementsPage() {
           </tbody>
         </table>
         </div>
-      </div>
+      </Card>
 
       <ConfirmDialog
         open={!!deleteTarget}

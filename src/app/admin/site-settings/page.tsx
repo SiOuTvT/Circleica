@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
 import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
@@ -80,16 +81,16 @@ export default function SiteSettingsPage() {
           <div className="h-6 w-6 animate-pulse rounded bg-muted" />
           <div className="h-7 w-24 animate-pulse rounded bg-muted" />
         </div>
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        <Card size="comfortable" radius="xl" className="space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
-        </div>
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        </Card>
+        <Card size="comfortable" radius="xl" className="space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
-        </div>
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+        </Card>
+        <Card size="comfortable" radius="xl" className="space-y-4">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="flex items-center gap-4">
             <div className="h-40 w-28 animate-pulse rounded-lg bg-muted" />
@@ -99,7 +100,7 @@ export default function SiteSettingsPage() {
             </div>
           </div>
           <div className="h-9 w-full animate-pulse rounded bg-muted" />
-        </div>
+        </Card>
       </div>
     )
   }
@@ -112,7 +113,7 @@ export default function SiteSettingsPage() {
       </div>
 
       {/* 站点信息 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+      <Card size="comfortable" radius="xl" className="space-y-4">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">站点信息</h2>
@@ -141,10 +142,10 @@ export default function SiteSettingsPage() {
             />
           </div>
         </div>
-      </div>
+        </Card>
 
       {/* 注册设置 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+      <Card size="comfortable" radius="xl" className="space-y-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">注册设置</h2>
@@ -174,10 +175,10 @@ export default function SiteSettingsPage() {
             />
           </button>
         </div>
-      </div>
+        </Card>
 
       {/* 默认占位图 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+      <Card size="comfortable" radius="xl" className="space-y-4">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">默认占位图</h2>
@@ -238,7 +239,7 @@ export default function SiteSettingsPage() {
             className={adminInput}
           />
         </div>
-      </div>
+        </Card>
 
       {/* 统一保存按钮 */}
       <button

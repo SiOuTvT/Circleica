@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { ArrowLeft, Layers, Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { Badge } from "@/components/ui/badge"
@@ -77,7 +78,7 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
       </div>
 
       {/* ── 标签组分布 ── */}
-      <div className="rounded-xl bg-card p-4 ring-1 ring-border">
+      <Card size="default" radius="xl">
         <p className="text-xs text-muted-foreground mb-3">标签组分布</p>
         <div className="flex flex-wrap gap-2">
           {groupStats.map((g) => (
@@ -92,7 +93,7 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
             </span>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* ── 搜索 + 排序 ── */}
       <div className="flex items-center gap-2">
@@ -131,9 +132,9 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
 
       {/* ── 标签列表 ── */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl bg-card p-8 text-center ring-1 ring-border">
+        <Card size="default" radius="xl" className="p-8 text-center">
           <p className="text-sm text-muted-foreground">没有找到匹配的标签</p>
-        </div>
+        </Card>
       ) : (
         <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
           <div className="divide-y divide-border">

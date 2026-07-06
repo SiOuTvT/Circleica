@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Loader2, X } from "lucide-react"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
 import type { Post } from "./forum-client-root"
@@ -17,15 +18,12 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
   const [content, setContent] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
-  // 初始化编辑器内容
   useEffect(() => {
     if (post) {
       setTitle(post.title)
       setContent(post.content)
     }
   }, [post])
-
-  if (!post) return null
 
   async function handleSubmit() {
     if (!post || !title.trim() || !content.trim()) return
@@ -40,42 +38,46 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
     }
   }
 
+  const isOpen = !!post
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-t-2xl sm:rounded-2xl bg-card p-5 sm:p-6 ring-1 ring-border max-h-[90dvh] overflow-y-auto">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground">编辑帖子</h2>
-          <button onClick={onClose} aria-label="关闭" className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-          </button>
-        </div>
-        <div className="space-y-4">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="标题"
-            maxLength={100}
-            required
-            className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
-          />
-          <RichTextEditor content={content} onChange={setContent} placeholder="内容" />
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border transition-all hover:text-foreground"
-            >
-              取消
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-            >
-              {submitting ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中…</span> : "保存"}
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent size="lg" showCloseButton={false} className="sm:items-end sm:p-0 sm:rounded-t-2xl sm:rounded-b-none bg-card ring-border max-h-[90dvh] overflow-y-auto">
+        <div className="p-5 sm:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <DialogTitle>编辑帖子</DialogTitle>
+            <button onClick={onClose} aria-label="关闭" className="text-muted-foreground hover:text-foreground transition-colors">
+              <X className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </button>
           </div>
+          <div className="space-y-4">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="标题"
+              maxLength={100}
+              required
+              className="w-full rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+            />
+            <RichTextEditor content={content} onChange={setContent} placeholder="内容" />
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border transition-all hover:text-foreground"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+              >
+                {submitting ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中…</span> : "保存"}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

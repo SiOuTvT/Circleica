@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/admin"
+import { Card } from "@/components/ui/card"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -179,7 +180,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* 趋势图表 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+      <Card size="comfortable" radius="xl">
         <p className="mb-3 text-sm font-medium text-muted-foreground">最近 14 天趋势</p>
         <div className="h-auto">
           <AdminChartsWrapper
@@ -188,12 +189,12 @@ export default async function AdminDashboard() {
             commentsByDay={toChartData(commentsByDay)}
           />
         </div>
-      </div>
+      </Card>
 
       {/* 底部三列 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* 最近添加 */}
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <Card size="comfortable" radius="xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近添加</h2>
           <div className="divide-y divide-border">
             {recentGames.length === 0 ? (
@@ -207,10 +208,10 @@ export default async function AdminDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* 浏览最多 */}
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <Card size="comfortable" radius="xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">浏览最多</h2>
           <div className="divide-y divide-border">
             {topGames.length === 0 ? (
@@ -223,10 +224,10 @@ export default async function AdminDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* 最近注册 */}
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border">
+        <Card size="comfortable" radius="xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近注册</h2>
           <div className="divide-y divide-border">
             {recentUsers.length === 0 ? (
@@ -243,7 +244,7 @@ export default async function AdminDashboard() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

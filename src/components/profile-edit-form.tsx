@@ -1,6 +1,7 @@
 "use client"
 
 import { ImageUpload } from "@/components/image-upload"
+import { Textarea } from "@/components/ui/textarea"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { ArrowLeft, Eye, EyeOff, Loader2, Lock, User } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -191,13 +192,14 @@ export function ProfileEditForm({ user }: Props) {
               个人简介
             </label>
             <div className="rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
-              <textarea
+              <Textarea
+                variant="ghost"
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 placeholder="介绍一下自己吧…（选填）"
                 maxLength={200}
                 rows={4}
-                className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                className="resize-none px-0 py-0 text-sm"
               />
               <p className="mt-1 text-right text-micro text-muted-foreground">{bio.length}/200</p>
             </div>

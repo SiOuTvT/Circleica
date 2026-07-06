@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { MessageSquare } from "lucide-react"
 import { useState } from "react"
@@ -77,12 +78,13 @@ export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: Repo
 
           {/* 详细描述 — 始终显示 */}
           <div>
-            <textarea
+            <Textarea
+              variant="filled"
               value={detail}
               onChange={(e) => setDetail(e.target.value)}
               placeholder="请详细描述具体问题，例如哪项资料有误、哪张图片有问题、哪个位置显示异常……"
               rows={3}
-              className="w-full rounded-xl bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 resize-none transition-all"
+              className="resize-none text-sm py-2.5"
             />
           </div>
         </div>

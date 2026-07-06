@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { ChevronDown, ExternalLink, FolderInput, List, Loader2 } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
@@ -317,7 +318,7 @@ function UngroupedTagsSection({
   }
 
   return (
-    <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
+    <Card size="comfortable" radius="xl" className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="h-2 w-2 rounded-full bg-amber-400" />
@@ -385,6 +386,6 @@ function UngroupedTagsSection({
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }
