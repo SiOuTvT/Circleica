@@ -1,0 +1,28 @@
+# ═══════════════════════════════════════════
+# Fangame 开发环境 Docker Compose
+# ═══════════════════════════════════════════
+# 使用方式: docker compose -f docker-compose.dev.yml up -d
+# 仅启动 PostgreSQL，应用在本地运行
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fangame-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fangame
+      POSTGRES_PASSWORD: fangame
+      POSTGRES_DB: fangame
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fangame -d fangame"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  pg_dev_data:

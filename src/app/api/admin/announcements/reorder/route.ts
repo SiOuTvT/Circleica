@@ -1,22 +1,26 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { announcementService } from "@/services/announcement"
+import { ValidationError } from "@/lib/errors"
+import type { NextRequest } from "next/server"
 
-// POST - 批量更新公告排序
-export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+/**
+ * POST /api/admin/announcements/reorder
+ * 批量更新公告排序（管理员）
+ */
+export const POST = withHandler(async (req: NextRequest) => {
+  await requireAdminRole()
   const { orderedIds } = await req.json()
-  if (!Array.isArray(orderedIds)) return NextResponse.json({ error: "参数错误" }, { status: 400 })
 
-  // 使用事务批量更新 sortOrder
-  await prisma.$transaction(
-    orderedIds.map((id: string, index: number) =>
-      prisma.announcement.update({
-        where: { id },
-        data: { sortOrder: index },
-      })
-    )
-  )
+  if (!Array.isArray(orderedIds)) {
+    throw new ValidationError("orderedIds 必须是数组")
+  }
 
-  return NextResponse.json({ success: true })
-}
+  const items = orderedIds.map((id: string, index: number) => ({
+    id,
+    sortOrder: index,
+  }))
+
+  await announcementService.reorder(items)
+  return json({ success: true })
+})

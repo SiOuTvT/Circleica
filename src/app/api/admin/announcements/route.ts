@@ -1,72 +1,33 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { announcementService } from "@/services/announcement"
+import type { NextRequest } from "next/server"
 
-// 公开接口 - 获取最新公告（用于导航栏显示）
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const isAdmin = searchParams.get('admin') === 'true'
-  
-  // 如果是管理员请求或需要完整列表，检查权限
+/**
+ * GET /api/admin/announcements
+ * - admin=true → 管理员全量列表
+ * - 默认 → 最新 1 条（公开）
+ */
+export const GET = withHandler(async (req: NextRequest) => {
+  const isAdmin = req.nextUrl.searchParams.get("admin") === "true"
+
   if (isAdmin) {
-    if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+    await requireAdminRole()
+    const data = await announcementService.getAll()
+    return json(data)
   }
-  
-  // 默认只返回最新的1条公告（公开）
-  const limit = isAdmin ? undefined : 1
-  const anns = await prisma.announcement.findMany({ 
-    orderBy: { sortOrder: "asc" },
-    take: limit,
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      imageUrl: true,
-      link: true,
-      createdAt: true,
-      authorName: true,
-      authorAvatar: true,
-      ...(isAdmin ? { sortOrder: true, isActive: true } : {}),
-    }
-  })
-  return NextResponse.json(anns)
-}
 
-export async function POST(req: NextRequest) {
-  const session = await getAdminSession()
-  if (!session) return NextResponse.json({ error: "无权限" }, { status: 403 })
+  const data = await announcementService.getLatest(1)
+  return json(data)
+})
 
-  let title: string | undefined, content: string | undefined, imageUrl: string | undefined, link: string | undefined, startAt: string | undefined, endAt: string | undefined
-  try {
-    const body = await req.json()
-    title = body.title as string | undefined
-    content = body.content as string | undefined
-    imageUrl = body.imageUrl as string | undefined
-    link = body.link as string | undefined
-    startAt = body.startAt as string | undefined
-    endAt = body.endAt as string | undefined
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
-  if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "标题和内容不能为空" }, { status: 400 })
-
-  // 从管理员 session 获取发布者信息
-  const adminUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { username: true, avatar: true },
-  })
-
-  const ann = await prisma.announcement.create({
-    data: {
-      title: title.trim(),
-      content: content.trim(),
-      imageUrl: imageUrl?.trim() ?? "",
-      link: link?.trim() ?? "",
-      authorName: adminUser?.username ?? "",
-      authorAvatar: adminUser?.avatar ?? "",
-      startAt: startAt ? new Date(startAt) : null,
-      endAt: endAt ? new Date(endAt) : null,
-    },
-  })
-  return NextResponse.json(ann, { status: 201 })
-}
+/**
+ * POST /api/admin/announcements
+ * 创建公告（管理员）
+ */
+export const POST = withHandler(async (req: NextRequest) => {
+  const ctx = await requireAdminRole()
+  const body = await req.json()
+  const data = await announcementService.create(body, ctx)
+  return created(data)
+})

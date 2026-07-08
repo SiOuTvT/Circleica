@@ -1,3 +1,8 @@
+/**
+ * @deprecated 使用 @/lib/storage 的 getStorage() 替代
+ * 此文件保留仅作迁移参考，不再被任何代码引用。
+ */
+
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import crypto from "crypto"
 

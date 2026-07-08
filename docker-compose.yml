@@ -1,7 +1,21 @@
+# ═══════════════════════════════════════════
+# Fangame 生产环境 Docker Compose
+# ═══════════════════════════════════════════
+#
+# 首次部署:
+#   docker compose up -d
+#   docker compose run --rm migrate   # 执行数据库迁移
+#
+# 后续更新:
+#   docker compose build
+#   docker compose run --rm migrate   # 执行迁移（如有新迁移文件）
+#   docker compose up -d
+#
+# Coolify 部署:
+#   自动使用此文件，migrate 需手动触发或通过 Coolify 命令执行
+
 services:
-  # ── PostgreSQL ──────────────────────────────────────
-  # 默认内置，零配置即可使用
-  # 如使用外部数据库，启动时只启动 app: docker compose up -d app
+  # ── PostgreSQL ──────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: fangame-db
@@ -22,7 +36,23 @@ services:
     networks:
       - fangame
 
-  # ── Fangame 应用 ────────────────────────────────────
+  # ── 数据库迁移（独立运行，不随 app 启动）────
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["/migrate-entrypoint.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://fangame:fangame@db:5432/fangame}
+    networks:
+      - fangame
+    profiles:
+      - migrate
+
+  # ── Fangame 应用 ────────────────────────────
   app:
     build:
       context: .

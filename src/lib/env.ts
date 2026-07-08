@@ -1,118 +1,129 @@
-import { logger } from "./logger"
+/**
+ * 环境变量统一管理
+ *
+ * 设计原则：
+ * - Build 时不做验证（next build 使用占位符）
+ * - 首次访问 env 对象时验证（运行时）
+ * - 验证失败：dev 警告，prod 退出
+ * - 可选变量使用 undefined 而非空字符串
+ */
+
 import { z } from "zod"
 
-/**
- * 环境变量验证 Schema
- * 应用启动时自动验证所有必需的环境变量
- * 缺失或格式错误的变量会导致明确的错误信息，而非运行时莫名崩溃
- */
+// ── Schema 定义 ──────────────────────
+
 const envSchema = z.object({
-  // 数据库
+  // 必需
   DATABASE_URL: z
     .string()
-    .url("DATABASE_URL 必须是有效的数据库连接 URL")
-    .startsWith("postgresql://", "DATABASE_URL 必须以 postgresql:// 开头"),
-
-  // NextAuth
+    .min(1, "DATABASE_URL 不能为空"),
   NEXTAUTH_SECRET: z
     .string()
-    .min(32, "NEXTAUTH_SECRET 至少 32 个字符，请使用 `openssl rand -base64 32` 生成"),
+    .min(32, "NEXTAUTH_SECRET 至少 32 个字符"),
+
+  // 有默认值
   NEXTAUTH_URL: z
     .string()
-    .url("NEXTAUTH_URL 必须是有效的 URL")
-    .optional()
+    .url()
     .default("http://localhost:3000"),
-
-  // Cloudflare R2 (S3 兼容文件存储)
-  R2_ACCOUNT_ID: z
-    .string()
-    .optional()
-    .transform(v => v || undefined),
-  R2_ACCESS_KEY_ID: z
-    .string()
-    .optional()
-    .transform(v => v || undefined),
-  R2_SECRET_ACCESS_KEY: z
-    .string()
-    .optional()
-    .transform(v => v || undefined),
-  R2_BUCKET_NAME: z
-    .string()
-    .optional()
-    .transform(v => v || undefined),
-  R2_PUBLIC_URL: z
-    .string()
-    .url("R2_PUBLIC_URL 必须是有效的 URL")
-    .optional()
-    .or(z.literal(""))
-    .transform(v => v || undefined),
-
-  // Upstash Redis（可选，不配置时使用内存缓存）
-  UPSTASH_REDIS_REST_URL: z
-    .string()
-    .url("UPSTASH_REDIS_REST_URL 必须是有效的 URL")
-    .optional(),
-  UPSTASH_REDIS_REST_TOKEN: z
-    .string()
-    .min(1, "UPSTASH_REDIS_REST_TOKEN 不能为空")
-    .optional(),
-
-  // Sentry（可选，不配置时跳过错误监控）
-  SENTRY_DSN: z
-    .string()
-    .url("SENTRY_DSN 必须是有效的 URL")
-    .optional(),
-
-  // 邮件服务
-  RESEND_API_KEY: z
-    .string()
-    .optional()
-    .transform(v => v || undefined),
-
-  // 运行环境
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
+
+  // 可选 - Cloudflare R2
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET_NAME: z.string().optional(),
+  R2_PUBLIC_URL: z.string().url().optional().or(z.literal("")),
+
+  // 可选 - Upstash Redis
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+
+  // 可选 - Sentry
+  SENTRY_DSN: z.string().url().optional(),
+
+  // 可选 - Resend
+  RESEND_API_KEY: z.string().optional(),
 })
 
-/**
- * 验证环境变量
- * 在构建时/启动时调用，确保所有必需变量都已正确配置
- */
-function validateEnv() {
+export type Env = z.infer<typeof envSchema>
+
+// ── 懒验证 ───────────────────────────
+
+let _env: Env | null = null
+
+function validate(): Env {
+  // Build 时返回占位符（NODE_ENV 未设或为 undefined 时视为 build 阶段）
+  const isBuild = !process.env.NEXT_RUNTIME && process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test"
+
   const parsed = envSchema.safeParse(process.env)
 
-  if (!parsed.success) {
-    logger.db.error("环境变量验证失败", undefined, { issues: parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ") })
-    
-    // 在开发环境给出警告但不崩溃，在生产环境直接退出
-    if (process.env.NODE_ENV === "production") {
-      process.exit(1)
-    }
-    
-    // 开发环境返回一个部分填充的对象
-    return {
-      DATABASE_URL: process.env.DATABASE_URL || "",
-      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "dev-secret-placeholder-min-32-chars-long",
-      NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
-      UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
-      UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
-      SENTRY_DSN: process.env.SENTRY_DSN,
-      RESEND_API_KEY: process.env.RESEND_API_KEY,
-      NODE_ENV: (process.env.NODE_ENV as "development" | "production" | "test") || "development",
-    }
+  if (parsed.success) {
+    return parsed.data
   }
 
-  return parsed.data
+  // Build 阶段容忍缺失，返回默认值
+  if (isBuild || process.env.NEXT_BUILD_STAGE) {
+    return {
+      DATABASE_URL: process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder",
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "build-placeholder-secret-not-used-at-runtime-32chars",
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
+      NODE_ENV: "production",
+    } as Env
+  }
+
+  // 运行时验证失败
+  const issues = parsed.error.issues.map(i => `  ${i.path.join(".")}: ${i.message}`).join("\n")
+  console.error(`\n❌ 环境变量验证失败:\n${issues}\n`)
+
+  if (process.env.NODE_ENV === "production") {
+    process.exit(1)
+  }
+
+  // 开发环境：返回部分值，不崩溃
+  return {
+    DATABASE_URL: process.env.DATABASE_URL || "",
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "dev-secret-placeholder-min-32-chars-long",
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
+    NODE_ENV: (process.env.NODE_ENV as Env["NODE_ENV"]) || "development",
+  } as Env
 }
 
-export const env = validateEnv()
+/**
+ * 环境变量对象（首次访问时验证，后续直接返回缓存）
+ */
+export function getEnv(): Env {
+  if (!_env) {
+    _env = validate()
+  }
+  return _env
+}
 
 /**
- * 检查可选功能是否已配置
+ * 可选功能检测
  */
-export const features = {
-  redis: !!(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN),
-  sentry: !!env.SENTRY_DSN,
-  email: !!env.RESEND_API_KEY,
-} as const
+export function getFeatures() {
+  const e = getEnv()
+  return {
+    redis: !!(e.UPSTASH_REDIS_REST_URL && e.UPSTASH_REDIS_REST_TOKEN),
+    sentry: !!e.SENTRY_DSN,
+    email: !!e.RESEND_API_KEY,
+    r2: !!(e.R2_BUCKET_NAME && e.R2_ACCOUNT_ID),
+  } as const
+}
+
+// ── 兼容旧代码的导出 ────────────────
+// 使用 Proxy 实现懒加载，避免 import 时触发验证
+export const env: Env = new Proxy({} as Env, {
+  get(_, prop) {
+    return (getEnv() as Record<string, unknown>)[prop as string]
+  },
+})
+
+export const features = new Proxy({} as ReturnType<typeof getFeatures>, {
+  get(_, prop) {
+    return (getFeatures() as Record<string, unknown>)[prop as string]
+  },
+})

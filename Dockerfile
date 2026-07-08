@@ -90,9 +90,10 @@ COPY --from=builder /app/prisma ./prisma
 RUN mkdir -p /app/public/uploads && \
     chown -R nextjs:nodejs /app/public/uploads
 
-# Copy entrypoint script
+# Copy entrypoint scripts
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY migrate-entrypoint.sh /migrate-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh /migrate-entrypoint.sh
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app

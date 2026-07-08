@@ -1,99 +1,61 @@
-import { auth } from "@/lib/auth"
-import { logger } from "@/lib/logger"
-import { saveFile } from "@/lib/storage"
-import crypto from "crypto"
-import { NextResponse } from "next/server"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAuth } from "@/lib/auth-context"
+import { getStorage } from "@/lib/storage"
+import { UPLOAD } from "@/lib/config"
+import { ValidationError } from "@/lib/errors"
 import sharp from "sharp"
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB（与 nginx client_max_body_size 一致）
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/avif",
-]
-
 /**
- * 文件上传 API
- * 将图片保存到 public/uploads/ 目录，返回可访问的 URL 路径
+ * POST /api/upload
+ * 通用图片上传
  */
-export async function POST(request: Request) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "请先登录" }, { status: 401 })
-    }
+export const POST = withHandler(async (req) => {
+  await requireAuth()
 
-    const formData = await request.formData()
-    const file = formData.get("file") as File | null
+  const formData = await req.formData()
+  const file = formData.get("file") as File | null
 
-    if (!file) {
-      return NextResponse.json({ error: "未找到文件" }, { status: 400 })
-    }
+  if (!file) throw new ValidationError("未找到文件")
 
-    // 验证文件类型
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { error: `不支持的文件类型: ${file.type}。支持: JPEG, PNG, GIF, WebP` },
-        { status: 400 }
-      )
-    }
-
-    // 验证文件大小
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: `文件太大: ${(file.size / 1024 / 1024).toFixed(1)}MB，最大 10MB` },
-        { status: 400 }
-      )
-    }
-
-    // 生成唯一文件名（根据实际 MIME 类型确定扩展名，避免 canvas blob 类型与文件名不匹配）
-    const mimeToExt: Record<string, string> = {
-      "image/jpeg": "jpg",
-      "image/png": "png",
-      "image/gif": "gif",
-      "image/webp": "webp",
-      "image/avif": "avif",
-    }
-    const ext = mimeToExt[file.type] || file.name.split(".").pop() || "png"
-    const timestamp = Date.now()
-    const random = crypto.randomBytes(6).toString("hex")
-    const filename = `${timestamp}-${random}.${ext}`
-
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    // 验证图片完整性：用 sharp 尝试解析，确保不是损坏数据
-    try {
-      const metadata = await sharp(buffer).metadata()
-      if (buffer.length < 100) {
-        return NextResponse.json({ error: "图片文件过小，可能已损坏" }, { status: 400 })
-      }
-      if (!metadata.width && file.type !== "image/svg+xml") {
-        return NextResponse.json({ error: "无法读取图片尺寸，文件可能已损坏" }, { status: 400 })
-      }
-    } catch {
-      return NextResponse.json({ error: "图片文件损坏或格式不正确，请重新上传" }, { status: 400 })
-    }
-
-    // 保存文件（自动选择本地或 R2 后端）
-    const url = await saveFile(buffer, filename, file.type)
-
-    return NextResponse.json({
-      url,
-      key: filename,
-      size: file.size,
-      type: file.type,
-    })
-  } catch (error) {
-    logger.upload.error("上传失败", error)
-    return NextResponse.json(
-      {
-        error: "上传失败",
-        details: "上传失败",
-      },
-      { status: 500 }
-    )
+  // 验证文件类型
+  if (!UPLOAD.IMAGE_TYPES.includes(file.type)) {
+    throw new ValidationError(`不支持的文件类型: ${file.type}。支持: JPEG, PNG, GIF, WebP, AVIF`)
   }
-}
+
+  // 验证文件大小
+  if (file.size > UPLOAD.IMAGE_MAX_SIZE) {
+    throw new ValidationError(`文件太大: ${(file.size / 1024 / 1024).toFixed(1)}MB，最大 ${UPLOAD.IMAGE_MAX_SIZE / 1024 / 1024}MB`)
+  }
+
+  // 确定扩展名
+  const mimeToExt: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/avif": "avif",
+  }
+  const ext = mimeToExt[file.type] || "png"
+
+  const buffer = Buffer.from(await file.arrayBuffer())
+
+  // 验证图片完整性
+  const metadata = await sharp(buffer).metadata()
+  if (buffer.length < 100) {
+    throw new ValidationError("图片文件过小，可能已损坏")
+  }
+  if (!metadata.width) {
+    throw new ValidationError("无法读取图片尺寸，文件可能已损坏")
+  }
+
+  // 上传
+  const storage = getStorage()
+  const result = await storage.upload(buffer, "images", ext)
+
+  return json({
+    url: result.url,
+    key: result.key,
+    size: file.size,
+    type: file.type,
+  })
+})

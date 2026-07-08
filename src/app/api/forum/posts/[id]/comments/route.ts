@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { createNotification } from "@/lib/notifications"
 import { prisma } from "@/lib/prisma"
-import { uploadToR2 } from "@/lib/r2"
+import { getStorage } from "@/lib/storage"
+import { UPLOAD } from "@/lib/config"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { sanitizeString } from "@/lib/sanitize"
 import { NextRequest } from "next/server"
@@ -38,15 +39,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       if (imageFile.size > 5 * 1024 * 1024) {
         return badRequest("图片太大啦，最多 5MB 哦")
       }
-      // 验证文件类型（只允许常见图片格式，排除 SVG 等可执行格式）
-      const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"]
-      if (!ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+      // 验证文件类型
+      if (!UPLOAD.IMAGE_TYPES.includes(imageFile.type)) {
         return badRequest("只支持 JPEG、PNG、GIF、WebP 格式的图片")
       }
       try {
         const buffer = Buffer.from(await imageFile.arrayBuffer())
         const ext = imageFile.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg"
-        const result = await uploadToR2(buffer, "forum-comments", ext)
+        const storage = getStorage()
+        const result = await storage.upload(buffer, "forum-comments", ext)
         imageUrl = result.url
       } catch (error) {
         logger.upload.error("[Forum Comment] Image upload failed", error)

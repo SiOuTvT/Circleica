@@ -1,67 +1,99 @@
 import { prisma } from "@/lib/prisma"
+import { CACHE_TTL } from "@/lib/config"
+import { logger } from "@/lib/logger"
 import { revalidateTag, unstable_cache } from "next/cache"
+import { cache } from "react"
 
 /**
- * 获取站点配置值（带缓存）
- * @param key 配置键名
- * @param fallback 默认值
+ * 站点配置服务
+ *
+ * 缓存策略（三层）：
+ * 1. React cache() — 同一请求内去重（零开销）
+ * 2. unstable_cache — 跨请求 Data Cache（TTL 60s）
+ * 3. Prisma — 最终数据源
+ *
+ * 写入时 revalidateTag 清除 Data Cache，
+ * 下次请求 React cache 也会拿到新数据。
  */
-export const getSiteSetting = unstable_cache(
-  async (key: string, fallback = ""): Promise<string> => {
+
+// ── 单项读取 ────────────────────────
+
+const _getCachedSetting = unstable_cache(
+  async (key: string, fallback: string): Promise<string> => {
     try {
       const setting = await prisma.siteSetting.findUnique({ where: { key } })
       return setting?.value ?? fallback
-    } catch {
+    } catch (e) {
+      logger.db.error(`SiteSetting 查询失败: ${key}`, e)
       return fallback
     }
   },
   ["site-setting"],
-  { revalidate: 60, tags: ["site-settings"] }
+  { revalidate: CACHE_TTL.SITE_SETTING, tags: ["site-settings"] }
 )
 
 /**
- * 获取默认占位图 URL，无自定义时返回 null
+ * 获取站点配置值（请求级去重 + Data Cache）
  */
-export async function getDefaultPlaceholderImage(): Promise<string | null> {
-  const url = await getSiteSetting("default_placeholder_image", "")
-  return url || null
-}
+export const getSiteSetting = cache(
+  async (key: string, fallback = ""): Promise<string> => {
+    return _getCachedSetting(key, fallback)
+  }
+)
 
-/**
- * 获取所有站点配置（返回 key→value 映射，带缓存）
- */
-export const getSiteSettings = unstable_cache(
+// ── 全量读取 ────────────────────────
+
+const _getCachedSettings = unstable_cache(
   async (): Promise<Record<string, string>> => {
-    const settings = await prisma.siteSetting.findMany({
-      select: { key: true, value: true },
-    })
-    return Object.fromEntries(settings.map(s => [s.key, s.value]))
+    try {
+      const settings = await prisma.siteSetting.findMany({
+        select: { key: true, value: true },
+      })
+      return Object.fromEntries(settings.map(s => [s.key, s.value]))
+    } catch (e) {
+      logger.db.error("SiteSetting 全量查询失败", e)
+      return {}
+    }
   },
   ["all-site-settings"],
-  { revalidate: 60, tags: ["site-settings"] }
+  { revalidate: CACHE_TTL.SITE_SETTINGS_ALL, tags: ["site-settings"] }
 )
 
 /**
- * 批量更新站点配置
+ * 获取所有站点配置（请求级去重 + Data Cache）
+ */
+export const getSiteSettings = cache(async (): Promise<Record<string, string>> => {
+  return _getCachedSettings()
+})
+
+// ── 写入 ────────────────────────────
+
+/**
+ * 批量更新站点配置，自动清除缓存
  */
 export async function updateSiteSettings(data: Record<string, unknown>): Promise<Record<string, string>> {
   const entries = Object.entries(data).filter(([k]) => typeof k === "string")
-  for (const [key, value] of entries) {
-    await prisma.siteSetting.upsert({
-      where: { key },
-      update: { value: String(value ?? "") },
-      create: { key, value: String(value ?? "") },
-    })
-  }
+
+  // 批量 upsert（事务内执行）
+  await prisma.$transaction(
+    entries.map(([key, value]) =>
+      prisma.siteSetting.upsert({
+        where: { key },
+        update: { value: String(value ?? "") },
+        create: { key, value: String(value ?? "") },
+      })
+    )
+  )
+
   revalidateTag("site-settings", "max")
+  logger.cache.info("SiteSettings 缓存已清除", { keys: entries.map(([k]) => k).join(",") })
+
   return getSiteSettings()
 }
 
-/**
- * 检测站点是否已完成初始化
- * 优先检查 initialized 标记，向后兼容检查用户表
- */
-export const isSiteInitialized = unstable_cache(
+// ── 初始化检测 ──────────────────────
+
+const _isInitialized = unstable_cache(
   async (): Promise<boolean> => {
     try {
       const setting = await prisma.siteSetting.findUnique({
@@ -77,20 +109,28 @@ export const isSiteInitialized = unstable_cache(
     }
   },
   ["site-initialized"],
-  { revalidate: 300, tags: ["site-settings"] }
+  { revalidate: CACHE_TTL.SITE_INITIALIZED, tags: ["site-settings"] }
 )
 
-/** 获取站点名称（带缓存） */
+export const isSiteInitialized = cache(async (): Promise<boolean> => {
+  return _isInitialized()
+})
+
+// ── 便捷读取 ────────────────────────
+
+export async function getDefaultPlaceholderImage(): Promise<string | null> {
+  const url = await getSiteSetting("default_placeholder_image", "")
+  return url || null
+}
+
 export async function getSiteName(): Promise<string> {
   return getSiteSetting("site_name", "Fangame")
 }
 
-/** 获取站点描述（带缓存） */
 export async function getSiteDescription(): Promise<string> {
   return getSiteSetting("site_description", "Galgame/视觉小说社区平台")
 }
 
-/** 获取站点 Logo URL，未配置返回 null */
 export async function getSiteLogo(): Promise<string | null> {
   const url = await getSiteSetting("site_logo", "")
   return url || null

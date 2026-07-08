@@ -61,17 +61,6 @@ if [ -n "$DB_HOST" ]; then
   done
 fi
 
-# ── 数据库迁移 ───────────────────────
-PRISMA="./node_modules/prisma/build/index.js"
-if node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma >/dev/null 2>&1; then
-  printf "  ${G}✓${N} 数据库迁移完成\n"
-else
-  printf "  ${R}✗${N} 数据库迁移失败，正在输出详细错误...\n"
-  echo ""
-  node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1
-  exit 1
-fi
-
 # ── 状态面板 ─────────────────────────
 APP_URL="${NEXTAUTH_URL:-http://localhost:3000}"
 APP_VER="${APP_VERSION:-unknown}"
