@@ -3,13 +3,14 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@prisma/client"
 
 export const forumRepo = {
   // ── 帖子 ────────────────────────────
 
   findPostsPaginated(page: number, limit: number, category?: string, solved?: string) {
     const skip = (page - 1) * limit
-    const where: any = {}
+    const where: Prisma.ForumPostWhereInput = {}
     if (category) where.category = category
     if (solved === "true") where.isSolved = true
     if (solved === "false") where.isSolved = false
@@ -49,8 +50,8 @@ export const forumRepo = {
     })
   },
 
-  updatePost(id: string, data: Record<string, unknown>) {
-    return prisma.forumPost.update({ where: { id }, data: data as any })
+  updatePost(id: string, data: Prisma.ForumPostUpdateInput) {
+    return prisma.forumPost.update({ where: { id }, data })
   },
 
   deletePost(id: string) {

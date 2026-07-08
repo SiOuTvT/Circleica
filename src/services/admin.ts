@@ -4,6 +4,7 @@
 
 import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo, adminSettingsRepo } from "@/repositories/admin"
 import { NotFoundError, ConflictError, ValidationError, AppError } from "@/lib/errors"
+import type { Prisma, UserRole } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import fs from "fs/promises"
@@ -23,7 +24,7 @@ export const achievementService = {
       icon: raw.icon ? String(raw.icon).trim() : "",
       characterImage: raw.characterImage ? String(raw.characterImage).trim() : "",
       category: raw.category ? String(raw.category).trim() : "general",
-      conditionType: raw.conditionType,
+      conditionType: String(raw.conditionType),
       conditionTarget: Number(raw.conditionTarget) || 1,
       points: Number(raw.points) || 10,
       hidden: raw.hidden !== false,
@@ -182,9 +183,9 @@ export const emotionalMessageService = {
     const existing = await emotionalMessageRepo.findByKey(String(raw.key))
     if (existing) throw new ConflictError(`key "${raw.key}" 已存在`)
     return emotionalMessageRepo.create({
-      key: raw.key, category: raw.category,
-      title: raw.title || "", subtitle: raw.subtitle || "",
-      imageUrl: raw.imageUrl || "", emoji: raw.emoji || "",
+      key: String(raw.key), category: String(raw.category),
+      title: raw.title ? String(raw.title) : "", subtitle: raw.subtitle ? String(raw.subtitle) : "",
+      imageUrl: raw.imageUrl ? String(raw.imageUrl) : "", emoji: raw.emoji ? String(raw.emoji) : "",
       enabled: raw.enabled !== false,
     })
   },
@@ -264,16 +265,21 @@ export const tagService = {
       color: raw.color ? String(raw.color) : "#a78bfa",
       sortOrder: Number(raw.sortOrder) || 0,
       isVisible: raw.isVisible !== false,
-      groupId: raw.groupId || null,
+      ...(raw.groupId ? { group: { connect: { id: String(raw.groupId) } } } : {}),
     })
   },
 
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
-    const data: Record<string, unknown> = {}
-    for (const f of ["name", "description", "color", "sortOrder", "isVisible", "groupId"]) {
-      if (f in raw) data[f] = raw[f]
+    const data: Prisma.TagUpdateInput = {}
+    if ("name" in raw) data.name = String(raw.name)
+    if ("description" in raw) data.description = String(raw.description)
+    if ("color" in raw) data.color = String(raw.color)
+    if ("sortOrder" in raw) data.sortOrder = Number(raw.sortOrder)
+    if ("isVisible" in raw) data.isVisible = Boolean(raw.isVisible)
+    if ("groupId" in raw) {
+      data.group = raw.groupId ? { connect: { id: String(raw.groupId) } } : { disconnect: true }
     }
     return tagRepo.update(id, data)
   },
@@ -293,7 +299,7 @@ export const tagService = {
   async assignGroup(id: string, groupId: string | null) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
-    return tagRepo.update(id, { groupId: groupId || null })
+    return tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
   },
 }
 
@@ -308,16 +314,20 @@ export const musicService = {
       title: String(raw.title), filename: String(raw.filename),
       url: raw.url ? String(raw.url) : "",
       isActive: raw.isActive !== false,
-      playlistId: raw.playlistId || null,
+      ...(raw.playlistId ? { playlist: { connect: { id: String(raw.playlistId) } } } : {}),
     })
   },
 
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await musicRepo.findById(id)
     if (!existing) throw new NotFoundError("音乐")
-    const data: Record<string, unknown> = {}
-    for (const f of ["title", "filename", "url", "isActive", "playlistId"]) {
-      if (f in raw) data[f] = raw[f]
+    const data: Prisma.MusicUpdateInput = {}
+    if ("title" in raw) data.title = String(raw.title)
+    if ("filename" in raw) data.filename = String(raw.filename)
+    if ("url" in raw) data.url = String(raw.url)
+    if ("isActive" in raw) data.isActive = Boolean(raw.isActive)
+    if ("playlistId" in raw) {
+      data.playlist = raw.playlistId ? { connect: { id: String(raw.playlistId) } } : { disconnect: true }
     }
     return musicRepo.update(id, data)
   },
@@ -468,7 +478,7 @@ export const adminUserService = {
     if (!validRoles.includes(role)) throw new ValidationError("无效的角色")
     const user = await adminUserRepo.findById(id)
     if (!user) throw new NotFoundError("用户")
-    return adminUserRepo.updateRole(id, role)
+    return adminUserRepo.updateRole(id, role as UserRole)
   },
 
   async delete(id: string) {

@@ -3,6 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma, UserRole } from "@prisma/client"
 
 // ── 用户 ────────────────────────────
 
@@ -33,12 +34,12 @@ export const userRepo = {
     })
   },
 
-  create(data: { username: string; email: string; password: string; role?: string }) {
-    return prisma.user.create({ data: { ...data, role: (data.role || "USER") as any } })
+  create(data: { username: string; email: string; password: string; role?: UserRole }) {
+    return prisma.user.create({ data: { ...data, role: data.role || "USER" } })
   },
 
-  updateProfile(id: string, data: Record<string, unknown>) {
-    return prisma.user.update({ where: { id }, data: data as any, select: { id: true, username: true, avatar: true, bio: true, banner: true } })
+  updateProfile(id: string, data: Prisma.UserUpdateInput) {
+    return prisma.user.update({ where: { id }, data, select: { id: true, username: true, avatar: true, bio: true, banner: true } })
   },
 
   updateAvatar(id: string, avatar: string) {
@@ -90,8 +91,8 @@ export const collectionRepo = {
     return prisma.collection.create({ data: { userId, ...data } })
   },
 
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.collection.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.CollectionUpdateInput) {
+    return prisma.collection.update({ where: { id }, data })
   },
 
   delete(id: string) {
@@ -165,8 +166,8 @@ export const commentRepo = {
     return prisma.comment.findUnique({ where: { id } })
   },
 
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.comment.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.CommentUpdateInput) {
+    return prisma.comment.update({ where: { id }, data })
   },
 
   delete(id: string) {
@@ -232,7 +233,7 @@ export const checkinRepo = {
   findByDate(userId: string, date: Date) {
     const dateStr = date.toISOString().split("T")[0]
     return prisma.checkIn.findFirst({
-      where: { userId, date: new Date(dateStr) as any },
+      where: { userId, date: new Date(dateStr) as unknown as Date },
     })
   },
 

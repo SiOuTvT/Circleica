@@ -3,15 +3,15 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@prisma/client"
 
 export const gameRepo = {
   findPaginated(page: number, limit: number, filters?: {
-    q?: string; sort?: string; engine?: string; tag?: string; isNsfw?: boolean
+    q?: string; sort?: string; tag?: string; isNsfw?: boolean
   }) {
     const skip = (page - 1) * limit
-    const where: any = { isPublished: true }
+    const where: Prisma.GameWhereInput = { isPublished: true }
     if (filters?.q) where.title = { contains: filters.q, mode: "insensitive" }
-    if (filters?.engine) where.engine = filters.engine
     if (filters?.isNsfw === false) where.isNsfw = false
     if (filters?.tag) where.tags = { some: { tag: { name: filters.tag } } }
 

@@ -9,9 +9,8 @@ export const GET = withHandler(async (req) => {
   const page = Number(searchParams.get('page') || '1')
   const limit = Number(searchParams.get('limit') || '20')
   const sort = searchParams.get('sort') || undefined
-  const engine = searchParams.get('engine') || undefined
   const tag = searchParams.get('tag') || undefined
 
-  const result = await gameService.getPaginated(page, limit, { q, sort, engine, tag })
+  const result = await gameService.getPaginated(page, limit, { q, sort, tag })
   return json(result)
 })

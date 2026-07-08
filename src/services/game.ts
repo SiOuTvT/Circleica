@@ -7,7 +7,7 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 
 export const gameService = {
-  getPaginated(page: number, limit: number, filters?: { q?: string; sort?: string; engine?: string; tag?: string }) {
+  getPaginated(page: number, limit: number, filters?: { q?: string; sort?: string; tag?: string }) {
     return gameRepo.findPaginated(page, Math.min(limit, 50), filters)
   },
 

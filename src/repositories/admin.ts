@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@prisma/client"
 
 // ── 成就 ────────────────────────────
 
@@ -15,11 +16,11 @@ export const achievementRepo = {
   findById(id: string) {
     return prisma.achievement.findUnique({ where: { id } })
   },
-  create(data: Record<string, unknown>) {
-    return prisma.achievement.create({ data: data as any })
+  create(data: Prisma.AchievementCreateInput) {
+    return prisma.achievement.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.achievement.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.AchievementUpdateInput) {
+    return prisma.achievement.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -38,11 +39,11 @@ export const avatarFrameRepo = {
   findById(id: string) {
     return prisma.avatarFrame.findUnique({ where: { id } })
   },
-  create(data: { name: string; description?: string; imageUrl: string; isPublic?: boolean; sort?: number }) {
+  create(data: Prisma.AvatarFrameCreateInput) {
     return prisma.avatarFrame.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.avatarFrame.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.AvatarFrameUpdateInput) {
+    return prisma.avatarFrame.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -80,11 +81,11 @@ export const creatorRepo = {
       orderBy: { game: { createdAt: "desc" } },
     })
   },
-  create(data: Record<string, unknown>) {
-    return prisma.creator.create({ data: data as any })
+  create(data: Prisma.CreatorCreateInput) {
+    return prisma.creator.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.creator.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.CreatorUpdateInput) {
+    return prisma.creator.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -109,11 +110,11 @@ export const emotionalMessageRepo = {
   findByKey(key: string) {
     return prisma.emotionalMessage.findUnique({ where: { key } })
   },
-  create(data: Record<string, unknown>) {
-    return prisma.emotionalMessage.create({ data: data as any })
+  create(data: Prisma.EmotionalMessageCreateInput) {
+    return prisma.emotionalMessage.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.emotionalMessage.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.EmotionalMessageUpdateInput) {
+    return prisma.emotionalMessage.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.emotionalMessage.delete({ where: { id } })
@@ -132,11 +133,11 @@ export const tagGroupRepo = {
   findById(id: string) {
     return prisma.tagGroup.findUnique({ where: { id }, include: { tags: true } })
   },
-  create(data: { name: string; description?: string; color?: string; positions?: string; isPreset?: boolean }) {
+  create(data: Prisma.TagGroupCreateInput) {
     return prisma.tagGroup.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.tagGroup.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.TagGroupUpdateInput) {
+    return prisma.tagGroup.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -158,11 +159,11 @@ export const tagRepo = {
   findById(id: string) {
     return prisma.tag.findUnique({ where: { id }, include: { group: true } })
   },
-  create(data: Record<string, unknown>) {
-    return prisma.tag.create({ data: data as any })
+  create(data: Prisma.TagCreateInput) {
+    return prisma.tag.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.tag.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.TagUpdateInput) {
+    return prisma.tag.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -181,11 +182,11 @@ export const musicRepo = {
   findById(id: string) {
     return prisma.music.findUnique({ where: { id } })
   },
-  create(data: Record<string, unknown>) {
-    return prisma.music.create({ data: data as any })
+  create(data: Prisma.MusicCreateInput) {
+    return prisma.music.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.music.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.MusicUpdateInput) {
+    return prisma.music.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.music.delete({ where: { id } })
@@ -201,11 +202,11 @@ export const playlistRepo = {
   findById(id: string) {
     return prisma.playlist.findUnique({ where: { id }, include: { music: { orderBy: { createdAt: "desc" } } } })
   },
-  create(data: { name: string; sortOrder?: number }) {
+  create(data: Prisma.PlaylistCreateInput) {
     return prisma.playlist.create({ data })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.playlist.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.PlaylistUpdateInput) {
+    return prisma.playlist.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.$transaction([
@@ -317,8 +318,8 @@ export const adminGameRepo = {
       },
     })
   },
-  update(id: string, data: Record<string, unknown>) {
-    return prisma.game.update({ where: { id }, data: data as any })
+  update(id: string, data: Prisma.GameUpdateInput) {
+    return prisma.game.update({ where: { id }, data })
   },
   delete(id: string) {
     return prisma.game.delete({ where: { id } })
@@ -416,8 +417,8 @@ export const adminUserRepo = {
       select: { id: true, serialId: true, username: true, email: true, avatar: true, bio: true, role: true, createdAt: true, _count: { select: { comments: true, favorites: true, forumPosts: true, checkIns: true } } },
     })
   },
-  updateRole(id: string, role: string) {
-    return prisma.user.update({ where: { id }, data: { role: role as any } })
+  updateRole(id: string, role: Prisma.UserUpdateInput["role"]) {
+    return prisma.user.update({ where: { id }, data: { role } })
   },
   delete(id: string) {
     return prisma.user.delete({ where: { id } })
