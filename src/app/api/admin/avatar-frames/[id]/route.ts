@@ -1,114 +1,24 @@
-import { getAdminSession } from "@/lib/admin"
-import { cleanupOldComposedAvatar } from "@/lib/avatar-compose"
-import { logger } from "@/lib/logger"
-import { prisma } from "@/lib/prisma"
-import fs from "fs/promises"
-import { NextResponse } from "next/server"
-import path from "path"
+import { withHandler, json, noContent } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { avatarFrameService } from "@/services/admin"
+import type { NextRequest } from "next/server"
 
-// GET: 获取单个头像框
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async (_req: NextRequest, ctx) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const { id } = await ctx!.params
+  return json({ frame: await avatarFrameService.getById(id) })
+})
 
-  const { id } = await params
-  const frame = await prisma.avatarFrame.findUnique({ where: { id } })
-  if (!frame) {
-    return NextResponse.json({ error: "头像框不存在" }, { status: 404 })
-  }
+export const PUT = withHandler(async (req: NextRequest, ctx) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const { id } = await ctx!.params
+  const body = await req.json()
+  return json({ frame: await avatarFrameService.update(id, body) })
+})
 
-  return NextResponse.json({ frame })
-}
-
-// PUT: 更新头像框
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  const { id } = await params
-  const existing = await prisma.avatarFrame.findUnique({ where: { id } })
-  if (!existing) {
-    return NextResponse.json({ error: "头像框不存在" }, { status: 404 })
-  }
-
-  try {
-    const body = await request.json()
-    const { name, description, imageUrl, isPublic, sort } = body
-
-    const frame = await prisma.avatarFrame.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(imageUrl !== undefined && { imageUrl }),
-        ...(isPublic !== undefined && { isPublic }),
-        ...(sort !== undefined && { sort }),
-      },
-    })
-
-    return NextResponse.json({ frame })
-  } catch (error) {
-    logger.upload.error("更新头像框失败", error)
-    return NextResponse.json({ error: "更新失败" }, { status: 500 })
-  }
-}
-
-// DELETE: 删除头像框
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  const { id } = await params
-  const existing = await prisma.avatarFrame.findUnique({ where: { id } })
-  if (!existing) {
-    return NextResponse.json({ error: "头像框不存在" }, { status: 404 })
-  }
-
-  try {
-    // 删除头像框图片文件（支持多种格式）
-    for (const ext of ["png", "webp", "jpg"]) {
-      const framePath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "avatar-frames",
-        `${id}.${ext}`
-      )
-      try {
-        await fs.unlink(framePath)
-      } catch (err) { logger.upload.warn("[AvatarFramesRoute] delete old frame file failed", { error: err instanceof Error ? err.message : String(err) }) }
-    }
-
-    // 清理使用该头像框的用户的合成头像文件和数据
-    const affectedUsers = await prisma.user.findMany({
-      where: { avatarFrameId: id },
-      select: { composedAvatarUrl: true },
-    })
-
-    // 删除旧的合成头像文件
-    for (const user of affectedUsers) {
-      if (user.composedAvatarUrl) {
-        await cleanupOldComposedAvatar(user.composedAvatarUrl)
-      }
-    }
-
-    // 将使用该头像框的用户的 avatarFrameId 和 composedAvatarUrl 设为 null
-    await prisma.user.updateMany({
-      where: { avatarFrameId: id },
-      data: { avatarFrameId: null, composedAvatarUrl: null },
-    })
-
-    await prisma.avatarFrame.delete({ where: { id } })
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    logger.upload.error("删除头像框失败", error)
-    return NextResponse.json({ error: "删除失败" }, { status: 500 })
-  }
-}
+export const DELETE = withHandler(async (_req: NextRequest, ctx) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const { id } = await ctx!.params
+  await avatarFrameService.delete(id)
+  return noContent()
+})

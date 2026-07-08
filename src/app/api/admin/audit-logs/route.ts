@@ -1,34 +1,18 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { auditLogService } from "@/services/admin"
+import type { NextRequest } from "next/server"
 
-export async function GET(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  const { searchParams } = req.nextUrl
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
-  const action = searchParams.get("action") || ""
-  const limit = 30
-  const skip = (page - 1) * limit
-
-  const where: Record<string, unknown> = {}
-  if (action) where.action = action
-
-  const [logs, total] = await Promise.all([
-    prisma.auditLog.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      include: { user: { select: { id: true, username: true, avatar: true } } },
-    }),
-    prisma.auditLog.count({ where }),
-  ])
-
-  return NextResponse.json({
+export const GET = withHandler(async (req: NextRequest) => {
+  await requireAdminRole()
+  const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
+  const action = req.nextUrl.searchParams.get("action") || undefined
+  const [logs, total] = await auditLogService.getPaginated(page, action)
+  return json({
     logs: logs.map(l => ({ ...l, createdAt: l.createdAt.toISOString() })),
     total,
     page,
-    limit,
-    totalPages: Math.ceil(total / limit),
+    limit: 30,
+    totalPages: Math.ceil(total / 30),
   })
-}
+})

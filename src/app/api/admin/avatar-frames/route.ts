@@ -1,44 +1,15 @@
-import { getAdminSession } from "@/lib/admin"
-import { logger } from "@/lib/logger"
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { avatarFrameService } from "@/services/admin"
+import type { NextRequest } from "next/server"
 
-// GET: 获取所有头像框（管理员）
-export async function GET() {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async () => {
+  await requireAdminRole("SUPER_ADMIN")
+  return json({ frames: await avatarFrameService.getAll() })
+})
 
-  const frames = await prisma.avatarFrame.findMany({
-    orderBy: { sort: "asc" },
-  })
-
-  return NextResponse.json({ frames })
-}
-
-// POST: 创建新头像框
-export async function POST(request: Request) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  try {
-    const body = await request.json()
-    const { name, description, imageUrl, isPublic, sort } = body
-
-    if (!name || !imageUrl) {
-      return NextResponse.json({ error: "名称和图片 URL 必填" }, { status: 400 })
-    }
-
-    const frame = await prisma.avatarFrame.create({
-      data: {
-        name,
-        description: description || "",
-        imageUrl,
-        isPublic: isPublic !== false,
-        sort: sort || 0,
-      },
-    })
-
-    return NextResponse.json({ frame }, { status: 201 })
-  } catch (error) {
-    logger.upload.error("创建头像框失败", error)
-    return NextResponse.json({ error: "创建失败" }, { status: 500 })
-  }
-}
+export const POST = withHandler(async (req: NextRequest) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const body = await req.json()
+  return created({ frame: await avatarFrameService.create(body) })
+})

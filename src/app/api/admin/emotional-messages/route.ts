@@ -1,45 +1,16 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { emotionalMessageService } from "@/services/admin"
+import type { NextRequest } from "next/server"
 
-/** GET: 列表（支持 ?category=toast|empty|error|success 筛选） */
-export async function GET(req: NextRequest) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const category = req.nextUrl.searchParams.get("category")
-  const where = category ? { category } : {}
-  const items = await prisma.emotionalMessage.findMany({
-    where,
-    orderBy: [{ category: "asc" }, { key: "asc" }],
-  })
-  return NextResponse.json(items)
-}
+export const GET = withHandler(async (req: NextRequest) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const category = req.nextUrl.searchParams.get("category") || undefined
+  return json(await emotionalMessageService.getAll(category))
+})
 
-/** POST: 创建新的情感化消息 */
-export async function POST(req: NextRequest) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  let body: Record<string, unknown>
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
-  const key = body.key as string | undefined
-  const category = body.category as string | undefined
-  const title = body.title as string | undefined
-  const subtitle = body.subtitle as string | undefined
-  const imageUrl = body.imageUrl as string | undefined
-  const emoji = body.emoji as string | undefined
-  const enabled = body.enabled as boolean | undefined
-  if (!key || !category) {
-    return NextResponse.json({ error: "key 和 category 为必填项" }, { status: 400 })
-  }
-  const existing = await prisma.emotionalMessage.findUnique({ where: { key } })
-  if (existing) {
-    return NextResponse.json({ error: `key "${key}" 已存在` }, { status: 409 })
-  }
-  const item = await prisma.emotionalMessage.create({
-    data: { key, category, title: title || "", subtitle: subtitle || "", imageUrl: imageUrl || "", emoji: emoji || "", enabled: enabled !== false },
-  })
-  return NextResponse.json(item, { status: 201 })
-}
+export const POST = withHandler(async (req: NextRequest) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const body = await req.json()
+  return created(await emotionalMessageService.create(body))
+})
