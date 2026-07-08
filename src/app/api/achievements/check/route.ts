@@ -1,20 +1,9 @@
-import { auth } from "@/lib/auth"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAuth } from "@/lib/auth-context"
 import { checkAchievements } from "@/lib/achievements"
-import { logger } from "@/lib/logger"
-import { NextResponse } from "next/server"
 
-/**
- * POST: 手动触发成就检查（也可由其他 API 内部调用 checkAchievements）
- */
-export async function POST() {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
-
-    const unlocked = await checkAchievements(session.user.id)
-    return NextResponse.json({ unlocked })
-  } catch (error) {
-    logger.game.error("[Achievements Check]", error)
-    return NextResponse.json({ error: "服务器内部错误" }, { status: 500 })
-  }
-}
+export const POST = withHandler(async () => {
+  const { userId } = await requireAuth()
+  const unlocked = await checkAchievements(userId)
+  return json({ unlocked })
+})

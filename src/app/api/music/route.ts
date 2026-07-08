@@ -1,6 +1,6 @@
+import { withHandler, json } from "@/lib/api-handler"
 import { prisma } from "@/lib/prisma"
 import { unstable_cache } from "next/cache"
-import { NextResponse } from "next/server"
 
 const getCachedMusic = unstable_cache(
   () => prisma.music.findMany({
@@ -12,10 +12,10 @@ const getCachedMusic = unstable_cache(
     },
   }),
   ["active-music"],
-  { revalidate: 300, tags: ["music"] }
+  { revalidate: 300, tags: ["music"] },
 )
 
-export async function GET() {
+export const GET = withHandler(async () => {
   const music = await getCachedMusic()
 
   // Group into playlists
@@ -28,5 +28,5 @@ export async function GET() {
     grouped[key].tracks.push(m)
   }
 
-  return NextResponse.json(Object.values(grouped))
-}
+  return json(Object.values(grouped))
+})

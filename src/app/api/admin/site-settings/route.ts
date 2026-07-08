@@ -1,22 +1,16 @@
-import { getAdminSession } from "@/lib/admin"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
-import { NextResponse } from "next/server"
 
-export async function GET() {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async () => {
+  await requireAdminRole("SUPER_ADMIN")
   const settings = await getSiteSettings()
-  return NextResponse.json(settings)
-}
+  return json(settings)
+})
 
-export async function POST(req: Request) {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  let body: Record<string, unknown>
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
+export const POST = withHandler(async (req) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const body = await req.json()
   const updated = await updateSiteSettings(body)
-  return NextResponse.json(updated)
-}
+  return json(updated)
+})

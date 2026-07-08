@@ -1,95 +1,17 @@
-import { handleZodError, serverError, success } from "@/lib/api-response"
-import { buildGameSearchFilter } from "@/lib/filters"
-import { logger } from "@/lib/logger"
-import { withRateLimit } from "@/lib/middleware"
-import { prisma } from "@/lib/prisma"
-import { rateLimits } from "@/lib/rate-limit"
-import { gameSearchSchema } from "@/lib/validations"
-import { NextRequest } from "next/server"
+import { withHandler, json } from '@/lib/api-handler'
+import { getOptionalAuth } from '@/lib/auth-context'
+import { gameService } from '@/services/game'
 
-async function handleGamesList(req: NextRequest) {
-  const { searchParams } = req.nextUrl
+export const GET = withHandler(async (req) => {
+  await getOptionalAuth()
+  const { searchParams } = new URL(req.url)
+  const q = searchParams.get('q') || undefined
+  const page = Number(searchParams.get('page') || '1')
+  const limit = Number(searchParams.get('limit') || '20')
+  const sort = searchParams.get('sort') || undefined
+  const engine = searchParams.get('engine') || undefined
+  const tag = searchParams.get('tag') || undefined
 
-  // 使用 Zod 验证查询参数
-  const parsed = gameSearchSchema.safeParse({
-    q: searchParams.get("q") || undefined,
-    tag: searchParams.get("tag") || undefined,
-    page: searchParams.get("page") || undefined,
-    limit: searchParams.get("limit") || undefined,
-    sort: searchParams.get("sort") || undefined,
-    engine: searchParams.get("engine") || undefined,
-  })
-
-  if (!parsed.success) {
-    return handleZodError(parsed.error)
-  }
-
-  const { q, tag, page, limit } = parsed.data
-  const nsfw = searchParams.get("nsfw") === "1"
-  const skip = (page - 1) * limit
-
-  const where = buildGameSearchFilter({ q: q || "", tag: tag || "", nsfw })
-
-  try {
-    const [games, total] = await Promise.all([
-      prisma.game.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          serialId: true,
-          title: true,
-          coverImage: true,
-          status: true,
-          isNsfw: true,
-          favoriteCount: true,
-          viewCount: true,
-          downloadCount: true,
-          downloadLinks: true,
-          updatedAt: true,
-          createdAt: true,
-          description: true,
-          tags: { select: { tag: { select: { name: true, color: true } } } },
-          resources: { select: { language: true, runType: true, resourceContent: true } },
-        },
-      }),
-      prisma.game.count({ where }),
-    ])
-
-    const data = games.map((g) => {
-      // downloadLinks 是 Json 类型，直接使用
-      const downloadLinks: { label?: string; url: string; tags?: string[] }[] =
-        Array.isArray(g.downloadLinks) ? g.downloadLinks as { label?: string; url: string; tags?: string[] }[] : []
-
-      // 从所有资源中收集去重的 resourceTags（仅语言、运行方式、资源内容，不含平台）
-      const resourceTags: string[] = [...new Set(
-        g.resources.flatMap((r) => {
-          const tags: string[] = []
-          const lang = Array.isArray(r.language) ? r.language as string[] : []
-          const run = Array.isArray(r.runType) ? r.runType as string[] : []
-          const content = Array.isArray(r.resourceContent) ? r.resourceContent as string[] : []
-          tags.push(...lang, ...run, ...content)
-          return tags
-        })
-      )]
-
-      const { resources: _ignored, ...rest } = g
-      return {
-        ...rest,
-        tags: rest.tags.map((t) => t.tag),
-        downloadLinks,
-        resourceTags,
-      }
-    })
-
-    return success({ games: data, total, page, limit })
-  } catch (error) {
-    logger.db.error("[Games API] 查询失败", error)
-    return serverError("获取游戏列表失败")
-  }
-}
-
-export const GET = (req: NextRequest) =>
-  withRateLimit(handleGamesList, rateLimits.search, "games-list")(req)
+  const result = await gameService.getPaginated(page, limit, { q, sort, engine, tag })
+  return json(result)
+})

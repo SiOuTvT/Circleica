@@ -1,32 +1,18 @@
-import { checkAchievements, invalidateUserStats } from "@/lib/achievements"
-import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json } from '@/lib/api-handler'
+import { requireAuth } from '@/lib/auth-context'
+import { gameService } from '@/services/game'
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: "未登录" }, { status: 401 })
-  const { id: gameId } = await params
-  let status: string
-  try {
-    const body = await req.json()
-    status = body.status
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
+export const GET = withHandler(async (_req, ctx) => {
+  const { userId } = await requireAuth()
+  const { id: gameId } = await ctx!.params
+  const result = await gameService.getPlayStatus(userId, gameId)
+  return json(result)
+})
 
-  if (!["想玩", "在玩", "玩过"].includes(status))
-    return NextResponse.json({ error: "无效状态" }, { status: 400 })
-
-  await prisma.playStatus.upsert({
-    where: { userId_gameId: { userId: session.user.id, gameId } },
-    create: { userId: session.user.id, gameId, status },
-    update: { status },
-  })
-
-  // 异步检查成就解锁（不阻塞响应），并清除用户统计缓存
-  invalidateUserStats(session.user.id).catch(() => {})
-  checkAchievements(session.user.id).catch(() => {})
-
-  return NextResponse.json({ status })
-}
+export const POST = withHandler(async (req, ctx) => {
+  const { userId } = await requireAuth()
+  const { id: gameId } = await ctx!.params
+  const { status } = await req.json()
+  const result = await gameService.setPlayStatus(userId, gameId, status)
+  return json(result)
+})

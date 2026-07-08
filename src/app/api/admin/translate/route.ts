@@ -1,5 +1,6 @@
-import { requireAdmin } from "@/lib/admin"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { AppError } from "@/lib/errors"
 
 /**
  * 后台翻译接口 — 调用 MyMemory 免费翻译 API
@@ -15,12 +16,12 @@ async function translateSegment(text: string, from: string, to: string): Promise
     headers: { "User-Agent": "FangameAdmin/1.0" },
     signal: AbortSignal.timeout(15000),
   })
-  if (!res.ok) throw new Error(`翻译服务响应异常 (${res.status})`)
+  if (!res.ok) throw new AppError(`翻译服务响应异常 (${res.status})`, "INTERNAL", 502)
   const data = await res.json()
   if (data.responseStatus === 200 && data.responseData?.translatedText) {
     return data.responseData.translatedText
   }
-  throw new Error(data.responseDetails || "翻译失败")
+  throw new AppError(data.responseDetails || "翻译失败", "INTERNAL", 502)
 }
 
 /** 将长文本按段落/句子拆分，每段不超过 MAX_SEGMENT */
@@ -62,35 +63,30 @@ function splitText(text: string): string[] {
   return segments
 }
 
-export async function POST(req: NextRequest) {
-  await requireAdmin()
+export const POST = withHandler(async (req) => {
+  await requireAdminRole()
 
-  try {
-    const { text, from = "en", to = "zh-CN" } = await req.json()
+  const { text, from = "en", to = "zh-CN" } = await req.json()
 
-    if (!text || typeof text !== "string") {
-      return NextResponse.json({ error: "缺少翻译文本" }, { status: 400 })
-    }
-
-    if (text.length > 3000) {
-      return NextResponse.json({ error: "文本过长，最多 3000 字符" }, { status: 400 })
-    }
-
-    const segments = splitText(text)
-    const translated: string[] = []
-
-    for (const seg of segments) {
-      const result = await translateSegment(seg, from, to)
-      translated.push(result)
-      // 分段之间稍作间隔，避免触发限流
-      if (segments.length > 1) {
-        await new Promise(r => setTimeout(r, 300))
-      }
-    }
-
-    return NextResponse.json({ translatedText: translated.join("\n\n") })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "翻译服务异常"
-    return NextResponse.json({ error: msg }, { status: 500 })
+  if (!text || typeof text !== "string") {
+    throw new AppError("缺少翻译文本", "VALIDATION_ERROR", 422)
   }
-}
+
+  if (text.length > 3000) {
+    throw new AppError("文本过长，最多 3000 字符", "VALIDATION_ERROR", 422)
+  }
+
+  const segments = splitText(text)
+  const translated: string[] = []
+
+  for (const seg of segments) {
+    const result = await translateSegment(seg, from, to)
+    translated.push(result)
+    // 分段之间稍作间隔，避免触发限流
+    if (segments.length > 1) {
+      await new Promise(r => setTimeout(r, 300))
+    }
+  }
+
+  return json({ translatedText: translated.join("\n\n") })
+})

@@ -1,20 +1,13 @@
+import { withHandler, json } from "@/lib/api-handler"
 import { logger } from "@/lib/logger"
-import { checkRateLimit, type RateLimitConfig } from "@/lib/rate-limit"
-import { NextRequest, NextResponse } from "next/server"
+import { ValidationError } from "@/lib/errors"
 
 // 翻译专用限流：每分钟 10 次
-const translateRateLimit: RateLimitConfig = {
+const TRANSLATE_RATE_LIMIT = {
   windowMs: 60_000,
   maxRequests: 10,
   message: "翻译请求过于频繁，请稍后再试",
 }
-
-/**
- * 翻译代理 API
- * 将英文文本翻译为中文
- * 使用 MyMemory API（免费、国内可访问）作为主翻译源
- * Google Translate 作为备用（国内可能被墙）
- */
 
 async function translateWithMyMemory(text: string): Promise<string | null> {
   try {
@@ -27,7 +20,6 @@ async function translateWithMyMemory(text: string): Promise<string | null> {
     const data = await res.json()
     if (data.responseStatus === 200 && data.responseData?.translatedText) {
       const result = data.responseData.translatedText
-      // MyMemory 有时返回全大写的失败提示
       if (result.toUpperCase() === result && result.length > 50) return null
       return result
     }
@@ -52,47 +44,26 @@ async function translateWithGoogle(text: string): Promise<string | null> {
   }
 }
 
-export async function POST(req: NextRequest) {
-  // 速率限制
-  const rateLimit = await checkRateLimit(translateRateLimit)
-  if (!rateLimit.success) {
-    return NextResponse.json(
-      { error: translateRateLimit.message },
-      {
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": String(rateLimit.limit),
-          "X-RateLimit-Remaining": String(rateLimit.remaining),
-          "X-RateLimit-Reset": String(rateLimit.reset),
-        },
-      }
-    )
+export const POST = withHandler(async (req) => {
+  const { text } = await req.json()
+
+  if (!text?.trim()) {
+    throw new ValidationError("文本不能为空")
   }
 
-  try {
-    const { text } = await req.json()
+  // 限制文本长度
+  const truncated = text.slice(0, 5000)
 
-    if (!text?.trim()) {
-      return NextResponse.json({ error: "文本不能为空" }, { status: 400 })
-    }
-
-    // 限制文本长度，分段翻译长文本
-    const truncated = text.slice(0, 5000)
-
-    // 优先使用 MyMemory（国内可访问），失败则尝试 Google
-    let translated = await translateWithMyMemory(truncated)
-    if (!translated) {
-      logger.api.debug("[Translate] MyMemory 失败，尝试 Google Translate...")
-      translated = await translateWithGoogle(truncated)
-    }
-
-    if (!translated) {
-      return NextResponse.json({ error: "翻译服务暂不可用，请稍后重试" }, { status: 502 })
-    }
-
-    return NextResponse.json({ translated })
-  } catch (error) {
-    logger.api.error("[Translate] Error", error)
-    return NextResponse.json({ error: "翻译失败" }, { status: 500 })
+  // 优先使用 MyMemory（国内可访问），失败则尝试 Google
+  let translated = await translateWithMyMemory(truncated)
+  if (!translated) {
+    logger.api.debug("[Translate] MyMemory 失败，尝试 Google Translate...")
+    translated = await translateWithGoogle(truncated)
   }
-}
+
+  if (!translated) {
+    throw new ValidationError("翻译服务暂不可用，请稍后重试")
+  }
+
+  return json({ translated })
+})

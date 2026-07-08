@@ -1,14 +1,8 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { adminStatsService } from "@/services/admin"
 
-export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  const [reports, unpublishedGames] = await Promise.all([
-    prisma.gameReport.count(),
-    prisma.game.count({ where: { isPublished: false } }),
-  ])
-
-  return NextResponse.json({ reports, unpublishedGames })
-}
+export const GET = withHandler(async () => {
+  await requireAdminRole()
+  return json(await adminStatsService.getCounts())
+})

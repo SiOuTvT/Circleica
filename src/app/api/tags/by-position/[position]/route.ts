@@ -1,21 +1,13 @@
+import { withHandler, json } from "@/lib/api-handler"
 import { prisma } from "@/lib/prisma"
 import { isValidPosition } from "@/lib/tag-positions"
-import { NextRequest, NextResponse } from "next/server"
+import { ValidationError } from "@/lib/errors"
 
-/**
- * GET /api/tags/by-position/[position]
- * 
- * 根据方位获取标签组及其标签列表（前台公开接口）
- * 返回绑定了该方位的所有标签组，每个组包含其下可见标签
- */
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ position: string }> }
-) {
-  const { position } = await params
+export const GET = withHandler(async (_req, ctx) => {
+  const { position } = await ctx!.params
 
   if (!isValidPosition(position)) {
-    return NextResponse.json({ error: "无效的方位参数" }, { status: 400 })
+    throw new ValidationError("无效的方位参数")
   }
 
   // 查找所有绑定了该方位的标签组，排除该方位下没有标签的空组
@@ -33,7 +25,7 @@ export async function GET(
     },
   })
 
-  return NextResponse.json(
+  return json(
     groups.map(g => ({
       id: g.id,
       name: g.name,
@@ -46,6 +38,6 @@ export async function GET(
         description: t.description,
         color: t.color,
       })),
-    }))
+    })),
   )
-}
+})

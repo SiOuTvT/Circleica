@@ -1,28 +1,28 @@
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, noContent } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
-import { getAdminSession } from "@/lib/admin"
 
-type Ctx = { params: Promise<{ id: string }> }
+export const PUT = withHandler(async (req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
 
-export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
-
-  const body = await req.json().catch(() => ({}))
+  const body = await req.json()
   const data: Record<string, unknown> = {}
   if ("isActive" in body) data.isActive = body.isActive
   if (typeof body.title === "string" && body.title.trim()) data.title = body.title.trim()
   if (typeof body.url === "string" && body.url.trim()) data.url = body.url.trim()
 
-  if (Object.keys(data).length === 0) return NextResponse.json({ error: "没有要更新的字段" }, { status: 400 })
+  if (Object.keys(data).length === 0) {
+    throw new Error("没有要更新的字段")
+  }
 
   const m = await prisma.music.update({ where: { id }, data })
-  return NextResponse.json(m)
-}
+  return json(m)
+})
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
+export const DELETE = withHandler(async (_req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
   await prisma.music.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
-}
+  return noContent()
+})

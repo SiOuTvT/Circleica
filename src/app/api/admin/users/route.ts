@@ -1,13 +1,10 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { getAdminSession } from "@/lib/admin"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { adminUserService } from "@/services/admin"
 
-export async function GET() {
-  if (!await getAdminSession("SUPER_ADMIN")) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    select: { id: true, username: true, email: true, role: true, avatar: true, createdAt: true,
-      _count: { select: { favorites: true, comments: true, checkIns: true } } },
-  })
-  return NextResponse.json(users.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })))
-}
+export const GET = withHandler(async (req) => {
+  await requireAdminRole("SUPER_ADMIN")
+  const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
+  const search = req.nextUrl.searchParams.get("search")?.trim() || undefined
+  return json(await adminUserService.getPaginated(page, search))
+})

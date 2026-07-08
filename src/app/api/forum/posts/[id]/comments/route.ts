@@ -1,90 +1,40 @@
-import { badRequest, created, serverError, tooManyRequests, unauthorized } from "@/lib/api-response"
-import { auth } from "@/lib/auth"
-import { logger } from "@/lib/logger"
-import { createNotification } from "@/lib/notifications"
-import { prisma } from "@/lib/prisma"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAuth } from "@/lib/auth-context"
+import { forumService } from "@/services/forum"
 import { getStorage } from "@/lib/storage"
 import { UPLOAD } from "@/lib/config"
-import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
-import { sanitizeString } from "@/lib/sanitize"
-import { NextRequest } from "next/server"
+import { ValidationError } from "@/lib/errors"
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try {
-    // 速率限制：每分钟最多10条评论
-    const rateLimit = await checkRateLimit(rateLimits.comment)
-    if (!rateLimit.success) {
-      return tooManyRequests("请求过于频繁，请稍后再试")
+export const GET = withHandler(async (req, ctx) => {
+  const { id } = await ctx!.params
+  const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
+  const data = await forumService.getComments(id, page)
+  return json(data)
+})
+
+export const POST = withHandler(async (req, ctx) => {
+  const { userId } = await requireAuth()
+  const { id } = await ctx!.params
+
+  const fd = await req.formData()
+  const content = (fd.get("content") as string)?.trim() || ""
+  const imageFile = fd.get("image") as File | null
+
+  let imageUrl: string | undefined
+  if (imageFile && imageFile.size > 0) {
+    if (imageFile.size > 5 * 1024 * 1024) {
+      throw new ValidationError("图片太大啦，最多 5MB 哦")
     }
-
-    const session = await auth()
-    if (!session?.user?.id) return unauthorized()
-    const { id: postId } = await params
-
-    const fd = await req.formData()
-    const content = sanitizeString((fd.get("content") as string)?.trim())
-    const imageFile = fd.get("image") as File | null
-
-    if (!content && !imageFile) return badRequest("内容不能为空")
-
-    // 内容长度限制
-    if (content && content.length > 2000) {
-      return badRequest("评论内容不能超过2000字")
+    if (!UPLOAD.IMAGE_TYPES.includes(imageFile.type)) {
+      throw new ValidationError("只支持 JPEG、PNG、GIF、WebP 格式的图片")
     }
-
-    // 处理图片上传
-    let imageUrl = ""
-    if (imageFile && imageFile.size > 0) {
-      // 限制图片大小 5MB
-      if (imageFile.size > 5 * 1024 * 1024) {
-        return badRequest("图片太大啦，最多 5MB 哦")
-      }
-      // 验证文件类型
-      if (!UPLOAD.IMAGE_TYPES.includes(imageFile.type)) {
-        return badRequest("只支持 JPEG、PNG、GIF、WebP 格式的图片")
-      }
-      try {
-        const buffer = Buffer.from(await imageFile.arrayBuffer())
-        const ext = imageFile.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg"
-        const storage = getStorage()
-        const result = await storage.upload(buffer, "forum-comments", ext)
-        imageUrl = result.url
-      } catch (error) {
-        logger.upload.error("[Forum Comment] Image upload failed", error)
-        return badRequest("图片上传失败，请稍后再试")
-      }
-    }
-
-    // 获取帖子作者 ID
-    const post = await prisma.forumPost.findUnique({
-      where: { id: postId },
-      select: { userId: true },
-    })
-
-    const comment = await prisma.forumComment.create({
-      data: {
-        postId,
-        userId: session.user.id,
-        content: content || "",
-        imageUrl,
-      },
-      include: { user: { select: { id: true, username: true, avatar: true } } },
-    })
-
-    // 通知帖子作者有新评论
-    if (post) {
-      createNotification({
-        userId: post.userId,
-        actorId: session.user.id,
-        type: "forum_comment_new",
-        targetType: "forum_post",
-        targetId: postId,
-      }).catch(() => {})
-    }
-
-    return created({ ...comment, createdAt: comment.createdAt.toISOString() })
-  } catch (error) {
-    logger.forum.error("[Forum Comment Create]", error)
-    return serverError("服务器内部错误")
+    const buffer = Buffer.from(await imageFile.arrayBuffer())
+    const ext = imageFile.type.split("/")[1]?.replace("jpeg", "jpg") || "jpg"
+    const storage = getStorage()
+    const result = await storage.upload(buffer, "forum-comments", ext)
+    imageUrl = result.url
   }
-}
+
+  const comment = await forumService.createComment(userId, id, { content }, imageUrl)
+  return created(comment)
+})

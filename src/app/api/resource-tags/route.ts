@@ -1,8 +1,6 @@
+import { withHandler, json } from "@/lib/api-handler"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
-
-export const dynamic = "force-dynamic"
 
 const DEFAULTS: Record<string, string[]> = {
   resource_platforms: ["Windows", "Android", "iOS", "MacOS", "Linux", "其他"],
@@ -11,9 +9,7 @@ const DEFAULTS: Record<string, string[]> = {
   resource_content_types: ["游戏本体", "补丁资源", "番外资源", "游戏存档", "其他"],
 }
 
-// GET: 获取所有资源标签选项（公开接口，无缓存，管理员修改后立即生效）
-export async function GET() {
-  // 确保资源标签数据存在（首次访问时自动创建）
+export const GET = withHandler(async () => {
   await ensureResourceTags()
 
   const keys = Object.keys(DEFAULTS)
@@ -32,5 +28,5 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json(result)
-}
+  return json(result)
+})

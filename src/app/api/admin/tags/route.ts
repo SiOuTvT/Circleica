@@ -1,57 +1,14 @@
-import { getAdminSession } from "@/lib/admin"
-import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
-import { prisma } from "@/lib/prisma"
-import { revalidateTag } from "next/cache"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { tagService } from "@/services/admin"
 
-export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async () => {
+  await requireAdminRole()
+  return json(await tagService.getAll())
+})
 
-  // 确保预设标签组存在
-  await ensurePresetTagGroups()
-  const tags = await prisma.tag.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    include: {
-      _count: { select: { games: true } },
-      group: true,
-    },
-  })
-  return NextResponse.json(tags.map((t) => ({ ...t, gameCount: t._count.games })))
-}
-
-export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-
-  // 确保预设标签组存在（创建标签时可能引用默认组）
-  await ensurePresetTagGroups()
-
-  let name: string | undefined, description: string | undefined, color: string | undefined, groupId: string | undefined, sortOrder: number | undefined, isVisible: boolean | undefined
-  try {
-    const body = await req.json()
-    name = body.name as string | undefined
-    description = body.description as string | undefined
-    color = body.color as string | undefined
-    groupId = body.groupId as string | undefined
-    sortOrder = body.sortOrder as number | undefined
-    isVisible = body.isVisible as boolean | undefined
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
-  if (!name?.trim()) return NextResponse.json({ error: "标签名不能为空" }, { status: 400 })
-
-  const exists = await prisma.tag.findUnique({ where: { name: name.trim() } })
-  if (exists) return NextResponse.json({ error: "标签已存在" }, { status: 409 })
-
-  const tag = await prisma.tag.create({
-    data: {
-      name: name.trim(),
-      description: description?.trim() ?? "",
-      color: color ?? "#a78bfa",
-      groupId: groupId || "preset_detail_header",
-      sortOrder: typeof sortOrder === "number" ? sortOrder : 0,
-      isVisible: isVisible !== false,
-    },
-  })
-  revalidateTag("tags", "max")
-  return NextResponse.json(tag, { status: 201 })
-}
+export const POST = withHandler(async (req) => {
+  await requireAdminRole()
+  const body = await req.json()
+  return created(await tagService.create(body))
+})

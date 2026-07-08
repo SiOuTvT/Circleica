@@ -1,91 +1,34 @@
-import { getAdminSession } from "@/lib/admin"
-import { prisma } from "@/lib/prisma"
-import { isValidPosition } from "@/lib/tag-positions"
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, noContent } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { tagGroupService } from "@/services/admin"
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
+export const GET = withHandler(async (_req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  return json(await tagGroupService.getById(id))
+})
 
-  let body: Record<string, unknown>
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+export const PUT = withHandler(async (req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  const body = await req.json()
+  return json(await tagGroupService.update(id, body))
+})
+
+export const DELETE = withHandler(async (_req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  await tagGroupService.delete(id)
+  return noContent()
+})
+
+// Force-delete: unassigns tags from group before deleting
+export const PATCH = withHandler(async (req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  const { forceDelete } = await req.json()
+  if (!forceDelete) {
+    throw new Error("无效操作")
   }
-
-  const existing = await prisma.tagGroup.findUnique({ where: { id } })
-  if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
-
-  // 支持部分更新（如仅更新颜色）
-  const updateData: Record<string, unknown> = {}
-
-  if (body.name !== undefined) {
-    const name = body.name as string
-    if (!name?.trim()) return NextResponse.json({ error: "标签组名不能为空" }, { status: 400 })
-    const dup = await prisma.tagGroup.findFirst({ where: { name: name.trim(), NOT: { id } } })
-    if (dup) return NextResponse.json({ error: "标签组名已存在" }, { status: 409 })
-    updateData.name = name.trim()
-  }
-  if (body.description !== undefined) {
-    const description = body.description as string | undefined
-    updateData.description = description?.trim() ?? ""
-  }
-  if (body.color !== undefined) updateData.color = body.color as string
-  if (body.positions !== undefined) {
-    const positions = body.positions as string[] | undefined
-    updateData.positions = JSON.stringify(
-      Array.isArray(positions) ? positions.filter((p: string) => isValidPosition(p)) : []
-    )
-  }
-
-  const group = await prisma.tagGroup.update({ where: { id }, data: updateData })
-  return NextResponse.json({ ...group, positions: JSON.parse(group.positions) })
-}
-
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
-
-  const existing = await prisma.tagGroup.findUnique({
-    where: { id },
-    include: { _count: { select: { tags: true } } },
-  })
-  if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
-
-  // 允许删除内置标签组
-  if (existing._count.tags > 0) {
-    return NextResponse.json({
-      error: `该标签组包含 ${existing._count.tags} 个标签，删除后这些标签将变为未分组状态，确认删除？`,
-      tagCount: existing._count.tags,
-      confirm: true,
-    }, { status: 409 })
-  }
-
-  await prisma.tagGroup.delete({ where: { id } })
-  return NextResponse.json({ success: true })
-}
-
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
-
-  let forceDelete: boolean | undefined
-  try {
-    const body = await req.json()
-    forceDelete = body.forceDelete as boolean | undefined
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
-  }
-
-  if (forceDelete) {
-    const existing = await prisma.tagGroup.findUnique({ where: { id } })
-    if (!existing) return NextResponse.json({ error: "标签组不存在" }, { status: 404 })
-
-    // 允许强制删除内置标签组
-    await prisma.tag.updateMany({ where: { groupId: id }, data: { groupId: null } })
-    await prisma.tagGroup.delete({ where: { id } })
-    return NextResponse.json({ success: true })
-  }
-  return NextResponse.json({ error: "无效操作" }, { status: 400 })
-}
+  return json(await tagGroupService.forceDelete(id))
+})

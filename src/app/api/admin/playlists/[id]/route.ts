@@ -1,22 +1,33 @@
-import { getAdminSession } from "@/lib/admin"
+import { withHandler, json, noContent } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse } from "next/server"
 
-type Ctx = { params: Promise<{ id: string }> }
+export const GET = withHandler(async (_req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  const playlist = await prisma.playlist.findUnique({
+    where: { id },
+    include: { music: { orderBy: { createdAt: "desc" } } },
+  })
+  if (!playlist) throw new Error("播放列表不存在")
+  return json(playlist)
+})
 
-export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
-  const { name } = await req.json().catch(() => ({}))
-  if (!name?.trim()) return NextResponse.json({ error: "名称不能为空" }, { status: 400 })
+export const PUT = withHandler(async (req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
+  const { name } = await req.json()
+  if (!name?.trim()) {
+    throw new Error("名称不能为空")
+  }
   await prisma.playlist.update({ where: { id }, data: { name: name.trim() } })
-  return NextResponse.json({ ok: true })
-}
+  return json({ ok: true })
+})
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
-  const { id } = await params
+export const DELETE = withHandler(async (_req, ctx) => {
+  await requireAdminRole()
+  const { id } = await ctx!.params
   await prisma.music.updateMany({ where: { playlistId: id }, data: { playlistId: null } })
   await prisma.playlist.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
-}
+  return noContent()
+})

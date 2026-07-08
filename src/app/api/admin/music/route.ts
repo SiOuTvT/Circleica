@@ -1,29 +1,26 @@
-import { NextRequest, NextResponse } from "next/server"
+import { withHandler, json, created } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
-import { getAdminSession } from "@/lib/admin"
 
-export async function GET() {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async () => {
+  await requireAdminRole()
   const music = await prisma.music.findMany({
     orderBy: { createdAt: "desc" },
     include: { playlist: { select: { id: true, name: true } } },
   })
-  return NextResponse.json(music)
-}
+  return json(music)
+})
 
-export async function POST(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const POST = withHandler(async (req) => {
+  await requireAdminRole()
+  const body = await req.json()
+  const title = body.title as string | undefined
+  const url = body.url as string | undefined
+  let playlistId = body.playlistId as string | undefined
 
-  let title: string | undefined, url: string | undefined, playlistId: string | undefined
-  try {
-    const body = await req.json()
-    title = body.title as string | undefined
-    url = body.url as string | undefined
-    playlistId = body.playlistId as string | undefined
-  } catch {
-    return NextResponse.json({ error: "请求格式错误" }, { status: 400 })
+  if (!title?.trim() || !url?.trim()) {
+    throw new Error("标题和链接不能为空")
   }
-  if (!title?.trim() || !url?.trim()) return NextResponse.json({ error: "标题和链接不能为空" }, { status: 400 })
 
   // Validate playlist exists if provided
   if (playlistId) {
@@ -34,5 +31,5 @@ export async function POST(req: NextRequest) {
   const music = await prisma.music.create({
     data: { title: title.trim(), filename: url.trim(), url: url.trim(), playlistId: playlistId ?? null },
   })
-  return NextResponse.json(music, { status: 201 })
-}
+  return created(music)
+})

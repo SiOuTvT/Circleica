@@ -1,14 +1,16 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getAdminSession } from "@/lib/admin"
+import { withHandler, json } from "@/lib/api-handler"
+import { requireAdminRole } from "@/lib/auth-context"
+import { ValidationError } from "@/lib/errors"
+import type { NextRequest } from "next/server"
 
-// VNDB developer type：in=个人同人, ng=同人社团, co=商业公司
+// VNDB developer type: in=个人同人, ng=同人社团, co=商业公司
 const DOUJIN_TYPES = new Set(["in", "ng"])
 
-export async function GET(req: NextRequest) {
-  if (!await getAdminSession()) return NextResponse.json({ error: "无权限" }, { status: 403 })
+export const GET = withHandler(async (req: NextRequest) => {
+  await requireAdminRole()
 
   const vndbId = req.nextUrl.searchParams.get("id")?.trim()
-  if (!vndbId) return NextResponse.json({ error: "缺少 VNDB ID" }, { status: 400 })
+  if (!vndbId) throw new ValidationError("缺少 VNDB ID")
 
   // 规范化 ID（支持输入 v123 或 123）
   const id = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
@@ -28,11 +30,11 @@ export async function GET(req: NextRequest) {
     }),
   })
 
-  if (!res.ok) return NextResponse.json({ error: "VNDB 请求失败" }, { status: 502 })
+  if (!res.ok) throw new ValidationError("VNDB 请求失败")
 
   const data = await res.json()
   const vn = data.results?.[0]
-  if (!vn) return NextResponse.json({ error: `未找到 ${id}` }, { status: 404 })
+  if (!vn) throw new ValidationError(`未找到 ${id}`)
 
   // 严格判断：必须有至少一个同人开发者
   const developers: { id: string; name: string; type: string }[] = vn.developers ?? []
@@ -40,10 +42,9 @@ export async function GET(req: NextRequest) {
 
   if (!isDoujin) {
     const devNames = developers.map(d => `${d.name}(${d.type})`).join(", ")
-    return NextResponse.json({
-      error: `该作品不是同人游戏。开发者：${devNames}。本站只收录同人社团（ng）或个人（in）制作的作品，商业公司（co）作品请勿导入。`,
-      isCommercial: true,
-    }, { status: 422 })
+    throw new ValidationError(
+      `该作品不是同人游戏。开发者：${devNames}。本站只收录同人社团（ng）或个人（in）制作的作品，商业公司（co）作品请勿导入。`,
+    )
   }
 
   // 判断 NSFW（VNDB sexual 字段：0=全年龄, 1=轻度, 2=成人）
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
     .replace(/\[i\](.*?)\[\/i\]/g, "$1")
     .trim()
 
-  return NextResponse.json({
+  return json({
     vndbId:       id,
     title:        vn.alttitle || vn.title,   // 优先用日文标题
     titleEn:      vn.title,
@@ -85,4 +86,4 @@ export async function GET(req: NextRequest) {
     tags,
     staff,
   })
-}
+})
