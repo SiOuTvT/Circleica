@@ -6,11 +6,15 @@ FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 
 # Install system dependencies for sharp and prisma
-COPY docker-apt-mirror.sh /tmp/docker-apt-mirror.sh
-RUN chmod +x /tmp/docker-apt-mirror.sh && /tmp/docker-apt-mirror.sh && \
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/* /tmp/docker-apt-mirror.sh
+    rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files
 COPY package.json package-lock.json ./
@@ -30,11 +34,15 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 # Install openssl for Prisma engine detection
-COPY docker-apt-mirror.sh /tmp/docker-apt-mirror.sh
-RUN chmod +x /tmp/docker-apt-mirror.sh && /tmp/docker-apt-mirror.sh && \
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/* /tmp/docker-apt-mirror.sh
+    rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies from stage 1
 COPY --from=deps /app/node_modules ./node_modules
@@ -68,13 +76,17 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
 # Install runtime dependencies
-COPY docker-apt-mirror.sh /tmp/docker-apt-mirror.sh
-RUN chmod +x /tmp/docker-apt-mirror.sh && /tmp/docker-apt-mirror.sh && \
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends \
       openssl \
       curl \
-    && rm -rf /var/lib/apt/lists/* /tmp/docker-apt-mirror.sh
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN groupadd --gid 1001 nodejs && \
