@@ -27,11 +27,19 @@ export const viewport: Viewport = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [siteName, siteDesc, siteLogo] = await Promise.all([
-    getSiteName(),
-    getSiteDescription(),
-    getSiteLogo(),
-  ])
+  let siteName = "Fangame"
+  let siteDesc = "Galgame/视觉小说社区平台"
+  let siteLogo: string | null = null
+
+  try {
+    ;[siteName, siteDesc, siteLogo] = await Promise.all([
+      getSiteName(),
+      getSiteDescription(),
+      getSiteLogo(),
+    ])
+  } catch {
+    // 构建期无数据库连接，使用默认值
+  }
 
   const ogImages = siteLogo ? [siteLogo] : ["/opengraph-image"]
 
