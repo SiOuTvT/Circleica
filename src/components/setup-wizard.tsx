@@ -383,7 +383,7 @@ export function SetupWizard() {
                         <button type="button" disabled={uploading} className={cn("h-9 px-4 rounded-lg text-xs font-medium transition-all active:scale-95", "bg-muted text-foreground border border-border", "disabled:opacity-40")} onClick={() => fileRef.current?.click()}>
                           {uploading ? "上传中..." : "选择图片"}
                         </button>
-                        {form.siteLogo && <button type="button" className={cn("text-xs", isDark ? "text-white/30 hover:text-red-400" : "text-neutral-400 hover:text-red-500")} onClick={() => { update("siteLogo", ""); setLogoPreview("") }}>移除</button>}
+                        {form.siteLogo && <button type="button" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { update("siteLogo", ""); setLogoPreview("") }}>移除</button>}
                       </div>
                     </Field>
                     <Field label="注册策略">
