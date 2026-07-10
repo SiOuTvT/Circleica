@@ -113,6 +113,7 @@ export function SetupWizard() {
   const [mode, setMode] = useState<"dark" | "light">("dark")
   const [showPw, setShowPw] = useState(false)
   const [showPw2, setShowPw2] = useState(false)
+  const [completed, setCompleted] = useState(false)
 
   const isDark = mode === "dark"
   const pwStrength = getPasswordStrength(form.password)
@@ -244,9 +245,9 @@ export function SetupWizard() {
       })
 
       if (signInResult?.ok) {
-        // 初始化完成 → 进入后台（站长第一次使用通常需要配置网站）
+        // 初始化成功 → 显示欢迎页（不直接跳转，让用户确认）
         router.refresh()
-        router.push("/admin")
+        setCompleted(true)
       } else {
         // signIn 失败不阻断，跳登录页手动登录
         router.push("/login")
@@ -258,6 +259,98 @@ export function SetupWizard() {
       setLoading(false)
       setSubmitStage(0)
     }
+  }
+
+  /* ── 欢迎页（初始化完成后） ── */
+  if (completed) {
+    const themeLabel = THEME_PRESETS.find(p => p.color === form.themeColor)?.label || "自定义"
+    return (
+      <div className={cn(
+        "fixed inset-0 flex items-center justify-center p-4 overflow-auto transition-colors duration-500",
+        isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]",
+      )}>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className={cn(
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-[0.08]",
+            isDark ? "bg-[var(--theme-color)]" : "bg-[var(--theme-color)]",
+          )} />
+        </div>
+
+        <div className={cn(
+          "relative z-10 w-full max-w-md rounded-2xl overflow-hidden text-center transition-colors duration-500",
+          isDark
+            ? "bg-white/[0.03] border border-white/[0.06] shadow-[0_8px_60px_rgba(0,0,0,0.5)]"
+            : "bg-white border border-neutral-200 shadow-[0_8px_40px_rgba(0,0,0,0.08)]",
+        )} style={{ animation: "wiz-fade-in 0.6s ease-out" }}>
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-color)]/30 to-transparent" />
+
+          <div className="p-8 sm:p-10 space-y-6">
+            <div className="text-5xl" style={{ animation: "wiz-fade-in 0.8s ease-out" }}>🎉</div>
+
+            <div>
+              <h1 className={cn("text-xl sm:text-2xl font-bold tracking-tight", isDark ? "text-white" : "text-neutral-900")}>
+                站点初始化完成
+              </h1>
+              <p className={cn("text-sm mt-2", isDark ? "text-white/40" : "text-neutral-400")}>
+                {form.siteName} 已准备就绪
+              </p>
+            </div>
+
+            <div className={cn(
+              "rounded-xl overflow-hidden divide-y text-left",
+              isDark ? "bg-white/[0.03] border border-white/[0.06] divide-white/[0.05]"
+                : "bg-neutral-50 border border-neutral-200 divide-neutral-200",
+            )}>
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className={cn("text-sm", isDark ? "text-white/35" : "text-neutral-400")}>站点</span>
+                <span className={cn("text-sm font-medium", isDark ? "text-white/75" : "text-neutral-700")}>
+                  {form.siteName}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className={cn("text-sm", isDark ? "text-white/35" : "text-neutral-400")}>主题</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full inline-block" style={{ backgroundColor: form.themeColor }} />
+                  <span className={cn("text-sm font-medium", isDark ? "text-white/75" : "text-neutral-700")}>{themeLabel}</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className={cn("text-sm", isDark ? "text-white/35" : "text-neutral-400")}>站长</span>
+                <span className={cn("text-sm font-medium", isDark ? "text-white/75" : "text-neutral-700")}>
+                  {form.username}
+                </span>
+              </div>
+            </div>
+
+            <p className={cn("text-xs", isDark ? "text-white/25" : "text-neutral-400")}>
+              接下来你可以配置存储、上传游戏内容、自定义站点页面
+            </p>
+
+            <div className="flex gap-3">
+              <button type="button"
+                className={cn(
+                  "flex-1 h-11 rounded-xl text-sm font-medium transition-all duration-200 active:scale-[0.98]",
+                  isDark
+                    ? "bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/[0.1] hover:text-white"
+                    : "bg-neutral-100 border border-neutral-200 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-800",
+                )}
+                onClick={() => router.push("/")}>
+                查看网站
+              </button>
+              <button type="button"
+                className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-[0.97]
+                           text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]
+                           hover:shadow-[0_6px_30px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.3)] hover:brightness-110"
+                style={{ backgroundColor: "var(--theme-color)" }}
+                onClick={() => router.push("/admin")}>
+                进入后台 →
+              </button>
+            </div>
+          </div>
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-purple-400/10 to-transparent" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -612,6 +705,16 @@ export function SetupWizard() {
                         <p className="text-[11px] text-red-400 mt-1">两次密码不一致</p>
                       )}
                     </Field>
+
+                    {/* 安全提示 */}
+                    <div className={cn(
+                      "flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-xs",
+                      isDark ? "text-white/25 bg-white/[0.02] border border-white/[0.04]"
+                        : "text-neutral-400 bg-neutral-50 border border-neutral-100",
+                    )}>
+                      <span className="mt-px shrink-0">🔐</span>
+                      <span>该账号拥有管理网站的最高权限，请妥善保存密码。初始化完成后可在后台修改账号信息。</span>
+                    </div>
                   </div>
                 )}
 
