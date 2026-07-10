@@ -253,7 +253,7 @@ export function SetupWizard() {
   if (completed) {
     const themeLabel = THEME_PRESETS.find(p => p.color === form.themeColor)?.label || "自定义"
     return (
-      <div className={cn("fixed inset-0 flex items-center justify-center p-4 overflow-auto transition-colors duration-500", isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]")}>
+      <div className={cn("fixed inset-0 flex items-start lg:items-center justify-center p-4 overflow-auto transition-colors duration-500", isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]")}>
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-[0.08] bg-[var(--theme-color)]")} />
         </div>
@@ -305,7 +305,7 @@ export function SetupWizard() {
         }
       `}</style>
 
-      <div className={cn("fixed inset-0 flex items-center justify-center p-3 sm:p-4 overflow-auto transition-colors duration-500", isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]")}>
+      <div className={cn("fixed inset-0 flex items-start lg:items-center justify-center p-3 sm:p-4 overflow-auto transition-colors duration-500", isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]")}>
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className={cn("absolute -top-1/4 -left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.06]", isDark ? "bg-amber-400" : "bg-amber-300")} />
           <div className={cn("absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.04]", isDark ? "bg-purple-400" : "bg-orange-200")} />
