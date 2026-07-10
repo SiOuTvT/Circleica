@@ -48,9 +48,42 @@ const INITIAL: FormData = {
 }
 
 const STEPS = [
-  { label: "网站设置", icon: "⚙️" },
-  { label: "管理员", icon: "👤" },
-  { label: "完成", icon: "✨" },
+  { label: "站点信息", icon: "⚙️" },
+  { label: "站长账号", icon: "👤" },
+  { label: "确认初始化", icon: "✨" },
+]
+
+/* ── 错误信息映射 ── */
+function friendlyError(msg: string): string {
+  if (msg.includes("already_initialized") || msg.includes("已完成初始化")) return "站点已初始化，请勿重复操作"
+  if (msg.includes("用户名") && msg.includes("重复")) return "该用户名已被使用，请更换"
+  if (msg.includes("unique") || msg.includes("duplicate")) return "数据冲突，请检查输入是否重复"
+  if (msg.includes("timeout") || msg.includes("ETIMEDOUT")) return "网络超时，请检查网络后重试"
+  if (msg.includes("fetch")) return "网络连接失败，请检查网络"
+  return msg
+}
+
+/* ── 密码强度检测 ── */
+function getPasswordStrength(pw: string): { level: number; label: string; color: string } {
+  if (!pw) return { level: 0, label: "", color: "" }
+  let score = 0
+  if (pw.length >= 8) score++
+  if (pw.length >= 12) score++
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[^A-Za-z0-9]/.test(pw)) score++
+  if (score <= 1) return { level: 1, label: "弱", color: "bg-red-400" }
+  if (score <= 2) return { level: 2, label: "一般", color: "bg-amber-400" }
+  if (score <= 3) return { level: 3, label: "良好", color: "bg-emerald-400" }
+  return { level: 4, label: "强", color: "bg-emerald-500" }
+}
+
+/* ── 提交阶段文案 ── */
+const SUBMIT_STAGES = [
+  "正在创建站点...",
+  "正在保存配置...",
+  "正在创建站长账号...",
+  "正在完成初始化...",
 ]
 
 /* ── 样式 token ── */
@@ -75,8 +108,14 @@ export function SetupWizard() {
   const [logoPreview, setLogoPreview] = useState("")
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [submitStage, setSubmitStage] = useState(0)
   const [error, setError] = useState("")
   const [mode, setMode] = useState<"dark" | "light">("dark")
+  const [showPw, setShowPw] = useState(false)
+  const [showPw2, setShowPw2] = useState(false)
+
+  const isDark = mode === "dark"
+  const pwStrength = getPasswordStrength(form.password)
 
   /* ── 初始化：保存原始 classList，应用默认主题色 ── */
   useEffect(() => {
@@ -126,7 +165,7 @@ export function SetupWizard() {
       update("siteLogo", data.data.url)
       setLogoPreview(URL.createObjectURL(file))
     } catch (err) {
-      setError(err instanceof Error ? err.message : "上传失败")
+      setError(friendlyError(err instanceof Error ? err.message : "上传失败"))
     } finally {
       setUploading(false)
     }
@@ -136,11 +175,14 @@ export function SetupWizard() {
   function validateStep(): boolean {
     setError("")
     if (step === 0) {
-      if (!form.siteName.trim()) { setError("网站名称不能为空"); return false }
+      if (!form.siteName.trim()) { setError("站点名称不能为空"); return false }
+      if (form.siteName.trim().length > 50) { setError("站点名称不超过 50 个字符"); return false }
       return true
     }
     if (step === 1) {
-      if (!form.username.trim()) { setError("用户名不能为空"); return false }
+      if (!form.username.trim()) { setError("站长用户名不能为空"); return false }
+      if (form.username.trim().length < 2) { setError("用户名至少 2 个字符"); return false }
+      if (form.username.trim().length > 20) { setError("用户名不超过 20 个字符"); return false }
       if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError("邮箱格式不正确"); return false }
       if (form.password.length < 8) { setError("密码至少 8 个字符"); return false }
       if (form.password !== form.confirmPassword) { setError("两次密码不一致"); return false }
@@ -153,11 +195,20 @@ export function SetupWizard() {
     if (validateStep()) setStep(s => s + 1)
   }
 
-  /* ── 提交 ── */
+  /* ── 提交（带阶段进度） ── */
   async function handleSubmit() {
+    if (loading) return
     setLoading(true)
     setError("")
+    setSubmitStage(0)
+
+    // 模拟阶段进度（实际是单次 API，但给用户明确反馈感）
+    const stageTimer = setInterval(() => {
+      setSubmitStage(prev => Math.min(prev + 1, SUBMIT_STAGES.length - 1))
+    }, 800)
+
     try {
+      setSubmitStage(0)
       const res = await fetch("/api/setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -178,11 +229,14 @@ export function SetupWizard() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "初始化失败")
 
+      setSubmitStage(2)
+
       // 将主题色写入 localStorage，ThemeProvider 启动后会读取
       const themeSettings = { themeColor: form.themeColor, themeRadius: 12, themeShadowIntensity: 50, themeAlpha: 15 }
       localStorage.setItem("site-theme-settings", JSON.stringify(themeSettings))
       localStorage.setItem("site-theme-color", form.themeColor)
 
+      setSubmitStage(3)
       const signInResult = await signIn("credentials", {
         redirect: false,
         username: form.username.trim(),
@@ -190,19 +244,21 @@ export function SetupWizard() {
       })
 
       if (signInResult?.ok) {
+        // 初始化完成 → 进入后台（站长第一次使用通常需要配置网站）
         router.refresh()
-        router.push("/")
+        router.push("/admin")
       } else {
+        // signIn 失败不阻断，跳登录页手动登录
         router.push("/login")
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "初始化失败")
+      setError(friendlyError(err instanceof Error ? err.message : "初始化失败，请重试"))
     } finally {
+      clearInterval(stageTimer)
       setLoading(false)
+      setSubmitStage(0)
     }
   }
-
-  const isDark = mode === "dark"
 
   return (
     <>
@@ -256,7 +312,7 @@ export function SetupWizard() {
                 ? "bg-white/[0.06] text-white/50 hover:bg-white/[0.1] hover:text-white/80"
                 : "bg-neutral-100 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-600",
             )}
-            title={isDark ? "切换到浅色" : "切换到深色"}
+            title={isDark ? "切换到浅色预览" : "切换到深色预览"}
           >
             {isDark ? "☀️" : "🌙"}
           </button>
@@ -271,7 +327,7 @@ export function SetupWizard() {
                   ? "bg-[var(--theme-color)]/10 text-[var(--theme-color)] border border-[var(--theme-color)]/20"
                   : "bg-[var(--theme-color)]/8 text-[var(--theme-color)] border border-[var(--theme-color)]/15",
               )}>
-                首次启动配置向导
+                站点初始化向导
               </div>
               <h1 className={cn(
                 "text-xl sm:text-2xl font-bold tracking-tight",
@@ -280,7 +336,7 @@ export function SetupWizard() {
                 欢迎使用 Fangame
               </h1>
               <p className={cn("text-sm mt-1", isDark ? "text-white/35" : "text-neutral-400")}>
-                完成以下配置，启动你的社区平台
+                配置你的站点，首次部署只需 1 分钟
               </p>
             </div>
 
@@ -351,21 +407,25 @@ export function SetupWizard() {
               {/* ── 左侧：表单 ── */}
               <div className="flex-1 min-w-0">
 
-                {/* Step 1: 网站设置 */}
+                {/* ─── Step 1: 站点信息 ─── */}
                 {step === 0 && (
                   <div className="space-y-5" style={{ animation: "wiz-fade-in 0.4s ease-out" }}>
-                    <Field label="网站名称" required isDark={isDark}>
+                    <Field label="站点名称" required isDark={isDark}
+                      hint="显示在网站标题、Header、Footer 和 SEO 中">
                       <input className={inputBase} value={form.siteName}
-                        onChange={e => update("siteName", e.target.value)} placeholder="同人游戏站" />
+                        onChange={e => update("siteName", e.target.value)}
+                        placeholder="同人游戏站" maxLength={50} />
                     </Field>
 
-                    <Field label="网站描述" isDark={isDark}>
+                    <Field label="站点描述" isDark={isDark}
+                      hint="用于 SEO description 和网站首页介绍">
                       <input className={inputBase} value={form.siteDescription}
                         onChange={e => update("siteDescription", e.target.value)}
                         placeholder="面向 Galgame/视觉小说爱好者的社区平台" />
                     </Field>
 
-                    <Field label="Logo" isDark={isDark}>
+                    <Field label="站点 Logo" isDark={isDark}
+                      hint="建议 120×120 透明底 PNG，最大 2MB">
                       <div className="flex items-center gap-3">
                         {logoPreview || form.siteLogo ? (
                           <img src={logoPreview || form.siteLogo} alt="Logo"
@@ -389,18 +449,17 @@ export function SetupWizard() {
                           {uploading ? "上传中..." : "选择图片"}
                         </button>
                         {form.siteLogo && (
-                          <button type="button" className="text-xs text-white/30 hover:text-red-400 transition-colors"
+                          <button type="button"
+                            className={cn("text-xs transition-colors", isDark ? "text-white/30 hover:text-red-400" : "text-neutral-400 hover:text-red-500")}
                             onClick={() => { update("siteLogo", ""); setLogoPreview("") }}>
                             移除
                           </button>
                         )}
                       </div>
-                      <p className={cn("mt-1.5 text-[11px]", isDark ? "text-white/20" : "text-neutral-400")}>
-                        建议 120×120，最大 2MB
-                      </p>
                     </Field>
 
-                    <Field label="主题色" isDark={isDark}>
+                    <Field label="主题色" isDark={isDark}
+                      hint="影响按钮、链接、高亮等全局配色，初始化后可在后台修改">
                       <div className="grid grid-cols-5 gap-2">
                         {THEME_PRESETS.map(p => {
                           const selected = form.themeColor === p.color
@@ -415,7 +474,7 @@ export function SetupWizard() {
                                   ? "bg-[var(--theme-color)]/10 ring-2 ring-[var(--theme-color)]/40 scale-[1.02]"
                                   : (isDark ? "hover:bg-white/[0.04]" : "hover:bg-neutral-50"),
                               )}
-                              title={p.label}
+                              title={`${p.label} — ${p.desc}`}
                             >
                               <div
                                 className={cn(
@@ -463,33 +522,104 @@ export function SetupWizard() {
                   </div>
                 )}
 
-                {/* Step 2: 管理员账号 */}
+                {/* ─── Step 2: 站长账号 ─── */}
                 {step === 1 && (
                   <div className="space-y-5" style={{ animation: "wiz-fade-in 0.4s ease-out" }}>
-                    <Field label="用户名" required isDark={isDark}>
+                    {/* 角色说明 */}
+                    <div className={cn(
+                      "flex items-start gap-3 rounded-xl px-4 py-3 text-sm",
+                      isDark ? "bg-[var(--theme-color)]/5 border border-[var(--theme-color)]/10" : "bg-amber-50 border border-amber-100",
+                    )}>
+                      <span className="text-lg mt-0.5">👑</span>
+                      <div>
+                        <p className={cn("font-medium", isDark ? "text-[var(--theme-color)]" : "text-amber-800")}>
+                          创建站长账号（Owner）
+                        </p>
+                        <p className={cn("text-xs mt-0.5", isDark ? "text-white/40" : "text-amber-600/70")}>
+                          站长拥有最高权限，负责管理整个站点。此账号唯一，后续可在后台修改信息。
+                        </p>
+                      </div>
+                    </div>
+
+                    <Field label="用户名" required isDark={isDark}
+                      hint="登录后台使用的账号名，2-20 个字符">
                       <input className={inputBase} value={form.username}
-                        onChange={e => update("username", e.target.value)} placeholder="admin" />
+                        onChange={e => update("username", e.target.value)}
+                        placeholder="admin" maxLength={20} />
                     </Field>
-                    <Field label="邮箱" isDark={isDark} hint="可选，用于密码重置">
+
+                    <Field label="邮箱" isDark={isDark}
+                      hint="可选。用于密码重置，暂时不填可以之后在后台补充">
                       <input className={inputBase} type="email" value={form.email}
-                        onChange={e => update("email", e.target.value)} placeholder="admin@example.com" />
+                        onChange={e => update("email", e.target.value)}
+                        placeholder="admin@example.com（可选）" />
                     </Field>
-                    <Field label="密码" required isDark={isDark} hint="至少 8 个字符">
-                      <input className={inputBase} type="password" value={form.password}
-                        onChange={e => update("password", e.target.value)} placeholder="••••••••" />
+
+                    <Field label="密码" required isDark={isDark}>
+                      <div className="relative">
+                        <input className={cn(inputBase, "pr-10")} type={showPw ? "text" : "password"}
+                          value={form.password}
+                          onChange={e => update("password", e.target.value)}
+                          placeholder="至少 8 个字符" />
+                        <button type="button"
+                          className={cn(
+                            "absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors",
+                            isDark ? "text-white/25 hover:text-white/50" : "text-neutral-300 hover:text-neutral-500",
+                          )}
+                          onClick={() => setShowPw(v => !v)}
+                          tabIndex={-1}>
+                          {showPw ? "🙈" : "👁️"}
+                        </button>
+                      </div>
+                      {/* 密码强度指示器 */}
+                      {form.password.length > 0 && (
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <div className="flex-1 flex gap-1">
+                            {[1, 2, 3, 4].map(i => (
+                              <div key={i} className={cn(
+                                "h-1 flex-1 rounded-full transition-all duration-300",
+                                i <= pwStrength.level ? pwStrength.color : (isDark ? "bg-white/[0.06]" : "bg-neutral-200"),
+                              )} />
+                            ))}
+                          </div>
+                          <span className={cn("text-[11px] tabular-nums",
+                            pwStrength.level <= 1 ? "text-red-400" :
+                            pwStrength.level <= 2 ? "text-amber-400" : "text-emerald-400",
+                          )}>
+                            {pwStrength.label}
+                          </span>
+                        </div>
+                      )}
                     </Field>
+
                     <Field label="确认密码" required isDark={isDark}>
-                      <input className={inputBase} type="password" value={form.confirmPassword}
-                        onChange={e => update("confirmPassword", e.target.value)} placeholder="••••••••" />
+                      <div className="relative">
+                        <input className={cn(inputBase, "pr-10")} type={showPw2 ? "text" : "password"}
+                          value={form.confirmPassword}
+                          onChange={e => update("confirmPassword", e.target.value)}
+                          placeholder="再次输入密码" />
+                        <button type="button"
+                          className={cn(
+                            "absolute right-3 top-1/2 -translate-y-1/2 text-sm transition-colors",
+                            isDark ? "text-white/25 hover:text-white/50" : "text-neutral-300 hover:text-neutral-500",
+                          )}
+                          onClick={() => setShowPw2(v => !v)}
+                          tabIndex={-1}>
+                          {showPw2 ? "🙈" : "👁️"}
+                        </button>
+                      </div>
+                      {form.confirmPassword && form.password !== form.confirmPassword && (
+                        <p className="text-[11px] text-red-400 mt-1">两次密码不一致</p>
+                      )}
                     </Field>
                   </div>
                 )}
 
-                {/* Step 3: 确认 */}
+                {/* ─── Step 3: 确认初始化 ─── */}
                 {step === 2 && (
                   <div className="space-y-4" style={{ animation: "wiz-fade-in 0.4s ease-out" }}>
                     <p className={cn("text-sm", isDark ? "text-white/40" : "text-neutral-400")}>
-                      请确认以下配置信息：
+                      请确认以下站点配置：
                     </p>
                     <div className={cn(
                       "rounded-xl overflow-hidden divide-y",
@@ -497,18 +627,38 @@ export function SetupWizard() {
                         ? "bg-white/[0.03] border border-white/[0.06] divide-white/[0.05]"
                         : "bg-neutral-50 border border-neutral-200 divide-neutral-200",
                     )}>
-                      <SummaryRow label="网站名称" value={form.siteName} isDark={isDark} />
-                      {form.siteDescription && <SummaryRow label="网站描述" value={form.siteDescription} isDark={isDark} />}
-                      {form.siteLogo && <SummaryRow label="Logo" value="已上传 ✓" isDark={isDark} />}
+                      <SummaryRow label="站点名称" value={form.siteName} isDark={isDark} />
+                      {form.siteDescription && <SummaryRow label="站点描述" value={form.siteDescription} isDark={isDark} />}
+                      <SummaryRow label="Logo" isDark={isDark}>
+                        {form.siteLogo ? (
+                          <span className="flex items-center gap-2">
+                            <img src={logoPreview || form.siteLogo} alt="" className="w-6 h-6 rounded object-contain" />
+                            <span className={cn("text-sm", isDark ? "text-white/60" : "text-neutral-500")}>已上传</span>
+                          </span>
+                        ) : (
+                          <span className={cn("text-sm", isDark ? "text-white/30" : "text-neutral-400")}>使用默认</span>
+                        )}
+                      </SummaryRow>
                       <SummaryRow label="主题色" isDark={isDark}>
                         <span className="flex items-center gap-2">
                           <span className="w-4 h-4 rounded-full inline-block" style={{ backgroundColor: form.themeColor }} />
-                          <span>{THEME_PRESETS.find(p => p.color === form.themeColor)?.label || form.themeColor}</span>
+                          <span className={cn("text-sm font-medium", isDark ? "text-white/70" : "text-neutral-700")}>
+                            {THEME_PRESETS.find(p => p.color === form.themeColor)?.label || form.themeColor}
+                          </span>
                         </span>
                       </SummaryRow>
                       <SummaryRow label="注册策略" value={form.registrationEnabled ? "开放注册" : "关闭注册"} isDark={isDark} />
                       <SummaryRow label="站长账号" value={form.username} isDark={isDark} accent />
                       {form.email && <SummaryRow label="邮箱" value={form.email} isDark={isDark} />}
+                    </div>
+
+                    {/* 提示 */}
+                    <div className={cn(
+                      "flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs",
+                      isDark ? "text-white/30 bg-white/[0.02]" : "text-neutral-400 bg-neutral-50",
+                    )}>
+                      <span className="mt-px">💡</span>
+                      <span>初始化完成后，所有配置都可以在后台「站点设置」中随时修改。</span>
                     </div>
                   </div>
                 )}
@@ -573,7 +723,6 @@ export function SetupWizard() {
                         </div>
                       ))}
                     </div>
-                    {/* 主题色按钮预览 */}
                     <button
                       type="button"
                       className="w-full h-7 rounded-lg text-[10px] font-semibold transition-all duration-200 text-[var(--theme-fg)]"
@@ -596,7 +745,7 @@ export function SetupWizard() {
 
             {/* ── 操作按钮 ── */}
             <div className="flex gap-3 mt-6">
-              {step > 0 && (
+              {step > 0 && !loading && (
                 <button type="button"
                   className={cn(
                     "flex-1 h-11 rounded-xl text-sm font-medium transition-all duration-200 active:scale-[0.98]",
@@ -628,9 +777,9 @@ export function SetupWizard() {
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                      正在初始化...
+                      {SUBMIT_STAGES[submitStage]}
                     </span>
-                  ) : "✨ 完成初始化"}
+                  ) : "✨ 确认并初始化"}
                 </button>
               )}
             </div>
@@ -667,10 +816,7 @@ function SummaryRow({ label, value, isDark, accent, children }: {
   label: string; value?: string; isDark: boolean; accent?: boolean; children?: React.ReactNode
 }) {
   return (
-    <div className={cn(
-      "flex items-center justify-between px-4 py-3",
-      isDark ? "" : "",
-    )}>
+    <div className="flex items-center justify-between px-4 py-3">
       <span className={cn("text-sm", isDark ? "text-white/35" : "text-neutral-400")}>{label}</span>
       {children || (
         <span className={cn("text-sm font-medium",
