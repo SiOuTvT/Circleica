@@ -110,7 +110,9 @@ export function SetupWizard() {
   const [loading, setLoading] = useState(false)
   const [submitStage, setSubmitStage] = useState(0)
   const [error, setError] = useState("")
-  const [mode, setMode] = useState<"dark" | "light">("dark")
+  const [mode, setMode] = useState<"dark" | "light">(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("light") ? "light" : "dark"
+  )
   const [showPw, setShowPw] = useState(false)
   const [showPw2, setShowPw2] = useState(false)
   const [completed, setCompleted] = useState(false)
@@ -247,7 +249,8 @@ export function SetupWizard() {
     return (
       <div className={cn("fixed inset-0 flex items-start lg:items-center justify-center p-4 overflow-auto transition-colors duration-500", isDark ? "bg-[#0a0a0f]" : "bg-[#f8f7f4]")}>
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-[0.08] bg-[var(--theme-color)]")} />
+          <div className={cn("absolute -top-1/4 -left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.06]", isDark ? "bg-amber-400" : "bg-amber-300")} />
+          <div className={cn("absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.04]", isDark ? "bg-purple-400" : "bg-orange-200")} />
         </div>
         <div className={cn("relative z-10 w-full max-w-md rounded-2xl overflow-hidden text-center", isDark ? "bg-white/[0.03] border border-white/[0.06] shadow-[0_8px_60px_rgba(0,0,0,0.5)]" : "bg-white border border-neutral-200 shadow-[0_8px_40px_rgba(0,0,0,0.08)]")} style={{ animation: "wiz-fade-in 0.6s ease-out" }}>
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-color)]/30 to-transparent" />
@@ -307,7 +310,7 @@ export function SetupWizard() {
 
           {/* 明暗切换 */}
           <button type="button" onClick={toggleMode} className={cn("absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-9 h-9 rounded-lg flex items-center justify-center text-base transition-all", isDark ? "bg-white/[0.06] text-white/50 hover:bg-white/[0.1]" : "bg-neutral-100 text-neutral-400 hover:bg-neutral-200")} title={isDark ? "切换到浅色预览" : "切换到深色预览"}>
-            {isDark ? "☀️" : "🌙"}
+            {isDark ? "🌙" : "☀️"}
           </button>
 
           <div className="p-4 sm:p-6 lg:p-8">
