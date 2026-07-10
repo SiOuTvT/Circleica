@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { applyThemeColor } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 /* ── 复用常量 ── */
 
@@ -616,22 +617,30 @@ function PreviewPanel({ form, logoPreview, step, isDark }: {
         <span className={cn("text-[11px] font-semibold truncate", isDark ? "text-white/80" : "text-neutral-700")}>{form.siteName || "Fangame"}</span>
       </div>
       <div className="p-3 space-y-3">
+        {/* 主题色预览：真实 Button / Input / 链接 */}
         {(step === 0 || step === 1) && (
           <div className="space-y-2.5">
             <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>主题色效果</p>
-            <div className="flex flex-wrap gap-1.5">
-              <button type="button" className="h-7 px-3 rounded-lg text-[11px] font-semibold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>主要按钮</button>
-              <button type="button" className={cn("h-7 px-3 rounded-lg text-[11px] font-medium border", isDark ? "border-white/10 text-white/60" : "border-neutral-200 text-neutral-600")}>次要按钮</button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="default" size="sm">主要按钮</Button>
+              <Button variant="outline" size="sm">次要按钮</Button>
             </div>
-            <div className={cn("h-8 rounded-lg px-3 flex items-center text-[11px] border", isDark ? "bg-white/[0.04] border-white/[0.08] text-white/30" : "bg-neutral-50 border-neutral-200 text-neutral-400")}>
-              输入框聚焦态...
+            <div className={cn(
+              "w-full min-h-[40px] rounded-xl px-3 py-2 text-sm transition-colors border",
+              isDark
+                ? "border-[var(--theme-color)]/50 bg-white/[0.08] shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]"
+                : "border-[var(--theme-color)]/50 bg-white shadow-[0_0_0_3px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.1)]",
+            )}>
+              <span className={cn(isDark ? "text-white/60" : "text-neutral-500")}>输入框聚焦态</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[var(--theme-color)] text-[11px] font-medium">主题链接</span>
-              <span className={cn("text-[11px]", isDark ? "text-white/30" : "text-neutral-400")}>普通文本</span>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-primary font-medium">主题色链接</span>
+              <span className={cn(isDark ? "text-muted-foreground" : "text-neutral-500")}>普通文本</span>
             </div>
           </div>
         )}
+
+        {/* 标签色预览：与后台 admin/tags 相同样式 */}
         {(step === 1 || step === 3) && (
           <div className="space-y-2">
             {step === 1 ? (
@@ -645,7 +654,7 @@ function PreviewPanel({ form, logoPreview, step, isDark }: {
               {PRESET_TAG_GROUPS.map(g => {
                 const c = form.tagGroupColors[g.id] || g.color
                 return (
-                  <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
+                  <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
                     {g.name.replace("标签", "")}
                   </span>
                 )
@@ -654,11 +663,13 @@ function PreviewPanel({ form, logoPreview, step, isDark }: {
             <p className={cn("text-[9px]", isDark ? "text-white/15" : "text-neutral-300")}>首页卡片 · 详情页 · 发现页 · 资源</p>
           </div>
         )}
+
+        {/* 站长信息 */}
         {step === 2 && form.username && (
           <div className="space-y-2">
             <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>站长信息</p>
-            <div className={cn("flex items-center gap-2 rounded-lg px-3 py-2", isDark ? "bg-white/[0.04]" : "bg-neutral-50")}>
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>{form.username[0]?.toUpperCase()}</div>
+            <div className={cn("flex items-center gap-2 rounded-xl px-3 py-2", isDark ? "bg-white/[0.04]" : "bg-neutral-50")}>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground" style={{ backgroundColor: "var(--theme-color)" }}>{form.username[0]?.toUpperCase()}</div>
               <div>
                 <p className={cn("text-[11px] font-medium", isDark ? "text-white/80" : "text-neutral-700")}>{form.username}</p>
                 <p className={cn("text-[9px]", isDark ? "text-white/25" : "text-neutral-400")}>SUPER_ADMIN</p>
