@@ -8,11 +8,13 @@ WORKDIR /app
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
 # Phase 1: HTTP 引导 — 仅安装 ca-certificates，解决 TLS 证书链缺失
 # Phase 2: 切换 HTTPS 镜像 — ca-certificates 已就绪，正式安装业务依赖
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
+RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+      > /etc/apt/apt.conf.d/99retry && \
+    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates && \
+    update-ca-certificates 2>/dev/null || true && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
@@ -42,11 +44,13 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
+RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+      > /etc/apt/apt.conf.d/99retry && \
+    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates && \
+    update-ca-certificates 2>/dev/null || true && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
@@ -90,11 +94,13 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
-RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" \
+RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+      > /etc/apt/apt.conf.d/99retry && \
+    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
       > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates && \
+    update-ca-certificates 2>/dev/null || true && \
     rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
