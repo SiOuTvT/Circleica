@@ -125,6 +125,7 @@ export function SetupWizard() {
   const [showPw2, setShowPw2] = useState(false)
   const [completed, setCompleted] = useState(false)
   const [editingTagGroup, setEditingTagGroup] = useState<string | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
 
   const isDark = mode === "dark"
   const pwStrength = getPasswordStrength(form.password)
@@ -538,72 +539,32 @@ export function SetupWizard() {
                 )}
               </div>
 
-              {/* ── 右侧：实时预览 ── */}
-              <div className="hidden lg:block lg:w-[300px] shrink-0">
-                <div className={cn("rounded-xl overflow-hidden border transition-colors", isDark ? "border-white/[0.06] bg-[#121215]" : "border-neutral-200 bg-white")}>
-                  {/* 预览标题栏 */}
-                  <div className="flex items-center gap-2 px-3 h-9 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}>
-                    {form.siteLogo ? <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" /> : <span className="text-xs">🎮</span>}
-                    <span className={cn("text-[11px] font-semibold truncate", isDark ? "text-white/80" : "text-neutral-700")}>{form.siteName || "Fangame"}</span>
-                  </div>
-
-                  <div className="p-3 space-y-3">
-                    {/* 主题色预览：实际组件 */}
-                    {(step === 0 || step === 1) && (
-                      <div className="space-y-2.5">
-                        <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>主题色效果</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          <button type="button" className="h-7 px-3 rounded-lg text-[11px] font-semibold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>主要按钮</button>
-                          <button type="button" className={cn("h-7 px-3 rounded-lg text-[11px] font-medium border", isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-neutral-200 text-neutral-600")}>次要按钮</button>
-                        </div>
-                        <div className={cn("h-8 rounded-lg px-3 flex items-center text-[11px] border", isDark ? "bg-white/[0.04] border-white/[0.08] text-white/30" : "bg-neutral-50 border-neutral-200 text-neutral-400")}>
-                          输入框聚焦态...
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[var(--theme-color)] text-[11px] font-medium">主题链接</span>
-                          <span className={cn("text-[11px]", isDark ? "text-white/30" : "text-neutral-400")}>普通文本</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 标签色预览 */}
-                    {(step === 1 || step === 3) && (
-                      <div className="space-y-2">
-                        {(step === 1 ? <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类效果</p> : <div className={cn("border-t pt-2.5", isDark ? "border-white/[0.06]" : "border-neutral-200")}><p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类</p></div>)}
-                        <div className="flex flex-wrap gap-1.5">
-                          {PRESET_TAG_GROUPS.map(g => {
-                            const c = form.tagGroupColors[g.id] || g.color
-                            return (
-                              <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
-                                {g.name.replace("标签", "")}
-                              </span>
-                            )
-                          })}
-                        </div>
-                        <p className={cn("text-[9px]", isDark ? "text-white/15" : "text-neutral-300")}>首页卡片 · 详情页 · 发现页 · 资源</p>
-                      </div>
-                    )}
-
-                    {/* 站长预览 */}
-                    {step === 2 && form.username && (
-                      <div className="space-y-2">
-                        <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>站长信息</p>
-                        <div className={cn("flex items-center gap-2 rounded-lg px-3 py-2", isDark ? "bg-white/[0.04]" : "bg-neutral-50")}>
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>{form.username[0]?.toUpperCase()}</div>
-                          <div>
-                            <p className={cn("text-[11px] font-medium", isDark ? "text-white/80" : "text-neutral-700")}>{form.username}</p>
-                            <p className={cn("text-[9px]", isDark ? "text-white/25" : "text-neutral-400")}>SUPER_ADMIN</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 预览 Footer */}
-                  <div className={cn("flex items-center justify-center h-6 border-t text-[9px]", isDark ? "border-white/[0.04] text-white/15" : "border-neutral-100 text-neutral-400")}>
-                    {form.siteName || "Fangame"} · 资源大厅
-                  </div>
+              {/* ── 右侧：实时预览（桌面内联 / 移动端浮层） ── */}
+              <div className="lg:w-[300px] shrink-0">
+                {/* 桌面端：内联显示 */}
+                <div className="hidden lg:block">
+                  <PreviewPanel form={form} logoPreview={logoPreview} step={step} isDark={isDark} />
                 </div>
+                {/* 移动端：折叠按钮 */}
+                <button type="button"
+                  className={cn(
+                    "lg:hidden w-full flex items-center justify-center gap-2 h-10 rounded-xl text-xs font-medium transition-all mt-2",
+                    isDark
+                      ? "bg-white/[0.04] border border-white/[0.08] text-white/50 hover:bg-white/[0.07]"
+                      : "bg-neutral-50 border border-neutral-200 text-neutral-500 hover:bg-neutral-100",
+                    showPreview && (isDark ? "bg-white/[0.07] text-white/70" : "bg-neutral-100 text-neutral-600"),
+                  )}
+                  onClick={() => setShowPreview(v => !v)}
+                >
+                  <span>{showPreview ? "隐藏预览" : "查看实时预览"}</span>
+                  <span className={cn("transition-transform duration-200", showPreview && "rotate-180")}>▾</span>
+                </button>
+                {/* 移动端：折叠面板 */}
+                {showPreview && (
+                  <div className="lg:hidden mt-3" style={{ animation: "wiz-fade-in 0.25s ease-out" }}>
+                    <PreviewPanel form={form} logoPreview={logoPreview} step={step} isDark={isDark} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -651,6 +612,75 @@ function SummaryRow({ label, value, isDark, accent, children }: { label: string;
     <div className="flex items-center justify-between px-4 py-2.5 sm:py-3">
       <span className={cn("text-sm", isDark ? "text-white/35" : "text-neutral-400")}>{label}</span>
       {children || <span className={cn("text-sm font-medium", accent ? "text-[var(--theme-color)]" : (isDark ? "text-white/70" : "text-neutral-700"))}>{value}</span>}
+    </div>
+  )
+}
+
+/* ── 预览面板（桌面端内联 + 移动端折叠共用） ── */
+function PreviewPanel({ form, logoPreview, step, isDark }: {
+  form: FormData; logoPreview: string; step: number; isDark: boolean
+}) {
+  return (
+    <div className={cn("rounded-xl overflow-hidden border transition-colors", isDark ? "border-white/[0.06] bg-[#121215]" : "border-neutral-200 bg-white")}>
+      <div className="flex items-center gap-2 px-3 h-9 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}>
+        {form.siteLogo ? <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" /> : <span className="text-xs">🎮</span>}
+        <span className={cn("text-[11px] font-semibold truncate", isDark ? "text-white/80" : "text-neutral-700")}>{form.siteName || "Fangame"}</span>
+      </div>
+      <div className="p-3 space-y-3">
+        {(step === 0 || step === 1) && (
+          <div className="space-y-2.5">
+            <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>主题色效果</p>
+            <div className="flex flex-wrap gap-1.5">
+              <button type="button" className="h-7 px-3 rounded-lg text-[11px] font-semibold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>主要按钮</button>
+              <button type="button" className={cn("h-7 px-3 rounded-lg text-[11px] font-medium border", isDark ? "border-white/10 text-white/60" : "border-neutral-200 text-neutral-600")}>次要按钮</button>
+            </div>
+            <div className={cn("h-8 rounded-lg px-3 flex items-center text-[11px] border", isDark ? "bg-white/[0.04] border-white/[0.08] text-white/30" : "bg-neutral-50 border-neutral-200 text-neutral-400")}>
+              输入框聚焦态...
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--theme-color)] text-[11px] font-medium">主题链接</span>
+              <span className={cn("text-[11px]", isDark ? "text-white/30" : "text-neutral-400")}>普通文本</span>
+            </div>
+          </div>
+        )}
+        {(step === 1 || step === 3) && (
+          <div className="space-y-2">
+            {step === 1 ? (
+              <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类效果</p>
+            ) : (
+              <div className={cn("border-t pt-2.5", isDark ? "border-white/[0.06]" : "border-neutral-200")}>
+                <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>标签分类</p>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-1.5">
+              {PRESET_TAG_GROUPS.map(g => {
+                const c = form.tagGroupColors[g.id] || g.color
+                return (
+                  <span key={g.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border" style={{ color: c, background: `${c}15`, borderColor: `${c}30` }}>
+                    {g.name.replace("标签", "")}
+                  </span>
+                )
+              })}
+            </div>
+            <p className={cn("text-[9px]", isDark ? "text-white/15" : "text-neutral-300")}>首页卡片 · 详情页 · 发现页 · 资源</p>
+          </div>
+        )}
+        {step === 2 && form.username && (
+          <div className="space-y-2">
+            <p className={cn("text-[10px] uppercase tracking-wider", isDark ? "text-white/20" : "text-neutral-400")}>站长信息</p>
+            <div className={cn("flex items-center gap-2 rounded-lg px-3 py-2", isDark ? "bg-white/[0.04]" : "bg-neutral-50")}>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[var(--theme-fg)]" style={{ backgroundColor: "var(--theme-color)" }}>{form.username[0]?.toUpperCase()}</div>
+              <div>
+                <p className={cn("text-[11px] font-medium", isDark ? "text-white/80" : "text-neutral-700")}>{form.username}</p>
+                <p className={cn("text-[9px]", isDark ? "text-white/25" : "text-neutral-400")}>SUPER_ADMIN</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className={cn("flex items-center justify-center h-6 border-t text-[9px]", isDark ? "border-white/[0.04] text-white/15" : "border-neutral-100 text-neutral-400")}>
+        {form.siteName || "Fangame"} · 资源大厅
+      </div>
     </div>
   )
 }
