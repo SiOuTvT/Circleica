@@ -5,12 +5,21 @@ FROM node:20-bookworm-slim AS deps
 
 WORKDIR /app
 
-# Install system dependencies for sharp and prisma
+# ── 阿里云镜像源（HTTPS） ──
+# 第一步：HTTP 引导安装 ca-certificates（解决 TLS 证书链缺失）
+# 第二步：切换 HTTPS 镜像，正式安装依赖
 RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
+      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
@@ -33,12 +42,19 @@ FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Install openssl for Prisma engine detection
+# ── 阿里云镜像源（HTTPS） ──
 RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
+      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
@@ -75,12 +91,19 @@ FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
-# Install runtime dependencies
+# ── 阿里云镜像源（HTTPS） ──
 RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
+      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
     echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+      > /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+      >> /etc/apt/sources.list.d/mirror.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends \
