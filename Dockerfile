@@ -6,11 +6,11 @@ FROM node:20-bookworm-slim AS deps
 WORKDIR /app
 
 # Install system dependencies for sharp and prisma
-RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
@@ -34,11 +34,11 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 # Install openssl for Prisma engine detection
-RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends openssl && \
@@ -76,11 +76,11 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
 # Install runtime dependencies
-RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
       > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
+    echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
       >> /etc/apt/sources.list.d/mirror.list && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends \
