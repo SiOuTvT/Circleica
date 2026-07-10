@@ -12,6 +12,7 @@ interface SetupBody {
   placeholderImage?: string
   registrationEnabled: boolean
   themeColor?: string
+  tagGroupColors?: Record<string, string>
   admin: {
     username: string
     email?: string
@@ -77,6 +78,24 @@ export const POST = withHandler(async (req) => {
         update: { value: s.value },
         create: s,
       })
+    }
+
+    // 写入标签组颜色（upsert：如标签组不存在则创建，存在则更新颜色）
+    if (body.tagGroupColors) {
+      const PRESET_GROUPS: Record<string, string> = {
+        preset_home_card: "首页卡片标签",
+        preset_detail_header: "详情页信息栏标签",
+        preset_discover: "发现页标签",
+        preset_resource_tab: "资源标签",
+      }
+      for (const [id, color] of Object.entries(body.tagGroupColors)) {
+        if (!PRESET_GROUPS[id]) continue
+        await tx.tagGroup.upsert({
+          where: { id },
+          update: { color },
+          create: { id, name: PRESET_GROUPS[id], color, isPreset: true, positions: "[]" },
+        })
+      }
     }
 
     return { user: newUser }
