@@ -11,9 +11,10 @@ interface SetupBody {
   siteLogo?: string
   placeholderImage?: string
   registrationEnabled: boolean
+  themeColor?: string
   admin: {
     username: string
-    email: string
+    email?: string
     password: string
   }
 }
@@ -24,8 +25,9 @@ export const POST = withHandler(async (req) => {
 
   if (!siteName?.trim()) throw new ValidationError("网站名称不能为空")
   if (!admin?.username?.trim()) throw new ValidationError("管理员用户名不能为空")
-  if (!admin?.email?.trim()) throw new ValidationError("管理员邮箱不能为空")
   if (!admin?.password || admin.password.length < 8) throw new ValidationError("密码至少 8 个字符")
+
+  const email = admin.email?.trim() ? admin.email.trim().toLowerCase() : `${admin.username.trim()}@placeholder.local`
 
   const hashed = await bcrypt.hash(admin.password, 10)
 
@@ -46,7 +48,7 @@ export const POST = withHandler(async (req) => {
     const newUser = await tx.user.create({
       data: {
         username: admin.username.trim(),
-        email: admin.email.trim().toLowerCase(),
+        email,
         password: hashed,
         role: "SUPER_ADMIN",
       },
@@ -66,6 +68,7 @@ export const POST = withHandler(async (req) => {
       { key: "site_logo", value: body.siteLogo || "" },
       { key: "default_placeholder_image", value: body.placeholderImage || "" },
       { key: "registration_enabled", value: String(body.registrationEnabled ?? true) },
+      { key: "themeColor", value: body.themeColor || "#E0A87C" },
     ]
 
     for (const s of settings) {
@@ -88,6 +91,6 @@ export const POST = withHandler(async (req) => {
   return json({
     userId: result.user.id,
     username: admin.username.trim(),
-    email: admin.email.trim().toLowerCase(),
+    email,
   })
 })

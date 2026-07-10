@@ -135,3 +135,7 @@ export async function getSiteLogo(): Promise<string | null> {
   const url = await getSiteSetting("site_logo", "")
   return url || null
 }
+
+export async function getThemeColor(): Promise<string> {
+  return getSiteSetting("themeColor", "#E0A87C")
+}

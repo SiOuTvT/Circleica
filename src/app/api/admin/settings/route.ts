@@ -9,6 +9,7 @@ const ALLOWED_KEYS = new Set([
   "site_description",
   "site_logo",
   "registration_enabled",
+  "themeColor",
 ])
 
 // GET /api/admin/settings — 获取所有站点配置
