@@ -110,9 +110,7 @@ export function SetupWizard() {
   const [loading, setLoading] = useState(false)
   const [submitStage, setSubmitStage] = useState(0)
   const [error, setError] = useState("")
-  const [mode, setMode] = useState<"dark" | "light">(() =>
-    typeof document !== "undefined" && document.documentElement.classList.contains("light") ? "light" : "dark"
-  )
+  const [mode, setMode] = useState<"dark" | "light">("dark")
   const [showPw, setShowPw] = useState(false)
   const [showPw2, setShowPw2] = useState(false)
   const [completed, setCompleted] = useState(false)
@@ -124,6 +122,10 @@ export function SetupWizard() {
 
   useEffect(() => {
     origClassesRef.current = document.documentElement.className
+    // 同步网站当前主题（ThemeScript 在 React 水合前已应用）
+    if (document.documentElement.classList.contains("light")) {
+      setMode("light")
+    }
     applyThemeColor(form.themeColor)
     return () => { document.documentElement.className = origClassesRef.current }
     // eslint-disable-next-line react-hooks/exhaustive-deps
