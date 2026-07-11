@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { adminInput, adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
-import { AlertTriangle, Check, Database, HardDrive, Loader2, Mail, Save, Server, X, Zap } from "lucide-react"
+import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, Server, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -30,6 +30,8 @@ export default function ServicesPage() {
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<Record<string, { ok: boolean; msg: string }>>({})
+  const [testEmail, setTestEmail] = useState("")
+  const [sendingTest, setSendingTest] = useState(false)
 
   useEffect(() => {
     fetch("/api/admin/services")
@@ -82,6 +84,24 @@ export default function ServicesPage() {
     }
   }, [config])
 
+  const handleTestEmail = useCallback(async () => {
+    if (!testEmail.trim()) { toast.error("请输入测试邮箱"); return }
+    setSendingTest(true)
+    try {
+      const res = await fetch("/api/admin/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "test", service: "email", config: { to: testEmail.trim(), api_key: config.resend_api_key } }),
+      })
+      const data = await res.json()
+      setTestResult(prev => ({ ...prev, email: { ok: data.success, msg: data.message } }))
+    } catch {
+      setTestResult(prev => ({ ...prev, email: { ok: false, msg: "测试请求失败" } }))
+    } finally {
+      setSendingTest(false)
+    }
+  }, [config.resend_api_key, testEmail])
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -117,7 +137,7 @@ export default function ServicesPage() {
           <Field label="Account ID" value={config.r2_account_id} onChange={v => update("r2_account_id", v)} placeholder="Cloudflare 账户 ID" />
           <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => update("r2_bucket_name", v)} placeholder="存储桶名称" />
           <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => update("r2_access_key_id", v)} placeholder="R2 API Token ID" />
-          <Field label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => update("r2_secret_access_key", v)} placeholder="R2 API Token Secret" type="password" />
+          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => update("r2_secret_access_key", v)} placeholder="R2 API Token Secret" />
           <Field label="Public URL" value={config.r2_public_url} onChange={v => update("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" />
         </div>
         <div className="flex items-center gap-3">
@@ -127,6 +147,7 @@ export default function ServicesPage() {
           </button>
           <span className="text-xs text-muted-foreground">验证 R2 凭证是否有效</span>
         </div>
+        <p className="text-xs text-muted-foreground">未配置时文件存储在服务器本地 uploads 目录。</p>
       </Card>
 
       {/* ── Redis 缓存 ── */}
@@ -134,7 +155,7 @@ export default function ServicesPage() {
         <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" testResult={testResult.redis} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="REST URL" value={config.redis_url} onChange={v => update("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" />
-          <Field label="REST Token" value={config.redis_token} onChange={v => update("redis_token", v)} placeholder="Upstash Redis Token" type="password" className="sm:col-span-2" />
+          <SecretField label="REST Token" value={config.redis_token} onChange={v => update("redis_token", v)} placeholder="Upstash Redis Token" className="sm:col-span-2" />
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
@@ -143,15 +164,24 @@ export default function ServicesPage() {
           </button>
           <span className="text-xs text-muted-foreground">发送 PING 验证连通性</span>
         </div>
+        <p className="text-xs text-muted-foreground">未配置时使用内存缓存（LRU，最多 1000 条）。</p>
       </Card>
 
       {/* ── 邮件服务 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于密码重置等场景" testResult={testResult.email} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" type="password" className="sm:col-span-2" />
+          <SecretField label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" className="sm:col-span-2" />
         </div>
-        <p className="text-xs text-muted-foreground">配置后密码重置功能将自动发送邮件。未配置时密码重置仍可使用，但需要管理员手动处理。</p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <input type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)}
+            placeholder="测试收件邮箱" className={adminInput + " w-56"} />
+          <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
+            {sendingTest ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+            发送测试邮件
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
       </Card>
     </div>
   )
@@ -159,12 +189,10 @@ export default function ServicesPage() {
 
 /* ── 子组件 ── */
 
-function SectionHeader({ icon: Icon, title, desc, testResult, disabled }: {
+function SectionHeader({ icon: Icon, title, desc, testResult }: {
   icon: React.ComponentType<{ className?: string }>
-  title: string
-  desc: string
+  title: string; desc: string
   testResult?: { ok: boolean; msg: string }
-  disabled?: boolean
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -185,15 +213,35 @@ function SectionHeader({ icon: Icon, title, desc, testResult, disabled }: {
   )
 }
 
-function Field({ label, value, onChange, placeholder, type = "text", disabled, className }: {
+function Field({ label, value, onChange, placeholder, disabled, className }: {
   label: string; value: string; onChange: (v: string) => void; placeholder: string
-  type?: string; disabled?: boolean; className?: string
+  disabled?: boolean; className?: string
 }) {
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        disabled={disabled} className={adminInput} />
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        disabled={disabled} className={adminInput} autoComplete="off" />
+    </div>
+  )
+}
+
+function SecretField({ label, value, onChange, placeholder, className }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string
+}) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className={className}>
+      <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
+      <div className="relative">
+        <input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
+          placeholder={placeholder} className={adminInput + " pr-10"} autoComplete="off" />
+        <button type="button" onClick={() => setVisible(v => !v)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          tabIndex={-1}>
+          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
     </div>
   )
 }

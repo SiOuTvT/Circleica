@@ -44,6 +44,7 @@ export const POST = withHandler(async (req) => {
 async function testConnection(service: string, config: Record<string, string>) {
   if (service === "r2") return testR2(config)
   if (service === "redis") return testRedis(config)
+  if (service === "email") return testEmail(config)
   throw new ValidationError("不支持的服务类型")
 }
 
@@ -71,4 +72,27 @@ async function testRedis(config: Record<string, string>) {
     return { success: true, message: "Redis 连接成功" }
   }
   return { success: false, message: `Redis 响应异常: ${text}` }
+}
+
+async function testEmail(config: Record<string, string>) {
+  if (!config.api_key) throw new ValidationError("请先填写 Resend API Key")
+  if (!config.to) throw new ValidationError("请输入测试收件邮箱")
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.api_key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "onboarding@resend.dev",
+      to: config.to,
+      subject: "Fangame 邮件服务测试",
+      html: "<p>如果你收到这封邮件，说明 Resend 邮件服务配置正确。</p>",
+    }),
+  })
+
+  if (res.ok) return { success: true, message: `测试邮件已发送至 ${config.to}` }
+  const body = await res.text()
+  return { success: false, message: `发送失败 (${res.status}): ${body}` }
 }
