@@ -881,6 +881,26 @@ input:focus, textarea:focus, select:focus {
   border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
 }
 
+/* ── Chrome Autofill 覆盖 — 消除浏览器强制注入的白色/黄色背景 ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #fafafa inset !important;
+  box-shadow: 0 0 0 1000px #fafafa inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+}
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #111114 inset !important;
+  box-shadow: 0 0 0 1000px #111114 inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+}
+
 /* ── 全局按钮按压反馈 — 下压 1px ── */
 button:not([data-slot]):active:not(:disabled),
 a[href]:active {
