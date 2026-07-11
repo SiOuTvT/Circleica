@@ -5,7 +5,7 @@
 
 /** 输入框 — 统一为 rounded-xl + bg-muted + ring 边框 */
 export const adminInput =
-  "w-full rounded-xl bg-muted px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all autofill:shadow-[inset_0_0_0_1000px_var(--muted)] autofill:text-foreground"
+  "w-full rounded-xl bg-muted px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
 
 /** 搜索框 — 左侧留白给图标 */
 export const adminSearchInput =

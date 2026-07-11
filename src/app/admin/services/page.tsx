@@ -1,7 +1,8 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { adminInput, adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
+import { Input } from "@/components/ui/input"
+import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, Server, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -174,8 +175,8 @@ export default function ServicesPage() {
           <SecretField label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" className="sm:col-span-2" />
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <input type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)}
-            placeholder="测试收件邮箱" className={adminInput + " w-56"} />
+          <Input type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)}
+            placeholder="测试收件邮箱" className="w-56" />
           <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
             {sendingTest ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
             发送测试邮件
@@ -220,8 +221,8 @@ function Field({ label, value, onChange, placeholder, disabled, className }: {
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        disabled={disabled} className={adminInput} autoComplete="off" />
+      <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        disabled={disabled} autoComplete="off" />
     </div>
   )
 }
@@ -234,8 +235,8 @@ function SecretField({ label, value, onChange, placeholder, className }: {
     <div className={className}>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
       <div className="relative">
-        <input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
-          placeholder={placeholder} className={adminInput + " pr-10"} autoComplete="off" />
+        <Input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
+          placeholder={placeholder} className="pr-10" autoComplete="off" />
         <button type="button" onClick={() => setVisible(v => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           tabIndex={-1}>
