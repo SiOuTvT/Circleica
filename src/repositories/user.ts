@@ -233,14 +233,14 @@ export const checkinRepo = {
   findByDate(userId: string, date: Date) {
     const dateStr = date.toISOString().split("T")[0]
     return prisma.checkIn.findFirst({
-      where: { userId, date: new Date(dateStr) as unknown as Date },
+      where: { userId, date: new Date(dateStr + "T00:00:00.000Z") as unknown as Date },
     })
   },
 
   create(userId: string, marks: number) {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    return prisma.checkIn.create({ data: { userId, date: today, marks } })
+    const dateStr = new Date().toISOString().split("T")[0]
+    const date = new Date(dateStr + "T00:00:00.000Z")
+    return prisma.checkIn.create({ data: { userId, date, marks } })
   },
 
   getUserStreak(userId: string) {
