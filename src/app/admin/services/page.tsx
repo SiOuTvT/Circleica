@@ -16,14 +16,18 @@ interface ServiceConfig {
   redis_url: string
   redis_token: string
   resend_api_key: string
+  email_from_name: string
+  email_from_email: string
 }
 
 const EMPTY: ServiceConfig = {
   r2_account_id: "", r2_access_key_id: "", r2_secret_access_key: "",
   r2_bucket_name: "", r2_public_url: "",
   redis_url: "", redis_token: "",
-  resend_api_key: "",
+  resend_api_key: "", email_from_name: "", email_from_email: "",
 }
+
+interface TestResult { ok: boolean; msg: string }
 
 export default function ServicesPage() {
   const [config, setConfig] = useState<ServiceConfig>(EMPTY)
@@ -31,7 +35,7 @@ export default function ServicesPage() {
   const [ready, setReady] = useState(false)
   const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState<string | null>(null)
-  const [testResult, setTestResult] = useState<Record<string, { ok: boolean; msg: string }>>({})
+  const [testResult, setTestResult] = useState<Record<string, TestResult>>({})
   const [testEmail, setTestEmail] = useState("")
   const [sendingTest, setSendingTest] = useState(false)
 
@@ -39,13 +43,16 @@ export default function ServicesPage() {
     fetch("/api/admin/services")
       .then(r => r.json())
       .then(res => {
-        if (res.data) setConfig(prev => ({ ...prev, ...res.data }))
+        if (res.data) {
+          // 确保所有字段为字符串，防止受控/非受控切换
+          const safe = Object.fromEntries(
+            Object.entries(res.data).map(([k, v]) => [k, String(v ?? "")])
+          )
+          setConfig(prev => ({ ...prev, ...safe }))
+        }
       })
       .catch(() => toast.error("加载配置失败"))
-      .finally(() => {
-        setLoading(false)
-        setReady(true)
-      })
+      .finally(() => { setLoading(false); setReady(true) })
   }, [])
 
   const update = (key: keyof ServiceConfig, value: string) => {
@@ -94,11 +101,15 @@ export default function ServicesPage() {
   const handleTestEmail = useCallback(async () => {
     if (!testEmail.trim()) { toast.error("请输入测试邮箱"); return }
     setSendingTest(true)
+    setTestResult(prev => { const next = { ...prev }; delete next.email; return next })
     try {
       const res = await fetch("/api/admin/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "test", service: "email", config: { to: testEmail.trim(), api_key: config.resend_api_key } }),
+        body: JSON.stringify({
+          action: "test", service: "email",
+          config: { to: testEmail.trim(), api_key: config.resend_api_key, from_name: config.email_from_name, from_email: config.email_from_email },
+        }),
       })
       const data = await res.json()
       setTestResult(prev => ({ ...prev, email: { ok: data.success, msg: data.message } }))
@@ -107,7 +118,7 @@ export default function ServicesPage() {
     } finally {
       setSendingTest(false)
     }
-  }, [config.resend_api_key, testEmail])
+  }, [config.resend_api_key, config.email_from_name, config.email_from_email, testEmail])
 
   if (loading) {
     return (
@@ -137,9 +148,10 @@ export default function ServicesPage() {
       </div>
 
       <div key={String(ready)} className="space-y-6">
+
       {/* ── R2 对象存储 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" testResult={testResult.r2} />
+        <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Account ID" value={config.r2_account_id} onChange={v => update("r2_account_id", v)} placeholder="Cloudflare 账户 ID" />
           <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => update("r2_bucket_name", v)} placeholder="存储桶名称" />
@@ -147,49 +159,55 @@ export default function ServicesPage() {
           <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => update("r2_secret_access_key", v)} placeholder="R2 API Token Secret" />
           <Field label="Public URL" value={config.r2_public_url} onChange={v => update("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" />
         </div>
-        <div className="flex items-center gap-3">
+        <TestAction>
           <button onClick={() => handleTest("r2")} disabled={testing === "r2" || !config.r2_account_id} className={adminBtnSecondary}>
             {testing === "r2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
             测试连接
           </button>
           <span className="text-xs text-muted-foreground">验证 R2 凭证是否有效</span>
-        </div>
+        </TestAction>
+        <TestResultBadge result={testResult.r2} />
         <p className="text-xs text-muted-foreground">未配置时文件存储在服务器本地 uploads 目录。</p>
       </Card>
 
       {/* ── Redis 缓存 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" testResult={testResult.redis} />
+        <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="REST URL" value={config.redis_url} onChange={v => update("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" />
           <SecretField label="REST Token" value={config.redis_token} onChange={v => update("redis_token", v)} placeholder="Upstash Redis Token" className="sm:col-span-2" />
         </div>
-        <div className="flex items-center gap-3">
+        <TestAction>
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
             {testing === "redis" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
             测试连接
           </button>
           <span className="text-xs text-muted-foreground">发送 PING 验证连通性</span>
-        </div>
+        </TestAction>
+        <TestResultBadge result={testResult.redis} />
         <p className="text-xs text-muted-foreground">未配置时使用内存缓存（LRU，最多 1000 条）。</p>
       </Card>
 
       {/* ── 邮件服务 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于密码重置等场景" testResult={testResult.email} />
+        <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于系统邮件发送" />
         <div className="grid gap-4 sm:grid-cols-2">
           <SecretField label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" className="sm:col-span-2" />
+          <Field label="发件人名称" value={config.email_from_name} onChange={v => update("email_from_name", v)} placeholder="Fangame" />
+          <Field label="发件邮箱" value={config.email_from_email} onChange={v => update("email_from_email", v)} placeholder="noreply@example.com" />
           <Field label="测试收件邮箱" value={testEmail} onChange={setTestEmail} placeholder="test@example.com" className="sm:col-span-2" />
         </div>
-        <div className="flex items-center gap-3">
+        <TestAction>
           <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
             {sendingTest ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
             发送测试邮件
           </button>
           <span className="text-xs text-muted-foreground">验证 Resend 是否可正常发送邮件</span>
-        </div>
-        <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
+        </TestAction>
+        <TestResultBadge result={testResult.email} />
+        <p className="text-xs text-muted-foreground">未配置时将无法发送注册验证、密码重置及其它系统邮件。</p>
       </Card>
+
       </div>
     </div>
   )
@@ -197,26 +215,31 @@ export default function ServicesPage() {
 
 /* ── 子组件 ── */
 
-function SectionHeader({ icon: Icon, title, desc, testResult }: {
+function SectionHeader({ icon: Icon, title, desc }: {
   icon: React.ComponentType<{ className?: string }>
   title: string; desc: string
-  testResult?: { ok: boolean; msg: string }
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex items-start gap-3">
-        <div className="p-2 rounded-lg bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div>
-        <div>
-          <h3 className="font-semibold text-foreground">{title}</h3>
-          <p className="text-sm text-muted-foreground">{desc}</p>
-        </div>
+    <div className="flex items-start gap-3">
+      <div className="p-2 rounded-lg bg-primary/10 text-primary"><Icon className="h-5 w-5" /></div>
+      <div>
+        <h3 className="font-semibold text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground">{desc}</p>
       </div>
-      {testResult && (
-        <div className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${testResult.ok ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-red-500/10 text-red-500"}`}>
-          {testResult.ok ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
-          {testResult.msg}
-        </div>
-      )}
+    </div>
+  )
+}
+
+function TestAction({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center gap-3">{children}</div>
+}
+
+function TestResultBadge({ result }: { result?: TestResult }) {
+  if (!result) return null
+  return (
+    <div className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 ${result.ok ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-red-500/10 text-red-600 dark:text-red-400"}`}>
+      {result.ok ? <Check className="h-4 w-4 mt-0.5 shrink-0" /> : <X className="h-4 w-4 mt-0.5 shrink-0" />}
+      <span>{result.msg}</span>
     </div>
   )
 }

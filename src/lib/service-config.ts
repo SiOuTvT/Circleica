@@ -25,6 +25,8 @@ export interface RedisConfig {
 let _r2: R2Config | null = null
 let _redis: RedisConfig | null = null
 let _resend: string | null = null
+let _resendFromName = ""
+let _resendFromEmail = ""
 let _dbReady = false
 
 // 模块加载时触发（非阻塞），完成后 _dbReady = true
@@ -35,7 +37,7 @@ async function loadFromDB() {
     "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
     "r2_bucket_name", "r2_public_url",
     "redis_url", "redis_token",
-    "resend_api_key",
+    "resend_api_key", "email_from_name", "email_from_email",
   ]
 
   try {
@@ -60,6 +62,8 @@ async function loadFromDB() {
     if (db.resend_api_key) {
       _resend = db.resend_api_key
     }
+    _resendFromName = db.email_from_name || ""
+    _resendFromEmail = db.email_from_email || ""
 
     _dbReady = true
 
@@ -110,3 +114,10 @@ export function getRedisConfig(): RedisConfig | null { return _redis }
 
 /** 同步获取 Resend API Key */
 export function getResendApiKey(): string | null { return _resend }
+
+/** 同步获取 Resend 发件人（"Name <email>" 格式） */
+export function getResendFrom(): string {
+  const name = _resendFromName || "Fangame"
+  const email = _resendFromEmail || "noreply@example.com"
+  return `${name} <${email}>`
+}

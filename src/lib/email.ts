@@ -5,7 +5,7 @@
  * 未配置时跳过发送，不影响其它功能
  */
 
-import { getResendApiKey } from "./service-config"
+import { getResendApiKey, getResendFrom } from "./service-config"
 import { logger } from "./logger"
 
 const RESEND_API = "https://api.resend.com/emails"
@@ -21,7 +21,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     return false
   }
 
-  const from = process.env.EMAIL_FROM || "noreply@fangame.com"
+  const from = getResendFrom()
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
   const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
