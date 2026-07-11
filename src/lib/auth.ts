@@ -93,13 +93,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.password)
         if (!valid) return null
 
+        // 检查邮箱验证要求
+        if (!user.emailVerified) {
+          const setting = await prisma.siteSetting.findUnique({
+            where: { key: "email_verification_required_for_login" },
+            select: { value: true },
+          })
+          if (setting?.value === "true") {
+            return null
+          }
+        }
+
         return {
           id: user.id,
           name: user.username,
           email: user.email,
           image: user.avatar ?? null,
           role: user.role,
-        emailVerified: user.emailVerified,
+          emailVerified: user.emailVerified,
         }
       },
     }),
