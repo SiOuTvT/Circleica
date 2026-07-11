@@ -37,8 +37,23 @@ export default function ServicesPage() {
   useEffect(() => {
     fetch("/api/admin/services")
       .then(r => r.json())
-      .then(res => { if (res.data) setConfig(prev => ({ ...prev, ...res.data })) })
-      .catch(() => toast.error("加载配置失败"))
+      .then(res => {
+        console.log("[Services] API raw response:", JSON.stringify(res))
+        console.log("[Services] res.data:", JSON.stringify(res.data))
+        if (res.data) {
+          setConfig(prev => {
+            const next = { ...prev, ...res.data }
+            console.log("[Services] setConfig result:", JSON.stringify(next))
+            return next
+          })
+        } else {
+          console.log("[Services] res.data is falsy, skipping setConfig")
+        }
+      })
+      .catch(err => {
+        console.error("[Services] fetch error:", err)
+        toast.error("加载配置失败")
+      })
       .finally(() => setLoading(false))
   }, [])
 
