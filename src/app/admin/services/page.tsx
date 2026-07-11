@@ -161,8 +161,7 @@ export default function ServicesPage() {
         </div>
         <TestAction>
           <button onClick={() => handleTest("r2")} disabled={testing === "r2" || !config.r2_account_id} className={adminBtnSecondary}>
-            {testing === "r2" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
-            测试连接
+            {testing === "r2" ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> 测试中...</> : <><Zap className="h-3.5 w-3.5" /> 测试连接</>}
           </button>
           <span className="text-xs text-muted-foreground">验证 R2 凭证是否有效</span>
         </TestAction>
@@ -179,8 +178,7 @@ export default function ServicesPage() {
         </div>
         <TestAction>
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
-            {testing === "redis" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
-            测试连接
+            {testing === "redis" ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> 测试中...</> : <><Zap className="h-3.5 w-3.5" /> 测试连接</>}
           </button>
           <span className="text-xs text-muted-foreground">发送 PING 验证连通性</span>
         </TestAction>
@@ -199,8 +197,7 @@ export default function ServicesPage() {
         </div>
         <TestAction>
           <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
-            {sendingTest ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
-            发送测试邮件
+            {sendingTest ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> 发送中...</> : <><Mail className="h-3.5 w-3.5" /> 发送测试邮件</>}
           </button>
           <span className="text-xs text-muted-foreground">验证 Resend 是否可正常发送邮件</span>
         </TestAction>
