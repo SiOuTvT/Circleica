@@ -14,12 +14,10 @@ const SERVICE_KEYS = [
 export const GET = withHandler(async () => {
   await requireAdminRole("SUPER_ADMIN")
   const all = await getSiteSettings()
-  console.log("[Services API] all keys:", Object.keys(all).join(", "))
   const config: Record<string, string> = {}
   for (const key of SERVICE_KEYS) {
     config[key] = all[key] || ""
   }
-  console.log("[Services API] config:", JSON.stringify(config))
   return json(config)
 })
 

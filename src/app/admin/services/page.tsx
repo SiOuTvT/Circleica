@@ -38,22 +38,14 @@ export default function ServicesPage() {
     fetch("/api/admin/services")
       .then(r => r.json())
       .then(res => {
-        console.log("[Services] API raw response:", JSON.stringify(res))
-        console.log("[Services] res.data:", JSON.stringify(res.data))
         if (res.data) {
-          setConfig(prev => {
-            const next = { ...prev, ...res.data }
-            console.log("[Services] setConfig result:", JSON.stringify(next))
-            return next
-          })
-        } else {
-          console.log("[Services] res.data is falsy, skipping setConfig")
+          // 延迟一帧设置值：Chrome 自动填充在 React commit 后异步执行，
+          // 如果立即 setConfig，Chrome 会覆盖 API 数据。
+          // 延迟后 Chrome 已完成填充，我们的值可以正确覆盖。
+          requestAnimationFrame(() => setConfig(prev => ({ ...prev, ...res.data })))
         }
       })
-      .catch(err => {
-        console.error("[Services] fetch error:", err)
-        toast.error("加载配置失败")
-      })
+      .catch(() => toast.error("加载配置失败"))
       .finally(() => setLoading(false))
   }, [])
 
