@@ -90,7 +90,8 @@ export default function ServicesPage() {
         body: JSON.stringify({ action: "test", service, config: payload }),
       })
       const data = await res.json()
-      setTestResult(prev => ({ ...prev, [service]: { ok: data.success, msg: data.message } }))
+      const result = data.data || data
+      setTestResult(prev => ({ ...prev, [service]: { ok: !!result.success, msg: result.message || result.error || "未知结果" } }))
     } catch {
       setTestResult(prev => ({ ...prev, [service]: { ok: false, msg: "测试请求失败" } }))
     } finally {
@@ -112,7 +113,8 @@ export default function ServicesPage() {
         }),
       })
       const data = await res.json()
-      setTestResult(prev => ({ ...prev, email: { ok: data.success, msg: data.message } }))
+      const result = data.data || data
+      setTestResult(prev => ({ ...prev, email: { ok: !!result.success, msg: result.message || result.error || "未知结果" } }))
     } catch {
       setTestResult(prev => ({ ...prev, email: { ok: false, msg: "测试请求失败" } }))
     } finally {
