@@ -2,6 +2,7 @@ import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
 import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo } from "@/lib/site-settings"
+import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
 import { Noto_Sans_SC } from "next/font/google"
@@ -79,6 +80,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // 等待服务配置从数据库加载完成（仅首次请求时阻塞，后续立即返回）
+  await waitForServiceConfig()
+
   const initialized = await isSiteInitialized()
 
   // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard
