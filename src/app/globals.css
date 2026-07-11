@@ -882,19 +882,29 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ── Chrome Autofill 覆盖 — 消除浏览器强制注入的白色/黄色背景 ── */
+input:autofill,
 input:-webkit-autofill,
+input:autofill:hover,
 input:-webkit-autofill:hover,
+input:autofill:focus,
 input:-webkit-autofill:focus,
+textarea:autofill,
 textarea:-webkit-autofill,
+select:autofill,
 select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #fafafa inset !important;
   box-shadow: 0 0 0 1000px #fafafa inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
 }
+.dark input:autofill,
 .dark input:-webkit-autofill,
+.dark input:autofill:hover,
 .dark input:-webkit-autofill:hover,
+.dark input:autofill:focus,
 .dark input:-webkit-autofill:focus,
+.dark textarea:autofill,
 .dark textarea:-webkit-autofill,
+.dark select:autofill,
 .dark select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #111114 inset !important;
   box-shadow: 0 0 0 1000px #111114 inset !important;
