@@ -21,6 +21,7 @@ const SUPER_ADMIN_PATHS = [
   "/admin/pages",
   "/admin/achievements",
   "/admin/theme",
+  "/admin/services",
 ]
 
 const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ default: m.AdminNav })), {

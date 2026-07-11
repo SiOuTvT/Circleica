@@ -7,7 +7,7 @@ import Image from "next/image"
 import {
   ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart,
   LayoutDashboard, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Search, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
+  PenTool, Search, Server, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -64,6 +64,7 @@ const navGroups: NavGroup[] = [
       { icon: FileCode, label: "页面管理", href: "/admin/pages", minRole: "SUPER_ADMIN" },
       { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN" },
       { icon: Palette, label: "主题设置", href: "/admin/theme", minRole: "SUPER_ADMIN" },
+      { icon: Server, label: "服务配置", href: "/admin/services", minRole: "SUPER_ADMIN" },
       { icon: FileText, label: "审计日志", href: "/admin/audit-logs", minRole: "ADMIN" },
     ],
   },
