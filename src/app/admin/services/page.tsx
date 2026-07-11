@@ -37,7 +37,7 @@ export default function ServicesPage() {
   useEffect(() => {
     fetch("/api/admin/services")
       .then(r => r.json())
-      .then(data => setConfig(prev => ({ ...prev, ...data })))
+      .then(res => { if (res.data) setConfig(prev => ({ ...prev, ...res.data })) })
       .catch(() => toast.error("加载配置失败"))
       .finally(() => setLoading(false))
   }, [])
