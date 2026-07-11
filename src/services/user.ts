@@ -5,6 +5,7 @@
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
+import { getResendApiKey } from "@/lib/service-config"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
@@ -53,25 +54,37 @@ export const authService = {
     }
 
     const isFirstUser = userCount === 0
-    const role = isFirstUser ? "SUPER_ADMIN" : "USER"
-    // 首个用户自动验证，其余根据配置决定
-    const emailVerified = isFirstUser ? true : false
-    const user = await userRepo.create({ username, email, password: hashed, role, emailVerified })
 
-    // 读取邮件验证配置
-    const [verifyEnabled, welcomeEnabled] = await Promise.all([
+    // 读取邮件验证配置（在创建用户前，避免创建后无法发送邮件）
+    const [verifySetting, welcomeSetting] = await Promise.all([
       prisma.siteSetting.findUnique({ where: { key: "email_verification_enabled" }, select: { value: true } }),
       prisma.siteSetting.findUnique({ where: { key: "send_welcome_email" }, select: { value: true } }),
     ])
+    const needVerify = verifySetting?.value === "true" && !isFirstUser
+    const needWelcome = welcomeSetting?.value === "true"
 
-    const needVerify = verifyEnabled?.value === "true" && !isFirstUser
-
-    if (needVerify) {
-      await this.sendVerificationEmail(user.id, email)
+    // 如果需要发送邮件，检查邮件服务是否配置
+    if ((needVerify || needWelcome) && !getResendApiKey()) {
+      if (needVerify) {
+        throw new ValidationError("邮件服务未配置，无法发送验证邮件。请联系管理员配置 Resend API Key。")
+      }
+      // 仅欢迎邮件未配置时不阻断注册，仅跳过
     }
 
-    if (welcomeEnabled?.value === "true") {
-      await sendWelcomeEmail(email, username).catch(() => {})
+    const role = isFirstUser ? "SUPER_ADMIN" : "USER"
+    const emailVerified = isFirstUser ? true : false
+    const user = await userRepo.create({ username, email, password: hashed, role, emailVerified })
+
+    if (needVerify) {
+      await this.sendVerificationEmail(user.id, email).catch(e =>
+        logger.system.error("[Register] 验证邮件发送失败", e)
+      )
+    }
+
+    if (needWelcome) {
+      await sendWelcomeEmail(email, username).catch(e =>
+        logger.system.error("[Register] 欢迎邮件发送失败", e)
+      )
     }
 
     return { ...user, emailVerificationSent: needVerify }
@@ -175,7 +188,9 @@ export const authService = {
       data: { userId, email: normalizedEmail, tokenHash: hash, type: "change_email", expiresAt: new Date(Date.now() + 3600 * 1000) },
     })
 
-    await sendEmailChangeEmail(normalizedEmail, raw)
+    await sendEmailChangeEmail(normalizedEmail, raw).catch(e =>
+      logger.system.error("[ChangeEmail] 变更邮件发送失败", e)
+    )
     return { success: true }
   },
 
@@ -210,7 +225,9 @@ export const authService = {
     const token = crypto.randomUUID()
     const expiresAt = new Date(Date.now() + 3600000)
     await prisma.passwordResetToken.create({ data: { userId: user.id, token, expiresAt } })
-    await sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(() => {})
+    await sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(e =>
+      logger.system.error("[ForgotPassword] 重置邮件发送失败", e)
+    )
     return { success: true }
   },
 
