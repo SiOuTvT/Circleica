@@ -125,6 +125,9 @@ export default function ServicesPage() {
         </button>
       </div>
 
+      {/* key 强制重建：API 数据加载完成后重新挂载输入框，防止浏览器自动填充覆盖 */}
+      <div key={loading ? "loading" : "ready"} className="space-y-6">
+
       {/* 重启提示 */}
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
@@ -184,6 +187,7 @@ export default function ServicesPage() {
         </div>
         <p className="text-xs text-muted-foreground">未配置时无法发送密码重置邮件，需管理员手动处理。</p>
       </Card>
+      </div>
     </div>
   )
 }
