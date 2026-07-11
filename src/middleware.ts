@@ -8,50 +8,42 @@ function generateNonce(): string {
   return btoa(String.fromCharCode(...array))
 }
 
-// CSP 策略
+// CSP 策略（模板缓存，仅 nonce 每次重建）
+let _cspTemplate: { scriptPrefix: string; rest: string } | null = null
+
 function buildCSP(nonce: string): string {
-  // 开发模式需要 unsafe-eval：React 使用 eval() 重建调用栈用于调试
+  if (!_cspTemplate) {
+    const imgDomains = [
+      "'self'", "data:", "blob:",
+      "*.r2.dev", "*.r2.cloudflarestorage.com",
+      "utfs.io", "uploadthing.com",
+      "static.vndb.org", "t.vndb.org",
+      "*.gravatar.com", "cdn.libravatar.org",
+      ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL).origin] : []),
+      ...(process.env.NODE_ENV === "development" ? ["localhost"] : []),
+    ]
+    const directives = [
+      `default-src 'self'`,
+      "", // 占位：scriptSrc
+      `style-src 'self' 'unsafe-inline'`,
+      `img-src ${imgDomains.join(" ")}`,
+      `font-src 'self' data:`,
+      `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
+      `frame-ancestors 'none'`,
+      `base-uri 'self'`,
+      `form-action 'self'`,
+      `object-src 'none'`,
+    ]
+    const isDev = process.env.NODE_ENV === "development"
+    _cspTemplate = {
+      scriptPrefix: isDev ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'` : `script-src 'self' 'nonce-`,
+      rest: directives.slice(2).join("; "),
+    }
+  }
   const scriptSrc = process.env.NODE_ENV === "development"
-    ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
-    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
-
-  // 允许的图片来源域名
-  const imgDomains = [
-    "'self'",
-    "data:",
-    "blob:",
-    // Cloudflare R2
-    "*.r2.dev",
-    "*.r2.cloudflarestorage.com",
-    // UploadThing
-    "utfs.io",
-    "uploadthing.com",
-    // VNDB
-    "static.vndb.org",
-    "t.vndb.org",
-    // 头像源
-    "*.gravatar.com",
-    "cdn.libravatar.org",
-    // R2 自定义域名（如有配置）
-    ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL).origin] : []),
-    // 开发环境
-    ...(process.env.NODE_ENV === "development" ? ["localhost"] : []),
-  ]
-
-  const directives = [
-    `default-src 'self'`,
-    scriptSrc,
-    // style-src 保留 unsafe-inline：Tailwind CSS 运行时样式注入需要
-    `style-src 'self' 'unsafe-inline'`,
-    `img-src ${imgDomains.join(" ")}`,
-    `font-src 'self' data:`,
-    `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
-    `frame-ancestors 'none'`,
-    `base-uri 'self'`,
-    `form-action 'self'`,
-    `object-src 'none'`,
-  ]
-  return directives.join("; ")
+    ? _cspTemplate.scriptPrefix
+    : `${_cspTemplate.scriptPrefix}${nonce}' 'strict-dynamic'`
+  return `default-src 'self'; ${scriptSrc}; ${_cspTemplate.rest}`
 }
 
 export async function middleware(req: NextRequest) {
