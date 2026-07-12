@@ -63,12 +63,21 @@ fi
 
 # ── 数据库迁移 ───────────────────────
 PRISMA="./node_modules/prisma/build/index.js"
-if node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma >/dev/null 2>&1; then
+if [ ! -f "$PRISMA" ]; then
+  printf "  ${R}✗${N} Prisma CLI 未找到 (${PRISMA})\n"
+  printf "  ${Y}!${N} 请检查 Docker 构建是否正确完成\n"
+  exit 1
+fi
+
+printf "  ⏳ 执行数据库迁移...\n"
+MIGRATE_OUTPUT=$(node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1)
+MIGRATE_EXIT=$?
+
+if [ $MIGRATE_EXIT -eq 0 ]; then
   printf "  ${G}✓${N} 数据库迁移完成\n"
 else
-  printf "  ${R}✗${N} 数据库迁移失败，正在输出详细错误...\n"
-  echo ""
-  node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1
+  printf "  ${R}✗${N} 数据库迁移失败 (exit code: ${MIGRATE_EXIT})\n"
+  echo "$MIGRATE_OUTPUT"
   exit 1
 fi
 

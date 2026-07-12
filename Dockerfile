@@ -132,9 +132,22 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # 安装 Prisma CLI 及其传递依赖（@prisma/config → effect → fast-check 等）
-# 只安装 prisma 一个包，npm 自动解析完整依赖树
-COPY --from=builder /app/package.json ./package.json
-RUN npm install --omit=dev prisma@6 --no-audit --no-fund && rm -f package.json package-lock.json
+# 从 builder 拷贝完整 node_modules，确保所有传递依赖版本一致
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma/config ./node_modules/@prisma/config
+COPY --from=builder /app/node_modules/effect ./node_modules/effect
+COPY --from=builder /app/node_modules/fast-check ./node_modules/fast-check
+COPY --from=builder /app/node_modules/c12 ./node_modules/c12
+COPY --from=builder /app/node_modules/chokidar ./node_modules/chokidar
+COPY --from=builder /app/node_modules/confbox ./node_modules/confbox
+COPY --from=builder /app/node_modules/defu ./node_modules/defu
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/node_modules/exsolve ./node_modules/exsolve
+COPY --from=builder /app/node_modules/giget ./node_modules/giget
+COPY --from=builder /app/node_modules/jiti ./node_modules/jiti
+COPY --from=builder /app/node_modules/deepmerge-ts ./node_modules/deepmerge-ts
+COPY --from=builder /app/node_modules/empathic ./node_modules/empathic
+COPY --from=builder /app/node_modules/@standard-schema ./node_modules/@standard-schema
 
 # Create uploads directory with proper permissions
 RUN mkdir -p /app/public/uploads && \
