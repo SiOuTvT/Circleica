@@ -43,7 +43,7 @@ elif echo "$DATABASE_URL" | grep -qE '@[^/?]+/'; then
 fi
 
 if [ -n "$DB_HOST" ]; then
-  printf "  ⏳ 等待数据库连接 (${DB_HOST}:${DB_PORT})...\n"
+  printf "  ⏳ 等待数据库端口就绪 (${DB_HOST}:${DB_PORT})...\n"
   MAX_RETRIES=30
   RETRY=0
   while [ $RETRY -lt $MAX_RETRIES ]; do
@@ -53,36 +53,51 @@ if [ -n "$DB_HOST" ]; then
     fi
     RETRY=$((RETRY + 1))
     if [ $RETRY -ge $MAX_RETRIES ]; then
-      printf "  ${R}✗${N} 无法连接数据库 ${DB_HOST}:${DB_PORT}\n"
+      printf "  ${R}✗${N} 无法连接数据库端口 ${DB_HOST}:${DB_PORT}\n"
       exit 1
     fi
     sleep 2
   done
 fi
 
-# ── 数据库迁移（带重试，等待 PostgreSQL 完全就绪） ──
 PRISMA="./node_modules/prisma/build/index.js"
 if [ ! -f "$PRISMA" ]; then
   printf "  ${R}✗${N} Prisma CLI 未找到\n"
   exit 1
 fi
 
+# ── 数据库迁移（带重试 + 表存在性验证） ──
 printf "  ⏳ 执行数据库迁移...\n"
-MIGRATE_OK=false
-MIGRATE_RETRIES=5
+MAX_MIGRATE_RETRIES=10
 MIGRATE_RETRY=0
-while [ $MIGRATE_RETRY -lt $MIGRATE_RETRIES ]; do
+MIGRATE_OK=false
+
+while [ $MIGRATE_RETRY -lt $MAX_MIGRATE_RETRIES ]; do
   MIGRATE_OUTPUT=$(node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1)
   MIGRATE_EXIT=$?
+
   if [ $MIGRATE_EXIT -eq 0 ]; then
-    MIGRATE_OK=true
-    break
+    # 迁移命令成功，验证表是否真正存在
+    TABLE_CHECK=$(node -e "
+      const { PrismaClient } = require('@prisma/client');
+      const p = new PrismaClient();
+      p.\$queryRaw\`SELECT 1 FROM \"_prisma_migrations\" LIMIT 1\`
+        .then(() => p.\$queryRaw\`SELECT 1 FROM \"SiteSetting\" LIMIT 1\`)
+        .then(() => { console.log('ok'); process.exit(0); })
+        .catch(() => { console.log('missing'); process.exit(1); });
+    " 2>/dev/null)
+
+    if echo "$TABLE_CHECK" | grep -q "ok"; then
+      MIGRATE_OK=true
+      break
+    fi
+    printf "  ${Y}⏳${N} 迁移完成但表未就绪，等待重试 (${MIGRATE_RETRY}/${MAX_MIGRATE_RETRIES})...\n"
+  else
+    printf "  ${Y}⏳${N} 迁移失败，等待重试 (${MIGRATE_RETRY}/${MAX_MIGRATE_RETRIES})...\n"
   fi
+
   MIGRATE_RETRY=$((MIGRATE_RETRY + 1))
-  if [ $MIGRATE_RETRY -lt $MIGRATE_RETRIES ]; then
-    printf "  ${Y}⏳${N} 迁移未成功，等待重试 (${MIGRATE_RETRY}/${MIGRATE_RETRIES})...\n"
-    sleep 3
-  fi
+  sleep 3
 done
 
 if [ "$MIGRATE_OK" = true ]; then
