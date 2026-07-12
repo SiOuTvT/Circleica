@@ -51,7 +51,6 @@ model User {
   collections      Collection[]
   publishedGames   Game[]
   gameResources    GameResource[]
-  curatedCollectionGames CuratedCollectionGame[]
   forumPostLikes   ForumPostLike[]
   forumCommentLikes ForumCommentLike[]
   commentLikes     CommentLike[]
@@ -155,6 +154,7 @@ model Game {
   creators      GameCreator[]
   resources     GameResource[]
   logs          GameLog[]
+  curatedCollectionGames CuratedCollectionGame[]
 
   @@index([isPublished, isNsfw, createdAt])
   @@index([isPublished, viewCount])
