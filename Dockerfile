@@ -72,6 +72,7 @@ COPY . .
 # Set build-time environment
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-http-header-size=1048576"
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
 ENV PRISMA_QUERY_ENGINE_TYPE=library
 
@@ -85,8 +86,8 @@ ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 ENV APP_VERSION=${VERSION}
 
-# Build the application
-RUN npm run build
+# Build the application（TypeScript 检查需要较多内存）
+RUN NODE_OPTIONS="--max-old-space-size=2048 --max-http-header-size=1048576" npm run build
 
 # ═══════════════════════════════════════════
 # Stage 3: Production Runtime
