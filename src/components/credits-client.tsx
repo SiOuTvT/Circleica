@@ -71,7 +71,8 @@ export function CreditsClient() {
       if (search) params.set("search", search)
 
       const res = await fetch(`/api/credits?${params}`)
-      const data = await res.json()
+      const result = await res.json()
+      const data = result.data || result
       setGames(data.games || [])
       setTotalPages(data.totalPages || 1)
       setTotal(data.total || 0)

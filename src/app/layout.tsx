@@ -6,8 +6,10 @@ import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
 import { Noto_Sans_SC } from "next/font/google"
-import NextTopLoader from "nextjs-toploader"
+import dynamic from "next/dynamic"
 import { SetupWizard } from "@/components/setup-wizard"
+
+const NextTopLoader = dynamic(() => import("nextjs-toploader"), { ssr: false })
 import "./globals.css"
 
 const notoSans = Noto_Sans_SC({
