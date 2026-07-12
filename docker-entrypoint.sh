@@ -44,39 +44,51 @@ fi
 
 if [ -n "$DB_HOST" ]; then
   printf "  ⏳ 等待数据库连接 (${DB_HOST}:${DB_PORT})...\n"
-  MAX_RETRIES=15
+  MAX_RETRIES=30
   RETRY=0
   while [ $RETRY -lt $MAX_RETRIES ]; do
     if bash -c "echo > /dev/tcp/${DB_HOST}/${DB_PORT}" 2>/dev/null; then
-      printf "  ${G}✓${N} 数据库已连接\n"
+      printf "  ${G}✓${N} 数据库端口就绪\n"
       break
     fi
     RETRY=$((RETRY + 1))
     if [ $RETRY -ge $MAX_RETRIES ]; then
       printf "  ${R}✗${N} 无法连接数据库 ${DB_HOST}:${DB_PORT}\n"
-      printf "  ${Y}!${N} 请检查: PostgreSQL 是否已启动 | DATABASE_URL 是否正确\n"
       exit 1
     fi
     sleep 2
   done
 fi
 
-# ── 数据库迁移 ───────────────────────
+# ── 数据库迁移（带重试，等待 PostgreSQL 完全就绪） ──
 PRISMA="./node_modules/prisma/build/index.js"
 if [ ! -f "$PRISMA" ]; then
-  printf "  ${R}✗${N} Prisma CLI 未找到 (${PRISMA})\n"
-  printf "  ${Y}!${N} 请检查 Docker 构建是否正确完成\n"
+  printf "  ${R}✗${N} Prisma CLI 未找到\n"
   exit 1
 fi
 
 printf "  ⏳ 执行数据库迁移...\n"
-MIGRATE_OUTPUT=$(node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1)
-MIGRATE_EXIT=$?
+MIGRATE_OK=false
+MIGRATE_RETRIES=5
+MIGRATE_RETRY=0
+while [ $MIGRATE_RETRY -lt $MIGRATE_RETRIES ]; do
+  MIGRATE_OUTPUT=$(node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma 2>&1)
+  MIGRATE_EXIT=$?
+  if [ $MIGRATE_EXIT -eq 0 ]; then
+    MIGRATE_OK=true
+    break
+  fi
+  MIGRATE_RETRY=$((MIGRATE_RETRY + 1))
+  if [ $MIGRATE_RETRY -lt $MIGRATE_RETRIES ]; then
+    printf "  ${Y}⏳${N} 迁移未成功，等待重试 (${MIGRATE_RETRY}/${MIGRATE_RETRIES})...\n"
+    sleep 3
+  fi
+done
 
-if [ $MIGRATE_EXIT -eq 0 ]; then
+if [ "$MIGRATE_OK" = true ]; then
   printf "  ${G}✓${N} 数据库迁移完成\n"
 else
-  printf "  ${R}✗${N} 数据库迁移失败 (exit code: ${MIGRATE_EXIT})\n"
+  printf "  ${R}✗${N} 数据库迁移失败\n"
   echo "$MIGRATE_OUTPUT"
   exit 1
 fi
