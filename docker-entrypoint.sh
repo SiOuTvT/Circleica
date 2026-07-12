@@ -36,28 +36,32 @@ printf "  ⏳ 等待数据库就绪...\n"
 MAX_WAIT=60
 WAITED=0
 while [ $WAITED -lt $MAX_WAIT ]; do
-  if node -e "
+  DB_ERR=$(node -e "
     const { PrismaClient } = require('@prisma/client');
     const p = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
-    p.\$queryRaw\`SELECT 1\`.then(() => { process.exit(0); }).catch(() => { process.exit(1); });
-  " >/dev/null 2>&1; then
-    printf "  ${G}✓${N} 数据库已就绪\n"
-    break
-  fi
+    p.\$queryRaw\`SELECT 1\`.then(() => { process.exit(0); }).catch((e) => { console.error(e.message); process.exit(1); });
+  " 2>&1) && break
   WAITED=$((WAITED + 2))
   if [ $WAITED -ge $MAX_WAIT ]; then
     printf "  ${R}✗${N} 数据库连接超时（${MAX_WAIT}秒）\n"
+    echo "$DB_ERR"
     exit 1
   fi
   sleep 2
 done
+printf "  ${G}✓${N} 数据库已就绪\n"
 
 # ── 数据库迁移 ───────────────────────
 printf "  ⏳ 执行数据库迁移...\n"
-if node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma; then
+MIGRATE_OUTPUT=$(node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma 2>&1)
+MIGRATE_EXIT=$?
+if [ $MIGRATE_EXIT -eq 0 ]; then
   printf "  ${G}✓${N} 数据库迁移完成\n"
 else
-  printf "  ${R}✗${N} 数据库迁移失败\n"
+  printf "  ${R}✗${N} 数据库迁移失败 (exit code: ${MIGRATE_EXIT})\n"
+  echo "--- 迁移错误详情 ---"
+  echo "$MIGRATE_OUTPUT"
+  echo "--- 结束 ---"
   exit 1
 fi
 
