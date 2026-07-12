@@ -231,11 +231,14 @@ function CollectionDialog({ collection, onClose, onSaved }: {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || `保存失败 (${res.status})`)
+      }
       toast.success(collection ? "合集已更新" : "合集已创建")
       onSaved()
-    } catch {
-      toast.error("保存失败")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
       setSaving(false)
     }
