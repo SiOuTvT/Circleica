@@ -184,7 +184,9 @@ function CollectionDialog({ collection, onClose, onSaved }: {
       try {
         const res = await fetch(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
         const data = await res.json()
-        setSearchResults(data.data?.games || data.games || [])
+        // /api/admin/games 返回 { success, data: [games[], count] }
+        const games = Array.isArray(data.data) ? data.data[0] : (data.data?.games || data.games || [])
+        setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studioName: g.studioName })))
       } catch { setSearchResults([]) }
       finally { setSearching(false) }
     }, 300)
