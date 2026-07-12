@@ -2,7 +2,12 @@ import { withHandler, json } from '@/lib/api-handler'
 import { gameService } from '@/services/game'
 
 export const POST = withHandler(async (req) => {
-  const { gameIds } = await req.json()
-  const result = await gameService.batchIncrementView(gameIds)
+  const body = await req.json()
+  // 兼容两种格式：{ views: [{gameId, ts}] } 或 { gameIds: [...] }
+  const ids: string[] = body.views
+    ? body.views.map((v: { gameId: string }) => v.gameId)
+    : body.gameIds || []
+  if (!ids.length) return json({ updated: 0 })
+  const result = await gameService.batchIncrementView(ids)
   return json(result)
 })
