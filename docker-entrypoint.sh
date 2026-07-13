@@ -32,13 +32,13 @@ if [ -z "$NEXTAUTH_SECRET" ]; then
 fi
 
 # ── 数据库迁移（带重试） ──────────────
-printf "  ⏳ 执行数据库迁移...\n"
 MAX_RETRIES=10
 RETRY=0
 MIGRATE_OK=false
 
 while [ $RETRY -lt $MAX_RETRIES ]; do
-  MIGRATE_OUTPUT=$(node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma 2>&1)
+  printf "  ⏳ 执行数据库迁移 (${RETRY}/${MAX_RETRIES})...\n"
+  MIGRATE_OUTPUT=$(npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1)
   MIGRATE_EXIT=$?
 
   if [ $MIGRATE_EXIT -eq 0 ]; then
@@ -47,16 +47,19 @@ while [ $RETRY -lt $MAX_RETRIES ]; do
     break
   fi
 
+  # 打印失败原因（便于调试）
+  printf "  ${Y}⚠${N} 迁移失败:\n"
+  echo "$MIGRATE_OUTPUT" | while IFS= read -r line; do printf "    %s\n" "$line"; done
+
   RETRY=$((RETRY + 1))
   if [ $RETRY -lt $MAX_RETRIES ]; then
-    printf "  ${Y}⏳${N} 迁移未成功，等待重试 (${RETRY}/${MAX_RETRIES})...\n"
+    printf "  ${Y}⏳${N} 等待 ${RETRY}/${MAX_RETRIES} 次重试...\n"
     sleep 3
   fi
 done
 
 if [ "$MIGRATE_OK" != true ]; then
   printf "  ${R}✗${N} 数据库迁移失败 (${MAX_RETRIES} 次重试)\n"
-  echo "$MIGRATE_OUTPUT"
   exit 1
 fi
 
