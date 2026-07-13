@@ -87,7 +87,7 @@ ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 ENV APP_VERSION=${VERSION}
 
 # Build the application（TypeScript 检查需要较多内存）
-RUN NODE_OPTIONS="--max-old-space-size=2048 --max-http-header-size=1048576" npm run build
+RUN NODE_OPTIONS="--max-old-space-size=2048" npx next build
 
 # ═══════════════════════════════════════════
 # Stage 3: Production Runtime
