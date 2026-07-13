@@ -36,11 +36,60 @@ if [ -n "$DB_HOST" ]; then
   done
 fi
 
+# ── 修复历史失败迁移 ────────────────
+fix_failed_migrations() {
+  FAILED=$(
+    node -e "
+      const { PrismaClient } = require('@prisma/client');
+      const p = new PrismaClient();
+      (async () => {
+        try {
+          const rows = await p.\$queryRaw\`
+            SELECT migration_name, rolled_back_count
+            FROM _prisma_migrations
+            WHERE rolled_back_count > 0
+            ORDER BY started_at
+          \`;
+          console.log(JSON.stringify(rows));
+        } catch(e) {
+          console.log('[]');
+        }
+        await p.\$disconnect();
+      })();
+    " 2>/dev/null
+  )
+
+  if [ -z "$FAILED" ] || [ "$FAILED" = "[]" ]; then
+    return 0
+  fi
+
+  printf "  ${Y}⚠${N} 检测到失败的迁移记录，正在修复...\n"
+
+  NAMES=$(echo "$FAILED" | node -e "
+    const raw = require('fs').readFileSync('/dev/stdin', 'utf8').trim();
+    if (!raw || raw === '[]') { process.exit(0); }
+    const arr = JSON.parse(raw);
+    for (const r of arr) { console.log(r.migration_name); }
+  " 2>/dev/null)
+
+  if [ -z "$NAMES" ]; then
+    return 0
+  fi
+
+  for NAME in $NAMES; do
+    printf "    ↪ resolve: ${NAME}\n"
+    npx prisma migrate resolve --rolled-back "$NAME" --schema=./prisma/schema.prisma 2>&1 || true
+  done
+
+  printf "  ${G}✓${N} 失败迁移已修复\n"
+}
+
+fix_failed_migrations
+
 # ── 执行迁移 ───────────────────────
-PRISMA="./node_modules/prisma/build/index.js"
 printf "  ⏳ 执行数据库迁移...\n"
 
-if node "$PRISMA" migrate deploy --schema=./prisma/schema.prisma; then
+if npx prisma migrate deploy --schema=./prisma/schema.prisma; then
   printf "  ${G}✓${N} 数据库迁移完成\n"
 else
   printf "  ${R}✗${N} 数据库迁移失败\n"

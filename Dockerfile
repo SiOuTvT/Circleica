@@ -146,7 +146,7 @@ RUN chmod +x /docker-entrypoint.sh /migrate-entrypoint.sh
 RUN chown -R nextjs:nodejs /app
 
 # Expose port
-EXPOSE 80
+EXPOSE 3000
 
 # Environment variables
 ARG VERSION="unknown"

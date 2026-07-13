@@ -31,13 +31,68 @@ if [ -z "$NEXTAUTH_SECRET" ]; then
   fi
 fi
 
-# ── 数据库迁移（带重试） ──────────────
-MAX_RETRIES=10
-RETRY=0
+# ── 数据库迁移 ────────────────────────
+# 策略：先检测是否有遗留的失败迁移，自动修复后再执行正常迁移
 MIGRATE_OK=false
 
-while [ $RETRY -lt $MAX_RETRIES ]; do
-  printf "  ⏳ 执行数据库迁移 (${RETRY}/${MAX_RETRIES})...\n"
+fix_failed_migrations() {
+  # 查找 _prisma_migrations 中所有 rolled_back_count > 0 的记录
+  FAILED=$(
+    node -e "
+      const { PrismaClient } = require('@prisma/client');
+      const p = new PrismaClient();
+      (async () => {
+        try {
+          const rows = await p.\$queryRaw\`
+            SELECT migration_name, rolled_back_count
+            FROM _prisma_migrations
+            WHERE rolled_back_count > 0
+            ORDER BY started_at
+          \`;
+          console.log(JSON.stringify(rows));
+        } catch(e) {
+          // 表不存在，说明是全新数据库
+          console.log('[]');
+        }
+        await p.\$disconnect();
+      })();
+    " 2>/dev/null
+  )
+
+  if [ -z "$FAILED" ] || [ "$FAILED" = "[]" ]; then
+    return 0
+  fi
+
+  printf "  ${Y}⚠${N} 检测到失败的迁移记录，正在修复...\n"
+
+  # 用 awk 加手动循环提取 migration_name —— 比 jq 更可靠（镜像没装 jq）
+  NAMES=$(echo "$FAILED" | node -e "
+    const raw = require('fs').readFileSync('/dev/stdin', 'utf8').trim();
+    if (!raw || raw === '[]') { process.exit(0); }
+    const arr = JSON.parse(raw);
+    for (const r of arr) {
+      console.log(r.migration_name);
+    }
+  " 2>/dev/null)
+
+  if [ -z "$NAMES" ]; then
+    return 0
+  fi
+
+  for NAME in $NAMES; do
+    printf "    ↪ resolve: ${NAME}\n"
+    npx prisma migrate resolve --rolled-back "$NAME" --schema=./prisma/schema.prisma 2>&1 || true
+  done
+
+  printf "  ${G}✓${N} 失败迁移已修复\n"
+}
+
+for RETRY in $(seq 0 10); do
+  # 第一步：修复历史失败记录
+  fix_failed_migrations
+
+  # 第二步：执行正常迁移
+  printf "  ⏳ 执行数据库迁移 (${RETRY}/10)...\n"
   MIGRATE_OUTPUT=$(npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1)
   MIGRATE_EXIT=$?
 
@@ -51,15 +106,14 @@ while [ $RETRY -lt $MAX_RETRIES ]; do
   printf "  ${Y}⚠${N} 迁移失败:\n"
   echo "$MIGRATE_OUTPUT" | while IFS= read -r line; do printf "    %s\n" "$line"; done
 
-  RETRY=$((RETRY + 1))
-  if [ $RETRY -lt $MAX_RETRIES ]; then
-    printf "  ${Y}⏳${N} 等待 ${RETRY}/${MAX_RETRIES} 次重试...\n"
+  if [ $RETRY -lt 10 ]; then
+    printf "  ${Y}⏳${N} 等待重试...\n"
     sleep 3
   fi
 done
 
 if [ "$MIGRATE_OK" != true ]; then
-  printf "  ${R}✗${N} 数据库迁移失败 (${MAX_RETRIES} 次重试)\n"
+  printf "  ${R}✗${N} 数据库迁移彻底失败\n"
   exit 1
 fi
 
