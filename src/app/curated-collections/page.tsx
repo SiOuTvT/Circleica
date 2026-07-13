@@ -12,20 +12,25 @@ export const metadata: Metadata = {
 export const revalidate = 300
 
 export default async function CuratedCollectionsPage() {
-  const collections = await prisma.curatedCollection.findMany({
-    where: { published: true },
-    orderBy: { sortOrder: "asc" },
-    include: {
-      games: {
-        orderBy: { sortOrder: "asc" },
-        take: 4,
-        include: {
-          game: { select: { id: true, serialId: true, title: true, coverImage: true } },
+  let collections: any[] = []
+  try {
+    collections = await prisma.curatedCollection.findMany({
+      where: { published: true },
+      orderBy: { sortOrder: "asc" },
+      include: {
+        games: {
+          orderBy: { sortOrder: "asc" },
+          take: 4,
+          include: {
+            game: { select: { id: true, serialId: true, title: true, coverImage: true } },
+          },
         },
+        _count: { select: { games: true } },
       },
-      _count: { select: { games: true } },
-    },
-  })
+    })
+  } catch {
+    // 构建期数据库不可用，返回空列表
+  }
 
   if (collections.length === 0) {
     return (

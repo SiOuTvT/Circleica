@@ -101,11 +101,11 @@ const _isInitialized = unstable_cache(
         select: { value: true },
       })
       if (setting?.value === "true") return true
-      // 向后兼容：已部署实例无 initialized 标记但已有用户
       const userCount = await prisma.user.count()
       return userCount > 0
     } catch {
-      return false
+      // 数据库不可用时（构建期、启动期）假定已初始化，避免 redirect 循环
+      return true
     }
   },
   ["site-initialized"],
