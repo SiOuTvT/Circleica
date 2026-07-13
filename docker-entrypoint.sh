@@ -31,37 +31,32 @@ if [ -z "$NEXTAUTH_SECRET" ]; then
   fi
 fi
 
-# ── 等待数据库就绪 ────────────────────
-printf "  ⏳ 等待数据库就绪...\n"
-MAX_WAIT=60
-WAITED=0
-while [ $WAITED -lt $MAX_WAIT ]; do
-  DB_ERR=$(node -e "
-    const { PrismaClient } = require('@prisma/client');
-    const p = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } });
-    p.\$queryRaw\`SELECT 1\`.then(() => { process.exit(0); }).catch((e) => { console.error(e.message); process.exit(1); });
-  " 2>&1) && break
-  WAITED=$((WAITED + 2))
-  if [ $WAITED -ge $MAX_WAIT ]; then
-    printf "  ${R}✗${N} 数据库连接超时（${MAX_WAIT}秒）\n"
-    echo "$DB_ERR"
-    exit 1
-  fi
-  sleep 2
-done
-printf "  ${G}✓${N} 数据库已就绪\n"
-
-# ── 数据库迁移 ───────────────────────
+# ── 数据库迁移（带重试） ──────────────
 printf "  ⏳ 执行数据库迁移...\n"
-MIGRATE_OUTPUT=$(node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma 2>&1)
-MIGRATE_EXIT=$?
-if [ $MIGRATE_EXIT -eq 0 ]; then
-  printf "  ${G}✓${N} 数据库迁移完成\n"
-else
-  printf "  ${R}✗${N} 数据库迁移失败 (exit code: ${MIGRATE_EXIT})\n"
-  echo "--- 迁移错误详情 ---"
+MAX_RETRIES=10
+RETRY=0
+MIGRATE_OK=false
+
+while [ $RETRY -lt $MAX_RETRIES ]; do
+  MIGRATE_OUTPUT=$(node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma 2>&1)
+  MIGRATE_EXIT=$?
+
+  if [ $MIGRATE_EXIT -eq 0 ]; then
+    MIGRATE_OK=true
+    printf "  ${G}✓${N} 数据库迁移完成\n"
+    break
+  fi
+
+  RETRY=$((RETRY + 1))
+  if [ $RETRY -lt $MAX_RETRIES ]; then
+    printf "  ${Y}⏳${N} 迁移未成功，等待重试 (${RETRY}/${MAX_RETRIES})...\n"
+    sleep 3
+  fi
+done
+
+if [ "$MIGRATE_OK" != true ]; then
+  printf "  ${R}✗${N} 数据库迁移失败 (${MAX_RETRIES} 次重试)\n"
   echo "$MIGRATE_OUTPUT"
-  echo "--- 结束 ---"
   exit 1
 fi
 
