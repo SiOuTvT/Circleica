@@ -1,43 +1,64 @@
 /**
- * 邮件服务 — Resend REST API
+ * 邮件服务 — 多服务商 fallthrough
  *
- * 配置来源：service-config.ts（数据库 > 环境变量）
+ * 配置来源：service-config.ts（数据库 > 环境变量，模块启动时缓存）
+ * 按 provider 顺序尝试发送，配额/网络失败自动切下一个
  * 未配置时跳过发送，不影响其它功能
  */
 
-import { getResendApiKey, getResendFrom } from "./service-config"
+import { getEmailProviders, getEmailFrom } from "./service-config"
+import { PROVIDER_MAP } from "./email-providers"
 import { logger } from "./logger"
-
-const RESEND_API = "https://api.resend.com/emails"
 
 /* ── 通用发送 ──────────────────────── */
 
+/**
+ * MVP: 同 provider 不重试。一次超时不代表 provider 挂了，直接切下一个。
+ * 后续可加 `maxRetriesPerProvider` 参数让同一个 provider 重试 N 次再 fallthrough。
+ */
 async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-  const apiKey = getResendApiKey()
-  if (!apiKey) {
-    logger.system.info("[Email] Resend 未配置，跳过邮件发送")
+  const providers = getEmailProviders()
+  if (!providers.length) {
+    logger.system.info("[Email] 邮件服务未配置，跳过发送")
     return false
   }
 
-  try {
-    const res = await fetch(RESEND_API, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: getResendFrom(), to, subject, html }),
-    })
+  const from = getEmailFrom()
 
-    if (!res.ok) {
-      const body = await res.text()
-      logger.system.error("[Email] Resend 发送失败", undefined, { status: res.status, body, to })
-      return false
+  for (const provider of providers) {
+    const impl = PROVIDER_MAP[provider.id]
+    if (!impl) {
+      logger.system.warn("[Email] 未知 provider", { id: provider.id })
+      continue
     }
 
-    logger.system.info("[Email] 邮件已发送", { to: to.replace(/(.{2}).*(@.*)/, "$1***$2"), subject })
-    return true
-  } catch (e) {
-    logger.system.error("[Email] 发送异常", e)
-    return false
+    const result = await impl.send(provider.apiKey, { from, to, subject, html })
+
+    if (result.ok) {
+      logger.system.info("[Email] 邮件已发送", {
+        provider: provider.id,
+        id: result.id,
+        to: to.replace(/(.{2}).*(@.*)/, "$1***$2"),
+        subject,
+      })
+      return true
+    }
+
+    logger.system.warn("[Email] provider 发送失败", {
+      provider: provider.id,
+      error: result.error,
+      retryable: result.retryable,
+    })
+
+    if (!result.retryable) {
+      // 认证失败/配置错误 — 不尝试下一个，直接失败
+      return false
+    }
+    // retryable → 继续下一个 provider
   }
+
+  logger.system.error("[Email] 所有 provider 发送失败", { subject })
+  return false
 }
 
 /* ── 模板 ──────────────────────────── */

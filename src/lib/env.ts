@@ -46,6 +46,10 @@ const envSchema = z.object({
 
   // 可选 - Resend
   RESEND_API_KEY: z.string().optional(),
+
+  // 可选 - Brevo
+  BREVO_API_KEY: z.string().optional(),
+  EMAIL_PROVIDER_ORDER: z.string().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>
@@ -109,7 +113,7 @@ export function getFeatures() {
   return {
     redis: !!(e.UPSTASH_REDIS_REST_URL && e.UPSTASH_REDIS_REST_TOKEN),
     sentry: !!e.SENTRY_DSN,
-    email: !!e.RESEND_API_KEY,
+    email: !!(e.RESEND_API_KEY || e.BREVO_API_KEY),
     r2: !!(e.R2_BUCKET_NAME && e.R2_ACCOUNT_ID),
   } as const
 }

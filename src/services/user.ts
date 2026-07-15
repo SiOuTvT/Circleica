@@ -5,7 +5,7 @@
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
-import { getResendApiKey } from "@/lib/service-config"
+import { getEmailConfigured } from "@/lib/service-config"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
@@ -64,9 +64,9 @@ export const authService = {
     const needWelcome = welcomeSetting?.value === "true"
 
     // 如果需要发送邮件，检查邮件服务是否配置
-    if ((needVerify || needWelcome) && !getResendApiKey()) {
+    if ((needVerify || needWelcome) && !getEmailConfigured()) {
       if (needVerify) {
-        throw new ValidationError("邮件服务未配置，无法发送验证邮件。请联系管理员配置 Resend API Key。")
+        throw new ValidationError("邮件服务未配置，无法发送验证邮件。请联系管理员在后台配置邮件服务。")
       }
       // 仅欢迎邮件未配置时不阻断注册，仅跳过
     }

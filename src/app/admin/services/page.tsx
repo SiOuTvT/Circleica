@@ -16,18 +16,22 @@ interface ServiceConfig {
   redis_url: string
   redis_token: string
   resend_api_key: string
+  brevo_api_key: string
   email_from_name: string
   email_from_email: string
+  email_provider_order: string
 }
 
 const EMPTY: ServiceConfig = {
   r2_account_id: "", r2_access_key_id: "", r2_secret_access_key: "",
   r2_bucket_name: "", r2_public_url: "",
   redis_url: "", redis_token: "",
-  resend_api_key: "", email_from_name: "", email_from_email: "",
+  resend_api_key: "", brevo_api_key: "",
+  email_from_name: "", email_from_email: "", email_provider_order: "",
 }
 
 interface TestResult { ok: boolean; msg: string }
+interface EmailTestResults { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
 
 export default function ServicesPage() {
   const [config, setConfig] = useState<ServiceConfig>(EMPTY)
@@ -109,18 +113,37 @@ export default function ServicesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "test", service: "email",
-          config: { to: testEmail.trim(), api_key: config.resend_api_key, from_name: config.email_from_name, from_email: config.email_from_email },
+          config: {
+            to: testEmail.trim(),
+            resend_api_key: config.resend_api_key,
+            brevo_api_key: config.brevo_api_key,
+            from_name: config.email_from_name,
+            from_email: config.email_from_email,
+            provider_order: config.email_provider_order,
+          },
         }),
       })
       const data = await res.json()
-      const result = data.data || data
-      setTestResult(prev => ({ ...prev, email: { ok: !!result.success, msg: result.message || result.error || "未知结果" } }))
+      const result: EmailTestResults = data.data || data
+      setTestResult(prev => ({
+        ...prev,
+        email: {
+          ok: !!result.success,
+          msg: result.message || result.error || "未知结果",
+          results: result.results,
+        } as TestResult & { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> },
+      }))
     } catch {
       setTestResult(prev => ({ ...prev, email: { ok: false, msg: "测试请求失败" } }))
     } finally {
       setSendingTest(false)
     }
-  }, [config.resend_api_key, config.email_from_name, config.email_from_email, testEmail])
+  }, [config.resend_api_key, config.brevo_api_key, config.email_from_name, config.email_from_email, config.email_provider_order, testEmail])
+
+  const hasAnyEmailKey = config.resend_api_key || config.brevo_api_key
+  const providerOrder = config.email_provider_order
+    ? config.email_provider_order.split(",").map(s => s.trim()).filter(Boolean)
+    : []
 
   if (loading) {
     return (
@@ -190,20 +213,39 @@ export default function ServicesPage() {
 
       {/* ── 邮件服务 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={Mail} title="邮件服务" desc="Resend 邮件 API，用于系统邮件发送" />
+        <SectionHeader icon={Mail} title="邮件服务" desc="支持 Resend + Brevo 双服务商，按优先级自动切换" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <SecretField label="API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" className="sm:col-span-2" />
+          <SecretField label="Resend API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" />
+          <SecretField label="Brevo API Key" value={config.brevo_api_key} onChange={v => update("brevo_api_key", v)} placeholder="xkeysib-xxxxxxxxxxxx" />
           <Field label="发件人名称" value={config.email_from_name} onChange={v => update("email_from_name", v)} placeholder="Fangame" />
           <Field label="发件邮箱" value={config.email_from_email} onChange={v => update("email_from_email", v)} placeholder="noreply@example.com" />
           <Field label="测试收件邮箱" value={testEmail} onChange={setTestEmail} placeholder="test@example.com" className="sm:col-span-2" />
         </div>
+
+        {/* Provider 优先级 */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <ProviderSelect
+            label="第一优先"
+            value={providerOrder[0] || ""}
+            onChange={v => update("email_provider_order", [v, providerOrder[1] || ""].filter(Boolean).join(","))}
+            excludeKey={providerOrder[1] || ""}
+          />
+          <ProviderSelect
+            label="第二优先"
+            value={providerOrder[1] || ""}
+            onChange={v => update("email_provider_order", [providerOrder[0] || "", v].filter(Boolean).join(","))}
+            excludeKey={providerOrder[0] || ""}
+            allowNone
+          />
+        </div>
+
         <TestAction>
-          <button onClick={handleTestEmail} disabled={sendingTest || !config.resend_api_key || !testEmail} className={adminBtnSecondary}>
+          <button onClick={handleTestEmail} disabled={sendingTest || !hasAnyEmailKey || !testEmail} className={adminBtnSecondary}>
             {sendingTest ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> 发送中...</> : <><Mail className="h-3.5 w-3.5" /> 发送测试邮件</>}
           </button>
-          <span className="text-xs text-muted-foreground">验证 Resend 是否可正常发送邮件</span>
+          <span className="text-xs text-muted-foreground">按优先级顺序测试所有已配置的邮件服务商</span>
         </TestAction>
-        <TestResultBadge result={testResult.email} />
+        <EmailTestResults result={testResult.email as (TestResult & { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }) | undefined} />
         <p className="text-xs text-muted-foreground">未配置时将无法发送注册验证、密码重置及其它系统邮件。</p>
       </Card>
 
@@ -272,6 +314,62 @@ function SecretField({ label, value, onChange, placeholder, className }: {
           {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
       </div>
+    </div>
+  )
+}
+
+function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
+  label: string; value: string; onChange: (v: string) => void; excludeKey?: string; allowNone?: boolean
+}) {
+  const OPTIONS = [
+    { key: "", label: "无" },
+    { key: "resend", label: "Resend" },
+    { key: "brevo", label: "Brevo" },
+  ].filter(o => {
+    if (!allowNone && !o.key) return false
+    if (excludeKey && o.key === excludeKey) return false
+    return true
+  })
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full h-10 rounded-lg border bg-background px-3 text-sm text-foreground"
+      >
+        {OPTIONS.map(o => (
+          <option key={o.key} value={o.key}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
+function EmailTestResults({ result }: {
+  result?: TestResult & { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
+}) {
+  if (!result) return null
+  return (
+    <div className="space-y-2">
+      {result.results ? (
+        result.results.map(r => (
+          <div key={r.provider} className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 ${r.ok ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-red-500/10 text-red-600 dark:text-red-400"}`}>
+            {r.ok ? <Check className="h-4 w-4 mt-0.5 shrink-0" /> : <X className="h-4 w-4 mt-0.5 shrink-0" />}
+            <div>
+              <span className="font-medium">{r.label}</span>
+              <span className="mx-1">—</span>
+              <span>{r.msg}</span>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 ${result.ok ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-red-500/10 text-red-600 dark:text-red-400"}`}>
+          {result.ok ? <Check className="h-4 w-4 mt-0.5 shrink-0" /> : <X className="h-4 w-4 mt-0.5 shrink-0" />}
+          <span>{result.msg}</span>
+        </div>
+      )}
     </div>
   )
 }

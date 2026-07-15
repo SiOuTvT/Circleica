@@ -1,12 +1,16 @@
 import { withHandler, json } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
+import { prisma } from "@/lib/prisma"
+import { PROVIDER_MAP } from "@/lib/email-providers"
 
 const SERVICE_KEYS = [
   "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
   "r2_bucket_name", "r2_public_url",
   "redis_url", "redis_token",
-  "resend_api_key", "email_from_name", "email_from_email",
+  "resend_api_key", "brevo_api_key",
+  "email_from_name", "email_from_email",
+  "email_provider_order",
 ]
 
 // GET — 读取服务配置
@@ -91,38 +95,57 @@ async function testRedis(config: Record<string, string>) {
 }
 
 async function testEmail(config: Record<string, string>) {
-  if (!config.api_key) return { success: false, message: "请先填写 Resend API Key" }
   if (!config.to) return { success: false, message: "请输入测试收件邮箱" }
 
   const fromName = config.from_name || "Fangame"
   const fromEmail = config.from_email || "noreply@example.com"
   const from = `${fromName} <${fromEmail}>`
 
+  // 直接从 DB 读取最新 provider 配置（不走进程缓存，管理员保存后立刻可测）
+  let providers: Array<{ id: string; apiKey: string }> = []
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${config.api_key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from, to: config.to,
-        subject: "Fangame 邮件服务测试",
-        html: "<p>如果你收到这封邮件，说明 Resend 邮件服务配置正确。</p>",
-      }),
+    const DB_KEYS = ["resend_api_key", "brevo_api_key", "email_provider_order"]
+    const rows = await prisma.siteSetting.findMany({
+      where: { key: { in: DB_KEYS } },
+      select: { key: true, value: true },
     })
+    const db = Object.fromEntries(rows.map(r => [r.key, r.value]))
+    const resendKey = db.resend_api_key || ""
+    const brevoKey = db.brevo_api_key || ""
+    const order = db.email_provider_order
+      ? db.email_provider_order.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : ["resend"]
 
-    if (res.ok) {
-      const data = await res.json().catch(() => ({}))
-      const msgId = data?.id ? ` (ID: ${data.id})` : ""
-      return { success: true, message: `测试邮件已发送至 ${config.to}，请检查收件箱${msgId}` }
+    for (const id of order) {
+      if (id === "resend" && resendKey) providers.push({ id: "resend", apiKey: resendKey })
+      else if (id === "brevo" && brevoKey) providers.push({ id: "brevo", apiKey: brevoKey })
     }
-
-    const err = await res.text()
-    if (res.status === 401) return { success: false, message: "API Key 无效，请检查 Resend 控制台" }
-    if (res.status === 403) return { success: false, message: "发件域名未验证，请在 Resend 控制台验证域名" }
-    if (res.status === 422) return { success: false, message: `收件邮箱格式错误或被拒绝: ${err}` }
-    return { success: false, message: `Resend 错误 (${res.status}): ${err}` }
-  } catch (e: any) {
-    if (e?.name === "TimeoutError") return { success: false, message: "Resend API 连接超时" }
-    if (e?.message?.includes("fetch failed") || e?.message?.includes("ENOTFOUND")) return { success: false, message: "无法连接 Resend API，请检查网络" }
-    return { success: false, message: `发送异常: ${e?.message || String(e)}` }
+  } catch {
+    return { success: false, message: "读取邮件配置失败，请先保存配置" }
   }
+
+  if (!providers.length) return { success: false, message: "请至少配置一个邮件服务商的 API Key" }
+
+  const results: Array<{ provider: string; label: string; ok: boolean; msg: string }> = []
+
+  for (const p of providers) {
+    const impl = PROVIDER_MAP[p.id]
+    if (!impl) continue
+    const result = await impl.send(p.apiKey, { from, to: config.to, subject: "Fangame 邮件服务测试", html: testHtml(impl.label) })
+    results.push({
+      provider: p.id,
+      label: impl.label,
+      ok: result.ok,
+      msg: result.ok ? `测试邮件已发送${result.id ? ` (ID: ${result.id})` : ""}，请检查收件箱` : result.error,
+    })
+  }
+
+  const allOk = results.every(r => r.ok)
+  const message = results.map(r => `${r.label}: ${r.ok ? "✓ 成功" : `✗ ${r.msg}`}`).join(" | ")
+
+  return { success: allOk, message, results }
+}
+
+function testHtml(label: string): string {
+  return `<p>如果你收到这封邮件，说明 ${label} 邮件服务配置正确。</p>`
 }
