@@ -1,4 +1,1 @@
--- AlterTable
-ALTER TABLE "Game" ADD COLUMN "releaseDate" TIMESTAMP(3),
-ADD COLUMN "gameDuration" TEXT NOT NULL DEFAULT '',
-ADD COLUMN "studioName" TEXT NOT NULL DEFAULT '';
+-- Handled by baseline migration (20260429204857_init)

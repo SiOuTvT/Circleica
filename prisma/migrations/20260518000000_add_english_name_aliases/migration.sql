@@ -1,3 +1,1 @@
--- AlterTable
-ALTER TABLE "Game" ADD COLUMN "englishName" TEXT NOT NULL DEFAULT '',
-ADD COLUMN "aliases" TEXT NOT NULL DEFAULT '';
+-- Handled by baseline migration (20260429204857_init)

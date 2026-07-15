@@ -1,5 +1,1 @@
--- AlterTable
-ALTER TABLE "Game" ADD COLUMN "downloadCount" INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE "Game" ADD COLUMN "platform" TEXT NOT NULL DEFAULT '';
-ALTER TABLE "Game" ADD COLUMN "language" TEXT NOT NULL DEFAULT '';
-ALTER TABLE "Game" ADD COLUMN "fileSize" TEXT NOT NULL DEFAULT '';
+-- Handled by baseline migration (20260429204857_init)
