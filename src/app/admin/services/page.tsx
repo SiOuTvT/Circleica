@@ -31,7 +31,7 @@ const EMPTY: ServiceConfig = {
 }
 
 interface TestResult { ok: boolean; msg: string }
-interface EmailTestResults { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
+interface EmailTestResults { success?: boolean; message?: string; error?: string; results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
 
 export default function ServicesPage() {
   const [config, setConfig] = useState<ServiceConfig>(EMPTY)
