@@ -47,8 +47,8 @@ function fmtFullDate(d: string) {
   return new Date(d).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
 }
 
-export function ForumPostDetail({ post: initPost, comments: initComments, isLoggedIn, currentUserId, isAdmin }: {
-  post: PostData; comments: Comment[]; isLoggedIn: boolean; currentUserId?: string; isAdmin?: boolean
+export function ForumPostDetail({ post: initPost, comments: initComments, totalCommentCount, isLoggedIn, currentUserId, isAdmin }: {
+  post: PostData; comments: Comment[]; totalCommentCount?: number; isLoggedIn: boolean; currentUserId?: string; isAdmin?: boolean
 }) {
   const [post, setPost] = useState(initPost)
   const [comments, setComments] = useState(initComments)
@@ -306,7 +306,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, isLogg
         <div className="p-6 md:p-8">
           <h2 className="text-sm font-semibold text-foreground mb-5 flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            评论 · {comments.length}
+            评论 · {totalCommentCount != null && totalCommentCount > comments.length
+              ? `显示 ${comments.length} / ${totalCommentCount} 条`
+              : comments.length}
           </h2>
 
           {comments.length === 0 && (

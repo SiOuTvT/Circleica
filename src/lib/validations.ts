@@ -188,7 +188,7 @@ export const idParamSchema = z.object({
 
 /**
  * 安全解析请求体的通用函数
- * 注意：API 响应请使用 @/lib/api-response 中的工具函数
+ * 注意：API 响应统一使用 @/lib/api-handler 中的 withHandler 包装
  */
 export async function parseBody<T extends z.ZodType>(
   req: Request,

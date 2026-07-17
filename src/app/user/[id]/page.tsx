@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
-import { Bookmark, Gamepad2, Image as ImageIcon, MessageSquare, Pencil } from "lucide-react"
+import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
 import NextImage from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -51,7 +51,12 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   if (!resolved) notFound()
   if (!isNumericId(id)) redirect(`/user/${resolved.serialId}`)
 
-  let user: any = null
+  let user: {
+    id: string; serialId: number; uid: string | null; username: string; avatar: string | null;
+    avatarFrameId: string | null; composedAvatarUrl: string | null; banner: string | null;
+    bio: string | null; role: string; createdAt: Date;
+    _count: { followers: number; following: number; favorites: number; comments: number; playStatuses: number }
+  } | null = null
   try {
     // 只加载用户基本信息和数量统计，关联数据改为客户端按需加载
     user = await prisma.user.findUnique({
@@ -156,18 +161,12 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                     </Link>
                     {isSelf && (
                       <CardGenerateBtn data={{
-                        username: user.username, uid: user.uid, avatar: user.avatar,
-                        composedAvatarUrl: user.composedAvatarUrl, banner: user.banner,
+                        username: user.username, uid: user.uid ?? "", avatar: user.avatar,
+                        composedAvatarUrl: user.composedAvatarUrl ?? "", banner: user.banner,
                         bio: user.bio || "", role: user.role, createdAt: user.createdAt.toISOString(),
                         favCount: user._count.favorites, commentCount: user._count.comments,
                         followerCount: user._count.followers, followingCount: user._count.following,
                       }} />
-                    )}
-                    {!isSelf && (
-                      <button className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary opacity-50 cursor-not-allowed" disabled>
-                        <ImageIcon className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
-                        <span className="text-xs font-medium text-foreground">生成名片</span>
-                      </button>
                     )}
                     {/* AchievementModal 和 AvatarFrameSelector 有闪屏问题，暂时注释 */}
                     <AchievementModal compact />

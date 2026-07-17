@@ -15,8 +15,8 @@ export function useInputFocusScroll() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    if (!isMobile) return
+    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
+    if (!hasCoarsePointer) return
 
     function handleFocusIn(e: FocusEvent) {
       const target = e.target as HTMLElement

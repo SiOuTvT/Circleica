@@ -4,6 +4,7 @@
 
 import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo, adminSettingsRepo } from "@/repositories/admin"
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError, AppError } from "@/lib/errors"
+import { achievementCreateSchema } from "@/lib/validations"
 import type { Prisma, UserRole } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
@@ -16,27 +17,33 @@ export const achievementService = {
   getAll() { return achievementRepo.findAll() },
 
   async create(raw: Record<string, unknown>) {
+    // Zod 验证
+    const parsed = achievementCreateSchema.parse(raw)
+
+    // 保留手动校验作为额外保护层
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
     if (!raw.conditionType) throw new ValidationError("条件类型不能为空")
     return achievementRepo.create({
-      name: String(raw.name).trim(),
-      description: raw.description ? String(raw.description).trim() : "",
-      icon: raw.icon ? String(raw.icon).trim() : "",
-      characterImage: raw.characterImage ? String(raw.characterImage).trim() : "",
-      category: raw.category ? String(raw.category).trim() : "general",
-      conditionType: String(raw.conditionType),
-      conditionTarget: Number(raw.conditionTarget) || 1,
-      points: Number(raw.points) || 10,
-      hidden: raw.hidden !== false,
+      name: parsed.name.trim(),
+      description: (parsed.description ?? "").trim(),
+      icon: (parsed.icon ?? "").trim(),
+      characterImage: (parsed.characterImage ?? "").trim(),
+      category: (parsed.category ?? "general").trim(),
+      conditionType: parsed.conditionType,
+      conditionTarget: parsed.conditionTarget,
+      points: parsed.points ?? 10,
+      hidden: parsed.hidden !== false,
     })
   },
 
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await achievementRepo.findById(id)
     if (!existing) throw new NotFoundError("成就")
+    // Zod 验证（partial 模式，所有字段可选）
+    const parsed = achievementCreateSchema.partial().parse(raw)
     const fields = ["name", "description", "icon", "characterImage", "category", "conditionType", "conditionTarget", "points", "hidden", "isActive"]
     const data: Record<string, unknown> = {}
-    for (const f of fields) { if (f in raw) data[f] = raw[f] }
+    for (const f of fields) { if (f in parsed) data[f] = parsed[f as keyof typeof parsed] }
     if (Object.keys(data).length === 0) throw new ValidationError("没有有效的更新字段")
     return achievementRepo.update(id, data)
   },

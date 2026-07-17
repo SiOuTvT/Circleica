@@ -32,7 +32,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
       _count: { select: { comments: true } },
       comments: {
         orderBy: { createdAt: "asc" },
-        take: 100,
+        take: 100, // cap initial load; total count passed separately so UI can show "X of Y"
         include: { user: { select: { id: true, username: true, avatar: true } } },
       },
     },
@@ -75,6 +75,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
       <ForumPostDetail
         post={postData}
         comments={flatComments}
+        totalCommentCount={post._count?.comments ?? flatComments.length}
         isLoggedIn={!!session?.user}
         currentUserId={session?.user?.id}
         isAdmin={isAdmin}

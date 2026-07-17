@@ -1,5 +1,6 @@
 "use client"
 
+import { logger } from "@/lib/logger"
 import { Home, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
@@ -12,7 +13,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error("[GlobalError]", error)
+    logger.system.error("[GlobalError]", error)
   }, [error])
 
   return (

@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 
 const GAMES_PER_PAGE = 24
 
+async function getTotalGames() {
+  return prisma.game.count({ where: { isPublished: true } }).catch(() => 0)
+}
+
 function GridSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
@@ -86,12 +90,13 @@ export default async function GamesPage({
 }) {
   const { page: pageStr } = await searchParams
   const page = Math.max(1, parseInt(pageStr || "1", 10) || 1)
+  const total = await getTotalGames()
 
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-xl font-bold text-foreground">全部游戏</h1>
-        <p className="mt-1 text-sm text-muted-foreground">共收录 {">"}0 部同人游戏作品</p>
+        <p className="mt-1 text-sm text-muted-foreground">共收录 {total} 部同人游戏作品</p>
       </div>
       <Suspense fallback={<GridSkeleton />}>
         <GamesList page={page} />

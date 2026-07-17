@@ -5,6 +5,7 @@
 import { forumRepo } from "@/repositories/forum"
 import { notificationRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
+import { forumPostSchema, forumCommentSchema } from "@/lib/validations"
 import type { ForumCategory } from "@prisma/client"
 
 export const forumService = {
@@ -24,15 +25,19 @@ export const forumService = {
   },
 
   async createPost(userId: string, raw: Record<string, unknown>) {
+    // Zod 验证
+    const parsed = forumPostSchema.parse(raw)
+
+    // 保留手动校验作为额外保护层
     if (!raw.title?.toString().trim()) throw new ValidationError("标题不能为空")
     if (!raw.content?.toString().trim()) throw new ValidationError("内容不能为空")
     if (String(raw.title).length > 200) throw new ValidationError("标题最多 200 个字符")
     if (String(raw.content).length > 10000) throw new ValidationError("内容最多 10000 个字符")
     return forumRepo.createPost(userId, {
-      title: String(raw.title).trim(),
-      content: String(raw.content).trim(),
+      title: parsed.title.trim(),
+      content: parsed.content.trim(),
       imageUrl: raw.imageUrl ? String(raw.imageUrl) : "",
-      category: raw.category ? String(raw.category) as ForumCategory : "discussion",
+      category: (parsed.category ?? "discussion") as ForumCategory,
     })
   },
 
@@ -73,7 +78,11 @@ export const forumService = {
   },
 
   async createComment(userId: string, postId: string, raw: Record<string, unknown>, imageUrl?: string) {
-    const content = raw.content ? String(raw.content).trim() : ""
+    // Zod 验证
+    const parsed = forumCommentSchema.parse(raw)
+    const content = parsed.content.trim()
+
+    // 保留手动校验作为额外保护层
     if (!content && !imageUrl) throw new ValidationError("内容不能为空")
     if (content.length > 2000) throw new ValidationError("评论最多 2000 个字符")
 

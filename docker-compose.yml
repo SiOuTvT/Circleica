@@ -94,9 +94,32 @@ services:
     networks:
       - fangame
 
+  # ── 数据库备份（每天凌晨 3 点，保留 7 天）────
+  backup:
+    image: postgres:16-alpine
+    container_name: fangame-backup
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: fangame
+    volumes:
+      - backup_data:/backups
+    entrypoint: >
+      sh -c '
+      echo "0 3 * * * pg_dump -h db -U fangame fangame | gzip > /backups/fangame-$$(date +\%Y\%m\%d-\%H\%M\%S).sql.gz && find /backups -name \"fangame-*.sql.gz\" -mtime +7 -delete" | crontab -
+      crond -f -l 2
+      '
+    networks:
+      - fangame
+    profiles:
+      - backup
+
 networks:
   fangame:
 
 volumes:
   pg_data:
   uploads_data:
+  backup_data:

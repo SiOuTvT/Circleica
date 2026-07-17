@@ -1,6 +1,7 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
 import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -64,13 +65,15 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
       {/* 封面图 */}
       {ann.imageUrl && (
-        <div className="mb-5 overflow-hidden rounded-xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative mb-5 overflow-hidden rounded-xl" style={{ maxHeight: 360 }}>
+          <Image
             src={ann.imageUrl}
             alt={ann.title}
+            width={720}
+            height={360}
             className="w-full object-cover"
-            style={{ maxHeight: 360 }}
+            sizes="(max-width: 672px) 100vw, 672px"
+            priority
           />
         </div>
       )}
@@ -78,10 +81,11 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       {/* 元信息 */}
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
         {ann.authorAvatar ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={ann.authorAvatar}
             alt={ann.authorName}
+            width={20}
+            height={20}
             className="h-5 w-5 rounded-full object-cover"
           />
         ) : (

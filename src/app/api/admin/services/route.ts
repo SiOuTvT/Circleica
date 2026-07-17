@@ -102,7 +102,7 @@ async function testEmail(config: Record<string, string>) {
   const from = `${fromName} <${fromEmail}>`
 
   // 直接从 DB 读取最新 provider 配置（不走进程缓存，管理员保存后立刻可测）
-  let providers: Array<{ id: string; apiKey: string }> = []
+  const providers: Array<{ id: string; apiKey: string }> = []
   try {
     const DB_KEYS = ["resend_api_key", "brevo_api_key", "email_provider_order"]
     const rows = await prisma.siteSetting.findMany({

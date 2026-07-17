@@ -1,7 +1,7 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
-import { ValidationError, NotFoundError } from "@/lib/errors"
+import { ValidationError } from "@/lib/errors"
 
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
