@@ -3,7 +3,7 @@
  */
 
 import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo, adminSettingsRepo } from "@/repositories/admin"
-import { NotFoundError, ConflictError, ValidationError, AppError } from "@/lib/errors"
+import { NotFoundError, ConflictError, ValidationError, ForbiddenError, AppError } from "@/lib/errors"
 import type { Prisma, UserRole } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
