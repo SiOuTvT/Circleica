@@ -5,18 +5,17 @@ import { AppError, NotFoundError, ValidationError, UnauthorizedError, ForbiddenE
 
 describe("AppError", () => {
   it("base class has correct properties", () => {
-    const err = new AppError("test message", 500, "INTERNAL_ERROR")
+    const err = new AppError("test message", "INTERNAL", 500)
     expect(err.message).toBe("test message")
     expect(err.status).toBe(500)
-    expect(err.code).toBe("INTERNAL_ERROR")
+    expect(err.code).toBe("INTERNAL")
     expect(err).toBeInstanceOf(Error)
     expect(err).toBeInstanceOf(AppError)
   })
 
-  it("defaults to 500 status", () => {
-    const err = new AppError("oops")
-    expect(err.status).toBe(500)
-    expect(err.code).toBe("APP_ERROR")
+  it("preserves details", () => {
+    const err = new AppError("field error", "VALIDATION_ERROR", 422, { email: ["格式不正确"] })
+    expect(err.details).toEqual({ email: ["格式不正确"] })
   })
 })
 
