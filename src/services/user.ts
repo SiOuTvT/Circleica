@@ -297,10 +297,11 @@ export const collectionService = {
   },
 
   async create(userId: string, raw: Record<string, unknown>) {
-    if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
+    // Zod 验证
+    const parsed = collectionCreateSchema.parse(raw)
     return collectionRepo.create(userId, {
-      name: String(raw.name).trim(),
-      description: raw.description ? String(raw.description) : "",
+      name: parsed.name.trim(),
+      description: parsed.description ?? "",
     })
   },
 
@@ -308,9 +309,11 @@ export const collectionService = {
     const c = await collectionRepo.findById(id)
     if (!c) throw new NotFoundError("收藏夹")
     if (c.userId !== userId) throw new NotFoundError("收藏夹")
+    // Zod 验证（partial 模式，所有字段可选）
+    const parsed = collectionCreateSchema.partial().parse(raw)
     const data: Record<string, unknown> = {}
-    if (raw.name) data.name = String(raw.name).trim()
-    if (raw.description !== undefined) data.description = String(raw.description)
+    if (parsed.name !== undefined) data.name = parsed.name.trim()
+    if (parsed.description !== undefined) data.description = parsed.description
     return collectionRepo.update(id, data)
   },
 

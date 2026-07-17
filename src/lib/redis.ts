@@ -98,15 +98,29 @@ class RedisCache implements CacheClient {
 
   async incr(key: string, ttlSeconds?: number): Promise<number> {
     try {
-      const result = await this.request(`/incr/${encodeURIComponent(key)}`)
-      const count = result.result as number
-      // 首次递增时设置过期（count === 1 表示刚创建）
-      if (count === 1 && ttlSeconds) {
-        await this.request(`/expire/${encodeURIComponent(key)}/${ttlSeconds}`)
-      }
-      return count
+      // 使用 MULTI 保证 incr + expire 原子性，避免进程崩溃导致 key 永不过期
+      const result = await this.request(`/pipeline`, {
+        method: "POST",
+        body: JSON.stringify(ttlSeconds
+          ? [["incr", key], ["expire", key, ttlSeconds]]
+          : [["incr", key]]
+        ),
+      })
+      // Upstash pipeline 返回数组，第一个元素是 incr 结果
+      const count = Array.isArray(result.result) ? result.result[0]?.result as number : result.result as number
+      return count ?? 0
     } catch {
-      return 0
+      // pipeline 不可用时降级为非原子操作
+      try {
+        const result = await this.request(`/incr/${encodeURIComponent(key)}`)
+        const count = result.result as number
+        if (count === 1 && ttlSeconds) {
+          await this.request(`/expire/${encodeURIComponent(key)}/${ttlSeconds}`)
+        }
+        return count
+      } catch {
+        return 0
+      }
     }
   }
 }
