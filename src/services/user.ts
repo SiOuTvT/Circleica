@@ -222,10 +222,10 @@ export const authService = {
     if (!email) throw new ValidationError("邮箱不能为空")
     const user = await userRepo.findByEmail(email.toLowerCase().trim())
     if (!user) return { success: true }
-    const token = crypto.randomUUID()
+    const { raw, hash } = generateToken()
     const expiresAt = new Date(Date.now() + 3600000)
-    await prisma.passwordResetToken.create({ data: { userId: user.id, token, expiresAt } })
-    await sendPasswordResetEmail(email.toLowerCase().trim(), token).catch(e =>
+    await prisma.passwordResetToken.create({ data: { userId: user.id, token: hash, expiresAt } })
+    await sendPasswordResetEmail(email.toLowerCase().trim(), raw).catch(e =>
       logger.system.error("[ForgotPassword] 重置邮件发送失败", e)
     )
     return { success: true }
@@ -234,7 +234,8 @@ export const authService = {
   async resetPassword(token: string, password: string) {
     if (!token) throw new ValidationError("重置令牌不能为空")
     if (!password || password.length < 8) throw new ValidationError("密码至少 8 位")
-    const record = await prisma.passwordResetToken.findUnique({ where: { token } })
+    const hash = hashToken(token)
+    const record = await prisma.passwordResetToken.findUnique({ where: { token: hash } })
     if (!record || record.usedAt || record.expiresAt < new Date()) throw new ValidationError("令牌无效或已过期")
     const hashed = await bcrypt.hash(password, 12)
     await prisma.$transaction([

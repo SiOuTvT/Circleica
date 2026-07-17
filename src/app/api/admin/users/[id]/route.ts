@@ -9,15 +9,15 @@ export const GET = withHandler(async (_req, ctx) => {
 })
 
 export const PUT = withHandler(async (req, ctx) => {
-  await requireAdminRole()
+  const auth = await requireAdminRole()
   const { id } = await ctx!.params
   const body = await req.json()
-  return json(await adminUserService.updateRole(id, body.role))
+  return json(await adminUserService.updateRole(id, body.role, auth.role))
 })
 
 export const DELETE = withHandler(async (_req, ctx) => {
-  await requireAdminRole("SUPER_ADMIN")
+  const auth = await requireAdminRole("SUPER_ADMIN")
   const { id } = await ctx!.params
-  await adminUserService.delete(id)
+  await adminUserService.delete(id, auth.role, auth.userId)
   return noContent()
 })

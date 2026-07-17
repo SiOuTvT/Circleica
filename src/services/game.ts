@@ -115,7 +115,15 @@ export const gameService = {
     })
   },
 
-  async deleteResource(resourceId: string) {
+  async deleteResource(resourceId: string, userId: string, role: string) {
+    const resource = await prisma.gameResource.findUnique({
+      where: { id: resourceId },
+      select: { userId: true },
+    })
+    if (!resource) throw new NotFoundError("资源")
+    if (resource.userId !== userId && role !== "ADMIN" && role !== "SUPER_ADMIN") {
+      throw new ForbiddenError("只能删除自己上传的资源")
+    }
     return gameRepo.deleteResource(resourceId)
   },
 

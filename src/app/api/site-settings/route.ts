@@ -1,7 +1,7 @@
 import { withHandler, json } from "@/lib/api-handler"
-import { getSiteSettings } from "@/lib/site-settings"
+import { getPublicSiteSettings } from "@/lib/site-settings"
 
 export const GET = withHandler(async () => {
-  const settings = await getSiteSettings()
+  const settings = await getPublicSiteSettings()
   return json(settings)
 })

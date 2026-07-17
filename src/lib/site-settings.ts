@@ -139,3 +139,27 @@ export async function getSiteLogo(): Promise<string | null> {
 export async function getThemeColor(): Promise<string> {
   return getSiteSetting("themeColor", "#E0A87C")
 }
+
+// ── 公开配置（供 /api/site-settings 使用，不含敏感信息）──
+
+const PUBLIC_SETTING_KEYS = [
+  "site_name",
+  "site_description",
+  "site_logo",
+  "default_placeholder_image",
+  "registration_enabled",
+  "themeColor",
+  "page_about",
+  "page_rules",
+  "page_contact",
+  "checkin_title",
+  "checkin_subtitle",
+  "checkin_image_url",
+]
+
+export async function getPublicSiteSettings(): Promise<Record<string, string>> {
+  const all = await getSiteSettings()
+  return Object.fromEntries(
+    Object.entries(all).filter(([key]) => PUBLIC_SETTING_KEYS.includes(key))
+  )
+}

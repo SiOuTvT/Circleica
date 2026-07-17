@@ -473,17 +473,29 @@ export const adminUserService = {
     return user
   },
 
-  async updateRole(id: string, role: string) {
+  async updateRole(id: string, role: string, callerRole: UserRole) {
     const validRoles = ["USER", "ADMIN", "SUPER_ADMIN"]
     if (!validRoles.includes(role)) throw new ValidationError("无效的角色")
     const user = await adminUserRepo.findById(id)
     if (!user) throw new NotFoundError("用户")
+    // 只有 SUPER_ADMIN 可以设置/变更 SUPER_ADMIN 角色
+    if (role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {
+      throw new ForbiddenError("只有超级管理员可以设置超级管理员角色")
+    }
+    // 不能降级同级或更高级的用户（除非自己是 SUPER_ADMIN）
+    if (callerRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN") {
+      throw new ForbiddenError("不能修改超级管理员的角色")
+    }
     return adminUserRepo.updateRole(id, role as UserRole)
   },
 
-  async delete(id: string) {
+  async delete(id: string, callerRole: UserRole, callerId: string) {
     const user = await adminUserRepo.findById(id)
     if (!user) throw new NotFoundError("用户")
+    if (user.id === callerId) throw new ValidationError("不能删除自己的账号")
+    if (user.role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {
+      throw new ForbiddenError("只有超级管理员可以删除超级管理员账号")
+    }
     return adminUserRepo.delete(id)
   },
 }
