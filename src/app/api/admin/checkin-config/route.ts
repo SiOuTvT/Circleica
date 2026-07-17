@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { cache } from "@/lib/redis"
 
 export const GET = withHandler(async () => {
-  const cacheKey = "checkin:config"
+  await requireAdminRole()
+  const cacheKey = "checkin:config:admin"
   const cached = await cache.get<{ title: string; subtitle: string; imageUrl: string }>(cacheKey)
   if (cached) return json(cached)
 
@@ -46,6 +47,9 @@ export const POST = withHandler(async (req) => {
     }),
   ])
 
-  await cache.del("checkin:config")
+  await Promise.all([
+    cache.del("checkin:config:admin"),
+    cache.del("checkin:config:public"),
+  ])
   return json({ success: true })
 })

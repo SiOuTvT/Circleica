@@ -33,7 +33,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
   // 获取签到配置
   useEffect(() => {
     const controller = new AbortController()
-    fetch("/api/admin/checkin-config", { signal: controller.signal })
+    fetch("/api/checkin-config", { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => setConfig(data))
       .catch(() => setConfig(DEFAULT_CONFIG))

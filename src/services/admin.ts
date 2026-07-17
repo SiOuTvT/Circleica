@@ -540,6 +540,118 @@ export const resourceTagService = {
   },
 }
 
+// ── 音乐 ────────────────────────────
+
+export const adminMusicService = {
+  getAll() { return musicRepo.findAll() },
+
+  async create(raw: { title?: string; url?: string; playlistId?: string }) {
+    if (!raw.title?.trim()) throw new ValidationError("标题不能为空")
+    if (!raw.url?.trim()) throw new ValidationError("链接不能为空")
+    let playlistId: string | null = raw.playlistId || null
+    if (playlistId) {
+      const pl = await playlistRepo.findById(playlistId)
+      if (!pl) playlistId = null
+    }
+    return musicRepo.create({
+      title: raw.title.trim(),
+      filename: raw.url.trim(),
+      url: raw.url.trim(),
+      playlist: playlistId ? { connect: { id: playlistId } } : undefined,
+    })
+  },
+
+  async update(id: string, raw: Record<string, unknown>) {
+    const data: Prisma.MusicUpdateInput = {}
+    if ("isActive" in raw) data.isActive = raw.isActive as boolean
+    if (typeof raw.title === "string" && raw.title.trim()) data.title = raw.title.trim()
+    if (typeof raw.url === "string" && raw.url.trim()) { data.url = raw.url.trim(); data.filename = raw.url.trim() }
+    if (Object.keys(data).length === 0) throw new ValidationError("没有要更新的字段")
+    return musicRepo.update(id, data)
+  },
+
+  async delete(id: string) {
+    await musicRepo.findById(id).then(m => { if (!m) throw new NotFoundError("音乐") })
+    return musicRepo.delete(id)
+  },
+}
+
+// ── 播放列表 ────────────────────────
+
+export const adminPlaylistService = {
+  getAll() { return playlistRepo.findAll() },
+
+  async getById(id: string) {
+    const pl = await playlistRepo.findById(id)
+    if (!pl) throw new NotFoundError("播放列表")
+    return pl
+  },
+
+  async create(name: string) {
+    if (!name?.trim()) throw new ValidationError("名称不能为空")
+    return playlistRepo.create({ name: name.trim() })
+  },
+
+  async update(id: string, name: string) {
+    if (!name?.trim()) throw new ValidationError("名称不能为空")
+    await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
+    return playlistRepo.update(id, { name: name.trim() })
+  },
+
+  async delete(id: string) {
+    await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
+    return playlistRepo.delete(id)
+  },
+}
+
+// ── 收藏管理 ────────────────────────
+
+export const adminFavoriteService = {
+  getPaginated(page: number) {
+    const limit = 20
+    const skip = (page - 1) * limit
+    return Promise.all([
+      prisma.favorite.findMany({
+        orderBy: { id: "desc" },
+        skip, take: limit,
+        include: {
+          user: { select: { id: true, username: true, avatar: true } },
+          game: { select: { id: true, title: true, coverImage: true } },
+        },
+      }),
+      prisma.favorite.count(),
+    ])
+  },
+
+  async delete(id: string) {
+    return prisma.favorite.delete({ where: { id } })
+  },
+}
+
+// ── 关注管理 ────────────────────────
+
+export const adminFollowService = {
+  getPaginated(page: number) {
+    const limit = 20
+    const skip = (page - 1) * limit
+    return Promise.all([
+      prisma.follow.findMany({
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        include: {
+          follower: { select: { id: true, username: true, avatar: true } },
+          following: { select: { id: true, username: true, avatar: true } },
+        },
+      }),
+      prisma.follow.count(),
+    ])
+  },
+
+  async delete(id: string) {
+    return prisma.follow.delete({ where: { id } })
+  },
+}
+
 // ── 辅助函数 ────────────────────────
 
 async function cleanupOldComposedAvatar(url: string) {
