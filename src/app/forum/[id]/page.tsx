@@ -1,5 +1,6 @@
 import { ForumPostDetail } from "@/components/forum-post-detail"
 import { auth } from "@/lib/auth"
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import { ChevronLeft } from "lucide-react"
@@ -25,20 +26,31 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
   const { id } = await params
   const session = await auth()
 
-  const post = await prisma.forumPost.findUnique({
-    where: { id },
-    include: {
-      user: { select: { id: true, username: true, avatar: true } },
-      _count: { select: { comments: true } },
-      comments: {
-        orderBy: { createdAt: "asc" },
-        take: 100, // cap initial load; total count passed separately so UI can show "X of Y"
-        include: { user: { select: { id: true, username: true, avatar: true } } },
+  async function fetchPost() {
+    return prisma.forumPost.findUnique({
+      where: { id },
+      include: {
+        user: { select: { id: true, username: true, avatar: true } },
+        _count: { select: { comments: true } },
+        comments: {
+          orderBy: { createdAt: "asc" },
+          take: 100, // cap initial load; total count passed separately so UI can show "X of Y"
+          include: { user: { select: { id: true, username: true, avatar: true } } },
+        },
       },
-    },
-  })
+    })
+  }
 
-  if (!post) notFound()
+  type PostData = NonNullable<Awaited<ReturnType<typeof fetchPost>>>
+  let post: PostData
+  try {
+    const result = await fetchPost()
+    if (!result) notFound()
+    post = result
+  } catch (error) {
+    logger.db.error("[ForumPostPage] 查询失败", error)
+    notFound()
+  }
 
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
 

@@ -560,7 +560,6 @@ model ForumPost {
   @@index([createdAt])
   @@index([category])
   @@index([isPinned, category, createdAt])
-  @@index([isSolved])
   @@index([isSolved, createdAt])
 }
 

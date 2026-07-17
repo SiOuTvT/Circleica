@@ -2,7 +2,8 @@ import { withHandler, json } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { getStorage } from "@/lib/storage"
 import { UPLOAD } from "@/lib/config"
-import { ValidationError } from "@/lib/errors"
+import { ValidationError, RateLimitError } from "@/lib/errors"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import sharp from "sharp"
 
 /**
@@ -10,6 +11,8 @@ import sharp from "sharp"
  * 通用图片上传
  */
 export const POST = withHandler(async (req) => {
+  const rl = await checkRateLimit(rateLimits.upload)
+  if (!rl.success) throw new RateLimitError()
   await requireAuth()
 
   const formData = await req.formData()

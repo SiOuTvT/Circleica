@@ -46,8 +46,18 @@ export const forumService = {
     if (!post) throw new NotFoundError("帖子")
     if (post.userId !== userId) throw new ForbiddenError("只能编辑自己的帖子")
     const data: Record<string, unknown> = {}
-    if (raw.title) data.title = String(raw.title).trim()
-    if (raw.content) data.content = String(raw.content).trim()
+    if (raw.title !== undefined) {
+      const title = String(raw.title).trim()
+      if (!title) throw new ValidationError("标题不能为空")
+      if (title.length > 200) throw new ValidationError("标题最多 200 个字符")
+      data.title = title
+    }
+    if (raw.content !== undefined) {
+      const content = String(raw.content).trim()
+      if (!content) throw new ValidationError("内容不能为空")
+      if (content.length > 10000) throw new ValidationError("内容最多 10000 个字符")
+      data.content = content
+    }
     return forumRepo.updatePost(postId, data)
   },
 

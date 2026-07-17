@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/auth-context"
 import { forumService } from "@/services/forum"
 import { getStorage } from "@/lib/storage"
 import { UPLOAD } from "@/lib/config"
-import { ValidationError } from "@/lib/errors"
+import { ValidationError, RateLimitError } from "@/lib/errors"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 
 export const GET = withHandler(async (req, ctx) => {
   const { id } = await ctx!.params
@@ -13,6 +14,8 @@ export const GET = withHandler(async (req, ctx) => {
 })
 
 export const POST = withHandler(async (req, ctx) => {
+  const rl = await checkRateLimit(rateLimits.comment)
+  if (!rl.success) throw new RateLimitError()
   const { userId } = await requireAuth()
   const { id } = await ctx!.params
 

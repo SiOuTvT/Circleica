@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { ChevronRight, Layers, Search } from "lucide-react"
 import Image from "next/image"
@@ -22,34 +23,62 @@ export default async function CollectionsPage({
   const q = sp.q?.trim() || ""
 
   // 查所有原作系列及其游戏数量
-  const groupCounts = await prisma.game.groupBy({
-    by: ["originalWork"],
-    where: {
-      isPublished: true,
-      isNsfw: false,
-      NOT: { originalWork: "" },
-      ...(q ? { originalWork: { contains: q, mode: "insensitive" } } : {}),
-    },
-    _count: { id: true },
-    orderBy: { _count: { id: "desc" } },
-    take: 50,
-  })
+  async function fetchCollectionsData() {
+    const groupCounts = await prisma.game.groupBy({
+      by: ["originalWork"],
+      where: {
+        isPublished: true,
+        isNsfw: false,
+        NOT: { originalWork: "" },
+        ...(q ? { originalWork: { contains: q, mode: "insensitive" } } : {}),
+      },
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 50,
+    })
 
-  const seriesNames = groupCounts.map(g => g.originalWork)
+    const seriesNames = groupCounts.map(g => g.originalWork)
 
-  // 单次查询获取所有系列的游戏
-  const allGames = await prisma.game.findMany({
-    where: {
-      isPublished: true,
-      isNsfw: false,
-      originalWork: { in: seriesNames },
-    },
-    orderBy: { favoriteCount: "desc" },
-    select: {
-      id: true, serialId: true, title: true, coverImage: true,
-      favoriteCount: true, originalWork: true,
-    },
-  })
+    // 单次查询获取所有系列的游戏
+    const allGames = await prisma.game.findMany({
+      where: {
+        isPublished: true,
+        isNsfw: false,
+        originalWork: { in: seriesNames },
+      },
+      orderBy: { favoriteCount: "desc" },
+      select: {
+        id: true, serialId: true, title: true, coverImage: true,
+        favoriteCount: true, originalWork: true,
+      },
+    })
+
+    return { groupCounts, allGames }
+  }
+
+  type CollectionsData = Awaited<ReturnType<typeof fetchCollectionsData>>
+  let data: CollectionsData
+  try {
+    data = await fetchCollectionsData()
+  } catch (error) {
+    logger.db.error("[CollectionsPage] 查询失败", error)
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-3">
+            <Layers className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">精选合集</h1>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">按原作系列整理的同人游戏合集</p>
+        </div>
+        <div className="flex flex-col items-center gap-3 py-16">
+          <p className="text-sm text-muted-foreground">加载收藏集失败，请稍后重试</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { groupCounts, allGames } = data
 
   // 按系列分组
   const gamesBySeries = new Map<string, typeof allGames>()

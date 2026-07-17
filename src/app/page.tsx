@@ -43,7 +43,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
     prisma.game.count({ where }),
   ]).catch((err) => {
     logger.db.error("[HomePage] Game query failed", err)
-    return [[], 0] as [any[], number]
+    return [[], 0] as [never[], number]
   })
 
   if (!games.length) {

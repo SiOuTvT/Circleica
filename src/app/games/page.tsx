@@ -1,4 +1,4 @@
-import { GameCard, GameCardSkeleton } from "@/components/game-card"
+import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
 import { Pagination } from "@/components/ui/pagination"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
@@ -50,7 +50,7 @@ async function GamesList({ page }: { page: number }) {
       },
     }),
     prisma.game.count({ where: { isPublished: true } }),
-  ]).catch(() => [[], 0] as [any[], number])
+  ]).catch(() => [[], 0] as [never[], number])
 
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
 
@@ -66,7 +66,7 @@ async function GamesList({ page }: { page: number }) {
     <>
       <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
         {games.map((game) => (
-          <GameCard key={game.id} game={game} />
+          <GameCard key={game.id} game={{ ...game, tags: game.tags.map(t => t.tag) } as unknown as GameCardData} />
         ))}
       </div>
       {totalPages > 1 && (

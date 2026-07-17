@@ -223,6 +223,10 @@ export const authService = {
     if (!email) throw new ValidationError("邮箱不能为空")
     const user = await userRepo.findByEmail(email.toLowerCase().trim())
     if (!user) return { success: true }
+    // 清理该用户之前未使用的重置令牌，避免令牌堆积
+    await prisma.passwordResetToken.deleteMany({
+      where: { userId: user.id, usedAt: null },
+    })
     const { raw, hash } = generateToken()
     const expiresAt = new Date(Date.now() + 3600000)
     await prisma.passwordResetToken.create({ data: { userId: user.id, token: hash, expiresAt } })

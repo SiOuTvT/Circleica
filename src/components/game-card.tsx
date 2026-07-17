@@ -4,7 +4,7 @@ import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Tag, TagGroup } from "@/components/ui/tag"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useState, useRef, useEffect } from "react"
 import { logger } from "@/lib/logger"
 
 export interface GameCardData {
@@ -48,12 +48,14 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
   // src 变化时重置状态
   const coverSrc = game.coverImage
-  const [prevSrc, setPrevSrc] = useState(coverSrc)
-  if (coverSrc !== prevSrc) {
-    setPrevSrc(coverSrc)
-    setImgError(false)
-    setImgFallback(false)
-  }
+  const prevSrcRef = useRef(coverSrc)
+  useEffect(() => {
+    if (coverSrc !== prevSrcRef.current) {
+      prevSrcRef.current = coverSrc
+      setImgError(false)
+      setImgFallback(false)
+    }
+  }, [coverSrc])
 
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)

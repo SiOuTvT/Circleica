@@ -80,8 +80,8 @@ const resendProvider: EmailProvider = {
       }
 
       return { ok: false, error: `Resend (${res.status}): ${body}`, retryable }
-    } catch (e: any) {
-      const msg = e?.message || String(e)
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
       return { ok: false, error: `Resend 网络错误: ${msg}`, retryable: true }
     }
   },
@@ -124,8 +124,8 @@ const brevoProvider: EmailProvider = {
       }
 
       return { ok: false, error: `Brevo (${res.status}): ${body}`, retryable }
-    } catch (e: any) {
-      const msg = e?.message || String(e)
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
       return { ok: false, error: `Brevo 网络错误: ${msg}`, retryable: true }
     }
   },

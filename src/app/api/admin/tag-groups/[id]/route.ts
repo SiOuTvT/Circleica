@@ -1,6 +1,7 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { tagGroupService } from "@/services/admin"
+import { ValidationError } from "@/lib/errors"
 
 export const GET = withHandler(async (_req, ctx) => {
   await requireAdminRole()
@@ -28,7 +29,7 @@ export const PATCH = withHandler(async (req, ctx) => {
   const { id } = await ctx!.params
   const { forceDelete } = await req.json()
   if (!forceDelete) {
-    throw new Error("无效操作")
+    throw new ValidationError("无效操作")
   }
   return json(await tagGroupService.forceDelete(id))
 })

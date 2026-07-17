@@ -416,7 +416,13 @@ export const adminGameService = {
   async update(id: string, data: Record<string, unknown>) {
     const existing = await adminGameRepo.findById(id)
     if (!existing) throw new NotFoundError("游戏")
-    return adminGameRepo.update(id, data)
+    // 字段白名单，防止 mass assignment
+    const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
+      "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
+      "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
+    const safe: Record<string, unknown> = {}
+    for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
+    return adminGameRepo.update(id, safe)
   },
 
   async delete(id: string) {
@@ -656,7 +662,11 @@ export const adminFollowService = {
 
 async function cleanupOldComposedAvatar(url: string) {
   try {
+    if (!url.startsWith("/uploads/")) return
+    const uploadsDir = path.join(process.cwd(), "public", "uploads")
     const filePath = path.join(process.cwd(), "public", url.startsWith("/") ? url.slice(1) : url)
+    // 路径遍历防护：解析后的路径必须在 uploads 目录内
+    if (!filePath.startsWith(uploadsDir)) return
     await fs.unlink(filePath)
   } catch {}
 }

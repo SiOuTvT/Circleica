@@ -1,6 +1,7 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { tagService } from "@/services/admin"
+import { ValidationError } from "@/lib/errors"
 
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
@@ -30,5 +31,5 @@ export const PATCH = withHandler(async (req, ctx) => {
     return json(await tagService.assignGroup(id, body.groupId))
   }
 
-  throw new Error("无效操作")
+  throw new ValidationError("无效操作")
 })

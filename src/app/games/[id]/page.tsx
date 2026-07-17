@@ -71,6 +71,7 @@ export default async function GameDetailPage({
   // auth 和 resolveGame 无依赖，并行执行
   const [session, resolved] = await Promise.all([auth(), resolveGame(id)])
   if (!resolved) notFound()
+  const gameId = resolved.id
 
   // 如果是 cuid 格式访问 → 301 重定向到 serialId URL
   if (!isNumericId(id)) {
@@ -78,24 +79,35 @@ export default async function GameDetailPage({
   }
 
   // 查询游戏详情（评论只加载前 20 条，其余通过 API 分页加载）
-  const game = await prisma.game.findFirst({
-    where: { id: resolved.id, isPublished: true },
-    include: {
-      tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
-      resources: { select: { language: true, runType: true, resourceContent: true } },
-      comments: {
-        orderBy: { createdAt: "desc" },
-        take: 20,
-        include: { user: { select: { id: true, username: true, avatar: true } } },
+  async function fetchGame() {
+    return prisma.game.findFirst({
+      where: { id: gameId, isPublished: true },
+      include: {
+        tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
+        resources: { select: { language: true, runType: true, resourceContent: true } },
+        comments: {
+          orderBy: { createdAt: "desc" },
+          take: 20,
+          include: { user: { select: { id: true, username: true, avatar: true } } },
+        },
+        creators: {
+          include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
+        },
+        publisher: { select: { id: true, username: true, avatar: true } },
       },
-      creators: {
-        include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
-      },
-      publisher: { select: { id: true, username: true, avatar: true } },
-    },
-  })
+    })
+  }
 
-  if (!game) notFound()
+  type GameData = NonNullable<Awaited<ReturnType<typeof fetchGame>>>
+  let game: GameData
+  try {
+    const result = await fetchGame()
+    if (!result) notFound()
+    game = result
+  } catch (error) {
+    logger.db.error("[GameDetailPage] 查询失败", error)
+    notFound()
+  }
 
   const tags = game.tags.map((t) => t.tag)
   const tagNames = tags.map((t) => t.name)

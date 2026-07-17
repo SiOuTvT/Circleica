@@ -145,6 +145,9 @@ RUN chmod +x /docker-entrypoint.sh /migrate-entrypoint.sh
 # Set ownership
 RUN chown -R nextjs:nodejs /app
 
+# Run as non-root user
+USER nextjs
+
 # Expose port
 EXPOSE 3000
 
