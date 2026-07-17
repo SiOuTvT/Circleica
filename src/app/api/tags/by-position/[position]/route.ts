@@ -13,7 +13,7 @@ export const GET = withHandler(async (_req, ctx) => {
   // 查找所有绑定了该方位的标签组，排除该方位下没有标签的空组
   const groups = await prisma.tagGroup.findMany({
     where: {
-      positions: { contains: `"${position}"` },
+      positions: { array_contains: position },
       tags: { some: { isVisible: true } },
     },
     orderBy: { name: "asc" },
@@ -31,7 +31,7 @@ export const GET = withHandler(async (_req, ctx) => {
       name: g.name,
       description: g.description,
       color: g.color,
-      positions: JSON.parse(g.positions) as string[],
+      positions: g.positions as unknown as string[],
       tags: g.tags.map(t => ({
         id: t.id,
         name: t.name,

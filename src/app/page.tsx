@@ -56,7 +56,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
   let cardTagColor = "#6b7280"
   try {
     const homeCardTag = await prisma.tagGroup.findFirst({
-      where: { positions: { contains: "home_card" } },
+      where: { positions: { array_contains: ["home_card"] } },
       select: { color: true },
     })
     if (homeCardTag?.color) cardTagColor = homeCardTag.color

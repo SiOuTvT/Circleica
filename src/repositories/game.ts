@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma } from "@prisma/client"
+import type { Prisma, PlayStatusType } from "@prisma/client"
 
 export const gameRepo = {
   findPaginated(page: number, limit: number, filters?: {
@@ -123,7 +123,7 @@ export const gameRepo = {
     return prisma.playStatus.findUnique({ where: { userId_gameId: { userId, gameId } } })
   },
 
-  setPlayStatus(userId: string, gameId: string, status: string) {
+  setPlayStatus(userId: string, gameId: string, status: PlayStatusType) {
     return prisma.playStatus.upsert({
       where: { userId_gameId: { userId, gameId } },
       update: { status },

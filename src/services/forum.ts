@@ -5,6 +5,7 @@
 import { forumRepo } from "@/repositories/forum"
 import { notificationRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
+import type { ForumCategory } from "@prisma/client"
 
 export const forumService = {
   getPosts(page: number, category?: string, solved?: string) {
@@ -31,7 +32,7 @@ export const forumService = {
       title: String(raw.title).trim(),
       content: String(raw.content).trim(),
       imageUrl: raw.imageUrl ? String(raw.imageUrl) : "",
-      category: raw.category ? String(raw.category) : "discussion",
+      category: raw.category ? String(raw.category) as ForumCategory : "discussion",
     })
   },
 

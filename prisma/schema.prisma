@@ -15,10 +15,48 @@ enum UserRole {
   SUPER_ADMIN
 }
 
+enum PlayStatusType {
+  WANT_TO_PLAY
+  PLAYING
+  PLAYED
+  ON_HOLD
+  DROPPED
+}
+
+enum GameStatus {
+  FINISHED
+  ONGOING
+  HIATUS
+  CANCELLED
+}
+
+enum ForumCategory {
+  discussion
+  question
+  showcase
+  guide
+  feedback
+}
+
+enum NotificationType {
+  forum_post_like
+  forum_comment_like
+  forum_comment_new
+  follow
+  achievement_unlock
+}
+
+enum NotificationTargetType {
+  forum_post
+  forum_comment
+  user
+  achievement
+}
+
 model User {
   id            String         @id @default(cuid())
   serialId      Int            @unique @default(autoincrement())
-  uid           String         @unique @default("")
+  uid           String         @unique @default(cuid())
   username      String         @unique
   email         String         @unique
   password      String
@@ -33,6 +71,7 @@ model User {
   faveGameId    String?
   createdAt     DateTime       @default(now())
   avatarFrame   AvatarFrame?   @relation(fields: [avatarFrameId], references: [id], onDelete: SetNull)
+  faveGame      Game?          @relation("faveGame", fields: [faveGameId], references: [id], onDelete: SetNull)
   comments      Comment[]
   favorites     Favorite[]
   playStatuses  PlayStatus[]
@@ -49,7 +88,7 @@ model User {
   notifications Notification[]  @relation("notifications")
   sentNotifications Notification[] @relation("notificationTarget")
   collections      Collection[]
-  publishedGames   Game[]
+  publishedGames   Game[]         @relation("publisher")
   gameResources    GameResource[]
   forumPostLikes   ForumPostLike[]
   forumCommentLikes ForumCommentLike[]
@@ -60,6 +99,8 @@ model User {
 
   @@index([role])
   @@index([avatarFrameId])
+  @@index([createdAt])
+  @@index([faveGameId])
 }
 
 model AvatarFrame {
@@ -123,7 +164,7 @@ model Game {
   coverImage    String       @default("")
   screenshots   Json         @default("[]")
   downloadLinks Json         @default("[]")
-  status        String       @default("完结")
+  status        GameStatus     @default(FINISHED)
   isNsfw        Boolean      @default(false)
   vndbId        String       @default("")
   viewCount     Int          @default(0)
@@ -144,7 +185,7 @@ model Game {
   searchVector  String       @default("") @db.Text
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  publisher     User?        @relation(fields: [publisherId], references: [id], onDelete: SetNull)
+  publisher     User?        @relation("publisher", fields: [publisherId], references: [id], onDelete: SetNull)
   tags          GameTag[]
   comments      Comment[]
   favorites     Favorite[]
@@ -155,6 +196,7 @@ model Game {
   resources     GameResource[]
   logs          GameLog[]
   curatedCollectionGames CuratedCollectionGame[]
+  faveGameUsers User[]        @relation("faveGame")
 
   @@index([isPublished, isNsfw, createdAt])
   @@index([isPublished, viewCount])
@@ -162,7 +204,6 @@ model Game {
   @@index([title])
   @@index([vndbId])
   @@index([publisherId])
-  @@index([searchVector])
 }
 
 model TagGroup {
@@ -170,7 +211,7 @@ model TagGroup {
   name        String   @unique
   description String   @default("")
   color       String   @default("#7c8a9e")
-  positions   String   @default("[]")  // JSON array of position keys
+  positions   Json       @default("[]")  // JSON array of position keys
   isPreset    Boolean  @default(false)  // 系统内置组，不可删除
   tags        Tag[]
   createdAt   DateTime @default(now())
@@ -283,6 +324,7 @@ model Favorite {
   game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   @@unique([userId, gameId])
+  @@index([gameId])
   @@index([collectionId])
 }
 
@@ -306,7 +348,7 @@ model PlayStatus {
   id     String @id @default(cuid())
   userId String
   gameId String
-  status String @default("想玩")
+  status PlayStatusType @default(WANT_TO_PLAY)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   @@unique([userId, gameId])
@@ -422,7 +464,7 @@ model GameRating {
   id        String    @id @default(cuid())
   gameId    String
   userId    String
-  score     Int       @db.SmallInt // 1-5，应用层验证
+  score     Int       @db.SmallInt // 1-5
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -456,7 +498,6 @@ model EmailVerificationToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([tokenHash])
 }
 
 model CuratedCollection {
@@ -507,7 +548,7 @@ model ForumPost {
   isSolved  Boolean        @default(false)
   isPinned  Boolean        @default(false)
   isLocked  Boolean        @default(false)
-  category  String         @default("discussion")
+  category  ForumCategory  @default(discussion)
   viewCount Int            @default(0)
   updatedAt DateTime       @default(now()) @updatedAt
   createdAt DateTime       @default(now())
@@ -518,7 +559,7 @@ model ForumPost {
   @@index([userId])
   @@index([createdAt])
   @@index([category])
-  @@index([category, createdAt])
+  @@index([isPinned, category, createdAt])
   @@index([isSolved])
   @@index([isSolved, createdAt])
 }
@@ -544,8 +585,8 @@ model Notification {
   id         String   @id @default(cuid())
   userId     String   // 接收通知的用户
   actorId    String   // 触发通知的用户
-  type       String   // "forum_post_like" | "forum_comment_like" | "forum_comment_new" | "follow"
-  targetType String   // "forum_post" | "forum_comment" | "user"
+  type       NotificationType
+  targetType NotificationTargetType
   targetId   String   // 关联对象 ID
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -554,6 +595,7 @@ model Notification {
 
   @@index([userId, isRead, createdAt])
   @@index([actorId])
+  @@index([targetId])
 }
 
 model ForumPostLike {
@@ -610,7 +652,6 @@ model EmotionalMessage {
   updatedAt  DateTime @updatedAt
 
   @@index([category])
-  @@index([key])
 }
 
 /// 全局站点配置 — 键值对存储，用于后台可配置项

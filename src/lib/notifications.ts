@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma"
+import type { NotificationType, NotificationTargetType } from "@prisma/client"
 
 interface CreateNotificationParams {
   userId: string      // 接收通知的用户
   actorId: string     // 触发通知的用户
-  type: string        // 通知类型
-  targetType: string  // 目标类型（如 "forum_post", "forum_comment"）
+  type: NotificationType
+  targetType: NotificationTargetType
   targetId: string    // 目标 ID
 }
 

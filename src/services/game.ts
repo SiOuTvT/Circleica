@@ -5,6 +5,7 @@
 import { gameRepo } from "@/repositories/game"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
+import type { PlayStatusType } from "@prisma/client"
 
 export const gameService = {
   getPaginated(page: number, limit: number, filters?: { q?: string; sort?: string; tag?: string }) {
@@ -52,9 +53,15 @@ export const gameService = {
   // ── 游玩状态 ────────────────────────
 
   async setPlayStatus(userId: string, gameId: string, status: string) {
-    const validStatuses = ["想玩", "在玩", "玩过", "搁置", "弃坑"]
-    if (!validStatuses.includes(status)) throw new ValidationError("无效的游玩状态")
-    return gameRepo.setPlayStatus(userId, gameId, status)
+    // 中文 → 枚举映射（兼容旧前端）
+    const STATUS_MAP: Record<string, PlayStatusType> = {
+      "想玩": "WANT_TO_PLAY", "在玩": "PLAYING", "玩过": "PLAYED",
+      "搁置": "ON_HOLD", "弃坑": "DROPPED",
+    }
+    const enumValue = STATUS_MAP[status] ?? (status as PlayStatusType)
+    const validEnums: PlayStatusType[] = ["WANT_TO_PLAY", "PLAYING", "PLAYED", "ON_HOLD", "DROPPED"]
+    if (!validEnums.includes(enumValue)) throw new ValidationError("无效的游玩状态")
+    return gameRepo.setPlayStatus(userId, gameId, enumValue)
   },
 
   getPlayStatus(userId: string, gameId: string) {
@@ -64,7 +71,7 @@ export const gameService = {
   // ── 评分 ────────────────────────────
 
   async setRating(userId: string, gameId: string, score: number) {
-    if (!Number.isInteger(score) || score < 1 || score > 10) throw new ValidationError("评分必须是 1-10 的整数")
+    if (!Number.isInteger(score) || score < 1 || score > 5) throw new ValidationError("评分必须是 1-5 的整数")
     await gameRepo.setRating(userId, gameId, score)
     return gameRepo.getRatingStats(gameId)
   },

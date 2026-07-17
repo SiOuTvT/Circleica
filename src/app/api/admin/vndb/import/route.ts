@@ -4,6 +4,7 @@ import { AppError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
+import { GameStatus } from "@prisma/client"
 
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
@@ -57,7 +58,7 @@ export const POST = withHandler(async (req) => {
           vndbId: String(vndbId),
           isPublished: false, // 默认不发布，需要管理员审核
           isNsfw: false,
-          status: "完结",
+          status: GameStatus.FINISHED,
           favoriteCount: 0,
           viewCount: 0,
           coverImage: "",

@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma } from "@prisma/client"
+import type { Prisma, ForumCategory } from "@prisma/client"
 
 export const forumRepo = {
   // ── 帖子 ────────────────────────────
@@ -11,7 +11,7 @@ export const forumRepo = {
   findPostsPaginated(page: number, limit: number, category?: string, solved?: string) {
     const skip = (page - 1) * limit
     const where: Prisma.ForumPostWhereInput = {}
-    if (category) where.category = category
+    if (category) where.category = category as ForumCategory
     if (solved === "true") where.isSolved = true
     if (solved === "false") where.isSolved = false
 
@@ -43,7 +43,7 @@ export const forumRepo = {
     return prisma.forumPost.update({ where: { id }, data: { viewCount: { increment: 1 } } })
   },
 
-  createPost(userId: string, data: { title: string; content: string; imageUrl?: string; category?: string }) {
+  createPost(userId: string, data: { title: string; content: string; imageUrl?: string; category?: ForumCategory }) {
     return prisma.forumPost.create({
       data: { userId, ...data },
       include: { user: { select: { id: true, username: true, avatar: true } } },

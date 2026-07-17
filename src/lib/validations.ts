@@ -64,7 +64,7 @@ export const gameCommentSchema = z.object({
     .number()
     .int("评分必须是整数")
     .min(1, "评分最低 1 分")
-    .max(10, "评分最高 10 分")
+    .max(5, "评分最高 5 分")
     .optional(),
 })
 
@@ -88,7 +88,7 @@ export const forumPostSchema = z.object({
     .string()
     .min(1, "内容不能为空")
     .max(10000, "内容最多 10000 个字符"),
-  category: z.string().max(50).optional(),
+  category: z.enum(["discussion", "question", "showcase", "guide", "feedback"]).optional(),
 })
 
 export const forumCommentSchema = z.object({
@@ -116,8 +116,10 @@ export const gameCreateSchema = z.object({
   title: z.string().min(1, "游戏标题不能为空").max(200),
   description: z.string().max(5000).optional(),
   coverImage: z.string().url().optional(),
-  downloadUrl: z.string().url().optional(),
-  engine: z.string().max(50).optional(),
+  originalWork: z.string().max(200).optional(),
+  englishName: z.string().max(200).optional(),
+  studioName: z.string().max(200).optional(),
+  isNsfw: z.boolean().optional(),
   tags: z.array(z.string().max(50)).max(20).optional(),
   creatorId: z.string().optional(),
 })
