@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title: `${user.username} · 同人游戏站`,
       description,
       openGraph: { title: `${user.username} · 同人游戏站`, description, images: ["/opengraph-image"] },
-      alternates: { canonical: `/user/${id}` },
+      alternates: { canonical: `/user/${user.serialId}` },
     }
   }
   return {
