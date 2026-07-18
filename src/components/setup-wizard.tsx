@@ -231,7 +231,6 @@ export function SetupWizard() {
       setSubmitStage(3)
       const signInResult = await signIn("credentials", { redirect: false, username: form.username.trim(), password: form.password })
       if (signInResult?.ok) {
-        router.refresh()
         setCompleted(true)
       } else {
         router.push("/login")
@@ -274,8 +273,8 @@ export function SetupWizard() {
             </div>
             <p className={cn("text-xs", "text-muted-foreground")}>接下来你可以配置存储、上传游戏内容、自定义站点页面</p>
             <div className="flex gap-3">
-              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => router.push("/")}>查看网站</button>
-              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => router.push("/admin")}>进入后台 →</button>
+              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => { window.location.href = "/" }}>查看网站</button>
+              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => { window.location.href = "/admin" }}>进入后台 →</button>
             </div>
           </div>
         </div>
@@ -480,7 +479,7 @@ export function SetupWizard() {
                     </Field>
                     <Field label="密码" required>
                       <div className="relative">
-                        <input className={cn(inputBase, "pr-10")} type={showPw ? "text" : "password"} value={form.password} onChange={e => update("password", e.target.value)} placeholder="至少 8 个字符" />
+                        <input className={cn(inputBase, "pr-10")} type={showPw ? "text" : "password"} value={form.password} onChange={e => update("password", e.target.value)} placeholder="至少 8 个字符" autoComplete="new-password" />
                         <button type="button" className={cn("absolute right-3 top-1/2 -translate-y-1/2 text-sm", "text-muted-foreground")} onClick={() => setShowPw(v => !v)} tabIndex={-1}>{showPw ? "🙈" : "👁️"}</button>
                       </div>
                       {form.password.length > 0 && (
@@ -492,7 +491,7 @@ export function SetupWizard() {
                     </Field>
                     <Field label="确认密码" required>
                       <div className="relative">
-                        <input className={cn(inputBase, "pr-10")} type={showPw2 ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword", e.target.value)} placeholder="再次输入密码" />
+                        <input className={cn(inputBase, "pr-10")} type={showPw2 ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword", e.target.value)} placeholder="再次输入密码" autoComplete="new-password" />
                         <button type="button" className={cn("absolute right-3 top-1/2 -translate-y-1/2 text-sm", "text-muted-foreground")} onClick={() => setShowPw2(v => !v)} tabIndex={-1}>{showPw2 ? "🙈" : "👁️"}</button>
                       </div>
                       {form.confirmPassword && form.password !== form.confirmPassword && <p className="text-[11px] text-red-400 mt-1">两次密码不一致</p>}

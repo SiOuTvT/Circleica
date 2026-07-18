@@ -2,6 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+
   images: {
     localPatterns: [
       { pathname: "/uploads/**" },
@@ -61,6 +62,9 @@ const nextConfig: NextConfig = {
   // 允许局域网设备访问开发服务器（手机/平板等）
   allowedDevOrigins: ["192.168.5.53", "192.168.*", "10.*"],
 
+  // 显式启用 Turbopack（Next.js 16 默认），消除 webpack 兼容警告
+  turbopack: {},
+
   webpack(config, { isServer }) {
     // 客户端构建时将 isomorphic-dompurify 替换为轻量 dompurify（~10KB vs ~500KB jsdom）
     if (!isServer) {
@@ -73,7 +77,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+// 开发环境跳过 Sentry 包装，避免 OpenTelemetry + webpack 插件导致内存耗尽
+export default process.env.NODE_ENV === "development"
+  ? nextConfig
+  : withSentryConfig(nextConfig, {
   // Sentry 构建时配置
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,

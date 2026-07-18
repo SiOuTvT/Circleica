@@ -5,18 +5,15 @@ import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo } from 
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
-import { Noto_Sans_SC } from "next/font/google"
 import NextTopLoader from "nextjs-toploader"
 import { SetupWizard } from "@/components/setup-wizard"
 import "./globals.css"
 
-const notoSans = Noto_Sans_SC({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  display: "swap",
-  variable: "--font-sans",
-  preload: true,
-})
+// System font stack — no external CDN dependency
+// --font-sans is defined in globals.css
+const notoSans = {
+  variable: "",
+}
 
 // 启动时安全检查（仅开发环境输出警告）
 checkSecurity()

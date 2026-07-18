@@ -140,11 +140,8 @@ main > * {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* 字体系统：next/font 通过 --font-sans CSS 变量注入，
-     Tailwind 工具类 font-sans 使用这个变量。
-     CSS 变量在 html 元素的 class 上定义（next/font），
-     具体性高于 @theme 的 :root，因此会被正确覆盖。
-     中文回退字体写死在主题中，确保即使 next/font 未加载也有合理显示。 */
+  /* --font-sans 通过 CSS 变量定义，Tailwind font-sans 使用此变量。
+     中文字体回退写死在主题中，确保始终有合理显示。 */
   --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
   --color-ring: var(--ring);
@@ -892,8 +889,8 @@ textarea:autofill,
 textarea:-webkit-autofill,
 select:autofill,
 select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #fafafa inset !important;
-  box-shadow: 0 0 0 1000px #fafafa inset !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
 }
 .dark input:autofill,
@@ -906,8 +903,8 @@ select:-webkit-autofill {
 .dark textarea:-webkit-autofill,
 .dark select:autofill,
 .dark select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #111114 inset !important;
-  box-shadow: 0 0 0 1000px #111114 inset !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
 }
 
