@@ -217,66 +217,55 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               </div>
             )}
 
-            <form onSubmit={submitAnn} className="space-y-5">
-              {/* 标题 + 摘要 */}
-              <div className="space-y-3.5">
-                <Field label="标题" required>
-                  <input value={title} onChange={e => setTitle(e.target.value)}
-                    placeholder="输入公告标题…" required className={inputCls} />
-                </Field>
-                <Field label="摘要" hint="用于前台卡片展示，不填则自动截取正文">
+            <form onSubmit={submitAnn} className="space-y-4">
+              {/* 标题 — 全宽 */}
+              <Field label="标题" required>
+                <input value={title} onChange={e => setTitle(e.target.value)}
+                  placeholder="输入公告标题…" required className={inputCls} />
+              </Field>
+
+              {/* 摘要 + 封面图 — 左右并排 */}
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px] gap-4 items-start">
+                <Field label="摘要" hint="不填则自动截取正文">
                   <textarea value={summary} onChange={e => setSummary(e.target.value)}
-                    placeholder="一句话概括公告内容…" rows={2} className={inputCls + " resize-none"} />
+                    placeholder="一句话概括公告内容…" rows={3} className={inputCls + " resize-none"} />
+                </Field>
+                <Field label="封面">
+                  <div className="rounded-xl overflow-hidden ring-1 ring-border bg-muted/40">
+                    <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传" />
+                  </div>
                 </Field>
               </div>
-
-              {/* 封面图片 — 紧凑的 16:9 */}
-              <Field label="封面图片">
-                <div className="max-w-sm">
-                  <div className="rounded-xl overflow-hidden ring-1 ring-border bg-muted/40">
-                    <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传封面" />
-                  </div>
-                </div>
-              </Field>
 
               {/* 正文 */}
               <Field label="正文" required>
                 <RichTextEditor content={content} onChange={setContent} placeholder="公告正文，支持富文本…" />
               </Field>
 
-              {/* 状态 + 置顶 — 水平一行 */}
-              <div className="flex flex-wrap items-end gap-4">
-                <div className="min-w-[140px]">
-                  <Field label="状态">
-                    <select value={status} onChange={e => setStatus(e.target.value)}
-                      className={inputCls + " cursor-pointer"}>
-                      <option value="draft">草稿</option>
-                      <option value="published">已发布</option>
-                      <option value="hidden">已隐藏</option>
-                    </select>
-                  </Field>
-                </div>
+              {/* 状态 + 置顶 + 链接 — 一行 */}
+              <div className="grid grid-cols-1 sm:grid-cols-[140px_auto_1fr] gap-3 items-end">
+                <Field label="状态">
+                  <select value={status} onChange={e => setStatus(e.target.value)} className={inputCls + " cursor-pointer"}>
+                    <option value="draft">草稿</option>
+                    <option value="published">已发布</option>
+                    <option value="hidden">已隐藏</option>
+                  </select>
+                </Field>
                 <label className="flex items-center gap-2 pb-0.5 cursor-pointer select-none group">
                   <span className="relative inline-flex">
-                    <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)}
-                      className="peer sr-only" />
-                    <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition-all
-                      peer-checked:bg-primary peer-checked:ring-primary
-                      flex items-center justify-center">
+                    <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)} className="peer sr-only" />
+                    <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition-all peer-checked:bg-primary peer-checked:ring-primary flex items-center justify-center">
                       {isPinned && <Pin className="h-3 w-3 text-primary-foreground" />}
                     </span>
                   </span>
                   <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">置顶</span>
                 </label>
+                <Field label="外部链接">
+                  <input value={link} onChange={e => setLink(e.target.value)} placeholder="https://…（选填）" className={inputCls} />
+                </Field>
               </div>
 
-              {/* 链接 */}
-              <Field label="外部链接" hint="点击公告时跳转到此地址（选填）">
-                <input value={link} onChange={e => setLink(e.target.value)}
-                  placeholder="https://…" className={inputCls} />
-              </Field>
-
-              {/* 定时 — 紧凑两列 */}
+              {/* 定时 — 两列 */}
               <div className="grid grid-cols-2 gap-3">
                 <Field label="定时上线">
                   <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={inputCls} />
@@ -286,8 +275,8 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </Field>
               </div>
 
-              {/* 提交按钮 */}
-              <div className="flex items-center gap-2.5 pt-1">
+              {/* 提交 */}
+              <div className="pt-1">
                 <button type="submit" disabled={adding}
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
