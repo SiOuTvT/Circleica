@@ -46,6 +46,10 @@ export async function ThemeScript() {
         var color = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
         if (!color) return;
         color = color.replace('#', '');
+
+        // 强制清除旧的 foreground 缓存，确保新阈值生效
+        root.style.removeProperty('--primary-foreground');
+
         var r = parseInt(color.substring(0, 2), 16);
         var g = parseInt(color.substring(2, 4), 16);
         var b = parseInt(color.substring(4, 6), 16);
