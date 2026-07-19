@@ -434,13 +434,17 @@ function Field({ label, value, onChange, placeholder, disabled, className, requi
   )
 }
 
-function SecretField({ label, value, onChange, placeholder, className }: {
-  label?: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string
+function SecretField({ label, value, onChange, placeholder, className, required }: {
+  label?: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string; required?: boolean
 }) {
   const [visible, setVisible] = useState(false)
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>}
+      {label && (
+        <label className="block text-sm font-medium text-foreground mb-1.5">
+          {label}{required && <span className="text-destructive ml-0.5">*</span>}
+        </label>
+      )}
       <div className="relative">
         <Input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
           placeholder={placeholder} className="pr-10" autoComplete="new-password" />
