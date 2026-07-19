@@ -206,8 +206,8 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             </div>
             <div>
               <label className={labelCls}>封面图片</label>
-              <div className="rounded-xl overflow-hidden ring-1 ring-border">
-                <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传封面（16:9 推荐）" />
+              <div className="max-w-md rounded-xl overflow-hidden ring-1 ring-border">
+                <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传封面（16:9）" />
               </div>
             </div>
             <div>
@@ -329,14 +329,8 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       {/* ── 右侧：实时预览 ── */}
       <div className="lg:w-[360px] shrink-0 space-y-4 lg:sticky lg:top-4 lg:self-start">
         <div className="rounded-xl bg-card p-4 ring-1 ring-border">
-          <p className="text-xs font-medium text-muted-foreground mb-3">首页卡片预览</p>
+          <p className="text-xs font-medium text-muted-foreground mb-3">前台效果预览</p>
           <AnnouncePreview ann={previewAnn} />
-        </div>
-        <div className="rounded-xl bg-card p-4 ring-1 ring-border">
-          <p className="text-xs font-medium text-muted-foreground mb-3">移动端预览</p>
-          <div className="mx-auto w-[280px] rounded-2xl overflow-hidden ring-1 ring-border bg-muted/30 p-2">
-            <AnnouncePreview ann={previewAnn} compact />
-          </div>
         </div>
       </div>
     </div>
@@ -345,12 +339,12 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
 /* ── 预览组件 ── */
 
-function AnnouncePreview({ ann, compact }: { ann: { title: string; summary: string; content: string; imageUrl: string; isPinned: boolean }; compact?: boolean }) {
+function AnnouncePreview({ ann }: { ann: { title: string; summary: string; content: string; imageUrl: string; isPinned: boolean } }) {
   const summary = ann.summary || stripHtml(ann.content).slice(0, 80)
   return (
-    <div className={`rounded-xl overflow-hidden ring-1 ring-border ${compact ? "text-xs" : ""}`}>
+    <div className="rounded-xl overflow-hidden ring-1 ring-border">
       {/* 封面 */}
-      <div className={`relative ${compact ? "h-24" : "h-32"} bg-muted`}>
+      <div className="relative h-32 bg-muted">
         {ann.imageUrl ? (
           <Image src={ann.imageUrl} alt="" fill className="object-cover" unoptimized />
         ) : (
@@ -362,10 +356,10 @@ function AnnouncePreview({ ann, compact }: { ann: { title: string; summary: stri
         )}
       </div>
       {/* 内容 */}
-      <div className={`${compact ? "p-2.5" : "p-3.5"} bg-card`}>
-        <h3 className={`font-bold text-foreground line-clamp-1 ${compact ? "text-sm" : "text-base"}`}>{ann.title || "公告标题"}</h3>
-        {summary && <p className={`text-muted-foreground line-clamp-2 mt-1 ${compact ? "text-[11px]" : "text-xs"}`}>{summary}</p>}
-        <span className={`inline-flex items-center gap-0.5 text-primary mt-2 ${compact ? "text-[10px]" : "text-xs"} font-medium`}>
+      <div className="p-3.5 bg-card">
+        <h3 className="font-bold text-foreground line-clamp-1 text-base">{ann.title || "公告标题"}</h3>
+        {summary && <p className="text-muted-foreground line-clamp-2 mt-1 text-xs">{summary}</p>}
+        <span className="inline-flex items-center gap-0.5 text-primary mt-2 text-xs font-medium">
           查看详情 <span className="inline-block">→</span>
         </span>
       </div>

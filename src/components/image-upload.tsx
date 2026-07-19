@@ -92,9 +92,10 @@ export function ImageUpload({
         formData.append("file", croppedFile)
         const res = await fetch("/api/upload", { method: "POST", body: formData })
         const data = await res.json()
-        if (res.ok && data.url) {
-          lastEmittedUrlRef.current = data.url
-          onChange?.(data.url)
+        const url = data.url ?? data.data?.url
+        if (res.ok && url) {
+          lastEmittedUrlRef.current = url
+          onChange?.(url)
         } else {
           throw new Error(data.error || "上传失败：未返回 URL")
         }
