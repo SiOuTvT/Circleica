@@ -113,9 +113,9 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         href={href}
         target={ann.link ? "_blank" : undefined}
         rel={ann.link ? "noopener noreferrer" : undefined}
-        className="group absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5"
+        className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+        <div className="announce-glass flex flex-col max-w-2xl backdrop-blur-md bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
@@ -138,7 +138,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 标题 + NEW */}
           <div className="flex items-center gap-2.5 mb-1">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors [--tc:var(--primary)] group-hover:text-[color:var(--tc)]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight text-white line-clamp-1 transition-colors hover:text-[var(--primary)]">
               {ann.title}
             </h2>
             {showNew && (
@@ -161,10 +161,10 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
           {/* 查看详情（手机端隐藏） */}
           <span
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-all group-hover:underline [--cta:var(--primary)] group-hover:text-[color:var(--cta)]"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-all hover:underline hover:text-[var(--primary)]"
           >
             查看详情
-            <span className="inline-block transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+            <span className="inline-block transition-transform hover:translate-x-1" aria-hidden="true">→</span>
           </span>
         </div>
       </Link>
