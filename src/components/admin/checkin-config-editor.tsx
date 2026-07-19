@@ -32,8 +32,9 @@ export function CheckInConfigEditor() {
     try {
       const res = await fetch("/api/admin/checkin-config")
       const data = await res.json()
-      setConfig(data)
-      setPreview(data.imageUrl || "")
+      const cfg = data.data ?? data
+      setConfig(cfg)
+      setPreview(cfg.imageUrl || "")
     } catch {
       toast.error("加载配置失败")
     }

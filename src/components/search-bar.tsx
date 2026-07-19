@@ -56,9 +56,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     try {
       const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
       if (!controller.signal.aborted && res.ok) {
-        const data = await res.json()
-        setSuggestions(data)
-        setShowSuggestions(data.length > 0)
+        const j = await res.json()
+        const arr = Array.isArray(j) ? j : j.data ?? []
+        setSuggestions(arr)
+        setShowSuggestions(arr.length > 0)
         setActiveIdx(-1)
       }
     } catch (err) { logger.api.warn("[SearchBar] fetchSuggestions failed", { error: err instanceof Error ? err.message : String(err) }) }
@@ -87,9 +88,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     abortRef.current = controller
     fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
       .then(r => r.json())
-      .then(data => {
-        setSuggestions(data)
-        setShowSuggestions(data.length > 0)
+      .then(j => {
+        const arr = Array.isArray(j) ? j : j.data ?? []
+        setSuggestions(arr)
+        setShowSuggestions(arr.length > 0)
       })
       .catch(() => {})
   }, [value])
