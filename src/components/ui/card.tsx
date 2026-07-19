@@ -16,13 +16,13 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col overflow-hidden bg-card text-sm text-card-foreground ring-1 ring-border has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0",
+        "group/card flex flex-col bg-card text-sm text-card-foreground ring-1 ring-border has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0",
         radius === "xl" && "rounded-xl *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         radius === "2xl" && "rounded-2xl *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
-        size === "compact" && "gap-3 py-3",
-        size === "default" && "gap-4 py-4",
-        size === "comfortable" && "gap-5 py-5",
-        size === "large" && "gap-6 py-6",
+        size === "compact" && "gap-3 p-3",
+        size === "default" && "gap-4 p-4",
+        size === "comfortable" && "gap-5 p-5",
+        size === "large" && "gap-6 p-6",
         className
       )}
       {...props}
