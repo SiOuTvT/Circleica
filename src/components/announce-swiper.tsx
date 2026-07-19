@@ -111,7 +111,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/10 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/25 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
@@ -171,14 +171,14 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); prev() }}
             aria-label="上一条公告"
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-zinc-700 dark:bg-black/30 dark:text-white/70 backdrop-blur-sm transition-all hover:bg-black/30 hover:text-zinc-900 dark:hover:bg-black/50 dark:hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); next() }}
             aria-label="下一条公告"
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
+            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/20 text-zinc-700 dark:bg-black/30 dark:text-white/70 backdrop-blur-sm transition-all hover:bg-black/30 hover:text-zinc-900 dark:hover:bg-black/50 dark:hover:text-white"
           >
             <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
@@ -191,7 +191,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
+                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-zinc-800 dark:bg-white/90" : "h-1.5 w-1.5 bg-zinc-400 dark:bg-white/30 hover:bg-zinc-600 dark:hover:bg-white/50"}`}
               />
             ))}
           </div>
