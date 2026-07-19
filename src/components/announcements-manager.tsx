@@ -16,6 +16,10 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
 }
 
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("zh-CN", { month: "short", day: "numeric" })
+}
+
 const STATUS_LABELS: Record<string, string> = { draft: "草稿", published: "已发布", hidden: "已隐藏" }
 const STATUS_VARIANTS: Record<string, "default" | "success" | "secondary"> = { draft: "secondary", published: "success", hidden: "default" }
 
@@ -66,9 +70,6 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     setTitle(draft.title); setSummary(draft.summary); setContent(draft.content); setLink(draft.link)
     setDraftRestored(true)
   }
-
-  const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
-  const labelCls = "block text-xs font-medium text-muted-foreground mb-1.5"
 
   function startEdit(ann: Ann) {
     setEditingId(ann.id); setTitle(ann.title); setSummary(ann.summary); setContent(ann.content)
@@ -179,189 +180,313 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col xl:flex-row gap-6 items-start">
       {/* ── 左侧：编辑区域 ── */}
-      <div className="flex-1 min-w-0 space-y-4">
-        {/* 创建/编辑表单 */}
-        <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-          <h2 className="text-sm font-semibold text-foreground">{isEditing ? "编辑公告" : "发布公告"}</h2>
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{error}</p>}
-          {showDraftBanner && (
-            <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 ring-1 ring-amber-500/20">
-              <span>检测到未保存的草稿「{draft.title || "无标题"}」</span>
-              <div className="flex shrink-0 gap-2">
-                <button type="button" onClick={restoreDraft} className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors">恢复</button>
-                <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }} className="rounded-lg px-3 py-1 text-xs font-medium text-amber-400/60 hover:text-amber-300 transition-colors">丢弃</button>
+      <div className="flex-1 min-w-0 w-full space-y-5">
+
+        {/* 表单卡片 */}
+        <section className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+          {/* 卡片头部 */}
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
+            <h2 className="text-sm font-semibold text-foreground tracking-tight">
+              {isEditing ? "编辑公告" : "新建公告"}
+            </h2>
+            {isEditing && (
+              <button type="button" onClick={cancelEdit}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-3.5 w-3.5" /> 取消编辑
+              </button>
+            )}
+          </div>
+
+          <div className="p-5 space-y-5">
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg bg-red-500/8 px-3.5 py-2.5 text-xs text-red-500 ring-1 ring-red-500/15">
+                <span className="shrink-0">⚠</span> {error}
               </div>
-            </div>
-          )}
-          <form onSubmit={submitAnn} className="space-y-4">
-            <div>
-              <label className={labelCls}>标题 *</label>
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="公告标题" required className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>摘要</label>
-              <textarea value={summary} onChange={e => setSummary(e.target.value)} placeholder="简短摘要，用于前台卡片展示（选填）" rows={2} className={inputCls + " resize-none"} />
-            </div>
-            <div>
-              <label className={labelCls}>封面图片</label>
-              <div className="max-w-md rounded-xl overflow-hidden ring-1 ring-border">
-                <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传封面（16:9）" />
+            )}
+            {showDraftBanner && (
+              <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/8 px-3.5 py-2.5 text-xs text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/15">
+                <span>检测到草稿「{draft.title || "无标题"}」</span>
+                <div className="flex shrink-0 gap-1.5">
+                  <button type="button" onClick={restoreDraft}
+                    className="rounded-md bg-amber-500/15 px-2.5 py-1 font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors">恢复</button>
+                  <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }}
+                    className="rounded-md px-2.5 py-1 text-muted-foreground hover:text-foreground transition-colors">丢弃</button>
+                </div>
               </div>
-            </div>
-            <div>
-              <label className={labelCls}>正文 *</label>
-              <RichTextEditor content={content} onChange={setContent} placeholder="公告内容，支持富文本格式…" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelCls}>状态</label>
-                <select value={status} onChange={e => setStatus(e.target.value)} className={inputCls + " cursor-pointer"}>
-                  <option value="draft">草稿</option>
-                  <option value="published">已发布</option>
-                  <option value="hidden">已隐藏</option>
-                </select>
+            )}
+
+            <form onSubmit={submitAnn} className="space-y-5">
+              {/* 标题 + 摘要 */}
+              <div className="space-y-3.5">
+                <Field label="标题" required>
+                  <input value={title} onChange={e => setTitle(e.target.value)}
+                    placeholder="输入公告标题…" required className={inputCls} />
+                </Field>
+                <Field label="摘要" hint="用于前台卡片展示，不填则自动截取正文">
+                  <textarea value={summary} onChange={e => setSummary(e.target.value)}
+                    placeholder="一句话概括公告内容…" rows={2} className={inputCls + " resize-none"} />
+                </Field>
               </div>
-              <div className="flex items-end">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)} className="rounded" />
-                  <Pin className="h-4 w-4" />
-                  <span className="text-sm text-foreground">置顶</span>
+
+              {/* 封面图片 — 紧凑的 16:9 */}
+              <Field label="封面图片">
+                <div className="max-w-sm">
+                  <div className="rounded-xl overflow-hidden ring-1 ring-border bg-muted/40">
+                    <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传封面" />
+                  </div>
+                </div>
+              </Field>
+
+              {/* 正文 */}
+              <Field label="正文" required>
+                <RichTextEditor content={content} onChange={setContent} placeholder="公告正文，支持富文本…" />
+              </Field>
+
+              {/* 状态 + 置顶 — 水平一行 */}
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="min-w-[140px]">
+                  <Field label="状态">
+                    <select value={status} onChange={e => setStatus(e.target.value)}
+                      className={inputCls + " cursor-pointer"}>
+                      <option value="draft">草稿</option>
+                      <option value="published">已发布</option>
+                      <option value="hidden">已隐藏</option>
+                    </select>
+                  </Field>
+                </div>
+                <label className="flex items-center gap-2 pb-0.5 cursor-pointer select-none group">
+                  <span className="relative inline-flex">
+                    <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)}
+                      className="peer sr-only" />
+                    <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition-all
+                      peer-checked:bg-primary peer-checked:ring-primary
+                      flex items-center justify-center">
+                      {isPinned && <Pin className="h-3 w-3 text-primary-foreground" />}
+                    </span>
+                  </span>
+                  <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">置顶</span>
                 </label>
               </div>
-            </div>
-            <div>
-              <label className={labelCls}>外部链接（选填）</label>
-              <input value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." className={inputCls} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelCls}>定时上线</label>
-                <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>定时下线</label>
-                <input type="datetime-local" value={endAt} onChange={e => setEndAt(e.target.value)} className={inputCls} />
-              </div>
-            </div>
-            <div className="flex items-center gap-2 pt-1">
-              <button type="submit" disabled={adding} className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60">
-                {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                {adding ? (isEditing ? "保存中…" : "创建中…") : (isEditing ? "保存修改" : "创建公告")}
-              </button>
-              {isEditing && (
-                <button type="button" onClick={cancelEdit} className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground">
-                  <X className="h-4 w-4" /> 取消
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
 
-        {/* 公告列表 */}
-        <div className="rounded-xl bg-card ring-1 ring-border">
-          <div className="border-b border-border px-4 py-3">
-            <p className="text-xs text-muted-foreground">共 {anns.length} 条公告 · 拖拽排序</p>
+              {/* 链接 */}
+              <Field label="外部链接" hint="点击公告时跳转到此地址（选填）">
+                <input value={link} onChange={e => setLink(e.target.value)}
+                  placeholder="https://…" className={inputCls} />
+              </Field>
+
+              {/* 定时 — 紧凑两列 */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="定时上线">
+                  <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={inputCls} />
+                </Field>
+                <Field label="定时下线">
+                  <input type="datetime-local" value={endAt} onChange={e => setEndAt(e.target.value)} className={inputCls} />
+                </Field>
+              </div>
+
+              {/* 提交按钮 */}
+              <div className="flex items-center gap-2.5 pt-1">
+                <button type="submit" disabled={adding}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  {adding
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
+                    : isEditing
+                      ? <><Pencil className="h-4 w-4" /> 保存修改</>
+                      : <><Plus className="h-4 w-4" /> 创建公告</>}
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="divide-y divide-border">
-            {anns.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted-foreground">暂无公告</p>}
+        </section>
+
+        {/* ── 公告列表 ── */}
+        <section className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
+            <p className="text-xs text-muted-foreground font-medium">
+              共 {anns.length} 条公告
+            </p>
+            <p className="text-[11px] text-muted-foreground/60">拖拽排序</p>
+          </div>
+
+          {anns.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <div className="text-3xl mb-2 opacity-30">📢</div>
+              <p className="text-sm">暂无公告</p>
+            </div>
+          )}
+
+          <div className="divide-y divide-border/60">
             {anns.map(ann => (
-              <div key={ann.id} draggable onDragStart={e => handleDragStart(e, ann.id)} onDragEnd={handleDragEnd}
-                onDragOver={e => handleDragOver(e, ann.id)} onDragLeave={handleDragLeave} onDrop={e => handleDrop(e, ann.id)}
-                className={`px-4 py-3 hover:bg-accent/50 transition-colors ${draggingId === ann.id ? "opacity-40" : ""} ${dragOverId === ann.id && draggingId !== ann.id ? "border-t-2 border-primary" : ""}`}>
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground hover:text-foreground" title="拖拽排序">
+              <div key={ann.id}
+                draggable
+                onDragStart={e => handleDragStart(e, ann.id)} onDragEnd={handleDragEnd}
+                onDragOver={e => handleDragOver(e, ann.id)} onDragLeave={handleDragLeave}
+                onDrop={e => handleDrop(e, ann.id)}
+                className={`group/item transition-colors hover:bg-accent/40
+                  ${draggingId === ann.id ? "opacity-30" : ""}
+                  ${dragOverId === ann.id && draggingId !== ann.id ? "border-t-[3px] border-primary" : ""}`}>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  {/* Drag handle */}
+                  <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 group-hover/item:text-muted-foreground transition-colors">
                     <GripVertical className="h-4 w-4" />
                   </div>
+
                   {/* 缩略图 */}
-                  {ann.imageUrl && (
-                    <div className="w-16 h-9 shrink-0 rounded-lg overflow-hidden bg-muted">
-                      <Image src={ann.imageUrl} alt="" width={64} height={36} className="w-full h-full object-cover" unoptimized />
-                    </div>
-                  )}
+                  <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border/50">
+                    {ann.imageUrl
+                      ? <Image src={ann.imageUrl} alt="" width={56} height={32} className="w-full h-full object-cover" unoptimized />
+                      : <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground/40">🎮</div>}
+                  </div>
+
+                  {/* 信息 */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                    <div className="flex items-center gap-1.5">
                       {ann.isPinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
-                      <Badge variant={STATUS_VARIANTS[ann.status] ?? "secondary"} size="sm">{STATUS_LABELS[ann.status] ?? ann.status}</Badge>
+                      <Badge variant={STATUS_VARIANTS[ann.status] ?? "secondary"} size="sm">
+                        {STATUS_LABELS[ann.status] ?? ann.status}
+                      </Badge>
                       <span className="text-sm font-medium text-foreground truncate">{ann.title}</span>
                     </div>
                     {expandedId === ann.id ? (
-                      <RichTextContent html={ann.content} />
+                      <div className="mt-1.5"><RichTextContent html={ann.content} /></div>
                     ) : (
-                      <p className="text-xs text-muted-foreground line-clamp-1">{ann.summary || stripHtml(ann.content)}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{ann.summary || stripHtml(ann.content)}</p>
                     )}
-                    <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <span>{new Date(ann.createdAt).toLocaleDateString("zh-CN")}</span>
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground/60">
+                      <span>{formatDate(ann.createdAt)}</span>
                       {ann.content.length > 100 && (
-                        <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)} className="flex items-center gap-0.5 hover:text-foreground transition-colors">
+                        <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
+                          className="flex items-center gap-0.5 hover:text-foreground transition-colors">
                           {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                           {expandedId === ann.id ? "收起" : "展开"}
                         </button>
                       )}
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button onClick={() => startEdit(ann)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors" title="编辑">
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => togglePinned(ann.id, ann.isPinned)} className={`rounded-lg p-1.5 transition-colors ${ann.isPinned ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`} title={ann.isPinned ? "取消置顶" : "置顶"}>
-                      <Pin className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => {
-                      const next = ann.status === "published" ? "hidden" : "published"
-                      toggleStatus(ann.id, next)
-                    }} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors" title={ann.status === "published" ? "隐藏" : "发布"}>
-                      {ann.status === "published" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                    <button onClick={() => setDeleteId(ann.id)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors" title="删除">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+
+                  {/* 操作按钮 — hover 才显示 */}
+                  <div className="flex shrink-0 items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                    <IconBtn onClick={() => startEdit(ann)} title="编辑"><Pencil className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn onClick={() => togglePinned(ann.id, ann.isPinned)} title={ann.isPinned ? "取消置顶" : "置顶"}
+                      active={ann.isPinned}><Pin className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn onClick={() => toggleStatus(ann.id, ann.status === "published" ? "hidden" : "published")}
+                      title={ann.status === "published" ? "隐藏" : "发布"}>
+                      {ann.status === "published" ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </IconBtn>
+                    <IconBtn onClick={() => setDeleteId(ann.id)} title="删除" variant="danger">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </IconBtn>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-        <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)} title="删除公告" description="确定要删除该公告吗？删除后无法恢复。" confirmText="删除" variant="destructive" onConfirm={() => deleteAnn(deleteId!)} />
+        </section>
+
+        <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)}
+          title="删除公告" description="确定要删除该公告吗？此操作不可恢复。"
+          confirmText="删除" variant="destructive" onConfirm={() => deleteAnn(deleteId!)} />
       </div>
 
       {/* ── 右侧：实时预览 ── */}
-      <div className="lg:w-[360px] shrink-0 space-y-4 lg:sticky lg:top-4 lg:self-start">
-        <div className="rounded-xl bg-card p-4 ring-1 ring-border">
-          <p className="text-xs font-medium text-muted-foreground mb-3">前台效果预览</p>
-          <AnnouncePreview ann={previewAnn} />
+      <aside className="w-full xl:w-[340px] shrink-0 xl:sticky xl:top-4 xl:self-start">
+        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-border bg-muted/20">
+            <p className="text-xs font-medium text-muted-foreground">前台效果预览</p>
+          </div>
+          <div className="p-4">
+            <PreviewCard ann={previewAnn} />
+          </div>
         </div>
-      </div>
+      </aside>
     </div>
   )
 }
 
-/* ── 预览组件 ── */
+/* ── 子组件 ── */
 
-function AnnouncePreview({ ann }: { ann: { title: string; summary: string; content: string; imageUrl: string; isPinned: boolean } }) {
+const inputCls =
+  "w-full rounded-xl bg-muted/60 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border/80 outline-none transition-all focus:bg-muted focus:ring-2 focus:ring-ring/40"
+
+function Field({ label, required, hint, children }: {
+  label: string; required?: boolean; hint?: string; children: React.ReactNode
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {label}{required && <span className="text-primary">*</span>}
+      </label>
+      {children}
+      {hint && <p className="text-[11px] text-muted-foreground/50">{hint}</p>}
+    </div>
+  )
+}
+
+function IconBtn({ children, onClick, title, active, variant }: {
+  children: React.ReactNode; onClick: () => void; title: string; active?: boolean; variant?: "danger"
+}) {
+  return (
+    <button onClick={onClick} title={title}
+      className={`rounded-lg p-1.5 transition-colors ${
+        variant === "danger"
+          ? "text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+          : active
+            ? "text-primary bg-primary/10"
+            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+      }`}>
+      {children}
+    </button>
+  )
+}
+
+/* ── 预览卡片 ── */
+
+function PreviewCard({ ann }: { ann: { title: string; summary: string; content: string; imageUrl: string; isPinned: boolean } }) {
   const summary = ann.summary || stripHtml(ann.content).slice(0, 80)
   return (
-    <div className="rounded-xl overflow-hidden ring-1 ring-border">
+    <div className="relative rounded-xl overflow-hidden ring-1 ring-border/50">
       {/* 封面 */}
-      <div className="relative h-32 bg-muted">
+      <div className="relative aspect-video bg-muted/60">
         {ann.imageUrl ? (
           <Image src={ann.imageUrl} alt="" fill className="object-cover" unoptimized />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground text-lg">🎮</div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg text-muted-foreground/30">📢</div>
+          </div>
         )}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* 渐变遮罩 — 和前台 announce-swiper 一致 */}
+        <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {ann.isPinned && (
-          <div className="absolute top-2 left-2"><Badge variant="default" size="sm"><Pin className="h-3 w-3 mr-0.5" /> 置顶</Badge></div>
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm">
+              <Pin className="h-2.5 w-2.5" /> 置顶
+            </span>
+          </div>
         )}
       </div>
-      {/* 内容 */}
-      <div className="p-3.5 bg-card">
-        <h3 className="font-bold text-foreground line-clamp-1 text-base">{ann.title || "公告标题"}</h3>
-        {summary && <p className="text-muted-foreground line-clamp-2 mt-1 text-xs">{summary}</p>}
-        <span className="inline-flex items-center gap-0.5 text-primary mt-2 text-xs font-medium">
-          查看详情 <span className="inline-block">→</span>
-        </span>
+      {/* 毛玻璃信息卡片 — 和前台一致 */}
+      <div className="absolute inset-x-0 bottom-0 p-3">
+        <div className="backdrop-blur-md bg-black/35 rounded-lg ring-1 ring-white/[0.08] px-3 py-2.5 space-y-1.5">
+          {/* 作者行 */}
+          <div className="flex items-center gap-1.5">
+            <div className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center text-[9px] font-bold text-white/70">F</div>
+            <span className="text-[11px] font-medium text-white/80">Fangame</span>
+          </div>
+          {/* 标题 */}
+          <h3 className="font-bold text-white text-sm leading-snug line-clamp-1">
+            {ann.title || "公告标题"}
+          </h3>
+          {/* 摘要 */}
+          {summary && (
+            <p className="text-[11px] text-white/60 line-clamp-1 leading-relaxed">{summary}</p>
+          )}
+          {/* 查看详情 */}
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-white/70">
+            查看详情 <span>→</span>
+          </span>
+        </div>
       </div>
     </div>
   )
