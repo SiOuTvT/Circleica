@@ -100,16 +100,30 @@ export const forumCommentSchema = z.object({
 
 // ============ 管理员相关 ============
 
-export const announcementSchema = z.object({
-  title: z
-    .string()
-    .min(1, "公告标题不能为空")
-    .max(200, "标题最多 200 个字符"),
-  content: z
-    .string()
-    .min(1, "公告内容不能为空")
-    .max(5000, "内容最多 5000 个字符"),
-  pinned: z.boolean().default(false),
+export const announcementCreateSchema = z.object({
+  title: z.string().min(1, "公告标题不能为空").max(200, "标题最多 200 个字符"),
+  summary: z.string().max(500, "摘要最多 500 个字符").optional().default(""),
+  content: z.string().min(1, "公告内容不能为空").max(5000, "内容最多 5000 个字符"),
+  imageUrl: z.string().url("图片链接格式不正确").max(500).optional().or(z.literal("")),
+  link: z.string().url("外部链接格式不正确").max(500).optional().or(z.literal("")),
+  status: z.enum(["draft", "published", "hidden"]).optional().default("draft"),
+  isPinned: z.boolean().optional().default(false),
+  startAt: z.string().optional(),
+  endAt: z.string().optional(),
+})
+
+export const announcementUpdateSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  summary: z.string().max(500).optional(),
+  content: z.string().min(1).max(5000).optional(),
+  imageUrl: z.string().url().max(500).optional().or(z.literal("")),
+  link: z.string().url().max(500).optional().or(z.literal("")),
+  status: z.enum(["draft", "published", "hidden"]).optional(),
+  isPinned: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  startAt: z.string().optional().nullable(),
+  endAt: z.string().optional().nullable(),
+  sortOrder: z.number().int().optional(),
 })
 
 export const gameCreateSchema = z.object({
