@@ -28,12 +28,14 @@ function relativeTime(dateStr: string): string {
 interface Ann {
   id: string
   title: string
+  summary: string
   content: string
   imageUrl: string
   link: string
   createdAt: string
   authorName: string
   authorAvatar: string
+  isPinned?: boolean
 }
 
 /** 判断是否显示 NEW 标记：最新一条 + 发布 ≤7 天 */
@@ -68,7 +70,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
   const ann = announcements[cur]
   const href = ann.link || `/announcements/${ann.id}`
   const showNew = shouldShowNew(announcements, cur)
-  const summary = stripHtml(ann.content)
+  const summary = ann.summary || stripHtml(ann.content)
 
   return (
     <div
