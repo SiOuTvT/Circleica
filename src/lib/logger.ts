@@ -122,9 +122,11 @@ class Logger {
       const line = `${c.dim}${timestamp}${c.reset} ${c[level]}${label}${c.reset} ${c.dim}[${this.scope}]${c.reset} ${message}${ctxStr}`
 
       if (level === "error") {
-        process.stderr.write(line + "\n")
+        if (typeof process !== "undefined" && process.stderr) process.stderr.write(line + "\n")
+        else console.error(line)
       } else {
-        process.stdout.write(line + "\n")
+        if (typeof process !== "undefined" && process.stdout) process.stdout.write(line + "\n")
+        else console.log(line)
       }
     }
   }

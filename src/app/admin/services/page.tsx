@@ -328,7 +328,9 @@ export default function ServicesPage() {
                           </label>
                           <Select
                             value={providerConfig.mode || "api"}
-                            onValueChange={v => updateProviderField(providerId, "mode", v)}
+                            onValueChange={v => {
+                              if (v !== (providerConfig.mode || "api")) updateProviderField(providerId, "mode", v)
+                            }}
                           >
                             <SelectTrigger className="w-full min-h-[44px] rounded-xl">
                               <SelectValue />
@@ -462,10 +464,15 @@ function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
     return true
   })
 
+  const handleChange = (v: string) => {
+    const next = v === "__none__" ? "" : v
+    if (next !== value) onChange(next)
+  }
+
   return (
     <div>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
-      <Select value={value || "__none__"} onValueChange={v => onChange(v === "__none__" ? "" : v)}>
+      <Select value={value || "__none__"} onValueChange={handleChange}>
         <SelectTrigger className="w-full min-h-[44px] rounded-xl">
           <SelectValue />
         </SelectTrigger>
