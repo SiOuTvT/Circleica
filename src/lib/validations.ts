@@ -171,18 +171,6 @@ export const achievementCreateSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
-export const announcementUpdateSchema = z.object({
-  title: z.string().min(1, "公告标题不能为空").max(200).optional(),
-  content: z.string().min(1, "公告内容不能为空").max(5000).optional(),
-  imageUrl: z.string().url().max(500).optional().or(z.literal("")),
-  link: z.string().url().max(500).optional().or(z.literal("")),
-  authorName: z.string().max(100).optional(),
-  isActive: z.boolean().optional(),
-  startAt: z.string().optional(),
-  endAt: z.string().optional(),
-  sortOrder: z.number().int().optional(),
-})
-
 // ============ 通用工具 ============
 
 /**

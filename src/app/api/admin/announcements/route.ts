@@ -17,7 +17,7 @@ export const GET = withHandler(async (req: NextRequest) => {
     return json(data)
   }
 
-  const data = await announcementService.getLatest(1)
+  const data = await announcementService.getPublished(1)
   return json(data)
 })
 
