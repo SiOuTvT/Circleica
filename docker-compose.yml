@@ -83,6 +83,8 @@ services:
       SENTRY_PROJECT: ${SENTRY_PROJECT:-}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
     volumes:
       - uploads_data:/app/public/uploads
     healthcheck:
