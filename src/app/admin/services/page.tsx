@@ -1,5 +1,6 @@
 "use client"
 
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -209,25 +210,23 @@ export default function ServicesPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-48 bg-muted animate-pulse rounded-lg" />
+      <AdminPageContainer title="服务配置">
         {[1, 2, 3].map(i => <div key={i} className="h-64 bg-muted animate-pulse rounded-2xl" />)}
-      </div>
+      </AdminPageContainer>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">服务配置</h1>
-          <p className="text-sm text-muted-foreground mt-1">配置可选的外部服务，未配置时使用默认行为</p>
-        </div>
+    <AdminPageContainer
+      title="服务配置"
+      description="配置可选的外部服务，未配置时使用默认行为"
+      actions={
         <button onClick={handleSave} disabled={saving} className={adminBtnPrimary}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           保存配置
         </button>
-      </div>
+      }
+    >
 
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
@@ -383,7 +382,7 @@ export default function ServicesPage() {
       </Card>
 
       </div>
-    </div>
+    </AdminPageContainer>
   )
 }
 

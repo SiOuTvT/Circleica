@@ -161,11 +161,11 @@ export function TagsOverviewClient({
   }, [])
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* ── 页面标题区 ── */}
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">标签管理</h1>
+          <h1 className="text-xl font-bold text-foreground">标签管理</h1>
           <p className="text-sm text-muted-foreground mt-1">管理各页面的标签分组和颜色</p>
         </div>
         <button

@@ -1,5 +1,6 @@
 "use client"
 
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
 import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
@@ -85,7 +86,7 @@ export default function SiteSettingsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6">
+      <AdminPageContainer>
         <div className="flex items-center gap-3">
           <div className="h-6 w-6 animate-pulse rounded bg-muted" />
           <div className="h-7 w-24 animate-pulse rounded bg-muted" />
@@ -110,12 +111,12 @@ export default function SiteSettingsPage() {
           </div>
           <div className="h-9 w-full animate-pulse rounded bg-muted" />
         </Card>
-      </div>
+      </AdminPageContainer>
     )
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <AdminPageContainer width="narrow">
       <div className="flex items-center gap-3">
         <Settings className="h-6 w-6 text-primary" />
         <h1 className="text-xl font-bold text-foreground">站点设置</h1>
@@ -295,7 +296,7 @@ export default function SiteSettingsPage() {
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         {saving ? "保存中…" : "保存所有设置"}
       </button>
-    </div>
+    </AdminPageContainer>
   )
 }
 

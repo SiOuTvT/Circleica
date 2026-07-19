@@ -48,7 +48,7 @@ export default async function AdminGamesPage({
       {/* ── 页面标题 ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">游戏管理</h1>
+          <h1 className="text-xl font-bold text-foreground">游戏管理</h1>
           <p className="text-sm text-muted-foreground mt-1">
             共 {total} 个游戏，{published} 已发布，{draft} 草稿
           </p>

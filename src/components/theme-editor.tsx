@@ -73,11 +73,11 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-[1200px]">
+    <div className="flex flex-col gap-8">
       {/* 标题栏 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="flex items-center gap-3 text-2xl font-bold">
+          <h1 className="flex items-center gap-3 text-xl font-bold">
             <Palette className="h-7 w-7" style={{ color: draft.themeColor }} />
             主题设置
           </h1>
