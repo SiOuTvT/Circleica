@@ -109,7 +109,7 @@ export function CropDialog({ cropSrc, aspectRatio, shape, onConfirm, onCancel }:
         </div>
         <div className="mt-5 flex items-center justify-end gap-2">
           <button type="button" onClick={onCancel} className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">取消</button>
-          <button type="button" onClick={handleConfirm} disabled={isCropping} className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60 bg-primary">
+          <button type="button" onClick={handleConfirm} disabled={isCropping} className="flex items-center gap-1.5 rounded-xl px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60 bg-primary">
             {isCropping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crop className="h-4 w-4" />}
             {isCropping ? "处理中…" : "确认裁剪"}
           </button>
