@@ -61,7 +61,7 @@ export default function AdminAchievementsPage() {
     setLoading(true)
     try {
       const res = await fetch("/api/admin/achievements")
-      if (res.ok) setAchievements(await res.json())
+      if (res.ok) { const j = await res.json(); setAchievements(Array.isArray(j) ? j : j.data ?? []) }
     } finally {
       setLoading(false)
     }

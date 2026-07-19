@@ -536,12 +536,39 @@ export const adminSettingsService = {
 
 // ── 资源标签 ────────────────────────
 
+const RESOURCE_TAG_LABELS: Record<string, string> = {
+  resource_platforms: "平台",
+  resource_languages: "语言",
+  resource_run_types: "运行方式",
+  resource_content_types: "资源类型",
+}
+
 export const resourceTagService = {
   async getAll() {
-    return prisma.tag.findMany({
-      where: { group: { isPreset: true } },
-      orderBy: { sortOrder: "asc" },
-      include: { group: { select: { id: true, name: true } } },
+    const keys = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+    const rows = await prisma.siteSetting.findMany({
+      where: { key: { in: keys } },
+      select: { key: true, value: true },
+    })
+    return rows.map(r => {
+      let options: string[] = []
+      try { options = JSON.parse(r.value) } catch { /* ignore */ }
+      return {
+        group: r.key,
+        key: r.key,
+        label: RESOURCE_TAG_LABELS[r.key] || r.key,
+        options,
+      }
+    })
+  },
+
+  async update(key: string, options: string[]) {
+    const allowed = ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"]
+    if (!allowed.includes(key)) throw new ValidationError("无效的资源标签类型")
+    await prisma.siteSetting.upsert({
+      where: { key },
+      update: { value: JSON.stringify(options) },
+      create: { key, value: JSON.stringify(options) },
     })
   },
 }

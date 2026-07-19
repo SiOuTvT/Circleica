@@ -23,29 +23,7 @@ export default function ResourceTagsPage() {
   useEffect(() => {
     fetch("/api/admin/resource-tags")
       .then(r => r.json())
-      .then(res => {
-        const raw = res.data ?? res.tags ?? []
-        // API 返回扁平 Tag[]，前端需要分组结构
-        if (Array.isArray(raw) && raw.length > 0 && !raw[0].options) {
-          const grouped = new Map<string, { group: string; key: string; label: string; options: string[] }>()
-          for (const tag of raw) {
-            const gid = tag.groupId || tag.group?.id || "unknown"
-            if (!grouped.has(gid)) {
-              grouped.set(gid, {
-                group: gid,
-                key: gid,
-                label: tag.group?.name || gid,
-                options: [],
-              })
-            }
-            grouped.get(gid)!.options.push(tag.name)
-          }
-          setGroups(Array.from(grouped.values()))
-        } else {
-          setGroups(raw)
-        }
-        setLoading(false)
-      })
+      .then(res => { setGroups(res.data ?? []); setLoading(false) })
       .catch(() => { toast.error("加载失败"); setLoading(false) })
   }, [])
 

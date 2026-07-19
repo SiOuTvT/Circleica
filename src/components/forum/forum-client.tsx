@@ -126,7 +126,7 @@ export function ForumClient({
   // 打开帖子详情
   const openPost = useCallback(async (id: string) => {
     const res = await fetch(`/api/forum/posts/${id}`)
-    if (res.ok) setActivePost(await res.json())
+    if (res.ok) { const j = await res.json(); setActivePost(j.data ?? j) }
   }, [])
 
   // URL 参数自动打开
