@@ -23,7 +23,29 @@ export default function ResourceTagsPage() {
   useEffect(() => {
     fetch("/api/admin/resource-tags")
       .then(r => r.json())
-      .then(data => { setGroups(data.tags || []); setLoading(false) })
+      .then(res => {
+        const raw = res.data ?? res.tags ?? []
+        // API 返回扁平 Tag[]，前端需要分组结构
+        if (Array.isArray(raw) && raw.length > 0 && !raw[0].options) {
+          const grouped = new Map<string, { group: string; key: string; label: string; options: string[] }>()
+          for (const tag of raw) {
+            const gid = tag.groupId || tag.group?.id || "unknown"
+            if (!grouped.has(gid)) {
+              grouped.set(gid, {
+                group: gid,
+                key: gid,
+                label: tag.group?.name || gid,
+                options: [],
+              })
+            }
+            grouped.get(gid)!.options.push(tag.name)
+          }
+          setGroups(Array.from(grouped.values()))
+        } else {
+          setGroups(raw)
+        }
+        setLoading(false)
+      })
       .catch(() => { toast.error("加载失败"); setLoading(false) })
   }, [])
 
@@ -127,7 +149,7 @@ export default function ResourceTagsPage() {
 
             {/* 标签列表 */}
             <div className="flex flex-wrap gap-2.5">
-              {g.options.map((opt, i) => (
+              {(g.options ?? []).map((opt, i) => (
                 <div
                   key={`${opt}-${i}`}
                   className="group flex items-center gap-1.5 rounded-full bg-muted px-4 py-2 text-sm font-medium text-foreground ring-1 ring-border"
@@ -151,7 +173,7 @@ export default function ResourceTagsPage() {
                   </button>
                 </div>
               ))}
-              {g.options.length === 0 && (
+              {(g.options ?? []).length === 0 && (
                 <p className="text-sm text-muted-foreground">暂无选项，添加一个吧</p>
               )}
             </div>

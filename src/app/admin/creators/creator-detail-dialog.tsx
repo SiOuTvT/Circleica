@@ -44,8 +44,8 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
     if (!creator) { setGames([]); return }
     setLoading(true)
     fetch(`/api/admin/creators/${creator.id}/games`)
-      .then(res => res.ok ? res.json() : [])
-      .then(data => setGames(data))
+      .then(res => res.ok ? res.json() : { data: [] })
+      .then(res => setGames(Array.isArray(res) ? res : res.data ?? []))
       .catch(() => setGames([]))
       .finally(() => setLoading(false))
   }, [creator])
