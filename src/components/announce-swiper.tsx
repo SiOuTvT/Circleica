@@ -93,19 +93,15 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
             onLoad={() => setImgError(false)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900">
             <ImageIcon className="h-12 w-12 text-white/20" strokeWidth={1} />
           </div>
         )}
       </div>
 
-      {/* 底部渐变遮罩（减弱） */}
+      {/* 底部渐变遮罩 */}
       <div
-        className="absolute inset-x-0 bottom-0 z-[1]"
-        style={{
-          height: "60%",
-          background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)",
-        }}
+        className="absolute inset-x-0 bottom-0 z-[1] h-[60%] bg-gradient-to-t from-black/60 via-black/20 to-transparent dark:from-black/70 dark:via-black/30"
       />
 
       {/* 内容层 */}
@@ -115,7 +111,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
         rel={ann.link ? "noopener noreferrer" : undefined}
         className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
       >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-white/50 dark:bg-black/40 rounded-xl ring-1 ring-black/[0.06] dark:ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+        <div className="flex flex-col max-w-2xl backdrop-blur-xl bg-white/10 dark:bg-black/40 rounded-xl ring-1 ring-white/20 dark:ring-white/[0.08] shadow-lg dark:shadow-none px-3 py-2 sm:px-5 sm:py-3.5">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
