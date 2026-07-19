@@ -281,7 +281,7 @@ export default function ServicesPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <ProviderSelect
             label="第一优先"
-            value={providerOrder[0] || ""}
+            value={providerOrder[0] || AVAILABLE_PROVIDERS[0]}
             onChange={v => {
               const second = providerOrder[1] || ""
               updateProviderOrder([v, second === v ? "" : second])
