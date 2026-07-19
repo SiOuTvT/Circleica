@@ -220,10 +220,27 @@ const resendConfigSchema = z.object({
   fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
 })
 
+/** Brevo 支持 API 和 SMTP Relay 两种模式 */
 const brevoConfigSchema = z.object({
-  apiKey: z.string().min(1, "Brevo API Key 不能为空"),
+  mode: z.enum(["api", "smtp"]).optional().default("api"),
+  // API 模式
+  apiKey: z.string().optional(),
+  // SMTP Relay 模式
+  host: z.string().optional(),
+  port: z.coerce.number().int().min(1).max(65535).optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  // 共同字段
   fromName: z.string().max(100).optional().default("Fangame"),
   fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+}).superRefine((data, ctx) => {
+  if (data.mode === "smtp") {
+    if (!data.host) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "SMTP 主机不能为空", path: ["host"] })
+    if (!data.username) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "登录邮箱不能为空", path: ["username"] })
+    if (!data.password) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Master Password 不能为空", path: ["password"] })
+  } else {
+    if (!data.apiKey) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Brevo API Key 不能为空", path: ["apiKey"] })
+  }
 })
 
 const smtpConfigSchema = z.object({

@@ -8,14 +8,19 @@ import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 // Provider 字段描述（与 email-providers.ts 的 PROVIDER_FIELDS 同步）
-const PROVIDER_FIELDS: Record<string, Array<{ key: string; label: string; type: "text" | "secret" | "number"; placeholder: string; required: boolean }>> = {
+const PROVIDER_FIELDS: Record<string, Array<{ key: string; label: string; type: "text" | "secret" | "number"; placeholder: string; required: boolean; showIf?: string }>> = {
   resend: [
     { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
   ],
   brevo: [
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true },
+    { key: "mode", label: "连接方式", type: "text", placeholder: "api", required: true },
+    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true, showIf: "api" },
+    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp-relay.brevo.com", required: true, showIf: "smtp" },
+    { key: "port", label: "端口", type: "number", placeholder: "587", required: true, showIf: "smtp" },
+    { key: "username", label: "登录邮箱", type: "text", placeholder: "your@brevo-account.com", required: true, showIf: "smtp" },
+    { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
   ],
@@ -300,6 +305,7 @@ export default function ServicesPage() {
           if (!fields) return null
           const isActive = providerOrder.includes(providerId)
           const providerConfig = config.email_providers[providerId] || {}
+          const currentMode = providerConfig.mode || "api"
 
           return (
             <div key={providerId} className={`rounded-xl border p-4 space-y-3 transition-colors ${isActive ? "border-primary/30 bg-primary/[0.02]" : "border-border bg-muted/30"}`}>
@@ -310,28 +316,50 @@ export default function ServicesPage() {
                 {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">已启用</span>}
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                {fields.map(field => (
-                  <div key={field.key}>
-                    <label className="block text-xs font-medium text-foreground mb-1">
-                      {field.label}{field.required && <span className="text-destructive ml-0.5">*</span>}
-                    </label>
-                    {field.type === "secret" ? (
-                      <SecretField
-                        value={providerConfig[field.key] || ""}
-                        onChange={v => updateProviderField(providerId, field.key, v)}
-                        placeholder={field.placeholder}
-                      />
-                    ) : (
-                      <Input
-                        type={field.type === "number" ? "number" : "text"}
-                        value={providerConfig[field.key] || ""}
-                        onChange={e => updateProviderField(providerId, field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                        autoComplete="off"
-                      />
-                    )}
-                  </div>
-                ))}
+                {fields
+                  .filter(field => !field.showIf || field.showIf === currentMode)
+                  .map(field => {
+                    // mode 字段用 select 代替 input
+                    if (field.key === "mode") {
+                      return (
+                        <div key={field.key}>
+                          <label className="block text-xs font-medium text-foreground mb-1">
+                            {field.label}{field.required && <span className="text-destructive ml-0.5">*</span>}
+                          </label>
+                          <select
+                            value={providerConfig.mode || "api"}
+                            onChange={e => updateProviderField(providerId, "mode", e.target.value)}
+                            className="w-full h-9 rounded-lg border bg-background px-3 text-sm text-foreground"
+                          >
+                            <option value="api">API</option>
+                            <option value="smtp">SMTP Relay</option>
+                          </select>
+                        </div>
+                      )
+                    }
+                    return (
+                      <div key={field.key}>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          {field.label}{field.required && <span className="text-destructive ml-0.5">*</span>}
+                        </label>
+                        {field.type === "secret" ? (
+                          <SecretField
+                            value={providerConfig[field.key] || ""}
+                            onChange={v => updateProviderField(providerId, field.key, v)}
+                            placeholder={field.placeholder}
+                          />
+                        ) : (
+                          <Input
+                            type={field.type === "number" ? "number" : "text"}
+                            value={providerConfig[field.key] || ""}
+                            onChange={e => updateProviderField(providerId, field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                            autoComplete="off"
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
               </div>
             </div>
           )

@@ -40,6 +40,8 @@ export interface ProviderField {
   type: "text" | "secret" | "number"
   placeholder: string
   required: boolean
+  /** 仅当指定 mode 时显示（用于 Brevo API/SMTP 模式切换） */
+  showIf?: string
 }
 
 export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
@@ -49,7 +51,16 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
   ],
   brevo: [
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true },
+    // mode 字段决定使用 API 还是 SMTP Relay
+    { key: "mode", label: "连接方式", type: "text", placeholder: "api", required: true },
+    // API 模式字段
+    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true, showIf: "api" },
+    // SMTP Relay 模式字段
+    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp-relay.brevo.com", required: true, showIf: "smtp" },
+    { key: "port", label: "端口", type: "number", placeholder: "587", required: true, showIf: "smtp" },
+    { key: "username", label: "登录邮箱", type: "text", placeholder: "your@brevo-account.com", required: true, showIf: "smtp" },
+    { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
+    // 共同字段
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
   ],
@@ -67,7 +78,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
 export const PROVIDER_LABELS: Record<string, string> = {
   resend: "Resend",
   brevo: "Brevo",
-  smtp: "SMTP",
+  smtp: "通用 SMTP",
 }
 
 // ── 工具函数 ──────────────────────────
@@ -131,50 +142,67 @@ const resendProvider: EmailProvider = {
   },
 }
 
-// ── Brevo Provider ────────────────────
+// ── Brevo Provider（API + SMTP Relay 双模式）────
+
+async function brevoApiSend(config: Record<string, string>, payload: EmailPayload): Promise<SendResult> {
+  const apiKey = config.apiKey
+  if (!apiKey) return { ok: false, error: "Brevo API Key 未配置", retryable: false }
+
+  const { name, email } = parseFrom(payload.from)
+
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name, email },
+        to: [{ email: payload.to }],
+        subject: payload.subject,
+        htmlContent: payload.html,
+      }),
+    })
+
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}))
+      return { ok: true, id: data.messageId }
+    }
+
+    const body = await res.text().catch(() => "")
+    const retryable = isRetryableStatus(res.status)
+
+    if (!retryable && body.toLowerCase().includes("quota")) {
+      return { ok: false, error: `Brevo 配额耗尽 (${res.status})`, retryable: true }
+    }
+
+    return { ok: false, error: `Brevo API (${res.status}): ${body.slice(0, 200)}`, retryable }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return { ok: false, error: `Brevo API 网络错误: ${msg}`, retryable: true }
+  }
+}
 
 const brevoProvider: EmailProvider = {
   id: "brevo",
   label: "Brevo",
 
   async send(config, payload) {
-    const apiKey = config.apiKey
-    if (!apiKey) return { ok: false, error: "Brevo API Key 未配置", retryable: false }
+    const mode = config.mode || "api"
 
-    const { name, email } = parseFrom(payload.from)
-
-    try {
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          "api-key": apiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sender: { name, email },
-          to: [{ email: payload.to }],
-          subject: payload.subject,
-          htmlContent: payload.html,
-        }),
-      })
-
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}))
-        return { ok: true, id: data.messageId }
-      }
-
-      const body = await res.text().catch(() => "")
-      const retryable = isRetryableStatus(res.status)
-
-      if (!retryable && body.toLowerCase().includes("quota")) {
-        return { ok: false, error: `Brevo 配额耗尽 (${res.status})`, retryable: true }
-      }
-
-      return { ok: false, error: `Brevo (${res.status}): ${body.slice(0, 200)}`, retryable }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
-      return { ok: false, error: `Brevo 网络错误: ${msg}`, retryable: true }
+    if (mode === "smtp") {
+      // Brevo SMTP Relay：复用通用 SMTP 发送
+      // 默认 host: smtp-relay.brevo.com, port: 587
+      return smtpSend({
+        host: config.host || "smtp-relay.brevo.com",
+        port: config.port || "587",
+        username: config.username || "",
+        password: config.password || "",
+      }, payload)
     }
+
+    return brevoApiSend(config, payload)
   },
 }
 

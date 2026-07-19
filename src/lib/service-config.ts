@@ -182,8 +182,13 @@ function buildEmailProviders(orderStr: string, configs: Map<string, Record<strin
 
 /** 检查 provider config 是否包含必需字段 */
 function hasRequiredFields(providerId: string, config: Record<string, string>): boolean {
-  // 基本检查：所有 provider 都需要某种认证凭据
-  if (providerId === "resend" || providerId === "brevo") return !!config.apiKey
+  if (providerId === "resend") return !!config.apiKey
+  if (providerId === "brevo") {
+    // Brevo: API 模式需要 apiKey，SMTP 模式需要 host + username + password
+    return config.mode === "smtp"
+      ? !!(config.host && config.username && config.password)
+      : !!config.apiKey
+  }
   if (providerId === "smtp") return !!(config.host && config.username && config.password)
   return false
 }
