@@ -10,7 +10,13 @@ export function applyThemeColor(hex: string, radius = 12, shadowIntensity = 50, 
   const isDark = !root.classList.contains("light")
   const [r, g, b] = hexToRgb(hex)
   const lum = 0.299 * (r / 255) + 0.587 * (g / 255) + 0.114 * (b / 255)
-  const fg = lum > 0.5 ? "#18181b" : "#ffffff"
+  // 前景文字：按 WCAG 对比度选择白/黑，确保 ≥ 4.5:1
+  const R = r / 255, G = g / 255, B = b / 255
+  const bgLum = 0.2126 * (R <= 0.04045 ? R / 12.92 : Math.pow((R + 0.055) / 1.055, 2.4))
+              + 0.7152 * (G <= 0.04045 ? G / 12.92 : Math.pow((G + 0.055) / 1.055, 2.4))
+              + 0.0722 * (B <= 0.04045 ? B / 12.92 : Math.pow((B + 0.055) / 1.055, 2.4))
+  const whiteContrast = 1.05 / (bgLum + 0.05)
+  const fg = whiteContrast >= 4.5 ? "#ffffff" : "#18181b"
   const alphaDecimal = alpha / 100
   const hue = getHue(hex)
 

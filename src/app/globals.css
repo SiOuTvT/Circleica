@@ -690,11 +690,6 @@ main > * {
   color: var(--primary-foreground);
 }
 
-/* 确保 bg-primary 元素的文字始终是对比色 */
-.bg-primary:not([class*="text-white"]):not([class*="text-foreground"]) {
-  color: var(--primary-foreground);
-}
-
 .spring-bounce:hover {
   /* 移除弹跳动画，改用 CSS transition */
 }

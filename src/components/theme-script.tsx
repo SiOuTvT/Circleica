@@ -47,9 +47,6 @@ export async function ThemeScript() {
         if (!color) return;
         color = color.replace('#', '');
 
-        // 强制清除旧的 foreground 缓存，确保新阈值生效
-        root.style.removeProperty('--primary-foreground');
-
         var r = parseInt(color.substring(0, 2), 16);
         var g = parseInt(color.substring(2, 4), 16);
         var b = parseInt(color.substring(4, 6), 16);
@@ -96,9 +93,8 @@ export async function ThemeScript() {
         // Hover / Active 加深色
         root.style.setProperty('--theme-color-hover', darken(hex, 0.15));
         root.style.setProperty('--theme-color-active', darken(hex, 0.25));
-        // 前景文字（白/黑自动判定）
-        var fg = (0.299*(r/255) + 0.587*(g/255) + 0.114*(b/255)) > 0.5 ? '#18181b' : '#ffffff';
-        root.style.setProperty('--primary-foreground', fg);
+        // 前景文字由 CSS 控制（globals.css），不在 JS 里设置，避免 inline style 覆盖 CSS
+        root.style.setProperty('--theme-fg', '#18181b');
         root.style.setProperty('--theme-fg', fg);
 
         // Common variables
