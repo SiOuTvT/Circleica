@@ -368,11 +368,14 @@ model GameReport {
 model Announcement {
   id           String    @id @default(cuid())
   title        String
+  summary      String    @default("")
   content      String
   imageUrl     String    @default("")
   link         String    @default("")
   authorName   String    @default("")
   authorAvatar String    @default("")
+  status       String    @default("published")
+  isPinned     Boolean   @default(false)
   isActive     Boolean   @default(true)
   startAt      DateTime?
   endAt        DateTime?
@@ -381,6 +384,7 @@ model Announcement {
   updatedAt    DateTime  @updatedAt
 
   @@index([sortOrder])
+  @@index([status])
 }
 
 model Playlist {

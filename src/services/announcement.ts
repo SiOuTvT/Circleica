@@ -8,24 +8,17 @@
  */
 
 import { announcementRepo, type AnnouncementCreateInput } from "@/repositories/announcement"
-import { announcementSchema, announcementUpdateSchema } from "@/lib/validations"
-import { NotFoundError } from "@/lib/errors"
+import { announcementCreateSchema, announcementUpdateSchema } from "@/lib/validations"
+import { NotFoundError, ValidationError } from "@/lib/errors"
 import type { AuthContext } from "@/lib/auth-context"
+import { prisma } from "@/lib/prisma"
 
-interface AnnouncementRawInput {
-  title?: unknown
-  content?: unknown
-  imageUrl?: unknown
-  link?: unknown
-  startAt?: unknown
-  endAt?: unknown
-  isActive?: unknown
-}
+const VALID_STATUSES = ["draft", "published", "hidden"]
 
 export const announcementService = {
-  /** 公开：获取最新公告 */
-  getLatest(limit?: number) {
-    return announcementRepo.findLatest(limit)
+  /** 公开：获取已发布的公告 */
+  getPublished(limit?: number) {
+    return announcementRepo.findPublished(limit)
   },
 
   /** 管理员：获取全部公告 */
@@ -34,51 +27,68 @@ export const announcementService = {
   },
 
   /** 管理员：创建公告 */
-  async create(raw: AnnouncementRawInput, ctx: AuthContext) {
-    // Zod 验证标题和内容
-    const validated = announcementSchema.parse({
+  async create(raw: Record<string, unknown>, ctx: AuthContext) {
+    const validated = announcementCreateSchema.parse({
       title: raw.title,
+      summary: raw.summary,
       content: raw.content,
+      imageUrl: raw.imageUrl,
+      link: raw.link,
+      status: raw.status,
+      isPinned: raw.isPinned,
+      startAt: raw.startAt,
+      endAt: raw.endAt,
     })
 
-    const createData: AnnouncementCreateInput = {
-      title: validated.title.trim(),
-      content: validated.content.trim(),
-      imageUrl: raw.imageUrl ? String(raw.imageUrl).trim() : "",
-      link: raw.link ? String(raw.link).trim() : "",
-      authorName: ctx.username,
-      authorAvatar: "",
-      startAt: raw.startAt ? new Date(String(raw.startAt)) : null,
-      endAt: raw.endAt ? new Date(String(raw.endAt)) : null,
+    if (validated.status && !VALID_STATUSES.includes(validated.status)) {
+      throw new ValidationError(`无效的状态值: ${validated.status}`)
     }
 
-    // 获取发布者头像
-    const { prisma } = await import("@/lib/prisma")
     const adminUser = await prisma.user.findUnique({
       where: { id: ctx.userId },
       select: { avatar: true },
     })
-    createData.authorAvatar = adminUser?.avatar ?? ""
+
+    const createData: AnnouncementCreateInput = {
+      title: validated.title.trim(),
+      summary: (validated.summary ?? "").trim(),
+      content: validated.content.trim(),
+      imageUrl: validated.imageUrl?.trim() ?? "",
+      link: validated.link?.trim() ?? "",
+      authorName: ctx.username,
+      authorAvatar: adminUser?.avatar ?? "",
+      status: validated.status ?? "draft",
+      isPinned: validated.isPinned ?? false,
+      startAt: validated.startAt ? new Date(validated.startAt) : null,
+      endAt: validated.endAt ? new Date(validated.endAt) : null,
+    }
 
     return announcementRepo.create(createData)
   },
 
   /** 管理员：更新公告 */
-  async update(id: string, raw: AnnouncementRawInput) {
+  async update(id: string, raw: Record<string, unknown>) {
     const existing = await announcementRepo.findById(id)
     if (!existing) throw new NotFoundError("公告")
 
-    // Zod 验证
     const parsed = announcementUpdateSchema.parse(raw)
+
+    if (parsed.status && !VALID_STATUSES.includes(parsed.status)) {
+      throw new ValidationError(`无效的状态值: ${parsed.status}`)
+    }
 
     const data: Record<string, unknown> = {}
     if (parsed.title !== undefined) data.title = String(parsed.title).trim()
+    if (parsed.summary !== undefined) data.summary = String(parsed.summary).trim()
     if (parsed.content !== undefined) data.content = String(parsed.content).trim()
     if (parsed.imageUrl !== undefined) data.imageUrl = String(parsed.imageUrl).trim()
     if (parsed.link !== undefined) data.link = String(parsed.link).trim()
+    if (parsed.status !== undefined) data.status = parsed.status
+    if (parsed.isPinned !== undefined) data.isPinned = parsed.isPinned
     if (parsed.isActive !== undefined) data.isActive = parsed.isActive
     if (parsed.startAt !== undefined) data.startAt = parsed.startAt ? new Date(parsed.startAt) : null
     if (parsed.endAt !== undefined) data.endAt = parsed.endAt ? new Date(parsed.endAt) : null
+    if (parsed.sortOrder !== undefined) data.sortOrder = parsed.sortOrder
 
     return announcementRepo.update(id, data)
   },
