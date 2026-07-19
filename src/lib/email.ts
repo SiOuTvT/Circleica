@@ -32,7 +32,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
       continue
     }
 
-    const result = await impl.send(provider.apiKey, { from, to, subject, html })
+    const result = await impl.send(provider.config, { from, to, subject, html })
 
     if (result.ok) {
       logger.system.info("[Email] 邮件已发送", {

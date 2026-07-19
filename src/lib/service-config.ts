@@ -1,7 +1,7 @@
 /**
  * 统一服务配置层
  *
- * 配置优先级：SiteSetting（数据库）> process.env（环境变量）
+ * 配置优先级：SiteSetting JSON key > 旧 SiteSetting 平铺 key > process.env
  * 模块加载时自动触发 DB 读取（非阻塞），读取完成前使用 env fallback。
  * 修改后台配置后重启应用即可生效。
  */
@@ -22,27 +22,33 @@ export interface RedisConfig {
   token: string
 }
 
+/** 单个 email provider 的完整配置 */
+export interface EmailProviderEntry {
+  id: string
+  config: Record<string, string>
+}
+
 let _r2: R2Config | null = null
 let _redis: RedisConfig | null = null
-let _resend: string | null = null
-let _brevo: string | null = null
-let _resendFromName = ""
-let _resendFromEmail = ""
+let _emailProviders: EmailProviderEntry[] = []
 let _providerOrder = ""
-let _emailProviders: Array<{ id: string; apiKey: string }> = []
 let _dbReady = false
 
 // 模块加载时触发（非阻塞），完成后 _dbReady = true
 const _initPromise = loadFromDB()
 
 async function loadFromDB() {
+  // 读取所有可能的 email key（新 JSON 格式 + 旧平铺格式 + 优先级）
   const DB_KEYS = [
     "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
     "r2_bucket_name", "r2_public_url",
     "redis_url", "redis_token",
+    // 新格式
+    "email_provider_resend", "email_provider_brevo", "email_provider_smtp",
+    "email_provider_order",
+    // 旧格式（fallback）
     "resend_api_key", "brevo_api_key",
     "email_from_name", "email_from_email",
-    "email_provider_order",
   ]
 
   try {
@@ -52,6 +58,7 @@ async function loadFromDB() {
     })
     const db = Object.fromEntries(rows.map(r => [r.key, r.value]))
 
+    // ── R2 ──
     if (db.r2_account_id && db.r2_access_key_id && db.r2_secret_access_key && db.r2_bucket_name && db.r2_public_url) {
       _r2 = {
         accountId: db.r2_account_id,
@@ -61,36 +68,31 @@ async function loadFromDB() {
         publicUrl: db.r2_public_url,
       }
     }
+
+    // ── Redis ──
     if (db.redis_url && db.redis_token) {
       _redis = { url: db.redis_url, token: db.redis_token }
     }
-    if (db.resend_api_key) {
-      _resend = db.resend_api_key
-    }
-    if (db.brevo_api_key) {
-      _brevo = db.brevo_api_key
-    }
-    _resendFromName = db.email_from_name || ""
-    _resendFromEmail = db.email_from_email || ""
+
+    // ── Email providers ──
     _providerOrder = db.email_provider_order || ""
+
+    // 加载 provider 配置（新 JSON 格式优先，fallback 旧平铺 key）
+    const providerConfigs = loadProviderConfigs(db)
+    _emailProviders = buildEmailProviders(_providerOrder, providerConfigs)
 
     _dbReady = true
 
-    // 构建 email provider 列表（按 order + apiKey 过滤）
-    _buildEmailProviders()
-
-    // DB 中已配置的服务打日志
+    // 日志
     if (_r2) logger.system.info("[ServiceConfig] R2: 数据库配置")
     if (_redis) logger.system.info("[ServiceConfig] Redis: 数据库配置")
-    if (_resend) logger.system.info("[ServiceConfig] Resend: 数据库配置")
-    if (_brevo) logger.system.info("[ServiceConfig] Brevo: 数据库配置")
     if (_emailProviders.length > 0) logger.system.info(`[ServiceConfig] Email providers: ${_emailProviders.map(p => p.id).join(", ")}`)
   } catch {
     logger.system.warn("[ServiceConfig] 数据库读取失败，使用环境变量")
-    _dbReady = true // 标记完成，不再重试
+    _dbReady = true
   }
 
-  // DB 未配置的服务 → env fallback
+  // ── 环境变量 fallback ──
   if (!_r2 && process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET_NAME) {
     _r2 = {
       accountId: process.env.R2_ACCOUNT_ID,
@@ -105,18 +107,12 @@ async function loadFromDB() {
     _redis = { url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN }
     logger.system.info("[ServiceConfig] Redis: 环境变量")
   }
-  if (!_resend && process.env.RESEND_API_KEY) {
-    _resend = process.env.RESEND_API_KEY
-    logger.system.info("[ServiceConfig] Resend: 环境变量")
-  }
-  if (!_brevo && process.env.BREVO_API_KEY) {
-    _brevo = process.env.BREVO_API_KEY
-    logger.system.info("[ServiceConfig] Brevo: 环境变量")
-  }
-
-  // env fallback 后重新构建 provider 列表
   if (!_emailProviders.length) {
-    _buildEmailProviders()
+    const envProviders = loadEnvProviderFallback()
+    if (envProviders.length) {
+      _emailProviders = envProviders
+      logger.system.info(`[ServiceConfig] Email: 环境变量 (${envProviders.map(p => p.id).join(", ")})`)
+    }
   }
 
   if (!_r2) logger.system.info("[ServiceConfig] R2: 未配置（使用本地存储）")
@@ -124,20 +120,84 @@ async function loadFromDB() {
   if (!_emailProviders.length) logger.system.info("[ServiceConfig] Email: 未配置（邮件功能不可用）")
 }
 
-/** 根据 providerOrder + 已有 apiKey 构建有序 provider 列表 */
-function _buildEmailProviders() {
-  _emailProviders = []
-  const order = _providerOrder
-    ? _providerOrder.split(",").map(s => s.trim()).filter(Boolean)
-    : ["resend"] // 缺省向后兼容
+/**
+ * 从 DB 记录中加载 per-provider 配置
+ * 优先读新 JSON key，fallback 到旧平铺 key
+ */
+function loadProviderConfigs(db: Record<string, string>): Map<string, Record<string, string>> {
+  const configs = new Map<string, Record<string, string>>()
 
-  for (const id of order) {
-    if (id === "resend" && _resend) {
-      _emailProviders.push({ id: "resend", apiKey: _resend })
-    } else if (id === "brevo" && _brevo) {
-      _emailProviders.push({ id: "brevo", apiKey: _brevo })
+  // 新 JSON 格式：email_provider_resend → { apiKey, fromName, fromEmail }
+  for (const providerId of ["resend", "brevo", "smtp"]) {
+    const key = `email_provider_${providerId}`
+    if (db[key]) {
+      try {
+        const parsed = JSON.parse(db[key])
+        if (typeof parsed === "object" && parsed !== null) {
+          configs.set(providerId, parsed as Record<string, string>)
+        }
+      } catch {
+        logger.system.warn(`[ServiceConfig] ${key} JSON 解析失败，忽略`)
+      }
     }
   }
+
+  // 旧格式 fallback：平铺 key → 合并到 configs
+  const globalFromName = db.email_from_name || ""
+  const globalFromEmail = db.email_from_email || ""
+
+  if (!configs.has("resend") && db.resend_api_key) {
+    configs.set("resend", {
+      apiKey: db.resend_api_key,
+      ...(globalFromName ? { fromName: globalFromName } : {}),
+      ...(globalFromEmail ? { fromEmail: globalFromEmail } : {}),
+    })
+  }
+  if (!configs.has("brevo") && db.brevo_api_key) {
+    configs.set("brevo", {
+      apiKey: db.brevo_api_key,
+      ...(globalFromName ? { fromName: globalFromName } : {}),
+      ...(globalFromEmail ? { fromEmail: globalFromEmail } : {}),
+    })
+  }
+
+  return configs
+}
+
+/** 根据 providerOrder + configs 构建有序 provider 列表 */
+function buildEmailProviders(orderStr: string, configs: Map<string, Record<string, string>>): EmailProviderEntry[] {
+  const order = orderStr
+    ? orderStr.split(",").map(s => s.trim()).filter(Boolean)
+    : ["resend"] // 缺省向后兼容
+
+  const result: EmailProviderEntry[] = []
+  for (const id of order) {
+    const config = configs.get(id)
+    if (config && hasRequiredFields(id, config)) {
+      result.push({ id, config })
+    }
+  }
+  return result
+}
+
+/** 检查 provider config 是否包含必需字段 */
+function hasRequiredFields(providerId: string, config: Record<string, string>): boolean {
+  // 基本检查：所有 provider 都需要某种认证凭据
+  if (providerId === "resend" || providerId === "brevo") return !!config.apiKey
+  if (providerId === "smtp") return !!(config.host && config.username && config.password)
+  return false
+}
+
+/** 环境变量 fallback */
+function loadEnvProviderFallback(): EmailProviderEntry[] {
+  const result: EmailProviderEntry[] = []
+  if (process.env.RESEND_API_KEY) {
+    result.push({ id: "resend", config: { apiKey: process.env.RESEND_API_KEY } })
+  }
+  if (process.env.BREVO_API_KEY) {
+    result.push({ id: "brevo", config: { apiKey: process.env.BREVO_API_KEY } })
+  }
+  return result
 }
 
 /** 等待 DB 配置加载完成（可选调用，确保使用 DB 配置） */
@@ -151,19 +211,35 @@ export function getR2Config(): R2Config | null { return _r2 }
 /** 同步获取 Redis 配置 */
 export function getRedisConfig(): RedisConfig | null { return _redis }
 
-/** 同步获取有序、有 key 的 email provider 列表 */
-export function getEmailProviders(): Array<{ id: string; apiKey: string }> {
+/** 同步获取有序、有配置的 email provider 列表 */
+export function getEmailProviders(): EmailProviderEntry[] {
   return _emailProviders
 }
 
-/** 同步获取发件人地址（"Name <email>" 格式） */
+/**
+ * 同步获取发件人地址（"Name <email>" 格式）
+ * 从首个 provider 的 config 中取 fromName/fromEmail，fallback 到默认值
+ */
 export function getEmailFrom(): string {
-  const name = _resendFromName || "Fangame"
-  const email = _resendFromEmail || "noreply@example.com"
+  const first = _emailProviders[0]
+  const name = first?.config.fromName || "Fangame"
+  const email = first?.config.fromEmail || "noreply@example.com"
   return `${name} <${email}>`
+}
+
+/** 获取指定 provider 的配置（供 admin API 使用） */
+export function getProviderConfig(id: string): Record<string, string> | undefined {
+  return _emailProviders.find(p => p.id === id)?.config
 }
 
 /** 是否有任何 email provider 可用 */
 export function getEmailConfigured(): boolean {
   return _emailProviders.length > 0
+}
+
+/** 获取当前 provider 优先级列表 */
+export function getProviderOrder(): string[] {
+  return _providerOrder
+    ? _providerOrder.split(",").map(s => s.trim()).filter(Boolean)
+    : []
 }

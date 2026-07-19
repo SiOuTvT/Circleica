@@ -7,6 +7,36 @@ import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, 
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+// Provider 字段描述（与 email-providers.ts 的 PROVIDER_FIELDS 同步）
+const PROVIDER_FIELDS: Record<string, Array<{ key: string; label: string; type: "text" | "secret" | "number"; placeholder: string; required: boolean }>> = {
+  resend: [
+    { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+  ],
+  brevo: [
+    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+  ],
+  smtp: [
+    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp.example.com", required: true },
+    { key: "port", label: "端口", type: "number", placeholder: "587", required: true },
+    { key: "username", label: "用户名", type: "text", placeholder: "user@example.com", required: true },
+    { key: "password", label: "密码", type: "secret", placeholder: "••••••", required: true },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+  ],
+}
+
+const PROVIDER_LABELS: Record<string, string> = {
+  resend: "Resend",
+  brevo: "Brevo",
+  smtp: "SMTP",
+}
+
+const AVAILABLE_PROVIDERS = Object.keys(PROVIDER_LABELS)
+
 interface ServiceConfig {
   r2_account_id: string
   r2_access_key_id: string
@@ -15,10 +45,7 @@ interface ServiceConfig {
   r2_public_url: string
   redis_url: string
   redis_token: string
-  resend_api_key: string
-  brevo_api_key: string
-  email_from_name: string
-  email_from_email: string
+  email_providers: Record<string, Record<string, string>>
   email_provider_order: string
 }
 
@@ -26,8 +53,8 @@ const EMPTY: ServiceConfig = {
   r2_account_id: "", r2_access_key_id: "", r2_secret_access_key: "",
   r2_bucket_name: "", r2_public_url: "",
   redis_url: "", redis_token: "",
-  resend_api_key: "", brevo_api_key: "",
-  email_from_name: "", email_from_email: "", email_provider_order: "",
+  email_providers: {},
+  email_provider_order: "",
 }
 
 interface TestResult { ok: boolean; msg: string }
@@ -48,20 +75,44 @@ export default function ServicesPage() {
       .then(r => r.json())
       .then(res => {
         if (res.data) {
-          // 确保所有字段为字符串，防止受控/非受控切换
-          const safe = Object.fromEntries(
-            Object.entries(res.data).map(([k, v]) => [k, String(v ?? "")])
-          )
-          setConfig(prev => ({ ...prev, ...safe }))
+          const d = res.data
+          setConfig(prev => ({
+            ...prev,
+            r2_account_id: String(d.r2_account_id ?? ""),
+            r2_access_key_id: String(d.r2_access_key_id ?? ""),
+            r2_secret_access_key: String(d.r2_secret_access_key ?? ""),
+            r2_bucket_name: String(d.r2_bucket_name ?? ""),
+            r2_public_url: String(d.r2_public_url ?? ""),
+            redis_url: String(d.redis_url ?? ""),
+            redis_token: String(d.redis_token ?? ""),
+            email_providers: (typeof d.email_providers === "object" && d.email_providers !== null) ? d.email_providers : {},
+            email_provider_order: String(d.email_provider_order ?? ""),
+          }))
         }
       })
       .catch(() => toast.error("加载配置失败"))
       .finally(() => { setLoading(false); setReady(true) })
   }, [])
 
-  const update = (key: keyof ServiceConfig, value: string) => {
+  // R2/Redis 字段更新
+  const updateService = (key: keyof Pick<ServiceConfig, "r2_account_id" | "r2_access_key_id" | "r2_secret_access_key" | "r2_bucket_name" | "r2_public_url" | "redis_url" | "redis_token">, value: string) => {
     setConfig(prev => ({ ...prev, [key]: value }))
-    setTestResult(prev => { const next = { ...prev }; delete next[key.split("_")[0]]; return next })
+  }
+
+  // Provider 配置更新
+  const updateProviderField = (providerId: string, field: string, value: string) => {
+    setConfig(prev => ({
+      ...prev,
+      email_providers: {
+        ...prev.email_providers,
+        [providerId]: { ...(prev.email_providers[providerId] || {}), [field]: value },
+      },
+    }))
+  }
+
+  // Provider 优先级更新
+  const updateProviderOrder = (order: string[]) => {
+    setConfig(prev => ({ ...prev, email_provider_order: order.filter(Boolean).join(",") }))
   }
 
   const handleSave = useCallback(async () => {
@@ -70,12 +121,17 @@ export default function ServicesPage() {
       const res = await fetch("/api/admin/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: JSON.stringify({
+          ...config,
+          email_providers: config.email_providers,
+          email_provider_order: config.email_provider_order,
+        }),
       })
-      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (!res.ok || data.data?.success === false) throw new Error(data.data?.message)
       toast.success("配置已保存，重启应用后生效")
-    } catch {
-      toast.error("保存失败")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
       setSaving(false)
     }
@@ -115,11 +171,8 @@ export default function ServicesPage() {
           action: "test", service: "email",
           config: {
             to: testEmail.trim(),
-            resend_api_key: config.resend_api_key,
-            brevo_api_key: config.brevo_api_key,
-            from_name: config.email_from_name,
-            from_email: config.email_from_email,
-            provider_order: config.email_provider_order,
+            email_providers: JSON.stringify(config.email_providers),
+            email_provider_order: config.email_provider_order,
           },
         }),
       })
@@ -138,12 +191,15 @@ export default function ServicesPage() {
     } finally {
       setSendingTest(false)
     }
-  }, [config.resend_api_key, config.brevo_api_key, config.email_from_name, config.email_from_email, config.email_provider_order, testEmail])
+  }, [config.email_providers, config.email_provider_order, testEmail])
 
-  const hasAnyEmailKey = config.resend_api_key || config.brevo_api_key
   const providerOrder = config.email_provider_order
     ? config.email_provider_order.split(",").map(s => s.trim()).filter(Boolean)
     : []
+  const hasAnyEmailProvider = Object.keys(config.email_providers).some(id => {
+    const cfg = config.email_providers[id]
+    return cfg && (cfg.apiKey || cfg.host)
+  })
 
   if (loading) {
     return (
@@ -178,11 +234,11 @@ export default function ServicesPage() {
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Account ID" value={config.r2_account_id} onChange={v => update("r2_account_id", v)} placeholder="Cloudflare 账户 ID" />
-          <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => update("r2_bucket_name", v)} placeholder="存储桶名称" />
-          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => update("r2_access_key_id", v)} placeholder="R2 API Token ID" />
-          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => update("r2_secret_access_key", v)} placeholder="R2 API Token Secret" />
-          <Field label="Public URL" value={config.r2_public_url} onChange={v => update("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" />
+          <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" />
+          <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => updateService("r2_bucket_name", v)} placeholder="存储桶名称" />
+          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="R2 API Token ID" />
+          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="R2 API Token Secret" />
+          <Field label="Public URL" value={config.r2_public_url} onChange={v => updateService("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" />
         </div>
         <TestAction>
           <button onClick={() => handleTest("r2")} disabled={testing === "r2" || !config.r2_account_id} className={adminBtnSecondary}>
@@ -198,8 +254,8 @@ export default function ServicesPage() {
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
         <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="REST URL" value={config.redis_url} onChange={v => update("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" />
-          <SecretField label="REST Token" value={config.redis_token} onChange={v => update("redis_token", v)} placeholder="Upstash Redis Token" className="sm:col-span-2" />
+          <Field label="REST URL" value={config.redis_url} onChange={v => updateService("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" />
+          <SecretField label="REST Token" value={config.redis_token} onChange={v => updateService("redis_token", v)} placeholder="Upstash Redis Token" className="sm:col-span-2" />
         </div>
         <TestAction>
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
@@ -213,14 +269,7 @@ export default function ServicesPage() {
 
       {/* ── 邮件服务 ── */}
       <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
-        <SectionHeader icon={Mail} title="邮件服务" desc="支持 Resend + Brevo 双服务商，按优先级自动切换" />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SecretField label="Resend API Key" value={config.resend_api_key} onChange={v => update("resend_api_key", v)} placeholder="re_xxxxxxxxxxxx" />
-          <SecretField label="Brevo API Key" value={config.brevo_api_key} onChange={v => update("brevo_api_key", v)} placeholder="xkeysib-xxxxxxxxxxxx" />
-          <Field label="发件人名称" value={config.email_from_name} onChange={v => update("email_from_name", v)} placeholder="Fangame" />
-          <Field label="发件邮箱" value={config.email_from_email} onChange={v => update("email_from_email", v)} placeholder="noreply@example.com" />
-          <Field label="测试收件邮箱" value={testEmail} onChange={setTestEmail} placeholder="test@example.com" className="sm:col-span-2" />
-        </div>
+        <SectionHeader icon={Mail} title="邮件服务" desc="支持多服务商，按优先级自动切换" />
 
         {/* Provider 优先级 */}
         <div className="grid gap-4 sm:grid-cols-2">
@@ -229,7 +278,7 @@ export default function ServicesPage() {
             value={providerOrder[0] || ""}
             onChange={v => {
               const second = providerOrder[1] || ""
-              update("email_provider_order", [v, second === v ? "" : second].filter(Boolean).join(","))
+              updateProviderOrder([v, second === v ? "" : second])
             }}
             excludeKey={providerOrder[1] || ""}
           />
@@ -238,15 +287,60 @@ export default function ServicesPage() {
             value={providerOrder[1] || ""}
             onChange={v => {
               const first = providerOrder[0] || ""
-              update("email_provider_order", [first === v ? "" : first, v].filter(Boolean).join(","))
+              updateProviderOrder([first === v ? "" : first, v])
             }}
             excludeKey={providerOrder[0] || ""}
             allowNone
           />
         </div>
 
+        {/* 动态 Provider 配置卡片 */}
+        {AVAILABLE_PROVIDERS.map(providerId => {
+          const fields = PROVIDER_FIELDS[providerId]
+          if (!fields) return null
+          const isActive = providerOrder.includes(providerId)
+          const providerConfig = config.email_providers[providerId] || {}
+
+          return (
+            <div key={providerId} className={`rounded-xl border p-4 space-y-3 transition-colors ${isActive ? "border-primary/30 bg-primary/[0.02]" : "border-border bg-muted/30"}`}>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}>
+                  {PROVIDER_LABELS[providerId]}
+                </span>
+                {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">已启用</span>}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {fields.map(field => (
+                  <div key={field.key}>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      {field.label}{field.required && <span className="text-destructive ml-0.5">*</span>}
+                    </label>
+                    {field.type === "secret" ? (
+                      <SecretField
+                        value={providerConfig[field.key] || ""}
+                        onChange={v => updateProviderField(providerId, field.key, v)}
+                        placeholder={field.placeholder}
+                      />
+                    ) : (
+                      <Input
+                        type={field.type === "number" ? "number" : "text"}
+                        value={providerConfig[field.key] || ""}
+                        onChange={e => updateProviderField(providerId, field.key, e.target.value)}
+                        placeholder={field.placeholder}
+                        autoComplete="off"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+
+        <Field label="测试收件邮箱" value={testEmail} onChange={setTestEmail} placeholder="test@example.com" />
+
         <TestAction>
-          <button onClick={handleTestEmail} disabled={sendingTest || !hasAnyEmailKey || !testEmail} className={adminBtnSecondary}>
+          <button onClick={handleTestEmail} disabled={sendingTest || !hasAnyEmailProvider || !testEmail} className={adminBtnSecondary}>
             {sendingTest ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> 发送中...</> : <><Mail className="h-3.5 w-3.5" /> 发送测试邮件</>}
           </button>
           <span className="text-xs text-muted-foreground">按优先级顺序测试所有已配置的邮件服务商</span>
@@ -305,12 +399,12 @@ function Field({ label, value, onChange, placeholder, disabled, className }: {
 }
 
 function SecretField({ label, value, onChange, placeholder, className }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string
+  label?: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string
 }) {
   const [visible, setVisible] = useState(false)
   return (
     <div className={className}>
-      <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
+      {label && <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>}
       <div className="relative">
         <Input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
           placeholder={placeholder} className="pr-10" autoComplete="new-password" />
@@ -327,10 +421,9 @@ function SecretField({ label, value, onChange, placeholder, className }: {
 function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
   label: string; value: string; onChange: (v: string) => void; excludeKey?: string; allowNone?: boolean
 }) {
-  const OPTIONS = [
+  const options = [
     { key: "", label: "无" },
-    { key: "resend", label: "Resend" },
-    { key: "brevo", label: "Brevo" },
+    ...AVAILABLE_PROVIDERS.map(id => ({ key: id, label: PROVIDER_LABELS[id] })),
   ].filter(o => {
     if (!allowNone && !o.key) return false
     if (excludeKey && o.key === excludeKey) return false
@@ -345,7 +438,7 @@ function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
         onChange={e => onChange(e.target.value)}
         className="w-full h-10 rounded-lg border bg-background px-3 text-sm text-foreground"
       >
-        {OPTIONS.map(o => (
+        {options.map(o => (
           <option key={o.key} value={o.key}>{o.label}</option>
         ))}
       </select>

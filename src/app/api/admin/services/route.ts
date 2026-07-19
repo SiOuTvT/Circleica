@@ -1,27 +1,57 @@
 import { withHandler, json } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
-import { prisma } from "@/lib/prisma"
-import { PROVIDER_MAP } from "@/lib/email-providers"
+import { PROVIDER_MAP, PROVIDER_LABELS } from "@/lib/email-providers"
+import { emailProviderConfigSchema } from "@/lib/validations"
 
+// 非 email 的服务 key（R2/Redis 保持平铺 key 不变）
 const SERVICE_KEYS = [
   "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
   "r2_bucket_name", "r2_public_url",
   "redis_url", "redis_token",
-  "resend_api_key", "brevo_api_key",
-  "email_from_name", "email_from_email",
-  "email_provider_order",
 ]
+
+// email provider 的 DB key 前缀
+const EMAIL_PROVIDER_KEY_PREFIX = "email_provider_"
+
+// secret 字段名（GET 返回时脱敏）
+const SECRET_FIELDS = new Set(["apiKey", "password"])
 
 // GET — 读取服务配置
 export const GET = withHandler(async () => {
   await requireAdminRole("SUPER_ADMIN")
   const all = await getSiteSettings()
+
+  // R2 / Redis（平铺 key，直接返回）
   const config: Record<string, string> = {}
   for (const key of SERVICE_KEYS) {
     config[key] = all[key] || ""
   }
-  return json(config)
+
+  // Email providers（JSON key，脱敏后返回）
+  const emailProviders: Record<string, Record<string, string>> = {}
+  for (const key of Object.keys(all)) {
+    if (key.startsWith(EMAIL_PROVIDER_KEY_PREFIX) && key !== "email_provider_order") {
+      const providerId = key.slice(EMAIL_PROVIDER_KEY_PREFIX.length)
+      try {
+        const parsed = JSON.parse(all[key])
+        if (typeof parsed === "object" && parsed !== null) {
+          emailProviders[providerId] = maskSecrets(parsed as Record<string, string>)
+        }
+      } catch {
+        // 忽略解析失败的 key
+      }
+    }
+  }
+
+  // 优先级顺序
+  const emailProviderOrder = all.email_provider_order || ""
+
+  return json({
+    ...config,
+    email_providers: emailProviders,
+    email_provider_order: emailProviderOrder,
+  })
 })
 
 // POST — 保存配置 或 测试连接
@@ -33,14 +63,85 @@ export const POST = withHandler(async (req) => {
     return json(await testConnection(body.service, body.config))
   }
 
-  // 保存：只允许白名单内的 key
-  const filtered: Record<string, string> = {}
+  // 保存
+  const toSave: Record<string, string> = {}
+
+  // R2 / Redis（平铺 key）
   for (const key of SERVICE_KEYS) {
-    if (key in body) filtered[key] = String(body[key] || "")
+    if (key in body) toSave[key] = String(body[key] || "")
   }
-  await updateSiteSettings(filtered)
+
+  // Email providers（JSON key）
+  if (body.email_providers && typeof body.email_providers === "object") {
+    for (const [providerId, providerConfig] of Object.entries(body.email_providers)) {
+      if (typeof providerConfig !== "object" || providerConfig === null) continue
+
+      // Zod 校验单个 provider
+      const result = emailProviderConfigSchema.safeParse({
+        provider: providerId,
+        config: providerConfig,
+      })
+      if (!result.success) {
+        return json({
+          success: false,
+          message: `${PROVIDER_LABELS[providerId] || providerId} 配置校验失败: ${result.error.issues.map(i => i.message).join("; ")}`,
+        })
+      }
+
+      // 空 secret 字段 = "不修改"（保留旧值）
+      const cleaned = stripEmptySecrets(result.data.config as Record<string, string>)
+
+      // 如果清理后没有有效配置，跳过（删除该 provider）
+      const dbKey = `${EMAIL_PROVIDER_KEY_PREFIX}${providerId}`
+      if (Object.keys(cleaned).length === 0) {
+        // 显式删除：存空字符串
+        toSave[dbKey] = ""
+      } else {
+        toSave[dbKey] = JSON.stringify(cleaned)
+      }
+    }
+  }
+
+  // Email provider order
+  if ("email_provider_order" in body) {
+    toSave.email_provider_order = String(body.email_provider_order || "")
+  }
+
+  await updateSiteSettings(toSave)
   return json({ success: true })
 })
+
+/* ── 工具函数 ── */
+
+/** 脱敏 secret 字段：保留前 4 后 4，中间用 * 替代 */
+function maskSecrets(config: Record<string, string>): Record<string, string> {
+  const masked: Record<string, string> = {}
+  for (const [key, value] of Object.entries(config)) {
+    if (SECRET_FIELDS.has(key) && typeof value === "string" && value.length > 8) {
+      masked[key] = value.slice(0, 4) + "*".repeat(Math.min(value.length - 8, 20)) + value.slice(-4)
+    } else if (SECRET_FIELDS.has(key) && value) {
+      masked[key] = "****"
+    } else {
+      masked[key] = value
+    }
+  }
+  return masked
+}
+
+/**
+ * 移除空 secret 字段（空字符串 = "不修改"）
+ * 非 secret 的空字段保留（允许清空 fromName 等）
+ */
+function stripEmptySecrets(config: Record<string, string>): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(config)) {
+    if (SECRET_FIELDS.has(key) && !value) {
+      continue // 跳过空 secret（保留旧值）
+    }
+    result[key] = value
+  }
+  return result
+}
 
 /* ── 连接测试 ── */
 
@@ -63,8 +164,8 @@ async function testR2(config: Record<string, string>) {
     })
     await client.send(new ListBucketsCommand({}))
     return { success: true, message: "R2 连接成功，凭证有效" }
-  } catch (e: any) {
-    const msg = e?.message || String(e)
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
     if (msg.includes("InvalidAccessKeyId")) return { success: false, message: "Access Key ID 无效" }
     if (msg.includes("SignatureDoesNotMatch")) return { success: false, message: "Secret Access Key 不正确" }
     if (msg.includes("NoSuchBucket") || msg.includes("NotFound")) return { success: false, message: "Account ID 或 Bucket 不存在" }
@@ -82,56 +183,68 @@ async function testRedis(config: Record<string, string>) {
       signal: AbortSignal.timeout(5000),
     })
     const text = await res.text()
-    if (res.ok && text.includes("PONG")) {
-      return { success: true, message: "Redis 连接成功，响应 PONG" }
-    }
+    if (res.ok && text.includes("PONG")) return { success: true, message: "Redis 连接成功，响应 PONG" }
     if (res.status === 401 || res.status === 403) return { success: false, message: `Redis 认证失败 (${res.status}): Token 无效或已过期` }
     return { success: false, message: `Redis 响应异常 (${res.status}): ${text}` }
-  } catch (e: any) {
-    if (e?.name === "TimeoutError" || e?.message?.includes("timeout")) return { success: false, message: "Redis 连接超时，请检查 URL 是否正确" }
-    if (e?.message?.includes("fetch failed") || e?.message?.includes("ENOTFOUND")) return { success: false, message: "无法解析 Redis 地址，请检查 URL" }
-    return { success: false, message: `Redis 错误: ${e?.message || String(e)}` }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    if (msg.includes("TimeoutError") || msg.includes("timeout")) return { success: false, message: "Redis 连接超时，请检查 URL 是否正确" }
+    if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) return { success: false, message: "无法解析 Redis 地址，请检查 URL" }
+    return { success: false, message: `Redis 错误: ${msg}` }
   }
 }
 
+/**
+ * 测试邮件发送
+ * config.to — 收件邮箱
+ * config.email_providers — JSON 字符串，每个 provider 的配置
+ * config.email_provider_order — 优先级顺序
+ */
 async function testEmail(config: Record<string, string>) {
   if (!config.to) return { success: false, message: "请输入测试收件邮箱" }
 
-  const fromName = config.from_name || "Fangame"
-  const fromEmail = config.from_email || "noreply@example.com"
-  const from = `${fromName} <${fromEmail}>`
-
-  // 直接从 DB 读取最新 provider 配置（不走进程缓存，管理员保存后立刻可测）
-  const providers: Array<{ id: string; apiKey: string }> = []
+  // 从请求体解析 provider 配置
+  const providers: Array<{ id: string; config: Record<string, string> }> = []
   try {
-    const DB_KEYS = ["resend_api_key", "brevo_api_key", "email_provider_order"]
-    const rows = await prisma.siteSetting.findMany({
-      where: { key: { in: DB_KEYS } },
-      select: { key: true, value: true },
-    })
-    const db = Object.fromEntries(rows.map(r => [r.key, r.value]))
-    const resendKey = db.resend_api_key || ""
-    const brevoKey = db.brevo_api_key || ""
-    const order = db.email_provider_order
-      ? db.email_provider_order.split(",").map((s: string) => s.trim()).filter(Boolean)
-      : ["resend"]
+    if (config.email_providers) {
+      const parsed = JSON.parse(config.email_providers)
+      if (typeof parsed === "object" && parsed !== null) {
+        const order = config.email_provider_order
+          ? config.email_provider_order.split(",").map(s => s.trim()).filter(Boolean)
+          : Object.keys(parsed)
 
-    for (const id of order) {
-      if (id === "resend" && resendKey) providers.push({ id: "resend", apiKey: resendKey })
-      else if (id === "brevo" && brevoKey) providers.push({ id: "brevo", apiKey: brevoKey })
+        for (const id of order) {
+          const providerConfig = (parsed as Record<string, Record<string, string>>)[id]
+          if (providerConfig && typeof providerConfig === "object") {
+            // 脱敏的 key（含 *）跳过，使用 DB 中的真实值
+            const hasRealKey = Object.values(providerConfig).some(v => typeof v === "string" && !v.includes("*"))
+            if (hasRealKey) {
+              providers.push({ id, config: providerConfig })
+            }
+          }
+        }
+      }
     }
   } catch {
-    return { success: false, message: "读取邮件配置失败，请先保存配置" }
+    return { success: false, message: "邮件配置解析失败" }
   }
 
-  if (!providers.length) return { success: false, message: "请至少配置一个邮件服务商的 API Key" }
+  if (!providers.length) {
+    return { success: false, message: "请至少配置一个邮件服务商" }
+  }
 
   const results: Array<{ provider: string; label: string; ok: boolean; msg: string }> = []
 
   for (const p of providers) {
     const impl = PROVIDER_MAP[p.id]
     if (!impl) continue
-    const result = await impl.send(p.apiKey, { from, to: config.to, subject: "Fangame 邮件服务测试", html: testHtml(impl.label) })
+
+    // 构建 from 地址（从 provider config 中取）
+    const fromName = p.config.fromName || "Fangame"
+    const fromEmail = p.config.fromEmail || "noreply@example.com"
+    const from = `${fromName} <${fromEmail}>`
+
+    const result = await impl.send(p.config, { from, to: config.to, subject: "Fangame 邮件服务测试", html: testHtml(impl.label) })
     results.push({
       provider: p.id,
       label: impl.label,

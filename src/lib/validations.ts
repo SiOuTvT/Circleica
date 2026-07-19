@@ -211,3 +211,39 @@ export async function parseBody<T extends z.ZodType>(
     return { success: false, error: null, message: "请求体必须是有效的 JSON" }
   }
 }
+
+// ============ 邮件 Provider 配置 ============
+
+const resendConfigSchema = z.object({
+  apiKey: z.string().min(1, "Resend API Key 不能为空"),
+  fromName: z.string().max(100).optional().default("Fangame"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+})
+
+const brevoConfigSchema = z.object({
+  apiKey: z.string().min(1, "Brevo API Key 不能为空"),
+  fromName: z.string().max(100).optional().default("Fangame"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+})
+
+const smtpConfigSchema = z.object({
+  host: z.string().min(1, "SMTP 主机不能为空"),
+  port: z.coerce.number().int().min(1, "端口不能为空").max(65535, "端口范围 1-65535"),
+  username: z.string().min(1, "用户名不能为空"),
+  password: z.string().min(1, "密码不能为空"),
+  fromName: z.string().max(100).optional().default("Fangame"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+})
+
+/** 单个 provider 配置校验（discriminatedUnion） */
+export const emailProviderConfigSchema = z.discriminatedUnion("provider", [
+  z.object({ provider: z.literal("resend"), config: resendConfigSchema }),
+  z.object({ provider: z.literal("brevo"), config: brevoConfigSchema }),
+  z.object({ provider: z.literal("smtp"), config: smtpConfigSchema }),
+])
+
+/** 所有 provider 配置 + 优先级顺序 */
+export const emailProvidersSaveSchema = z.object({
+  providers: z.record(z.string(), z.record(z.string(), z.string())),
+  order: z.array(z.string()).min(0).max(5),
+})
