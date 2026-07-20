@@ -35,7 +35,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
     const controller = new AbortController()
     fetch("/api/checkin-config", { signal: controller.signal })
       .then((r) => r.json())
-      .then((data) => setConfig(data))
+      .then((res) => { const d = res.data ?? res; setConfig(d) })
       .catch(() => setConfig(DEFAULT_CONFIG))
     return () => controller.abort()
   }, [])
