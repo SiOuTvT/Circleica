@@ -15,11 +15,9 @@ html {
   /* clip 替代 hidden：不创建滚动容器，避免 Radix RemoveScroll 锁定视口滚动 */
   overflow-x: clip;
   max-width: 100vw;
-  /* html 是唯一滚动容器，body/main 都用 clip 避免抢占滚动事件 */
-  overflow-y: auto;
+  /* 强制始终显示滚动条，避免浮层打开/关闭时页面宽度变化 */
+  overflow-y: scroll;
   overscroll-behavior-y: contain;
-  /* 浮层打开时滚动条消失导致页面宽度变化 → 固定预留滚动条宽度 */
-  scrollbar-gutter: stable;
 }
 body {
   /* 必须用 clip 而非 hidden：hidden 会强制 overflow-y 变成 auto，
