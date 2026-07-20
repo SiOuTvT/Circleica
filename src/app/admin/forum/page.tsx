@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -92,10 +93,10 @@ export default async function AdminForumPage({
             <Link
               key={key}
               href={href}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all min-h-[36px] ${
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-primary text-primary-foreground ring-1 ring-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted ring-1 ring-border"
               }`}
             >
               {label}

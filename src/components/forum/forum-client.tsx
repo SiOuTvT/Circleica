@@ -74,14 +74,15 @@ export function ForumClient({
     try {
       const res = await fetch(`/api/forum/posts?${params}`)
       if (res.ok) {
-        const data = await res.json()
+        const j = await res.json()
+        const d = j.data ?? j
         if (reset) {
-          setPosts(data.posts)
+          setPosts(d.posts ?? [])
         } else {
-          setPosts(prev => [...prev, ...data.posts])
+          setPosts(prev => [...prev, ...(d.posts ?? [])])
         }
-        setCurrentPage(data.page)
-        setTotalPages(data.totalPages)
+        setCurrentPage(d.page ?? 1)
+        setTotalPages(d.totalPages ?? 1)
       }
     } catch (error) {
       logger.forum.error("Failed to fetch posts", error)
@@ -106,11 +107,12 @@ export function ForumClient({
       if (debouncedSearch) params.set("search", debouncedSearch)
       const res = await fetch(`/api/forum/posts?${params}`)
       if (res.ok) {
-        const data = await res.json()
-        if (data.posts && data.posts.length > 0) {
-          setPosts(prev => [...prev, ...data.posts])
+        const j = await res.json()
+        const d = j.data ?? j
+        if (d.posts && d.posts.length > 0) {
+          setPosts(prev => [...prev, ...d.posts])
           setCurrentPage(nextPage)
-          setTotalPages(data.totalPages)
+          setTotalPages(d.totalPages)
         } else {
           // 无更多数据，直接设置到最后一页
           setCurrentPage(totalPages)

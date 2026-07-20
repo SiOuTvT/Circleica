@@ -93,8 +93,13 @@ export async function ThemeScript() {
         // Hover / Active 加深色
         root.style.setProperty('--theme-color-hover', darken(hex, 0.15));
         root.style.setProperty('--theme-color-active', darken(hex, 0.25));
-        // 前景文字由 CSS 控制（globals.css），不在 JS 里设置，避免 inline style 覆盖 CSS
-        root.style.setProperty('--theme-fg', '#18181b');
+        // 前景文字：WCAG 对比度计算
+        var R = r/255, G = g/255, B = b/255;
+        var bgLum = 0.2126*(R<=0.04045?R/12.92:Math.pow((R+0.055)/1.055,2.4))
+                  + 0.7152*(G<=0.04045?G/12.92:Math.pow((G+0.055)/1.055,2.4))
+                  + 0.0722*(B<=0.04045?B/12.92:Math.pow((B+0.055)/1.055,2.4));
+        var fg = (1.05/(bgLum+0.05)) >= 4.5 ? '#ffffff' : '#18181b';
+        root.style.setProperty('--primary-foreground', fg);
         root.style.setProperty('--theme-fg', fg);
 
         // Common variables

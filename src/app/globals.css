@@ -825,12 +825,10 @@ a {
 }
 
 /* ── 全局链接颜色 — 跟随主题色 ── */
-a.text-primary,
-a[class*="text-primary"] {
+a.text-primary {
   color: var(--theme-color) !important;
 }
-a.text-primary:hover,
-a[class*="text-primary"]:hover {
+a.text-primary:hover {
   color: var(--theme-color-hover) !important;
 }
 
