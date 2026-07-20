@@ -358,7 +358,7 @@ export function ArchiveCard({
                   className="inline-flex items-center rounded-md px-2 text-sm font-semibold shrink-0 leading-none"
                   style={{
                     background: tag.color ? `${tag.color}20` : "var(--secondary)",
-                    color: tag.color || "var(--foreground)",
+                    color: tag.color || "#6b7280",
                     border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
                   }}
                 >

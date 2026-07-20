@@ -113,7 +113,7 @@ export default async function GameDetailPage({
   const tagNames = tags.map((t) => t.name)
 
   // 获取"资源标签"组颜色 + 收藏状态，并行执行
-  const [resourceTagColor, isFav] = await Promise.all([
+  const [resourceTagColor, cardTagColor, isFav] = await Promise.all([
     (async () => {
       try {
         const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
@@ -129,6 +129,22 @@ export default async function GameDetailPage({
         }
       } catch (err) { logger.game.warn("[GameDetailPage] resourceTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
       return "#22c55e"
+    })(),
+    (async () => {
+      try {
+        const cacheKeyCard = cacheKey("tagGroup", "home_card", "color")
+        const cachedColor = await cache.get<string>(cacheKeyCard)
+        if (cachedColor) return cachedColor
+        const group = await prisma.tagGroup.findFirst({
+          where: { id: "preset_home_card" },
+          select: { color: true },
+        })
+        if (group?.color) {
+          await cache.set(cacheKeyCard, group.color, 3600)
+          return group.color
+        }
+      } catch (err) { logger.game.warn("[GameDetailPage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+      return "#6b7280"
     })(),
     session?.user?.id
       ? prisma.favorite.findUnique({
@@ -371,7 +387,7 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
-            gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color || "", groupName: t.group?.name }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: cardTagColor, groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
             gameDuration={game.gameDuration ?? undefined}

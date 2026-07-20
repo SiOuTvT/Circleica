@@ -391,7 +391,7 @@ export default function GameDetailClient({
                 <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={2} />
                 <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签</span>
                 {gameTags.map((tag, i) => (
-                  <Tag key={i} color={tag.color || undefined}>{tag.name}</Tag>
+                  <Tag key={i} color={tag.color || "#6b7280"}>{tag.name}</Tag>
                 ))}
               </div>
             )}
