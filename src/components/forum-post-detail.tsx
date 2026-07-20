@@ -88,8 +88,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     try {
       const res = await fetch(`/api/forum/posts/${post.id}/like`, { method: "POST" })
       if (!res.ok) throw new Error()
-      const data = await res.json()
-      setPost(p => ({ ...p, likeCount: data.likeCount }))
+      const j = await res.json()
+      const d = j.data ?? j
+      setPost(p => ({ ...p, likeCount: d.likeCount ?? p.likeCount }))
     } catch {
       setPost(p => ({ ...p, likeCount: prev }))
     }
@@ -100,8 +101,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     if (!isLoggedIn) return
     try {
       const res = await fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
-      const data = await res.json()
-      setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c))
+      const j = await res.json()
+      const d = j.data ?? j
+      setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
@@ -109,8 +111,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   async function toggleSolve() {
     try {
       const res = await fetch(`/api/forum/posts/${post.id}/solve`, { method: "POST" })
-      const data = await res.json()
-      if (res.ok) setPost(p => ({ ...p, isSolved: data.isSolved }))
+      const j = await res.json()
+      const d = j.data ?? j
+      if (res.ok) setPost(p => ({ ...p, isSolved: d.isSolved ?? p.isSolved }))
     } catch (err) { logger.forum.warn("[ForumPostDetail] toggleSolve failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
@@ -334,8 +337,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                           if (!editCommentText.trim()) return
                           const res = await fetch(`/api/forum/comments/${c.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: editCommentText.trim() }) })
                           if (res.ok) {
-                            const data = await res.json()
-                            setComments(cs => cs.map(x => x.id === c.id ? { ...x, content: data.content, updatedAt: data.updatedAt } : x))
+                            const j = await res.json()
+                            const d = j.data ?? j
+                            setComments(cs => cs.map(x => x.id === c.id ? { ...x, content: d.content ?? editCommentText, updatedAt: d.updatedAt } : x))
                             setEditingComment(null)
                           }
                         }}
@@ -506,8 +510,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                     body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
                   })
                   if (res.ok) {
-                    const data = await res.json()
-                    setPost(p => ({ ...p, title: data.title, content: data.content }))
+                    const j = await res.json()
+                    const d = j.data ?? j
+                    setPost(p => ({ ...p, title: d.title ?? editTitle, content: d.content ?? editContent }))
                     setEditing(false)
                   }
                   setEditSubmitting(false)

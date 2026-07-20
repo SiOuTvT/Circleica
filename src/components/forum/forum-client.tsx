@@ -251,10 +251,11 @@ export function ForumClient({
         onToggleSolve={async (id) => {
           try {
             const res = await fetch(`/api/forum/posts/${id}/solve`, { method: "POST" })
-            const data = await res.json()
+            const j = await res.json()
+            const d = j.data ?? j
             if (res.ok) {
-              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: data.isSolved } : x))
-              setActivePost(p => p && { ...p, isSolved: data.isSolved })
+              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d.isSolved } : x))
+              setActivePost(p => p && { ...p, isSolved: d.isSolved })
             }
           } catch (err) { logger.forum.warn("[ForumClient] toggle solve failed", { error: err instanceof Error ? err.message : String(err) }) }
         }}

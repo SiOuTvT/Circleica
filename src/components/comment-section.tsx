@@ -147,7 +147,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     try {
       const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
       if (res.ok) {
-        const c = await res.json()
+        const j = await res.json()
+        const c = j.data ?? j
         setComments((prev) => sortMode === "newest" ? [c, ...prev] : [...prev, c])
         setContent("")
         removePreview()
@@ -168,8 +169,9 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     try {
       const res = await fetch(`/api/comments/${commentId}/like`, { method: "POST" })
       if (res.ok) {
-        const data = await res.json()
-        setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: data.count } : c))
+        const j = await res.json()
+        const d = j.data ?? j
+        setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: d.count ?? c.likeCount } : c))
       }
     } catch (err) {
       logger.forum.warn("[CommentSection] likeComment failed", { error: err instanceof Error ? err.message : String(err) })

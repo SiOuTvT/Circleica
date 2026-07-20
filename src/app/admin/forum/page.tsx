@@ -2,7 +2,6 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 

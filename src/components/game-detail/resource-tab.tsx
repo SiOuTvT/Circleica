@@ -348,8 +348,9 @@ export function ResourceTab({
       if (!res.ok) {
         throw new Error("加载失败")
       }
-      const data = await res.json()
-      setResources(data.resources || [])
+      const j = await res.json()
+      const d = j.data ?? j
+      setResources(d.resources ?? d ?? [])
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "加载资源失败")
     } finally {
@@ -382,7 +383,8 @@ export function ResourceTab({
       if (!res.ok) {
         throw new Error(data.error || "提交失败")
       }
-      setResources(prev => [data.resource, ...prev])
+      const d = data.data ?? data
+      setResources(prev => [d.resource ?? d, ...prev])
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "提交资源失败")
     } finally {
@@ -408,12 +410,12 @@ export function ResourceTab({
           resourceNote: resource.resourceNote,
         }),
       })
+      const j = await res.json()
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "编辑失败")
+        throw new Error(j.error || "编辑失败")
       }
-      const data = await res.json()
-      setResources(prev => prev.map(r => r.id === editingResource.id ? data.resource : r))
+      const d = j.data ?? j
+      setResources(prev => prev.map(r => r.id === editingResource.id ? (d.resource ?? d) : r))
       setEditingResource(null)
       setEditOpen(false)
     } catch (err) {
@@ -431,11 +433,12 @@ export function ResourceTab({
       const res = await fetch(`/api/games/${gameId}/resources/${reportTarget.id}/report`, {
         method: "POST",
       })
-      const data = await res.json()
+      const j = await res.json()
       if (!res.ok) {
-        throw new Error(data.error || "反馈失败")
+        throw new Error(j.error || "反馈失败")
       }
-      if (data.alreadyReported) {
+      const d = j.data ?? j
+      if (d.alreadyReported) {
         toast.info("你已经反馈过了")
       } else {
         toast.success("已反馈，感谢你的帮助！")
