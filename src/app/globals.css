@@ -863,7 +863,7 @@ button[class*="pagination"]:hover:not(:disabled):not(.active) {
 
 /* ── Badge 标签跟随主题色 ── */
 .badge-theme,
-span[class*="bg-primary"] {
+span.bg-primary {
   background-color: var(--theme-color) !important;
   color: var(--theme-fg) !important;
 }
