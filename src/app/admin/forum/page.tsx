@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 
 const ForumDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.ForumDeleteBtn })), {
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
@@ -90,7 +89,7 @@ export default async function AdminForumPage({
           }).toString()}`
           const isActive = status === key
           return (
-            <Link
+            <a
               key={key}
               href={href}
               className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all min-h-[36px] ${
@@ -100,7 +99,7 @@ export default async function AdminForumPage({
               }`}
             >
               {label}
-            </Link>
+            </a>
           )
         })}
       </div>
