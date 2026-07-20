@@ -16,7 +16,6 @@ html {
   max-width: 100vw;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  scrollbar-gutter: stable;
 }
 body {
   overflow-x: clip;

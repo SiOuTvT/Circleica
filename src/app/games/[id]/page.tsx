@@ -297,7 +297,7 @@ export default async function GameDetailPage({
                 </Tag>
                 {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 颜色跟随主题色 */}
                 {resourceTags.map((tag) => (
-                  <Tag key={tag} className="game-card-tag max-w-[96px] truncate" title={tag}>
+                  <Tag key={tag} color={cardTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
                     {tag}
                   </Tag>
                 ))}
@@ -387,7 +387,7 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
-            gameTags={tags.map((t) => ({ name: t.name, color: cardTagColor, groupName: t.group?.name }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color || "", groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
             gameDuration={game.gameDuration ?? undefined}

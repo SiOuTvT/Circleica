@@ -106,7 +106,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-full overflow-x-hidden bg-background text-foreground">
+      <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
         <NextTopLoader
           color="var(--primary)"
           initialPosition={0.08}
