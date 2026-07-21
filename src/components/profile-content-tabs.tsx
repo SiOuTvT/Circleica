@@ -57,8 +57,8 @@ export function ProfileContentTabs({ userId }: Props) {
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
     try {
-      const data = await apiGet<{ success: boolean; data: { favorites: GameLite[] } }>(`/api/profile/${userId}/favorites`)
-      setLocalFav(data.data?.favorites ?? [])
+      const data = await apiGet<{ success: boolean; data: GameLite[] }>(`/api/profile/${userId}/favorites`)
+      setLocalFav(Array.isArray(data.data) ? data.data : [])
       setLoadedFav(true)
     } catch { setLoadError(true) }
   }, [userId, loadedFav])
@@ -66,8 +66,8 @@ export function ProfileContentTabs({ userId }: Props) {
   const loadPlayStatus = useCallback(async () => {
     if (loadedPlay) return
     try {
-      const data = await apiGet<{ success: boolean; data: { playStatuses: { game: GameLite; status: string }[] } }>(`/api/profile/${userId}/play-status`)
-      setLocalPlay(data.data?.playStatuses ?? [])
+      const data = await apiGet<{ success: boolean; data: { game: GameLite; status: string }[] }>(`/api/profile/${userId}/play-status`)
+      setLocalPlay(Array.isArray(data.data) ? data.data : [])
       setLoadedPlay(true)
     } catch { setLoadError(true) }
   }, [userId, loadedPlay])
@@ -75,8 +75,8 @@ export function ProfileContentTabs({ userId }: Props) {
   const loadComments = useCallback(async () => {
     if (loadedComments) return
     try {
-      const data = await apiGet<{ success: boolean; data: { comments: CommentLite[] } }>(`/api/profile/${userId}/comments`)
-      setLocalComments(data.data?.comments ?? [])
+      const data = await apiGet<{ success: boolean; data: CommentLite[] }>(`/api/profile/${userId}/comments`)
+      setLocalComments(Array.isArray(data.data) ? data.data : [])
       setLoadedComments(true)
     } catch { setLoadError(true) }
   }, [userId, loadedComments])
@@ -91,8 +91,8 @@ export function ProfileContentTabs({ userId }: Props) {
   const loadCollections = useCallback(async () => {
     setLoadError(false)
     try {
-      const data = await apiGet<{ success: boolean; data: { collections: CollectionData[] } }>("/api/collections")
-      setCollections(data.data?.collections ?? [])
+      const data = await apiGet<{ success: boolean; data: CollectionData[] }>("/api/collections")
+      setCollections(Array.isArray(data.data) ? data.data : [])
     } catch { setLoadError(true) }
     finally { setCollectionsLoading(false) }
   }, [])

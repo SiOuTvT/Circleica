@@ -8,8 +8,9 @@ export const GET = withHandler(async (req) => {
   const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
   const category = req.nextUrl.searchParams.get("category") || ""
   const solved = req.nextUrl.searchParams.get("solved") || ""
-  const data = await forumService.getPosts(page, category || undefined, solved || undefined)
-  return json(data)
+  const limit = 20
+  const [posts, total] = await forumService.getPosts(page, category || undefined, solved || undefined)
+  return json({ posts, page, totalPages: Math.ceil(total / limit) })
 })
 
 export const POST = withHandler(async (req) => {

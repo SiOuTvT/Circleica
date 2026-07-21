@@ -431,6 +431,31 @@ export const adminGameService = {
     const safe: Record<string, unknown> = {}
     for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
     const result = await adminGameRepo.update(id, safe)
+
+    // 处理标签关联更新
+    if (Array.isArray(data.tagIds)) {
+      await prisma.gameTag.deleteMany({ where: { gameId: id } })
+      if (data.tagIds.length > 0) {
+        await prisma.gameTag.createMany({
+          data: data.tagIds.map((tagId: string) => ({ gameId: id, tagId })),
+          skipDuplicates: true,
+        })
+      }
+    }
+
+    // 处理创作者关联更新
+    if (Array.isArray(data.creators)) {
+      await prisma.gameCreator.deleteMany({ where: { gameId: id } })
+      if (data.creators.length > 0) {
+        await prisma.gameCreator.createMany({
+          data: data.creators.map((c: { creatorId: string; role: string }) => ({
+            gameId: id, creatorId: c.creatorId, role: c.role,
+          })),
+          skipDuplicates: true,
+        })
+      }
+    }
+
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

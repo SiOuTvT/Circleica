@@ -62,6 +62,7 @@ jest.mock("@/lib/email", () => ({
 
 jest.mock("@/lib/service-config", () => ({
   getEmailConfigured: jest.fn().mockReturnValue(true),
+  getRedisConfig: jest.fn().mockReturnValue(null),
 }))
 
 jest.mock("@/lib/logger", () => ({
@@ -70,6 +71,12 @@ jest.mock("@/lib/logger", () => ({
       error: jest.fn(),
       warn: jest.fn(),
       info: jest.fn(),
+    },
+    db: {
+      error: jest.fn(),
+      warn: jest.fn(),
+      info: jest.fn(),
+      debug: jest.fn(),
     },
   },
 }))

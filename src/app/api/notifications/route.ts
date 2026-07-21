@@ -1,13 +1,30 @@
 import { withHandler, json, noContent } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { notificationService } from "@/services/user"
+import { prisma } from "@/lib/prisma"
 
 export const GET = withHandler(async (req) => {
   const { userId } = await requireAuth()
-  const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") || "1"))
+  const cursor = req.nextUrl.searchParams.get("cursor")
   const unreadOnly = req.nextUrl.searchParams.get("unreadOnly") === "true"
-  const data = await notificationService.getPaginated(userId, page, unreadOnly)
-  return json(data)
+  const limit = 30
+
+  const where: Record<string, unknown> = { userId }
+  if (unreadOnly) where.isRead = false
+  if (cursor) where.createdAt = { lt: new Date(cursor) }
+
+  const notifications = await prisma.notification.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: limit + 1,
+    include: { actor: { select: { id: true, username: true, avatar: true } } },
+  })
+
+  const hasMore = notifications.length > limit
+  if (hasMore) notifications.pop()
+  const nextCursor = hasMore ? notifications[notifications.length - 1]?.createdAt.toISOString() ?? null : null
+
+  return json({ notifications, nextCursor })
 })
 
 export const PUT = withHandler(async (req) => {

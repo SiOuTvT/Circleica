@@ -12,6 +12,7 @@ import { toShanghaiDate } from "@/lib/date"
 import { sanitizeUrl } from "@/lib/sanitize"
 import { getStorage, deleteByUrl } from "@/lib/storage"
 import { validatePassword } from "@/lib/password"
+import { checkAchievements } from "@/lib/achievements"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
@@ -466,6 +467,8 @@ export const checkinService = {
       if (expectedStr === recordStr) streak++
       else break
     }
+    // 触发成就检查
+    checkAchievements(userId).catch(() => {})
     return { marks, streak }
   },
 

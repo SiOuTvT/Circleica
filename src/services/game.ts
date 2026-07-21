@@ -6,6 +6,7 @@ import { gameRepo } from "@/repositories/game"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
+import { checkAchievements } from "@/lib/achievements"
 import type { PlayStatusType, Prisma } from "@prisma/client"
 
 export const gameService = {
@@ -39,13 +40,21 @@ export const gameService = {
   async toggleFavorite(userId: string, gameId: string, collectionId?: string) {
     const game = await gameRepo.findById(gameId)
     if (!game) throw new NotFoundError("游戏")
-    const existing = await gameRepo.isFavorited(userId, gameId)
-    if (existing) {
-      await gameRepo.removeFavorite(userId, gameId)
-      return { favorited: false }
-    } else {
+    try {
+      const result = await gameRepo.removeFavorite(userId, gameId)
+      if (result) return { favorited: false }
+    } catch {
+      // 不存在则继续尝试添加
+    }
+    try {
       await gameRepo.addFavorite(userId, gameId, collectionId)
+      checkAchievements(userId).catch(() => {})
       return { favorited: true }
+    } catch (e: unknown) {
+      if (e instanceof Error && "code" in e && (e as { code: string }).code === "P2002") {
+        return { favorited: true }
+      }
+      throw e
     }
   },
 
@@ -88,7 +97,9 @@ export const gameService = {
   async createComment(userId: string, gameId: string, content: string, imageUrl?: string, parentId?: string) {
     if (!content?.trim() && !imageUrl) throw new ValidationError("评论内容不能为空")
     if (content && content.length > 2000) throw new ValidationError("评论最多 2000 个字符")
-    return gameRepo.createComment(userId, gameId, content?.trim() || "", imageUrl, parentId)
+    const comment = await gameRepo.createComment(userId, gameId, content?.trim() || "", imageUrl, parentId)
+    checkAchievements(userId).catch(() => {})
+    return comment
   },
 
   // ── 举报 ────────────────────────────

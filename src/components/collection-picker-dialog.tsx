@@ -46,8 +46,8 @@ export function CollectionPickerDialog({
   useEffect(() => {
     if (!open) return
     setLoading(true)
-    apiGet<{ success: boolean; data: { collections: Collection[] } }>("/api/collections")
-      .then((data) => { setCollections(data.data?.collections ?? []) })
+    apiGet<{ success: boolean; data: Collection[] }>("/api/collections")
+      .then((data) => { setCollections(Array.isArray(data.data) ? data.data : []) })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [open])
