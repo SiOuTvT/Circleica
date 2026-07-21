@@ -1,3 +1,4 @@
+import { LayoutShiftGuard } from "@/components/layout-shift-guard"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
@@ -107,6 +108,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ThemeScript />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
+        <LayoutShiftGuard />
         <NextTopLoader
           color="var(--primary)"
           initialPosition={0.08}
