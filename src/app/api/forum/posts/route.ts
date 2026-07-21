@@ -1,4 +1,4 @@
-import { withHandler, json, created } from "@/lib/api-handler"
+import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { forumService } from "@/services/forum"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
@@ -16,7 +16,7 @@ export const POST = withHandler(async (req) => {
   const { userId } = await requireAuth()
   const rl = await checkRateLimit(rateLimits.comment, "forum-post")
   if (!rl.success) throw new RateLimitError()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const post = await forumService.createPost(userId, body)
   return created(post)
 })

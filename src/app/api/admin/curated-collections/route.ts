@@ -1,4 +1,4 @@
-import { withHandler, json, created } from "@/lib/api-handler"
+import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { ValidationError } from "@/lib/errors"
@@ -16,7 +16,7 @@ export const GET = withHandler(async () => {
 // POST — 创建合集
 export const POST = withHandler(async (req) => {
   await requireAdminRole("ADMIN")
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const { name, description, published, gameIds } = body
 
   if (!name?.trim()) throw new ValidationError("合集名称不能为空")

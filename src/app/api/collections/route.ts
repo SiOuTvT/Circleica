@@ -1,4 +1,4 @@
-import { withHandler, json, created } from "@/lib/api-handler"
+import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { collectionService } from "@/services/user"
 
@@ -10,7 +10,7 @@ export const GET = withHandler(async () => {
 
 export const POST = withHandler(async (req) => {
   const { userId } = await requireAuth()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const collection = await collectionService.create(userId, body)
   return created(collection)
 })

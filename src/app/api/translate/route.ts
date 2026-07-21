@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { logger } from "@/lib/logger"
 import { ValidationError, RateLimitError } from "@/lib/errors"
 import { checkRateLimit } from "@/lib/rate-limit"
@@ -49,7 +49,7 @@ export const POST = withHandler(async (req) => {
   const rl = await checkRateLimit(TRANSLATE_RATE_LIMIT)
   if (!rl.success) throw new RateLimitError(TRANSLATE_RATE_LIMIT.message)
 
-  const { text } = await req.json()
+  const { text } = await safeParseJson(req)
 
   if (!text?.trim()) {
     throw new ValidationError("文本不能为空")

@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { resourceTagService } from "@/services/admin"
 
@@ -9,7 +9,7 @@ export const GET = withHandler(async () => {
 
 export const PUT = withHandler(async (req) => {
   await requireAdminRole()
-  const { group, options } = await req.json()
+  const { group, options } = await safeParseJson(req)
   if (!group || !Array.isArray(options)) {
     return json({ success: false, error: "参数错误：需要 group 和 options" }, 400)
   }

@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
 
@@ -25,7 +25,7 @@ export const GET = withHandler(async () => {
 // PUT /api/admin/settings — 批量更新站点配置
 export const PUT = withHandler(async (req) => {
   await requireAdminRole("SUPER_ADMIN")
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const filtered = Object.fromEntries(
     Object.entries(body)
       .filter(

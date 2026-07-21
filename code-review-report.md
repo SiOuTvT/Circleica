@@ -217,6 +217,77 @@
 
 ---
 
+## 六之二、Round 3+ 深度复查补充（Principal/Staff 级反复深挖）
+
+按"对每一个问题继续向下深挖同类/关联/隐藏问题，修复一处后全局复扫"的要求，对第一轮 + 第二轮结论做了第三轮定向复扫（全量 grep 同类模式 + 回源精读）。本轮**新增 6 处确认问题（M15–M20）、修正 1 处既有结论（L9）、并补 5 项"已核查非缺陷"留痕**。所有高危/中危结论均已回源逐行核验。
+
+### 新增确认问题
+
+#### 🟠 M15 — `req.json()` 无异常包裹，~41 个路由对畸形/空请求体返回 500 而非 400（系统性健壮性）
+- **位置**：全量扫描 `src/app/api` 共 41 处 `req.json()` 直接调用（如 `auth/register:10`、`auth/change-email:15`、`profile/edit:7`、`forum/posts:19`、`games/[id]/comments:23`、`admin/users/[id]:14` 等）；`src/lib/api-handler.ts:143-149` 的 `parseBody` 虽存在却**全项目未被使用**（死代码）。
+- **原因**：路由层直接 `await req.json()`，请求体为空或非 JSON 时抛 `SyntaxError`；`withHandler` 仅捕获 `AppError`/`ZodError`，落入"未知 → 500"（api-handler.ts:130-131，返回通用 500 文案，**不崩溃、不泄露**，但状态码错误）。
+- **影响**：客户端（移动端/弱网/第三方调用）发空/畸形 body 得到 500 而非 400，前端无法据此做字段级提示，批量调用方可能误判服务故障。属 Production 级"输入契约"缺陷。
+- **修复**：在 `api-handler.ts` 新增 `safeParseBody(req, schema?)`，内部 `await req.json().catch(() => { throw new ValidationError("请求体格式错误") })`；将 41 处 `req.json()` 统一改为 `safeParseBody`（有 schema 走 Zod，无的至少保证 400）。`withHandler` 未知异常分支已是 500 兜底，无需改。
+- **值得修**：**是（系统性、低成本、提升整体健壮性；建议 P1）**。
+
+#### 🟠 M16 — 登录（NextAuth Credentials `authorize`）无速率限制 → 暴力破解面
+- **位置**：`src/lib/auth.ts:82-115`（`authorize` 未对尝试次数/来源 IP 做任何限流）；无独立 `/api/auth/login` 自定义路由。
+- **原因**：登录凭据校验发生在 NextAuth 的 `authorize` 回调内，该回调无 throttle；既有 `checkRateLimit`（`lib/rate-limit.ts`）未被接入登录路径。NextAuth v5 的 `authorize(credentials, request)` 第二参即请求对象，可取 `x-forwarded-for` 做 IP 维度限流。
+- **影响**：攻击者可对账号做无限次密码尝试（无验证码/无锁定/无限流），存在凭证暴力破解风险（用户名/邮箱是否被占用在 `authorize` 返回 null 时已掩盖，枚举风险低，但爆破风险真实）。
+- **修复**：在 `authorize` 内用 `request` 取客户端 IP，调用 `checkRateLimit(rateLimits.login)`（需在 `rate-limits` 配置，如 15 分钟 10 次）；或在 `/api/auth/callback/credentials` 前置中间件限流。注意：`rate-limit` 的 key 目前用 `x-forwarded-for`，需确保代理正确透传（见 H2/H3）。
+- **值得修**：**是（安全，建议 P1）**。
+
+#### 🟡 M17 — 管理员论坛管控经 API 实际失效（帖子 + 评论均不可删）
+- **位置**：`src/app/api/forum/posts/[id]/route.ts:19-23`（`deletePost(userId, id)` 未传 `isAdmin`）；`src/app/api/forum/comments/[id]/route.ts:8`（同）；`src/services/forum.ts:65`（`deletePost` 默认 `isAdmin=false`）、`:119`（`deleteComment` 默认 `isAdmin=false`）。
+- **原因**：服务层 `deletePost/deleteComment` 已支持管理员越权删除（`isAdmin=true` 时跳过归属校验），但**公开 API 路由只取 `userId`、未取角色，也未在管理员上下文传 `isAdmin`**。前端 `forum-post-detail.tsx` / `comment-section.tsx` 在 `isAdmin` 下显示删除按钮，点击后调公开路由 → 服务层抛 `ForbiddenError` → 403，**管理员删不掉别人的帖子/评论**。
+- **影响**：第二轮已记录"评论删除缺口"（中），本轮确认**帖子删除同病**（同类），且这是功能级 bug：后台运营者无法经 API 执行删帖/删评，只能依赖 `admin/forum` 页面（若其走不同路径）。属 moderation 能力缺口 + 前端展示与实际能力不一致。
+- **修复**：两个 DELETE 路由改为 `const { userId, role } = await requireAuth(); await forumService.deleteX(userId, id, role === "ADMIN" || role === "SUPER_ADMIN")`。（注：`updatePost` 已正确校验归属，无 IDOR——见下"已核查非缺陷"。）
+- **值得修**：**是（中，运营阻断）**。
+
+#### 🟡 M18 — `lib/achievements.ts` 复用与签到相同的"上海时区 / UTC 混用"模式（M5 同类）
+- **位置**：`src/lib/achievements.ts:32`（`toLocaleDateString("sv-SE",{timeZone:"Asia/Shanghai"})` 算"今天"）、`:39`（`dateToString` 用 `toISOString().slice(0,10)`，UTC）、`:45`/`:60`（yesterday / 回溯均基于 UTC 字符串比较）。
+- **原因**：与 `services/user.ts:399-421` 签到逻辑**同一缺陷模式**："今天"按上海时区取字符串，而签到记录日期、`toISOString()` 切片均按 UTC，二者在跨时区边界（上海 08:00 前）产生"今天/昨天"错位，致连续签到/成就 streak 计算在每日 00:00–08:00（上海）区间结果不稳定。
+- **影响**：成就连续天数统计偶发少算一天；与签到 M5 同源，需一并修复（统一日期基准）。
+- **修复**：与 M5 一并治理——引入单一 `toShanghaiDate(date)` 工具（返回 `YYYY-MM-DD`，基于 `Asia/Shanghai` 且显式 `+08:00` 偏移，避免 `new Date(shanghaiStr + "T00:00:00")` 被当作服务器本地时区解析），签到与成就统一调用。
+- **值得修**：**是（与 M5 同批修复，P0）**。
+
+#### 🟡 M19 — 用户自填 URL 字段（头像/封面/论坛图）未做协议校验（M6 同类，危害更高）
+- **位置**：`src/services/user.ts:268-269`（`avatar`/`banner` 经 `String()` 直接入库，用户自填）、`src/services/forum.ts:40`（`imageUrl` 经 `String()` 入库，用户自填且**作为可点击链接渲染**：`comment-section.tsx:383`、``forum-post-detail.tsx:357` `<a href={c.imageUrl} target="_blank">`）。
+- **原因**：第一轮 M6 仅点出 `game.ts` 资源 URL；本轮复扫发现**用户自填**的 `avatar`/`banner`/`imageUrl` 同样仅 `String()` 强转、未过 `sanitizeUrl`（`lib/sanitize.ts` 已实现、非 http(s) 返回 null）。
+- **影响**：用户可提交 `javascript:`（作为链接 href 在部分浏览器点击可执行，造成存储型 XSS / 钓鱼）、`data:text/html` 等危险 URL；头像/封面以 `<img src>` 渲染（JS 不执行），但 `imageUrl` 是**可点击外链**，风险高于后台字段。后台字段（`admin.ts` 的 `twitterUrl`/`wikipediaUrl`/`imageUrl`）为管理员可信输入，风险较低，但同样建议统一 `sanitizeUrl`。
+- **修复**：在 `updateProfile`、`createComment` 等入口对 `avatar`/`banner`/`imageUrl` 调 `sanitizeUrl()`，非 http(s) 置空或抛 `ValidationError`；后台字段同理（管理员也需防误填 `javascript:`）。`sanitizeUrl` 已存在，直接复用。
+- **值得修**：**是（用户自填面，建议 P1；比原 M6 的 game.ts 资源更优先）**。
+
+#### 🟡 M20 — `cache.clear()` 在 Redis 模式为 no-op，但 VNDB 刷新依赖它 → 缓存永不失效（M13 具体化）
+- **位置**：`src/lib/redis.ts:200`（`RedisCache.clear()` 仅 `logger.db.warn`、不执行删除）；调用方 `src/lib/vndb.ts:688`（`await cache.clear()`，期望刷新后失效）。
+- **原因**：第一轮 M13 指出 `cache.clear()` 在 Redis 模式无效；本轮定位到**真实调用点**：VNDB 数据手动刷新/重新校验后调 `cache.clear()` 企图清缓存，但 Redis 实现是空操作 → 旧 VNDB 结果（游戏元数据、封面等）持续命中，**刷新不生效**。
+- **影响**：管理员后台"刷新 VNDB"后，前端仍读旧缓存，运营上表现为"刷新没反应"；在 Redis 部署（即生产推荐架构）下必现。
+- **修复**：`RedisCache.clear()` 改为按前缀 `DEL`（`cacheKey` 统一前缀，如 `fangame:*`）；或给 VNDB 缓存键加版本号，刷新时 bump 版本。内存模式 `MemoryCache.clear()` 已正确（`store.clear()`）。
+- **值得修**：**是（P1；生产 Redis 部署下为功能性 bug）**。
+
+### 修正既有结论
+
+- **L9（"删除/降级最后一名 SUPER_ADMIN"）修正为"非问题 / 已被现有守卫覆盖"**：回源精读 `updateRole`（`services/admin.ts:473-489`）与 `delete`（`491-501`）确认——两处均**显式禁止任何对 `SUPER_ADMIN` 的修改/删除**（对 `user.role === "SUPER_ADMIN"` 一律 `ForbiddenError`，仅 `SUPER_ADMIN` 自己可操作但 `updateRole` 仍拦截）。因此**不可能**把唯一 SUPER_ADMIN 降/删为 ADMIN，原报告"updateRole 可把唯一 SUPER_ADMIN 降为 ADMIN"的判断不成立。L9 由"低（极端场景）"下调为**非问题**（设计已天然防护），保留为知识记录即可，无需改造。
+
+### 已核查、判定为非缺陷（复查留痕）
+
+- **`target="_blank"` 缺 `rel="noopener noreferrer"`**：grep 命中的 4 处（`game-detail-client.tsx:377`、`game-detail-top-client.tsx:165`、`resource-tab.tsx:237/634`）实际 `rel="noopener noreferrer"` 在下一行——**均有，非缺陷**。仅富文本内动态生成链接（DOMPurify 净化后）建议补 `ADD_ATTR:["rel"]` 后处理（低，已在第二轮记录）。
+- **`updatePost` 越权编辑（潜在 IDOR）**：`services/forum.ts:48` 明确 `if (post.userId !== userId) throw ForbiddenError`——**归属校验正确，无 IDOR**，非缺陷。
+- **CSRF**：会话 cookie `sameSite: "lax"`（`auth.ts:67`）阻断跨站 POST，登录/CSRF 由浏览器策略天然防护——**非缺陷**（cookie 已 `httpOnly:true`，JS 不可读）。
+- **硬编码十六进制颜色**：组件内约 60 处 `#xxxxxx` 几乎全部为 SVG 装饰（avatar-frame/card-generate-btn）或 `<Tag>` 品牌强调色（如 `#f59e0b`/`#6b7280`），属刻意调色板，**非主题穿透缺陷**；深色模式由 `isDark` 分支（如 `admin-charts.tsx:69`）正确处理。
+- **速率限制覆盖**：登录无限流已单列 M16；其余写接口（发帖/评论/收藏/签到）缺统一限流属已知（第二轮 #7），本次确认无新增高危面。
+- **Setup 防重初始化**：Serializable 事务，确认安全（第一轮已记）。
+
+### 本轮新增条目定级（并入既有优先级）
+
+| 优先级 | 新增条目 | 性质 |
+|--------|----------|------|
+| P0 | M18（成就时区，随 M5 同批） | 数据正确性 |
+| P1 | M15（req.json 系统性 400）、M16（登录限流）、M19（用户自填 URL 校验）、M20（VNDB 缓存失效）、M17（管理员删帖/删评） | 健壮/安全/功能 |
+| 非问题 | L9 修正 | — |
+
+---
+
 ## 七、结论
 
 项目架构与代码质量在同类社区项目中属于**中上水平**，核心安全骨架（认证、富文本净化、CSP、事务防重初始化）扎实。但存在 **1 项明确的权限提升（H1）** 与 **1 项代理安全头缺失（H2）** 必须在生产前修复；另有若干**数据一致性（M4/M5）、错误映射（M1，根因型）、规模化性能（M9/M10）** 问题会在用户量增长后逐步暴露。建议按 P0→P1→P2 顺序推进，其中 **M1（Prisma 错误映射）是性价比最高的一处修复**，可连带消除多个 500 泄漏。

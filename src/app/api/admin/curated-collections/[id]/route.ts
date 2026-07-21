@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { NotFoundError, ValidationError } from "@/lib/errors"
@@ -33,7 +33,7 @@ export const PUT = withHandler(async (req, ctx) => {
   const id = (await ctx?.params)?.id
   if (!id) throw new ValidationError("缺少合集 ID")
 
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const { name, description, published, gameIds } = body
 
   if (!name?.trim()) throw new ValidationError("合集名称不能为空")

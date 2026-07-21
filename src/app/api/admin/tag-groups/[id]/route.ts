@@ -1,4 +1,4 @@
-import { withHandler, json, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { tagGroupService } from "@/services/admin"
 import { ValidationError } from "@/lib/errors"
@@ -12,7 +12,7 @@ export const GET = withHandler(async (_req, ctx) => {
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
-  const body = await req.json()
+  const body = await safeParseJson(req)
   return json(await tagGroupService.update(id, body))
 })
 
@@ -27,7 +27,7 @@ export const DELETE = withHandler(async (_req, ctx) => {
 export const PATCH = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
-  const { forceDelete } = await req.json()
+  const { forceDelete } = await safeParseJson(req)
   if (!forceDelete) {
     throw new ValidationError("无效操作")
   }

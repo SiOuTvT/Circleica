@@ -1,4 +1,4 @@
-import { withHandler, json, created } from "@/lib/api-handler"
+import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { tagGroupService } from "@/services/admin"
 
@@ -9,6 +9,6 @@ export const GET = withHandler(async () => {
 
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   return created(await tagGroupService.create(body))
 })

@@ -1,4 +1,4 @@
-import { withHandler, json, created } from '@/lib/api-handler'
+import { withHandler, json, created, safeParseJson } from '@/lib/api-handler'
 import { requireAuth, getOptionalAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 import { checkRateLimit, rateLimits } from '@/lib/rate-limit'
@@ -20,7 +20,7 @@ export const POST = withHandler(async (req, ctx) => {
   const rl = await checkRateLimit(rateLimits.comment, "game-comment")
   if (!rl.success) throw new RateLimitError()
   const { id: gameId } = await ctx!.params
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const comment = await gameService.createComment(
     userId,
     gameId,

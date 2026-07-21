@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { adminReviewService } from "@/services/admin"
 
@@ -9,7 +9,7 @@ export const GET = withHandler(async () => {
 
 export const POST = withHandler(async (req) => {
   const auth = await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
 
   if (body.action === "approve") {
     return json(await adminReviewService.approve(body.gameId, auth.userId))

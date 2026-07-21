@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
@@ -81,7 +81,7 @@ export const POST = withHandler(async (req) => {
   // 确保预设标签组存在（VNDB 导入会引用 preset_detail_header）
   await ensurePresetTagGroups()
 
-  const { vndbId } = await req.json()
+  const { vndbId } = await safeParseJson(req)
   if (!vndbId?.trim()) {
     throw new AppError("请输入 VNDB 编号", "VALIDATION_ERROR", 422)
   }

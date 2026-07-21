@@ -1,4 +1,4 @@
-import { withHandler, json } from '@/lib/api-handler'
+import { withHandler, json, safeParseJson } from '@/lib/api-handler'
 import { authService } from '@/services/user'
 import { auth } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/rate-limit'
@@ -12,7 +12,7 @@ export const POST = withHandler(async (req) => {
   const session = await auth()
   if (!session?.user?.id) throw new ValidationError("请先登录")
 
-  const { newEmail, currentPassword } = await req.json()
+  const { newEmail, currentPassword } = await safeParseJson(req)
   const result = await authService.requestEmailChange(session.user.id, newEmail, currentPassword)
   return json(result)
 })

@@ -1,4 +1,4 @@
-import { withHandler, json, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { adminPlaylistService } from "@/services/admin"
 
@@ -11,7 +11,7 @@ export const GET = withHandler(async (_req, ctx) => {
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
-  const { name } = await req.json()
+  const { name } = await safeParseJson(req)
   return json(await adminPlaylistService.update(id, name))
 })
 

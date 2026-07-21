@@ -1,8 +1,8 @@
-import { withHandler, json } from '@/lib/api-handler'
+import { withHandler, json, safeParseJson } from '@/lib/api-handler'
 import { gameService } from '@/services/game'
 
 export const POST = withHandler(async (req) => {
-  const body = await req.json()
+  const body = await safeParseJson(req)
   // 兼容两种格式：{ views: [{gameId, ts}] } 或 { gameIds: [...] }
   const ids: string[] = body.views
     ? body.views.map((v: { gameId: string }) => v.gameId)

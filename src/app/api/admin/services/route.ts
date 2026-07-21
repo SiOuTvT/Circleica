@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
 import { reloadServiceConfig } from "@/lib/service-config"
@@ -59,7 +59,7 @@ export const GET = withHandler(async () => {
 // POST — 保存配置 或 测试连接
 export const POST = withHandler(async (req) => {
   await requireAdminRole("SUPER_ADMIN")
-  const body = await req.json()
+  const body = await safeParseJson(req)
 
   if (body.action === "test") {
     return json(await testConnection(body.service, body.config))

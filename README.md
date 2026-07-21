@@ -1,148 +1,47 @@
-<div align="center">
+# Fangame
 
-# 🎮 Fangame
+> 视觉小说 / Galgame 社区平台——把游戏资料库、论坛讨论、收藏签到、创作者工具与后台管理整合到一个全栈 Web 应用里。
 
-**专注同人 Galgame 的资源收录与分享平台**
+**状态**：v0.1.0 · 预发布（Pre-release）。生产部署前需先补齐安全与数据一致性项（见 `docs/ARCHITECTURE.md` 末尾的「上线前必读」）。
 
-收录、整理、发现优秀的同人视觉小说与 Galgame
+## Why This Exists
 
-</div>
+Galgame 爱好者长期面临两个断层：游戏资料散落在 VNDB 等外部站、中文社区讨论又碎片化。Fangame 把"资料聚合 + 同好讨论 + 创作者分发"收进同一个有账号体系、有权限管理的社区，让一部作品从"被发现"到"被讨论"到"被二创"都在站内闭环。
 
----
-
-## 📸 预览
-
-<!-- 替换为实际截图 -->
-| 首页 | 游戏详情 | 管理后台 |
-|:---:|:---:|:---:|
-| ![首页](screenshots/home.png) | ![详情](screenshots/detail.png) | ![后台](screenshots/admin.png) |
-
-| 搜索 | 论坛 | 个人中心 |
-|:---:|:---:|:---:|
-| ![搜索](screenshots/search.png) | ![论坛](screenshots/forum.png) | ![个人](screenshots/profile.png) |
-
-## ✨ 为什么选择 我们
-
-- **专注同人 Galgame** — 只收录同人 Galgame / 视觉小说，不做大杂烩，内容精准垂直
-- **VNDB 数据对接** — 一键从 VNDB 导入游戏信息、标签、封面，数据权威且省时
-- **智能标签系统** — 多维度标签分组（题材、类型、角色、制作社等），支持按位置检索与高级筛选
-- **资源聚合** — 统一管理游戏下载链接、汉化补丁、攻略等资源，告别散落各处
-- **社区互动** — 评论、评分、收藏、关注、签到、论坛讨论，打造同好交流空间
-- **创作者主页** — 独立的剧本家与画师页面，追踪你喜爱的创作者作品
-- **个性化体验** — 暗色模式、主题定制、头像框系统、消息通知
-- **移动端适配** — 完整的响应式设计，手机也能流畅浏览
-- **VNDB 标签同步** — 自动同步 VNDB 标签体系，保持标签规范统一
-
-## 🛠 技术栈
-
-| 类别 | 技术 |
-|---|---|
-| **框架** | Next.js 16 (App Router) |
-| **语言** | TypeScript |
-| **UI** | Tailwind CSS 4 + Radix UI + shadcn/ui |
-| **数据库** | PostgreSQL + Prisma ORM |
-| **认证** | NextAuth v5 |
-| **图片处理** | Sharp |
-| **富文本编辑** | TipTap |
-| **图表** | Recharts |
-| **邮件** | Resend |
-| **错误监控** | Sentry |
-| **进程管理** | PM2 |
-| **反向代理** | OpenResty (Nginx) |
-
-## 🚀 快速开始
+## Quick Start
 
 ```bash
-# 克隆项目
-git clone https://github.com/SiOuTvT/fangame.git
-cd fangame
-
-# 安装依赖
+git clone <repo-url> && cd fangame
+cp .env.example .env          # 至少填 DATABASE_URL 和 NEXTAUTH_SECRET(≥32字符)
 npm install
-
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 填写数据库连接等配置
-
-# 初始化数据库
-npx prisma migrate deploy
-npx prisma generate
-
-# 构建 & 启动
-npm run build
-npm start
+npx prisma migrate dev        # 初始化本地数据库
+npm run dev                   # 启动开发服务器 → http://localhost:3000
 ```
 
-> 📖 **生产环境部署**请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)，包含 PostgreSQL + PM2 的完整部署教程。
+打开 `http://localhost:3000`，首次访问 `/setup` 完成站点初始化（创建首位超级管理员）。
 
-## 📁 项目结构
+## 核心能力一览
 
-```
-├── prisma/          # 数据库 Schema & 迁移文件
-├── public/          # 静态资源（上传文件、音乐等）
-├── scripts/         # 工具脚本（数据导出、检查等）
-├── src/
-│   ├── app/         # Next.js App Router 页面 & API
-│   ├── components/  # React 组件
-│   ├── hooks/       # 自定义 Hooks
-│   ├── lib/         # 工具库（数据库、认证、缓存等）
-│   └── types/       # TypeScript 类型定义
-```
+- **游戏资料库**：从 VNDB 拉取并缓存元数据，支持标签、合集、收藏、评分、播放状态。
+- **论坛**：帖子 / 评论 / 点赞 / 解决态，带通知与举报。
+- **互动体系**：每日签到、情感消息、成就、创作者主页。
+- **创作者工具**：上传素材（本地或 Cloudflare R2）、富文本简介（DOMPurify 净化）。
+- **后台管理**：用户 / 角色 / 内容审核 / 站点配置 / 审计日志。
 
-## 📋 功能概览
+## 技术栈
 
-<details>
-<summary><strong>🎯 游戏管理</strong></summary>
+Next.js 16（App Router）· React 19 · TypeScript（严格模式）· Prisma 6 + PostgreSQL · NextAuth v5 · Tailwind + shadcn/ui · TipTap · Zod · Sentry · UploadThing / R2 · Upstash Redis（可选，自动降级内存）。
 
-- 游戏收录（手动 / VNDB 一键导入）
-- 游戏详情页（封面、简介、制作信息、资源链接）
-- 多维标签筛选（题材、类型、制作社、角色等）
-- 高级搜索 + 搜索建议
-- 游戏合集 / 收藏夹
-- 相关游戏推荐
-- 访问量统计
+## 文档导航
 
-</details>
+| 文档 | 用途 | 读者 |
+|---|---|---|
+| [架构说明](docs/ARCHITECTURE.md) | 分层、数据流、关键模块、部署模型 | 新成员 / 架构评审 |
+| [入门指南](docs/GETTING_STARTED.md) | 从零跑起来的逐步教程 | 首次贡献者 |
+| [API 参考](docs/API_REFERENCE.md) | 响应格式、鉴权、分页、错误码、路由总览 | 前端 / 集成方 |
+| [贡献指南](docs/CONTRIBUTING.md) | 分支、规范、测试、PR 流程 | 所有贡献者 |
+| [文档规范](docs/DOC_STANDARDS.md) | 文档怎么写（团队 house style） | 所有贡献者 |
 
-<details>
-<summary><strong>👥 用户系统</strong></summary>
+## License
 
-- 注册 / 登录（密码 + 邮箱）
-- 个人主页 & 个人资料编辑
-- 头像上传 + 头像框系统
-- 收藏、关注、签到
-- 消息通知中心
-- 浏览历史
-
-</details>
-
-<details>
-<summary><strong>💬 社区功能</strong></summary>
-
-- 游戏评论与评分
-- 论坛板块（发帖、回帖、点赞）
-- 用户关注
-- 举报系统
-- 每日心情语录
-
-</details>
-
-<details>
-<summary><strong>⚙️ 管理后台</strong></summary>
-
-- 游戏 CRUD + 批量操作
-- 标签 & 标签组管理
-- 创作者管理（剧本家 / 画师）
-- 用户管理
-- 公告管理（轮播图）
-- 论坛管理
-- 站点设置（主题色、全局配置）
-- 情感语录管理
-- 头像框管理
-- 数据统计面板
-
-</details>
-
-## 📄 License
-
-[MIT](./LICENSE) © Fangame
+见仓库根目录 `LICENSE`。

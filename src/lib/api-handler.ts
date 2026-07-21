@@ -17,7 +17,8 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { ZodError } from "zod"
-import { AppError, RateLimitError } from "./errors"
+import { Prisma } from "@prisma/client"
+import { AppError, RateLimitError, NotFoundError, ConflictError, ValidationError } from "./errors"
 import { logger } from "./logger"
 
 // ── 响应类型 ────────────────────────
@@ -126,10 +127,42 @@ export function withHandler(handler: RouteHandler): RouteHandler {
         return errorResponse("数据验证失败", 422, "VALIDATION_ERROR", details)
       }
 
+      // Prisma 已知错误（数据库约束/记录不存在）→ 映射到标准业务异常
+      // 集中在此处理，避免每个 Service/Repository 重复 try-catch Prisma。
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        const mapped = mapPrismaError(error)
+        logger.api.error(`[${mapped.code}] ${mapped.message}`, error)
+        return errorResponse(mapped.message, mapped.status, mapped.code)
+      }
+
       // 未知异常
       logger.api.error("未处理的 API 异常", error, { path: req.nextUrl.pathname })
       return errorResponse("服务器内部错误，请稍后再试", 500, "INTERNAL")
     }
+  }
+}
+
+// ── Prisma 错误映射 ────────────────
+
+/**
+ * 将 Prisma 已知错误统一映射为 AppError。
+ * 在 withHandler 中集中捕获，避免每个 Service 重复处理数据库错误。
+ */
+function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
+  switch (error.code) {
+    case "P2002":
+      return new ConflictError(
+        `数据冲突：违反唯一约束（${error.meta?.target ? String(error.meta.target) : "字段"}）`,
+      )
+    case "P2025":
+      return new NotFoundError("目标记录")
+    case "P2003":
+      return new ValidationError("外键约束失败：关联记录不存在或不可删除")
+    case "P2014":
+    case "P2016":
+      return new NotFoundError("关联数据")
+    default:
+      return new AppError(`数据库错误（${error.code}）`, "INTERNAL", 500)
   }
 }
 
@@ -138,13 +171,29 @@ export function withHandler(handler: RouteHandler): RouteHandler {
 import { z } from "zod"
 
 /**
- * 安全解析 JSON 请求体
+ * 安全解析 JSON 请求体：非法/空 JSON 统一抛 422（ValidationError），
+ * 而非让 withHandler 当作未知异常返回 500。
+ */
+export async function safeParseJson<T = any>(
+  req: NextRequest,
+  options?: { allowEmpty?: boolean },
+): Promise<T> {
+  try {
+    return (await req.json()) as T
+  } catch {
+    if (options?.allowEmpty) return {} as T
+    throw new ValidationError("请求体格式错误，请提供合法的 JSON")
+  }
+}
+
+/**
+ * 安全解析 + Zod 校验请求体
  */
 export async function parseBody<T extends z.ZodType>(
   req: NextRequest,
   schema: T,
 ): Promise<z.infer<T>> {
-  const body = await req.json()
+  const body = await safeParseJson(req)
   return schema.parse(body) // 失败时抛 ZodError，由 withHandler 捕获
 }
 

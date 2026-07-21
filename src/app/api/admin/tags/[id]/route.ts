@@ -1,4 +1,4 @@
-import { withHandler, json, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { tagService } from "@/services/admin"
 import { ValidationError } from "@/lib/errors"
@@ -6,7 +6,7 @@ import { ValidationError } from "@/lib/errors"
 export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
-  const body = await req.json()
+  const body = await safeParseJson(req)
   return json(await tagService.update(id, body))
 })
 
@@ -21,7 +21,7 @@ export const DELETE = withHandler(async (_req, ctx) => {
 export const PATCH = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
-  const body = await req.json()
+  const body = await safeParseJson(req)
 
   if (body.forceDelete) {
     return json(await tagService.forceDelete(id))

@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { announcementService } from "@/services/announcement"
 import { ValidationError } from "@/lib/errors"
@@ -10,7 +10,7 @@ import type { NextRequest } from "next/server"
  */
 export const POST = withHandler(async (req: NextRequest) => {
   await requireAdminRole()
-  const { orderedIds } = await req.json()
+  const { orderedIds } = await safeParseJson(req)
 
   if (!Array.isArray(orderedIds)) {
     throw new ValidationError("orderedIds 必须是数组")

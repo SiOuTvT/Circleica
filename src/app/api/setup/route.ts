@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import bcrypt from "bcryptjs"
@@ -21,7 +21,7 @@ interface SetupBody {
 }
 
 export const POST = withHandler(async (req) => {
-  const body: SetupBody = await req.json()
+  const body: SetupBody = await safeParseJson(req)
   const { siteName, admin } = body
 
   if (!siteName?.trim()) throw new ValidationError("网站名称不能为空")

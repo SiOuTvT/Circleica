@@ -8,18 +8,13 @@
 import { auth } from "@/lib/auth"
 import { UnauthorizedError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
+import { hasRole } from "@/lib/permissions"
 import type { UserRole } from "@prisma/client"
 
 export interface AuthContext {
   userId: string
   username: string
   role: UserRole
-}
-
-const ROLE_LEVEL: Record<UserRole, number> = {
-  USER: 0,
-  ADMIN: 1,
-  SUPER_ADMIN: 2,
 }
 
 /**
@@ -53,7 +48,7 @@ export async function requireAuth(): Promise<AuthContext> {
  */
 export async function requireAdminRole(minimumRole: UserRole = "ADMIN"): Promise<AuthContext> {
   const ctx = await requireAuth()
-  if ((ROLE_LEVEL[ctx.role] ?? 0) < (ROLE_LEVEL[minimumRole] ?? 0)) {
+  if (!hasRole(ctx.role, minimumRole)) {
     throw new ForbiddenError()
   }
   return ctx

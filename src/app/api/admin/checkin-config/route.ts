@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { cache } from "@/lib/redis"
@@ -26,7 +26,7 @@ export const GET = withHandler(async () => {
 
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const { title, subtitle, imageUrl } = body
 
   await Promise.all([

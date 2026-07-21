@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
 
@@ -66,7 +66,7 @@ function splitText(text: string): string[] {
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
 
-  const { text, from = "en", to = "zh-CN" } = await req.json()
+  const { text, from = "en", to = "zh-CN" } = await safeParseJson(req)
 
   if (!text || typeof text !== "string") {
     throw new AppError("缺少翻译文本", "VALIDATION_ERROR", 422)

@@ -1,4 +1,4 @@
-import { withHandler, json, created } from "@/lib/api-handler"
+import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { creatorService } from "@/services/admin"
 import type { NextRequest } from "next/server"
@@ -10,6 +10,6 @@ export const GET = withHandler(async () => {
 
 export const POST = withHandler(async (req: NextRequest) => {
   await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   return created(await creatorService.create(body))
 })

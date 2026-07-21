@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
@@ -7,7 +7,7 @@ import { vndbClient } from "@/lib/vndb"
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
 
-  const { vndbId } = await req.json()
+  const { vndbId } = await safeParseJson(req)
 
   if (!vndbId) {
     throw new AppError("请提供 VNDB ID", "VALIDATION_ERROR", 422)

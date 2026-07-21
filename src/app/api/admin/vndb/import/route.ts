@@ -1,4 +1,4 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
@@ -9,7 +9,7 @@ import { GameStatus } from "@prisma/client"
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
 
-  const { vndbIds } = await req.json()
+  const { vndbIds } = await safeParseJson(req)
 
   if (!vndbIds || !Array.isArray(vndbIds) || vndbIds.length === 0) {
     throw new AppError("请提供 VNDB ID 列表", "VALIDATION_ERROR", 422)

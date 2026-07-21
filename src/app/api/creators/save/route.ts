@@ -1,11 +1,11 @@
-import { withHandler, json } from "@/lib/api-handler"
+import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { ValidationError } from "@/lib/errors"
 
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const { vndbId, name } = body
 
   if (!vndbId || !name) {

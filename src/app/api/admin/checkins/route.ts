@@ -1,4 +1,4 @@
-import { withHandler, json, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { adminCheckinService } from "@/services/admin"
 import type { NextRequest } from "next/server"
@@ -11,7 +11,7 @@ export const GET = withHandler(async (req: NextRequest) => {
 
 export const DELETE = withHandler(async (req) => {
   await requireAdminRole()
-  const { id } = await req.json()
+  const { id } = await safeParseJson(req)
   await adminCheckinService.delete(id)
   return noContent()
 })

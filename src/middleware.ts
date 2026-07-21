@@ -1,5 +1,6 @@
 import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
+import { isSuperAdminRoute } from "@/lib/permissions"
 
 // 生成随机 nonce（16 字节 base64）
 function generateNonce(): string {
@@ -62,13 +63,8 @@ export async function middleware(req: NextRequest) {
     if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
       return NextResponse.redirect(new URL("/", req.url))
     }
-    // SUPER_ADMIN 专属路由：用户管理、站点设置、主题、头像框、情感消息、资源标签
-    const superAdminRoutes = [
-      "/admin/users", "/admin/site-settings", "/admin/theme",
-      "/admin/avatar-frames", "/admin/emotional-messages", "/admin/resource-tags",
-      "/admin/achievements",
-    ]
-    if (role === "ADMIN" && superAdminRoutes.some(r => pathname.startsWith(r))) {
+    // SUPER_ADMIN 专属路由受保护：ADMIN 不可访问（路由清单由 lib/permissions 统一维护）
+    if (role === "ADMIN" && isSuperAdminRoute(pathname)) {
       return NextResponse.redirect(new URL("/admin", req.url))
     }
   }
