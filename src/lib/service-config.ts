@@ -8,6 +8,7 @@
 
 import { prisma } from "./prisma"
 import { logger } from "./logger"
+import { EMAIL } from "./config"
 
 export interface R2Config {
   accountId: string
@@ -210,6 +211,14 @@ export function waitForServiceConfig(): Promise<void> {
   return _initPromise
 }
 
+/**
+ * 重新加载服务配置（后台保存后调用）
+ * 会重新读取 DB 并更新内存中的配置
+ */
+export async function reloadServiceConfig(): Promise<void> {
+  await loadFromDB()
+}
+
 /** 同步获取 R2 配置 */
 export function getR2Config(): R2Config | null { return _r2 }
 
@@ -228,7 +237,7 @@ export function getEmailProviders(): EmailProviderEntry[] {
 export function getEmailFrom(): string {
   const first = _emailProviders[0]
   const name = first?.config.fromName || "Fangame"
-  const email = first?.config.fromEmail || "noreply@example.com"
+  const email = first?.config.fromEmail || EMAIL.DEFAULT_FROM_EMAIL
   return `${name} <${email}>`
 }
 

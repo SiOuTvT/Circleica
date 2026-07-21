@@ -65,7 +65,8 @@ export async function requireAdminRole(minimumRole: UserRole = "ADMIN"): Promise
 export async function getOptionalAuth(): Promise<AuthContext | null> {
   try {
     return await requireAuth()
-  } catch {
-    return null
+  } catch (error) {
+    if (error instanceof UnauthorizedError) return null
+    throw error
   }
 }

@@ -65,10 +65,6 @@ export const gameRepo = {
     })
   },
 
-  findByVndbId(vndbId: string) {
-    return prisma.game.findFirst({ where: { vndbId } })
-  },
-
   incrementViewCount(id: string) {
     return prisma.game.update({ where: { id }, data: { viewCount: { increment: 1 } } })
   },
@@ -84,17 +80,6 @@ export const gameRepo = {
       `SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY RANDOM() LIMIT $1`,
       limit,
     )
-  },
-
-  findFeatured(limit: number) {
-    return prisma.game.findMany({
-      where: { isPublished: true },
-      orderBy: { viewCount: "desc" },
-      take: limit,
-      include: {
-        tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
-      },
-    })
   },
 
   // ── 收藏 ────────────────────────────
@@ -215,7 +200,11 @@ export const gameRepo = {
 
   reportResource(userId: string, resourceId: string) {
     return prisma.$transaction([
-      prisma.resourceReport.create({ data: { userId, resourceId } }),
+      prisma.resourceReport.upsert({
+        where: { resourceId_userId: { resourceId, userId } },
+        update: {},
+        create: { userId, resourceId },
+      }),
       prisma.gameResource.update({ where: { id: resourceId }, data: { isReported: true, reportedAt: new Date() } }),
     ])
   },

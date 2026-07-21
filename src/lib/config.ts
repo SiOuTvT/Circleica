@@ -59,6 +59,8 @@ export const FORUM = {
   COMMENT_MAX: 2000,
   /** 帖子列表每页条数 */
   POSTS_PER_PAGE: 20,
+  /** 帖子评论每页条数 */
+  COMMENTS_PER_PAGE: 50,
 } as const
 
 // ── 评论 ────────────────────────────
@@ -113,6 +115,12 @@ export const STORAGE = {
 export const ANNOUNCEMENT = {
   TITLE_MAX: 200,
   CONTENT_MAX: 5000,
+} as const
+
+// ── 邮件 ────────────────────────────
+export const EMAIL = {
+  /** 默认发件邮箱 */
+  DEFAULT_FROM_EMAIL: "noreply@example.com",
 } as const
 
 // ── 成就 ────────────────────────────

@@ -7,7 +7,6 @@ jest.mock("@/repositories/game", () => ({
     findPaginated: jest.fn(),
     findById: jest.fn(),
     findBySerialId: jest.fn(),
-    findFeatured: jest.fn(),
     findRandom: jest.fn(),
     incrementViewCount: jest.fn(),
     batchIncrementViewCount: jest.fn(),

@@ -4,43 +4,11 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PROVIDER_FIELDS, PROVIDER_LABELS } from "@/lib/email-providers"
 import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-
-// Provider 字段描述（与 email-providers.ts 的 PROVIDER_FIELDS 同步）
-const PROVIDER_FIELDS: Record<string, Array<{ key: string; label: string; type: "text" | "secret" | "number"; placeholder: string; required: boolean; showIf?: string }>> = {
-  resend: [
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
-  ],
-  brevo: [
-    { key: "mode", label: "连接方式", type: "text", placeholder: "api", required: true },
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true, showIf: "api" },
-    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp-relay.brevo.com", required: true, showIf: "smtp" },
-    { key: "port", label: "端口", type: "number", placeholder: "587", required: true, showIf: "smtp" },
-    { key: "username", label: "登录邮箱", type: "text", placeholder: "your@brevo-account.com", required: true, showIf: "smtp" },
-    { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
-  ],
-  smtp: [
-    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp.example.com", required: true },
-    { key: "port", label: "端口", type: "number", placeholder: "587", required: true },
-    { key: "username", label: "用户名", type: "text", placeholder: "user@example.com", required: true },
-    { key: "password", label: "密码", type: "secret", placeholder: "••••••", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
-  ],
-}
-
-const PROVIDER_LABELS: Record<string, string> = {
-  resend: "Resend",
-  brevo: "Brevo",
-  smtp: "SMTP",
-}
 
 const AVAILABLE_PROVIDERS = Object.keys(PROVIDER_LABELS)
 

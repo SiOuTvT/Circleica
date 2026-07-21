@@ -28,22 +28,12 @@ export const userRepo = {
     return prisma.user.findUnique({ where: { email }, select: { id: true } })
   },
 
-  findByUsernameOrEmail(identifier: string) {
-    return prisma.user.findFirst({
-      where: { OR: [{ username: identifier }, { email: identifier }] },
-    })
-  },
-
   create(data: { username: string; email: string; password: string; role?: UserRole; emailVerified?: boolean }) {
     return prisma.user.create({ data: { ...data, role: data.role || "USER", emailVerified: data.emailVerified ?? false } })
   },
 
   updateProfile(id: string, data: Prisma.UserUpdateInput) {
     return prisma.user.update({ where: { id }, data, select: { id: true, username: true, avatar: true, bio: true, banner: true } })
-  },
-
-  updateAvatar(id: string, avatar: string) {
-    return prisma.user.update({ where: { id }, data: { avatar } })
   },
 
   updateAvatarFrame(id: string, avatarFrameId: string | null) {
@@ -171,10 +161,6 @@ export const followRepo = {
 export const commentRepo = {
   findById(id: string) {
     return prisma.comment.findUnique({ where: { id } })
-  },
-
-  update(id: string, data: Prisma.CommentUpdateInput) {
-    return prisma.comment.update({ where: { id }, data })
   },
 
   delete(id: string) {

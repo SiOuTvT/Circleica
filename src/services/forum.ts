@@ -6,11 +6,12 @@ import { forumRepo } from "@/repositories/forum"
 import { notificationRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { forumPostSchema, forumCommentSchema } from "@/lib/validations"
+import { FORUM } from "@/lib/config"
 import type { ForumPostCategory } from "@prisma/client"
 
 export const forumService = {
   getPosts(page: number, category?: string, solved?: string) {
-    return forumRepo.findPostsPaginated(page, 20, category, solved)
+    return forumRepo.findPostsPaginated(page, FORUM.POSTS_PER_PAGE, category, solved)
   },
 
   async getPost(id: string) {
@@ -31,8 +32,8 @@ export const forumService = {
     // 保留手动校验作为额外保护层
     if (!raw.title?.toString().trim()) throw new ValidationError("标题不能为空")
     if (!raw.content?.toString().trim()) throw new ValidationError("内容不能为空")
-    if (String(raw.title).length > 200) throw new ValidationError("标题最多 200 个字符")
-    if (String(raw.content).length > 10000) throw new ValidationError("内容最多 10000 个字符")
+    if (String(raw.title).length > FORUM.POST_TITLE_MAX) throw new ValidationError(`标题最多 ${FORUM.POST_TITLE_MAX} 个字符`)
+    if (String(raw.content).length > FORUM.POST_CONTENT_MAX) throw new ValidationError(`内容最多 ${FORUM.POST_CONTENT_MAX} 个字符`)
     return forumRepo.createPost(userId, {
       title: parsed.title.trim(),
       content: parsed.content.trim(),
@@ -49,13 +50,13 @@ export const forumService = {
     if (raw.title !== undefined) {
       const title = String(raw.title).trim()
       if (!title) throw new ValidationError("标题不能为空")
-      if (title.length > 200) throw new ValidationError("标题最多 200 个字符")
+      if (title.length > FORUM.POST_TITLE_MAX) throw new ValidationError(`标题最多 ${FORUM.POST_TITLE_MAX} 个字符`)
       data.title = title
     }
     if (raw.content !== undefined) {
       const content = String(raw.content).trim()
       if (!content) throw new ValidationError("内容不能为空")
-      if (content.length > 10000) throw new ValidationError("内容最多 10000 个字符")
+      if (content.length > FORUM.POST_CONTENT_MAX) throw new ValidationError(`内容最多 ${FORUM.POST_CONTENT_MAX} 个字符`)
       data.content = content
     }
     return forumRepo.updatePost(postId, data)
@@ -84,7 +85,7 @@ export const forumService = {
   // ── 评论 ────────────────────────────
 
   getComments(postId: string, page: number) {
-    return forumRepo.findComments(postId, page, 50)
+    return forumRepo.findComments(postId, page, FORUM.COMMENTS_PER_PAGE)
   },
 
   async createComment(userId: string, postId: string, raw: Record<string, unknown>, imageUrl?: string) {
@@ -94,7 +95,7 @@ export const forumService = {
 
     // 保留手动校验作为额外保护层
     if (!content && !imageUrl) throw new ValidationError("内容不能为空")
-    if (content.length > 2000) throw new ValidationError("评论最多 2000 个字符")
+    if (content.length > FORUM.COMMENT_MAX) throw new ValidationError(`评论最多 ${FORUM.COMMENT_MAX} 个字符`)
 
     const post = await forumRepo.findPostById(postId)
     if (!post) throw new NotFoundError("帖子")

@@ -25,8 +25,6 @@ export const gameService = {
     return game
   },
 
-  getFeatured(limit?: number) { return gameRepo.findFeatured(limit || 8) },
-
   getRandom(limit = 5) { return gameRepo.findRandom(limit) },
 
   incrementView(id: string) { return gameRepo.incrementViewCount(id) },

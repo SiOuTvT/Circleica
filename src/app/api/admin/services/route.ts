@@ -1,8 +1,10 @@
 import { withHandler, json } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
+import { reloadServiceConfig } from "@/lib/service-config"
 import { PROVIDER_MAP, PROVIDER_LABELS } from "@/lib/email-providers"
 import { emailProviderConfigSchema } from "@/lib/validations"
+import { EMAIL } from "@/lib/config"
 
 // 非 email 的服务 key（R2/Redis 保持平铺 key 不变）
 const SERVICE_KEYS = [
@@ -108,6 +110,7 @@ export const POST = withHandler(async (req) => {
   }
 
   await updateSiteSettings(toSave)
+  await reloadServiceConfig()
   return json({ success: true })
 })
 
@@ -241,7 +244,7 @@ async function testEmail(config: Record<string, string>) {
 
     // 构建 from 地址（从 provider config 中取）
     const fromName = p.config.fromName || "Fangame"
-    const fromEmail = p.config.fromEmail || "noreply@example.com"
+    const fromEmail = p.config.fromEmail || EMAIL.DEFAULT_FROM_EMAIL
     const from = `${fromName} <${fromEmail}>`
 
     const result = await impl.send(p.config, { from, to: config.to, subject: "Fangame 邮件服务测试", html: testHtml(impl.label) })

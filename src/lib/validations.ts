@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { EMAIL } from "@/lib/config"
 
 /**
  * 通用验证 Schemas
@@ -219,7 +220,7 @@ export async function parseBody<T extends z.ZodType>(
 const resendConfigSchema = z.object({
   apiKey: z.string().min(1, "Resend API Key 不能为空"),
   fromName: z.string().max(100).optional().default("Fangame"),
-  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 })
 
 /** Brevo 支持 API 和 SMTP Relay 两种模式 */
@@ -234,7 +235,7 @@ const brevoConfigSchema = z.object({
   password: z.string().optional(),
   // 共同字段
   fromName: z.string().max(100).optional().default("Fangame"),
-  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 }).superRefine((data, ctx) => {
   if (data.mode === "smtp") {
     if (!data.host) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "SMTP 主机不能为空", path: ["host"] })
@@ -251,7 +252,7 @@ const smtpConfigSchema = z.object({
   username: z.string().min(1, "用户名不能为空"),
   password: z.string().min(1, "密码不能为空"),
   fromName: z.string().max(100).optional().default("Fangame"),
-  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default("noreply@example.com"),
+  fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 })
 
 /** 单个 provider 配置校验（discriminatedUnion） */

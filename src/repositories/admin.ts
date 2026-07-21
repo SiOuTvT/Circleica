@@ -434,7 +434,10 @@ export const adminUserRepo = {
     return prisma.user.update({ where: { id }, data: { role } })
   },
   delete(id: string) {
-    return prisma.user.delete({ where: { id } })
+    return prisma.$transaction([
+      prisma.game.updateMany({ where: { reviewedBy: id }, data: { reviewedBy: null } }),
+      prisma.user.delete({ where: { id } }),
+    ])
   },
 }
 
@@ -463,17 +466,3 @@ export const adminSearchRepo = {
   },
 }
 
-// ── 管理后台设置 ────────────────────
-
-export const adminSettingsRepo = {
-  findAll() {
-    return prisma.siteSetting.findMany()
-  },
-  upsert(key: string, value: string) {
-    return prisma.siteSetting.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value },
-    })
-  },
-}

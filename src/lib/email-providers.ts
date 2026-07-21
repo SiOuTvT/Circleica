@@ -12,6 +12,8 @@
  * 3. 在 PROVIDER_FIELDS 中声明配置字段
  */
 
+import { EMAIL } from "@/lib/config"
+
 // ── 类型 ──────────────────────────────
 
 export interface EmailPayload {
@@ -48,7 +50,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
   resend: [
     { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
   brevo: [
     // mode 字段决定使用 API 还是 SMTP Relay
@@ -62,7 +64,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
     { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
     // 共同字段
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
   smtp: [
     { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp.example.com", required: true },
@@ -70,7 +72,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
     { key: "username", label: "用户名", type: "text", placeholder: "user@example.com", required: true },
     { key: "password", label: "密码", type: "secret", placeholder: "••••••", required: true },
     { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: "noreply@example.com", required: false },
+    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
 }
 

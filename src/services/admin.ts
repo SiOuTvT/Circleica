@@ -2,14 +2,14 @@
  * Admin Service — 管理后台业务逻辑
  */
 
-import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo, adminSettingsRepo } from "@/repositories/admin"
+import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo, tagGroupRepo, tagRepo, musicRepo, playlistRepo, checkInRepo, auditLogRepo, reportRepo, adminStatsRepo, adminGameRepo, adminReviewRepo, adminForumRepo, adminUserRepo, adminSearchRepo } from "@/repositories/admin"
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError, AppError } from "@/lib/errors"
 import { achievementCreateSchema } from "@/lib/validations"
 import type { Prisma, UserRole } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import { revalidateTag } from "next/cache"
 import fs from "fs/promises"
 import path from "path"
+import { logAudit } from "@/lib/audit-log"
 
 // ── 成就 ────────────────────────────
 
@@ -23,7 +23,8 @@ export const achievementService = {
     // 保留手动校验作为额外保护层
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
     if (!raw.conditionType) throw new ValidationError("条件类型不能为空")
-    return achievementRepo.create({
+    // Note: userId should come from the request context at the route layer; "ADMIN" is a placeholder
+    const result = await achievementRepo.create({
       name: parsed.name.trim(),
       description: (parsed.description ?? "").trim(),
       icon: (parsed.icon ?? "").trim(),
@@ -34,6 +35,8 @@ export const achievementService = {
       points: parsed.points ?? 10,
       hidden: parsed.hidden !== false,
     })
+    await logAudit({ userId: "ADMIN", action: "achievement.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -45,13 +48,17 @@ export const achievementService = {
     const data: Record<string, unknown> = {}
     for (const f of fields) { if (f in parsed) data[f] = parsed[f as keyof typeof parsed] }
     if (Object.keys(data).length === 0) throw new ValidationError("没有有效的更新字段")
-    return achievementRepo.update(id, data)
+    const result = await achievementRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     const existing = await achievementRepo.findById(id)
     if (!existing) throw new NotFoundError("成就")
-    return achievementRepo.delete(id)
+    const result = await achievementRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "achievement.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -68,13 +75,15 @@ export const avatarFrameService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name || !raw.imageUrl) throw new ValidationError("名称和图片 URL 必填")
-    return avatarFrameRepo.create({
+    const result = await avatarFrameRepo.create({
       name: String(raw.name),
       description: raw.description ? String(raw.description) : "",
       imageUrl: String(raw.imageUrl),
       isPublic: raw.isPublic !== false,
       sort: Number(raw.sort) || 0,
     })
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -84,7 +93,9 @@ export const avatarFrameService = {
     for (const f of ["name", "description", "imageUrl", "isPublic", "sort"]) {
       if (f in raw) data[f] = raw[f]
     }
-    return avatarFrameRepo.update(id, data)
+    const result = await avatarFrameRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
@@ -103,7 +114,9 @@ export const avatarFrameService = {
         await fs.unlink(path.join(process.cwd(), "public", "uploads", "avatar-frames", `${id}.${ext}`))
       } catch {}
     }
-    return avatarFrameRepo.delete(id)
+    const result = await avatarFrameRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -114,7 +127,7 @@ export const creatorService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
-    return creatorRepo.create({
+    const result = await creatorRepo.create({
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
@@ -124,13 +137,15 @@ export const creatorService = {
       twitterUrl: raw.twitterUrl ? String(raw.twitterUrl).trim() : "",
       wikipediaUrl: raw.wikipediaUrl ? String(raw.wikipediaUrl).trim() : "",
     })
+    await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await creatorRepo.findById(id)
     if (!existing) throw new NotFoundError("创作者")
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
-    return creatorRepo.update(id, {
+    const result = await creatorRepo.update(id, {
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
@@ -140,12 +155,16 @@ export const creatorService = {
       twitterUrl: raw.twitterUrl ? String(raw.twitterUrl).trim() : "",
       wikipediaUrl: raw.wikipediaUrl ? String(raw.wikipediaUrl).trim() : "",
     })
+    await logAudit({ userId: "ADMIN", action: "creator.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     const existing = await creatorRepo.findById(id)
     if (!existing) throw new NotFoundError("创作者")
-    return creatorRepo.delete(id)
+    const result = await creatorRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch(() => {})
+    return result
   },
 
   async getGames(creatorId: string) {
@@ -189,12 +208,14 @@ export const emotionalMessageService = {
     if (!raw.key || !raw.category) throw new ValidationError("key 和 category 为必填项")
     const existing = await emotionalMessageRepo.findByKey(String(raw.key))
     if (existing) throw new ConflictError(`key "${raw.key}" 已存在`)
-    return emotionalMessageRepo.create({
+    const result = await emotionalMessageRepo.create({
       key: String(raw.key), category: String(raw.category),
       title: raw.title ? String(raw.title) : "", subtitle: raw.subtitle ? String(raw.subtitle) : "",
       imageUrl: raw.imageUrl ? String(raw.imageUrl) : "", emoji: raw.emoji ? String(raw.emoji) : "",
       enabled: raw.enabled !== false,
     })
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -204,13 +225,17 @@ export const emotionalMessageService = {
     for (const f of ["title", "subtitle", "imageUrl", "emoji", "enabled", "category"]) {
       if (f in raw) data[f] = raw[f]
     }
-    return emotionalMessageRepo.update(id, data)
+    const result = await emotionalMessageRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     const existing = await emotionalMessageRepo.findById(id)
     if (!existing) throw new NotFoundError("情感消息")
-    return emotionalMessageRepo.delete(id)
+    const result = await emotionalMessageRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -227,13 +252,15 @@ export const tagGroupService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
-    return tagGroupRepo.create({
+    const result = await tagGroupRepo.create({
       name: String(raw.name).trim(),
       description: raw.description ? String(raw.description) : "",
       color: raw.color ? String(raw.color) : "#7c8a9e",
       positions: raw.positions ? String(raw.positions) : "[]",
       isPreset: Boolean(raw.isPreset),
     })
+    await logAudit({ userId: "ADMIN", action: "tagGroup.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -243,13 +270,17 @@ export const tagGroupService = {
     for (const f of ["name", "description", "color", "positions", "isPreset"]) {
       if (f in raw) data[f] = raw[f]
     }
-    return tagGroupRepo.update(id, data)
+    const result = await tagGroupRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     const existing = await tagGroupRepo.findById(id)
     if (!existing) throw new NotFoundError("标签组")
-    return tagGroupRepo.delete(id)
+    const result = await tagGroupRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id }).catch(() => {})
+    return result
   },
 
   async forceDelete(id: string) {
@@ -266,7 +297,7 @@ export const tagService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
-    return tagRepo.create({
+    const result = await tagRepo.create({
       name: String(raw.name).trim(),
       description: raw.description ? String(raw.description) : "",
       color: raw.color ? String(raw.color) : "#a78bfa",
@@ -274,6 +305,8 @@ export const tagService = {
       isVisible: raw.isVisible !== false,
       ...(raw.groupId ? { group: { connect: { id: String(raw.groupId) } } } : {}),
     })
+    await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -288,13 +321,17 @@ export const tagService = {
     if ("groupId" in raw) {
       data.group = raw.groupId ? { connect: { id: String(raw.groupId) } } : { disconnect: true }
     }
-    return tagRepo.update(id, data)
+    const result = await tagRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "tag.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
-    return tagRepo.delete(id)
+    const result = await tagRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch(() => {})
+    return result
   },
 
   async forceDelete(id: string) {
@@ -306,70 +343,9 @@ export const tagService = {
   async assignGroup(id: string, groupId: string | null) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
-    return tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
-  },
-}
-
-// ── 音乐 ────────────────────────────
-
-export const musicService = {
-  getAll() { return musicRepo.findAll() },
-
-  async create(raw: Record<string, unknown>) {
-    if (!raw.title || !raw.filename) throw new ValidationError("标题和文件名必填")
-    return musicRepo.create({
-      title: String(raw.title), filename: String(raw.filename),
-      url: raw.url ? String(raw.url) : "",
-      isActive: raw.isActive !== false,
-      ...(raw.playlistId ? { playlist: { connect: { id: String(raw.playlistId) } } } : {}),
-    })
-  },
-
-  async update(id: string, raw: Record<string, unknown>) {
-    const existing = await musicRepo.findById(id)
-    if (!existing) throw new NotFoundError("音乐")
-    const data: Prisma.MusicUpdateInput = {}
-    if ("title" in raw) data.title = String(raw.title)
-    if ("filename" in raw) data.filename = String(raw.filename)
-    if ("url" in raw) data.url = String(raw.url)
-    if ("isActive" in raw) data.isActive = Boolean(raw.isActive)
-    if ("playlistId" in raw) {
-      data.playlist = raw.playlistId ? { connect: { id: String(raw.playlistId) } } : { disconnect: true }
-    }
-    return musicRepo.update(id, data)
-  },
-
-  async delete(id: string) {
-    const existing = await musicRepo.findById(id)
-    if (!existing) throw new NotFoundError("音乐")
-    return musicRepo.delete(id)
-  },
-}
-
-// ── 播放列表 ────────────────────────
-
-export const playlistService = {
-  getAll() { return playlistRepo.findAll() },
-  getById(id: string) { return playlistRepo.findById(id) },
-
-  async create(raw: Record<string, unknown>) {
-    if (!raw.name) throw new ValidationError("名称不能为空")
-    return playlistRepo.create({ name: String(raw.name), sortOrder: Number(raw.sortOrder) || 0 })
-  },
-
-  async update(id: string, raw: Record<string, unknown>) {
-    const existing = await playlistRepo.findById(id)
-    if (!existing) throw new NotFoundError("播放列表")
-    const data: Record<string, unknown> = {}
-    if ("name" in raw) data.name = raw.name
-    if ("sortOrder" in raw) data.sortOrder = raw.sortOrder
-    return playlistRepo.update(id, data)
-  },
-
-  async delete(id: string) {
-    const existing = await playlistRepo.findById(id)
-    if (!existing) throw new NotFoundError("播放列表")
-    return playlistRepo.delete(id)
+    const result = await tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
+    await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -421,17 +397,23 @@ export const adminGameService = {
       "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
     const safe: Record<string, unknown> = {}
     for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
-    return adminGameRepo.update(id, safe)
+    const result = await adminGameRepo.update(id, safe)
+    await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
-    return adminGameRepo.delete(id)
+    const result = await adminGameRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch(() => {})
+    return result
   },
 
   async batchDelete(ids: string[]) {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
-    return adminGameRepo.batchDelete(ids)
+    const result = await adminGameRepo.batchDelete(ids)
+    await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch(() => {})
+    return result
   },
 
   getLogs(gameId: string) { return adminGameRepo.findLogs(gameId) },
@@ -449,13 +431,17 @@ export const adminReviewService = {
 
   async approve(gameId: string, reviewerId: string) {
     if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
-    return adminReviewRepo.approve(gameId, reviewerId)
+    const result = await adminReviewRepo.approve(gameId, reviewerId)
+    await logAudit({ userId: "ADMIN", action: "review.approve", target: gameId }).catch(() => {})
+    return result
   },
 
   async reject(gameId: string, reason: string, reviewerId: string) {
     if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
     if (!reason?.trim()) throw new ValidationError("拒绝原因不能为空")
-    return adminReviewRepo.reject(gameId, reason.trim(), reviewerId)
+    const result = await adminReviewRepo.reject(gameId, reason.trim(), reviewerId)
+    await logAudit({ userId: "ADMIN", action: "review.reject", target: gameId }).catch(() => {})
+    return result
   },
 }
 
@@ -467,7 +453,9 @@ export const adminForumService = {
   async deletePost(id: string) {
     const post = await prisma.forumPost.findUnique({ where: { id } })
     if (!post) throw new NotFoundError("帖子")
-    return adminForumRepo.deletePost(id)
+    const result = await adminForumRepo.deletePost(id)
+    await logAudit({ userId: "ADMIN", action: "forum.deletePost", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -495,7 +483,9 @@ export const adminUserService = {
     if (callerRole !== "SUPER_ADMIN" && user.role === "SUPER_ADMIN") {
       throw new ForbiddenError("不能修改超级管理员的角色")
     }
-    return adminUserRepo.updateRole(id, role as UserRole)
+    const result = await adminUserRepo.updateRole(id, role as UserRole)
+    await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `role=${role}` }).catch(() => {})
+    return result
   },
 
   async delete(id: string, callerRole: UserRole, callerId: string) {
@@ -505,7 +495,9 @@ export const adminUserService = {
     if (user.role === "SUPER_ADMIN" && callerRole !== "SUPER_ADMIN") {
       throw new ForbiddenError("只有超级管理员可以删除超级管理员账号")
     }
-    return adminUserRepo.delete(id)
+    const result = await adminUserRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "user.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -515,18 +507,6 @@ export const adminSearchService = {
   search(query: string) {
     if (!query?.trim()) return { games: [], users: [], forumPosts: [] }
     return adminSearchRepo.search(query.trim())
-  },
-}
-
-// ── 设置 ────────────────────────────
-
-export const adminSettingsService = {
-  getAll() { return adminSettingsRepo.findAll() },
-
-  async upsert(key: string, value: string) {
-    if (!key) throw new ValidationError("key 不能为空")
-    revalidateTag("site-settings", "max")
-    return adminSettingsRepo.upsert(key, value)
   },
 }
 
@@ -582,12 +562,14 @@ export const adminMusicService = {
       const pl = await playlistRepo.findById(playlistId)
       if (!pl) playlistId = null
     }
-    return musicRepo.create({
+    const result = await musicRepo.create({
       title: raw.title.trim(),
       filename: raw.url.trim(),
       url: raw.url.trim(),
       playlist: playlistId ? { connect: { id: playlistId } } : undefined,
     })
+    await logAudit({ userId: "ADMIN", action: "music.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, raw: Record<string, unknown>) {
@@ -596,12 +578,16 @@ export const adminMusicService = {
     if (typeof raw.title === "string" && raw.title.trim()) data.title = raw.title.trim()
     if (typeof raw.url === "string" && raw.url.trim()) { data.url = raw.url.trim(); data.filename = raw.url.trim() }
     if (Object.keys(data).length === 0) throw new ValidationError("没有要更新的字段")
-    return musicRepo.update(id, data)
+    const result = await musicRepo.update(id, data)
+    await logAudit({ userId: "ADMIN", action: "music.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     await musicRepo.findById(id).then(m => { if (!m) throw new NotFoundError("音乐") })
-    return musicRepo.delete(id)
+    const result = await musicRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "music.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -618,18 +604,24 @@ export const adminPlaylistService = {
 
   async create(name: string) {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
-    return playlistRepo.create({ name: name.trim() })
+    const result = await playlistRepo.create({ name: name.trim() })
+    await logAudit({ userId: "ADMIN", action: "playlist.create", target: result.id }).catch(() => {})
+    return result
   },
 
   async update(id: string, name: string) {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
     await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
-    return playlistRepo.update(id, { name: name.trim() })
+    const result = await playlistRepo.update(id, { name: name.trim() })
+    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id }).catch(() => {})
+    return result
   },
 
   async delete(id: string) {
     await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
-    return playlistRepo.delete(id)
+    const result = await playlistRepo.delete(id)
+    await logAudit({ userId: "ADMIN", action: "playlist.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -653,7 +645,9 @@ export const adminFavoriteService = {
   },
 
   async delete(id: string) {
-    return prisma.favorite.delete({ where: { id } })
+    const result = await prisma.favorite.delete({ where: { id } })
+    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id }).catch(() => {})
+    return result
   },
 }
 
@@ -677,7 +671,9 @@ export const adminFollowService = {
   },
 
   async delete(id: string) {
-    return prisma.follow.delete({ where: { id } })
+    const result = await prisma.follow.delete({ where: { id } })
+    await logAudit({ userId: "ADMIN", action: "follow.delete", target: id }).catch(() => {})
+    return result
   },
 }
 

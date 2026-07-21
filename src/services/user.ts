@@ -254,12 +254,6 @@ export const authService = {
 // ── 用户资料 ────────────────────────
 
 export const userService = {
-  async getProfile(userId: string) {
-    const user = await userRepo.findById(userId)
-    if (!user) throw new NotFoundError("用户")
-    return user
-  },
-
   async updateProfile(userId: string, raw: Record<string, unknown>) {
     const data: Record<string, unknown> = {}
     if (raw.username !== undefined) {
@@ -339,8 +333,6 @@ export const notificationService = {
   getUnreadCount(userId: string) { return notificationRepo.getUnreadCount(userId) },
 
   markAllRead(userId: string) { return notificationRepo.markAllRead(userId) },
-
-  markRead(id: string) { return notificationRepo.markRead(id) },
 }
 
 // ── 关注 ────────────────────────────
