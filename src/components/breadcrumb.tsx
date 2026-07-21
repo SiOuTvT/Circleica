@@ -207,7 +207,7 @@ export function Breadcrumb() {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="inline-flex items-center leading-none text-white/70 transition-colors hover:text-white"
+                  className="inline-flex items-center leading-none text-foreground/60 transition-colors hover:text-foreground"
                 >
                   {crumb.label}
                 </Link>
