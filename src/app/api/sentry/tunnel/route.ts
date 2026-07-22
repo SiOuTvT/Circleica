@@ -7,9 +7,25 @@ const ALLOWED_SENTRY_PATHS = ["/api/", "/envelope/"]
 export const POST = withHandler(async (req) => {
   const envelope = await req.text()
   const piece = envelope.split("\n")[0]
-  const header = JSON.parse(piece)
 
-  const dsn = new URL(header.dsn)
+  let header: { dsn?: string }
+  try {
+    header = JSON.parse(piece)
+  } catch {
+    return json({ error: "Invalid envelope" }, 400)
+  }
+
+  if (!header.dsn || typeof header.dsn !== "string") {
+    return json({ error: "Missing DSN" }, 400)
+  }
+
+  let dsn: URL
+  try {
+    dsn = new URL(header.dsn)
+  } catch {
+    return json({ error: "Invalid DSN" }, 400)
+  }
+
   const isAllowedDsn = dsn.hostname === SENTRY_HOST || dsn.hostname.endsWith(`.${SENTRY_HOST}`)
 
   if (!isAllowedDsn) {
@@ -29,6 +45,7 @@ export const POST = withHandler(async (req) => {
 
   const response = await fetch(sentryUrl, {
     method: "POST",
+    signal: AbortSignal.timeout(10_000),
     body: envelope,
     headers: {
       "Content-Type": "application/x-sentry-envelope",

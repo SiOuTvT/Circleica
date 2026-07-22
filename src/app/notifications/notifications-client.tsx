@@ -108,7 +108,7 @@ export default function NotificationsClient({
     try {
       const data = await api.get<{ notifications?: NotificationItem[]; nextCursor?: string | null }>(`/api/notifications?cursor=${nextCursor}`)
       setNotifications((prev) => [...prev, ...(data.notifications ?? [])])
-      setNextCursor(data.nextCursor)
+      setNextCursor(data.nextCursor ?? null)
     } catch (err) { logger.api.warn("[NotificationsClient] fetchMore failed", { error: err instanceof Error ? err.message : String(err) }) }
     setLoadingMore(false)
   }, [nextCursor, loadingMore])

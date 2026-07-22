@@ -15,16 +15,18 @@ import { formatZhDate } from "@/lib/date"
 import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
 import NextImage from "next/image"
 import Link from "next/link"
+import { cache as reactCache } from "react"
 import { notFound, redirect } from "next/navigation"
 
-async function resolveUser(id: string) {
+const resolveUser = reactCache(async (id: string) => {
+  const select = { id: true, serialId: true, username: true, bio: true }
   if (isNumericId(id)) {
     const numId = parseInt(id, 10)
     if (isNaN(numId) || numId <= 0) return null
-    return prisma.user.findUnique({ where: { serialId: numId } })
+    return prisma.user.findUnique({ where: { serialId: numId }, select })
   }
-  return prisma.user.findUnique({ where: { id } })
-}
+  return prisma.user.findUnique({ where: { id }, select })
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

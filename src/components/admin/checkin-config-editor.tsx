@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface CheckInConfig {
   title: string
@@ -30,9 +31,9 @@ export function CheckInConfigEditor() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch("/api/admin/checkin-config")
-      const data = await res.json()
-      const cfg = data.data ?? data
+      const { ok, data } = await apiFetchSafe<any>("/api/admin/checkin-config")
+      if (!ok) throw new Error("加载配置失败")
+      const cfg = data?.data ?? data
       setConfig(cfg)
       setPreview(cfg.imageUrl || "")
     } catch {
@@ -43,12 +44,11 @@ export function CheckInConfigEditor() {
   const handleSave = async () => {
     setLoading(true)
     try {
-      const res = await fetch("/api/admin/checkin-config", {
+      const { ok } = await apiFetchSafe("/api/admin/checkin-config", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: config,
       })
-      if (res.ok) {
+      if (ok) {
         toast.success("配置已保存")
       } else {
         toast.error("保存失败")

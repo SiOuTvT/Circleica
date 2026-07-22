@@ -6,12 +6,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { timeAgo } from "@/lib/time-ago"
+import { stripHtml } from "@/lib/sanitize"
 
-/** 去除 HTML 标签，返回纯文本 */
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
-}
-
+// 去除 HTML 标签统一使用 @/lib/sanitize 的 stripHtml（XSS 安全）
 // 相对时间统一使用 @/lib/time-ago 的 timeAgo
 
 interface Ann {

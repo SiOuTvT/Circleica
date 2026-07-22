@@ -23,7 +23,7 @@ function ResetForm() {
   useEffect(() => {
     if (!token) { setStatus("invalid"); return }
     api.get<{ valid?: boolean; email?: string }>(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
-      .then(d => { if (d.valid) { setStatus("valid"); setEmail(d.email) } else setStatus("invalid") })
+      .then(d => { if (d.valid) { setStatus("valid"); setEmail(d.email ?? "") } else setStatus("invalid") })
       .catch(() => setStatus("invalid"))
   }, [token])
 
