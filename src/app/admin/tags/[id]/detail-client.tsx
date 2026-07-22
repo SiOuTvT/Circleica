@@ -6,6 +6,7 @@ import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 /* ──────────────────── 类型 ──────────────────── */
 
@@ -129,19 +130,17 @@ export function TagGroupDetailClient({
     setSaving(true)
     setError("")
     try {
-      const res = await fetch("/api/admin/tags", {
+      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: newTagName.trim(),
           color: newTagColor,
           groupId: group.id,
           sortOrder: 0,
           isVisible: true,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "创建失败"); setSaving(false); return }
+      if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
       setTags((prev) => [...prev, { ...data, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)))
       setNewTagName("")
       setShowCreate(false)
@@ -165,20 +164,18 @@ export function TagGroupDetailClient({
     setSaving(true)
     setError("")
     try {
-      const res = await fetch(`/api/admin/tags/${editingTag}`, {
+      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${editingTag}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: editName.trim(),
           description: editDesc,
           color: editColor,
           groupId: editGroupId || group.id,
           sortOrder: editSortOrder,
           isVisible: editVisible,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "更新失败"); setSaving(false); return }
+      if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
       if (data.groupId && data.groupId !== group.id) {
         setTags((prev) => prev.filter((t) => t.id !== editingTag))
         toast.success("已移动到其他标签组")

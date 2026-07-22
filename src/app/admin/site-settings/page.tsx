@@ -7,6 +7,7 @@ import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upl
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export default function SiteSettingsPage() {
   const [placeholderUrl, setPlaceholderUrl] = useState("")
@@ -22,16 +23,25 @@ export default function SiteSettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch("/api/admin/settings")
-      .then(r => r.json())
-      .then(data => {
-        setPlaceholderUrl(data.default_placeholder_image || "")
-        setSiteName(data.site_name || "")
-        setSiteDescription(data.site_description || "")
-        setRegistrationEnabled(data.registration_enabled !== "false")
-        setEmailVerificationEnabled(data.email_verification_enabled === "true")
-        setEmailVerificationRequiredForLogin(data.email_verification_required_for_login === "true")
-        setSendWelcomeEmail(data.send_welcome_email === "true")
+    apiFetchSafe<{
+      default_placeholder_image?: string
+      site_name?: string
+      site_description?: string
+      registration_enabled?: string
+      email_verification_enabled?: string
+      email_verification_required_for_login?: string
+      send_welcome_email?: string
+    }>("/api/admin/settings")
+      .then(({ ok, data }) => {
+        if (ok && data) {
+          setPlaceholderUrl(data.default_placeholder_image || "")
+          setSiteName(data.site_name || "")
+          setSiteDescription(data.site_description || "")
+          setRegistrationEnabled(data.registration_enabled !== "false")
+          setEmailVerificationEnabled(data.email_verification_enabled === "true")
+          setEmailVerificationRequiredForLogin(data.email_verification_required_for_login === "true")
+          setSendWelcomeEmail(data.send_welcome_email === "true")
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -40,10 +50,9 @@ export default function SiteSettingsPage() {
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
-      const res = await fetch("/api/admin/settings", {
+      const { ok } = await apiFetchSafe("/api/admin/settings", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           default_placeholder_image: placeholderUrl,
           site_name: siteName,
           site_description: siteDescription,
@@ -51,9 +60,9 @@ export default function SiteSettingsPage() {
           email_verification_enabled: String(emailVerificationEnabled),
           email_verification_required_for_login: String(emailVerificationRequiredForLogin),
           send_welcome_email: String(sendWelcomeEmail),
-        }),
+        },
       })
-      if (!res.ok) {
+      if (!ok) {
         toast.error("保存失败")
       } else {
         toast.success("已保存")

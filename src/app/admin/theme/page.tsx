@@ -4,6 +4,7 @@ import { ThemeEditor } from "@/components/theme-editor"
 import { useThemeSettings, type FullThemeSettings } from "@/components/theme-provider"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export default function ThemeSettingsPage() {
   const { settings: ctxSettings, applyAll } = useThemeSettings()
@@ -11,12 +12,11 @@ export default function ThemeSettingsPage() {
   useEffect(() => { setMounted(true) }, [])
 
   const handleSave = useCallback(async (settingsToSave: FullThemeSettings) => {
-    const res = await fetch("/api/admin/site-settings", {
+    const { ok } = await apiFetchSafe("/api/admin/site-settings", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settingsToSave),
+      body: settingsToSave,
     })
-    if (res.ok) {
+    if (ok) {
       applyAll(settingsToSave)
       toast.success("主题已保存")
     } else {

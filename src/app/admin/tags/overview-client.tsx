@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 /* ──────────────────── 类型 ──────────────────── */
 
@@ -68,14 +69,12 @@ function ColorEditPopover({
   async function handleSave() {
     setSaving(true)
     try {
-      const res = await fetch(`/api/admin/tag-groups/${groupId}`, {
+      const { ok, error } = await apiFetchSafe(`/api/admin/tag-groups/${groupId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ color: value }),
+        body: { color: value },
       })
-      if (!res.ok) {
-        const data = await res.json()
-        toast.error(data.error || "保存失败")
+      if (!ok) {
+        toast.error(error || "保存失败")
       } else {
         onSaved(value)
         toast.success("颜色已更新")
@@ -299,14 +298,12 @@ function UngroupedTagsSection({
     if (!assignTarget) return
     setAssignLoading(true)
     try {
-      const res = await fetch(`/api/admin/tags/${tagId}`, {
+      const { ok, error } = await apiFetchSafe(`/api/admin/tags/${tagId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId: assignTarget }),
+        body: { groupId: assignTarget },
       })
-      if (!res.ok) {
-        const d = await res.json()
-        toast.error(d.error || "分配失败")
+      if (!ok) {
+        toast.error(error || "分配失败")
       } else {
         toast.success("已分配到标签组")
         setAssigningId(null)

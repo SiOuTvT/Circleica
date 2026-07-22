@@ -9,6 +9,7 @@ import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 const AVAILABLE_PROVIDERS = Object.keys(PROVIDER_LABELS)
 
@@ -46,11 +47,10 @@ export default function ServicesPage() {
   const [sendingTest, setSendingTest] = useState(false)
 
   useEffect(() => {
-    fetch("/api/admin/services")
-      .then(r => r.json())
-      .then(res => {
-        if (res.data) {
-          const d = res.data
+    apiFetchSafe<{ data?: any }>("/api/admin/services")
+      .then(({ ok, data }) => {
+        if (ok && data?.data) {
+          const d = data.data
           setConfig(prev => ({
             ...prev,
             r2_account_id: String(d.r2_account_id ?? ""),
@@ -93,17 +93,15 @@ export default function ServicesPage() {
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
-      const res = await fetch("/api/admin/services", {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { success?: boolean; message?: string } }>("/api/admin/services", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           ...config,
           email_providers: config.email_providers,
           email_provider_order: config.email_provider_order,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok || data.data?.success === false) throw new Error(data.data?.message)
+      if (!ok || data?.data?.success === false) throw new Error(data?.data?.message || error)
       toast.success("配置已保存，重启应用后生效")
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
@@ -119,14 +117,12 @@ export default function ServicesPage() {
       const payload = service === "r2"
         ? { account_id: config.r2_account_id, access_key_id: config.r2_access_key_id, secret_access_key: config.r2_secret_access_key }
         : { url: config.redis_url, token: config.redis_token }
-      const res = await fetch("/api/admin/services", {
+      const { data } = await apiFetchSafe<{ data?: any }>("/api/admin/services", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "test", service, config: payload }),
+        body: { action: "test", service, config: payload },
       })
-      const data = await res.json()
-      const result = data.data || data
-      setTestResult(prev => ({ ...prev, [service]: { ok: !!result.success, msg: result.message || result.error || "未知结果" } }))
+      const result = data?.data || data
+      setTestResult(prev => ({ ...prev, [service]: { ok: !!result?.success, msg: result?.message || result?.error || "未知结果" } }))
     } catch {
       setTestResult(prev => ({ ...prev, [service]: { ok: false, msg: "测试请求失败" } }))
     } finally {
@@ -139,26 +135,24 @@ export default function ServicesPage() {
     setSendingTest(true)
     setTestResult(prev => { const next = { ...prev }; delete next.email; return next })
     try {
-      const res = await fetch("/api/admin/services", {
+      const { data } = await apiFetchSafe<{ data?: any }>("/api/admin/services", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           action: "test", service: "email",
           config: {
             to: testEmail.trim(),
             email_providers: JSON.stringify(config.email_providers),
             email_provider_order: config.email_provider_order,
           },
-        }),
+        },
       })
-      const data = await res.json()
-      const result: EmailTestResults = data.data || data
+      const result: EmailTestResults = (data?.data || data) as EmailTestResults
       setTestResult(prev => ({
         ...prev,
         email: {
-          ok: !!result.success,
-          msg: result.message || result.error || "未知结果",
-          results: result.results,
+          ok: !!result?.success,
+          msg: result?.message || result?.error || "未知结果",
+          results: result?.results,
         } as TestResult & { results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> },
       }))
     } catch {

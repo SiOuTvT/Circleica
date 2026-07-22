@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface TagItem {
   id: string
@@ -214,14 +215,12 @@ function InlineTagEdit({
       if (color.toLowerCase() !== tag.color.toLowerCase()) body.color = color
       if ((groupId || null) !== tag.groupId) body.groupId = groupId || null
 
-      const res = await fetch(`/api/admin/tags/${tag.id}`, {
+      const { ok, error } = await apiFetchSafe(`/api/admin/tags/${tag.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body,
       })
-      if (!res.ok) {
-        const data = await res.json()
-        toast.error(data.error || "保存失败")
+      if (!ok) {
+        toast.error(error || "保存失败")
       } else {
         toast.success("已保存")
         onSaved()
