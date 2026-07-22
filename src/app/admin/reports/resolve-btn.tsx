@@ -5,6 +5,7 @@ import { CheckCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
   const router = useRouter()
@@ -12,12 +13,11 @@ export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
 
   async function handleResolve() {
     // 删除该游戏的所有举报（视为已处理）
-    const res = await fetch("/api/admin/reports", {
+    const { ok, error } = await apiFetchSafe("/api/admin/reports", {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameId }),
+      body: { gameId },
     })
-    if (res.ok) {
+    if (ok) {
       toast.success("举报已标记为已处理")
       router.refresh()
     } else {

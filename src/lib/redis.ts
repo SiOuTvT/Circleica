@@ -235,22 +235,39 @@ class MemoryCache implements CacheClient {
   }
 }
 
-// ============ 创建缓存实例 ============
+// ============ 运行时后端选择（反映 Redis 实时可用性）============
+// 重要：服务配置（Redis URL/Token）在模块加载时是异步加载的，可能在
+// 此处求值时尚未就绪。若在此刻冻结后端实例，会导致 Redis 配置就绪后
+// 缓存/限流仍走内存实现 —— 分布式限流永不生效，多副本下认证限流被绕过。
+// 因此用惰性代理：每次调用时按 getRedisConfig() 的实时值选择后端。
 
-function createCache(): CacheClient {
+let _memoryFallback = new MemoryCache()
+let _redisCache: RedisCache | null = null
+let _redisCacheUrl: string | null = null
+
+function getActiveCache(): CacheClient {
   const cfg = getRedisConfig()
   if (cfg) {
-    logger.db.info("Redis 缓存已启用")
-    return new RedisCache(cfg.url, cfg.token)
+    if (!_redisCache || _redisCacheUrl !== cfg.url) {
+      _redisCache = new RedisCache(cfg.url, cfg.token)
+      _redisCacheUrl = cfg.url
+    }
+    return _redisCache
   }
-
-  logger.db.info("使用内存缓存（配置 Redis 以启用 Redis 缓存）")
-  return new MemoryCache()
+  return _memoryFallback
 }
 
-export const cache = createCache()
+/** 对外缓存实例：方法调用时按 Redis 实时可用性委托给对应后端 */
+export const cache: CacheClient = {
+  get: (k) => getActiveCache().get(k),
+  set: (k, v, t) => getActiveCache().set(k, v, t),
+  del: (k) => getActiveCache().del(k),
+  has: (k) => getActiveCache().has(k),
+  clear: () => getActiveCache().clear(),
+  incr: (k, t) => getActiveCache().incr(k, t),
+}
 
-/** 是否使用 Redis 后端 */
+/** 是否使用 Redis 后端（实时） */
 export const isRedisAvailable = (): boolean => !!getRedisConfig()
 
 // ============ 便捷缓存工具 ============

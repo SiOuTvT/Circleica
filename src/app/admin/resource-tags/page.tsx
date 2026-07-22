@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronUp, Loader2, Plus, Save, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface TagGroup {
   group: string
@@ -21,9 +22,8 @@ export default function ResourceTagsPage() {
   const [newValues, setNewValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    fetch("/api/admin/resource-tags")
-      .then(r => r.json())
-      .then(res => { setGroups(res.data ?? []); setLoading(false) })
+    apiFetchSafe<{ data?: any[] }>("/api/admin/resource-tags")
+      .then(({ ok, data }) => { if (ok) setGroups(data?.data ?? []); setLoading(false) })
       .catch(() => { toast.error("加载失败"); setLoading(false) })
   }, [])
 
@@ -65,14 +65,12 @@ export default function ResourceTagsPage() {
       for (const group of changedGroups) {
         const g = groups.find(x => x.group === group)
         if (!g) continue
-        const res = await fetch("/api/admin/resource-tags", {
+        const { ok, error } = await apiFetchSafe("/api/admin/resource-tags", {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ group: g.group, options: g.options }),
+          body: { group: g.group, options: g.options },
         })
-        if (!res.ok) {
-          const data = await res.json()
-          toast.error(`保存「${g.label}」失败: ${data.error}`)
+        if (!ok) {
+          toast.error(`保存「${g.label}」失败: ${error}`)
           setSaving(false)
           return
         }

@@ -5,6 +5,7 @@ import { CheckCircle, Loader2, XCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function ReviewActions({ gameId }: { gameId: string }) {
   const router = useRouter()
@@ -15,24 +16,22 @@ export function ReviewActions({ gameId }: { gameId: string }) {
 
   async function approve() {
     setApproving(true)
-    const res = await fetch("/api/admin/review", {
+    const { ok } = await apiFetchSafe("/api/admin/review", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameId, action: "approve" }),
+      body: { gameId, action: "approve" },
     })
-    if (res.ok) { toast.success("已发布"); router.refresh() }
+    if (ok) { toast.success("已发布"); router.refresh() }
     else toast.error("操作失败")
     setApproving(false)
   }
 
   async function reject() {
     setRejecting(true)
-    const res = await fetch("/api/admin/review", {
+    const { ok } = await apiFetchSafe("/api/admin/review", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameId, action: "reject", reason: rejectReason }),
+      body: { gameId, action: "reject", reason: rejectReason },
     })
-    if (res.ok) { toast.success("已拒回"); setShowReject(false); router.refresh() }
+    if (ok) { toast.success("已拒回"); setShowReject(false); router.refresh() }
     else toast.error("操作失败")
     setRejecting(false)
   }

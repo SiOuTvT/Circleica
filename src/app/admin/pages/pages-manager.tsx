@@ -4,6 +4,7 @@ import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { Loader2, Pencil, Save, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import { StructuredEditor } from "./structured-editor"
 
 const PAGES = [
@@ -35,12 +36,11 @@ export function PagesManager({ initial }: Props) {
   async function save(key: string) {
     setSaving(true)
     try {
-      const res = await fetch("/api/admin/site-settings", {
+      const { ok } = await apiFetchSafe("/api/admin/site-settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [key]: draft }),
+        body: { [key]: draft },
       })
-      if (res.ok) {
+      if (ok) {
         setContents(prev => ({ ...prev, [key]: draft }))
         toast.success("已保存")
         cancelEdit()

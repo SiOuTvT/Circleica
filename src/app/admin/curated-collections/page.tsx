@@ -60,7 +60,7 @@ export default function CuratedCollectionsPage() {
   async function handleEdit(id: string) {
     try {
       const data = await api.get<{ data?: CollectionDetail }>(`/api/admin/curated-collections/${id}`)
-      setEditing(data.data)
+      setEditing(data.data ?? null)
       setShowDialog(true)
     } catch {
       toast.error("加载合集详情失败")
@@ -183,7 +183,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
       try {
         const data = await api.get<{ data?: any }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
         // /api/admin/games 返回 { success, data: [games[], count] }
-        const games = Array.isArray(data.data) ? data.data[0] : (data.data?.games || data.games || [])
+        const games = Array.isArray(data.data) ? data.data : (data.data?.games || [])
         setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studioName: g.studioName })))
       } catch { setSearchResults([]) }
       finally { setSearching(false) }

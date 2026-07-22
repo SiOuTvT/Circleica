@@ -16,6 +16,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { apiFetchSafe } from "@/lib/api-client";
 
 interface EmMsg {
   id: string; key: string; category: string; title: string
@@ -76,27 +77,24 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
   /* ── 创建 ── */
   const handleCreate = async () => {
     if (!newItem.key || !newItem.category) return
-    const res = await fetch("/api/admin/emotional-messages", {
+    const { ok, error } = await apiFetchSafe("/api/admin/emotional-messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...newItem, enabled: true }),
+      body: { ...newItem, enabled: true },
     })
-    if (res.ok) {
+    if (ok) {
       setCreating(false)
       setNewItem({ key: "", category: "toast", title: "", subtitle: "", imageUrl: "", emoji: "" })
       refresh()
     } else {
-      const data = await res.json()
-      toast.error(data.error || "创建失败")
+      toast.error(error || "创建失败")
     }
   }
 
   /* ── 更新 ── */
   const handleUpdate = async (item: EmMsg) => {
-    await fetch(`/api/admin/emotional-messages/${item.id}`, {
+    await apiFetchSafe(`/api/admin/emotional-messages/${item.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(item),
+      body: item,
     })
     setEditing(null)
     refresh()
@@ -104,10 +102,9 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
 
   /* ── 切换启用 ── */
   const toggleEnabled = async (item: EmMsg) => {
-    await fetch(`/api/admin/emotional-messages/${item.id}`, {
+    await apiFetchSafe(`/api/admin/emotional-messages/${item.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: !item.enabled }),
+      body: { enabled: !item.enabled },
     })
     refresh()
   }
@@ -115,8 +112,8 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
   /* ── 删除 ── */
   const handleDelete = async () => {
     if (!confirmDeleteId) return
-    const res = await fetch(`/api/admin/emotional-messages/${confirmDeleteId}`, { method: "DELETE" })
-    if (res.ok) {
+    const { ok } = await apiFetchSafe(`/api/admin/emotional-messages/${confirmDeleteId}`, { method: "DELETE" })
+    if (ok) {
       toast.success("已删除")
     } else {
       toast.error("删除失败")
@@ -128,10 +125,9 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
   /* ── 一键种子 ── */
   const handleSeed = async () => {
     for (const s of SEED_DATA) {
-      await fetch("/api/admin/emotional-messages", {
+      await apiFetchSafe("/api/admin/emotional-messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(s),
+        body: s,
       }).catch(() => {})
     }
     refresh()
