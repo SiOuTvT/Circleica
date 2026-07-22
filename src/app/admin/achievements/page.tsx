@@ -10,6 +10,7 @@ import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { api, apiFetchSafe } from "@/lib/api-client"
 
 interface Achievement {
   id: string
@@ -60,8 +61,8 @@ export default function AdminAchievementsPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch("/api/admin/achievements")
-      if (res.ok) { const j = await res.json(); setAchievements(Array.isArray(j) ? j : j.data ?? []) }
+      const j = await api.get<any>("/api/admin/achievements")
+      setAchievements(Array.isArray(j) ? j : j.data ?? [])
     } finally {
       setLoading(false)
     }
@@ -75,18 +76,18 @@ export default function AdminAchievementsPage() {
     setSaving(true)
     try {
       const isEdit = editing.id
-      const res = await fetch(
-        isEdit ? `/api/admin/achievements/${editing.id}` : "/api/admin/achievements",
-        { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(editing) }
-      )
-      if (res.ok) { toast.success(isEdit ? "已更新" : "已创建"); setEditing(null); load() }
-      else { toast.error("操作失败") }
+      const url = isEdit ? `/api/admin/achievements/${editing.id}` : "/api/admin/achievements"
+      if (isEdit) await api.put(url, editing)
+      else await api.post(url, editing)
+      toast.success(isEdit ? "已更新" : "已创建")
+      setEditing(null)
+      load()
     } finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
-    const res = await fetch(`/api/admin/achievements/${id}`, { method: "DELETE" })
-    if (res.ok) { toast.success("已删除"); load() }
+    const { ok } = await apiFetchSafe(`/api/admin/achievements/${id}`, { method: "DELETE" })
+    if (ok) { toast.success("已删除"); load() }
   }
 
   function startCreate() {

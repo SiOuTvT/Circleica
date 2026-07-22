@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
+import { hasRole } from "@/lib/permissions"
+import type { UserRole } from "@prisma/client"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -46,7 +48,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
   if (!postResult) notFound()
   const post: PostData = postResult
 
-  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+  const isAdmin = hasRole(session?.user?.role as UserRole, "ADMIN")
 
   // flatten comments for client
   const flatComments = post.comments.map((c) => ({

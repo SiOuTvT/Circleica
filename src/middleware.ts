@@ -1,6 +1,6 @@
 import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
-import { isSuperAdminRoute } from "@/lib/permissions"
+import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
 
 // 生成随机 nonce（16 字节 base64）
 function generateNonce(): string {
@@ -60,7 +60,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
     const role = token.role as string
-    if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
+    if (!hasRole(role as UserRole, "ADMIN")) {
       return NextResponse.redirect(new URL("/", req.url))
     }
     // SUPER_ADMIN 专属路由受保护：ADMIN 不可访问（路由清单由 lib/permissions 统一维护）

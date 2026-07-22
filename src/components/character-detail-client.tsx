@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { TranslateBtn } from "./translate-btn"
+import { api } from "@/lib/api-client"
 
 interface CharacterData {
   id: string
@@ -54,9 +55,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
   async function refresh() {
     setLoading(true)
     try {
-      const res = await fetch("/api/characters/random", { cache: "no-store" })
-      if (!res.ok) throw new Error("获取失败")
-      const data = await res.json()
+      const data = await api.get<{ id?: string }>("/api/characters/random", { cache: "no-store" })
       if (data.id) {
         router.push(`/characters/${data.id}`)
       } else {

@@ -9,6 +9,7 @@ import { logger } from "@/lib/logger"
 import { Gamepad2, Loader2, MessageSquare, Search, Tag, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { api } from "@/lib/api-client"
 
 interface SearchResult {
   type: "game" | "user" | "tag" | "forum"
@@ -68,19 +69,16 @@ export function AdminGlobalSearch() {
     setLoading(true)
     timerRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
-        if (res.ok) {
-          const j = await res.json()
-          const raw = j.data ?? j
-          // API 返回 { games: [], users: [], forumPosts: [] }，映射为 SearchResult[]
-          const flat: SearchResult[] = [
-            ...((raw.games ?? []).map((g: { id: string; title: string; coverImage?: string }) => ({ type: "game" as const, id: g.id, title: g.title }))),
-            ...((raw.users ?? []).map((u: { id: string; username: string }) => ({ type: "user" as const, id: u.id, title: u.username }))),
-            ...((raw.forumPosts ?? []).map((p: { id: string; title: string }) => ({ type: "forum" as const, id: p.id, title: p.title }))),
-          ]
-          setResults(flat)
-          setSelectedIndex(0)
-        }
+        const j = await api.get<{ data?: { games?: any[]; users?: any[]; forumPosts?: any[] }; games?: any[]; users?: any[]; forumPosts?: any[] }>(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
+        const raw = (j as any).data ?? j
+        // API 返回 { games: [], users: [], forumPosts: [] }，映射为 SearchResult[]
+        const flat: SearchResult[] = [
+          ...((raw.games ?? []).map((g: { id: string; title: string; coverImage?: string }) => ({ type: "game" as const, id: g.id, title: g.title }))),
+          ...((raw.users ?? []).map((u: { id: string; username: string }) => ({ type: "user" as const, id: u.id, title: u.username }))),
+          ...((raw.forumPosts ?? []).map((p: { id: string; title: string }) => ({ type: "forum" as const, id: p.id, title: p.title }))),
+        ]
+        setResults(flat)
+        setSelectedIndex(0)
       } catch (err) {
         logger.api.warn("[AdminGlobalSearch] search failed", { error: err instanceof Error ? err.message : String(err) })
       } finally {

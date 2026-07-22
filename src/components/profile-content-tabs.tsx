@@ -324,7 +324,7 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
       {comments.map((c) => (
         <Link key={c.id} href={`/games/${c.game.serialId ?? c.game.id}`} className="group rounded-xl bg-secondary/40 p-3.5 hover:bg-secondary/70">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
-            <span className="font-medium text-foreground group-hover:text-primary">{c.game.title}</span><span>·</span><Calendar className="h-3 w-3" /><span>{new Date(c.createdAt).toLocaleDateString("zh-CN")}</span>
+            <span className="font-medium text-foreground group-hover:text-primary">{c.game.title}</span><span>·</span><Calendar className="h-3 w-3" /><span>{formatDate(c.createdAt)}</span>
           </div>
           <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
         </Link>

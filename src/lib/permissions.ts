@@ -8,6 +8,9 @@
  */
 import type { UserRole } from "@prisma/client"
 
+/** 重新导出 UserRole，便于各组件从角色 SSOT 统一引用，避免散落 from "@prisma/client" */
+export type { UserRole }
+
 /** 超级管理员专属页面路由（前缀匹配，按段精确匹配避免误命中） */
 export const SUPER_ADMIN_ROUTES: readonly string[] = [
   "/admin/users",

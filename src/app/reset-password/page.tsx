@@ -4,6 +4,7 @@ import { CheckCircle2, Eye, EyeOff, Loader2, Lock, XCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import { api, apiFetchSafe } from "@/lib/api-client"
 
 function ResetForm() {
   const searchParams  = useSearchParams()
@@ -21,8 +22,7 @@ function ResetForm() {
 
   useEffect(() => {
     if (!token) { setStatus("invalid"); return }
-    fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
-      .then(r => r.json())
+    api.get<{ valid?: boolean; email?: string }>(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
       .then(d => { if (d.valid) { setStatus("valid"); setEmail(d.email) } else setStatus("invalid") })
       .catch(() => setStatus("invalid"))
   }, [token])
@@ -33,21 +33,14 @@ function ResetForm() {
     if (password !== confirm) { setError("两次密码不一致"); return }
     if (password.length < 6) { setError("密码至少6位"); return }
     setSaving(true)
-    try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      })
-      const data = await res.json()
-      setSaving(false)
-      if (!res.ok) { setError(data.error); return }
-      setDone(true)
-      setTimeout(() => router.push("/login"), 2000)
-    } catch (err) {
-      setSaving(false)
-      setError(`重置出错: ${(err as Error).message}`)
-    }
+    const { ok, error } = await apiFetchSafe("/api/auth/reset-password", {
+      method: "POST",
+      body: { token, password },
+    })
+    setSaving(false)
+    if (!ok) { setError(error ?? "重置失败"); return }
+    setDone(true)
+    setTimeout(() => router.push("/login"), 2000)
   }
 
   const fieldCls = "flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all"

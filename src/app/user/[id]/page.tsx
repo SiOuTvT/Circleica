@@ -10,6 +10,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
+import { ROLE_META, type UserRole } from "@/lib/permissions"
 import { formatZhDate } from "@/lib/date"
 import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
 import NextImage from "next/image"
@@ -124,14 +125,10 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">{user.username}</h1>
                 <div className="mt-2 flex items-center justify-center gap-2.5">
                   <span className="text-sm text-muted-foreground/60">UID {uidDisplay}</span>
-                  {user.role === "SUPER_ADMIN" && (
-                    <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-sm font-medium text-amber-400 light:text-amber-600 ring-1 ring-amber-500/20">站长</span>
-                  )}
-                  {user.role === "ADMIN" && (
-                    <span className="rounded-full bg-blue-500/15 px-2.5 py-1 text-sm font-medium text-blue-500 light:text-blue-600 ring-1 ring-blue-500/20">管理员</span>
-                  )}
-                  {user.role === "USER" && (
-                    <span className="rounded-full bg-muted-foreground/10 px-2.5 py-1 text-sm font-medium text-muted-foreground ring-1 ring-muted-foreground/15">用户</span>
+                  {ROLE_META[user.role as UserRole] && (
+                    <span className={`rounded-full px-2.5 py-1 text-sm font-medium ring-1 ${ROLE_META[user.role as UserRole].className}`}>
+                      {ROLE_META[user.role as UserRole].label}
+                    </span>
                   )}
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 px-4">{user.bio || "这个人很懒，什么都没留下。"}</p>

@@ -3,6 +3,7 @@
 import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState("")
@@ -14,14 +15,13 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setError("")
     setLoading(true)
-    const res = await fetch("/api/auth/forgot-password", {
+    const { ok, error } = await apiFetchSafe("/api/auth/forgot-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: { email },
     })
     setLoading(false)
-    if (res.ok) setSent(true)
-    else { const d = await res.json(); setError(d.error) }
+    if (ok) setSent(true)
+    else setError(error ?? "发送失败")
   }
 
   return (

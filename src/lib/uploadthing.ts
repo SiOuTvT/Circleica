@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createUploadthing, type FileRouter } from "uploadthing/next"
+import { hasRole } from "@/lib/permissions"
+import type { UserRole } from "@prisma/client"
 
 const f = createUploadthing()
 
@@ -36,7 +38,7 @@ export const ourFileRouter = {
         where: { id: session.user.id },
         select: { role: true },
       })
-      if (user?.role !== "ADMIN" && user?.role !== "SUPER_ADMIN") throw new Error("无权限")
+      if (!hasRole(user?.role as UserRole, "ADMIN")) throw new Error("无权限")
       return { userId: session.user.id }
     })
     .onUploadComplete(async ({ file }) => {

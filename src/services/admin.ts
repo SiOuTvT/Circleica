@@ -107,14 +107,14 @@ export const avatarFrameService = {
     const affectedUsers = await avatarFrameRepo.findUsersWithFrame(id)
     for (const user of affectedUsers) {
       if (user.composedAvatarUrl) {
-        try { await cleanupOldComposedAvatar(user.composedAvatarUrl) } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
+        try { await cleanupOldComposedAvatar(user.composedAvatarUrl) } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", { error: e instanceof Error ? e.message : String(e) }) }
       }
     }
     // 删除头像框图片文件
     for (const ext of ["png", "webp", "jpg"]) {
       try {
         await fs.unlink(path.join(process.cwd(), "public", "uploads", "avatar-frames", `${id}.${ext}`))
-      } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
+      } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", { error: e instanceof Error ? e.message : String(e) }) }
     }
     const result = await avatarFrameRepo.delete(id)
     await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
@@ -765,5 +765,5 @@ async function cleanupOldComposedAvatar(url: string) {
     // 路径遍历防护：解析后的路径必须在 uploads 目录内
     if (!filePath.startsWith(uploadsDir)) return
     await fs.unlink(filePath)
-  } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", e) }
+  } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", { error: e instanceof Error ? e.message : String(e) }) }
 }

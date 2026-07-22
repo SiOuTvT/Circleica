@@ -7,6 +7,7 @@ import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, X, ArrowUp, 
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { api } from "@/lib/api-client"
 
 interface CollectionItem {
   id: string
@@ -40,8 +41,7 @@ export default function CuratedCollectionsPage() {
 
   const fetchCollections = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/curated-collections")
-      const data = await res.json()
+      const data = await api.get<{ data?: CollectionItem[] }>("/api/admin/curated-collections")
       setCollections(data.data || [])
     } catch {
       toast.error("加载失败")
@@ -59,8 +59,7 @@ export default function CuratedCollectionsPage() {
 
   async function handleEdit(id: string) {
     try {
-      const res = await fetch(`/api/admin/curated-collections/${id}`)
-      const data = await res.json()
+      const data = await api.get<{ data?: CollectionDetail }>(`/api/admin/curated-collections/${id}`)
       setEditing(data.data)
       setShowDialog(true)
     } catch {
@@ -71,7 +70,7 @@ export default function CuratedCollectionsPage() {
   async function handleDelete() {
     if (!deleteId) return
     try {
-      await fetch(`/api/admin/curated-collections/${deleteId}`, { method: "DELETE" })
+      await api.delete(`/api/admin/curated-collections/${deleteId}`)
       toast.success("已删除")
       setCollections(prev => prev.filter(c => c.id !== deleteId))
     } catch {
@@ -182,8 +181,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
-        const res = await fetch(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
-        const data = await res.json()
+        const data = await api.get<{ data?: any }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
         // /api/admin/games 返回 { success, data: [games[], count] }
         const games = Array.isArray(data.data) ? data.data[0] : (data.data?.games || data.games || [])
         setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studioName: g.studioName })))
@@ -225,15 +223,10 @@ function CollectionDialog({ collection, onClose, onSaved }: {
       const url = collection
         ? `/api/admin/curated-collections/${collection.id}`
         : "/api/admin/curated-collections"
-      const method = collection ? "PUT" : "POST"
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => null)
-        throw new Error(err?.error || `保存失败 (${res.status})`)
+      if (collection) {
+        await api.put(url, payload)
+      } else {
+        await api.post(url, payload)
       }
       toast.success(collection ? "合集已更新" : "合集已创建")
       onSaved()

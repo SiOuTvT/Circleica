@@ -5,6 +5,8 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 
 import type { Metadata } from "next"
+import { hasRole } from "@/lib/permissions"
+import type { UserRole } from "@prisma/client"
 
 export const revalidate = 30
 export const metadata: Metadata = {
@@ -55,7 +57,7 @@ export default async function ForumPage() {
 
   const totalPages = Math.ceil(totalPosts / 20)
 
-  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN"
+  const isAdmin = hasRole(session?.user?.role as UserRole, "ADMIN")
 
   return (
     <ForumClient

@@ -65,7 +65,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       const W = 900, H = 500
       const avatarDataUrl = await preloadAvatar()
       const joinDate = formatZhDate(data.createdAt)
-      const roleLabel = getRoleLabel(data.role)
+      const roleLabel = ROLE_META[(data.role as UserRole)].label
       const initials = data.username[0]?.toUpperCase() || "?"
       const bio = data.bio ? data.bio.slice(0, 80) : ""
 

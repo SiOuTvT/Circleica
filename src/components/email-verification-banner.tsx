@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { X, Mail } from "lucide-react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function EmailVerificationBanner() {
   const { data: session } = useSession()
@@ -15,12 +16,11 @@ export function EmailVerificationBanner() {
   async function handleResend() {
     setSending(true)
     try {
-      const res = await fetch("/api/auth/verify-email", { method: "POST" })
-      const data = await res.json()
-      if (res.ok) {
+      const { ok, error } = await apiFetchSafe("/api/auth/verify-email", { method: "POST" })
+      if (ok) {
         toast.success("验证邮件已发送，请检查收件箱")
       } else {
-        toast.error(data.error || "发送失败")
+        toast.error(error || "发送失败")
       }
     } catch {
       toast.error("发送失败")

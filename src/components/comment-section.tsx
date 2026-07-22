@@ -5,7 +5,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { api } from "@/lib/api-client"
 import { formatZhDateTime } from "@/lib/date"
+import { COMMENT_EMOJI_GROUPS } from "@/lib/emoji"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -33,17 +35,8 @@ type SortMode = "newest" | "hottest"
 
 // Avatar 已统一为用户头像组件 UserAvatar（H3 消除 4 处本地定义）
 
-// 表情列表 - 分类
-const EMOJI_CATEGORIES = [
-  {
-    name: "常用",
-    emojis: ["😀", "😂", "🤣", "😍", "🥰", "😘", "😋", "🤔", "😎", "🥺", "😭", "😤", "🤯", "🥳", "🤩", "😴", "🤮", "👻", "💀", "🤡"]
-  },
-  {
-    name: "手势",
-    emojis: ["👍", "👎", "❤️", "🔥", "⭐", "🎉", "🎮", "🎵", "✨", "💯", "🙏", "💪", "👀", "🤝", "👏", "🫡", "🫠", "😈", "🐱", "🐶"]
-  }
-]
+// 表情列表 - 分类（已统一为 @/lib/emoji 的 COMMENT_EMOJI_GROUPS 单一来源）
+
 
 export function CommentSection({ gameId, comments: init, isLoggedIn, currentUserId, onCountChange }: Props) {
   const [comments, setComments] = useState(init)
@@ -160,12 +153,9 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
 
   async function likeComment(commentId: string) {
     try {
-      const res = await fetch(`/api/comments/${commentId}/like`, { method: "POST" })
-      if (res.ok) {
-        const j = await res.json()
-        const d = j.data ?? j
-        setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: d.count ?? c.likeCount } : c))
-      }
+      const j = await api.post<{ data?: { count?: number }; count?: number }>(`/api/comments/${commentId}/like`)
+      const d = j.data ?? j
+      setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: d.count ?? c.likeCount } : c))
     } catch (err) {
       logger.forum.warn("[CommentSection] likeComment failed", { error: err instanceof Error ? err.message : String(err) })
     }
@@ -173,10 +163,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
 
   async function deleteComment(commentId: string) {
     try {
-      const res = await fetch(`/api/comments/${commentId}`, { method: "DELETE" })
-      if (res.ok) {
-        setComments((prev) => prev.filter((c) => c.id !== commentId))
-      }
+      await api.delete(`/api/comments/${commentId}`)
+      setComments((prev) => prev.filter((c) => c.id !== commentId))
     } catch (err) {
       logger.forum.warn("[CommentSection] deleteComment failed", { error: err instanceof Error ? err.message : String(err) })
     }
@@ -281,7 +269,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                           <X className="h-4 w-4" />
                         </button>
                       </div>
-                      {EMOJI_CATEGORIES.map((cat) => (
+                      {COMMENT_EMOJI_GROUPS.map((cat) => (
                         <div key={cat.name} className="mb-2 last:mb-0">
                           <p className="mb-1.5 text-micro font-medium text-muted-foreground">{cat.name}</p>
                           <div className="grid grid-cols-8 sm:grid-cols-10 gap-1">

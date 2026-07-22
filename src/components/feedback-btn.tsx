@@ -4,6 +4,7 @@ import { Flag } from "lucide-react"
 import { useState } from "react"
 import { ReportDialog } from "./game-detail/report-dialog"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function FeedbackBtn({ gameId, isLoggedIn }: { gameId: string; isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false)
@@ -15,16 +16,15 @@ export function FeedbackBtn({ gameId, isLoggedIn }: { gameId: string; isLoggedIn
     if (!reason || submitting) return
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/games/${gameId}/report`, {
+      const { ok, error } = await apiFetchSafe(`/api/games/${gameId}/report`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason }),
+        body: { reason },
       })
-      if (res.ok) {
+      if (ok) {
         toast.success("反馈已提交，感谢")
         setOpen(false)
       } else {
-        toast.error("提交失败，请稍后重试")
+        toast.error(error ?? "提交失败，请稍后重试")
       }
     } catch {
       toast.error("提交失败，请稍后重试")

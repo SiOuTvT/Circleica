@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { api } from "@/lib/api-client"
 
 interface CreatorData {
   id: string
@@ -55,9 +56,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
   async function refresh() {
     setLoading(true)
     try {
-      const res = await fetch("/api/creators/random", { cache: "no-store" })
-      if (!res.ok) throw new Error("获取失败")
-      const data = await res.json()
+      const data = await api.get<{ id?: string }>("/api/creators/random", { cache: "no-store" })
       if (data.id) {
         router.push(`/creators/${data.id}`)
       } else {

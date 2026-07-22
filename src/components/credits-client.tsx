@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Tag } from "@/components/ui/tag"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
+import { api } from "@/lib/api-client"
 
 interface Creator {
   id: string
@@ -70,8 +71,7 @@ export function CreditsClient() {
       if (role !== "all") params.set("role", role)
       if (search) params.set("search", search)
 
-      const res = await fetch(`/api/credits?${params}`)
-      const result = await res.json()
+      const result = await api.get<{ data?: { games?: CreditGame[]; totalPages?: number; total?: number }; games?: CreditGame[]; totalPages?: number; total?: number }>(`/api/credits?${params}`)
       const data = result.data || result
       setGames(data.games || [])
       setTotalPages(data.totalPages || 1)

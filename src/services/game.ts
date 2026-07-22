@@ -7,7 +7,8 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
 import { checkAchievements } from "@/lib/achievements"
-import type { PlayStatusType, Prisma } from "@prisma/client"
+import type { PlayStatusType, Prisma, UserRole } from "@prisma/client"
+import { hasRole } from "@/lib/permissions"
 
 export const gameService = {
   getPaginated(page: number, limit: number, filters?: { q?: string; sort?: string; tag?: string }) {
@@ -141,7 +142,7 @@ export const gameService = {
       select: { userId: true },
     })
     if (!resource) throw new NotFoundError("资源")
-    if (resource.userId !== userId && role !== "ADMIN" && role !== "SUPER_ADMIN") {
+    if (resource.userId !== userId && !hasRole(role as UserRole, "ADMIN")) {
       throw new ForbiddenError("只能删除自己上传的资源")
     }
     return gameRepo.deleteResource(resourceId)
@@ -157,7 +158,7 @@ export const gameService = {
       select: { userId: true },
     })
     if (!resource) throw new NotFoundError("资源")
-    if (resource.userId !== userId && role !== "ADMIN" && role !== "SUPER_ADMIN") {
+    if (resource.userId !== userId && !hasRole(role as UserRole, "ADMIN")) {
       throw new ForbiddenError("只能编辑自己上传的资源")
     }
     const parsed = gameResourceCreateSchema.partial().parse(raw)

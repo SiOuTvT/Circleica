@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export default function LoginPage() {
   return (
@@ -73,14 +74,12 @@ function LoginContent() {
     const hasTurnstile = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
     if (hasTurnstile && !captchaToken) { setError("请完成验证码验证"); return }
     setLoading(true)
-    const res = await fetch("/api/auth/register", {
+    const { ok, error } = await apiFetchSafe("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: regForm.username, email: regForm.email, password: regForm.password, captchaToken }),
+      body: { username: regForm.username, email: regForm.email, password: regForm.password, captchaToken },
     })
-    const data = await res.json()
     setLoading(false)
-    if (!res.ok) { setError(data.error); return }
+    if (!ok) { setError(error ?? "注册失败"); return }
     // 注册成功后自动切换到登录
     setTab("login")
     setError("")

@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { api } from "@/lib/api-client"
 
 interface NotificationItem {
   id: string
@@ -94,10 +95,7 @@ export default function NotificationsClient({
   useEffect(() => {
     if (!hasMarkedAllRead.current && unreadCount > 0) {
       hasMarkedAllRead.current = true
-      fetch("/api/notifications", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      }).then(() => {
+      api.put("/api/notifications").then(() => {
         setUnreadCount(0)
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
       }).catch(() => {})
@@ -108,9 +106,7 @@ export default function NotificationsClient({
     if (!nextCursor || loadingMore) return
     setLoadingMore(true)
     try {
-      const res = await fetch(`/api/notifications?cursor=${nextCursor}`)
-      if (!res.ok) return
-      const data = await res.json()
+      const data = await api.get<{ notifications?: NotificationItem[]; nextCursor?: string | null }>(`/api/notifications?cursor=${nextCursor}`)
       setNotifications((prev) => [...prev, ...(data.notifications ?? [])])
       setNextCursor(data.nextCursor)
     } catch (err) { logger.api.warn("[NotificationsClient] fetchMore failed", { error: err instanceof Error ? err.message : String(err) }) }
@@ -119,11 +115,7 @@ export default function NotificationsClient({
 
   async function markRead(ids: string[]) {
     try {
-      await fetch("/api/notifications", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      })
+      await api.put("/api/notifications", { ids })
       setNotifications((prev) => prev.map((n) => ids.includes(n.id) ? { ...n, isRead: true } : n))
       setUnreadCount((c) => Math.max(0, c - ids.length))
     } catch { toast.error("标记已读失败，请稍后再试") }
@@ -136,11 +128,7 @@ export default function NotificationsClient({
 
   async function deleteNotifications(ids: string[]) {
     try {
-      await fetch("/api/notifications", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      })
+      await api.delete("/api/notifications", { body: { ids } })
       setNotifications((prev) => prev.filter((n) => !ids.includes(n.id)))
       setUnreadCount((c) => {
         const deletedUnread = notifications.filter(n => ids.includes(n.id) && !n.isRead).length
@@ -156,11 +144,7 @@ export default function NotificationsClient({
 
   async function deleteAll() {
     try {
-      await fetch("/api/notifications", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      })
+      await api.delete("/api/notifications", { body: {} })
       setNotifications([])
       setUnreadCount(0)
     } catch { toast.error("清空通知失败，请稍后再试") }

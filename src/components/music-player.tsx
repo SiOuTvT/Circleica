@@ -3,7 +3,9 @@
 import { cn } from "@/lib/utils";
 import { Music2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react"
+import { hasRole } from "@/lib/permissions"
+import type { UserRole } from "@prisma/client";
 
 interface Track { id: string; title: string; url: string }
 
@@ -17,7 +19,7 @@ export function MusicPlayer() {
   const [expanded, setExpanded] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  const isSuperAdmin = session?.user?.role === "SUPER_ADMIN"
+  const isSuperAdmin = hasRole(session?.user?.role as UserRole, "SUPER_ADMIN")
 
   useEffect(() => {
     if (!isSuperAdmin) return

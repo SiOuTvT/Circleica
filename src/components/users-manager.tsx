@@ -2,6 +2,7 @@
 
 import { KeyRound, Link2, Loader2, Shield, ShieldOff, Copy } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { ROLE_META, type UserRole } from "@/lib/permissions"
 import Image from "next/image"
 import React, { useState } from "react"
 import { toast } from "sonner"
@@ -13,16 +14,7 @@ interface UserItem {
   _count: { favorites: number; comments: number; checkIns: number }
 }
 
-// ── 角色配置 ──
-const ROLE_CONFIG = {
-  SUPER_ADMIN: { label: "站长", className: "bg-amber-500/15 text-amber-600 light:text-amber-700 ring-1 ring-amber-500/20" },
-  ADMIN: { label: "管理员", className: "bg-blue-500/15 text-blue-600 light:text-blue-700 ring-1 ring-blue-500/20" },
-  USER: { label: "用户", className: "bg-muted text-muted-foreground ring-1 ring-border" },
-} as const
-
-function getRoleConfig(role: string) {
-  return ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] || ROLE_CONFIG.USER
-}
+// 角色展示统一使用 @/lib/permissions 的 ROLE_META
 
 export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
   const [users, setUsers] = useState(initialUsers)
@@ -149,7 +141,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                 </td>
               </tr>
             ) : users.map(u => {
-              const roleCfg = getRoleConfig(u.role)
+              const roleCfg = ROLE_META[u.role as UserRole]
               return (
                 <React.Fragment key={u.id}>
                   <tr className="group hover:bg-accent/30 transition-colors">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface EmMsg {
   id: string
@@ -22,11 +23,11 @@ async function loadMessages(): Promise<EmMsg[]> {
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 10000)
-  fetchPromise = fetch("/api/emotional-messages", { signal: controller.signal })
-    .then((res) => (res.ok ? res.json() : { data: [] }))
-    .then((json) => {
+  fetchPromise = apiFetchSafe<EmMsg[]>("/api/emotional-messages", { signal: controller.signal })
+    .then((result) => {
       clearTimeout(timeoutId)
-      const arr = Array.isArray(json) ? json : (json.data ?? [])
+      const json = result.ok ? result.data : { data: [] }
+      const arr = Array.isArray(json) ? json : (json?.data ?? [])
       cachedMessages = arr
       return arr
     })

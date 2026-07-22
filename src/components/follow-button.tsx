@@ -4,6 +4,7 @@ import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Loader2, UserMinus, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface Props {
   targetUserId: string
@@ -21,8 +22,8 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     if (loading) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/follow/${targetUserId}`, { method: "POST" })
-      if (res.ok) {
+      const { ok } = await apiFetchSafe(`/api/follow/${targetUserId}`, { method: "POST" })
+      if (ok) {
         setFollowing(!following)
         toast.success(following
           ? (followMsgs.unfollow_success ? `${followMsgs.unfollow_success.emoji} ${followMsgs.unfollow_success.title}` : "已取消关注")

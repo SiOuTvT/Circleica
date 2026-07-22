@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { api } from "@/lib/api-client"
 
 interface Achievement {
   id: string
@@ -34,9 +35,8 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
   useEffect(() => {
     if (!open || achievements.length > 0) return
     setLoading(true)
-    fetch("/api/achievements")
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setAchievements(data) })
+    api.get("/api/achievements")
+      .then((data) => { if (Array.isArray(data)) setAchievements(data as Achievement[]) })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [open, achievements.length])

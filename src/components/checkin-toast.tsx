@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import { api } from "@/lib/api-client"
 
 interface CheckInToastProps {
   marks: number
@@ -33,8 +34,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
   // 获取签到配置
   useEffect(() => {
     const controller = new AbortController()
-    fetch("/api/checkin-config", { signal: controller.signal })
-      .then((r) => r.json())
+    api.get<{ data?: CheckInConfig } & CheckInConfig>("/api/checkin-config", { signal: controller.signal })
       .then((res) => { const d = res.data ?? res; setConfig(d) })
       .catch(() => setConfig(DEFAULT_CONFIG))
     return () => controller.abort()

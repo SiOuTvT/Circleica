@@ -9,6 +9,7 @@ import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { useCallback, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface FrameItem {
   id: string
@@ -38,11 +39,8 @@ export function AvatarFrameSelector({
   const loadFrames = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch("/api/user/avatar-frame")
-      if (res.ok) {
-        const data = await res.json()
-        setFrames(data.frames || [])
-      }
+      const { ok, data } = await apiFetchSafe<{ frames?: FrameItem[] }>("/api/user/avatar-frame")
+      if (ok) { setFrames(data?.frames || []) }
     } catch (e) {
       logger.upload.error("加载头像框列表失败", e)
     } finally {
@@ -61,12 +59,8 @@ export function AvatarFrameSelector({
     setSelected(frameId)
     setSaving(true)
     try {
-      const res = await fetch("/api/user/avatar-frame", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ frameId }),
-      })
-      if (res.ok) {
+      const { ok } = await apiFetchSafe("/api/user/avatar-frame", { method: "PUT", body: { frameId } })
+      if (ok) {
           await update({ avatarFrameId: frameId })
         }
     } finally {

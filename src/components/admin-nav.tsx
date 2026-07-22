@@ -1,8 +1,10 @@
 ﻿"use client"
 
 import { Badge } from "@/components/ui/badge"
+import { ROLE_META } from "@/lib/permissions"
 import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
   ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart,
@@ -107,10 +109,9 @@ export function AdminNav() {
 
   // 获取待办数量
   useEffect(() => {
-    fetch("/api/admin/counts")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data) setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0 })
+    api.get<{ reports?: number; unpublishedGames?: number }>("/api/admin/counts")
+      .then((data) => {
+        setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0 })
       })
       .catch(() => {})
   }, [])
@@ -207,7 +208,7 @@ export function AdminNav() {
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{session?.user?.name || "管理员"}</p>
                 <span className="inline-block rounded px-1.5 py-0.5 text-micro font-medium bg-primary/10 text-primary">
-                  {userRole === "SUPER_ADMIN" ? "超级管理员" : "管理员"}
+                  {ROLE_META[userRole as UserRole]?.label ?? "管理员"}
                 </span>
               </div>
             </div>

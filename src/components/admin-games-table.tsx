@@ -7,6 +7,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { AdminDeleteButton } from "./admin-delete-button"
+import { api } from "@/lib/api-client"
 
 type Game = {
   id: string
@@ -45,12 +46,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
     if (selected.size === 0) return
     setDeleting(true)
     try {
-      const res = await fetch("/api/admin/games/batch-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: Array.from(selected) }),
-      })
-      const data = await res.json()
+      const data = await api.post<{ ok?: boolean; deleted?: number; error?: string }>("/api/admin/games/batch-delete", { ids: Array.from(selected) })
       if (data.ok) {
         toast.success(`成功删除 ${data.deleted} 个游戏`)
         setSelected(new Set())

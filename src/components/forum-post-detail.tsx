@@ -6,6 +6,7 @@ import NextImage from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { api } from "@/lib/api-client"
 import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
@@ -70,10 +71,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     const prev = post.likeCount
     setPost(p => ({ ...p, likeCount: p.likeCount + 1 }))
     try {
-      const res = await fetch(`/api/forum/posts/${post.id}/like`, { method: "POST" })
-      if (!res.ok) throw new Error()
-      const j = await res.json()
-      const d = j.data ?? j
+      const j = await api.post<any>(`/api/forum/posts/${post.id}/like`)
+      const d = j?.data ?? j
       setPost(p => ({ ...p, likeCount: d.likeCount ?? p.likeCount }))
     } catch {
       setPost(p => ({ ...p, likeCount: prev }))
@@ -84,9 +83,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   async function likeComment(id: string) {
     if (!isLoggedIn) return
     try {
-      const res = await fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
-      const j = await res.json()
-      const d = j.data ?? j
+      const j = await api.post<any>(`/api/forum/comments/${id}/like`)
+      const d = j?.data ?? j
       setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
@@ -94,10 +92,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   // ── 标记已解决 ──
   async function toggleSolve() {
     try {
-      const res = await fetch(`/api/forum/posts/${post.id}/solve`, { method: "POST" })
-      const j = await res.json()
-      const d = j.data ?? j
-      if (res.ok) setPost(p => ({ ...p, isSolved: d.isSolved ?? p.isSolved }))
+      const j = await api.post<any>(`/api/forum/posts/${post.id}/solve`)
+      const d = j?.data ?? j
+      setPost(p => ({ ...p, isSolved: d.isSolved ?? p.isSolved }))
     } catch (err) { logger.forum.warn("[ForumPostDetail] toggleSolve failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
@@ -106,8 +103,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     setConfirmMessage("确定要删除这个帖子吗？")
     setConfirmCallback(() => async () => {
       try {
-        const res = await fetch(`/api/forum/posts/${post.id}`, { method: "DELETE" })
-        if (res.ok) window.location.href = "/forum"
+        await api.delete(`/api/forum/posts/${post.id}`)
+        window.location.href = "/forum"
       } catch (err) { logger.forum.warn("[ForumPostDetail] deletePost failed", { error: err instanceof Error ? err.message : String(err) }) }
     })
     setConfirmOpen(true)
@@ -118,11 +115,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     setConfirmMessage("确定要删除这条评论吗？")
     setConfirmCallback(() => async () => {
       try {
-        const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-        if (res.ok) {
-          setComments(cs => cs.filter(c => c.id !== id))
-          setPost(p => ({ ...p, commentCount: Math.max(0, p.commentCount - 1) }))
-        }
+        await api.delete(`/api/forum/comments/${id}`)
+        setComments(cs => cs.filter(c => c.id !== id))
+        setPost(p => ({ ...p, commentCount: Math.max(0, p.commentCount - 1) }))
       } catch (err) { logger.forum.warn("[ForumPostDetail] deleteComment failed", { error: err instanceof Error ? err.message : String(err) }) }
     })
     setConfirmOpen(true)
