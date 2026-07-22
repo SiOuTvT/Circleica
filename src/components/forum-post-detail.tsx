@@ -6,7 +6,7 @@ import NextImage from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { api } from "@/lib/api-client"
+import { api, apiFetchSafe } from "@/lib/api-client"
 import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
@@ -314,11 +314,10 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                       <div className="flex gap-2">
                         <button onClick={async () => {
                           if (!editCommentText.trim()) return
-                          const res = await fetch(`/api/forum/comments/${c.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: editCommentText.trim() }) })
-                          if (res.ok) {
-                            const j = await res.json()
-                            const d = j.data ?? j
-                            setComments(cs => cs.map(x => x.id === c.id ? { ...x, content: d.content ?? editCommentText, updatedAt: d.updatedAt } : x))
+                          const { ok, data } = await apiFetchSafe<{ data?: Comment; content?: string; updatedAt?: string }>(`/api/forum/comments/${c.id}`, { method: "PUT", body: { content: editCommentText.trim() } })
+                          if (ok) {
+                            const d = (data?.data ?? data) as Partial<Comment> | undefined
+                            setComments(cs => cs.map(x => x.id === c.id ? { ...x, content: d?.content ?? editCommentText, updatedAt: d?.updatedAt } : x))
                             setEditingComment(null)
                           }
                         }}
@@ -483,15 +482,13 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                 <button onClick={async () => {
                   if (!editTitle.trim() || !editContent.trim()) return
                   setEditSubmitting(true)
-                  const res = await fetch(`/api/forum/posts/${post.id}`, {
+                  const { ok, data } = await apiFetchSafe<{ data?: PostData; title?: string; content?: string }>(`/api/forum/posts/${post.id}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
+                    body: { title: editTitle.trim(), content: editContent.trim() },
                   })
-                  if (res.ok) {
-                    const j = await res.json()
-                    const d = j.data ?? j
-                    setPost(p => ({ ...p, title: d.title ?? editTitle, content: d.content ?? editContent }))
+                  if (ok) {
+                    const d = (data?.data ?? data) as Partial<PostData> | undefined
+                    setPost(p => ({ ...p, title: d?.title ?? editTitle, content: d?.content ?? editContent }))
                     setEditing(false)
                   }
                   setEditSubmitting(false)

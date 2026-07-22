@@ -5,6 +5,7 @@ import { MessageSquare, X } from "lucide-react"
 import Link from "next/link"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface ForumSidebarProps {
   open: boolean
@@ -75,9 +76,8 @@ function ForumSidebarPosts() {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetch("/api/forum/posts", { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => { setPosts((data.posts || []).slice(0, 20)); setLoading(false) })
+    apiFetchSafe<{ posts?: any[] }>("/api/forum/posts", { signal: controller.signal })
+      .then(({ ok, data }) => { if (ok) setPosts(((data?.posts as any[]) || []).slice(0, 20)); setLoading(false) })
       .catch(() => setLoading(false))
     return () => controller.abort()
   }, [])

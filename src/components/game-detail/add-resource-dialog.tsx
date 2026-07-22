@@ -19,6 +19,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 /* ─────────── 默认选项（API 未返回时的兜底） ─────────── */
 
@@ -35,10 +36,14 @@ function useResourceTagOptions() {
   const [options, setOptions] = useState(DEFAULT_OPTIONS)
 
   useEffect(() => {
-    fetch("/api/resource-tags")
-      .then(r => r.json())
-      .then(data => {
-        setOptions({
+    apiFetchSafe<{
+      resource_platforms?: string[]
+      resource_languages?: string[]
+      resource_run_types?: string[]
+      resource_content_types?: string[]
+    }>("/api/resource-tags")
+      .then(({ data }) => {
+        if (data) setOptions({
           platforms: data.resource_platforms || DEFAULT_OPTIONS.platforms,
           languages: data.resource_languages || DEFAULT_OPTIONS.languages,
           runTypes: data.resource_run_types || DEFAULT_OPTIONS.runTypes,

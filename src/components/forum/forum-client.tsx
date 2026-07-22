@@ -13,6 +13,7 @@ import { PostDetailModal } from "./post-detail-modal"
 import { EditPostModal } from "./edit-post-modal"
 import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
+import { api, apiFetchSafe } from "@/lib/api-client"
 
 export interface ForumClientProps {
   initialPosts: Post[]
@@ -72,10 +73,9 @@ export function ForumClient({
     if (search) params.set("search", search)
 
     try {
-      const res = await fetch(`/api/forum/posts?${params}`)
-      if (res.ok) {
-        const j = await res.json()
-        const d = j.data ?? j
+      const { ok, data } = await apiFetchSafe<{ data?: any; posts?: Post[]; page?: number; totalPages?: number }>(`/api/forum/posts?${params}`)
+      if (ok) {
+        const d = data?.data ?? data
         if (reset) {
           setPosts(d.posts ?? [])
         } else {
@@ -105,10 +105,9 @@ export function ForumClient({
       params.set("limit", "20")
       if (activeCategory) params.set("category", activeCategory)
       if (debouncedSearch) params.set("search", debouncedSearch)
-      const res = await fetch(`/api/forum/posts?${params}`)
-      if (res.ok) {
-        const j = await res.json()
-        const d = j.data ?? j
+      const { ok, data } = await apiFetchSafe<{ data?: any; posts?: Post[]; totalPages?: number }>(`/api/forum/posts?${params}`)
+      if (ok) {
+        const d = data?.data ?? data
         if (d.posts && d.posts.length > 0) {
           setPosts(prev => [...prev, ...d.posts])
           setCurrentPage(nextPage)
@@ -127,8 +126,8 @@ export function ForumClient({
 
   // 打开帖子详情
   const openPost = useCallback(async (id: string) => {
-    const res = await fetch(`/api/forum/posts/${id}`)
-    if (res.ok) { const j = await res.json(); setActivePost(j.data ?? j) }
+    const { ok, data } = await apiFetchSafe<any>(`/api/forum/posts/${id}`)
+    if (ok) { setActivePost((data?.data ?? data) as (Post & { comments: Comment[] }) | null) }
   }, [])
 
   // URL 参数自动打开
@@ -162,8 +161,8 @@ export function ForumClient({
   const handleDeletePost = useCallback((id: string) => {
     setConfirmMessage("确定要删除这个帖子吗？")
     setConfirmCallback(() => async () => {
-      const res = await fetch(`/api/forum/posts/${id}`, { method: "DELETE" })
-      if (res.ok) {
+      const { ok } = await apiFetchSafe(`/api/forum/posts/${id}`, { method: "DELETE" })
+      if (ok) {
         setPosts(p => p.filter(x => x.id !== id))
         setActivePost(null)
       }
@@ -237,11 +236,12 @@ export function ForumClient({
           const prev = posts.find(p => p.id === id)?.likeCount ?? 0
           setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
           setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
-          fetch(`/api/forum/posts/${id}/like`, { method: "POST" })
-            .then(r => r.json())
-            .then(data => {
-              setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data.likeCount } : x))
-              setActivePost(p => p && { ...p, likeCount: data.likeCount })
+          apiFetchSafe<{ likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
+            .then(({ ok, data }) => {
+              if (ok) {
+                setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data?.likeCount ?? x.likeCount } : x))
+                setActivePost(p => p && { ...p, likeCount: data?.likeCount ?? p.likeCount })
+              }
             })
             .catch(() => {
               setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: prev } : x))
@@ -250,12 +250,11 @@ export function ForumClient({
         }}
         onToggleSolve={async (id) => {
           try {
-            const res = await fetch(`/api/forum/posts/${id}/solve`, { method: "POST" })
-            const j = await res.json()
-            const d = j.data ?? j
-            if (res.ok) {
-              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d.isSolved } : x))
-              setActivePost(p => p && { ...p, isSolved: d.isSolved })
+            const { ok, data } = await apiFetchSafe<{ data?: any; isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
+            const d = data?.data ?? data
+            if (ok) {
+              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d?.isSolved } : x))
+              setActivePost(p => p && { ...p, isSolved: d?.isSolved })
             }
           } catch (err) { logger.forum.warn("[ForumClient] toggle solve failed", { error: err instanceof Error ? err.message : String(err) }) }
         }}
@@ -265,10 +264,11 @@ export function ForumClient({
         commentInputRef={commentInputRef}
         onLikeComment={(id) => {
           if (!isLoggedIn) return
-          fetch(`/api/forum/comments/${id}/like`, { method: "POST" })
-            .then(r => r.json())
-            .then(data => {
-              setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data.likeCount } : c) })
+          apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
+            .then(({ ok, data }) => {
+              if (ok) {
+                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data?.likeCount ?? c.likeCount } : c) })
+              }
             })
             .catch(() => {})
         }}
@@ -277,8 +277,8 @@ export function ForumClient({
           setConfirmMessage("确定要删除这条评论吗？")
           setConfirmCallback(() => async () => {
             try {
-              const res = await fetch(`/api/forum/comments/${id}`, { method: "DELETE" })
-              if (res.ok) {
+              const { ok } = await apiFetchSafe(`/api/forum/comments/${id}`, { method: "DELETE" })
+              if (ok) {
                 setActivePost(p => p && { ...p, comments: p.comments.filter(c => c.id !== id) })
                 setPosts(p => p.map(x => x.id === targetPostId ? { ...x, commentCount: Math.max(0, x.commentCount - 1) } : x))
               }
@@ -292,19 +292,16 @@ export function ForumClient({
         post={editingPost}
         onClose={() => setEditingPost(null)}
         onSave={async (id, title, content) => {
-          const res = await fetch(`/api/forum/posts/${id}`, {
+          const { ok, data, error } = await apiFetchSafe<{ data?: any; title?: string; content?: string; updatedAt?: string }>(`/api/forum/posts/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, content }),
+            body: { title, content },
           })
-          if (!res.ok) {
-            const err = await res.json().catch(() => null)
-            throw new Error(err?.error || "保存失败，请稍后再试")
+          if (!ok) {
+            throw new Error(error || "保存失败，请稍后再试")
           }
-          const updated = await res.json()
-          const wrapped = updated.data ?? updated
-          setPosts(p => p.map(x => x.id === id ? { ...x, title: wrapped.title, content: wrapped.content, updatedAt: wrapped.updatedAt } : x))
-          setActivePost(p => p && { ...p, title: wrapped.title, content: wrapped.content, updatedAt: wrapped.updatedAt })
+          const wrapped = data?.data ?? data
+          setPosts(p => p.map(x => x.id === id ? { ...x, title: wrapped?.title, content: wrapped?.content, updatedAt: wrapped?.updatedAt } : x))
+          setActivePost(p => p && { ...p, title: wrapped?.title, content: wrapped?.content, updatedAt: wrapped?.updatedAt })
           setEditingPost(null)
         }}
       />

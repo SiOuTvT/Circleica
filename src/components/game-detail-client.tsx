@@ -6,6 +6,7 @@ import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
 import { ReportDialog } from "./game-detail/report-dialog"
 import { Tag } from "@/components/ui/tag"
@@ -126,12 +127,11 @@ export default function GameDetailClient({
     if (!reason || reportSubmitting) return
     setReportSubmitting(true)
     try {
-      const res = await fetch(`/api/games/${gameId}/report`, {
+      const { ok } = await apiFetchSafe(`/api/games/${gameId}/report`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason }),
+        body: { reason },
       })
-      if (res.ok) {
+      if (ok) {
         toast.success("举报已提交，感谢反馈")
         setReportOpen(false)
       } else {
@@ -190,17 +190,18 @@ export default function GameDetailClient({
     setFavCnt(prevFav ? prevCnt - 1 : prevCnt + 1)
 
     try {
-      const res = await fetch(`/api/games/${gameId}/favorite`, { method: "POST", signal: controller.signal })
-      if (res.ok) {
-        const data = await res.json()
-        if (!controller.signal.aborted) {
-          setFav(data.isFav)
-          setFavCnt(data.count)
-          window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: data.isFav } }))
-          toast.success(data.isFav
-            ? (favMsgs.favorite_added ? `${favMsgs.favorite_added.emoji} ${favMsgs.favorite_added.title}` : "已收藏")
-            : (favMsgs.favorite_removed ? `${favMsgs.favorite_removed.emoji} ${favMsgs.favorite_removed.title}` : "已取消收藏"))
-        }
+      const { ok, data } = await apiFetchSafe<{ isFav?: boolean; count?: number }>(`/api/games/${gameId}/favorite`, { method: "POST", signal: controller.signal })
+      if (controller.signal.aborted) return
+      if (ok) {
+        setFav(data?.isFav ?? prevFav)
+        setFavCnt(data?.count ?? prevCnt)
+        window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: data?.isFav } }))
+        toast.success(data?.isFav
+          ? (favMsgs.favorite_added ? `${favMsgs.favorite_added.emoji} ${favMsgs.favorite_added.title}` : "已收藏")
+          : (favMsgs.favorite_removed ? `${favMsgs.favorite_removed.emoji} ${favMsgs.favorite_removed.title}` : "已取消收藏"))
+      } else {
+        setFav(prevFav)
+        setFavCnt(prevCnt)
       }
     } catch {
       if (!controller.signal.aborted) {

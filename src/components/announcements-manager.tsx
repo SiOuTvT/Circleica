@@ -11,12 +11,11 @@ import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { formatMonthDay } from "@/lib/date"
+import { apiFetchSafe } from "@/lib/api-client"
+import { stripHtml } from "@/lib/sanitize"
 import { toast } from "sonner"
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim()
-}
-
+// 去除 HTML 标签统一使用 @/lib/sanitize 的 stripHtml（XSS 安全）
 // 日期展示统一使用 @/lib/date 的 formatMonthDay
 
 const STATUS_LABELS: Record<string, string> = { draft: "草稿", published: "已发布", hidden: "已隐藏" }
@@ -92,50 +91,47 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     e.preventDefault(); setError(""); setAdding(true)
     const url = isEditing ? `/api/admin/announcements/${editingId}` : "/api/admin/announcements"
     const method = isEditing ? "PUT" : "POST"
-    const res = await fetch(url, {
-      method, headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const { ok, data, error } = await apiFetchSafe<{ data: Ann }>(url, {
+      method,
+      body: {
         title: title.trim(), summary: summary.trim(), content: content.trim(),
         imageUrl, link: link.trim(), status, isPinned,
         startAt: startAt || undefined, endAt: endAt || undefined,
-      }),
+      },
     })
-    const data = await res.json()
     setAdding(false)
-    if (!res.ok) { setError(data.error || "操作失败"); return }
+    if (!ok) { setError(error || "操作失败"); return }
 
     if (isEditing) {
-      setAnns(prev => prev.map(a => a.id === editingId ? { ...a, ...data.data } : a))
+      setAnns(prev => prev.map(a => a.id === editingId ? { ...a, ...data?.data } : a))
       toast.success("公告已更新"); cancelEdit()
     } else {
-      setAnns(prev => [data.data ?? data, ...prev])
+      setAnns(prev => [(data?.data ?? data) as Ann, ...prev])
       clearDraft(); clearForm(); toast.success("公告已创建")
     }
   }
 
   async function togglePinned(id: string, current: boolean) {
-    const res = await fetch(`/api/admin/announcements/${id}`, {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isPinned: !current }),
+    const { ok } = await apiFetchSafe(`/api/admin/announcements/${id}`, {
+      method: "PUT", body: { isPinned: !current },
     })
-    if (res.ok) setAnns(prev => prev.map(a => a.id === id ? { ...a, isPinned: !current } : a))
+    if (ok) setAnns(prev => prev.map(a => a.id === id ? { ...a, isPinned: !current } : a))
   }
 
   async function toggleStatus(id: string, newStatus: string) {
-    const res = await fetch(`/api/admin/announcements/${id}`, {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus, isActive: newStatus !== "hidden" }),
+    const { ok } = await apiFetchSafe(`/api/admin/announcements/${id}`, {
+      method: "PUT", body: { status: newStatus, isActive: newStatus !== "hidden" },
     })
-    if (res.ok) {
+    if (ok) {
       setAnns(prev => prev.map(a => a.id === id ? { ...a, status: newStatus, isActive: newStatus !== "hidden" } : a))
       toast.success(`已${STATUS_LABELS[newStatus]}`)
     }
   }
 
   async function deleteAnn(id: string) {
-    const res = await fetch(`/api/admin/announcements/${id}`, { method: "DELETE" })
-    if (res.ok) { toast.success("公告已删除"); setAnns(prev => prev.filter(a => a.id !== id)) }
-    else { toast.error("删除失败"); throw new Error("删除失败") }
+    const { ok, error } = await apiFetchSafe(`/api/admin/announcements/${id}`, { method: "DELETE" })
+    if (ok) { toast.success("公告已删除"); setAnns(prev => prev.filter(a => a.id !== id)) }
+    else { toast.error(error || "删除失败"); throw new Error("删除失败") }
   }
 
   const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
@@ -164,11 +160,10 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     const newAnns = [...anns]; const [removed] = newAnns.splice(dragIndex, 1)
     newAnns.splice(targetIndex, 0, removed); setAnns(newAnns)
     try {
-      const res = await fetch("/api/admin/announcements/reorder", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderedIds: newAnns.map(a => a.id) }),
+      const { ok } = await apiFetchSafe("/api/admin/announcements/reorder", {
+        method: "POST", body: { orderedIds: newAnns.map(a => a.id) },
       })
-      if (!res.ok) toast.error("排序保存失败")
+      if (!ok) toast.error("排序保存失败")
     } catch { toast.error("排序保存失败") }
   }, [draggingId, anns])
 

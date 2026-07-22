@@ -9,6 +9,7 @@ import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
 import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 import { EMOJI_LIST } from "@/lib/emoji"
 import { timeAgo } from "@/lib/time-ago"
 import { UserAvatar } from "@/components/user-avatar"
@@ -200,17 +201,16 @@ export function PostDetailModal({
   const submitEditComment = useCallback(async (id: string) => {
     if (!editCommentText.trim()) return
     try {
-      const res = await fetch(`/api/forum/comments/${id}`, {
+      const { ok, data } = await apiFetchSafe<{ data?: Comment; content?: string; updatedAt?: string }>(`/api/forum/comments/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: editCommentText.trim() }),
+        body: { content: editCommentText.trim() },
       })
-      if (res.ok) {
-        const updated = await res.json()
+      if (ok) {
+        const updated = (data?.data ?? data) as Partial<Comment> | undefined
         setEditingComment(null)
         // 更新本地评论内容
         setLocalComments((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, content: updated.content ?? editCommentText.trim(), updatedAt: updated.updatedAt } : c))
+          prev.map((c) => (c.id === id ? { ...c, content: updated?.content ?? editCommentText.trim(), updatedAt: updated?.updatedAt } : c))
         )
       }
     } catch (err) { logger.forum.warn("[PostDetailModal] editComment failed", { error: err instanceof Error ? err.message : String(err) }) }

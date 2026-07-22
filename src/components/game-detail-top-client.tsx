@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { Download, Heart, Loader2, Share2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
@@ -43,11 +44,10 @@ export function GameDetailTopClient({
   async function handleUnfavorite() {
     setUnfavoriting(true)
     try {
-      const res = await fetch(`/api/games/${gameId}/favorite`, {
+      const { ok } = await apiFetchSafe(`/api/games/${gameId}/favorite`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
       })
-      if (res.ok) {
+      if (ok) {
         setFav(false)
         window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: false } }))
         toast.success("已取消收藏")
