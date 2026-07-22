@@ -7,6 +7,7 @@ import { applyThemeColor } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { apiFetchSafe } from "@/lib/api-client"
 
 /* ── 复用常量 ── */
 
@@ -206,10 +207,9 @@ export function SetupWizard() {
     setSubmitStage(0)
     const stageTimer = setInterval(() => setSubmitStage(p => Math.min(p + 1, SUBMIT_STAGES.length - 1)), 800)
     try {
-      const res = await fetch("/api/setup", {
+      const { ok, error } = await apiFetchSafe("/api/setup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           siteName: form.siteName.trim(),
           siteDescription: form.siteDescription.trim(),
           siteLogo: form.siteLogo,
@@ -218,10 +218,9 @@ export function SetupWizard() {
           themeColor: form.themeColor,
           tagGroupColors: form.tagGroupColors,
           admin: { username: form.username.trim(), email: form.email.trim(), password: form.password },
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "初始化失败")
+      if (!ok) throw new Error(error || "初始化失败")
       setSubmitStage(2)
 
       const themeSettings = { themeColor: form.themeColor, themeRadius: 12, themeShadowIntensity: 50, themeAlpha: 15 }

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 
 type Suggestion = {
   id: string
@@ -54,11 +55,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     abortRef.current = controller
 
     try {
-      const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
-      if (!controller.signal.aborted && res.ok) {
-        const j = await res.json()
-        const arr = Array.isArray(j) ? j : j.data ?? []
-        setSuggestions(arr)
+      const { ok, data } = await apiFetchSafe<unknown[] | { data?: unknown[] }>(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+      if (!controller.signal.aborted && ok) {
+        const arr = Array.isArray(data) ? data : data?.data ?? []
+        setSuggestions(arr as Suggestion[])
         setShowSuggestions(arr.length > 0)
         setActiveIdx(-1)
       }
@@ -86,11 +86,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     if (abortRef.current) abortRef.current.abort()
     const controller = new AbortController()
     abortRef.current = controller
-    fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
-      .then(r => r.json())
-      .then(j => {
-        const arr = Array.isArray(j) ? j : j.data ?? []
-        setSuggestions(arr)
+    apiFetchSafe<unknown[] | { data?: unknown[] }>(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+      .then(({ data }) => {
+        const arr = Array.isArray(data) ? data : data?.data ?? []
+        setSuggestions(arr as Suggestion[])
         setShowSuggestions(arr.length > 0)
       })
       .catch(() => {})

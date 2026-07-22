@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 import { ColorPicker } from "./color-picker"
 import { TagInlineEditor } from "./tag-inline-editor"
 import { PositionCheckboxGroup } from "./tag-position-checkbox"
@@ -95,19 +96,17 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const res = await fetch("/api/admin/tag-groups", {
+      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tag-groups", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: newGroupName.trim(),
           description: newGroupDesc,
           color: newGroupColor,
           positions: newGroupPositions,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error ?? "创建失败")
+      if (!ok) {
+        setError(error ?? "创建失败")
         setSaving(false)
         return
       }
@@ -134,19 +133,17 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const res = await fetch(`/api/admin/tag-groups/${id}`, {
+      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tag-groups/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: editGroupName.trim(),
           description: editGroupDesc,
           color: editGroupColor,
           positions: editGroupPositions,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error ?? "更新失败")
+      if (!ok) {
+        setError(error ?? "更新失败")
         setSaving(false)
         return
       }
@@ -167,17 +164,14 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
   async function handleDeleteGroup(id: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
-    const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
-    const res = await fetch(`/api/admin/tag-groups/${id}`, {
+    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tag-groups/${id}`, {
       method,
-      headers: forceDelete ? { "Content-Type": "application/json" } : undefined,
-      body,
+      body: forceDelete ? { forceDelete: true } : undefined,
     })
-    const data = await res.json()
-    if (res.ok) {
+    if (ok) {
       setGroups((prev) => prev.filter((g) => g.id !== id))
       toast.success("已删除")
-    } else if (data.confirm) {
+    } else if (data?.confirm) {
       setDeleteConfirm({
         type: "group",
         id,
@@ -186,7 +180,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         forceEndpoint: true,
       })
     } else {
-      toast.error(data.error || "删除失败")
+      toast.error(error || "删除失败")
     }
   }
 
@@ -206,20 +200,18 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setError("")
     try {
       const group = groups.find((g) => g.id === groupId)
-      const res = await fetch("/api/admin/tags", {
+      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name: newTagName.trim(),
           color: newTagColor || group?.color || PRESET_COLORS[0],
           groupId,
           sortOrder: 0,
           isVisible: true,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error ?? "创建失败")
+      if (!ok) {
+        setError(error ?? "创建失败")
         setSaving(false)
         return
       }
@@ -244,14 +236,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const res = await fetch(`/api/admin/tags/${tagId}`, {
+      const { ok, data: result, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: data,
       })
-      const result = await res.json()
-      if (!res.ok) {
-        setError(result.error ?? "更新失败")
+      if (!ok) {
+        setError(error ?? "更新失败")
         setSaving(false)
         return
       }
@@ -296,14 +286,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const res = await fetch(`/api/admin/tags/${tagId}`, {
+      const { ok, data: result, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: data,
       })
-      const result = await res.json()
-      if (!res.ok) {
-        setError(result.error ?? "更新失败")
+      if (!ok) {
+        setError(error ?? "更新失败")
         setSaving(false)
         return
       }
@@ -361,20 +349,17 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
   async function handleDeleteTag(tagId: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
-    const body = forceDelete ? JSON.stringify({ forceDelete: true }) : undefined
-    const res = await fetch(`/api/admin/tags/${tagId}`, {
+    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
       method,
-      headers: forceDelete ? { "Content-Type": "application/json" } : undefined,
-      body,
+      body: forceDelete ? { forceDelete: true } : undefined,
     })
-    const data = await res.json()
-    if (res.ok) {
+    if (ok) {
       setGroups((prev) =>
         prev.map((g) => ({ ...g, tags: g.tags.filter((t) => t.id !== tagId) }))
       )
       setUngroupedTags((prev) => prev.filter((t) => t.id !== tagId))
       toast.success("已删除")
-    } else if (data.confirm) {
+    } else if (data?.confirm) {
       setDeleteConfirm({
         type: "tag",
         id: tagId,
@@ -383,7 +368,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         forceEndpoint: true,
       })
     } else {
-      toast.error(data.error || "删除失败")
+      toast.error(error || "删除失败")
     }
   }
 

@@ -226,14 +226,14 @@ main > * {
   --text-tertiary: #71717a;
   --text-disabled: #52525b;
 
-  /* ═══ 阴影系统：深度递进 ═══ */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
-  --shadow-lg:  0 12px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
-  --shadow-xl:  0 24px 60px rgba(0,0,0,0.7), 0 8px 20px rgba(0,0,0,0.4);
-  --shadow-glow: 0 0 40px rgba(224, 168, 124, 0.12);
-  --card-shadow: var(--shadow-md);
-  --card-shadow-hover: var(--shadow-lg);
+  /* ═══ 阴影系统：统一 4 级深度令牌 ═══ */
+  --shadow-0: none;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.24);
+  --shadow-2: 0 3px 8px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.12);
+  --shadow-4: 0 16px 48px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-card: var(--shadow-1);
+  --shadow-card-hover: var(--shadow-2);
   --ring:          #2a2a2e;
   --radius:        0.75rem;
 
@@ -345,13 +345,14 @@ main > * {
   --text-tertiary: #71717a;
   --text-disabled: #a1a1aa;
 
-  /* ═══ 阴影系统 ═══ */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-lg:  0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-xl:  0 24px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08);
-  --card-shadow: var(--shadow-md);
-  --card-shadow-hover: var(--shadow-lg);
+  /* ═══ 阴影系统：统一 4 级深度令牌 ═══ */
+  --shadow-0: none;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-2: 0 3px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-4: 0 16px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-card: var(--shadow-1);
+  --shadow-card-hover: var(--shadow-2);
   --primary-foreground: #18181b;
 
   /* ── 统一 Tab 切换组件色（亮色主题） ── */
@@ -1125,13 +1126,13 @@ a[href]:active {
 .game-card {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-card);
   transition: transform var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--duration-slow) cubic-bezier(0.22, 1, 0.36, 1), border-color var(--duration-slow) ease;
 }
 
 .game-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--card-shadow-hover);
+  box-shadow: var(--shadow-card-hover);
   border-color: color-mix(in srgb, var(--border) 70%, var(--foreground));
 }
 

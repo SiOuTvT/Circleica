@@ -5,6 +5,7 @@ import { Loader2, Sparkles, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   const router  = useRouter()
@@ -22,18 +23,16 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
 
       if (creator && creator.vndbId) {
         // 保存到服务器数据库（不阻塞导航）
-        fetch("/api/creators/save", {
+        apiFetchSafe("/api/creators/save", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(creator),
+          body: creator,
         }).catch(() => {})
-        
+
         router.push(`/creators/${creator.vndbId}`)
       } else {
         // 都没获取到，随机跳到一个游戏
-        const res2 = await fetch("/api/games/random", { cache: "no-store" })
-        const data2 = await res2.json()
-        if (data2.id) {
+        const { ok, data: data2 } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
+        if (ok && data2?.id) {
           router.push(`/games/${data2.serialId ?? data2.id}`)
         } else {
           toast.error("暂无可推荐的内容")
@@ -76,12 +75,11 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
 
       if (character && character.vndbId) {
         // 保存到服务器数据库（不阻塞导航）
-        fetch("/api/characters/save", {
+        apiFetchSafe("/api/characters/save", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(character),
+          body: character,
         }).catch(() => {})
-        
+
         router.push(`/characters/${character.vndbId}`)
       } else {
         toast.error("暂无角色数据，请稍后重试")

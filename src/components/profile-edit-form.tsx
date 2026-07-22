@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface Props {
   user: { id: string; username: string; bio: string; avatar: string; banner: string; uid: string }
@@ -66,31 +67,29 @@ export function ProfileEditForm({ user }: Props) {
 
     setSaving(true)
 
-    const res = await fetch("/api/profile/edit", {
+    const { ok, data, error } = await apiFetchSafe<{ username?: string; avatar?: string }>("/api/profile/edit", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         username: username.trim(),
         bio: bio.trim(),
         avatar: avatarData,
         banner: bannerData,
         oldPassword: oldPassword || undefined,
         newPassword: newPassword || undefined,
-      }),
+      },
     })
-    const data = await res.json()
     setSaving(false)
 
-    if (!res.ok) {
-      setError(data.error)
+    if (!ok) {
+      setError(error ?? "")
       return
     }
 
-    await updateSession({ name: data.username || username.trim() })
+    await updateSession({ name: data?.username || username.trim() })
 
     window.dispatchEvent(
       new CustomEvent("profile-updated", {
-        detail: { image: data.avatar || avatarData, name: data.username || username.trim() },
+        detail: { image: data?.avatar || avatarData, name: data?.username || username.trim() },
       })
     )
 

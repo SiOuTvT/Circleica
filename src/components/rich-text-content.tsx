@@ -1,24 +1,13 @@
 "use client"
 
-import DOMPurify from "isomorphic-dompurify"
+import { sanitizeRichText } from "@/lib/sanitize"
+import { cn } from "@/lib/utils"
 
 /** 渲染富文本 HTML 内容（已净化，防 XSS） */
-export function RichTextContent({ html }: { html: string }) {
-  const clean = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      "p", "br", "strong", "em", "u", "s", "a", "img",
-      "h1", "h2", "h3", "h4", "h5", "h6",
-      "ul", "ol", "li", "blockquote", "code", "pre",
-      "hr", "div", "span", "table", "thead", "tbody", "tr", "th", "td",
-    ],
-    ALLOWED_ATTR: [
-      "href", "src", "alt", "title", "target", "rel",
-      "class", "width", "height",
-    ],
-    ALLOW_DATA_ATTR: false,
-  })
+export function RichTextContent({ html, className }: { html: string; className?: string }) {
+  const clean = sanitizeRichText(html)
 
   return (
-    <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: clean }} />
+    <div className={cn("rich-text-content", className)} dangerouslySetInnerHTML={{ __html: clean }} />
   )
 }
