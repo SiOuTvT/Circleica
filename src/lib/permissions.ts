@@ -37,3 +37,10 @@ export const ROLE_LEVEL: Record<UserRole, number> = {
 export function hasRole(caller: UserRole, minimumRole: UserRole): boolean {
   return (ROLE_LEVEL[caller] ?? 0) >= (ROLE_LEVEL[minimumRole] ?? 0)
 }
+
+/** 角色展示元信息（标签 + 徽标样式），全站角色徽标统一来源，禁止在各组件内联重复定义 */
+export const ROLE_META: Record<UserRole, { label: string; className: string }> = {
+  USER: { label: "用户", className: "bg-muted text-muted-foreground ring-1 ring-border" },
+  ADMIN: { label: "管理员", className: "bg-blue-500/15 text-blue-600 light:text-blue-700 ring-1 ring-blue-500/20" },
+  SUPER_ADMIN: { label: "站长", className: "bg-amber-500/15 text-amber-600 light:text-amber-700 ring-1 ring-amber-500/20" },
+}

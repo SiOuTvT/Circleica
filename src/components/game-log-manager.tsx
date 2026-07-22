@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Plus, Trash2, Loader2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { logger } from "@/lib/logger"
+import { formatDate } from "@/lib/date"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -66,7 +67,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
         {logs.map(log => (
           <div key={log.id} className="flex items-center gap-3 rounded-lg bg-secondary/60/60 px-3 py-2">
             <span className="shrink-0 text-micro text-muted-foreground">
-              {new Date(log.createdAt).toLocaleDateString("zh-CN")}
+              {formatDate(log.createdAt)}
             </span>
             <p className="flex-1 text-xs text-muted-foreground">{log.content}</p>
             <button onClick={() => setLogToDelete(log.id)}

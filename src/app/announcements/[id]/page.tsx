@@ -1,5 +1,6 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
+import { formatZhDate } from "@/lib/date"
 import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"

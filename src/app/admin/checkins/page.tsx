@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { formatDate, formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { CalendarCheck, Search } from "lucide-react"
@@ -145,7 +146,7 @@ export default async function AdminCheckInsPage({
                   {ci.user.username}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  签到日期：{new Date(ci.date).toLocaleDateString("zh-CN")} · 创建时间：{new Date(ci.createdAt).toLocaleString("zh-CN")}
+                  签到日期：{formatDate(ci.date)} · 创建时间：{formatDateTime(ci.createdAt)}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">

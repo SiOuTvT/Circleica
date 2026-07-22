@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
+import { formatZhDate } from "@/lib/date"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
@@ -375,7 +376,7 @@ export default async function GameDetailPage({
             favCount={game.favoriteCount}
             gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color || "", groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
-            releaseDate={game.releaseDate ? new Date(game.releaseDate).toLocaleDateString("zh-CN") : undefined}
+            releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
             studioName={game.studioName ?? undefined}
             username={session?.user?.name || undefined}

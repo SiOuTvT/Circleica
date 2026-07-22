@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>团队 OKR 雷达看板 · fangame / ScriptWeaver</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --ink:#1f2937;
+    --ink-soft:#64748b;
+    --line:#e5e9f2;
+    --accent:#4f46e5;
+    --target:#94a3b8;
+    --ok:#10b981;      /* 超额 */
+    --near:#f59e0b;    /* 接近 */
+    --low:#ef4444;     /* 不足 */
+    --shadow:0 6px 24px rgba(31,41,55,.07);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 60px;}
+
+  header.top{
+    display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;
+  }
+  header.top h1{font-size:23px;margin:0 0 4px;letter-spacing:.3px;}
+  header.top .sub{color:var(--ink-soft);font-size:13.5px;}
+  .project-tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .ptag{font-size:12px;background:#eef2ff;color:#4338ca;padding:5px 11px;border-radius:999px;border:1px solid #e0e7ff;font-weight:600;}
+
+  /* team switch */
+  .switch{display:inline-flex;background:#eef1f7;border-radius:12px;padding:4px;gap:4px;}
+  .switch button{
+    border:0;background:transparent;color:var(--ink-soft);font-weight:600;font-size:13.5px;
+    padding:8px 16px;border-radius:9px;cursor:pointer;transition:.18s;font-family:inherit;
+  }
+  .switch button.active{background:var(--panel);color:var(--accent);box-shadow:var(--shadow);}
+
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .card .hd{padding:16px 18px 0;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px;}
+  .card .hd .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .card .bd{padding:14px 18px 18px;}
+
+  /* sidebar */
+  .side{display:flex;flex-direction:column;gap:18px;position:sticky;top:18px;}
+
+  .ring-wrap{display:flex;align-items:center;gap:18px;}
+  .ring{position:relative;width:118px;height:118px;flex:0 0 auto;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring .pct b{font-size:26px;line-height:1;}
+  .ring .pct span{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .ring-meta .lbl{font-size:12px;color:var(--ink-soft);}
+  .ring-meta .big{font-size:15px;font-weight:700;margin:2px 0 8px;}
+
+  .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat{background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:11px 12px;}
+  .stat .k{font-size:11.5px;color:var(--ink-soft);}
+  .stat .v{font-size:16px;font-weight:700;margin-top:2px;}
+  .stat .v small{font-size:11px;font-weight:600;color:var(--ink-soft);}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;}
+  .chip i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .chip.ok{background:#ecfdf5;color:#047857;}
+  .chip.near{background:#fffbeb;color:#b45309;}
+  .chip.low{background:#fef2f2;color:#b91c1c;}
+
+  .trend-list{display:flex;flex-direction:column;gap:7px;margin-top:6px;}
+  .trend-list .row{display:flex;align-items:center;justify-content:space-between;font-size:13px;}
+  .trend-list .row .nm{color:var(--ink);}
+  .trend-list .row .val{font-weight:700;font-variant-numeric:tabular-nums;}
+  .up{color:var(--ok);} .down{color:var(--low);} .flat{color:var(--ink-soft);}
+
+  .legend{display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:var(--ink-soft);}
+  .legend .li{display:flex;align-items:center;gap:10px;}
+  .legend svg{flex:0 0 auto;}
+
+  /* main */
+  .main{display:flex;flex-direction:column;gap:20px;}
+  .chart-card .bd{padding:6px 10px 14px;}
+  #radar{width:100%;height:auto;display:block;}
+
+  .dims{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .dim{border:1px solid var(--line);border-radius:13px;padding:13px 14px;background:#fbfcfe;position:relative;overflow:hidden;}
+  .dim .bar{position:absolute;left:0;top:0;bottom:0;width:4px;}
+  .dim .nm{font-weight:700;font-size:13.5px;margin-bottom:8px;}
+  .dim .nums{display:flex;gap:14px;align-items:baseline;}
+  .dim .nums .a{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;}
+  .dim .nums .t{font-size:12.5px;color:var(--ink-soft);}
+  .dim .nums .t b{color:var(--ink);}
+  .dim .badge{display:inline-block;margin-top:9px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;}
+  .dim .delta{margin-top:7px;font-size:12px;color:var(--ink-soft);}
+  .badge.ok{background:#ecfdf5;color:#047857;}
+  .badge.near{background:#fffbeb;color:#b45309;}
+  .badge.low{background:#fef2f2;color:#b91c1c;}
+
+  /* optimization accordion */
+  .opt .item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--panel);}
+  .opt .item .head{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;user-select:none;}
+  .opt .item .head .idx{width:26px;height:26px;flex:0 0 auto;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;background:var(--accent);}
+  .opt .item .head .ttl{font-weight:700;font-size:14.5px;flex:1;}
+  .opt .item .head .st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;}
+  .opt .item .head .arr{transition:.2s;color:var(--ink-soft);font-size:13px;}
+  .opt .item.open .head .arr{transform:rotate(180deg);}
+  .opt .item .body{max-height:0;overflow:hidden;transition:max-height .28s ease;}
+  .opt .item .body .inner{padding:4px 16px 16px;}
+  .opt .sec{margin-top:12px;}
+  .opt .sec h4{font-size:12.5px;margin:0 0 6px;display:flex;align-items:center;gap:7px;}
+  .opt .sec h4 .ic{width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;}
+  .opt .sec.plan h4 .ic{background:#6366f1;}
+  .opt .sec.pros h4 .ic{background:var(--ok);}
+  .opt .sec.cons h4 .ic{background:var(--low);}
+  .opt .sec.proj h4 .ic{background:#0ea5e9;}
+  .opt .sec p{margin:0;font-size:13px;color:#374151;}
+  .opt ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#374151;}
+  .opt ul li{margin:3px 0;}
+  .opt .proj .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .opt .proj .two .col{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;background:#f8fafc;}
+  .opt .proj .two .col b{font-size:12px;display:block;margin-bottom:3px;}
+
+  footer{margin-top:30px;color:var(--ink-soft);font-size:12px;text-align:center;}
+
+  @media (max-width:980px){
+    .layout{grid-template-columns:1fr;}
+    .side{position:static;}
+    .dims{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:560px){
+    .dims{grid-template-columns:1fr;}
+    .opt .proj .two{grid-template-columns:1fr;}
+    header.top h1{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>团队 OKR 雷达看板</h1>
+      <div class="sub">目标值（虚线）vs 实际值（半透明填充）· 六维目标管理 · 环比趋势跟踪</div>
+    </div>
+    <div class="project-tags">
+      <span class="ptag">📁 D:/fangame</span>
+      <span class="ptag">📁 D:/ScriptWeaver</span>
+    </div>
+  </header>
+
+  <div style="margin-bottom:18px;">
+    <div class="switch" id="switch">
+      <button data-team="product" class="active">产品团队</button>
+      <button data-team="tech">技术团队</button>
+      <button data-team="design">设计团队</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="side">
+      <div class="card">
+        <div class="hd"><span class="dot"></span>整体完成率</div>
+        <div class="bd">
+          <div class="ring-wrap">
+            <div class="ring">
+              <svg width="118" height="118" viewBox="0 0 118 118">
+                <circle cx="59" cy="59" r="52" fill="none" stroke="#eef1f7" stroke-width="11"/>
+                <circle id="ringFg" cx="59" cy="59" r="52" fill="none" stroke="var(--accent)" stroke-width="11"
+                        stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .6s ease;"/>
+              </svg>
+              <div class="pct"><b id="ringPct">0%</b><span>目标达成</span></div>
+            </div>
+            <div class="ring-meta">
+              <div class="lbl">当前团队</div>
+              <div class="big" id="teamName">产品团队</div>
+              <div class="lbl">平均完成</div>
+              <div class="big" id="avgRatio">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span class="dot"></span>达成情况分布</div>
+        <div class="bd">
+          <div class="chips">
+            <span class="chip ok"><i style="background:var(--ok)"></i>超额 <b id="cntOk">0</b></span>
+            <span class="chip near"><i style="background:var(--near)"></i>接近 <b id="cntNear">0</b></span>
+            <span class="chip low"><i style="background:var(--low)"></i>不足 <b id="cntLow">0</b></span>
+          </div>
+          <div class="statgrid" style="margin-top:14px;">
+            <div class="stat"><div class="k">最强维度</div><div class="v" id="bestDim">—</div></div>
+            <div class="stat"><div class="k">最弱维度</div><div class="v" id="worstDim">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span class="dot"></span>环比趋势（vs 上月）</div>
+        <div class="bd">
+          <div class="stat" style="margin-bottom:12px;background:#f0fdf4;border-color:#bbf7d0;">
+            <div class="k">整体环比变化</div>
+            <div class="v" id="trendTotal">—</div>
+          </div>
+          <div class="trend-list" id="trendList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span class="dot"></span>图例</div>
+        <div class="bd">
+          <div class="legend">
+            <div class="li">
+              <svg width="34" height="18"><polygon points="4,14 14,4 24,14 14,17" fill="none" stroke="var(--target)" stroke-width="2" stroke-dasharray="4 3"/></svg>
+              目标值（虚线多边形）
+            </div>
+            <div class="li">
+              <svg width="34" height="18"><polygon points="4,14 14,4 24,14 14,17" fill="rgba(79,70,229,.22)" stroke="var(--accent)" stroke-width="2"/></svg>
+              实际值（半透明填充）
+            </div>
+            <div class="li" style="margin-top:4px;">
+              <span style="display:inline-flex;gap:10px;align-items:center;">
+                <i style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></i>超额
+                <i style="width:10px;height:10px;border-radius:50%;background:var(--near)"></i>接近
+                <i style="width:10px;height:10px;border-radius:50%;background:var(--low)"></i>不足
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="card chart-card">
+        <div class="hd"><span class="dot"></span>六维 OKR 雷达图</div>
+        <div class="bd">
+          <svg id="radar" viewBox="0 0 660 620" role="img" aria-label="OKR 雷达图"></svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span class="dot"></span>维度明细</div>
+        <div class="bd">
+          <div class="dims" id="dimGrid"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span class="dot"></span>各维度优化方案 · 优缺点 · 项目落点</div>
+        <div class="bd opt" id="optBox"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer>数据看板为内部协作用途 · fangame（Electron 节奏游戏）& ScriptWeaver（Next.js 脚本平台）· 单文件离线可用</footer>
+</div>
+
+<script>
+/* ---------- 数据 ---------- */
+const DIMS = [
+  {key:'delivery', name:'产品交付'},
+  {key:'quality',  name:'技术质量'},
+  {key:'growth',   name:'用户增长'},
+  {key:'collab',   name:'团队协作'},
+  {key:'innov',    name:'创新能力'},
+  {key:'csat',     name:'客户满意度'},
+];
+
+// data: [target, actual, prev]
+const TEAMS = {
+  product:{ name:'产品团队', accent:'#4f46e5',
+    data:{ delivery:[90,85,80], quality:[85,92,88], growth:[80,68,65], collab:[85,88,84], innov:[75,72,70], csat:[90,86,83] } },
+  tech:{ name:'技术团队', accent:'#0ea5e9',
+    data:{ delivery:[88,82,79], quality:[90,94,90], growth:[75,70,67], collab:[80,78,76], innov:[78,80,75], csat:[85,83,81] } },
+  design:{ name:'设计团队', accent:'#ec4899',
+    data:{ delivery:[82,80,76], quality:[78,74,72], growth:[70,65,62], collab:[88,90,86], innov:[85,88,83], csat:[88,90,85] } },
+};
+
+/* ---------- 优化方案（按维度，含优缺点与项目落点） ---------- */
+const PLANS = {
+  delivery:{
+    plan:'建立双周迭代看板，将大需求拆为可交付小颗粒；fangame 采用 release 分支预发布验证（参考 release_build4 流程），ScriptWeaver 沿用 Next.js 灰度/预览部署；设置交付燃尽图与每日站会阻塞同步。',
+    pros:['节奏稳定、可预测性强','小步快跑降低回滚成本','发布风险前置到预发环境'],
+    cons:['拆分会引入一定沟通开销','灰度需要额外监控设施','对突发需求响应偏慢'],
+    fangame:'按 0.3→0.6 的发布节奏继续推进 release_build 流水线，缩短打包到上线的间隔。',
+    scriptweaver:'利用 Next.js 预览部署做 PR 级验证，保证主分支随时可发。',
+  },
+  quality:{
+    plan:'把 fangame 的 e2e 测试（e2e_full_test.py / e2e_final.js）纳入 CI 门禁，目标行覆盖率 ≥70%；ScriptWeaver 强化 Prisma 迁移校验与 TS 严格模式；引入 code-review 报告卡点（参考 code-review-report.md）。',
+    pros:['缺陷在合入前被拦截','降低线上事故率','技术债可视、可量化'],
+    cons:['CI 时长增加、反馈变慢','覆盖率指标易被刷分','需要持续投入维护测试'],
+    fangame:'Electron 端补充端到端回归，覆盖 rb3 核心玩法与 web-player 加载路径。',
+    scriptweaver:'Prisma schema 变更走评审 + 自动迁移检查，避免生产库漂移。',
+  },
+  growth:{
+    plan:'fangame 通过社区攻略、创作者激励计划与新手引导漏斗优化拉新；ScriptWeaver 以脚本模板市场和文档 SEO 获客；两端共享埋点口径，按渠道归因。',
+    pros:['内容与社区带来低成本增长','模板市场形成网络效应','可量化到渠道 ROI'],
+    cons:['游戏增长依赖版本热度、波动大','SEO 见效慢、需耐心','买量成本高且难持续'],
+    fangame:'用 rb3 / 关卡内容做短视频素材，沉淀到社区与创作激励。',
+    scriptweaver:'脚本模板市场 + 诊断报告（如全站诊断报告）作为获客钩子。',
+  },
+  collab:{
+    plan:'建立 fangame ↔ ScriptWeaver 双周同步会与统一需求池；用同一套 OKR 看板对齐目标；明确跨团队接口契约（API / 事件）。',
+    pros:['目标一致、减少返工','接口契约降低联调摩擦','知识在团队间流动'],
+    cons:['会议占用工时','跨项目排期难对齐','契约变更需双向通知成本'],
+    fangame:'作为 ScriptWeaver 的能力消费方，提前对齐脚本 API 契约。',
+    scriptweaver:'作为平台方，把 fangame 的玩法需求纳入脚本能力路线图。',
+  },
+  innov:{
+    plan:'fangame 投入 rb3 引擎实验与新型交互；ScriptWeaver 探索可视化脚本编排与 AI 辅助生成；设 10% 自由实验时间，季度评审创新产出。',
+    pros:['形成差异化竞争力','实验可转化为正式功能','提升团队吸引力'],
+    cons:['实验失败率天然高','占用主版本资源','难以短期量化回报'],
+    fangame:'rb3 引擎的判定 / 演出创新是核心卖点，应保留迭代资源。',
+    scriptweaver:'AI 辅助脚本生成可显著降低使用门槛，值得投入。',
+  },
+  csat:{
+    plan:'fangame 建立玩家反馈闭环（社区 + 崩溃上报），7 天内响应重点问题；ScriptWeaver 用内嵌诊断报告与帮助中心降低求助成本；月度 NPS 回访。',
+    pros:['口碑带来自然增长','问题早发现早修复','提升续费 / 留存'],
+    cons:['反馈噪声大、需甄别','响应 SLA 占用支持人力','NPS 易受单次体验影响'],
+    fangame:'玩家社区与崩溃监控（diagnostics）驱动体验修复。',
+    scriptweaver:'全站诊断报告即满意度抓手，让用户自助定位问题。',
+  },
+};
+
+/* ---------- 工具 ---------- */
+const SVGNS='http://www.w3.org/2000/svg';
+function polar(cx,cy,r,deg){const a=(deg-90)*Math.PI/180;return [cx+r*Math.cos(a), cy+r*Math.sin(a)];}
+function statusOf(actual,target){
+  const r=actual/target;
+  if(r>=1) return {cls:'ok', label:'超额', color:'#10b981'};
+  if(r>=0.9) return {cls:'near', label:'接近', color:'#f59e0b'};
+  return {cls:'low', label:'不足', color:'#ef4444'};
+}
+function el(tag,attrs){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+
+/* ---------- 雷达图 ---------- */
+const CX=330, CY=312, R=205;
+function renderRadar(teamKey){
+  const team=TEAMS[teamKey];
+  const svg=document.getElementById('radar');
+  svg.innerHTML='';
+  const n=DIMS.length;
+  const step=360/n;
+
+  // 网格环
+  [20,40,60,80,100].forEach(level=>{
+    const pts=[];
+    for(let i=0;i<n;i++){const [x,y]=polar(CX,CY,R*level/100,i*step);pts.push(x+','+y);}
+    svg.appendChild(el('polygon',{points:pts.join(' '),fill:'none',stroke:'#eef1f7','stroke-width':level===100?1.4:1}));
+  });
+  // 环刻度文字（顶部轴）
+  [20,40,60,80,100].forEach(level=>{
+    const [x,y]=polar(CX,CY,R*level/100,0);
+    const t=el('text',{x:CX+4,y:y+3,fill:'#cbd5e1','font-size':10});t.textContent=level;svg.appendChild(t);
+  });
+  // 轴线 + 标签
+  DIMS.forEach((d,i)=>{
+    const [ax,ay]=polar(CX,CY,R,i*step);
+    svg.appendChild(el('line',{x1:CX,y1:CY,x2:ax,y2:ay,stroke:'#e8ecf4','stroke-width':1}));
+    const [lx,ly]=polar(CX,CY,R+38,i*step);
+    let anchor='middle';
+    if(lx<CX-12) anchor='end'; else if(lx>CX+12) anchor='start';
+    const t=el('text',{x:lx,y:ly+4,fill:'#475569','font-size':13,'font-weight':600,'text-anchor':anchor});
+    t.textContent=d.name; svg.appendChild(t);
+    // 目标/实际数值标注
+    const td=team.data[d.key];
+    const [vx,vy]=polar(CX,CY,R*td[1]/100,i*step);
+    const vt=el('text',{x:vx,y:vy-9,fill:team.accent,'font-size':11,'font-weight':700,'text-anchor':'middle'});
+    vt.textContent=td[1]; svg.appendChild(vt);
+  });
+
+  // 目标值（虚线多边形）
+  const tpts=[];
+  DIMS.forEach((d,i)=>{const [x,y]=polar(CX,CY,R*team.data[d.key][0]/100,i*step);tpts.push(x+','+y);});
+  svg.appendChild(el('polygon',{points:tpts.join(' '),fill:'none',stroke:'#94a3b8','stroke-width':2,'stroke-dasharray':'6 4'}));
+
+  // 实际值（半透明填充多边形）
+  const apts=[];
+  DIMS.forEach((d,i)=>{const [x,y]=polar(CX,CY,R*team.data[d.key][1]/100,i*step);apts.push(x+','+y);});
+  svg.appendChild(el('polygon',{points:apts.join(' '),fill:hexA(team.accent,0.22),stroke:team.accent,'stroke-width':2.4,'stroke-linejoin':'round'}));
+
+  // 实际值顶点（按状态着色）
+  DIMS.forEach((d,i)=>{
+    const [x,y]=polar(CX,CY,R*team.data[d.key][1]/100,i*step);
+    const st=statusOf(team.data[d.key][1],team.data[d.key][0]);
+    svg.appendChild(el('circle',{cx:x,cy:y,r:4.5,fill:st.color,stroke:'#fff','stroke-width':1.5}));
+  });
+}
+function hexA(hex,a){
+  const m=hex.replace('#','');const r=parseInt(m.substr(0,2),16),g=parseInt(m.substr(2,2),16),b=parseInt(m.substr(4,2),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ---------- 侧栏统计 ---------- */
+function renderStats(teamKey){
+  const team=TEAMS[teamKey];
+  let ratios=[], sum=0, ok=0,near=0,low=0;
+  const rows=[];
+  DIMS.forEach(d=>{
+    const [t,a,p]=team.data[d.key];
+    const r=a/t; sum+=r;
+    const st=statusOf(a,t);
+    if(st.cls==='ok')ok++;else if(st.cls==='near')near++;else low++;
+    rows.push({name:d.name,target:t,actual:a,prev:p,ratio:r,status:st,delta:a-p});
+  });
+  const avg=sum/DIMS.length;
+  document.getElementById('teamName').textContent=team.name;
+  document.getElementById('avgRatio').textContent=(avg*100).toFixed(1)+'%';
+  document.getElementById('ringPct').textContent=Math.round(avg*100)+'%';
+  const C=326.7;
+  document.getElementById('ringFg').setAttribute('stroke-dashoffset', C*(1-avg));
+  document.getElementById('ringFg').setAttribute('stroke', team.accent);
+
+  document.getElementById('cntOk').textContent=ok;
+  document.getElementById('cntNear').textContent=near;
+  document.getElementById('cntLow').textContent=low;
+
+  const best=rows.reduce((a,b)=>b.ratio>a.ratio?b:a);
+  const worst=rows.reduce((a,b)=>b.ratio<a.ratio?b:a);
+  document.getElementById('bestDim').innerHTML=best.name+' <small style="color:'+best.status.color+'">'+best.status.label+'</small>';
+  document.getElementById('worstDim').innerHTML=worst.name+' <small style="color:'+worst.status.color+'">'+worst.status.label+'</small>';
+
+  // 环比
+  const totalDelta=rows.reduce((s,r)=>s+r.delta,0)/rows.length;
+  const tt=document.getElementById('trendTotal');
+  tt.innerHTML=arrow(totalDelta)+(totalDelta>=0?'+':'')+totalDelta.toFixed(1)+' <small>平均分</small>';
+  tt.className='v '+(totalDelta>0?'up':totalDelta<0?'down':'flat');
+
+  const tl=document.getElementById('trendList');tl.innerHTML='';
+  rows.slice().sort((a,b)=>b.delta-a.delta).forEach(r=>{
+    const row=document.createElement('div');row.className='row';
+    row.innerHTML='<span class="nm">'+r.name+'</span><span class="val '+(r.delta>0?'up':r.delta<0?'down':'flat')+'">'+arrow(r.delta)+(r.delta>0?'+':'')+r.delta+' <small style="color:#94a3b8">('+r.prev+'→'+r.actual+')</small></span>';
+    tl.appendChild(row);
+  });
+}
+function arrow(d){return d>0?'▲ ':d<0?'▼ ':'▬ ';}
+
+/* ---------- 维度明细卡片 ---------- */
+function renderDims(teamKey){
+  const team=TEAMS[teamKey];
+  const grid=document.getElementById('dimGrid');grid.innerHTML='';
+  DIMS.forEach(d=>{
+    const [t,a,p]=team.data[d.key];
+    const st=statusOf(a,t);
+    const div=document.createElement('div');div.className='dim';
+    div.innerHTML=
+      '<div class="bar" style="background:'+st.color+'"></div>'+
+      '<div class="nm">'+d.name+'</div>'+
+      '<div class="nums"><span class="a" style="color:'+st.color+'">'+a+'</span>'+
+      '<span class="t">目标 <b>'+t+'</b></span></div>'+
+      '<span class="badge '+st.cls+'">'+st.label+' · '+(a/t*100).toFixed(0)+'%</span>'+
+      '<div class="delta">环比 '+arrow(a-p)+(a-p>0?'+':'')+(a-p)+' <small style="color:#94a3b8">(上月 '+p+')</small></div>';
+    grid.appendChild(div);
+  });
+}
+
+/* ---------- 优化方案手风琴 ---------- */
+function buildOpt(){
+  const box=document.getElementById('optBox');
+  DIMS.forEach((d,idx)=>{
+    const p=PLANS[d.key];
+    const item=document.createElement('div');item.className='item';
+    item.innerHTML=
+      '<div class="head"><span class="idx">'+(idx+1)+'</span>'+
+      '<span class="ttl">'+d.name+'</span>'+
+      '<span class="st" style="background:#eef2ff;color:#4338ca">优化方案</span>'+
+      '<span class="arr">▼</span></div>'+
+      '<div class="body"><div class="inner">'+
+        '<div class="sec plan"><h4><span class="ic">策</span>优化方案</h4><p>'+p.plan+'</p></div>'+
+        '<div class="sec pros"><h4><span class="ic">优</span>优点 / 收益</h4><ul>'+p.pros.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+        '<div class="sec cons"><h4><span class="ic">缺</span>缺点 / 风险</h4><ul>'+p.cons.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+        '<div class="sec proj"><h4><span class="ic">项</span>项目落点</h4>'+
+          '<div class="two"><div class="col"><b>📁 D:/fangame</b>'+p.fangame+'</div>'+
+          '<div class="col"><b>📁 D:/ScriptWeaver</b>'+p.scriptweaver+'</div></div></div>'+
+      '</div></div>';
+    item.querySelector('.head').addEventListener('click',()=>{
+      const open=item.classList.toggle('open');
+      const body=item.querySelector('.body');
+      body.style.maxHeight=open?body.scrollHeight+'px':'0';
+    });
+    box.appendChild(item);
+  });
+}
+
+/* ---------- 切换 ---------- */
+function switchTeam(teamKey){
+  document.querySelectorAll('#switch button').forEach(b=>b.classList.toggle('active',b.dataset.team===teamKey));
+  renderRadar(teamKey);
+  renderStats(teamKey);
+  renderDims(teamKey);
+}
+document.getElementById('switch').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(b)switchTeam(b.dataset.team);
+});
+
+/* ---------- 初始化 ---------- */
+buildOpt();
+switchTeam('product');
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
+import { formatDate } from "@/lib/date"
 import { Calendar, Eye, FolderHeart, Gamepad2, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"

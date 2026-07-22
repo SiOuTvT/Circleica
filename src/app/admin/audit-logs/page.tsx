@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { FileText } from "lucide-react"
@@ -99,7 +100,7 @@ export default async function AdminAuditLogsPage({
                 )}
               </div>
               <span className="text-micro text-muted-foreground shrink-0 whitespace-nowrap">
-                {new Date(log.createdAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                {formatDateTime(log.createdAt)}
               </span>
             </div>
           ))}

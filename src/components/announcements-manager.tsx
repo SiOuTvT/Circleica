@@ -10,6 +10,7 @@ import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { formatMonthDay } from "@/lib/date"
 import { toast } from "sonner"
 
 function stripHtml(html: string): string {

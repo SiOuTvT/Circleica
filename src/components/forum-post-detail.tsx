@@ -13,6 +13,7 @@ import { RichTextEditor } from "./rich-text-editor-wrapper"
 import { logger } from "@/lib/logger"
 import { EMOJI_LIST } from "@/lib/emoji"
 import { timeAgo } from "@/lib/time-ago"
+import { formatZhDateTime } from "@/lib/date"
 import { UserAvatar } from "@/components/user-avatar"
 
 interface User { id: string; username: string; avatar: string }

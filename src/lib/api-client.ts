@@ -208,3 +208,32 @@ export const apiPost = <T>(url: string, body?: unknown, opts?: ApiClientOptions)
 export const apiPut = <T>(url: string, body?: unknown, opts?: ApiClientOptions) => api.put<T>(url, body, opts)
 export const apiPatch = <T>(url: string, body?: unknown, opts?: ApiClientOptions) => api.patch<T>(url, body, opts)
 export const apiDelete = <T>(url: string, opts?: ApiClientOptions) => api.delete<T>(url, opts)
+
+/**
+ * 不抛异常的便捷封装（用于按钮/组件场景，需自行处理 ok/error）
+ */
+export async function apiDeleteSafe(
+  url: string,
+  body?: Record<string, unknown>,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await api.delete<unknown>(url, body)
+    return { ok: true }
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, error: e.message }
+    return { ok: false, error: "删除失败" }
+  }
+}
+
+export async function apiFetchSafe<T = unknown>(
+  url: string,
+  options?: ApiClientOptions,
+): Promise<{ ok: boolean; data?: T; error?: string }> {
+  try {
+    const data = await apiClient<T>(url, options)
+    return { ok: true, data }
+  } catch (e) {
+    if (e instanceof ApiError) return { ok: false, error: e.message }
+    return { ok: false, error: "请求失败" }
+  }
+}

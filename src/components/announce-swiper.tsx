@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
+import { timeAgo } from "@/lib/time-ago"
 
 /** 去除 HTML 标签，返回纯文本 */
 function stripHtml(html: string): string {

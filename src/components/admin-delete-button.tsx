@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { apiDeleteSafe } from "@/lib/api-client"
 
 interface AdminDeleteButtonProps {
   /** 删除 API 端点（支持 URL 参数或 JSON body 两种模式） */
@@ -43,17 +44,12 @@ export function AdminDeleteButton({
   const [open, setOpen] = useState(false)
 
   async function handleDelete() {
-    const opts: RequestInit = { method: "DELETE" }
-    if (body) {
-      opts.headers = { "Content-Type": "application/json" }
-      opts.body = JSON.stringify(body)
-    }
-    const res = await fetch(endpoint, opts)
-    if (res.ok) {
+    const { ok, error } = await apiDeleteSafe(endpoint, body)
+    if (ok) {
       toast.success(successMessage)
       router.refresh()
     } else {
-      toast.error("删除失败")
+      toast.error(error || "删除失败")
     }
   }
 

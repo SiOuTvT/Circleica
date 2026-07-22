@@ -4,6 +4,8 @@ import { Download, Loader2 } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { logger } from "@/lib/logger"
+import { formatZhDate } from "@/lib/date"
+import { ROLE_META, type UserRole } from "@/lib/permissions"
 
 interface CardData {
   username: string

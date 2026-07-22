@@ -10,6 +10,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { isNumericId } from "@/lib/serial-id"
 import { getRandomAvatarColor } from "@/lib/utils"
+import { formatZhDate } from "@/lib/date"
 import { Bookmark, Gamepad2, MessageSquare, Pencil } from "lucide-react"
 import NextImage from "next/image"
 import Link from "next/link"
@@ -91,7 +92,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     isFollowing = !!existing
   }
 
-  const joinDate = new Date(user.createdAt).toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" })
+  const joinDate = formatZhDate(user.createdAt)
   const uidDisplay = user.uid || String(user.serialId)
 
   return (

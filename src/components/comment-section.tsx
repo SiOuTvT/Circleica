@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { formatZhDateTime } from "@/lib/date"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -356,7 +357,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-semibold text-foreground">{c.user.username}</span>
                 <span className="text-micro text-muted-foreground">
-                  {new Date(c.createdAt).toLocaleDateString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  {formatZhDateTime(c.createdAt)}
                 </span>
                 {currentUserId === c.user.id && (
                   <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">

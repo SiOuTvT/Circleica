@@ -21,3 +21,53 @@ export function shiftShanghaiDate(dateStr: string, days: number): string {
   d.setDate(d.getDate() + days)
   return toShanghaiDate(d)
 }
+
+/**
+ * 统一的"展示用"日期格式化（Single Source of Truth）
+ *
+ * 全站所有面向用户的日期/时间展示都必须走这里，禁止在组件里手写
+ * `new Date(x).toLocaleDateString("zh-CN", ...)` —— 否则会因服务器时区不同
+ * 而与上海时区产生偏差，且各处的格式会各自为政（架构一致性审查）。
+ */
+type DateInput = Date | string | number | null | undefined
+
+function toDate(input: DateInput): Date | null {
+  if (input == null) return null
+  const d = input instanceof Date ? input : new Date(input)
+  return isNaN(d.getTime()) ? null : d
+}
+
+function fmtZh(input: DateInput, opts: Intl.DateTimeFormatOptions): string {
+  const d = toDate(input)
+  if (!d) return ""
+  return new Intl.DateTimeFormat("zh-CN", { timeZone: SHANGHAI_TZ, ...opts }).format(d)
+}
+
+/** YYYY-MM-DD（紧凑，用于表格/列表） */
+export function formatDate(input: DateInput): string {
+  const d = toDate(input)
+  if (!d) return ""
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: SHANGHAI_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(d)
+}
+
+/** YYYY-MM-DD HH:mm（紧凑，用于表格/列表的日期时间） */
+export function formatDateTime(input: DateInput): string {
+  const d = toDate(input)
+  if (!d) return ""
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: SHANGHAI_TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(d)
+}
+
+/** YYYY年M月D日（用户友好的完整日期） */
+export function formatZhDate(input: DateInput): string {
+  return fmtZh(input, { year: "numeric", month: "long", day: "numeric" })
+}
+
+/** YYYY年M月D日 HH:mm（用户友好的完整日期时间） */
+export function formatZhDateTime(input: DateInput): string {
+  return fmtZh(input, { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
+}
+
+/** M月D日（紧凑的月日，用于相对弱化展示） */
+export function formatMonthDay(input: DateInput): string {
+  return fmtZh(input, { month: "long", day: "numeric" })
+}

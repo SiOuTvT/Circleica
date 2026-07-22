@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "./ui/confirm-dialog"
-import { AdminGameDeleteBtn } from "./admin-game-delete-btn"
+import { AdminDeleteButton } from "./admin-delete-button"
 
 type Game = {
   id: string
@@ -142,7 +142,13 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
                       >
                         <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
                       </Link>
-                      <AdminGameDeleteBtn id={g.id} title={g.title} />
+                      <AdminDeleteButton
+                        endpoint={`/api/admin/games/${g.id}`}
+                        title="删除游戏"
+                        description={`确定要删除《${g.title}》吗？此操作不可撤销，相关资源与评论将一并删除。`}
+                        successMessage="游戏已删除"
+                        buttonTitle={`删除 ${g.title}`}
+                      />
                     </div>
                   </td>
                 </tr>

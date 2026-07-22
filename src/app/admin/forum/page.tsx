@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Search } from "lucide-react"
@@ -138,7 +139,7 @@ export default async function AdminForumPage({
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>发布者：{post.user.username}</span>
                   <span>·</span>
-                  <span>{new Date(post.createdAt).toLocaleDateString("zh-CN")}</span>
+                  <span>{formatDate(post.createdAt)}</span>
                   <span>·</span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" /> {post._count.comments} 评论

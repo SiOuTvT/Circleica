@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { Flag } from "lucide-react"
@@ -157,7 +158,7 @@ export default async function AdminReportsPage({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground break-all">
-                  举报IP: <span className="font-mono">{report.ip}</span> · {new Date(report.createdAt).toLocaleString("zh-CN")}
+                  举报IP: <span className="font-mono">{report.ip}</span> · {formatDateTime(report.createdAt)}
                   {report.reason && (
                     <> · <span className="text-destructive break-words">{report.reason}</span></>
                   )}

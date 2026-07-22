@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge"
 import { Search, UserPlus } from "lucide-react"
@@ -90,7 +91,7 @@ export default async function AdminFollowsPage({
                   <Link href={`/admin/users?q=${encodeURIComponent(follow.following.username)}`} className="hover:underline">{follow.following.username}</Link>
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(follow.createdAt).toLocaleString("zh-CN")}
+                  {formatDateTime(follow.createdAt)}
                 </p>
               </div>
               <FollowDeleteBtn id={follow.id} />
