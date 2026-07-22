@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ExternalLink, Loader2, User } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface CreatorInfo {
   id: string
@@ -43,9 +44,8 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
   useEffect(() => {
     if (!creator) { setGames([]); return }
     setLoading(true)
-    fetch(`/api/admin/creators/${creator.id}/games`)
-      .then(res => res.ok ? res.json() : { data: [] })
-      .then(res => setGames(Array.isArray(res) ? res : res.data ?? []))
+    apiFetchSafe<{ data?: GameItem[] } | GameItem[]>("/api/admin/creators/${creator.id}/games")
+      .then(({ ok, data }) => { if (ok) setGames(Array.isArray(data) ? data : data?.data ?? []) })
       .catch(() => setGames([]))
       .finally(() => setLoading(false))
   }, [creator])
