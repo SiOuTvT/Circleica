@@ -444,7 +444,7 @@ export const searchService = {
 export const checkinService = {
   async checkIn(userId: string) {
     const todayStr = toShanghaiDate(new Date())
-    const today = new Date(todayStr + "T00:00:00")
+    const today = new Date(todayStr + "T00:00:00+08:00")
     const existing = await checkinRepo.findByDate(userId, today)
     if (existing) throw new ConflictError("今天已经签到过了")
     const marks = Math.floor(Math.random() * 10) + 1
@@ -474,7 +474,7 @@ export const checkinService = {
 
   async getStatus(userId: string) {
     const todayStr = toShanghaiDate(new Date())
-    const today = new Date(todayStr + "T00:00:00")
+    const today = new Date(todayStr + "T00:00:00+08:00")
     const existing = await checkinRepo.findByDate(userId, today)
     return { checkedIn: !!existing }
   },

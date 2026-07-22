@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Bell } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
@@ -11,10 +12,9 @@ export function NotificationBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications/unread-count")
-      if (!res.ok) return
-      const data = await res.json()
-      setUnreadCount(data.unreadCount ?? 0)
+      const { ok, data } = await apiFetchSafe<{ unreadCount?: number }>("/api/notifications/unread-count")
+      if (!ok) return
+      setUnreadCount(data?.unreadCount ?? 0)
     } catch (err) {
       logger.api.warn("[NotificationBell] fetch unread count failed", { error: err instanceof Error ? err.message : String(err) })
     }

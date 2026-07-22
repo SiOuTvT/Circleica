@@ -4,6 +4,7 @@
 
 import { prisma } from "@/lib/prisma"
 import type { Prisma, UserRole } from "@prisma/client"
+import { toShanghaiDate } from "@/lib/date"
 
 // ── 用户 ────────────────────────────
 
@@ -235,22 +236,22 @@ export const searchRepo = {
 // ── 签到（公共）────────────────────
 
 export const checkinRepo = {
-  /** 将 Date 转为 UTC 零点日期字符串（YYYY-MM-DD） */
+  /** 将 Date 转为 Asia/Shanghai 的 YYYY-MM-DD（与 lib/date.ts 保持一致，避免 UTC 切片导致跨日偏差） */
   _toDateStr(date: Date): string {
-    return date.toISOString().split("T")[0]
+    return toShanghaiDate(date)
   },
 
   findByDate(userId: string, date: Date) {
     const dateStr = this._toDateStr(date)
     return prisma.checkIn.findFirst({
-      where: { userId, date: new Date(dateStr + "T00:00:00.000Z") as unknown as Date },
+      where: { userId, date: new Date(dateStr + "T00:00:00+08:00") as unknown as Date },
     })
   },
 
   create(userId: string, marks: number, date?: Date) {
     const d = date || new Date()
     const dateStr = this._toDateStr(d)
-    const dateObj = new Date(dateStr + "T00:00:00.000Z")
+    const dateObj = new Date(dateStr + "T00:00:00+08:00")
     return prisma.checkIn.create({ data: { userId, date: dateObj, marks } })
   },
 

@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { logger } from "@/lib/logger"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
@@ -35,10 +36,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   // Load playlists
   const fetchPlaylists = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/playlists")
-      if (res.ok) {
-        const json = await res.json()
-        setPlaylists(Array.isArray(json) ? json : json.data ?? [])
+      const { ok, data } = await apiFetchSafe<unknown[] | { data?: unknown[] }>("/api/admin/playlists")
+      if (ok) {
+        setPlaylists((Array.isArray(data) ? data : data?.data ?? []) as PlaylistItem[])
       }
     } catch (err) { logger.api.warn("[MusicManager] fetchPlaylists failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [])
@@ -115,14 +115,12 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     if (!musicUrl && !file) { setError("请填写直链或上传文件"); return }
 
     setAdding(true)
-    const res = await fetch("/api/admin/music", {
+    const { ok, data, error } = await apiFetchSafe<any>("/api/admin/music", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: title.trim(), url: musicUrl, playlistId: selectedPlaylistId || undefined }),
+      body: { title: title.trim(), url: musicUrl, playlistId: selectedPlaylistId || undefined },
     })
-    const data = await res.json()
     setAdding(false)
-    if (!res.ok) { setError(data.error); return }
+    if (!ok) { setError(error ?? ""); return }
     setList(p => [data, ...p])
     setTitle(""); setUrl(""); setFile(null)
   }
@@ -130,48 +128,43 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   // Playlist CRUD
   async function createPlaylist() {
     if (!newPlaylistName.trim()) return
-    const res = await fetch("/api/admin/playlists", {
+    const { ok } = await apiFetchSafe("/api/admin/playlists", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newPlaylistName.trim() }),
+      body: { name: newPlaylistName.trim() },
     })
-    if (res.ok) { await fetchPlaylists(); setNewPlaylistName("") }
+    if (ok) { await fetchPlaylists(); setNewPlaylistName("") }
   }
 
   async function renamePlaylist(id: string, name: string) {
     if (!name.trim()) return
-    await fetch(`/api/admin/playlists/${id}`, {
+    await apiFetchSafe(`/api/admin/playlists/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim() }),
+      body: { name: name.trim() },
     })
     await fetchPlaylists()
     setEditingPlaylist(null)
   }
 
   async function deletePlaylist(id: string) {
-    await fetch(`/api/admin/playlists/${id}`, { method: "DELETE" })
+    await apiFetchSafe(`/api/admin/playlists/${id}`, { method: "DELETE" })
     await fetchPlaylists()
   }
 
   async function toggle(id: string, current: boolean) {
-    const res = await fetch(`/api/admin/music/${id}`, {
+    const { ok } = await apiFetchSafe(`/api/admin/music/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !current }),
+      body: { isActive: !current },
     })
-    if (res.ok) setList(p => p.map(m => m.id === id ? { ...m, isActive: !current } : m))
+    if (ok) setList(p => p.map(m => m.id === id ? { ...m, isActive: !current } : m))
   }
 
   async function saveEdit(id: string) {
-    const res = await fetch(`/api/admin/music/${id}`, {
+    const { ok, data } = await apiFetchSafe<{ title?: string; url?: string }>(`/api/admin/music/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: editTitle.trim(), url: editUrl.trim() }),
+      body: { title: editTitle.trim(), url: editUrl.trim() },
     })
-    if (res.ok) {
-      const data = await res.json()
-      setList(p => p.map(m => m.id === id ? { ...m, title: data.title, url: data.url } : m))
+    if (ok) {
+      setList(p => p.map(m => m.id === id ? { ...m, title: data?.title ?? editTitle, url: data?.url ?? editUrl } : m))
       setEditingId(null)
       toast.success("已更新")
     }
@@ -179,8 +172,8 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
 
   async function confirmDelete() {
     if (!deleteId) return
-    const res = await fetch(`/api/admin/music/${deleteId}`, { method: "DELETE" })
-    if (res.ok) {
+    const { ok } = await apiFetchSafe(`/api/admin/music/${deleteId}`, { method: "DELETE" })
+    if (ok) {
       toast.success("音乐已删除")
       setList(p => p.filter(m => m.id !== deleteId))
     } else {

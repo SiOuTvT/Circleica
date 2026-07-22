@@ -5,6 +5,7 @@ import { Music2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lu
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react"
 import { hasRole } from "@/lib/permissions"
+import { apiFetchSafe } from "@/lib/api-client"
 import type { UserRole } from "@prisma/client";
 
 interface Track { id: string; title: string; url: string }
@@ -24,9 +25,8 @@ export function MusicPlayer() {
   useEffect(() => {
     if (!isSuperAdmin) return
     const controller = new AbortController()
-    fetch("/api/music", { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data) && data.length) setTracks(data) })
+    apiFetchSafe<Track[]>("/api/music", { signal: controller.signal })
+      .then(({ data }) => { if (data && Array.isArray(data) && data.length) setTracks(data) })
       .catch(() => {})
     return () => controller.abort()
   }, [isSuperAdmin])

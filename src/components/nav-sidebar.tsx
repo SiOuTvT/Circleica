@@ -12,6 +12,7 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { apiFetchSafe } from "@/lib/api-client"
 
 const NAV_SECTIONS = [
   {
@@ -42,10 +43,9 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     if (randomLoading) return
     setRandomLoading(true)
     try {
-      const res = await fetch("/api/games/random")
-      if (!res.ok) throw new Error("获取失败")
-      const data = await res.json()
-      router.push(`/games/${data.serialId}`)
+      const { ok, data } = await apiFetchSafe<{ serialId?: string; id?: string }>("/api/games/random")
+      if (!ok) throw new Error("获取失败")
+      router.push(`/games/${data?.serialId ?? data?.id ?? ""}`)
     } catch (err) {
       logger.api.warn("[NavSidebar] random discover failed", { error: err instanceof Error ? err.message : String(err) })
     } finally {

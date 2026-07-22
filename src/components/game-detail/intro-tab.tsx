@@ -1,7 +1,7 @@
 "use client"
 
-import DOMPurify from "isomorphic-dompurify"
 import { cn } from "@/lib/utils"
+import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -16,24 +16,6 @@ function getDefaultLang(descriptions: { lang: string }[]): string {
     if (descriptions.some((d) => d.lang === lang)) return lang
   }
   return descriptions[0]?.lang ?? ""
-}
-
-/* ═══════════════════════════════════════════════
-   Sanitize 配置（复用）
-   ═══════════════════════════════════════════════ */
-const SANITIZE_CONFIG = {
-  ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "s", "a", "img", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "blockquote", "code", "pre", "hr", "div", "span"],
-  ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel", "class"],
-  ALLOW_DATA_ATTR: false,
-}
-
-function DescriptionContent({ html }: { html: string }) {
-  return (
-    <div
-      className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground"
-      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html, SANITIZE_CONFIG) }}
-    />
-  )
 }
 
 /* ═══════════════════════════════════════════════
@@ -173,7 +155,7 @@ export function IntroTab({
     return (
       <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
         {description ? (
-          <DescriptionContent html={description} />
+          <RichTextContent html={description} className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground" />
         ) : (
           <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
         )}
@@ -213,7 +195,7 @@ export function IntroTab({
         className="transition-opacity duration-150 ease-out"
         style={{ opacity: fading ? 0 : 1 }}
       >
-        <DescriptionContent html={activeDesc.text} />
+        <RichTextContent html={activeDesc.text} className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground" />
       </div>
 
       {/* 制作人员折叠卡片 — 桌面默认展开，手机默认收起 */}

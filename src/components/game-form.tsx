@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
+import { apiFetchSafe } from "@/lib/api-client"
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
@@ -172,17 +173,15 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setTranslateSuccess("")
 
     try {
-      const res = await fetch("/api/admin/translate", {
+      const { ok, data, error } = await apiFetchSafe<{ translatedText?: string; error?: string }>("/api/admin/translate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: sourceText, from: fromLang, to: toLang }),
+        body: { text: sourceText, from: fromLang, to: toLang },
       })
-      const data = await res.json()
-      if (!res.ok) { setTranslateError(data.error || "翻译失败"); return }
+      if (!ok) { setTranslateError(error || "翻译失败"); return }
 
       setDescLangs(prev => {
         const existing = prev[targetLang]?.trim()
-        const newContent = existing ? `${existing}\n\n${data.translatedText}` : data.translatedText
+        const newContent = existing ? `${existing}\n\n${data?.translatedText ?? ""}` : (data?.translatedText ?? "")
         return { ...prev, [targetLang]: newContent }
       })
       setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}翻译为${targetLabel}并填入${targetLabel} Tab，可手动修改。`)
@@ -211,36 +210,35 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
     try {
       // 并行请求两个目标语种翻译
-      const [res1, res2] = await Promise.all(
+      const [r1, r2] = await Promise.all(
         targets.map(t =>
-          fetch("/api/admin/translate", {
+          apiFetchSafe<{ translatedText?: string; error?: string }>("/api/admin/translate", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: sourceText, from: fromLang, to: t.to }),
+            body: { text: sourceText, from: fromLang, to: t.to },
           })
         )
       )
 
-      const data1 = await res1.json()
-      const data2 = await res2.json()
+      const data1 = r1.data
+      const data2 = r2.data
 
       const errors: string[] = []
-      if (!res1.ok) errors.push(`${targets[0].label}翻译失败: ${data1.error || "未知错误"}`)
-      if (!res2.ok) errors.push(`${targets[1].label}翻译失败: ${data2.error || "未知错误"}`)
+      if (!r1.ok) errors.push(`${targets[0].label}翻译失败: ${data1?.error || r1.error || "未知错误"}`)
+      if (!r2.ok) errors.push(`${targets[1].label}翻译失败: ${data2?.error || r2.error || "未知错误"}`)
       if (errors.length > 0) { setTranslateError(errors.join("；")); return }
 
       setDescLangs(prev => {
         const result = { ...prev }
         const d1 = prev[targets[0].lang]?.trim()
         const d2 = prev[targets[1].lang]?.trim()
-        result[targets[0].lang] = d1 ? `${d1}\n\n${data1.translatedText}` : data1.translatedText
-        result[targets[1].lang] = d2 ? `${d2}\n\n${data2.translatedText}` : data2.translatedText
+        result[targets[0].lang] = d1 ? `${d1}\n\n${data1?.translatedText ?? ""}` : (data1?.translatedText ?? "")
+        result[targets[1].lang] = d2 ? `${d2}\n\n${data2?.translatedText ?? ""}` : (data2?.translatedText ?? "")
         return result
       })
 
       const parts: string[] = []
-      if (data1.translatedText) parts.push(targets[0].label)
-      if (data2.translatedText) parts.push(targets[1].label)
+      if (data1?.translatedText) parts.push(targets[0].label)
+      if (data2?.translatedText) parts.push(targets[1].label)
       setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}简介翻译为${parts.join("和")}并填入对应 Tab，可手动修改。`)
     } catch (err) {
       setTranslateError(`翻译出错: ${(err as Error).message}`)
@@ -263,13 +261,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setVndbSuccess("")
 
     try {
-      const res = await fetch("/api/admin/vndb", {
+      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/vndb", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vndbId: id }),
+        body: { vndbId: id },
       })
-      const data = await res.json()
-      if (!res.ok) { setVndbError(data.error ?? "拉取失败"); return }
+      if (!ok) { setVndbError(error ?? "拉取失败"); return }
 
       // 自动填充字段（所有字段均可手动修改）
       if (data.title) setTitle(data.title)
@@ -349,14 +345,13 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
 
     try {
-      const res = await fetch(
+      const { ok, error } = await apiFetchSafe(
         isEdit ? `/api/admin/games/${gameId}` : "/api/admin/games",
-        { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+        { method: isEdit ? "PUT" : "POST", body }
       )
-      const data = await res.json()
       setSaving(false)
 
-      if (!res.ok) { setError(data.error ?? "保存失败"); return }
+      if (!ok) { setError(error ?? "保存失败"); return }
       clearDraft()
       router.push("/admin/games")
       router.refresh()

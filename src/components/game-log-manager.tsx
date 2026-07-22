@@ -6,6 +6,7 @@ import { Plus, Trash2, Loader2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
+import { apiFetchSafe, apiDeleteSafe } from "@/lib/api-client"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -17,9 +18,8 @@ export function GameLogManager({ gameId }: { gameId: string }) {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetch(`/api/admin/games/${gameId}/logs`, { signal: controller.signal })
-      .then(r => r.json())
-      .then(setLogs)
+    apiFetchSafe<Log[]>(`/api/admin/games/${gameId}/logs`, { signal: controller.signal })
+      .then(({ data }) => { if (data) setLogs(data) })
       .catch(() => {})
     return () => controller.abort()
   }, [gameId])
@@ -28,25 +28,18 @@ export function GameLogManager({ gameId }: { gameId: string }) {
     e.preventDefault()
     if (!content.trim()) return
     setAdding(true)
-    const res  = await fetch(`/api/admin/games/${gameId}/logs`, {
+    const { ok, data } = await apiFetchSafe<Log>(`/api/admin/games/${gameId}/logs`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: content.trim() }),
+      body: { content: content.trim() },
     })
-    const data = await res.json()
-    if (res.ok) { setLogs(p => [data, ...p]); setContent("") }
+    if (ok) { setLogs(p => [data as Log, ...p]); setContent("") }
     setAdding(false)
   }
 
   async function remove(logId: string) {
-    try {
-      const res = await fetch(`/api/admin/games/${gameId}/logs`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ logId }),
-      })
-      if (res.ok) setLogs(p => p.filter(l => l.id !== logId))
-    } catch (err) { logger.game.warn("[GameLogManager] delete log failed", { error: err instanceof Error ? err.message : String(err) }) }
+    const { ok, error } = await apiDeleteSafe(`/api/admin/games/${gameId}/logs`, { logId })
+    if (ok) setLogs(p => p.filter(l => l.id !== logId))
+    else logger.game.warn("[GameLogManager] delete log failed", { error })
   }
 
   return (
