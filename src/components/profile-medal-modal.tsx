@@ -15,7 +15,7 @@ import {
     X,
     Zap,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Tag } from "@/components/ui/tag"
 import { Badge } from "@/components/ui/badge"
 
@@ -41,6 +41,29 @@ interface Props {
 export function ProfileMedalModal({ favCount, playCount, commentCount, totalLevel, compact }: Props) {
   const [open, setOpen] = useState(false)
   const [showAll, setShowAll] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const prev = document.activeElement as HTMLElement | null
+    const node = dialogRef.current
+    node?.focus()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") { setOpen(false); return }
+      if (e.key === "Tab" && node) {
+        const focusables = node.querySelectorAll<HTMLElement>(
+          'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'
+        )
+        if (focusables.length === 0) return
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => { document.removeEventListener("keydown", onKey); prev?.focus() }
+  }, [open])
 
   const allMedals: Medal[] = [
     {
@@ -181,15 +204,20 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           {/* 内容 */}
           <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="medal-modal-title"
+            tabIndex={-1}
             className="relative w-full max-w-lg max-h-[80vh] overflow-auto rounded-2xl bg-card ring-1 ring-border animate-in fade-in zoom-in-95 duration-200"
-            style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.25)' }}
+            style={{ boxShadow: 'var(--shadow-3)' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* 头部 */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <Award className="h-5 w-5 text-amber-400" />
-                <h2 className="text-base font-semibold text-foreground">勋章墙</h2>
+                <h2 id="medal-modal-title" className="text-base font-semibold text-foreground">勋章墙</h2>
                 <Tag color="#f59e0b">
                   {earnedMedals.length}
                 </Tag>

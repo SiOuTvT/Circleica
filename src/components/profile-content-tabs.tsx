@@ -189,7 +189,7 @@ export function ProfileContentTabs({ userId }: Props) {
           onClick={() => setModalCollection(null)}
         />
         <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
-          <div className={`relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-card border border-border shadow-2xl transition-all duration-300 ${modalCollection ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}>
+          <div className={`relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-clip rounded-2xl bg-card border border-border shadow-4 transition-all duration-300 ${modalCollection ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}>
             {modalCollection && (
               <FolderModalContent
                 name={modalCollection.name}
@@ -220,7 +220,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
             autoFocus onKeyDown={(e) => { if (e.key === "Enter") onCreateFolder() }} />
           <div className="flex gap-2">
             <button onClick={() => { setShowCreateFolder(false); setNewFolderName("") }} className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary">取消</button>
-            <button onClick={onCreateFolder} disabled={!newFolderName.trim() || creating} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 shadow-sm">{creating ? "创建中..." : "创建"}</button>
+            <button onClick={onCreateFolder} disabled={!newFolderName.trim() || creating} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 shadow-1">{creating ? "创建中..." : "创建"}</button>
           </div>
         </div>
       ) : (

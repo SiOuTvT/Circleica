@@ -478,7 +478,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 key={group.id}
                 size="compact"
                 radius="xl"
-                className="transition-all duration-200 hover:ring-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                className="transition-all duration-200 hover:ring-primary/40 hover:shadow-3 hover:shadow-primary/5"
               >
               {/* ── 标签组头部 ── */}
               {isEditingGroup ? (

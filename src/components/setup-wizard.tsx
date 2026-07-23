@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useId } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { applyThemeColor } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
-import { cn } from "@/lib/utils"
+import { cn, withLabelableId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -248,11 +248,11 @@ export function SetupWizard() {
     const themeLabel = THEME_PRESETS.find(p => p.color === form.themeColor)?.label || "自定义"
     return (
       <div className={cn("fixed inset-0 flex items-start lg:items-center justify-center p-4 overflow-auto transition-colors duration-500", "bg-background")}>
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-clip">
           <div className={cn("absolute -top-1/4 -left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.06]", isDark ? "bg-amber-400" : "bg-amber-300")} />
           <div className={cn("absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.04]", isDark ? "bg-purple-400" : "bg-orange-200")} />
         </div>
-        <div className={cn("relative z-10 w-full max-w-md rounded-2xl overflow-hidden text-center", "bg-card border border-border shadow-lg")} style={{ animation: "wiz-fade-in 0.6s ease-out" }}>
+        <div className={cn("relative z-10 w-full max-w-md rounded-2xl overflow-clip text-center", "bg-card border border-border shadow-3")} style={{ animation: "wiz-fade-in 0.6s ease-out" }}>
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-color)]/30 to-transparent" />
           <div className="p-8 sm:p-10 space-y-6">
             <div className="text-5xl" style={{ animation: "wiz-fade-in 0.8s ease-out" }}>🎉</div>
@@ -260,7 +260,7 @@ export function SetupWizard() {
               <h1 className={cn("text-xl sm:text-2xl font-bold tracking-tight", "text-foreground")}>站点初始化完成</h1>
               <p className={cn("text-sm mt-2", "text-muted-foreground")}>{form.siteName} 已准备就绪</p>
             </div>
-            <div className={cn("rounded-xl overflow-hidden divide-y text-left", "bg-card border border-border divide-border")}>
+            <div className={cn("rounded-xl overflow-clip divide-y text-left", "bg-card border border-border divide-border")}>
               <SummaryRow label="站点" value={form.siteName} />
               <SummaryRow label="主题">
                 <span className="flex items-center gap-2">
@@ -300,12 +300,12 @@ export function SetupWizard() {
       `}</style>
 
       <div className={cn("fixed inset-0 flex items-start lg:items-center justify-center p-3 sm:p-4 overflow-auto transition-colors duration-500", "bg-background")}>
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-clip">
           <div className={cn("absolute -top-1/4 -left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.06]", isDark ? "bg-amber-400" : "bg-amber-300")} />
           <div className={cn("absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.04]", isDark ? "bg-purple-400" : "bg-orange-200")} />
         </div>
 
-        <div className={cn("wiz-card relative z-10 w-full max-w-5xl rounded-2xl overflow-hidden", "bg-card border border-border shadow-lg")} style={{ animation: "wiz-fade-in 0.5s ease-out" }}>
+        <div className={cn("wiz-card relative z-10 w-full max-w-5xl rounded-2xl overflow-clip", "bg-card border border-border shadow-3")} style={{ animation: "wiz-fade-in 0.5s ease-out" }}>
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-color)]/20 to-transparent" />
 
           {/* 明暗切换 */}
@@ -338,7 +338,7 @@ export function SetupWizard() {
                       <span className={cn("absolute -bottom-5 text-[9px] sm:text-xs whitespace-nowrap transition-colors", active ? "text-[var(--theme-color)] font-medium" : "text-muted-foreground")}>{s.label}</span>
                     </div>
                     {i < STEPS.length - 1 && (
-                      <div className={cn("flex-1 mx-1 sm:mx-3 h-0.5 rounded-full overflow-hidden relative", "bg-muted")}>
+                      <div className={cn("flex-1 mx-1 sm:mx-3 h-0.5 rounded-full overflow-clip relative", "bg-muted")}>
                         <div className={cn("absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out", done ? "w-full bg-[var(--theme-color)]" : "w-0")} />
                       </div>
                     )}
@@ -506,7 +506,7 @@ export function SetupWizard() {
                 {step === 3 && (
                   <div className="space-y-4" style={{ animation: "wiz-fade-in 0.4s ease-out" }}>
                     <p className={cn("text-sm", "text-muted-foreground")}>请确认以下站点配置：</p>
-                    <div className={cn("rounded-xl overflow-hidden divide-y", "bg-card border border-border divide-border")}>
+                    <div className={cn("rounded-xl overflow-clip divide-y", "bg-card border border-border divide-border")}>
                       <SummaryRow label="站点名称" value={form.siteName} />
                       {form.siteDescription && <SummaryRow label="站点描述" value={form.siteDescription} />}
                       <SummaryRow label="Logo">
@@ -578,12 +578,13 @@ export function SetupWizard() {
 
 /* ── 子组件 ── */
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
+  const id = useId()
   return (
     <div className="space-y-1.5 sm:space-y-2">
-      <label className={cn("flex items-center gap-1.5 text-sm font-medium", "text-muted-foreground")}>
+      <label htmlFor={id} className={cn("flex items-center gap-1.5 text-sm font-medium", "text-muted-foreground")}>
         {label}{required && <span className="text-[var(--theme-color)] text-xs">*</span>}
       </label>
-      {children}
+      {withLabelableId(children, id)}
       {hint && <p className={cn("text-[11px]", "text-muted-foreground")}>{hint}</p>}
     </div>
   )
@@ -603,7 +604,7 @@ function PreviewPanel({ form, logoPreview }: {
   form: FormData; logoPreview: string
 }) {
   return (
-    <div className={cn("rounded-xl overflow-hidden border transition-colors", "bg-card border border-border")}>
+    <div className={cn("rounded-xl overflow-clip border transition-colors", "bg-card border border-border")}>
       <div className="flex items-center gap-2 px-3 h-9 border-b border-border">
         {form.siteLogo ? <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" /> : <span className="text-xs">🎮</span>}
         <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Fangame"}</span>

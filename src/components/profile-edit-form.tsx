@@ -7,7 +7,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2, Lock, User } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useId } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
 
 interface Props {
@@ -30,6 +30,11 @@ export function ProfileEditForm({ user }: Props) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const { message: profileMsg } = useEmotionalMessage("success_profile")
+
+  const usernameId = useId()
+  const bioId = useId()
+  const oldPwId = useId()
+  const newPwId = useId()
 
   async function handleAvatarUpload(file: File): Promise<string> {
     if (file.size > 5 * 1024 * 1024) {
@@ -170,12 +175,13 @@ export function ProfileEditForm({ user }: Props) {
         {/* 基本信息 */}
         <div className="p-5 sm:p-6 space-y-5">
           <div>
-            <label className="block mb-2 text-xs font-semibold text-muted-foreground">
+            <label htmlFor={usernameId} className="block mb-2 text-xs font-semibold text-muted-foreground">
               用户名
             </label>
             <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
               <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
               <input
+                id={usernameId}
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="用户名"
@@ -187,11 +193,12 @@ export function ProfileEditForm({ user }: Props) {
           </div>
 
           <div>
-            <label className="block mb-2 text-xs font-semibold text-muted-foreground">
+            <label htmlFor={bioId} className="block mb-2 text-xs font-semibold text-muted-foreground">
               个人简介
             </label>
             <div className="rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
               <Textarea
+                id={bioId}
                 variant="ghost"
                 value={bio}
                 onChange={e => setBio(e.target.value)}
@@ -217,9 +224,10 @@ export function ProfileEditForm({ user }: Props) {
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
+              <label htmlFor={oldPwId} className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
               <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
                 <input
+                  id={oldPwId}
                   type={showOld ? "text" : "password"}
                   value={oldPassword}
                   onChange={e => setOldPassword(e.target.value)}
@@ -237,9 +245,10 @@ export function ProfileEditForm({ user }: Props) {
               </div>
             </div>
             <div>
-              <label className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
+              <label htmlFor={newPwId} className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
               <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
                 <input
+                  id={newPwId}
                   type={showNew ? "text" : "password"}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}

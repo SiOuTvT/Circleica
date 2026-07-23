@@ -164,7 +164,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
         <div
           id="search-suggestions"
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl bg-card py-1 shadow-lg ring-1 ring-border"
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-clip rounded-xl bg-card py-1 shadow-3 ring-1 ring-border"
         >
           {suggestions.map((s, i) => (
             <Link
