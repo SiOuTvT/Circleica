@@ -2,6 +2,7 @@
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Loader2, UserMinus, UserPlus } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -26,8 +27,10 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
       if (ok) {
         setFollowing(!following)
         toast.success(following
-          ? (followMsgs.unfollow_success ? `${followMsgs.unfollow_success.emoji} ${followMsgs.unfollow_success.title}` : "已取消关注")
-          : (followMsgs.follow_success ? `${followMsgs.follow_success.emoji} ${followMsgs.follow_success.title}` : "关注成功"))
+          ? (followMsgs.unfollow_success ? followMsgs.unfollow_success.title : "已取消关注")
+          : (followMsgs.follow_success ? followMsgs.follow_success.title : "关注成功"), {
+            icon: <EmotionalIcon emoji={following ? followMsgs.unfollow_success?.emoji : followMsgs.follow_success?.emoji} className="h-4 w-4" />
+          })
       } else {
         toast.error("出了点问题，等一下再试试？")
       }

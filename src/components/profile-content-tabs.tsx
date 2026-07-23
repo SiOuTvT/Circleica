@@ -5,6 +5,7 @@ import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
 import { Calendar, Eye, FolderHeart, Gamepad2, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -242,7 +243,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FolderHeart className="h-10 w-10 text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">
-            {favMsgs.empty_favorites ? `${favMsgs.empty_favorites.emoji} ${favMsgs.empty_favorites.title}，${favMsgs.empty_favorites.subtitle}` : "还没有收藏夹"}
+            {favMsgs.empty_favorites ? <><EmotionalIcon emoji={favMsgs.empty_favorites.emoji} className="h-4 w-4" /> {favMsgs.empty_favorites.title}，{favMsgs.empty_favorites.subtitle}</> : "还没有收藏夹"}
           </p>
         </div>
       )}
@@ -352,7 +353,7 @@ function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; statu
   if (playStatusGames.length === 0) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <Eye className="h-10 w-10 text-muted-foreground/30 mb-3" />
-      <p className="text-sm text-muted-foreground">{playMsg ? `${playMsg.emoji} ${playMsg.title}，${playMsg.subtitle}` : "还没有游玩记录"}</p>
+      <p className="text-sm text-muted-foreground">{playMsg ? <><EmotionalIcon emoji={playMsg.emoji} className="h-4 w-4" /> {playMsg.title}，{playMsg.subtitle}</> : "还没有游玩记录"}</p>
     </div>
   )
   const colors: Record<string, string> = { "想玩": "bg-sky-500/10 text-sky-400", "在玩": "bg-amber-500/10 text-amber-400", "玩过": "bg-emerald-500/10 text-emerald-400", "搁置": "bg-muted-foreground/10 text-muted-foreground", "弃坑": "bg-rose-500/10 text-rose-400" }

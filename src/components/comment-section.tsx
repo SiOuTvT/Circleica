@@ -9,6 +9,7 @@ import { api } from "@/lib/api-client"
 import { formatZhDateTime } from "@/lib/date"
 import { COMMENT_EMOJI_GROUPS } from "@/lib/emoji"
 import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import { toast } from "sonner"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -140,7 +141,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         setContent("")
         removePreview()
         setShowEmoji(false)
-        toast.success(commentMsg ? `${commentMsg.emoji} ${commentMsg.title}` : "评论成功！")
+        toast.success(commentMsg ? commentMsg.title : "评论成功！", { icon: commentMsg ? <EmotionalIcon emoji={commentMsg.emoji} className="h-4 w-4" /> : undefined })
       } else {
         const err = await res.json().catch(() => ({ error: "发送失败了，再试试？" }))
         setSubmitError(err.error || "发送失败了，再试试？")
@@ -340,7 +341,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       <div className="space-y-4">
         {sortedComments.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            {emptyMsg ? `${emptyMsg.emoji} ${emptyMsg.title}，${emptyMsg.subtitle}` : "还没有评论，来说点什么吧~"}
+            {emptyMsg ? <><EmotionalIcon emoji={emptyMsg.emoji} className="h-4 w-4" /> {emptyMsg.title}，{emptyMsg.subtitle}</> : "还没有评论，来说点什么吧~"}
           </p>
         )}
         {sortedComments.map((c) => (

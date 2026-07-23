@@ -3,6 +3,7 @@
 import { TurnstileCaptcha } from "@/components/turnstile-captcha"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -83,7 +84,7 @@ function LoginContent() {
     // 注册成功后自动切换到登录
     setTab("login")
     setError("")
-    setSuccess(regMsg ? `${regMsg.emoji} ${regMsg.title}` : "注册成功！请登录")
+    setSuccess(regMsg ? `${regMsg.title}` : "注册成功！请登录")
     setIdentifier(regForm.username)
     setPassword("")
   }

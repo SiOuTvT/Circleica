@@ -4,6 +4,7 @@ import { ImageUpload } from "@/components/image-upload"
 import { Textarea } from "@/components/ui/textarea"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { ArrowLeft, Eye, EyeOff, Loader2, Lock, User } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -98,7 +99,7 @@ export function ProfileEditForm({ user }: Props) {
       })
     )
 
-    setSuccess(profileMsg ? `${profileMsg.emoji} ${profileMsg.title}` : "保存成功！")
+    setSuccess(profileMsg ? profileMsg.title : "保存成功！")
     setOldPassword("")
     setNewPassword("")
     setTimeout(() => {

@@ -2,6 +2,7 @@
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { Building2, Calendar, Clock, ExternalLink, Gamepad2 } from "lucide-react"
+import { EmotionalIcon } from "@/components/emotional-icon"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -197,8 +198,10 @@ export default function GameDetailClient({
         setFavCnt(data?.count ?? prevCnt)
         window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: data?.isFav } }))
         toast.success(data?.isFav
-          ? (favMsgs.favorite_added ? `${favMsgs.favorite_added.emoji} ${favMsgs.favorite_added.title}` : "已收藏")
-          : (favMsgs.favorite_removed ? `${favMsgs.favorite_removed.emoji} ${favMsgs.favorite_removed.title}` : "已取消收藏"))
+          ? (favMsgs.favorite_added ? favMsgs.favorite_added.title : "已收藏")
+          : (favMsgs.favorite_removed ? favMsgs.favorite_removed.title : "已取消收藏"), {
+            icon: <EmotionalIcon emoji={data?.isFav ? favMsgs.favorite_added?.emoji : favMsgs.favorite_removed?.emoji} className="h-4 w-4" />
+          })
       } else {
         setFav(prevFav)
         setFavCnt(prevCnt)

@@ -12,6 +12,7 @@ import {
   Trash2, X,
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmotionalIcon } from "@/components/emotional-icon";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -254,7 +255,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                       {item.imageUrl ? (
                         <Image src={item.imageUrl} alt="" width={48} height={48} className="h-full w-full rounded-lg object-cover" unoptimized />
                       ) : item.emoji ? (
-                        <span>{item.emoji}</span>
+                        <span><EmotionalIcon emoji={item.emoji} className="h-8 w-8" /></span>
                       ) : (
                         <Icon className={`h-6 w-6 ${meta.color}`} />
                       )}

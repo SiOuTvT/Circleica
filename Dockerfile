@@ -8,23 +8,10 @@ WORKDIR /app
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
 # Phase 1: HTTP 引导 — 仅安装 ca-certificates，解决 TLS 证书链缺失
 # Phase 2: 切换 HTTPS 镜像 — ca-certificates 已就绪，正式安装业务依赖
-RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
-      > /etc/apt/apt.conf.d/99retry && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
-      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates 2>/dev/null || true && \
-    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/*
+RUN echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' > /etc/apt/apt.conf.d/99retry
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" > /etc/apt/sources.list.d/mirror-bootstrap.list && apt-get update -qq && apt-get install -y --no-install-recommends ca-certificates && update-ca-certificates 2>/dev/null || true
+RUN rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && apt-get update -qq && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files
 COPY package.json package-lock.json ./
@@ -46,23 +33,10 @@ FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
-RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
-      > /etc/apt/apt.conf.d/99retry && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
-      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates 2>/dev/null || true && \
-    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends openssl && \
-    rm -rf /var/lib/apt/lists/*
+RUN echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' > /etc/apt/apt.conf.d/99retry
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" > /etc/apt/sources.list.d/mirror-bootstrap.list && apt-get update -qq && apt-get install -y --no-install-recommends ca-certificates && update-ca-certificates 2>/dev/null || true
+RUN rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && apt-get update -qq && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies from stage 1
 COPY --from=deps /app/node_modules ./node_modules
@@ -101,25 +75,10 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
 # ── APT 镜像源：bootstrap(HTTP) → 正式(HTTPS) ──
-RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
-      > /etc/apt/apt.conf.d/99retry && \
-    echo "deb http://mirrors.aliyun.com/debian bookworm main" \
-      > /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends ca-certificates && \
-    update-ca-certificates 2>/dev/null || true && \
-    rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" \
-      > /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" \
-      >> /etc/apt/sources.list.d/mirror.list && \
-    apt-get update -qq && \
-    apt-get install -y --no-install-recommends \
-      openssl \
-      curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN echo 'Acquire::Retries "5"; Acquire::http::Timeout "30"; Acquire::https::Timeout "30";' > /etc/apt/apt.conf.d/99retry
+RUN echo "deb http://mirrors.aliyun.com/debian bookworm main" > /etc/apt/sources.list.d/mirror-bootstrap.list && apt-get update -qq && apt-get install -y --no-install-recommends ca-certificates && update-ca-certificates 2>/dev/null || true
+RUN rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/mirror-bootstrap.list
+RUN echo "deb https://mirrors.aliyun.com/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && echo "deb https://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list.d/mirror.list && apt-get update -qq && apt-get install -y --no-install-recommends openssl curl && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN groupadd --gid 1001 nodejs && \
