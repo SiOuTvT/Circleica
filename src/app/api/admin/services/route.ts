@@ -173,7 +173,7 @@ async function testR2(config: Record<string, string>) {
     if (msg.includes("SignatureDoesNotMatch")) return { success: false, message: "Secret Access Key 不正确" }
     if (msg.includes("NoSuchBucket") || msg.includes("NotFound")) return { success: false, message: "Account ID 或 Bucket 不存在" }
     if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) return { success: false, message: "网络连接失败，请检查 Account ID 是否正确" }
-    return { success: false, message: `R2 错误: ${msg}` }
+    return { success: false, message: "R2 连接失败，请检查配置或网络" }
   }
 }
 
@@ -193,7 +193,7 @@ async function testRedis(config: Record<string, string>) {
     const msg = e instanceof Error ? e.message : String(e)
     if (msg.includes("TimeoutError") || msg.includes("timeout")) return { success: false, message: "Redis 连接超时，请检查 URL 是否正确" }
     if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) return { success: false, message: "无法解析 Redis 地址，请检查 URL" }
-    return { success: false, message: `Redis 错误: ${msg}` }
+    return { success: false, message: "Redis 连接失败，请检查配置或网络" }
   }
 }
 

@@ -88,7 +88,7 @@ function ColorEditPopover({
   return (
     <div
       ref={ref}
-      className="absolute left-0 top-full mt-2 z-30 rounded-xl bg-card p-4 ring-1 ring-border shadow-xl shadow-black/30 space-y-3 max-w-[calc(100vw-2rem)]"
+      className="absolute left-0 top-full mt-2 z-30 rounded-xl bg-card p-4 ring-1 ring-border shadow-3 shadow-black/30 space-y-3 max-w-[calc(100vw-2rem)]"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex flex-wrap gap-1.5">
@@ -185,7 +185,7 @@ export function TagsOverviewClient({
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-md cursor-pointer"
+            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-2 cursor-pointer"
           >
             {/* 序号 */}
             <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-xs font-bold text-muted-foreground shrink-0">
@@ -350,7 +350,7 @@ function UngroupedTagsSection({
               <FolderInput className="h-3 w-3 opacity-40 group-hover/tag:opacity-100 transition-opacity" />
             </button>
             {assigningId === t.id && (
-              <div className="absolute top-full left-0 mt-1 z-20 bg-popover rounded-xl p-3 ring-1 ring-border shadow-xl min-w-[200px] space-y-2">
+              <div className="absolute top-full left-0 mt-1 z-20 bg-popover rounded-xl p-3 ring-1 ring-border shadow-3 min-w-[200px] space-y-2">
                 <select
                   value={assignTarget}
                   onChange={(e) => setAssignTarget(e.target.value)}

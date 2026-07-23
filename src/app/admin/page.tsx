@@ -159,7 +159,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {stats.map(({ icon: Icon, label, value, sub, href }) => {
           const baseCls = "rounded-xl bg-card p-5 ring-1 ring-border transition-all"
-          const cls = href ? `${baseCls} hover:ring-primary/30 hover:shadow-md` : baseCls
+          const cls = href ? `${baseCls} hover:ring-primary/30 hover:shadow-2` : baseCls
           const inner = (
             <>
               <Icon className="mb-3 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />

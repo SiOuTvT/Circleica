@@ -286,7 +286,7 @@ export function TagGroupDetailClient({
             <div key={tag.id} className="group relative">
               {/* 标签卡片 */}
               <div
-                className="flex items-center gap-3 rounded-xl bg-card p-3.5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-md cursor-default"
+                className="flex items-center gap-3 rounded-xl bg-card p-3.5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-2 cursor-default"
               >
                 {/* 颜色条 */}
                 <div className="h-10 w-1.5 rounded-full shrink-0" style={{ background: tag.color || group.color }} />
@@ -324,7 +324,7 @@ export function TagGroupDetailClient({
 
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
-                <Card ref={editPanelRef} size="default" radius="xl" className="mt-2 shadow-lg space-y-3">
+                <Card ref={editPanelRef} size="default" radius="xl" className="mt-2 shadow-3 space-y-3">
                   <div className="flex gap-2">
                     <input
                       value={editName}

@@ -268,9 +268,9 @@ function BlockEditor({
   const data = isCard || isLinkCard ? JSON.parse(block.content) : null
 
   return (
-    <div className="group relative rounded-xl border border-border bg-card transition-all hover:shadow-sm">
+    <div className="group relative rounded-xl border border-border bg-card transition-all hover:shadow-1">
       {/* 工具栏 */}
-      <div className="absolute -top-3 right-2 flex items-center gap-1 bg-background border border-border rounded-lg px-1.5 py-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      <div className="absolute -top-3 right-2 flex items-center gap-1 bg-background border border-border rounded-lg px-1.5 py-1 shadow-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <button
           onClick={() => onMove("up")}
           disabled={index === 0}

@@ -1,4 +1,4 @@
-import { withHandler, json, noContent } from "@/lib/api-handler"
+import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { reportService } from "@/services/admin"
 import { prisma } from "@/lib/prisma"
@@ -14,7 +14,7 @@ export const GET = withHandler(async () => {
 
 export const DELETE = withHandler(async (req) => {
   await requireAdminRole()
-  const body = await req.json()
+  const body = await safeParseJson(req)
   if (body.gameId) {
     // 解决：删除该游戏的所有举报
     await prisma.gameReport.deleteMany({ where: { gameId: body.gameId } })
