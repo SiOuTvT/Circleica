@@ -81,9 +81,9 @@ function CollectionCard({ id, name, description, count, covers }: {
                 }}>
                 {g.cover ? (
                   <Image src={g.cover} alt={g.title} width={100} height={140}
-                    className="w-[100px] h-[140px] rounded-lg object-cover shadow-lg ring-1 ring-black/10" unoptimized />
+                    className="w-[100px] h-[140px] rounded-lg object-cover shadow-3 ring-1 ring-black/10" unoptimized />
                 ) : (
-                  <div className="w-[100px] h-[140px] rounded-lg bg-muted-foreground/10 shadow-lg ring-1 ring-black/10 flex items-center justify-center text-muted-foreground text-xs">
+                  <div className="w-[100px] h-[140px] rounded-lg bg-muted-foreground/10 shadow-3 ring-1 ring-black/10 flex items-center justify-center text-muted-foreground text-xs">
                     无封面
                   </div>
                 )}

@@ -6,8 +6,8 @@ export const GET = withHandler(async (req) => {
   await getOptionalAuth()
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q') || undefined
-  const page = Number(searchParams.get('page') || '1')
-  const limit = Number(searchParams.get('limit') || '20')
+  const page = Math.max(1, Number(searchParams.get('page') || '1') || 1)
+  const limit = Math.min(50, Math.max(1, Number(searchParams.get('limit') || '20') || 20))
   const sort = searchParams.get('sort') || undefined
   const tag = searchParams.get('tag') || undefined
 

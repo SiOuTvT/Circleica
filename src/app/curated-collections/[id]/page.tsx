@@ -54,9 +54,9 @@ export default async function CuratedCollectionDetailPage({ params }: { params: 
               <div key={i} className="absolute" style={{ left: `${10 + i * 16}%`, zIndex: 5 - i, transform: `rotate(${(i - 2) * 2.5}deg)` }}>
                 {g.coverImage ? (
                   <Image src={g.coverImage} alt={g.title} width={120} height={168}
-                    className="w-[120px] h-[168px] rounded-xl object-cover shadow-xl ring-1 ring-black/10" unoptimized />
+                    className="w-[120px] h-[168px] rounded-xl object-cover shadow-3 ring-1 ring-black/10" unoptimized />
                 ) : (
-                  <div className="w-[120px] h-[168px] rounded-xl bg-muted-foreground/10 shadow-xl ring-1 ring-black/10" />
+                  <div className="w-[120px] h-[168px] rounded-xl bg-muted-foreground/10 shadow-3 ring-1 ring-black/10" />
                 )}
               </div>
             ))}

@@ -1,11 +1,11 @@
-import { withHandler, json, noContent } from '@/lib/api-handler'
+import { withHandler, json, noContent, safeParseJson } from '@/lib/api-handler'
 import { requireAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 
 export const PUT = withHandler(async (req, ctx) => {
   const auth = await requireAuth()
   const { resourceId } = await ctx!.params
-  const body = await req.json()
+  const body = await safeParseJson(req)
   const result = await gameService.updateResource(resourceId, auth.userId, auth.role, body)
   return json(result)
 })

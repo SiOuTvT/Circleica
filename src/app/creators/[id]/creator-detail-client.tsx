@@ -74,10 +74,10 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-xl">
+      <div className="mb-8 flex flex-col items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-3">
         <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 w-full">
           {/* Avatar placeholder */}
-          <div className="flex h-28 w-28 sm:h-32 sm:w-32 lg:h-40 lg:w-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-400 ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
+          <div className="flex h-28 w-28 sm:h-32 sm:w-32 lg:h-40 lg:w-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-400 ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
             <User className="h-16 w-16 text-white/80" strokeWidth={1.5} />
           </div>
 
