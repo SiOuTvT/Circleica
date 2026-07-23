@@ -78,7 +78,7 @@ function ResultCard({
   showResend?: boolean
 }) {
   return (
-    <div className="w-full max-w-md rounded-2xl bg-card border border-border p-8 text-center space-y-4 shadow-lg">
+    <div className="w-full max-w-md rounded-2xl bg-card border border-border p-8 text-center space-y-4 shadow-3">
       <div className="text-4xl">{status === "success" ? "✅" : "❌"}</div>
       <h1 className="text-xl font-bold text-foreground">{title}</h1>
       <p className="text-sm text-muted-foreground">{desc}</p>

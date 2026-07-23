@@ -47,6 +47,8 @@ export function AchievementToast({ achievement, onClose }: Props) {
 
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       className={cn(
         "pointer-events-auto relative w-[320px] h-[90px] overflow-visible rounded-xl",
         "bg-card backdrop-blur-xl ring-1 ring-amber-500/20",

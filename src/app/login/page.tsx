@@ -113,7 +113,7 @@ function LoginContent() {
               onClick={() => { setTab("login"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "login"
-                  ? "bg-secondary text-foreground shadow-sm"
+                  ? "bg-secondary text-foreground shadow-1"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -123,7 +123,7 @@ function LoginContent() {
               onClick={() => { setTab("register"); setError(""); setSuccess("") }}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
                 tab === "register"
-                  ? "bg-secondary text-foreground shadow-sm"
+                  ? "bg-secondary text-foreground shadow-1"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >

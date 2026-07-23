@@ -508,7 +508,7 @@ main > * {
 .glass {
   background: rgba(20, 20, 22, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.03);
+  box-shadow: var(--shadow-1);
   position: relative;
   transition: background-color 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out;
 }
@@ -530,7 +530,7 @@ main > * {
 .light .glass {
   background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -573,19 +573,19 @@ main > * {
 .glass:hover {
   background: rgba(24, 24, 27, 0.68);
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-2);
 }
 
 .light .glass:hover {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 .glass-heavy {
   background: rgba(10, 10, 12, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+  box-shadow: var(--shadow-2);
   position: relative;
   transition: background-color 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out;
 }
@@ -593,7 +593,7 @@ main > * {
 .light .glass-heavy {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-2);
 }
 
 .glass-heavy::before {
@@ -619,13 +619,13 @@ main > * {
 .glass-heavy:hover {
   background: rgba(9, 9, 11, 0.78);
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 12px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-3);
 }
 
 .light .glass-heavy:hover {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-3);
 }
 
 /* ── 现代分割线 - 渐变透明 ── */

@@ -237,7 +237,7 @@ export default async function GameDetailPage({
           {/* ─── 左侧：单一整体大卡片 ─── */}
           <div
             className="flex flex-col min-w-0 rounded-2xl bg-card border border-border overflow-hidden"
-            style={{ boxShadow: "var(--card-shadow)" }}
+            style={{ boxShadow: "var(--shadow-card)" }}
           >
             {/* ①号位：封面图 16:9，融入卡片顶部 */}
             <div className="shrink-0 min-w-0">

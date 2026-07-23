@@ -291,7 +291,7 @@ export function AdminNav() {
                         "group relative flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200",
                         collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5",
                         isActive
-                          ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
+                          ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
                           : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                       )}
                     >
@@ -386,7 +386,7 @@ export function AdminNav() {
       {/* ═══════════ 手机端侧边栏 ═══════════ */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-full w-[260px] flex-col bg-card shadow-2xl transition-transform duration-200 ease-out md:hidden",
+          "fixed left-0 top-0 z-50 flex h-full w-[260px] flex-col bg-card shadow-4 transition-transform duration-200 ease-out md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -434,7 +434,7 @@ export function AdminNav() {
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                         isActive
-                          ? "bg-accent text-foreground shadow-sm ring-1 ring-border"
+                          ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
                           : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                       )}
                     >
