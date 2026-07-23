@@ -42,18 +42,16 @@ export const gameService = {
     const game = await gameRepo.findById(gameId)
     if (!game) throw new NotFoundError("游戏")
     try {
-      const result = await gameRepo.removeFavorite(userId, gameId)
-      if (result) return { favorited: false }
-    } catch {
-      // 不存在则继续尝试添加
-    }
-    try {
-      await gameRepo.addFavorite(userId, gameId, collectionId)
-      checkAchievements(userId).catch(() => {})
-      return { favorited: true }
+      const favorited = await gameRepo.toggleFavorite(userId, gameId, collectionId)
+      if (favorited) checkAchievements(userId).catch(() => {})
+      return { favorited }
     } catch (e: unknown) {
-      if (e instanceof Error && "code" in e && (e as { code: string }).code === "P2002") {
-        return { favorited: true }
+      // 并发双触发可能导致唯一约束(P2002)/未找到(P2025)冲突：交互式事务回滚后
+      // 状态已落在正确终态，按真实收藏状态返回，避免给第二次并发请求抛错。
+      const code = (e as { code?: string })?.code
+      if (code === "P2002" || code === "P2025") {
+        const stillFav = await gameRepo.isFavorited(userId, gameId)
+        return { favorited: !!stillFav }
       }
       throw e
     }

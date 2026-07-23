@@ -284,7 +284,10 @@ export const userService = {
       if (raw.banner && v === null) throw new ValidationError("封面链接格式不正确")
       data.banner = v ?? ""
     }
-    if (raw.faveGameId !== undefined) data.faveGameId = raw.faveGameId || null
+    if (raw.faveGameId !== undefined) {
+      // 类型守卫：仅接受字符串，避免非字符串写入（schema 漂移补强）
+      data.faveGameId = typeof raw.faveGameId === "string" && raw.faveGameId.trim() ? raw.faveGameId : null
+    }
 
     // 取旧头像/封面 URL，替换成功后清理旧文件，避免孤儿文件持续堆积（L10）
     const current = await prisma.user.findUnique({

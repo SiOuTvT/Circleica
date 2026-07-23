@@ -173,14 +173,19 @@ export function getStorageBackend(): string {
 export async function deleteByUrl(url?: string | null): Promise<void> {
   if (!url) return
   const adapter = getStorage()
-  let key: string | null = null
+  let rawKey: string | null = null
   if (adapter.name === "local") {
     const marker = "/uploads/"
     const idx = url.indexOf(marker)
-    key = idx >= 0 ? url.slice(idx + marker.length) : null
+    rawKey = idx >= 0 ? url.slice(idx + marker.length) : null
   } else {
     const base = process.env.R2_PUBLIC_URL
-    if (base && url.startsWith(`${base}/`)) key = url.slice(base.length + 1)
+    if (base && url.startsWith(`${base}/`)) rawKey = url.slice(base.length + 1)
   }
-  if (key) await adapter.delete(key)
+  if (!rawKey) return
+  // 纵深防御：阻断路径穿越（../），避免误删存储根之外的文件 / 对象
+  // path.normalize 会消解中间的 ".." 段；仅当归约后仍以前导 ".." 或绝对路径开头才算逃逸
+  const key = path.normalize(rawKey)
+  if (key.startsWith("..") || path.isAbsolute(key)) return
+  await adapter.delete(key)
 }

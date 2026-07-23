@@ -34,7 +34,6 @@ export const forumRepo = {
       where: { id },
       include: {
         user: { select: { id: true, username: true, avatar: true, avatarFrameId: true, serialId: true } },
-        likes: { select: { userId: true } },
       },
     })
   },
@@ -94,7 +93,6 @@ export const forumRepo = {
         skip, take: limit,
         include: {
           user: { select: { id: true, username: true, avatar: true, avatarFrameId: true } },
-          likes: { select: { userId: true } },
         },
       }),
       prisma.forumComment.count({ where: { postId } }),

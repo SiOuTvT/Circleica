@@ -65,6 +65,7 @@ export const collectionRepo = {
     return prisma.collection.findMany({
       where: { userId },
       orderBy: { sortOrder: "asc" },
+      take: 200,
       include: { _count: { select: { favorites: true } } },
     })
   },
@@ -285,6 +286,7 @@ export const profileRepo = {
     return prisma.favorite.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
+      take: 200,
       include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
     })
   },
@@ -292,6 +294,7 @@ export const profileRepo = {
   findPlayStatuses(userId: string) {
     return prisma.playStatus.findMany({
       where: { userId },
+      take: 200,
       include: { game: { select: { id: true, title: true, coverImage: true } } },
     })
   },

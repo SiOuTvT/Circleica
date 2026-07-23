@@ -76,9 +76,13 @@ export const gameRepo = {
     )
   },
 
-  findRandom(limit: number) {
+  async findRandom(limit: number) {
+    // 避免 ORDER BY RANDOM() 在大表上触发全表扫描+排序：先取总数，再随机偏移选取连续块
+    const total = await prisma.game.count({ where: { isPublished: true } })
+    if (total === 0) return []
+    const offset = total > limit ? Math.floor(Math.random() * (total - limit)) : 0
     return prisma.$queryRaw<any[]>(
-      Prisma.sql`SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY RANDOM() LIMIT ${limit}`,
+      Prisma.sql`SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY "serialId" LIMIT ${limit} OFFSET ${offset}`,
     )
   },
 
@@ -100,6 +104,24 @@ export const gameRepo = {
       prisma.favorite.delete({ where: { userId_gameId: { userId, gameId } } }),
       prisma.game.update({ where: { id: gameId }, data: { favoriteCount: { decrement: 1 } } }),
     ])
+  },
+
+  // 原子化收藏切换：读 → 存在则删+decrement，否则建+increment（交互式事务，并发安全）
+  // 复用 Favorite @@unique([userId, gameId]) 约束兜底并发双触发，避免重复行与计数漂移。
+  toggleFavorite(userId: string, gameId: string, collectionId?: string) {
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.favorite.findUnique({
+        where: { userId_gameId: { userId, gameId } },
+      })
+      if (existing) {
+        await tx.favorite.delete({ where: { userId_gameId: { userId, gameId } } })
+        await tx.game.update({ where: { id: gameId }, data: { favoriteCount: { decrement: 1 } } })
+        return false
+      }
+      await tx.favorite.create({ data: { userId, gameId, collectionId } })
+      await tx.game.update({ where: { id: gameId }, data: { favoriteCount: { increment: 1 } } })
+      return true
+    })
   },
 
   // ── 游玩状态 ────────────────────────
@@ -153,7 +175,6 @@ export const gameRepo = {
             include: { user: { select: { id: true, username: true, avatar: true } } },
             orderBy: { createdAt: "asc" },
           },
-          likes: { select: { userId: true } },
         },
       }),
       prisma.comment.count({ where: { gameId, parentId: null } }),
@@ -182,8 +203,9 @@ export const gameRepo = {
   findResources(gameId: string) {
     return prisma.gameResource.findMany({
       where: { gameId },
-      include: { entries: true, user: { select: { id: true, username: true } } },
+      include: { entries: { take: 20 }, user: { select: { id: true, username: true } } },
       orderBy: { createdAt: "desc" },
+      take: 50,
     })
   },
 

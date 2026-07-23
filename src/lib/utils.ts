@@ -1,8 +1,30 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+/**
+ * 把生成的 id 注入到 children 中第一个可标记（labelable）的原生表单控件
+ * （input / select / textarea），用于让 <label htmlFor> 与控件正确关联。
+ * 仅向下钻取一层宿主元素（如 <div className="relative"> 包裹 input + 按钮），
+ * 遇到自定义组件即停止，避免误改第三方组件内部 DOM。
+ */
+export function withLabelableId(node: ReactNode, id: string): ReactNode {
+  if (Array.isArray(node)) return node.map((n) => withLabelableId(n, id))
+  if (!isValidElement(node)) return node
+  const el = node as ReactElement<any>
+  const tag = el.type
+  if (tag === "input" || tag === "select" || tag === "textarea") {
+    return cloneElement(el, { id })
+  }
+  if (typeof tag === "string") {
+    const kids = (el.props as { children?: ReactNode }).children
+    return cloneElement(el, {}, withLabelableId(kids, id))
+  }
+  return node
 }
 
 /**
