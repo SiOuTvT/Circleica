@@ -142,7 +142,7 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
             </div>
             <footer role="contentinfo" className="border-t border-border bg-muted/30 py-6 text-center text-xs text-muted-foreground">
               <div className="mx-auto max-w-[1140px] px-4">
-                <p>{siteName} · 资源大厅</p>
+                <p>{siteName} - 极客同人社区 | 完全免费开放的视觉小说档案库</p>
                 <p className="mt-1">本站资源均来自互联网，仅供学习交流使用</p>
                 <div className="mt-3 border-t border-border/50 pt-3 flex items-center justify-center gap-4">
                   <a href="/about" className="text-xs text-muted-foreground hover:text-foreground transition-colors">关于我们</a>
