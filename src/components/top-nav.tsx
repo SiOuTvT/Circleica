@@ -239,7 +239,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       <header
         className={cn(
           "flex h-14 items-center rounded-xl border transition-all duration-300 lg:backdrop-blur-2xl",
-          scrolled ? "shadow-lg backdrop-blur-xl" : "shadow-none backdrop-blur-none"
+          scrolled ? "shadow-3 backdrop-blur-xl" : "shadow-none backdrop-blur-none"
         )}
         style={{
           background: scrolled
@@ -297,7 +297,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                 </button>
 
                 {userOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-xl bg-popover ring-1 ring-border shadow-lg">
+                  <div className="absolute right-0 top-full mt-2 w-52 overflow-clip rounded-xl bg-popover ring-1 ring-border shadow-3">
                     {/* 用户信息区 */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/80 text-xs font-bold text-white ring-1 ring-border">

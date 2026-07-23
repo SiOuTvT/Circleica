@@ -96,7 +96,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
                   <Link
                     key={tag.id}
                     href={`/search?tag=${encodeURIComponent(tag.name)}`}
-                    className="inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-sm"
+                    className="inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-1"
                     style={{
                       backgroundColor: `${tag.color || tag.group.color}18`,
                       color: tag.color || tag.group.color,
