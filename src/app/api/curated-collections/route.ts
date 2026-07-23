@@ -6,6 +6,7 @@ export const GET = withHandler(async () => {
   const collections = await prisma.curatedCollection.findMany({
     where: { published: true },
     orderBy: { sortOrder: "asc" },
+    take: 100,
     include: {
       games: {
         orderBy: { sortOrder: "asc" },
