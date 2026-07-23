@@ -161,7 +161,7 @@ export function CreditsClient() {
           {games.map(game => (
             <div
               key={game.id}
-              className="group rounded-2xl bg-card ring-1 ring-border overflow-hidden transition-all duration-300 hover:ring-primary/30 hover:shadow-lg hover:shadow-primary/5"
+              className="group rounded-2xl bg-card ring-1 ring-border overflow-clip transition-all duration-300 hover:ring-primary/30 hover:shadow-3 hover:shadow-primary/5"
             >
               {/* 游戏信息 */}
               <div className="p-4 sm:p-5">
@@ -208,7 +208,7 @@ export function CreditsClient() {
                     <Link
                       key={`${c.id}-${c.role}`}
                       href={`/creators/${c.id}`}
-                      className="flex items-center gap-2 rounded-xl bg-secondary/50 px-3 py-2 ring-1 ring-border transition-all duration-200 hover:bg-accent hover:ring-primary/30 hover:shadow-sm"
+                      className="flex items-center gap-2 rounded-xl bg-secondary/50 px-3 py-2 ring-1 ring-border transition-all duration-200 hover:bg-accent hover:ring-primary/30 hover:shadow-1"
                     >
                       {c.avatar ? (
                         <Image

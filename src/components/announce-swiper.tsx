@@ -41,6 +41,7 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
 
   useEffect(() => { setImgError(false) }, [cur])
   const [paused, setPaused] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])
   const prev = useCallback(() => setCur((i) => (i - 1 + len) % len), [len])
@@ -51,11 +52,13 @@ export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: 
     return () => clearInterval(t)
   }, [len, next, paused])
 
+  useEffect(() => { setMounted(true) }, [])
+
   if (!len) return null
 
   const ann = announcements[cur]
   const href = ann.link || `/announcements/${ann.id}`
-  const showNew = shouldShowNew(announcements, cur)
+  const showNew = mounted ? shouldShowNew(announcements, cur) : false
   const summary = ann.summary || stripHtml(ann.content)
 
   return (

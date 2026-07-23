@@ -71,13 +71,13 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-xl">
+      <div className="mb-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-3">
         {character.image ? (
-          <div className="relative h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 overflow-hidden rounded-xl ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
+          <div className="relative h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 overflow-clip rounded-xl ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
             <Image src={character.image} alt={character.name} fill className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-border/50 shadow-lg mx-auto sm:mx-0">
+          <div className="flex h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
             {(character.original || character.name)[0]}
           </div>
         )}

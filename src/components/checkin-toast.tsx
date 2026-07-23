@@ -101,7 +101,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
         flex items-center gap-4 sm:gap-5
         rounded-2xl bg-card px-5 py-4 sm:px-6 sm:py-5
         ring-1 ring-border
-        shadow-2xl
+        shadow-4
         backdrop-blur-sm
         transition-all duration-300 ease-out
         w-[calc(100vw-2rem)] sm:w-auto

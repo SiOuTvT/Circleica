@@ -180,7 +180,7 @@ export function CheckInConfigEditor() {
       {(config.title || config.subtitle || preview) && (
         <div>
           <Label>预览</Label>
-          <div className="mt-2 inline-flex items-center gap-3 rounded-2xl bg-card px-6 py-4 ring-1 ring-border shadow-lg min-w-[280px]">
+          <div className="mt-2 inline-flex items-center gap-3 rounded-2xl bg-card px-6 py-4 ring-1 ring-border shadow-3 min-w-[280px]">
             {preview ? (
               <div className="h-12 w-12 rounded-lg overflow-hidden ring-1 ring-border bg-muted shrink-0">
                 <Image

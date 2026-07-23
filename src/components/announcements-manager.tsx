@@ -9,10 +9,11 @@ import Image from "next/image"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
 import { stripHtml } from "@/lib/sanitize"
+import { withLabelableId } from "@/lib/utils"
 import { toast } from "sonner"
 
 // 去除 HTML 标签统一使用 @/lib/sanitize 的 stripHtml（XSS 安全）
@@ -272,7 +273,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 提交 */}
               <div className="pt-1">
                 <button type="submit" disabled={adding}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-all hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
                     : isEditing
@@ -396,12 +397,13 @@ const inputCls =
 function Field({ label, required, hint, children }: {
   label: string; required?: boolean; hint?: string; children: React.ReactNode
 }) {
+  const id = useId()
   return (
     <div className="space-y-1.5">
-      <label className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+      <label htmlFor={id} className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {label}{required && <span className="text-primary">*</span>}
       </label>
-      {children}
+      {withLabelableId(children, id)}
       {hint && <p className="text-[11px] text-muted-foreground/50">{hint}</p>}
     </div>
   )
@@ -443,7 +445,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
         <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {ann.isPinned && (
           <div className="absolute top-2.5 left-2.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-foreground shadow-1">
               <Pin className="h-2.5 w-2.5" /> 置顶
             </span>
           </div>

@@ -47,6 +47,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   const [showEmoji, setShowEmoji] = useState(false)
   const [sortMode, setSortMode] = useState<SortMode>("newest")
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [likingId, setLikingId] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -152,12 +153,16 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   }
 
   async function likeComment(commentId: string) {
+    if (likingId === commentId) return
+    setLikingId(commentId)
     try {
       const j = await api.post<{ data?: { count?: number }; count?: number }>(`/api/comments/${commentId}/like`)
       const d = j.data ?? j
       setComments((prev) => prev.map((c) => c.id === commentId ? { ...c, likeCount: d.count ?? c.likeCount } : c))
     } catch (err) {
       logger.forum.warn("[CommentSection] likeComment failed", { error: err instanceof Error ? err.message : String(err) })
+    } finally {
+      setLikingId(null)
     }
   }
 
@@ -261,7 +266,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                 {showEmoji && (
                   <>
                     <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowEmoji(false)} />
-                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
+                    <div className="absolute bottom-10 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-4">
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-xs font-medium text-foreground">选择表情</p>
                         <button type="button" onClick={() => setShowEmoji(false)}
@@ -365,7 +370,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                   <Image src={c.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition-all" unoptimized />
                 </a>
               )}
-              <button onClick={() => isLoggedIn && likeComment(c.id)}
+              <button onClick={() => isLoggedIn && likingId !== c.id && likeComment(c.id)}
+                disabled={likingId === c.id}
                 className={cn(
                   "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-xs transition-colors",
                   isLoggedIn ? "text-muted-foreground hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
