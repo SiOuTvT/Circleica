@@ -10,7 +10,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "精选合集",
   description: "浏览同人游戏精选合集，按系列、原作、主题发现更多精彩游戏",
-  openGraph: { title: "精选合集 · 同人游戏站", description: "按系列、原作、主题发现更多精彩游戏", images: ["/opengraph-image"] },
+  openGraph: { title: "精选合集 · Circleica", description: "按系列、原作、主题发现更多精彩游戏", images: ["/opengraph-image"] },
   alternates: { canonical: "/collections" },
 }
 

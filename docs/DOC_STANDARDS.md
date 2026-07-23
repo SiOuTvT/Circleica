@@ -1,4 +1,4 @@
-# 文档规范（Fangame 团队 house style）
+# 文档规范（Circleica 团队 house style）
 
 > 本文件定义"文档怎么写"。所有贡献者写文档前先读一遍。目标：开发者真能读、真能用的文档。
 

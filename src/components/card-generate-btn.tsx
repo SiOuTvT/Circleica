@@ -139,7 +139,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
 
   <!-- 底部信息 -->
   <text x="50" y="375" fill="rgba(255,255,255,0.2)" font-size="12" font-family="sans-serif">加入于 ${joinDate}</text>
-  <text x="${W - 50}" y="375" text-anchor="end" fill="rgba(255,255,255,0.12)" font-size="11" font-family="sans-serif">同人游戏站 · fangame</text>
+  <text x="${W - 50}" y="375" text-anchor="end" fill="rgba(255,255,255,0.12)" font-size="11" font-family="sans-serif">Circleica</text>
 
   <!-- 底部装饰线 -->
   <rect x="0" y="${H - 3}" width="${W}" height="3" fill="url(#accentLine)"/>

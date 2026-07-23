@@ -15,7 +15,7 @@ async function translateWithMyMemory(text: string): Promise<string | null> {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh-CN`
     const res = await fetch(url, {
       signal: AbortSignal.timeout(8000),
-      headers: { "User-Agent": "FangameNext/1.0" },
+      headers: { "User-Agent": "Circleica/1.0" },
     })
     if (!res.ok) return null
     const data = await res.json()

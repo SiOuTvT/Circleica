@@ -5,7 +5,7 @@ test.describe("论坛", () => {
     await page.goto("/forum")
 
     // 页面标题（论坛实际标题可能是"求档区"或其他）
-    await expect(page).toHaveTitle(/同人游戏站/)
+    await expect(page).toHaveTitle(/Circleica/)
 
     // 分类筛选存在
     await expect(page.getByText("全部").first()).toBeVisible()

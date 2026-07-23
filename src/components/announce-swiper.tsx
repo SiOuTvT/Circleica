@@ -34,7 +34,7 @@ function shouldShowNew(announcements: Ann[], index: number): boolean {
   return diffDays <= 7
 }
 
-export function AnnounceSwiper({ announcements, siteName = "同人游戏站" }: { announcements: Ann[]; siteName?: string }) {
+export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { announcements: Ann[]; siteName?: string }) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
   const [imgError, setImgError] = useState(false)

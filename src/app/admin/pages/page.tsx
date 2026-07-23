@@ -10,7 +10,7 @@ export const metadata = { title: "页面管理 · 管理后台" }
 const DEFAULT_CONTENTS: Record<string, string> = {
   page_about: `<h2 class="text-lg font-semibold text-foreground mb-2">我们是谁</h2>
 <p class="text-sm text-muted-foreground leading-relaxed">
-同人游戏站是一个面向 Galgame/视觉小说爱好者的社区平台。
+Circleica是一个面向 Galgame/视觉小说爱好者的社区平台。
 我们致力于为玩家提供一个发现、分享、讨论同人游戏的一站式入口。
 </p>
 

@@ -5,11 +5,11 @@ test.describe("首页", () => {
     await page.goto("/")
 
     // 页面标题包含站点名
-    await expect(page).toHaveTitle(/同人游戏站/)
+    await expect(page).toHaveTitle(/Circleica/)
 
     // H1 存在（sr-only SEO 标题）
     const h1 = page.locator("h1")
-    await expect(h1).toContainText("同人游戏站")
+    await expect(h1).toContainText("Circleica")
 
     // 最新资源区域存在
     await expect(page.getByText("最新资源").first()).toBeVisible()

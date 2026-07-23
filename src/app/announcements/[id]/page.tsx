@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id, isActive: true },
     select: { title: true, content: true, imageUrl: true },
   })
-  if (!ann) return { title: "公告 · 同人游戏站" }
+  if (!ann) return { title: "公告 · Circleica" }
   const description = ann.content.replace(/<[^>]+>/g, "").slice(0, 160)
   return {
-    title: `${ann.title} · 同人游戏站`,
+    title: `${ann.title} · Circleica`,
     description,
     openGraph: {
       title: ann.title,

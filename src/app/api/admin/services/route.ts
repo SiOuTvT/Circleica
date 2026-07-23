@@ -243,11 +243,11 @@ async function testEmail(config: Record<string, string>) {
     if (!impl) continue
 
     // 构建 from 地址（从 provider config 中取）
-    const fromName = p.config.fromName || "Fangame"
+    const fromName = p.config.fromName || "Circleica"
     const fromEmail = p.config.fromEmail || EMAIL.DEFAULT_FROM_EMAIL
     const from = `${fromName} <${fromEmail}>`
 
-    const result = await impl.send(p.config, { from, to: config.to, subject: "Fangame 邮件服务测试", html: testHtml(impl.label) })
+    const result = await impl.send(p.config, { from, to: config.to, subject: "Circleica 邮件服务测试", html: testHtml(impl.label) })
     results.push({
       provider: p.id,
       label: impl.label,

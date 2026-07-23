@@ -6,7 +6,7 @@ import Image from "next/image"
 export const metadata: Metadata = {
   title: "精选合集",
   description: "精选游戏合集，发现更多精彩作品",
-  openGraph: { title: "精选合集 · 同人游戏站", description: "精选游戏合集", images: ["/opengraph-image"] },
+  openGraph: { title: "精选合集 · Circleica", description: "精选游戏合集", images: ["/opengraph-image"] },
 }
 
 export const revalidate = 300

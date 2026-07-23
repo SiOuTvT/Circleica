@@ -11,16 +11,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (user) {
     const description = user.bio?.replace(/<[^>]+>/g, "").slice(0, 160) || `${user.username} 的个人主页`
     return {
-      title: `${user.username} · 同人游戏站`,
+      title: `${user.username} · Circleica`,
       description,
-      openGraph: { title: `${user.username} · 同人游戏站`, description, images: ["/opengraph-image"] },
+      openGraph: { title: `${user.username} · Circleica`, description, images: ["/opengraph-image"] },
       alternates: { canonical: `/user/${user.serialId}` },
     }
   }
   return {
     title: "用户主页",
     description: "查看用户主页",
-    openGraph: { title: "用户主页 · 同人游戏站", description: "查看用户主页", images: ["/opengraph-image"] },
+    openGraph: { title: "用户主页 · Circleica", description: "查看用户主页", images: ["/opengraph-image"] },
     alternates: { canonical: "/user/" },
   }
 }

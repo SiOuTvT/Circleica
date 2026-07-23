@@ -24,7 +24,7 @@ const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
 const RIGHT_W = 260         // 右侧栏正常宽度
 const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
 
-export function LayoutWrapper({ children, siteName = "Fangame" }: { children: React.ReactNode; siteName?: string }) {
+export function LayoutWrapper({ children, siteName = "Circleica" }: { children: React.ReactNode; siteName?: string }) {
   const pathname = usePathname()
   useOnlineStatus()
   useKeyboardShortcuts()

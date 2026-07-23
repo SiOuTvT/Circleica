@@ -32,7 +32,7 @@ async function vndbPost(endpoint: string, data: Record<string, unknown>, retries
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": "FangameNext/1.0",
+          "User-Agent": "Circleica/1.0",
         },
         body: JSON.stringify(data),
         signal: AbortSignal.timeout(15000),

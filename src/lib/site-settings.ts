@@ -124,11 +124,11 @@ export async function getDefaultPlaceholderImage(): Promise<string | null> {
 }
 
 export async function getSiteName(): Promise<string> {
-  return getSiteSetting("site_name", "Fangame")
+  return getSiteSetting("site_name", "Circleica")
 }
 
 export async function getSiteDescription(): Promise<string> {
-  return getSiteSetting("site_description", "Galgame/视觉小说社区平台")
+  return getSiteSetting("site_description", "Circleica - 极客同人社区 | 完全免费开放的视觉小说档案库")
 }
 
 export async function getSiteLogo(): Promise<string | null> {

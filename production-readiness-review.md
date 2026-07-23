@@ -1,6 +1,6 @@
 # 生产环境上线验收报告（Production Readiness Review）
 
-> 项目：Fangame（Next.js 16 + React 19 + Prisma/PostgreSQL + Upstash Redis）
+> 项目：Circleica（Next.js 16 + React 19 + Prisma/PostgreSQL + Upstash Redis）
 > 评审标准：Principal / Staff Engineer Go-Live Review
 > 日期：2026-07-22
 > 范围：仅上线质量（生产配置 / 部署 / 迁移 / 数据库 / 缓存 / 安全 / 可观测性 / 灾备 / 稳定性）。不重复架构一致性或业务逻辑历史问题。

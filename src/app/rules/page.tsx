@@ -5,8 +5,8 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "社区规则",
-  description: "同人游戏站社区规则与行为准则，维护良好的社区环境",
-  openGraph: { title: "社区规则 · 同人游戏站", description: "社区规则与行为准则", images: ["/opengraph-image"] },
+  description: "Circleica社区规则与行为准则，维护良好的社区环境",
+  openGraph: { title: "社区规则 · Circleica", description: "社区规则与行为准则", images: ["/opengraph-image"] },
   alternates: { canonical: "/rules" },
 }
 

@@ -1,4 +1,4 @@
-# Fangame - Galgame/视觉小说社区平台
+# Circleica - Galgame/视觉小说社区平台
 
 ## 项目概述
 Next.js 16 全栈应用，为 Galgame/视觉小说爱好者提供社区平台。

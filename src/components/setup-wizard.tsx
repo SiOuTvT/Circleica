@@ -41,7 +41,7 @@ interface FormData {
 }
 
 const INITIAL: FormData = {
-  siteName: "同人游戏站",
+  siteName: "Circleica",
   siteDescription: "",
   siteLogo: "",
   placeholderImage: "",
@@ -320,7 +320,7 @@ export function SetupWizard() {
               <div className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs mb-3", isDark ? "bg-[var(--theme-color)]/10 text-[var(--theme-color)] border border-[var(--theme-color)]/20" : "bg-[var(--theme-color)]/8 text-[var(--theme-color)] border border-[var(--theme-color)]/15")}>
                 站点初始化向导
               </div>
-              <h1 className={cn("text-xl sm:text-2xl font-bold tracking-tight", "text-foreground")}>欢迎使用 Fangame</h1>
+              <h1 className={cn("text-xl sm:text-2xl font-bold tracking-tight", "text-foreground")}>欢迎使用 Circleica</h1>
               <p className={cn("text-xs sm:text-sm mt-1", "text-muted-foreground")}>配置你的站点，所有设置后续可在后台随时修改</p>
             </div>
 
@@ -365,7 +365,7 @@ export function SetupWizard() {
                 {step === 0 && (
                   <div className="space-y-4 sm:space-y-5" style={{ animation: "wiz-fade-in 0.4s ease-out" }}>
                     <Field label="站点名称" required hint="显示在网站标题、Header、Footer 和 SEO 中">
-                      <input className={inputBase} value={form.siteName} onChange={e => update("siteName", e.target.value)} placeholder="同人游戏站" maxLength={50} />
+                      <input className={inputBase} value={form.siteName} onChange={e => update("siteName", e.target.value)} placeholder="Circleica" maxLength={50} />
                     </Field>
                     <Field label="站点描述" hint="用于 SEO description 和网站首页介绍">
                       <input className={inputBase} value={form.siteDescription} onChange={e => update("siteDescription", e.target.value)} placeholder="面向 Galgame/视觉小说爱好者的社区平台" />
@@ -607,7 +607,7 @@ function PreviewPanel({ form, logoPreview }: {
     <div className={cn("rounded-xl overflow-clip border transition-colors", "bg-card border border-border")}>
       <div className="flex items-center gap-2 px-3 h-9 border-b border-border">
         {form.siteLogo ? <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" /> : <span className="text-xs">🎮</span>}
-        <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Fangame"}</span>
+        <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
       </div>
       <div className="p-3 space-y-3">
         {/* 主题色预览：真实 Button / Input / 链接 */}
@@ -646,7 +646,7 @@ function PreviewPanel({ form, logoPreview }: {
         </div>
       </div>
       <div className={cn("flex items-center justify-center h-6 border-t text-[9px]", "text-muted-foreground border border-border")}>
-        {form.siteName || "Fangame"} · 资源大厅
+        {form.siteName || "Circleica"} · 资源大厅
       </div>
     </div>
   )

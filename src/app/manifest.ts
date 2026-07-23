@@ -4,9 +4,9 @@ const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "同人游戏站 · 资源大厅",
-    short_name: "同人游戏站",
-    description: "东方、月姬、Fate 等同人游戏资源一站式体验",
+    name: "Circleica",
+    short_name: "Circleica",
+    description: "Circleica - 极客同人社区 | 完全免费开放的视觉小说档案库",
     start_url: "/",
     display: "standalone",
     background_color: "#08080a",

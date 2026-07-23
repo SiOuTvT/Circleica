@@ -11,7 +11,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "标签浏览",
   description: "按标签浏览游戏，发现你感兴趣的作品类型",
-  openGraph: { title: "标签浏览 · 同人游戏站", description: "按标签浏览游戏，发现你感兴趣的作品类型", images: ["/opengraph-image"] },
+  openGraph: { title: "标签浏览 · Circleica", description: "按标签浏览游戏，发现你感兴趣的作品类型", images: ["/opengraph-image"] },
   alternates: { canonical: "/tags" },
 }
 

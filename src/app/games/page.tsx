@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "全部游戏",
   description: "浏览全部同人游戏、Galgame、视觉小说资源，按最新、最热、收藏数排序",
   openGraph: {
-    title: "全部游戏 · 同人游戏站",
+    title: "全部游戏 · Circleica",
     description: "浏览全部同人游戏、Galgame、视觉小说资源",
     images: ["/opengraph-image"],
   },

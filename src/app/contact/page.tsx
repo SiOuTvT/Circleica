@@ -5,8 +5,8 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "联系我们",
-  description: "同人游戏站联系方式与反馈渠道，欢迎提出建议和反馈问题",
-  openGraph: { title: "联系我们 · 同人游戏站", description: "联系方式与反馈渠道", images: ["/opengraph-image"] },
+  description: "Circleica联系方式与反馈渠道，欢迎提出建议和反馈问题",
+  openGraph: { title: "联系我们 · Circleica", description: "联系方式与反馈渠道", images: ["/opengraph-image"] },
   alternates: { canonical: "/contact" },
 }
 

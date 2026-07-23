@@ -49,7 +49,7 @@ export interface ProviderField {
 export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
   resend: [
     { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
   brevo: [
@@ -63,7 +63,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
     { key: "username", label: "登录邮箱", type: "text", placeholder: "your@brevo-account.com", required: true, showIf: "smtp" },
     { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
     // 共同字段
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
   smtp: [
@@ -71,7 +71,7 @@ export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
     { key: "port", label: "端口", type: "number", placeholder: "587", required: true },
     { key: "username", label: "用户名", type: "text", placeholder: "user@example.com", required: true },
     { key: "password", label: "密码", type: "secret", placeholder: "••••••", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Fangame", required: false },
+    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
     { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
   ],
 }
@@ -96,7 +96,7 @@ function parseFrom(from: string): { name: string; email: string } {
   if (match) {
     return { name: match[1].trim(), email: match[2].trim() }
   }
-  return { name: "Fangame", email: from.trim() }
+  return { name: "Circleica", email: from.trim() }
 }
 
 /** 判断 HTTP 状态码是否可重试（配额/限流/服务端错误） */

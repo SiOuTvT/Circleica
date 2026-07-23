@@ -1,4 +1,4 @@
-# API 参考（Fangame）
+# API 参考（Circleica）
 
 > 面向：前端开发者、需要对接 REST 接口的集成方。所有接口前缀为 `/api`。
 

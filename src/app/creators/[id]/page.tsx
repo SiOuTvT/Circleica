@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     if (creatorName) {
       const description = creatorDesc?.replace(/<[^>]+>/g, "").slice(0, 160) || `${creatorName} - 创作者详情`
       return {
-        title: `${creatorName} · 创作者 · 同人游戏站`,
+        title: `${creatorName} · 创作者 · Circleica`,
         description,
         openGraph: { title: `${creatorName} · 创作者`, description, images: ["/opengraph-image"] },
         alternates: { canonical: `/creators/${id}` },
@@ -93,9 +93,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   } catch (err) { logger.db.warn("[CreatorPage] generateMetadata VNDB failed", { error: err instanceof Error ? err.message : String(err) }) }
   return {
-    title: `创作者详情 · 同人游戏站`,
+    title: `创作者详情 · Circleica`,
     description: "查看创作者详细信息",
-    openGraph: { title: "创作者详情 · 同人游戏站", description: "查看创作者详细信息", images: ["/opengraph-image"] },
+    openGraph: { title: "创作者详情 · Circleica", description: "查看创作者详细信息", images: ["/opengraph-image"] },
     alternates: { canonical: `/creators/${id}` },
   }
 }

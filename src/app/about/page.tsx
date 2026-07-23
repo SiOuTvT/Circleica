@@ -5,14 +5,14 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "关于",
-  description: "了解同人游戏站 —— 面向 Galgame/视觉小说爱好者的社区平台，提供游戏资源下载、评论、收藏等功能",
-  openGraph: { title: "关于 · 同人游戏站", description: "面向 Galgame/视觉小说爱好者的社区平台", images: ["/opengraph-image"] },
+  description: "了解Circleica —— 面向 Galgame/视觉小说爱好者的社区平台，提供游戏资源下载、评论、收藏等功能",
+  openGraph: { title: "关于 · Circleica", description: "面向 Galgame/视觉小说爱好者的社区平台", images: ["/opengraph-image"] },
   alternates: { canonical: "/about" },
 }
 
 const DEFAULT_ABOUT_HTML = `<h2 class="text-lg font-semibold text-foreground mb-2">我们是谁</h2>
 <p class="text-sm text-muted-foreground leading-relaxed">
-同人游戏站是一个面向 Galgame/视觉小说爱好者的社区平台。
+Circleica是一个面向 Galgame/视觉小说爱好者的社区平台。
 我们致力于为玩家提供一个发现、分享、讨论同人游戏的一站式入口。
 </p>
 
@@ -54,7 +54,7 @@ export default async function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-8 px-4">
-      <h1 className="text-2xl font-bold text-foreground mb-6">关于同人游戏站</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">关于Circleica</h1>
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">
         {custom ? <RichTextContent html={custom} /> : <div dangerouslySetInnerHTML={{ __html: DEFAULT_ABOUT_HTML }} />}
       </div>

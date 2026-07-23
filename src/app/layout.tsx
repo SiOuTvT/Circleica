@@ -20,8 +20,8 @@ export const viewport: Viewport = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  let siteName = "Fangame"
-  let siteDesc = "Galgame/视觉小说社区平台"
+  let siteName = "Circleica"
+  let siteDesc = "Circleica - 极客同人社区 | 完全免费开放的视觉小说档案库"
   let siteLogo: string | null = null
 
   try {
@@ -38,8 +38,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: `${siteName} · 资源大厅`,
-      template: `%s · ${siteName}`,
+      default: `Circleica - 专注同人视觉小说资源收录`,
+      template: `%s · Circleica`,
     },
     description: siteDesc,
     keywords: ["同人游戏", "东方Project", "月姬", "Fate", "同人", "二次元游戏", "Galgame"],

@@ -1,4 +1,4 @@
-# 文档导航（Fangame）
+# 文档导航（Circleica）
 
 > 这是 `docs/` 的总入口。新成员从 [入门指南](GETTING_STARTED.md) 开始。
 

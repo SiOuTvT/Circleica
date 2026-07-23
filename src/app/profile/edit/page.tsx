@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { serialIdToUid } from "@/lib/serial-id"
 import { redirect } from "next/navigation"
 
-export const metadata = { title: "编辑资料 · 同人游戏站" }
+export const metadata = { title: "编辑资料 · Circleica" }
 
 export default async function ProfileEditPage() {
   const session = await auth()

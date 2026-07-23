@@ -457,7 +457,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
           {/* 作者行 */}
           <div className="flex items-center gap-1.5">
             <div className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center text-[9px] font-bold text-white/70">F</div>
-            <span className="text-[11px] font-medium text-white/80">Fangame</span>
+            <span className="text-[11px] font-medium text-white/80">Circleica</span>
           </div>
           {/* 标题 */}
           <h3 className="font-bold text-white text-sm leading-snug line-clamp-1">

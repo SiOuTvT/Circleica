@@ -13,7 +13,7 @@ const MAX_SEGMENT = 500
 async function translateSegment(text: string, from: string, to: string): Promise<string> {
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`
   const res = await fetch(url, {
-    headers: { "User-Agent": "FangameAdmin/1.0" },
+    headers: { "User-Agent": "CircleicaAdmin/1.0" },
     signal: AbortSignal.timeout(15000),
   })
   if (!res.ok) throw new AppError(`翻译服务响应异常 (${res.status})`, "INTERNAL", 502)

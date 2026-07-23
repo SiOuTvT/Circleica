@@ -236,7 +236,7 @@ export function getEmailProviders(): EmailProviderEntry[] {
  */
 export function getEmailFrom(): string {
   const first = _emailProviders[0]
-  const name = first?.config.fromName || "Fangame"
+  const name = first?.config.fromName || "Circleica"
   const email = first?.config.fromEmail || EMAIL.DEFAULT_FROM_EMAIL
   return `${name} <${email}>`
 }

@@ -193,7 +193,7 @@ export const idParamSchema = z.object({
 
 const resendConfigSchema = z.object({
   apiKey: z.string().min(1, "Resend API Key 不能为空"),
-  fromName: z.string().max(100).optional().default("Fangame"),
+  fromName: z.string().max(100).optional().default("Circleica"),
   fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 })
 
@@ -208,7 +208,7 @@ const brevoConfigSchema = z.object({
   username: z.string().optional(),
   password: z.string().optional(),
   // 共同字段
-  fromName: z.string().max(100).optional().default("Fangame"),
+  fromName: z.string().max(100).optional().default("Circleica"),
   fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 }).superRefine((data, ctx) => {
   if (data.mode === "smtp") {
@@ -225,7 +225,7 @@ const smtpConfigSchema = z.object({
   port: z.coerce.number().int().min(1, "端口不能为空").max(65535, "端口范围 1-65535"),
   username: z.string().min(1, "用户名不能为空"),
   password: z.string().min(1, "密码不能为空"),
-  fromName: z.string().max(100).optional().default("Fangame"),
+  fromName: z.string().max(100).optional().default("Circleica"),
   fromEmail: z.string().email("发件邮箱格式不正确").max(255).optional().default(EMAIL.DEFAULT_FROM_EMAIL),
 })
 

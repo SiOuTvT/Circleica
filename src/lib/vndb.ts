@@ -162,7 +162,7 @@ class VNDBClient {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "User-Agent": "FangameNext/1.0",
+            "User-Agent": "Circleica/1.0",
           },
           body: JSON.stringify(data),
           signal: AbortSignal.timeout(10000), // 10秒超时

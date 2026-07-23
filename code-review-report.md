@@ -1,4 +1,4 @@
-# Fangame 项目代码审查报告（Production-Ready Review）
+# Circleica 项目代码审查报告（Production-Ready Review）
 
 > 审查人：Senior Developer（高级开发工程师）
 > 审查范围：整个 `src/` 代码库（约 46,875 行 TS/TSX）、`next.config.ts`、`middleware.ts`、Docker 配置、Prisma schema
