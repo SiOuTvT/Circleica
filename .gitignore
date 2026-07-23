@@ -45,3 +45,6 @@ next-env.d.ts
 
 # user uploads
 /public/uploads
+
+# audit tool local cache (regenerable, not part of the project)
+.auditcache/

@@ -11,8 +11,7 @@ jest.mock("@/repositories/game", () => ({
     incrementViewCount: jest.fn(),
     batchIncrementViewCount: jest.fn(),
     isFavorited: jest.fn(),
-    addFavorite: jest.fn(),
-    removeFavorite: jest.fn(),
+    toggleFavorite: jest.fn(),
     getPlayStatus: jest.fn(),
     setPlayStatus: jest.fn(),
     getRating: jest.fn(),
@@ -181,22 +180,20 @@ describe("gameService.toggleFavorite", () => {
 
   it("adds favorite when not already favorited", async () => {
     mockGameRepo.findById.mockResolvedValue({ id: gameId } as never)
-    mockGameRepo.isFavorited.mockResolvedValue(null)
-    mockGameRepo.addFavorite.mockResolvedValue({} as never)
+    mockGameRepo.toggleFavorite.mockResolvedValue(true)
 
     const result = await gameService.toggleFavorite(userId, gameId)
     expect(result).toEqual({ favorited: true })
-    expect(mockGameRepo.addFavorite).toHaveBeenCalledWith(userId, gameId, undefined)
+    expect(mockGameRepo.toggleFavorite).toHaveBeenCalledWith(userId, gameId, undefined)
   })
 
   it("removes favorite when already favorited", async () => {
     mockGameRepo.findById.mockResolvedValue({ id: gameId } as never)
-    mockGameRepo.isFavorited.mockResolvedValue({ userId, gameId } as never)
-    mockGameRepo.removeFavorite.mockResolvedValue({} as never)
+    mockGameRepo.toggleFavorite.mockResolvedValue(false)
 
     const result = await gameService.toggleFavorite(userId, gameId)
     expect(result).toEqual({ favorited: false })
-    expect(mockGameRepo.removeFavorite).toHaveBeenCalledWith(userId, gameId)
+    expect(mockGameRepo.toggleFavorite).toHaveBeenCalledWith(userId, gameId, undefined)
   })
 
   it("throws NotFoundError when game does not exist", async () => {

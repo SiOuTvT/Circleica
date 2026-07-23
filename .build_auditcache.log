@@ -1,0 +1,97 @@
+▲ Next.js 16.2.7 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./src/lib/email-providers.ts:356:17
+Module not found: Can't resolve 'net'
+  [90m354 |[0m
+  [90m355 |[0m     [90m// eslint-disable-next-line @typescript-eslint/no-require-imports[0m
+[31m[1m>[0m [90m356 |[0m     [36mconst[0m net = require([32m"net"[0m) [36mas[0m [36mtypeof[0m [36mimport[0m([32m"net"[0m)
+  [90m    |[0m                 [31m[1m^^^^^^^^^^^^^^[0m
+  [90m357 |[0m     socket = net.createConnection({ host, port })
+  [90m358 |[0m
+  [90m359 |[0m     socket.on([32m"data"[0m, onData)
+
+
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/email-providers.ts
+    ./src/app/api/admin/services/route.ts
+
+  #2 [App Route]:
+    ./src/lib/email-providers.ts
+    ./src/lib/storage.ts
+    ./src/app/api/upload/route.ts
+
+  #3 [Client Component Browser]:
+    ./src/lib/email-providers.ts [Client Component Browser]
+    ./src/app/admin/services/page.tsx [Client Component Browser]
+    ./src/app/admin/services/page.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./src/lib/email-providers.ts [Client Component SSR]
+    ./src/app/admin/services/page.tsx [Client Component SSR]
+    ./src/app/admin/services/page.tsx [Server Component]
+
+  #5 [Server Component]:
+    ./src/lib/email-providers.ts
+    ./src/lib/email.ts
+    ./src/services/user.ts
+    ./src/app/verify-email/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./src/lib/email-providers.ts:281:23
+Module not found: Can't resolve 'tls'
+  [90m279 |[0m           [90m// 升级到 TLS[0m
+  [90m280 |[0m           [90m// eslint-disable-next-line @typescript-eslint/no-require-imports[0m
+[31m[1m>[0m [90m281 |[0m           [36mconst[0m tls = require([32m"tls"[0m) [36mas[0m [36mtypeof[0m [36mimport[0m([32m"tls"[0m)
+  [90m    |[0m                       [31m[1m^^^^^^^^^^^^^^[0m
+  [90m282 |[0m           [36mconst[0m tlsSocket = tls.connect({ socket: socket [36mas[0m [36mimport[0m([32m"net"[0m).[33mSocket[0m, servern...
+  [90m283 |[0m             socket = tlsSocket [36mas[0m unknown [36mas[0m [36mimport[0m([32m"net"[0m).[33mSocket[0m
+  [90m284 |[0m             socket.on([32m"data"[0m, onData)
+
+
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/email-providers.ts
+    ./src/app/api/admin/services/route.ts
+
+  #2 [App Route]:
+    ./src/lib/email-providers.ts
+    ./src/lib/storage.ts
+    ./src/app/api/upload/route.ts
+
+  #3 [Client Component Browser]:
+    ./src/lib/email-providers.ts [Client Component Browser]
+    ./src/app/admin/services/page.tsx [Client Component Browser]
+    ./src/app/admin/services/page.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./src/lib/email-providers.ts [Client Component SSR]
+    ./src/app/admin/services/page.tsx [Client Component SSR]
+    ./src/app/admin/services/page.tsx [Server Component]
+
+  #5 [Server Component]:
+    ./src/lib/email-providers.ts
+    ./src/lib/email.ts
+    ./src/services/user.ts
+    ./src/app/verify-email/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./src/lib/email-providers.ts:356:17)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./src/lib/email-providers.ts:281:23)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+BUILD_EXIT=1

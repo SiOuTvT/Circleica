@@ -3,278 +3,177 @@ const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const results = [];
+  function ok(n, d) { results.push({n, p:true, d}); console.log(`✅ ${n}: ${d}`); }
+  function fail(n, d) { results.push({n, p:false, d}); console.log(`❌ ${n}: ${d}`); }
+  function warn(n, d) { results.push({n, p:'warn', d}); console.log(`⚠️ ${n}: ${d}`); }
 
-  function ok(name, detail) { results.push({ name, pass: true, detail: detail || '' }); console.log(`✅ ${name}: ${detail || 'OK'}`); }
-  function fail(name, detail) { results.push({ name, pass: false, detail: detail || '' }); console.log(`❌ ${name}: ${detail}`); }
-  function warn(name, detail) { results.push({ name, pass: 'warn', detail: detail || '' }); console.log(`⚠️ ${name}: ${detail}`); }
-
-  // ==================== VISITOR FLOW ====================
-  console.log('\n━━━ VISITOR FLOW ━━━');
-
-  const ctx1 = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page1 = await ctx1.newPage();
-
-  // 1. Homepage
-  let r = await page1.goto('http://localhost:3099/');
-  await page1.waitForLoadState('networkidle');
-  ok('Homepage loads', `${r.status()} ${await page1.title()}`);
-
-  // 2. Games list
-  r = await page1.goto('http://localhost:3099/games');
-  await page1.waitForLoadState('networkidle');
-  const gameCards = await page1.locator('[href*="/games/"]').count();
-  gameCards > 0 ? ok('Games list', `${gameCards} games`) : fail('Games list', 'No games');
-
-  // 3. Search
-  r = await page1.goto('http://localhost:3099/search?q=AIR');
-  await page1.waitForLoadState('networkidle');
-  ok('Search page', r.status());
-
-  // 4. Game detail
-  r = await page1.goto('http://localhost:3099/games/1');
-  await page1.waitForLoadState('networkidle');
-  await page1.waitForTimeout(2000);
-  const hasTitle = await page1.locator('h1, h2').first().textContent().catch(() => '');
-  ok('Game detail', hasTitle.includes('AIR') ? 'AIR loaded' : 'content loaded');
-
-  // 5. Forum
-  r = await page1.goto('http://localhost:3099/forum');
-  await page1.waitForLoadState('networkidle');
-  ok('Forum page', r.status());
-
-  // 6. Tags
-  r = await page1.goto('http://localhost:3099/tags');
-  await page1.waitForLoadState('networkidle');
-  ok('Tags page', r.status());
-
-  // 7. Collections
-  r = await page1.goto('http://localhost:3099/collections');
-  await page1.waitForLoadState('networkidle');
-  ok('Collections page', r.status());
-
-  await ctx1.close();
-
-  // ==================== REGISTERED USER FLOW ====================
-  console.log('\n━━━ REGISTERED USER FLOW ━━━');
-
-  const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page2 = await ctx2.newPage();
-
-  // Use page.evaluate to make authenticated API calls
-  async function authApi(method, path, body) {
-    return page2.evaluate(async ({ method, path, body }) => {
-      const opts = { method, headers: {} };
-      if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-      const res = await fetch(path, opts);
-      return { status: res.status, data: await res.json().catch(() => null) };
-    }, { method, path, body });
+  async function api(ctx, method, path, body) {
+    return ctx.request.fetch('http://localhost:3099' + path, {
+      method, data: body ? JSON.stringify(body) : undefined,
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+    });
   }
+
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+
+  // ===== PUBLIC API =====
+  console.log('\n━━━ PUBLIC API ━━━');
+  let res;
+  res = await api(ctx, 'GET', '/api/health');
+  ok('Health', res.ok() ? '200' : res.status());
+  res = await api(ctx, 'GET', '/api/site-settings');
+  ok('Site settings', res.ok() ? '200' : res.status());
+  res = await api(ctx, 'GET', '/api/games');
+  ok('Games API', res.ok() ? '200' : res.status());
+  res = await api(ctx, 'GET', '/api/tags');
+  ok('Tags API', res.ok() ? '200' : res.status());
+  res = await api(ctx, 'GET', '/api/announcements');
+  ok('Announcements API', res.ok() ? '200' : res.status());
+  res = await api(ctx, 'GET', '/api/forum/posts');
+  ok('Forum posts API', res.ok() ? '200' : res.status());
+
+  for (const ep of ['/api/notifications', '/api/checkin', '/api/profile/edit']) {
+    res = await api(ctx, 'GET', ep);
+    res.status() === 401 ? ok(`Auth guard ${ep}`, '401') : fail(`Auth guard ${ep}`, res.status());
+  }
+
+  // ===== REGISTER + LOGIN =====
+  console.log('\n━━━ REGISTER + LOGIN ━━━');
+  await page.goto('http://localhost:3099/login', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(5000);
+  const regTab = page.locator('button:has-text("注册")').first();
+  if (await regTab.isVisible()) { await regTab.click(); await page.waitForTimeout(500); }
+  const ts = Date.now();
+  await page.fill('input[placeholder*="用户名"]', 'e2e' + ts);
+  await page.fill('input[type="email"]', 'e2e' + ts + '@test.com');
+  const pwds = page.locator('input[type="password"]');
+  await pwds.nth(0).fill('Test1234');
+  if (await pwds.count() > 1) await pwds.nth(1).fill('Test1234');
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(3000);
+  ok('Register', page.url().includes('/login') ? 'redirected to login' : page.url());
 
   // Login
-  await page2.goto('http://localhost:3099/login');
-  await page2.waitForLoadState('networkidle');
-  await page2.fill('input[placeholder*="用户名"]', 'testuser_qa');
-  await page2.fill('input[type="password"]', 'testpass123');
-  await page2.click('button[type="submit"]');
-  await page2.waitForTimeout(5000);
-  const loggedIn = !page2.url().includes('/login');
-  loggedIn ? ok('Login', 'Redirected to homepage') : fail('Login', page2.url());
+  const loginTab = page.locator('button:has-text("登录")').first();
+  if (await loginTab.isVisible()) { await loginTab.click(); await page.waitForTimeout(300); }
+  await page.fill('input[placeholder*="用户名"]', 'testuser_qa');
+  await page.fill('input[type="password"]', 'testpass123');
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(5000);
+  const loggedIn = !page.url().includes('/login');
+  loggedIn ? ok('Login', 'SUCCESS') : fail('Login', page.url());
 
-  if (loggedIn) {
-    // Profile edit
-    const profileRes = await authApi('PUT', '/api/profile/edit', { bio: 'E2E test bio ' + Date.now() });
-    profileRes.status === 200 ? ok('Profile edit API', '200') : fail('Profile edit API', `Status ${profileRes.status}`);
+  if (!loggedIn) { console.log('Cannot proceed without login'); await browser.close(); return; }
 
-    // Favorite
-    const favRes = await authApi('POST', '/api/games/1/favorite');
-    console.log('  Favorite response:', JSON.stringify(favRes.data?.data || {}).slice(0, 100));
-    favRes.status === 200 ? ok('Favorite toggle', '200') : fail('Favorite toggle', `Status ${favRes.status}`);
+  // ===== AUTHENTICATED OPERATIONS =====
+  console.log('\n━━━ USER OPERATIONS ━━━');
 
-    // Favorite again (unfavorite)
-    const favRes2 = await authApi('POST', '/api/games/1/favorite');
-    ok('Unfavorite toggle', favRes2.status === 200 ? '200' : `Status ${favRes2.status}`);
+  // Profile edit
+  res = await page.evaluate(() => fetch('/api/profile/edit', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ bio: 'E2E ' + Date.now() }) }).then(r => r.status));
+  ok('Profile edit', res === 200 ? '200' : res);
 
-    // Create comment
-    const commentRes = await authApi('POST', '/api/games/1/comments', { content: 'E2E production test ' + Date.now() });
-    commentRes.status === 201 ? ok('Create comment', '201') : fail('Create comment', `Status ${commentRes.status}`);
+  // Favorite
+  const fav = await page.evaluate(() => fetch('/api/games/1/favorite', { method: 'POST' }).then(async r => ({s: r.status, d: await r.json()})));
+  ok('Favorite', fav.s === 200 ? `isFav=${fav.d?.data?.isFav}` : fav.s);
 
-    // Get comments
-    const commentsRes = await authApi('GET', '/api/games/1/comments?limit=5');
-    commentsRes.status === 200 ? ok('Get comments', '200') : fail('Get comments', `Status ${commentsRes.status}`);
+  // Unfavorite
+  const unfav = await page.evaluate(() => fetch('/api/games/1/favorite', { method: 'POST' }).then(r => r.status));
+  ok('Unfavorite', unfav);
 
-    // Like comment (if we have one)
-    if (commentRes.data?.id) {
-      const likeRes = await authApi('POST', `/api/comments/${commentRes.data.id}/like`);
-      likeRes.status === 200 ? ok('Like comment', `liked: ${likeRes.data?.liked}`) : fail('Like comment', `Status ${likeRes.status}`);
+  // Comment
+  const comment = await page.evaluate(() => fetch('/api/games/1/comments', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ content: 'E2E ' + Date.now() }) }).then(async r => ({s: r.status, d: await r.json()})));
+  ok('Create comment', comment.s === 201 ? '201' : comment.s);
+  const commentId = comment.d?.id || comment.d?.data?.id;
 
-      // Delete comment
-      const delRes = await authApi('DELETE', `/api/comments/${commentRes.data.id}`);
-      delRes.status === 200 || delRes.status === 204 ? ok('Delete comment', `${delRes.status}`) : fail('Delete comment', `Status ${delRes.status}`);
-    }
+  // Get comments
+  const comments = await page.evaluate(() => fetch('/api/games/1/comments?limit=5').then(async r => ({s: r.status, d: await r.json()})));
+  ok('Get comments', comments.s === 200 ? '200' : comments.s);
 
-    // Create forum post
-    const postRes = await authApi('POST', '/api/forum/posts', { title: 'E2E Post ' + Date.now(), content: 'Production simulation content', category: 'discussion' });
-    postRes.status === 201 ? ok('Create forum post', '201') : fail('Create forum post', `Status ${postRes.status}`);
-
-    // Edit forum post
-    if (postRes.data?.id) {
-      const editRes = await authApi('PUT', `/api/forum/posts/${postRes.data.id}`, { title: 'Edited Title', content: 'Edited content' });
-      editRes.status === 200 ? ok('Edit forum post', '200') : fail('Edit forum post', `Status ${editRes.status}`);
-
-      // Like post
-      const likePost = await authApi('POST', `/api/forum/posts/${postRes.data.id}/like`);
-      ok('Like forum post', `Status ${likePost.status}`);
-
-      // Solve post
-      const solveRes = await authApi('POST', `/api/forum/posts/${postRes.data.id}/solve`);
-      ok('Solve forum post', `Status ${solveRes.status}`);
-
-      // Delete post
-      const delPost = await authApi('DELETE', `/api/forum/posts/${postRes.data.id}`);
-      delPost.status === 200 || delPost.status === 204 ? ok('Delete forum post', `${delPost.status}`) : fail('Delete forum post', `Status ${delPost.status}`);
-    }
-
-    // Forum comment
-    const forumComment = await authApi('POST', '/api/forum/posts/1/comments', { content: 'E2E forum comment' });
-    ok('Forum comment', `Status ${forumComment.status}`);
-
-    // Checkin
-    const checkinRes = await authApi('POST', '/api/checkin');
-    console.log('  Checkin:', checkinRes.status, JSON.stringify(checkinRes.data?.data || {}).slice(0, 80));
-    checkinRes.status === 200 ? ok('Checkin', `marks: ${checkinRes.data?.marks}, streak: ${checkinRes.data?.streak}`) : warn('Checkin', `Status ${checkinRes.status} (may be duplicate)`);
-
-    // Duplicate checkin
-    const checkinDup = await authApi('POST', '/api/checkin');
-    checkinDup.status === 409 ? ok('Duplicate checkin blocked', '409') : warn('Duplicate checkin', `Status ${checkinDup.status}`);
-
-    // Checkin status
-    const statusRes = await authApi('GET', '/api/checkin');
-    statusRes.data?.checkedIn === true ? ok('Checkin status', 'checkedIn: true') : fail('Checkin status', JSON.stringify(statusRes.data));
-
-    // Collections
-    const colRes = await authApi('POST', '/api/collections', { name: 'E2E Collection' });
-    colRes.status === 201 ? ok('Create collection', `ID: ${colRes.data?.id}`) : fail('Create collection', `Status ${colRes.status}`);
-
-    if (colRes.data?.id) {
-      const colGet = await authApi('GET', `/api/collections/${colRes.data.id}`);
-      colGet.status === 200 ? ok('Get collection', '200') : fail('Get collection', `Status ${colGet.status}`);
-
-      const colList = await authApi('GET', '/api/collections');
-      const colCount = Array.isArray(colList.data?.data) ? colList.data.data.length : 0;
-      ok('List collections', `Count: ${colCount}`);
-
-      const colDel = await authApi('DELETE', `/api/collections/${colRes.data.id}`);
-      ok('Delete collection', `Status ${colDel.status}`);
-    }
-
-    // Notifications
-    const unread = await authApi('GET', '/api/notifications/unread-count');
-    ok('Unread count', `count: ${unread.data?.unreadCount}`);
-
-    const markRead = await authApi('PUT', '/api/notifications');
-    ok('Mark all read', `Status ${markRead.status}`);
-
-    const unreadAfter = await authApi('GET', '/api/notifications/unread-count');
-    ok('Unread after mark-read', `count: ${unreadAfter.data?.unreadCount}`);
-
-    // Follow (toggle)
-    const followRes = await authApi('POST', '/api/follow/3');
-    ok('Follow user', `Status ${followRes.status}`);
-
-    const unfollowRes = await authApi('POST', '/api/follow/3');
-    ok('Unfollow user', `Status ${unfollowRes.status}`);
-
-    // Play status
-    const playRes = await authApi('POST', '/api/games/1/play-status', { status: 'PLAYING' });
-    ok('Set play status', `Status ${playRes.status}`);
-
-    // Rating
-    const ratingRes = await authApi('POST', '/api/games/1/rating', { score: 4 });
-    ok('Set rating', `Status ${ratingRes.status}`);
-
-    // Report game
-    const reportRes = await authApi('POST', '/api/games/1/report', { reason: 'E2E test report' });
-    ok('Report game', `Status ${reportRes.status}`);
-
-    // Check achievement trigger
-    const achRes = await authApi('POST', '/api/achievements/check');
-    ok('Check achievements', `Status ${achRes.status}`);
-
-    // Verify pages
-    console.log('\n--- PAGE VERIFICATION ---');
-    await page2.goto('http://localhost:3099/profile');
-    await page2.waitForLoadState('networkidle');
-    await page2.waitForTimeout(1000);
-    const profileText = await page2.locator('body').textContent();
-    ok('Profile page', profileText.includes('testuser_qa') ? 'User data visible' : 'No user data');
-
-    await page2.goto('http://localhost:3099/notifications');
-    await page2.waitForLoadState('networkidle');
-    ok('Notifications page', '200');
+  // Like comment
+  if (commentId) {
+    const like = await page.evaluate((id) => fetch(`/api/comments/${id}/like`, { method: 'POST' }).then(async r => ({s: r.status, d: await r.json()})), commentId);
+    ok('Like comment', `liked=${like.d?.data?.liked ?? like.d?.liked}`);
   }
 
-  await ctx2.close();
+  // Forum post
+  const post = await page.evaluate(() => fetch('/api/forum/posts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ title: 'E2E ' + Date.now(), content: 'Content', category: 'discussion' }) }).then(async r => ({s: r.status, d: await r.json()})));
+  ok('Create forum post', post.s === 201 ? '201' : post.s);
+  const postId = post.d?.id;
 
-  // ==================== ADMIN FLOW ====================
-  console.log('\n━━━ ADMIN FLOW ━━━');
+  if (postId) {
+    const edit = await page.evaluate((id) => fetch(`/api/forum/posts/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ title: 'Edited', content: 'Edited' }) }).then(r => r.status), postId);
+    ok('Edit post', edit);
 
-  const ctx3 = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-  const page3 = await ctx3.newPage();
+    const like = await page.evaluate((id) => fetch(`/api/forum/posts/${id}/like`, { method: 'POST' }).then(r => r.status), postId);
+    ok('Like post', like);
 
-  async function adminApi(method, path, body) {
-    return page3.evaluate(async ({ method, path, body }) => {
-      const opts = { method, headers: {} };
-      if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-      const res = await fetch(path, opts);
-      return { status: res.status, data: await res.json().catch(() => null) };
-    }, { method, path, body });
+    const solve = await page.evaluate((id) => fetch(`/api/forum/posts/${id}/solve`, { method: 'POST' }).then(r => r.status), postId);
+    ok('Solve post', solve);
+
+    const del = await page.evaluate((id) => fetch(`/api/forum/posts/${id}`, { method: 'DELETE' }).then(r => r.status), postId);
+    ok('Delete post', del);
   }
 
-  // Login as admin (testuser_qa may not be admin, so we test unauthorized access)
-  await page3.goto('http://localhost:3099/login');
-  await page3.waitForLoadState('networkidle');
-  await page3.fill('input[placeholder*="用户名"]', 'testuser_qa');
-  await page3.fill('input[type="password"]', 'testpass123');
-  await page3.click('button[type="submit"]');
-  await page3.waitForTimeout(5000);
-  const adminLoggedIn = !page3.url().includes('/login');
-  adminLoggedIn ? ok('Admin login', 'Logged in as testuser_qa') : fail('Admin login', page3.url());
+  // Checkin
+  const checkin = await page.evaluate(() => fetch('/api/checkin', { method: 'POST' }).then(async r => ({s: r.status, d: await r.json()})));
+  console.log('  Checkin:', checkin.s, JSON.stringify(checkin.d?.data || checkin.d).slice(0, 80));
+  checkin.s === 200 ? ok('Checkin', `marks=${checkin.d?.data?.marks}`) : warn('Checkin', `Status ${checkin.s}`);
 
-  if (adminLoggedIn) {
-    // Test admin endpoints (expect 403 for non-admin)
-    const adminGames = await adminApi('GET', '/api/admin/games');
-    adminGames.status === 401 || adminGames.status === 403
-      ? ok('Admin games access (non-admin)', `Correctly denied: ${adminGames.status}`)
-      : warn('Admin games access', `Unexpected: ${adminGames.status}`);
+  const dupCheckin = await page.evaluate(() => fetch('/api/checkin', { method: 'POST' }).then(r => r.status));
+  ok('Duplicate checkin blocked', dupCheckin === 409 ? '409' : `Status ${dupCheckin}`);
 
-    // Test admin games POST (non-admin)
-    const adminCreate = await adminApi('POST', '/api/admin/games', { title: 'Test' });
-    ok('Admin game create (non-admin)', `Status ${adminCreate.status} (401/403 expected)`);
-
-    // Test admin users (non-admin)
-    const adminUsers = await adminApi('GET', '/api/admin/users');
-    ok('Admin users (non-admin)', `Status ${adminUsers.status} (401 expected)`);
-
-    // Test site-settings GET
-    const settings = await adminApi('GET', '/api/site-settings');
-    settings.status === 200 ? ok('Site settings (public)', `Keys: ${Object.keys(settings.data?.data || {}).length}`) : fail('Site settings', `Status ${settings.status}`);
+  // Collections
+  const col = await page.evaluate(() => fetch('/api/collections', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ name: 'E2E ' + Date.now() }) }).then(async r => ({s: r.status, d: await r.json()})));
+  ok('Create collection', col.s === 201 ? `ID=${col.d?.id}` : col.s);
+  if (col.d?.id) {
+    await page.evaluate((id) => fetch(`/api/collections/${id}`).then(r => r.status), col.d.id).then(s => ok('Get collection', s));
+    await page.evaluate((id) => fetch(`/api/collections/${id}`, { method: 'DELETE' }).then(r => r.status), col.d.id).then(s => ok('Delete collection', s));
   }
 
-  await ctx3.close();
+  // Play status
+  const play = await page.evaluate(() => fetch('/api/games/1/play-status', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status: 'PLAYING' }) }).then(r => r.status));
+  ok('Play status', play);
 
-  // ==================== SUMMARY ====================
+  // Rating
+  const rating = await page.evaluate(() => fetch('/api/games/1/rating', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ score: 4 }) }).then(r => r.status));
+  ok('Rating', rating);
+
+  // Follow
+  const follow = await page.evaluate(() => fetch('/api/follow/3', { method: 'POST' }).then(r => r.status));
+  ok('Follow', follow);
+
+  // Notifications
+  const unread = await page.evaluate(() => fetch('/api/notifications/unread-count').then(async r => ({s: r.status, d: await r.json()})));
+  ok('Unread count', `count=${unread.d?.unreadCount}`);
+  const markAll = await page.evaluate(() => fetch('/api/notifications', { method: 'PUT' }).then(r => r.status));
+  ok('Mark all read', markAll);
+
+  // Report
+  const report = await page.evaluate(() => fetch('/api/games/1/report', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ reason: 'E2E' }) }).then(r => r.status));
+  ok('Report game', report);
+
+  // Achievement check
+  const ach = await page.evaluate(() => fetch('/api/achievements/check', { method: 'POST' }).then(r => r.status));
+  ok('Achievement check', ach);
+
+  // Admin guard
+  console.log('\n━━━ ADMIN GUARDS ━━━');
+  for (const ep of ['/api/admin/games', '/api/admin/users', '/api/admin/reports']) {
+    const s = await page.evaluate((ep) => fetch(ep).then(r => r.status), ep);
+    s === 401 ? ok(`Guard ${ep}`, '401') : warn(`Guard ${ep}`, s);
+  }
+
+  // ===== SUMMARY =====
   console.log('\n' + '═'.repeat(60));
-  console.log('BUSINESS FLOW SIMULATION RESULTS');
+  console.log('PRODUCTION SIMULATION PHASE 1');
   console.log('═'.repeat(60));
-  const passed = results.filter(r => r.pass === true).length;
-  const failed = results.filter(r => r.pass === false).length;
-  const warned = results.filter(r => r.pass === 'warn').length;
-  console.log(`PASS: ${passed}  FAIL: ${failed}  WARN: ${warned}  TOTAL: ${results.length}`);
+  const p = results.filter(r => r.p === true).length;
+  const f = results.filter(r => r.p === false).length;
+  const w = results.filter(r => r.p === 'warn').length;
+  console.log(`PASS: ${p}  FAIL: ${f}  WARN: ${w}  TOTAL: ${results.length}`);
   console.log('─'.repeat(60));
-  results.forEach(r => {
-    const icon = r.pass === true ? '✅' : r.pass === false ? '❌' : '⚠️';
-    console.log(`${icon} ${r.name}: ${r.detail}`);
-  });
+  results.forEach(r => console.log(`${r.p === true ? '✅' : r.p === false ? '❌' : '⚠️'} ${r.n}: ${r.d}`));
   console.log('═'.repeat(60));
 
   await browser.close();

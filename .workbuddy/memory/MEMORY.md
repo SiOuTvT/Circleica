@@ -17,6 +17,19 @@
 - 生产验收四项历史阻断已修复：compose backup profile、Turnstile 构建期注入、Cookie Secure、queryRawUnsafe→Prisma.sql。
 - 数据库/迁移(migrate deploy 幂等)、CSP/Headers、限流、Cookie httpOnly、存储 R2 回退、单例(Prisma/R2/Redis)、客户端定时器 cleanup。
 - 上线前置(运维设置)：NEXTAUTH_SECRET、NEXTAUTH_URL；建议 SENTRY_DSN、真实 VERSION、多副本配 R2/Redis。
+- **深度质量收敛（2026-07-22 达成真正收敛，R1–R18，连续 3 轮 clean = R16/R17/R18）后已确认 safe 的额外维度（勿重复扫描）**：
+  - Server Action：无 `"use server"`，所有 mutation 走 `withHandler` API 层。
+  - next/image：remotePatterns 全固定已知 host，无 `dangerouslyAllowSVG`，无 SSRF/open-proxy。
+  - 通知/事件幂等：achievement 并发重复通知已修（R13）；其余通知类型均单请求触发。
+  - 入站 webhook：仅 `/api/uploadthing`，Uploadthing 签名自动校验，onUploadComplete 不改库。
+  - 状态切换并发：favorite 已修为原子事务（R15）；follow/playStatus/checkin/各点赞均靠 `@@unique`+事务安全。
+  - API CSRF：会话 cookie `sameSite:lax` + JSON-only(422 非 JSON) + 无 GET 突变，防御 by design。
+  - XSS：无 markdown 引擎，UGC 富文本统一 `RichTextContent`→`sanitizeRichText`(DOMPurify)；链接经 `sanitizeUrl`。
+  - 开放重定向：所有 redirect 硬编码/同源/DB 派生；`callbackUrl` 已校验同源相对路径；无 `returnTo`/`next=` 参数。
+
+## 深度质量收敛结论（2026-07-22）
+- 连续三轮无新问题（R16 开放重定向前置的 CSRF/R17 XSS/R18 开放重定向全 clean），项目判定**真正收敛**。
+- 此后仅按 Post-Launch Guardian 纪律响应真实线上问题，不再主动发起全量收敛扫描；若需重启，先核对本文件"已确认无问题维度"避免重复劳动。
 
 ## 关键路径速查
 - 健康：`/api/health`（DB 失败→503；Redis 缺失→disabled 不致命）
