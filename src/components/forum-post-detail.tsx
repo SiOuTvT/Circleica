@@ -96,7 +96,6 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
     finally { setLikingCommentId(null) }
   }
-  }
 
   // ── 标记已解决 ──
   async function toggleSolve() {
@@ -424,7 +423,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                   {showEmoji && (
                     <>
                       <div className="fixed inset-0 z-40 cursor-pointer" onClick={() => setShowEmoji(false)} />
-                      <div className="absolute bottom-11 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl">
+                      <div className="absolute bottom-11 left-0 z-50 w-72 rounded-xl bg-card p-3 ring-1 ring-border shadow-4">
                         <div className="grid grid-cols-10 gap-1">
                           {EMOJI_LIST.map((emoji) => (
                             <button key={emoji} type="button" onClick={() => insertEmoji(emoji)}
@@ -463,7 +462,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
       {/* Toast */}
       {imageError && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-foreground/90 px-5 py-2.5 text-sm text-background shadow-xl backdrop-blur-sm">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-foreground/90 px-5 py-2.5 text-sm text-background shadow-3 backdrop-blur-sm">
           {imageError}
         </div>
       )}

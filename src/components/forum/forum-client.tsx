@@ -45,6 +45,9 @@ export function ForumClient({
   const [activeCategory, setActiveCategory] = useState(searchParams.get("category") || "")
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // 点赞防重入锁（双击会触发两次 toggle 导致净取消）
+  const likingPostIds = useRef<Set<string>>(new Set())
+  const likingCommentIds = useRef<Set<string>>(new Set())
 
   // 搜索防抖 350ms
   const handleSearchChange = useCallback((q: string) => {
@@ -233,6 +236,8 @@ export function ForumClient({
         currentUserId={currentUser?.id}
         isAdmin={isAdmin}
         onLikePost={(id) => {
+          if (likingPostIds.current.has(id)) return
+          likingPostIds.current.add(id)
           const prev = posts.find(p => p.id === id)?.likeCount ?? 0
           setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
           setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
@@ -247,6 +252,7 @@ export function ForumClient({
               setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: prev } : x))
               setActivePost(p => p && { ...p, likeCount: prev })
             })
+            .finally(() => { likingPostIds.current.delete(id) })
         }}
         onToggleSolve={async (id) => {
           try {
@@ -263,7 +269,8 @@ export function ForumClient({
         setImageError={setImageError}
         commentInputRef={commentInputRef}
         onLikeComment={(id) => {
-          if (!isLoggedIn) return
+          if (!isLoggedIn || likingCommentIds.current.has(id)) return
+          likingCommentIds.current.add(id)
           apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
@@ -271,6 +278,7 @@ export function ForumClient({
               }
             })
             .catch(() => {})
+            .finally(() => { likingCommentIds.current.delete(id) })
         }}
         onDeleteComment={(id) => {
           const targetPostId = activePost?.id
@@ -320,7 +328,7 @@ export function ForumClient({
       />
 
       {imageError && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-red-500/90 px-4 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] rounded-xl bg-red-500/90 px-4 py-2 text-sm text-white shadow-3 backdrop-blur-sm">
           {imageError}
         </div>
       )}

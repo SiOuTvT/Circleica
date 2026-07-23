@@ -172,6 +172,8 @@ export async function checkAchievements(userId: string): Promise<{
   characterImage: string
   points: number
 }[]> {
+  // 先失效用户统计缓存，确保成就基于最新活动解锁（原缓存 300s 未失效 → 解锁延迟最多 5 分钟）
+  await invalidateUserStats(userId)
   // 1. 获取用户统计数据
   const stats = await getUserStats(userId)
   if (!stats) return []
@@ -212,18 +214,28 @@ export async function checkAchievements(userId: string): Promise<{
 
   if (!newUnlocks.length) return []
 
-  // 5. 批量写入解锁记录
-  await prisma.userAchievement.createMany({
-    data: newUnlocks.map((ach) => ({
-      userId,
-      achievementId: ach.id,
-    })),
-    skipDuplicates: true,
-  })
+  // 5. 逐个写入解锁记录；仅对"真正新增"的成就发通知并累加解锁数。
+  //    复用 UserAchievement 已有 @@unique([userId, achievementId]) 约束做并发去重：
+  //    同一用户并发 checkAchievements 时，只有先落库的一方会成功 create，
+  //    其余方触发 P2002 → 跳过，从而避免重复通知与 unlockCount 过计。
+  const actuallyNew: typeof newUnlocks = []
+  for (const ach of newUnlocks) {
+    try {
+      await prisma.userAchievement.create({
+        data: { userId, achievementId: ach.id },
+      })
+      actuallyNew.push(ach)
+    } catch (e) {
+      const code = (e as { code?: string })?.code
+      if (code !== "P2002") throw e // 非唯一约束冲突，按原样上抛
+    }
+  }
 
-  // 6. 更新成就解锁计数（并行执行）
+  if (!actuallyNew.length) return []
+
+  // 6. 仅对真正新增的成就更新解锁计数（并行执行）
   await Promise.all(
-    newUnlocks.map(ach =>
+    actuallyNew.map((ach) =>
       prisma.achievement.update({
         where: { id: ach.id },
         data: { unlockCount: { increment: 1 } },
@@ -231,8 +243,8 @@ export async function checkAchievements(userId: string): Promise<{
     )
   )
 
-  // 7. 创建通知
-  for (const ach of newUnlocks) {
+  // 7. 仅对真正新增的成就创建通知（避免并发重复通知）
+  for (const ach of actuallyNew) {
     createNotification({
       userId,
       actorId: userId,
@@ -242,7 +254,7 @@ export async function checkAchievements(userId: string): Promise<{
     }).catch(() => {})
   }
 
-  return newUnlocks.map((ach) => ({
+  return actuallyNew.map((ach) => ({
     id: ach.id,
     name: ach.name,
     description: ach.description,

@@ -10,7 +10,7 @@ const getCachedUser = unstable_cache(
   async (id: string) => {
     return prisma.user.findUnique({
       where: { id },
-      select: { avatar: true, avatarFrameId: true, serialId: true, composedAvatarUrl: true },
+      select: { avatar: true, avatarFrameId: true, serialId: true, composedAvatarUrl: true, role: true, emailVerified: true },
     })
   },
   ["session-user"],
@@ -142,28 +142,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.user.id   = token.id as string
         session.user.name = token.name ?? ""
-        session.user.role = (token.role as string) ?? "USER"
-        session.user.isEmailVerified = (token.isEmailVerified as boolean) ?? false
-        // 实时从数据库读取 image 和 avatarFrame，避免存入 JWT 增大 cookie
+        // 实时从数据库读取 avatar/role 等，避免存入 JWT 增大 cookie；
+        // role / emailVerified 以数据库为准（getCachedUser 已 30s 缓存），
+        // 避免管理员改角色 / 邮箱验证后旧 JWT 仍生效（stale permission，最迟 30s 收敛）
+        let dbUser = null as Awaited<ReturnType<typeof getCachedUser>> | null
         try {
-          if (token.id) {
-            const dbUser = await getCachedUser(token.id as string)
-            session.user.image = dbUser?.avatar ?? null
-            session.user.avatarFrame = dbUser?.avatarFrameId ?? "none"
-            session.user.serialId = dbUser?.serialId ?? 0
-            session.user.composedAvatarUrl = dbUser?.composedAvatarUrl ?? null
-          } else {
-            session.user.image = null
-            session.user.avatarFrame = "none"
-            session.user.serialId = 0
-            session.user.composedAvatarUrl = null
-          }
+          if (token.id) dbUser = await getCachedUser(token.id as string)
         } catch {
-          session.user.image = null
-          session.user.avatarFrame = "none"
-          session.user.serialId = 0
-          session.user.composedAvatarUrl = null
+          dbUser = null
         }
+        session.user.role = dbUser?.role ?? (token.role as string) ?? "USER"
+        session.user.isEmailVerified = dbUser?.emailVerified ?? (token.isEmailVerified as boolean) ?? false
+        session.user.image = dbUser?.avatar ?? null
+        session.user.avatarFrame = dbUser?.avatarFrameId ?? "none"
+        session.user.serialId = dbUser?.serialId ?? 0
+        session.user.composedAvatarUrl = dbUser?.composedAvatarUrl ?? null
       }
       return session
     },

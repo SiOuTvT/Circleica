@@ -88,7 +88,7 @@ export function CropDialog({ cropSrc, aspectRatio, shape, onConfirm, onCancel }:
 
   return (
     <div className="fixed inset-0 z-50 touch-none flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="relative mx-4 w-full max-w-lg rounded-2xl p-5 shadow-2xl" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+      <div className="relative mx-4 w-full max-w-lg rounded-2xl p-5 shadow-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <h3 className="mb-4 text-sm font-semibold text-foreground">裁剪图片</h3>
         <div className="relative h-72 w-full overflow-hidden rounded-xl" style={{ background: "hsl(var(--muted))" }}>
           <Cropper image={cropSrc} crop={crop} zoom={zoom} rotation={rotation} aspect={aspectRatio}

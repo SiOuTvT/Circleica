@@ -154,10 +154,8 @@ export function withHandler(handler: RouteHandler): RouteHandler {
  */
 function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
   switch (error.code) {
-    case "P2002":
-      return new ConflictError(
-        `数据冲突：违反唯一约束（${error.meta?.target ? String(error.meta.target) : "字段"}）`,
-      )
+      case "P2002":
+        return new ConflictError("数据冲突：违反唯一约束，请检查是否重复提交")
     case "P2025":
       return new NotFoundError("目标记录")
     case "P2003":
@@ -165,8 +163,8 @@ function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
     case "P2014":
     case "P2016":
       return new NotFoundError("关联数据")
-    default:
-      return new AppError(`数据库错误（${error.code}）`, "INTERNAL", 500)
+      default:
+        return new AppError("数据库错误，请稍后再试", "INTERNAL", 500)
   }
 }
 

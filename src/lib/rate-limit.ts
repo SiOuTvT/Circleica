@@ -137,6 +137,12 @@ export const rateLimits = {
   search: { windowMs: 60_000, maxRequests: 30, message: "搜索过于频繁，请稍后再试" },
   /** 密码重置：每小时 3 次 */
   passwordReset: { windowMs: 3_600_000, maxRequests: 3, message: "密码重置请求过多，请 1 小时后再试" },
+  /** 点赞限制：每分钟 30 次（登录用户，防通知骚扰） */
+  like: { windowMs: 60_000, maxRequests: 30, message: "操作过于频繁，请稍后再试" },
+  /** 关注限制：每分钟 20 次（登录用户，防关注通知骚扰） */
+  follow: { windowMs: 60_000, maxRequests: 20, message: "关注操作过于频繁，请稍后再试" },
+  /** 举报限制：每分钟 10 次（登录用户，防灌水管理员队列） */
+  report: { windowMs: 60_000, maxRequests: 10, message: "举报过于频繁，请稍后再试" },
 } as const
 
 /**
