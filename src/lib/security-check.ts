@@ -5,7 +5,7 @@
 import { logger } from "./logger"
 
 const WEAK_SECRETS = [
-  "local-dev-secret-key-for-fangame",
+  "local-dev-secret-key-for-circleica",
   "your-secret-key-here",
   "change-me",
   "secret",
@@ -13,7 +13,7 @@ const WEAK_SECRETS = [
 ]
 
 const WEAK_DB_PASSWORDS = [
-  "fangame2024",
+  "circleica2024",
   "password",
   "123456",
   "root",

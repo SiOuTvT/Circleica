@@ -12,7 +12,7 @@
 ## 步骤 1：克隆并安装
 
 ```bash
-git clone <repo-url> && cd fangame
+git clone <repo-url> && cd circleica
 npm install
 ```
 
@@ -28,7 +28,7 @@ cp .env.example .env
 
 | 变量 | 必填 | 说明 |
 |---|---|---|
-| `DATABASE_URL` | ✅ | PostgreSQL 连接串，如 `postgresql://fangame:fangame@localhost:5432/fangame` |
+| `DATABASE_URL` | ✅ | PostgreSQL 连接串，如 `postgresql://circleica:circleica@localhost:5432/circleica` |
 | `NEXTAUTH_SECRET` | ✅ | ≥32 字符随机串 |
 | `NEXTAUTH_URL` | 否 | 默认 `http://localhost:3000` |
 | `R2_*` / `UPSTASH_REDIS_*` / `SENTRY_DSN` / `RESEND_API_KEY` | 否 | 可选能力；留空则对应功能自动降级 |

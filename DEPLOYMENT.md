@@ -25,8 +25,8 @@ sudo systemctl start docker
 ### 1 克隆代码
 
 ```bash
-git clone https://github.com/SiOuTvT/fangame.git /opt/fangame
-cd /opt/fangame
+git clone https://github.com/SiOuTvT/circleica.git /opt/circleica
+cd /opt/circleica
 ```
 
 ### 2 配置环境变量
@@ -76,7 +76,7 @@ docker compose logs -f db
 ### 5 更新项目
 
 ```bash
-cd /opt/fangame
+cd /opt/circleica
 git pull origin main
 docker compose up -d --build
 ```
@@ -133,25 +133,25 @@ Docker 会自动创建两个持久化卷
 
 | 卷名 | 用途 | 位置 |
 |------|------|------|
-| `fangame-postgres_data` | PostgreSQL 数据 | Docker 管理 |
-| `fangame-uploads_data` | 用户上传文件 | Docker 管理 |
+| `circleica-postgres_data` | PostgreSQL 数据 | Docker 管理 |
+| `circleica-uploads_data` | 用户上传文件 | Docker 管理 |
 
 查看卷
 
 ```bash
-docker volume ls | grep fangame
+docker volume ls | grep circleica
 ```
 
 备份数据库
 
 ```bash
-docker exec fangame-db pg_dump -U fangame fangame > backup_$(date +%Y%m%d).sql
+docker exec circleica-db pg_dump -U circleica circleica > backup_$(date +%Y%m%d).sql
 ```
 
 恢复数据库
 
 ```bash
-cat backup.sql | docker exec -i fangame-db psql -U fangame fangame
+cat backup.sql | docker exec -i circleica-db psql -U circleica circleica
 ```
 
 ### 配置 HTTPS（推荐）
@@ -169,8 +169,8 @@ server {
     listen 443 ssl;
     server_name 你的域名;
 
-    ssl_certificate     /etc/nginx/ssl/fangame.crt;
-    ssl_certificate_key /etc/nginx/ssl/fangame.key;
+    ssl_certificate     /etc/nginx/ssl/circleica.crt;
+    ssl_certificate_key /etc/nginx/ssl/circleica.key;
 
     large_client_header_buffers 4 128k;
     client_max_body_size 10m;
@@ -228,8 +228,8 @@ sudo ufw reload
 ### 1 克隆代码
 
 ```bash
-git clone https://github.com/SiOuTvT/fangame.git /opt/fangame
-cd /opt/fangame
+git clone https://github.com/SiOuTvT/circleica.git /opt/circleica
+cd /opt/circleica
 ```
 
 ### 2 配置环境变量
@@ -242,7 +242,7 @@ vi .env
 以下为必填项
 
 ```env
-DATABASE_URL="postgresql://用户名:密码@localhost:5432/fangame"
+DATABASE_URL="postgresql://用户名:密码@localhost:5432/circleica"
 NEXTAUTH_SECRET="用 openssl rand -base64 32 生成"
 NEXTAUTH_URL="http://你的服务器IP"
 ```
@@ -265,8 +265,8 @@ sudo -u postgres psql
 进入 psql 后执行
 
 ```sql
-CREATE USER fangame WITH PASSWORD '你的密码';
-CREATE DATABASE fangame OWNER fangame;
+CREATE USER circleica WITH PASSWORD '你的密码';
+CREATE DATABASE circleica OWNER circleica;
 \q
 ```
 
@@ -304,7 +304,7 @@ curl -I http://localhost:3000
 ### 7 Nginx 反向代理
 
 ```bash
-vi /etc/nginx/conf.d/fangame.conf
+vi /etc/nginx/conf.d/circleica.conf
 ```
 
 写入以下内容
@@ -340,13 +340,13 @@ sudo nginx -t && sudo systemctl reload nginx
 ### 8 更新项目
 
 ```bash
-cd /opt/fangame
+cd /opt/circleica
 git pull origin main
 npm install
 npx prisma generate
 npx prisma migrate deploy
 npm run build
-pm2 restart fangame
+pm2 restart circleica
 ```
 
 ---
@@ -369,7 +369,7 @@ docker compose logs app
 
 ```bash
 pm2 status
-pm2 logs fangame
+pm2 logs circleica
 ```
 
 **数据库连接失败**
@@ -383,7 +383,7 @@ docker compose logs db
 手动方式
 
 ```bash
-PGPASSWORD='密码' psql -U fangame -d fangame -h localhost -c "SELECT 1;"
+PGPASSWORD='密码' psql -U circleica -d circleica -h localhost -c "SELECT 1;"
 ```
 
 **图片上传后丢失**
@@ -391,13 +391,13 @@ PGPASSWORD='密码' psql -U fangame -d fangame -h localhost -c "SELECT 1;"
 Docker 方式：检查 volume 是否正常
 
 ```bash
-docker volume inspect fangame-uploads_data
+docker volume inspect circleica-uploads_data
 ```
 
 手动方式
 
 ```bash
-mkdir -p /opt/fangame/public/uploads && chmod 755 /opt/fangame/public/uploads
+mkdir -p /opt/circleica/public/uploads && chmod 755 /opt/circleica/public/uploads
 ```
 
 **修改 .env 后没生效**
@@ -411,7 +411,7 @@ docker compose restart app
 手动方式
 
 ```bash
-pm2 restart fangame
+pm2 restart circleica
 ```
 
 **Prisma 迁移失败**

@@ -11,7 +11,7 @@ Galgame 爱好者长期面临两个断层：游戏资料散落在 VNDB 等外部
 ## Quick Start
 
 ```bash
-git clone <repo-url> && cd fangame
+git clone <repo-url> && cd circleica
 cp .env.example .env          # 至少填 DATABASE_URL 和 NEXTAUTH_SECRET(≥32字符)
 npm install
 npx prisma migrate dev        # 初始化本地数据库

@@ -128,7 +128,7 @@
 - **值得修**：**是（若生产启用 Redis 并依赖 clearCache）**。
 
 ### M14 — docker-compose 硬编码弱口令
-- **位置**：`docker-compose.yml:24-27`（`POSTGRES_PASSWORD: fangame` 等）
+- **位置**：`docker-compose.yml:24-27`（`POSTGRES_PASSWORD: circleica` 等）
 - **影响**：若此 compose 被用于非纯本地部署，数据库用广为人知的弱口令。
 - **修复**：改 `${POSTGRES_PASSWORD}` 从密钥/env 注入，文档明确"仅限本地"。
 - **值得修**：**是**。
@@ -262,7 +262,7 @@
 - **位置**：`src/lib/redis.ts:200`（`RedisCache.clear()` 仅 `logger.db.warn`、不执行删除）；调用方 `src/lib/vndb.ts:688`（`await cache.clear()`，期望刷新后失效）。
 - **原因**：第一轮 M13 指出 `cache.clear()` 在 Redis 模式无效；本轮定位到**真实调用点**：VNDB 数据手动刷新/重新校验后调 `cache.clear()` 企图清缓存，但 Redis 实现是空操作 → 旧 VNDB 结果（游戏元数据、封面等）持续命中，**刷新不生效**。
 - **影响**：管理员后台"刷新 VNDB"后，前端仍读旧缓存，运营上表现为"刷新没反应"；在 Redis 部署（即生产推荐架构）下必现。
-- **修复**：`RedisCache.clear()` 改为按前缀 `DEL`（`cacheKey` 统一前缀，如 `fangame:*`）；或给 VNDB 缓存键加版本号，刷新时 bump 版本。内存模式 `MemoryCache.clear()` 已正确（`store.clear()`）。
+- **修复**：`RedisCache.clear()` 改为按前缀 `DEL`（`cacheKey` 统一前缀，如 `circleica:*`）；或给 VNDB 缓存键加版本号，刷新时 bump 版本。内存模式 `MemoryCache.clear()` 已正确（`store.clear()`）。
 - **值得修**：**是（P1；生产 Redis 部署下为功能性 bug）**。
 
 ### 修正既有结论
@@ -318,7 +318,7 @@
 - **模式B（权限 H1/M7/M8）**：`PUT /api/admin/users/[id]` 改为 `requireAdminRole("SUPER_ADMIN")`；middleware 用 `isSuperAdminRoute` + 真实 `x-forwarded-proto` 派生 HSTS。
 - **模式C（时区 M5/M18）**：签到与成就 streak 统一走 `toShanghaiDate`。
 - **模式D（URL 校验 M6/M19）+ 模式F（计数器 M4）**：avatar/banner/forum imageUrl/creator/announcement/avatar-frame 全接入 `sanitizeUrl`；后台删收藏/用户回退 `favoriteCount`（事务）。
-- **模式E（缓存 M13/M20）**：`RedisCache.clear()` 真实 SCAN+pipeline 删除 `fangame:*`。
+- **模式E（缓存 M13/M20）**：`RedisCache.clear()` 真实 SCAN+pipeline 删除 `circleica:*`。
 - **模式G（限流 M16）**：NextAuth v5 `authorize(credentials, request)` 接 `checkRateLimit`（按 IP）。
 - **模式H（管理员删帖/删评 M17）**：路由补传 `isAdmin`。
 - **模式I（竞态 M2/M3）**：确认所有 toggle/签到表均有 `@@unique` + 事务/upsert，P2002 现映射 409，数据层安全。

@@ -17,7 +17,7 @@
    当前 `docker-compose.yml` 默认空；若 Coolify 未设置，入口脚本 `docker-entrypoint.sh` 会在容器内 `/app/.secret` 自动生成密钥（该路径**不在持久卷**上）。后果：每次重新部署 / 重建容器 → 新密钥 → **所有用户会话失效、全部被强制登出**。
    → 在 Coolify 环境变量中写入固定随机值（如 `openssl rand -base64 48`）。
 
-2. **`NEXTAUTH_URL` 必须设置为生产 https 域名**（如 `https://fangame.example.com`）
+2. **`NEXTAUTH_URL` 必须设置为生产 https 域名**（如 `https://circleica.example.com`）
    当前默认空 → 回退 `http://localhost:3000`。后果：邮件验证/重置链接错误、OG/Canonical 指向 localhost、Sentry/SEO 元数据错误。
    → 在 Coolify 设置正确的公网 https 地址。
 
@@ -56,14 +56,14 @@
 **环境变量（Coolify）：**
 - [ ] `NEXTAUTH_SECRET` = 固定 32+ 字符随机值
 - [ ] `NEXTAUTH_URL` = `https://你的域名`
-- [ ] `DATABASE_URL`（外部署时设为外部地址；默认内部 `postgresql://fangame:fangame@db:5432/fangame`）
+- [ ] `DATABASE_URL`（外部署时设为外部地址；默认内部 `postgresql://circleica:circleica@db:5432/circleica`）
 - [ ] `NEXT_PUBLIC_TURNSTILE_SITE_KEY`（启用验证码时）
 - [ ] `SENTRY_DSN`（建议）
 - [ ] `R2_*`（多副本或需用 R2 时）
 - [ ] `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`（启用 Redis 缓存 / 分布式限流时）
 
 **部署验证：**
-- [ ] `docker compose up -d` 后 `docker compose ps` 应包含 `fangame-backup`（确认备份在跑）
+- [ ] `docker compose up -d` 后 `docker compose ps` 应包含 `circleica-backup`（确认备份在跑）
 - [ ] 入口已自动 `prisma migrate deploy`；可额外跑一次 `docker compose run --rm migrate` 确认无待执行迁移
 - [ ] `GET /api/health` 返回 200（依赖 DB 健康检查）
 - [ ] 登录/注册页 Turnstile 验证码按预期显示

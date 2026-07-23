@@ -53,7 +53,7 @@ export async function middleware(req: NextRequest) {
 
   // 管理后台路由保护
   if (pathname.startsWith("/admin")) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: "fangame-session-token" })
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: "circleica-session-token" })
     if (!token) {
       const loginUrl = new URL("/login", req.url)
       loginUrl.searchParams.set("callbackUrl", pathname)

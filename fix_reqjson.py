@@ -6,7 +6,7 @@ import re
 import os
 import sys
 
-ROOT = r"D:\fangame\src"
+ROOT = r"D:\circleica\src"
 EXCLUDE = {
     os.path.join(ROOT, "lib", "api-handler.ts"),
     os.path.join(ROOT, "lib", "validations.ts"),

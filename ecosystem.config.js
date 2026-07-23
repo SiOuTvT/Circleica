@@ -1,10 +1,10 @@
 module.exports = {
   apps: [
     {
-      name: "fangame",
+      name: "circleica",
       script: "node_modules/next/dist/bin/next",
       args: "start",
-      cwd: "/opt/fangame",
+      cwd: "/opt/circleica",
       interpreter: "node",
       exec_mode: "fork",
       instances: 1,

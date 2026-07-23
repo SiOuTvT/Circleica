@@ -11,7 +11,7 @@ with sync_playwright() as p:
     time.sleep(3)
 
     # 截取完整屏幕截图
-    page.screenshot(path='d:/fangame/user-page-full.png', full_page=True)
+    page.screenshot(path='d:/circleica/user-page-full.png', full_page=True)
 
     # 查找所有可能有横线的元素
     lines = page.evaluate('''() => {
@@ -87,4 +87,4 @@ with sync_playwright() as p:
         print(f"    borderBottom: {el['borderBottom']}")
 
     browser.close()
-    print("\n截图已保存到：d:/fangame/user-page-full.png")
+    print("\n截图已保存到：d:/circleica/user-page-full.png")

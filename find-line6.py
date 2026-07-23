@@ -59,6 +59,6 @@ with sync_playwright() as p:
         print()
 
     # 截图
-    page.screenshot(path='d:/fangame/y222.png', full_page=True)
+    page.screenshot(path='d:/circleica/y222.png', full_page=True)
     browser.close()
-    print("截图：d:/fangame/y222.png")
+    print("截图：d:/circleica/y222.png")

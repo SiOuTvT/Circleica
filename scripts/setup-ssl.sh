@@ -16,7 +16,7 @@ fi
 SERVER_IP="$1"
 SSL_DIR="/etc/nginx/ssl"
 CONF_DIR="/etc/nginx/conf.d"
-CONF_FILE="$CONF_DIR/fangame.conf"
+CONF_FILE="$CONF_DIR/circleica.conf"
 
 echo "=============================="
 echo "  设置 SSL 证书 ($SERVER_IP)"
@@ -41,8 +41,8 @@ mkdir -p "$SSL_DIR"
 echo "生成自签名 SSL 证书..."
 openssl req -x509 -nodes -days 3650 \
     -newkey rsa:2048 \
-    -keyout "$SSL_DIR/fangame.key" \
-    -out "$SSL_DIR/fangame.crt" \
+    -keyout "$SSL_DIR/circleica.key" \
+    -out "$SSL_DIR/circleica.crt" \
     -subj "/CN=$SERVER_IP" \
     -addext "subjectAltName=IP:$SERVER_IP"
 
@@ -66,8 +66,8 @@ server {
     server_name $SERVER_IP;
 
     # SSL 证书
-    ssl_certificate     $SSL_DIR/fangame.crt;
-    ssl_certificate_key $SSL_DIR/fangame.key;
+    ssl_certificate     $SSL_DIR/circleica.crt;
+    ssl_certificate_key $SSL_DIR/circleica.key;
 
     # SSL 安全配置
     ssl_protocols TLSv1.2 TLSv1.3;

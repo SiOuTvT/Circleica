@@ -13,7 +13,7 @@ SECRET_FILE="/app/.secret"
 # ── 启动横幅 ─────────────────────────
 echo ""
 printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
-printf "${C}${B} Fangame 正在启动...${N}\n"
+printf "${C}${B} Circleica 正在启动...${N}\n"
 printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 echo ""
 
@@ -65,7 +65,7 @@ APP_VER="${APP_VERSION:-unknown}"
 
 echo ""
 printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
-printf "${C}${B} Fangame v${APP_VER} 已启动成功${N}\n"
+printf "${C}${B} Circleica v${APP_VER} 已启动成功${N}\n"
 printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 echo ""
 printf "  ${B}访问地址:${N} ${G}${APP_URL}${N}\n"

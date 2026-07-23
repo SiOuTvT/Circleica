@@ -43,6 +43,6 @@ with sync_playwright() as p:
     print(json.dumps(sticky_info, indent=2, default=str))
 
     # 截图
-    page.screenshot(path='d:/fangame/sticky.png', full_page=True)
+    page.screenshot(path='d:/circleica/sticky.png', full_page=True)
     browser.close()
-    print("\n截图：d:/fangame/sticky.png")
+    print("\n截图：d:/circleica/sticky.png")

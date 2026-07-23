@@ -64,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // 使用新名称后浏览器会自动创建全新的、更小的 cookie
   cookies: {
     sessionToken: {
-      name: "fangame-session-token",
+      name: "circleica-session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",

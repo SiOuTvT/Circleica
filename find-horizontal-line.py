@@ -70,7 +70,7 @@ with sync_playwright() as p:
             print(f"   bg: {line['bg']}")
 
     # 截图
-    page.screenshot(path='d:/fangame/user-page-with-markers.png', full_page=True)
+    page.screenshot(path='d:/circleica/user-page-with-markers.png', full_page=True)
 
     browser.close()
-    print("\n截图已保存到：d:/fangame/user-page-with-markers.png")
+    print("\n截图已保存到：d:/circleica/user-page-with-markers.png")

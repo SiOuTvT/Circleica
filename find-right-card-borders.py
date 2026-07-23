@@ -63,6 +63,6 @@ with sync_playwright() as p:
         print()
 
     # 截图
-    page.screenshot(path='d:/fangame/right-card-borders.png', full_page=True)
+    page.screenshot(path='d:/circleica/right-card-borders.png', full_page=True)
     browser.close()
-    print("截图：d:/fangame/right-card-borders.png")
+    print("截图：d:/circleica/right-card-borders.png")

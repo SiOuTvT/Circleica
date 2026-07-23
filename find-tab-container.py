@@ -42,6 +42,6 @@ with sync_playwright() as p:
     print(json.dumps(tab_container_info, indent=2, default=str))
 
     # 截图
-    page.screenshot(path='d:/fangame/tab-container.png', full_page=True)
+    page.screenshot(path='d:/circleica/tab-container.png', full_page=True)
     browser.close()
-    print("\n截图：d:/fangame/tab-container.png")
+    print("\n截图：d:/circleica/tab-container.png")

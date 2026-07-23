@@ -7,7 +7,7 @@ with sync_playwright() as p:
     page.wait_for_load_state('networkidle')
 
     # Take a full screenshot to see the layout
-    page.screenshot(path='d:/fangame/user-page.png', full_page=True)
+    page.screenshot(path='d:/circleica/user-page.png', full_page=True)
 
     # Check for any visible scrollbars or borders
     scrollbars = page.locator('*::-webkit-scrollbar')

@@ -92,9 +92,9 @@ class RedisCache implements CacheClient {
 
   async clear(): Promise<void> {
     // Upstash REST 不支持 DEL 通配符，需用 SCAN 游标遍历 + pipeline 批量删除。
-    // 所有本项目的缓存 key 都以 cacheKey() 生成的 "fangame:" 为前缀。
+    // 所有本项目的缓存 key 都以 cacheKey() 生成的 "circleica:" 为前缀。
     try {
-      const match = "fangame:*"
+      const match = "circleica:*"
       let cursor = "0"
       do {
         const res = await this.request(`/scan/${cursor}?cursor=${cursor}&match=${encodeURIComponent(match)}`)
@@ -293,5 +293,5 @@ export async function cached<T>(
  * 生成带命名空间的缓存 key
  */
 export function cacheKey(namespace: string, ...parts: (string | number)[]): string {
-  return `fangame:${namespace}:${parts.join(":")}`
+  return `circleica:${namespace}:${parts.join(":")}`
 }

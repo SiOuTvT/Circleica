@@ -1,5 +1,5 @@
 
-> fangame@0.1.0 dev
+> circleica@0.1.0 dev
 > node --max-old-space-size=4096 node_modules/next/dist/bin/next dev
 
 ▲ Next.js 16.2.7 (Turbopack)
@@ -18,7 +18,7 @@
  GET /manifest.webmanifest 200 in 160ms (next.js: 115ms, proxy.ts: 14ms, application-code: 32ms)
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -26,7 +26,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:22:19.913Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:22:19.913Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET /manifest.webmanifest 200 in 103ms (next.js: 42ms, proxy.ts: 53ms, application-code: 8ms)
  GET / 200 in 524ms (next.js: 33ms, proxy.ts: 6ms, application-code: 484ms)
  GET /api/site-settings 200 in 1069ms (next.js: 332ms, proxy.ts: 18ms, application-code: 720ms)
@@ -63,7 +63,7 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
 [90m2026-07-19T05:22:37.084Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -71,7 +71,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:22:37.107Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:22:37.107Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 500ms (next.js: 56ms, proxy.ts: 6ms, application-code: 438ms)
  GET /admin 200 in 687ms (next.js: 70ms, proxy.ts: 151ms, application-code: 467ms)
  GET /manifest.webmanifest 200 in 71ms (next.js: 50ms, proxy.ts: 10ms, application-code: 10ms)
@@ -93,7 +93,7 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
 [90m2026-07-19T05:22:51.789Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -101,7 +101,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:22:51.800Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:22:51.800Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 332ms (next.js: 44ms, proxy.ts: 6ms, application-code: 282ms)
  GET /admin 200 in 438ms (next.js: 84ms, proxy.ts: 152ms, application-code: 202ms)
  GET /manifest.webmanifest 200 in 70ms (next.js: 57ms, proxy.ts: 4ms, application-code: 9ms)
@@ -155,7 +155,7 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
 [90m2026-07-19T05:26:07.072Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -163,7 +163,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:26:07.555Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:26:07.555Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 1282ms (next.js: 198ms, proxy.ts: 91ms, application-code: 993ms)
  GET /admin 200 in 1318ms (next.js: 296ms, proxy.ts: 547ms, application-code: 474ms)
  GET /manifest.webmanifest 200 in 76ms (next.js: 57ms, proxy.ts: 6ms, application-code: 13ms)
@@ -206,7 +206,7 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
 [90m2026-07-19T05:28:56.662Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -214,7 +214,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:28:56.828Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:28:56.828Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 973ms (next.js: 416ms, proxy.ts: 18ms, application-code: 540ms)
 [90m2026-07-19T05:28:57.974Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
 [90m2026-07-19T05:28:57.974Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
@@ -266,7 +266,7 @@ Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
 [90m2026-07-19T05:30:35.225Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -274,7 +274,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:30:35.351Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:30:35.351Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 3.3s (next.js: 342ms, proxy.ts: 217ms, application-code: 2.7s)
 [90m2026-07-19T05:30:36.671Z[0m [32mINF[0m [90m[DB][0m 使用内存缓存（配置 Redis 以启用 Redis 缓存）
 [90m2026-07-19T05:30:36.805Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
@@ -295,7 +295,7 @@ ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(Postgr
 [90m2026-07-19T05:32:28.645Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
 prisma:error 
 Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst()` invocation in
-D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
+D:\circleica\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:187
 
   622 // 获取"首页卡片标签"组的颜色
   623 let cardTagColor = "#6b7280";
@@ -303,7 +303,7 @@ D:\fangame\.next\dev\server\chunks\ssr\[root-of-the-server]__1ombvbc._.js:625:18
 → 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["prisma"].tagGroup.findFirst(
 Error occurred during query execution:
 ConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "42883", message: "操作符不存在: text @> unknown", severity: "错误", detail: None, column: None, hint: Some("没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.") }), transient: false })
-[90m2026-07-19T05:32:29.045Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\fangame\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
+[90m2026-07-19T05:32:29.045Z[0m [33mWRN[0m [90m[DB][0m [HomePage] cardTagColor query failed [90m{"error":"\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst()` invocation in\nD:\\circleica\\.next\\dev\\server\\chunks\\ssr\\[root-of-the-server]__1ombvbc._.js:625:187\n\n  622 // 获取\"首页卡片标签\"组的颜色\n  623 let cardTagColor = \"#6b7280\";\n  624 try {\n→ 625     const homeCardTag = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$prisma$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__[\"prisma\"].tagGroup.findFirst(\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"42883\", message: \"操作符不存在: text @> unknown\", severity: \"错误\", detail: None, column: None, hint: Some(\"没有匹配指定名称和参数类型的操作符. 您也许需要增加明确的类型转换.\") }), transient: false })"}[0m
  GET / 200 in 3.3s (next.js: 1141ms, proxy.ts: 341ms, application-code: 1857ms)
  GET /admin 200 in 1992ms (next.js: 549ms, proxy.ts: 113ms, application-code: 1330ms)
 [90m2026-07-19T05:32:36.855Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）

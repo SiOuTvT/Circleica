@@ -24,7 +24,7 @@ with sync_playwright() as p:
     page.wait_for_load_state("networkidle")
 
     title = page.title()
-    log("Homepage loads", "PASS" if "Fangame" in title or title else "FAIL", f"Title: {title}")
+    log("Homepage loads", "PASS" if "Circleica" in title or title else "FAIL", f"Title: {title}")
 
     # Check for key elements
     games_visible = page.locator("[href*='/games/']").count() > 0

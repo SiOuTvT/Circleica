@@ -21,7 +21,7 @@ async function main() {
   
   if (res.status === 404) {
     console.log('\n==> Server needs restart to pick up new build!');
-    console.log('Run: pm2 restart fangame (on server)');
+    console.log('Run: pm2 restart circleica (on server)');
     console.log('Or restart the Next.js dev/prod process on port 3000');
   }
 }
