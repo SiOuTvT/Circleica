@@ -7,7 +7,7 @@ import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { Loader2, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useRef, useState, useId } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -364,6 +364,15 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const inputCls = "w-full rounded-xl bg-muted px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
+  const idTitle = useId()
+  const idOriginal = useId()
+  const idEnglish = useId()
+  const idAliases = useId()
+  const idVndb = useId()
+  const idRelease = useId()
+  const idStudio = useId()
+  const idDuration = useId()
+
 
 
   return (
@@ -433,20 +442,20 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>主推名称（前台卡片展示） *</label>
-            <input value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
+            <label htmlFor={idTitle} className={labelCls}>主推名称（前台卡片展示） *</label>
+            <input id={idTitle} value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>日文官方原名</label>
-            <input value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
+            <label htmlFor={idOriginal} className={labelCls}>日文官方原名</label>
+            <input id={idOriginal} value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>英文官方名称</label>
-            <input value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
+            <label htmlFor={idEnglish} className={labelCls}>英文官方名称</label>
+            <input id={idEnglish} value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>搜索别名（逗号分隔）</label>
-            <input value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称…" className={inputCls} />
+            <label htmlFor={idAliases} className={labelCls}>搜索别名（逗号分隔）</label>
+            <input id={idAliases} value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称…" className={inputCls} />
           </div>
         </div>
         {/* 多语言简介 Tab 切换 */}
@@ -630,20 +639,20 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           <div className="flex-1 space-y-3 min-w-0">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className={labelCls}>VNDB ID</label>
-                <input value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+                <label htmlFor={idVndb} className={labelCls}>VNDB ID</label>
+                <input id={idVndb} value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>发售日期</label>
-                <input type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
+                <label htmlFor={idRelease} className={labelCls}>发售日期</label>
+                <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>制作会社</label>
-                <input value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
+                <label htmlFor={idStudio} className={labelCls}>制作会社</label>
+                <input id={idStudio} value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>游戏时长</label>
-                <input value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+                <label htmlFor={idDuration} className={labelCls}>游戏时长</label>
+                <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
               </div>
             </div>
             <div className="flex flex-wrap gap-4 pt-2 border-t border-border">

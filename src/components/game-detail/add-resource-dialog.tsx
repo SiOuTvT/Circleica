@@ -144,7 +144,7 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
         <div
           className="absolute left-0 right-0 bottom-full mb-1 z-50 animate-in fade-in-0 zoom-in-95"
         >
-          <div className="rounded-xl border border-foreground/15 bg-card shadow-xl overflow-hidden max-h-56 overflow-y-auto">
+          <div className="rounded-xl border border-foreground/15 bg-card shadow-3 overflow-clip max-h-56 overflow-y-auto">
             {options.map((opt) => (
               <button
                 key={opt}
@@ -335,7 +335,7 @@ export function AddResourceDialog({
     if (!isValid() || submitting) return
 
     setSubmitting(true)
-
+    try {
     const resource: SubmittedResource = {
       id: isEditMode && editData ? editData.id : genId(10),
       entries: entries.map(e => ({
@@ -365,6 +365,9 @@ export function AddResourceDialog({
 
     setOpen(false)
     handleReset()
+    } finally {
+      setSubmitting(false)
+    }
   }, [entries, platform, language, runType, resourceContent, resourceName, resourceNote, userId, username, userAvatar, isValid, submitting, onAdd, onEdit, handleReset, isEditMode, editData, setOpen])
 
   const canSubmit = isValid() && !submitting

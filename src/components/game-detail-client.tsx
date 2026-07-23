@@ -236,7 +236,7 @@ export default function GameDetailClient({
               aria-hidden="true"
               style={{
                 backgroundColor: "var(--tab-active, var(--background))",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
+                boxShadow: "var(--shadow-2)",
               }}
             />
             {TABS.map((t) => (

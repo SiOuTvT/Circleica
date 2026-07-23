@@ -26,7 +26,7 @@ const EmojiPanel = memo(function EmojiPanel({ onSelect, onClose }: { onSelect: (
     <>
       <div className="fixed inset-0 z-40 cursor-pointer" onClick={onClose} aria-hidden="true" />
       <div
-        className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-2xl"
+        className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl bg-card p-3 ring-1 ring-border shadow-4"
         role="dialog"
         aria-label="表情选择器"
       >
@@ -88,6 +88,7 @@ export function PostDetailModal({
   const [editCommentText, setEditCommentText] = useState("")
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const commentFileRef = useRef<HTMLInputElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   // 本地评论列表，支持提交/编辑后即时更新
   const [localComments, setLocalComments] = useState<Comment[]>(post?.comments ?? [])
@@ -109,6 +110,28 @@ export function PostDetailModal({
       return () => window.removeEventListener("keydown", handleEsc)
     }
   }, [showCommentEmoji])
+
+  // 弹窗打开时的焦点管理与键盘可达性（Esc 关闭 + Tab 焦点陷阱）
+  useEffect(() => {
+    if (!post) return
+    const node = dialogRef.current
+    node?.focus()
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") { onClose(); return }
+      if (e.key === "Tab" && node) {
+        const focusables = node.querySelectorAll<HTMLElement>(
+          'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'
+        )
+        if (focusables.length === 0) return
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [post, onClose])
 
   if (!post) return null
 
@@ -217,7 +240,7 @@ export function PostDetailModal({
   }, [editCommentText])
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background md:hidden">
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="帖子详情" className="fixed inset-0 z-50 flex flex-col bg-background md:hidden">
       {/* 顶部栏 */}
       <div className="flex items-center gap-3 border-b border-border px-4 py-3">
         <button onClick={onClose} aria-label="返回帖子列表" className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">

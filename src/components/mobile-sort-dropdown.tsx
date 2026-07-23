@@ -55,7 +55,7 @@ export function MobileSortDropdown({
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} strokeWidth={1.5} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-32 overflow-hidden rounded-lg py-1 shadow-lg bg-card border border-border">
+        <div className="absolute right-0 top-full z-50 mt-1 w-32 overflow-clip rounded-lg py-1 shadow-3 bg-card border border-border">
           {options.map(({ key, label }) => (
             <Link
               key={key}
