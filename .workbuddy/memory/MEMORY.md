@@ -32,6 +32,13 @@
 - 主题色是 Setting 级高杠杆：改 `SiteSetting.themeColor` 全站自动换肤逻辑早已通好，八个预设里薄荷绿为默认。
 - **绝不注入假数据做预览**：任何环境/离线/沙箱场景下，绝不用编造的游戏、公告、评论、用户、截图等假内容填充 UI。数据库不可达时只渲染页面自身已有的空状态/骨架框；需要演示数据请用户在本机填真实库。这是用户 2026-07-25 明确红线。
 
+## ESLint Warning 清扫里程碑（2026-07-25）
+- 96 warning → 57 warning（41% reduction），0 error，tsc 全绿
+- 清除 28 个 `no-explicit-any`（prisma proxy、galvelica mapCard、utils、repositories、search service）
+- 清除 11 个 misc（dead code、unused imports、exhaustive-deps 的 safe 项、img 禁用注释）
+- 保留 54 any（UI 组件层 API fetch 响应类型，需 per-component 接口）
+- 保留 3 misc（死 handler 级联 state var；post-detail-modal 循环风险）
+
 ## 环境限制（重要，影响所有 DB 相关验证）
 - **数据库不可达是「agent 环境网络层拦截 127.0.0.1:5432」，不是「沙箱专属」**：实测 `net.connect(5432)` 握手"连上"，但 `pg_isready` 报 `no response`、Prisma 直连报 `Can't reach database server`——即 5432 上有网络层代理只接 TCP 握手、掐真实 PG 协议。**此拦截对本 agent 环境内的一切进程都生效：沙箱进程、乃至 `dangerouslyDisableSandbox: true`（跑在沙箱隔离之外）的进程都连不上库**。已用 Prisma + pg_isready + 多端口探测三重确认。用户机器上 Postgres 进程确实在跑（PID 1986，`C:\Program Files\PostgreSQL\16\bin\postgres`），但它没在 5432 上监听 TCP（被拦截器占住），5433/5434 也未监听。
 - 后果与预览方案：agent 起的 dev server 能渲染 HTML 外壳、但所有 DB 查询失败。为此 `src/lib/prisma.ts` 给 `PrismaClient` 包了一层 Proxy——探测 `SELECT 1` 失败即进入「离线回退」：所有**读查询返回空结果**（findMany→[]、count→0、findUnique→null 等），页面照常渲染自身已有的**空状态/骨架框**（如游戏网格的"暂无游戏"、详情页的"游戏不存在"），**绝不注入任何假数据**。写操作在离线回退下被阻止抛错，避免静默假成功。真实环境连得上库则走真数据、完全不受影响。运行时要看真实库数据，仍须本机非沙箱终端跑 dev server。
