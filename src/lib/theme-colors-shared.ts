@@ -59,35 +59,3 @@ export function getHue(hex: string): number {
   return Math.round(h)
 }
 
-/* ── 主题变量类型 ── */
-export interface ThemeVars {
-  color: string
-  radius: number
-  shadowIntensity: number
-  alpha: number
-}
-
-/* ── 生成完整 CSS 变量（纯函数，可在服务端使用） ── */
-export function getThemeCSSVariables(vars: ThemeVars): string {
-  const { color, radius, shadowIntensity, alpha } = vars
-  const [r, g, b] = hexToRgb(color)
-  const hue = getHue(color)
-  const alphaDecimal = alpha / 100
-
-  return [
-    `--primary: ${hexToHsl(color)}`,
-    `--ring: ${hexToHsl(color)}`,
-    `--accent: ${hexToHsl(lightenHex(color, 0.45))}`,
-    `--clr-blue: ${darkenHex(color, 0.05)}`,
-    `--clr-sky: ${lightenHex(color, 0.2)}`,
-    `--clr-glow: rgba(${r}, ${g}, ${b}, ${alphaDecimal * 0.75})`,
-    `--clr-warm: #f59e0b`,
-    `--theme-radius: ${radius}px`,
-    `--theme-shadow-intensity: ${shadowIntensity / 100}`,
-    `--theme-alpha: ${alphaDecimal}`,
-    `--theme-hue: ${hue}`,
-    `--theme-r: ${r}`,
-    `--theme-g: ${g}`,
-    `--theme-b: ${b}`,
-  ].join("; ")
-}

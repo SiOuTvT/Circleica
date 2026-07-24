@@ -1,13 +1,13 @@
-/** 主题色预设（setup-wizard + theme-editor 共用） */
+/** 主题色预设（setup-wizard + theme-editor 共用）
+ *  精选 8 套，统一「深邃、微饱和、可作近黑底上小面积点缀」的克制逻辑。
+ *  薄荷绿为旗舰默认，呼应 Galvelica 的档案馆气质。 */
 export const THEME_PRESETS = [
-  { name: "peach", label: "暖桃", color: "#E0A87C", desc: "温柔 · 质感" },
-  { name: "rose", label: "柔玫瑰", color: "#e8789a", desc: "温暖 · 怀旧" },
-  { name: "lavender", label: "雾蓝紫", color: "#9B8EC4", desc: "梦幻 · 小众" },
-  { name: "copper", label: "暖铜", color: "#C49464", desc: "复古 · 高级" },
-  { name: "amber", label: "暖琥珀", color: "#D4A050", desc: "温暖 · 复古" },
-  { name: "mist", label: "雾蓝", color: "#7CA8C8", desc: "安静 · 治愈" },
-  { name: "tea", label: "茶绿", color: "#8CB888", desc: "清新 · 自然" },
+  { name: "mint", label: "薄荷", color: "#5FA8A0", desc: "安静 · 档案馆" },
+  { name: "dusk", label: "黛蓝", color: "#6E8CA8", desc: "沉静 · 夜色" },
+  { name: "haze", label: "雾紫", color: "#8E84B0", desc: "朦胧 · 梦境" },
+  { name: "ochre", label: "赭石", color: "#C0905E", desc: "温润 · 旧纸" },
+  { name: "pine", label: "松绿", color: "#5C8A7E", desc: "幽深 · 林间" },
+  { name: "rose", label: "灰玫", color: "#B08696", desc: "温柔 · 余晖" },
   { name: "slate", label: "烟灰蓝", color: "#8898A8", desc: "沉稳 · 内敛" },
-  { name: "mint", label: "薄荷", color: "#78C0B0", desc: "清凉 · 干净" },
-  { name: "apricot", label: "杏橘", color: "#E89868", desc: "活泼 · 温暖" },
+  { name: "amber", label: "暖琥珀", color: "#D4A050", desc: "温暖 · 复古" },
 ] as const

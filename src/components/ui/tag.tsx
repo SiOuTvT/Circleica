@@ -74,18 +74,30 @@ const variantStyles: Record<TagVariant, string> = {
  * 生成标签的内联颜色样式
  * 使用 CSS color-mix 确保文字颜色有足够的对比度
  */
+/**
+ * 生成标签的内联颜色样式
+ * 使用 CSS color-mix 确保文字颜色有足够的对比度。
+ * 同时支持 hex 色值与 CSS 变量（var(--xxx)）：
+ *   - hex 走原 hex-alpha 拼接，零回归
+ *   - var() 走 color-mix 透明度，使标签可跟随主题语义色（成功/警告等）
+ */
 function tagColorStyle(color?: string, variant?: TagVariant): React.CSSProperties | undefined {
   if (!color) return undefined
+  const isVar = color.startsWith("var(")
+  const withAlpha = (pct: number) =>
+    isVar
+      ? `color-mix(in srgb, ${color} ${pct}%, transparent)`
+      : `${color}${Math.round(pct * 2.55).toString(16).padStart(2, "0")}`
   if (variant === "badge") {
     return {
-      backgroundColor: `${color}20`,
+      backgroundColor: withAlpha(12.5),
       color: `color-mix(in srgb, ${color} 85%, #000)`,
     }
   }
   return {
-    backgroundColor: `${color}18`,
+    backgroundColor: withAlpha(9),
     color: `color-mix(in srgb, ${color} 80%, #000)`,
-    border: `1px solid ${color}30`,
+    border: `1px solid ${withAlpha(19)}`,
   }
 }
 

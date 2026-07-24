@@ -148,6 +148,8 @@ main > * {
      中文字体回退写死在主题中，确保始终有合理显示。 */
   --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
+  /* 编辑式衬线标题字族（对齐 Galvelica）；font-heading 工具类由此生效 */
+  --font-heading: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -176,6 +178,16 @@ main > * {
   /* ── 品牌色 Tailwind 令牌（= primary = clr-blue） ── */
   --color-brand: var(--primary);
   --color-brand-foreground: var(--primary-foreground);
+
+  /* ── 语义状态色（收束业务组件里的彩虹硬编码） ── */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error:   var(--error);
+  --color-info:    var(--info);
+  --color-success-soft: var(--success-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-error-soft:   var(--error-soft);
+  --color-info-soft:    var(--info-soft);
 }
 
 /* ── 深色主题（默认）— 内敛奢华 ── */
@@ -266,16 +278,16 @@ main > * {
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
   --theme-radius:  12px;
   --theme-alpha:   0.15;
-  --theme-r:       224;
+  --theme-r:       95;
   --theme-g:       168;
-  --theme-b:       124;
-  --theme-color:         #E0A87C;
-  --theme-color-hover:   #D09868;
-  --theme-color-active:  #C08858;
+  --theme-b:       160;
+  --theme-color:         #5FA8A0;
+  --theme-color-hover:   #518F88;
+  --theme-color-active:  #477E78;
   --theme-fg:            #18181b;
 
-  /* 主题色 — 暖桃，温柔质感的同人社区感 */
-  --primary:          #E0A87C;
+  /* 主题色 — 薄荷绿，档案馆气质（旗舰默认，呼应 Galvelica） */
+  --primary:          #5FA8A0;
   --primary-foreground: #0a0a0c;
   --clr-blue:   var(--primary);
   --clr-sky:    #f0a0b8;
@@ -327,7 +339,7 @@ main > * {
   --accent-foreground: #1a1a1e;
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
-  --primary:       #C89060;
+  --primary:       #5FA8A0;
 
   /* 语义色 - 浅色模式 */
   --success:       #059669;
@@ -382,6 +394,31 @@ main > * {
 
 .light .bg-destructive\/10 { background-color: rgba(239, 68, 68, 0.2) !important; }
 .light .text-destructive { color: #b91c1c !important; }
+
+/* ── 语义状态色（与 --success/--warning/--error/--info 对齐）亮色对比度 ── */
+.light .text-success { color: #047857 !important; }
+.light .text-warning { color: #b45309 !important; }
+.light .text-error   { color: #b91c1c !important; }
+.light .text-info    { color: #1d4ed8 !important; }
+.light .bg-success\/10 { background-color: var(--success-soft) !important; }
+.light .bg-warning\/10 { background-color: var(--warning-soft) !important; }
+.light .bg-error\/10   { background-color: var(--error-soft) !important; }
+.light .bg-info\/10    { background-color: var(--info-soft) !important; }
+
+/* ── 补全亮色模式主题动态变量（修复 --clr-blue/--clr-sky/--clr-glow/--theme-rgb 在亮色下缺失） ── */
+:root.light, .light {
+  --clr-blue:   var(--primary);
+  --clr-sky:    #e88aa6;
+  --clr-warm:   #b4842f;
+  --clr-glow:   rgba(95, 168, 160, 0.12);
+  --theme-r: 95;
+  --theme-g: 168;
+  --theme-b: 160;
+  --theme-color: #5FA8A0;
+  --theme-color-hover: #518F88;
+  --theme-color-active: #477E78;
+  --theme-fg: #18181b;
+}
 
 /* 头像占位符：浅色模式用深色文字 */
 .light .bg-primary\/80 { background-color: rgba(200, 144, 96, 0.9) !important; }
@@ -446,7 +483,11 @@ main > * {
   /* ── 标题层级 — 统一 Type Scale ── */
   /* Display=32px  h1=24px  h2=20px  h3=16px  h4=14px  h5/h6=12px */
   /* Body=15~16px(responsive)  Small=14px  Caption=12px */
-  /* 全部使用黑体 */
+  /* h1~h4 使用编辑式衬线标题（对齐 Galvelica），营造文献/档案馆气质 */
+  /* h5/h6 作为小标签保持黑体，避免微文字衬线可读性下降 */
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+  }
   h1 {
     line-height: 1.3;
     letter-spacing: -0.01em;

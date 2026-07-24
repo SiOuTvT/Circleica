@@ -46,7 +46,7 @@ const INITIAL: FormData = {
   siteLogo: "",
   placeholderImage: "",
   registrationEnabled: true,
-  themeColor: "#E0A87C",
+  themeColor: "#5FA8A0",
   tagGroupColors: Object.fromEntries(PRESET_TAG_GROUPS.map(g => [g.id, g.color])),
   username: "",
   email: "",

@@ -94,7 +94,7 @@ function ForumSidebarPosts() {
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{p.user.username}</span>
             {p.isSolved !== undefined && (
-              <Tag variant="badge" color={p.isSolved ? "#10b981" : "#f59e0b"}>
+              <Tag variant="badge" color={p.isSolved ? "var(--success)" : "var(--warning)"}>
                 {p.isSolved ? "已解决" : "未解决"}
               </Tag>
             )}

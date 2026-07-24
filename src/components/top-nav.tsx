@@ -311,7 +311,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                     {/* 印记信息区 */}
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
                       <span className="text-sm text-muted-foreground">印记</span>
-                      <span className="text-lg font-bold text-amber-400">{totalMarks}</span>
+                      <span className="text-lg font-bold text-warning">{totalMarks}</span>
                     </div>
 
                     {/* 功能菜单 */}
@@ -342,7 +342,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                         <ShieldAlert className="h-5 w-5 shrink-0" strokeWidth={2} />
                         NSFW 内容
                       </span>
-                      <div className={cn("relative h-6 w-11 rounded-full transition-colors", nsfw ? "bg-red-500/60" : "bg-muted")}>
+                      <div className={cn("relative h-6 w-11 rounded-full transition-colors", nsfw ? "bg-error/60" : "bg-muted")}>
                         <div className={cn("absolute top-0.5 h-5 w-5 rounded-full shadow transition-transform", nsfw ? "translate-x-5 bg-white" : "translate-x-0.5 bg-muted-foreground")} />
                       </div>
                     </button>

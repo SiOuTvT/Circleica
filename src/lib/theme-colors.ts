@@ -2,7 +2,6 @@
 
 import { darkenHex, getHue, hexToRgb, lightenHex } from "./theme-colors-shared"
 
-export { getThemeCSSVariables, type ThemeVars } from "./theme-colors-shared"
 
 /* ── applyThemeColor：设置 :root CSS 变量（需要浏览器环境） ── */
 export function applyThemeColor(hex: string, radius = 12, shadowIntensity = 50, alpha = 15) {

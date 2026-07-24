@@ -198,26 +198,32 @@ export default async function HomePage({
       {/* Hero + 手机端随机按钮 — 紧密组合 */}
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
-          {/* 品牌卡 - 桌面端：完整卡片 */}
-          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
-            <div className="flex flex-col flex-1 px-6 py-8 justify-between">
+          {/* 品牌卡 - 桌面端：编辑式 */}
+          <div className="relative hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
+            {/* 极淡薄荷光晕，提升高级感（不喧宾夺主） */}
+            <div
+              className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12), transparent 70%)" }}
+            />
+            <div className="relative flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
-                <h2 className="text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>
-                <p className="text-base text-muted-foreground mt-2">{siteDesc || "GalGame 同人世界的一站式入口"}</p>
+                <p className="text-xs font-medium tracking-[0.2em] text-[var(--clr-blue)] uppercase">视觉小说 · 同人 · 资源</p>
+                <h2 className="mt-3 text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>
+                <p className="mt-2 text-base text-muted-foreground">{siteDesc || "GalGame 同人世界的一站式入口"}</p>
               </div>
               {/* 统计行 */}
               <div className="flex gap-6">
                 <div>
-                  <p className="text-3xl font-bold text-foreground leading-none">{total}</p>
-                  <p className="text-sm text-muted-foreground mt-1.5">个游戏</p>
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">个游戏</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-foreground leading-none">{weekNewGames}</p>
-                  <p className="text-sm text-muted-foreground mt-1.5">本周新增</p>
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">本周新增</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-foreground leading-none">{todayCheckins}</p>
-                  <p className="text-sm text-muted-foreground mt-1.5">今日签到</p>
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">今日签到</p>
                 </div>
               </div>
               {/* 按钮行 */}
@@ -243,11 +249,16 @@ export default async function HomePage({
 
       {/* 游戏网格 */}
       <section>
-        <div className="mb-3 sm:mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold tracking-wide text-foreground">
-            {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
-          </h2>
-          <span className="text-sm text-muted-foreground">{total} 个</span>
+        <div className="mb-4 sm:mb-5">
+          <div className="flex items-end justify-between border-b border-border pb-3">
+            <div>
+              <p className="mb-1 text-xs font-medium tracking-[0.18em] text-[var(--clr-blue)] uppercase">资源大厅</p>
+              <h2 className="text-lg font-semibold tracking-wide text-foreground">
+                {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
+              </h2>
+            </div>
+            <span className="text-sm text-muted-foreground tabular-nums">{total} 个</span>
+          </div>
         </div>
         <Suspense fallback={<GameGridSkeleton />}>
           <GameGridServer tag={activeTag} q={q} nsfw={nsfw} page={page} />

@@ -137,7 +137,7 @@ export async function getSiteLogo(): Promise<string | null> {
 }
 
 export async function getThemeColor(): Promise<string> {
-  return getSiteSetting("themeColor", "#E0A87C")
+  return getSiteSetting("themeColor", "#5FA8A0")
 }
 
 // ── 公开配置（供 /api/site-settings 使用，不含敏感信息）──

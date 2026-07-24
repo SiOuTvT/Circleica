@@ -17,7 +17,7 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 const DEFAULT_SETTINGS = {
-  themeColor: "#E0A87C",
+  themeColor: "#5FA8A0",
   themeRadius: 12,
   themeShadowIntensity: 50,
   themeAlpha: 15,

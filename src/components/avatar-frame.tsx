@@ -97,9 +97,9 @@ function SlimeFrame({ size, className = "", children }: { size: number; classNam
       >
         <defs>
           <linearGradient id={`${id}-slime-ring-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#7DD3FC" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.8" />
+            <stop offset="0%" style={{ stopColor: "var(--clr-blue)" }} stopOpacity="0.8" />
+            <stop offset="50%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 65%, #ffffff)" }} stopOpacity="0.6" />
+            <stop offset="100%" style={{ stopColor: "var(--clr-blue)" }} stopOpacity="0.8" />
           </linearGradient>
           <filter id={`${id}-slime-ring-glow`}>
             <feGaussianBlur stdDeviation="1" />
@@ -107,7 +107,7 @@ function SlimeFrame({ size, className = "", children }: { size: number; classNam
         </defs>
         <circle cx="50" cy="53" r="38" fill="none" stroke={`url(#${id}-slime-ring-grad)`} strokeWidth="2" filter={`url(#${id}-slime-ring-glow)`} opacity="0.4" />
         <circle cx="50" cy="53" r="36" fill="none" stroke={`url(#${id}-slime-ring-grad)`} strokeWidth="1.8" />
-        <circle cx="50" cy="53" r="34.5" fill="none" stroke="#7DD3FC" strokeWidth="0.4" opacity="0.4" />
+        <circle cx="50" cy="53" r="34.5" fill="none" style={{ stroke: "color-mix(in srgb, var(--clr-blue) 70%, #ffffff)" }} strokeWidth="0.4" opacity="0.4" />
       </svg>
 
       <SlimeOnCorner size={slimeSize} containerSize={containerSize} />
@@ -131,24 +131,24 @@ function SlimeOnCorner({ size, containerSize: _containerSize }: { size: number; 
       <svg viewBox="0 0 80 80" width={size} height={size}>
         <defs>
           <radialGradient id={`${id}-slime-body`} cx="45%" cy="35%" r="55%">
-            <stop offset="0%" stopColor="#7DD3FC" />
-            <stop offset="40%" stopColor="#38BDF8" />
-            <stop offset="100%" stopColor="#0284C7" />
+            <stop offset="0%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 70%, #ffffff)" }} />
+            <stop offset="40%" style={{ stopColor: "var(--clr-blue)" }} />
+            <stop offset="100%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 75%, #000000)" }} />
           </radialGradient>
           <radialGradient id={`${id}-slime-highlight`} cx="35%" cy="25%" r="30%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </radialGradient>
           <radialGradient id={`${id}-slime-shadow`} cx="50%" cy="80%" r="40%">
-            <stop offset="0%" stopColor="#0369A1" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#0369A1" stopOpacity="0" />
+            <stop offset="0%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 60%, #000000)" }} stopOpacity="0.5" />
+            <stop offset="100%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 60%, #000000)" }} stopOpacity="0" />
           </radialGradient>
         </defs>
 
         <path
           d="M40 10 C55 10, 70 22, 70 40 C70 52, 65 60, 60 65 Q52 72, 40 72 Q28 72, 20 65 C15 60, 10 52, 10 40 C10 22, 25 10, 40 10Z"
           fill={`url(#${id}-slime-body)`}
-          stroke="#0EA5E9"
+          style={{ stroke: "color-mix(in srgb, var(--clr-blue) 70%, #000000)" }}
           strokeWidth="0.8"
         >
           <animate
@@ -176,13 +176,13 @@ function SlimeOnCorner({ size, containerSize: _containerSize }: { size: number; 
 
         <path d="M35 48 Q40 53 45 48" fill="none" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
 
-        <ellipse cx="26" cy="45" rx="4" ry="2.5" fill="#F472B6" opacity="0.3" />
-        <ellipse cx="54" cy="45" rx="4" ry="2.5" fill="#F472B6" opacity="0.3" />
+        <ellipse cx="26" cy="45" rx="4" ry="2.5" style={{ fill: "var(--clr-sky, #f0a0b8)" }} opacity="0.3" />
+        <ellipse cx="54" cy="45" rx="4" ry="2.5" style={{ fill: "var(--clr-sky, #f0a0b8)" }} opacity="0.3" />
 
-        <path d="M28 14 L25 4 L32 12" fill="#38BDF8" stroke="#0EA5E9" strokeWidth="0.5" />
-        <path d="M48 12 L55 4 L52 14" fill="#38BDF8" stroke="#0EA5E9" strokeWidth="0.5" />
-        <path d="M27 13 L26 6 L31 11" fill="#7DD3FC" opacity="0.5" />
-        <path d="M49 11 L54 6 L51 13" fill="#7DD3FC" opacity="0.5" />
+        <path d="M28 14 L25 4 L32 12" style={{ fill: "var(--clr-blue)", stroke: "color-mix(in srgb, var(--clr-blue) 70%, #000000)" }} strokeWidth="0.5" />
+        <path d="M48 12 L55 4 L52 14" style={{ fill: "var(--clr-blue)", stroke: "color-mix(in srgb, var(--clr-blue) 70%, #000000)" }} strokeWidth="0.5" />
+        <path d="M27 13 L26 6 L31 11" style={{ fill: "color-mix(in srgb, var(--clr-blue) 70%, #ffffff)" }} opacity="0.5" />
+        <path d="M49 11 L54 6 L51 13" style={{ fill: "color-mix(in srgb, var(--clr-blue) 70%, #ffffff)" }} opacity="0.5" />
 
         <circle cx="62" cy="20" r="2" fill="#7DD3FC" opacity="0.4">
           <animate attributeName="cy" values="20;16;20" dur="2.5s" repeatCount="indefinite" />
@@ -238,17 +238,18 @@ export function AvatarFrameMini({
         <svg viewBox="0 0 100 100" width={containerSize} height={containerSize}>
           <defs>
             <linearGradient id="slime-mini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0.7" />
+              <stop offset="0%" style={{ stopColor: "var(--clr-blue)" }} stopOpacity="0.7" />
+              <stop offset="100%" style={{ stopColor: "color-mix(in srgb, var(--clr-blue) 70%, #ffffff)" }} stopOpacity="0.7" />
             </linearGradient>
           </defs>
-          <circle cx="50" cy="53" r="36" fill="none" stroke="url(#slime-mini-grad)" strokeWidth="2" />
+          <circle cx="50" cy="53" r="36" fill="none" style={{ stroke: "var(--clr-blue)" }} strokeWidth="2" />
         </svg>
         <div style={{ position: 'absolute', right: -2, top: -4, width: size * 0.5, height: size * 0.5 }}>
           <svg viewBox="0 0 40 40" width="100%" height="100%">
             <path
               d="M20 5 C28 5, 35 12, 35 20 C35 28, 30 33, 25 35 Q20 38, 15 35 C10 33, 5 28, 5 20 C5 12, 12 5, 20 5Z"
-              fill="#38BDF8" stroke="#0EA5E9" strokeWidth="0.5"
+              style={{ fill: "var(--clr-blue)", stroke: "color-mix(in srgb, var(--clr-blue) 70%, #000000)" }}
+              strokeWidth="0.5"
             />
             <circle cx="15" cy="20" r="3" fill="white" />
             <circle cx="15.5" cy="20" r="2" fill="#1E293B" />
