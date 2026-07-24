@@ -1,6 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client"
 import { logger } from "@/lib/logger"
-import { getMockResult } from "@/lib/prisma-mock"
 
 /**
  * Prisma Client 单例
@@ -57,13 +56,13 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * 数据库不可达时的自动回退（示例数据）。
+ * 数据库不可达时的离线回退（空结果，不编造任何内容）。
  *
  * 机制：模块加载时发起一次轻量探测（$queryRaw SELECT 1）。
  * - 探测成功 → 全程使用真实 Prisma（生产/本机有库时，行为不变）。
- * - 探测失败（沙箱/离线）→ 所有读查询改走 src/lib/prisma-mock 的示例数据，
- *   页面照常渲染，不再整页「数据加载失败」。
- * 另外对每个真实查询包了 .catch：即便探测误判，运行时首个查询失败也会自动切到示例数据。
+ * - 探测失败（沙箱/离线）→ 所有「读查询」返回空结果（findMany→[]、count→0、
+ *   findUnique→null 等），页面照常渲染自身已有的空状态/骨架框，不再整页报错，
+ *   也绝不注入假数据。写操作在离线回退下会被阻止并抛错，避免静默假成功。
  */
 const enabled = { mock: false }
 let probePromise: Promise<boolean> | null = null
@@ -81,6 +80,30 @@ function ensureProbe(): Promise<boolean> {
   return probePromise!
 }
 
+/**
+ * 离线回退时各读操作的空结果。写操作/未知方法直接抛错，避免静默假成功。
+ */
+function getEmptyResult(modelName: string, method: string): any {
+  switch (method) {
+    case "findMany":
+    case "findRaw":
+    case "deleteMany":
+      return []
+    case "count":
+      return 0
+    case "aggregate":
+    case "groupBy":
+      return { _count: { _all: 0 }, _sum: {}, _avg: {}, _min: {}, _max: {} }
+    case "findUnique":
+    case "findFirst":
+    case "findUniqueOrThrow":
+    case "findFirstOrThrow":
+      return null
+    default:
+      throw new Error(`[db-offline] 阻止写操作 ${modelName}.${method}（离线回退仅支持读查询）`)
+  }
+}
+
 function buildModelProxy(realModel: any, modelName: string, forceMock = false) {
   const cache = new Map<string, any>()
   return new Proxy(realModel, {
@@ -92,11 +115,11 @@ function buildModelProxy(realModel: any, modelName: string, forceMock = false) {
           if (ok && !enabled.mock && !forceMock) {
             return fn(...callArgs).catch((err: any) => {
               enabled.mock = true
-              logger.db.warn(`[mock-fallback] ${modelName}.${methodName} 失败，回退示例数据`, err?.message)
-              return getMockResult(modelName, methodName, callArgs)
+              logger.db.warn(`[db-offline] ${modelName}.${methodName} 失败，回退空结果`, err?.message)
+              return getEmptyResult(modelName, methodName)
             })
           }
-          return getMockResult(modelName, methodName, callArgs)
+          return getEmptyResult(modelName, methodName)
         })
     },
   })
@@ -132,7 +155,7 @@ function buildPrismaProxy(real: any, forceMock = false) {
               }
             }
             if (Array.isArray(arg)) return []
-            if (typeof arg === "function") return arg(buildPrismaProxy(real, true))
+            if (typeof arg === "function") return []
             return []
           })
       }

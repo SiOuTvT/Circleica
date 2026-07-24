@@ -8,7 +8,6 @@ import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
 import { toShanghaiDate } from "@/lib/date"
-import Link from "next/link"
 import { Suspense } from "react"
 
 export const revalidate = 60
@@ -114,7 +113,6 @@ export default async function HomePage({
   let todayCheckins = 0
   let weekNewGames = 0
   let announcements: { id: string; title: string; summary: string; content: string; imageUrl: string; link: string; createdAt: string; authorName: string; authorAvatar: string; isPinned: boolean }[] = []
-  let dbError = false
 
   // 获取站点品牌信息
   const [siteName, siteDesc] = await Promise.all([getSiteName(), getSiteDescription()])
@@ -178,17 +176,7 @@ export default async function HomePage({
       await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)
     }
   } catch (error) {
-    logger.db.error("[HomePage] Database query failed", error)
-    dbError = true
-  }
-
-  if (dbError) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <p className="text-lg text-muted-foreground">数据加载失败，请稍后重试</p>
-        <Link href="/" className="text-sm text-primary hover:underline">刷新页面</Link>
-      </div>
-    )
+    logger.db.error("[HomePage] Database query failed (离线回退空数据)", error)
   }
 
   return (
