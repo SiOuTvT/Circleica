@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
         : []),
     ],
     formats: ["image/avif", "image/webp"],
+    // 允许 SVG（示例数据回退层用 data URI SVG 作封面/截图，确保设计预览可见）
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
   },
   poweredByHeader: false,
   output: "standalone",
