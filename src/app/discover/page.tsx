@@ -330,15 +330,15 @@ export default async function DiscoverPage() {
       {/* 时间轴 */}
       <DiscoverySection title="时间轴" description="按发行年份回顾" icon={CalendarDays} actionHref="/games">
         {data && data.years.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {data.years.map((y) => (
               <Link
                 key={y.year}
                 href={`/games?year=${y.year}`}
-                className="flex items-baseline gap-1.5 rounded-xl bg-muted px-3 py-2 transition-colors hover:bg-muted/70 hover:ring-1 hover:ring-[var(--theme-color)]/30"
+                className="group flex flex-col items-center gap-0.5 rounded-2xl bg-card px-5 py-3 ring-1 ring-border/50 transition-all duration-300 hover:ring-[var(--theme-color)]/40 hover:shadow-sm hover:-translate-y-0.5"
               >
-                <span className="text-sm font-semibold tabular-nums text-foreground">{y.year}</span>
-                <span className="text-xs tabular-nums text-muted-foreground">{y.count}</span>
+                <span className="text-lg font-bold tabular-nums text-foreground transition-colors group-hover:text-[var(--theme-color)]">{y.year}</span>
+                <span className="text-xs tabular-nums text-muted-foreground/60">{y.count} 部</span>
               </Link>
             ))}
           </div>
