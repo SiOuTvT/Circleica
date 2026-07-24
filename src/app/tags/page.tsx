@@ -46,7 +46,7 @@ export default async function TagsPage() {
 
       {/* 分类浏览 */}
       <section>
-        <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+        <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
           <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
