@@ -6,6 +6,7 @@ import {
   Compass,
   Home,
   Layers,
+  Library,
   Tag,
   Users,
 } from "lucide-react"
@@ -53,6 +54,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     }
   }, [randomLoading, router])
 
+  const isGalvelica = pathname === "/galvelica" || pathname.startsWith("/galvelica/")
+
   // 关闭移动端侧边栏当路由变化（用 ref 避免初次渲染误关）
   const prevPathname = useRef(pathname)
   useEffect(() => {
@@ -88,6 +91,35 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
         }}
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
+          {/* ── Galvelica 特色入口：视觉权重高于普通菜单 ── */}
+          <Link
+            href="/galvelica"
+            className={cn(
+              "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden",
+              collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-base" : "gap-3 px-3",
+              isGalvelica
+                ? "bg-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)]"
+                : "bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
+            )}
+            title={collapsed ? "Galvelica · 同人视觉小说资料库" : undefined}
+          >
+            {/* 左侧强调竖条 */}
+            <span
+              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]"
+              aria-hidden
+            />
+            <Library className="h-5 w-5 shrink-0" strokeWidth={2.2} />
+            {!collapsed && (
+              <span className="flex min-w-0 flex-col leading-tight">
+                <span className="truncate text-[15px] tracking-wide">Galvelica</span>
+                <span className="truncate text-[10px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
+              </span>
+            )}
+          </Link>
+
+          {/* 分隔，区分特色入口与普通导航 */}
+          <div className="mx-1 my-1 h-px bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]" aria-hidden />
+
           {NAV_SECTIONS.map((section) => (
             <div key={section.label}>
               {section.items.map(({ icon: Icon, label, href }) => {

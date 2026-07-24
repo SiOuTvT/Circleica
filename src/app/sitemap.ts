@@ -15,6 +15,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/rules`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/credits`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.2 },
+    // Galvelica 资料库子站
+    { url: `${BASE}/galvelica`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/galvelica/works`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
+    { url: `${BASE}/galvelica/tags`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/galvelica/years`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
+    { url: `${BASE}/galvelica/studios`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
   ]
 
   try {

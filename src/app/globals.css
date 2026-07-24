@@ -1503,3 +1503,105 @@ body[data-has-bottom-nav="true"] {
   opacity: 0.6;
 }
 
+/* ═══════════════════════════════════════════════════════
+   Galvelica — 同人视觉小说资料库子站
+   定位：档案馆 / Wiki / 收藏。安静、克制、有收藏价值。
+   设计：沿用全站 token，但拥有独立辨识度（铜绿主色 + 衬线标题 + 微弱纸感）
+   ═══════════════════════════════════════════════════════ */
+
+/* 全局可见的 Galvelica 主色（侧边栏入口位于 .galvelica-root 之外也可用） */
+:root {
+  --gal-accent: #5FA8A0;        /* 铜绿 / 安静的档案馆绿 */
+  --gal-accent-strong: #4E8E87;
+  --gal-accent-soft: rgba(95, 168, 160, 0.12);
+  --gal-accent-softer: rgba(95, 168, 160, 0.06);
+  --gal-paper: color-mix(in srgb, var(--background) 96%, #0c1413);
+}
+.light {
+  --gal-paper: color-mix(in srgb, var(--background) 97%, #e9f1ef);
+}
+
+/* ── 子站作用域：继承全站 token，仅替换主色系与排版气质 ── */
+.galvelica-root {
+  --primary: #5FA8A0;
+  --primary-foreground: #06201d;
+  --clr-blue: #5FA8A0;
+  --clr-sky: #8fc7bf;
+  --theme-r: 95;
+  --theme-g: 168;
+  --theme-b: 160;
+  --theme-color: #5FA8A0;
+  --theme-color-hover: #4E8E87;
+  --theme-color-active: #457f79;
+  --theme-fg: #06201d;
+}
+.light .galvelica-root {
+  --primary: #3f8e86;
+  --primary-foreground: #ffffff;
+  --clr-blue: #3f8e86;
+  --clr-sky: #6fb3aa;
+  --theme-r: 63;
+  --theme-g: 142;
+  --theme-b: 134;
+  --theme-color: #3f8e86;
+  --theme-color-hover: #357a73;
+  --theme-color-active: #2d6862;
+  --theme-fg: #ffffff;
+}
+
+/* Galvelica 衬线标题：营造文献 / 档案气质 */
+.galvelica-serif {
+  font-family: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+/* Galvelica 品牌字标 */
+.galvelica-wordmark {
+  font-family: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.06em;
+}
+
+/* 子站顶部细描边强调（不喧宾夺主） */
+.galvelica-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gal-accent) 40%, transparent), transparent);
+}
+
+/* 子站内部导航项 */
+.galvelica-navlink {
+  color: var(--muted-foreground);
+  transition: color var(--duration-normal) ease, background-color var(--duration-normal) ease;
+}
+.galvelica-navlink:hover {
+  color: var(--foreground);
+  background-color: var(--accent);
+}
+.galvelica-navlink[data-active="true"] {
+  color: var(--gal-accent);
+  background-color: var(--gal-accent-soft);
+}
+
+/* Galvelica 卡片：沿用 .game-card 的悬浮手感，但更克制（仅描边 / 光晕，无位移） */
+.galvelica-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease;
+}
+.galvelica-card:hover {
+  border-color: color-mix(in srgb, var(--gal-accent) 45%, var(--border));
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Galvelica 标签云：跟随铜绿主色 */
+.galvelica-tag {
+  background-color: var(--gal-accent-soft);
+  color: var(--gal-accent);
+  border: 1px solid color-mix(in srgb, var(--gal-accent) 28%, transparent);
+  transition: background-color var(--duration-normal) ease, border-color var(--duration-normal) ease;
+}
+.galvelica-tag:hover {
+  background-color: color-mix(in srgb, var(--gal-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--gal-accent) 45%, transparent);
+}
+
