@@ -450,3 +450,113 @@ export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
     count: t._count.games,
   }
 }
+
+/* ── 本馆札记 / 专题策划 / 今日缘分 所需数据 ────────── */
+
+function dateKeyOf(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+function hashString(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) | 0
+  }
+  return Math.abs(h)
+}
+
+/** 按日期确定性抽取一部作品（今日缘分）。同一天结果稳定，跨天变化。 */
+export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
+  const key = cacheKey("galvelica", "daily-pick", dateKeyOf(new Date()))
+  const cached = await cache.get<GalvelicaWorkCard | null>(key)
+  if (cached) return cached
+
+  const count = await prisma.game.count({ where: { isPublished: true } })
+  if (!count) {
+    await cache.set(key, null, GAL_CACHE_TTL)
+    return null
+  }
+  const idx = hashString(dateKeyOf(new Date())) % count
+  const g = await prisma.game.findFirst({
+    where: { isPublished: true },
+    select: workCardSelect(),
+    orderBy: { serialId: "asc" },
+    skip: idx,
+    take: 1,
+  })
+  const item = g ? mapCard(g) : null
+  await cache.set(key, item, GAL_CACHE_TTL)
+  return item
+}
+
+/** 按名称解析标签（专题链接构造用） */
+export async function getTagByName(name: string): Promise<GalvelicaTag | null> {
+  const t = await prisma.tag.findFirst({
+    where: { name: { equals: name, mode: "insensitive" }, isVisible: true },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { games: true } } },
+  })
+  if (!t) return null
+  return {
+    id: t.id,
+    name: t.name,
+    color: t.color,
+    groupName: t.group?.name ?? null,
+    groupColor: t.group?.color ?? null,
+    count: t._count.games,
+  }
+}
+
+export interface FeaturedTheme {
+  key: string
+  kicker: string
+  title: string
+  blurb: string
+  tagId: string
+  tagName: string
+  href: string
+}
+
+/** 编辑视角的专题策划——链接到真实的标签筛选视图，而非机械的标签云堆叠 */
+const THEME_DEFS: { key: string; kicker: string; title: string; blurb: string; tagName: string }[] = [
+  {
+    key: "love",
+    kicker: "专栏 01",
+    title: "恋爱物语",
+    blurb: "青涩、纠结与心动，同人创作者最钟情的题材之一。",
+    tagName: "恋爱",
+  },
+  {
+    key: "multiline",
+    kicker: "专栏 02",
+    title: "多线叙事",
+    blurb: "分支、选择与多重结局——结构本身即是乐趣。",
+    tagName: "多结局",
+  },
+  {
+    key: "adv",
+    kicker: "专栏 03",
+    title: "ADV 巡礼",
+    blurb: "文字冒险的原点与流变，从一部经典读起。",
+    tagName: "ADV",
+  },
+]
+
+export async function getFeaturedThemes(): Promise<FeaturedTheme[]> {
+  const key = cacheKey("galvelica", "featured-themes")
+  const cached = await cache.get<FeaturedTheme[]>(key)
+  if (cached) return cached
+
+  const themes: FeaturedTheme[] = []
+  for (const def of THEME_DEFS) {
+    const tag = await getTagByName(def.tagName)
+    if (!tag) continue
+    themes.push({
+      ...def,
+      tagId: tag.id,
+      tagName: tag.name,
+      href: `/galvelica/works?tags=${encodeURIComponent(tag.id)}`,
+    })
+  }
+  await cache.set(key, themes, GAL_CACHE_TTL)
+  return themes
+}
