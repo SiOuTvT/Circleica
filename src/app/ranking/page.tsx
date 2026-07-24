@@ -4,6 +4,7 @@ import { Trophy } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, GameListRow, type GameCardData } from "@/components/game-card"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -98,9 +99,9 @@ async function getRanked(dim: DimKey): Promise<RankedItem[]> {
 }
 
 const MEDALS = [
-  { bg: "bg-amber-400", fg: "text-white", ring: "ring-amber-300/60" },
-  { bg: "bg-slate-300", fg: "text-slate-800", ring: "ring-slate-200/60" },
-  { bg: "bg-orange-700", fg: "text-white", ring: "ring-orange-600/50" },
+  { border: "ring-amber-400/70", bg: "bg-amber-400", fg: "text-white", label: "bg-amber-400 text-white" },
+  { border: "ring-slate-300/70", bg: "bg-slate-300", fg: "text-slate-800", label: "bg-slate-300 text-slate-800" },
+  { border: "ring-orange-600/60", bg: "bg-orange-700", fg: "text-white", label: "bg-orange-700 text-white" },
 ]
 
 export default async function RankingPage({
@@ -125,7 +126,7 @@ export default async function RankingPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* 页头 */}
+      {/* ── 页头 ── */}
       <header className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
           <Trophy className="h-6 w-6" strokeWidth={1.5} />
@@ -136,7 +137,7 @@ export default async function RankingPage({
         </div>
       </header>
 
-      {/* 维度切换 */}
+      {/* ── 维度切换 ── */}
       <nav className="mt-6 flex gap-1 rounded-xl bg-muted p-1">
         {DIMS.map((d) => (
           <Link
@@ -158,59 +159,58 @@ export default async function RankingPage({
         <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
           <Trophy className="mx-auto h-10 w-10 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="mt-3 text-sm text-muted-foreground">暂无榜单数据</p>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            收录更多作品后，这里会按维度展示排行
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground/70">收录更多作品后，这里会按维度展示排行</p>
         </div>
       ) : (
         <>
+          {/* ── TOP 3 ── */}
           {top3.length > 0 && (
-            <section className="mt-8 grid gap-4 sm:grid-cols-3">
+            <section className="mt-8 grid gap-5 sm:grid-cols-3">
               {top3.map((item, i) => (
-                <div key={item.card.id} className="relative">
+                <div key={item.card.id} className="relative flex flex-col items-center">
+                  {/* 奖牌 */}
                   <div
                     className={cn(
-                      "absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ring-2",
+                      "absolute -top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ring-4 shadow-lg",
                       MEDALS[i].bg,
                       MEDALS[i].fg,
-                      MEDALS[i].ring,
+                      MEDALS[i].border,
                     )}
                   >
                     {i + 1}
                   </div>
-                  <GameCard game={item.card} />
-                  <div className="mt-2 text-center">
-                    <span className="text-lg font-semibold tabular-nums">
-                      {item.label}
-                    </span>
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      {item.unit}
-                    </span>
+                  {/* 封面 */}
+                  <div className="w-full max-w-[200px]">
+                    <GameCard game={item.card} />
+                  </div>
+                  <div className="mt-3 text-center">
+                    <span className="text-xl font-bold tabular-nums">{item.label}</span>
+                    <span className="ml-1.5 text-xs text-muted-foreground">{item.unit}</span>
                   </div>
                 </div>
               ))}
             </section>
           )}
 
+          {/* ── 第 4 名及以后 ── */}
           {rest.length > 0 && (
-            <section className="mt-6 flex flex-col gap-2">
+            <section className="mt-8 space-y-1">
               {rest.map((item, i) => {
                 const rank = i + 4
                 return (
-                  <div key={item.card.id} className="flex items-center gap-3">
-                    <span className="w-9 shrink-0 text-center text-sm font-semibold tabular-nums text-muted-foreground">
+                  <div
+                    key={item.card.id}
+                    className="flex items-center gap-4 rounded-xl px-3 py-2.5 transition-colors hover:bg-muted/50"
+                  >
+                    <span className="w-8 shrink-0 text-center text-sm font-bold tabular-nums text-muted-foreground/40">
                       {String(rank).padStart(2, "0")}
                     </span>
                     <div className="min-w-0 flex-1">
                       <GameListRow game={item.card} />
                     </div>
-                    <div className="hidden w-20 shrink-0 text-right sm:block">
-                      <div className="text-sm font-semibold tabular-nums">
-                        {item.label}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {item.unit}
-                      </div>
+                    <div className="hidden w-24 shrink-0 text-right sm:block">
+                      <div className="text-sm font-semibold tabular-nums">{item.label}</div>
+                      <div className="text-xs text-muted-foreground/60">{item.unit}</div>
                     </div>
                   </div>
                 )
