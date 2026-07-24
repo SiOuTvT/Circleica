@@ -203,7 +203,7 @@ export default async function DiscoverPage() {
   const data = await getDiscoveryData()
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* 页头 */}
       <header className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
