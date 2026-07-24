@@ -12,8 +12,6 @@
  * 3. 在 PROVIDER_FIELDS 中声明配置字段
  */
 
-import { EMAIL } from "@/lib/config"
-
 // ── 类型 ──────────────────────────────
 
 export interface EmailPayload {
@@ -35,53 +33,11 @@ export interface EmailProvider {
 }
 
 // ── Provider 字段描述（供 Admin UI 动态渲染）────
+// 注意：PROVIDER_FIELDS / PROVIDER_LABELS 已迁至 email-providers-meta.ts（纯客户端常量，
+// 避免把含 Node 内置模块的 SMTP 实现打进浏览器 bundle）。此处仅做再导出以保持服务端引用兼容。
 
-export interface ProviderField {
-  key: string
-  label: string
-  type: "text" | "secret" | "number"
-  placeholder: string
-  required: boolean
-  /** 仅当指定 mode 时显示（用于 Brevo API/SMTP 模式切换） */
-  showIf?: string
-}
-
-export const PROVIDER_FIELDS: Record<string, ProviderField[]> = {
-  resend: [
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "re_xxxxxxxxxxxx", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
-  ],
-  brevo: [
-    // mode 字段决定使用 API 还是 SMTP Relay
-    { key: "mode", label: "连接方式", type: "text", placeholder: "api", required: true },
-    // API 模式字段
-    { key: "apiKey", label: "API Key", type: "secret", placeholder: "xkeysib-xxxxxxxxxxxx", required: true, showIf: "api" },
-    // SMTP Relay 模式字段
-    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp-relay.brevo.com", required: true, showIf: "smtp" },
-    { key: "port", label: "端口", type: "number", placeholder: "587", required: true, showIf: "smtp" },
-    { key: "username", label: "登录邮箱", type: "text", placeholder: "your@brevo-account.com", required: true, showIf: "smtp" },
-    { key: "password", label: "Master Password", type: "secret", placeholder: "Brevo SMTP 专用密码", required: true, showIf: "smtp" },
-    // 共同字段
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
-  ],
-  smtp: [
-    { key: "host", label: "SMTP 主机", type: "text", placeholder: "smtp.example.com", required: true },
-    { key: "port", label: "端口", type: "number", placeholder: "587", required: true },
-    { key: "username", label: "用户名", type: "text", placeholder: "user@example.com", required: true },
-    { key: "password", label: "密码", type: "secret", placeholder: "••••••", required: true },
-    { key: "fromName", label: "发件人名称", type: "text", placeholder: "Circleica", required: false },
-    { key: "fromEmail", label: "发件邮箱", type: "text", placeholder: EMAIL.DEFAULT_FROM_EMAIL, required: false },
-  ],
-}
-
-/** 所有已注册的 provider label 映射 */
-export const PROVIDER_LABELS: Record<string, string> = {
-  resend: "Resend",
-  brevo: "Brevo",
-  smtp: "通用 SMTP",
-}
+export type { ProviderField } from "./email-providers-meta"
+export { PROVIDER_FIELDS, PROVIDER_LABELS } from "./email-providers-meta"
 
 // ── 工具函数 ──────────────────────────
 
