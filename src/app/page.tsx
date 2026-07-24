@@ -20,7 +20,16 @@ function GameGridSkeleton() {
   )
 }
 
-async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; nsfw: boolean; page: number }) {
+type SortKey = "newest" | "popular" | "mostFaved"
+type ViewKey = "grid" | "list"
+
+const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favoriteCount?: "desc" }> = {
+  newest: { createdAt: "desc" },
+  popular: { viewCount: "desc" },
+  mostFaved: { favoriteCount: "desc" },
+}
+
+async function GameGridServer({ tag, q, nsfw, sort = "newest", view = "grid", page }: { tag: string; q: string; nsfw: boolean; sort?: SortKey; view?: ViewKey; page: number }) {
   const where = buildGameSearchFilter({ q, tag, nsfw })
   const GAMES_PER_PAGE = 24
   const skip = (page - 1) * GAMES_PER_PAGE
@@ -28,7 +37,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
   const [games, total] = await Promise.all([
     prisma.game.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: ORDER_BY[sort],
       skip,
       take: GAMES_PER_PAGE,
       select: {
@@ -47,7 +56,7 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
   })
 
   if (!games.length) {
-    return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} page={page} />
+    return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
   }
 
   const placeholder = await getSiteSetting("default_placeholder_image")
@@ -93,18 +102,22 @@ async function GameGridServer({ tag, q, nsfw, page }: { tag: string; q: string; 
     }
   })
 
-  return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} page={page} />
+  return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
 }
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; nsfw?: string; page?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; nsfw?: string; sort?: string; view?: string; page?: string }>
 }) {
   const sp        = await searchParams
   const q         = sp.q?.trim() || ""
   const activeTag = sp.tag || "全部"
   const nsfw      = sp.nsfw === "1"
+  const VALID_SORTS = ["newest", "popular", "mostFaved"] as const
+  const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
+  const VALID_VIEWS = ["grid", "list"] as const
+  const view = VALID_VIEWS.includes(sp.view as ViewKey) ? (sp.view as ViewKey) : "grid"
   const page      = Math.max(1, parseInt(sp.page || "1"))
   const GAMES_PER_PAGE = 24
   const skip      = (page - 1) * GAMES_PER_PAGE
@@ -232,19 +245,18 @@ export default async function HomePage({
 
       {/* 游戏网格 */}
       <section>
-        <div className="mb-4 sm:mb-5">
-          <div className="flex items-end justify-between border-b border-border pb-3">
-            <div>
-              <p className="mb-1 text-xs font-medium tracking-[0.18em] text-[var(--clr-blue)] uppercase">资源大厅</p>
-              <h2 className="text-lg font-semibold tracking-wide text-foreground">
-                {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
-              </h2>
+          <div className="mb-4 sm:mb-5">
+            <div className="flex items-end justify-between border-b border-border pb-3">
+              <div>
+                <p className="mb-1 text-xs font-medium tracking-[0.18em] text-[var(--clr-blue)] uppercase">资源大厅</p>
+                <h2 className="text-lg font-semibold tracking-wide text-foreground">
+                  {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
+                </h2>
+              </div>
             </div>
-            <span className="text-sm text-muted-foreground tabular-nums">{total} 个</span>
           </div>
-        </div>
         <Suspense fallback={<GameGridSkeleton />}>
-          <GameGridServer tag={activeTag} q={q} nsfw={nsfw} page={page} />
+          <GameGridServer tag={activeTag} q={q} nsfw={nsfw} sort={sort} view={view} page={page} />
         </Suspense>
       </section>
 

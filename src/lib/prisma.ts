@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from "@prisma/client"
 import { logger } from "@/lib/logger"
+import { ServiceUnavailableError } from "@/lib/errors"
 
 /**
  * Prisma Client 单例
@@ -100,7 +101,7 @@ function getEmptyResult(modelName: string, method: string): any {
     case "findFirstOrThrow":
       return null
     default:
-      throw new Error(`[db-offline] 阻止写操作 ${modelName}.${method}（离线回退仅支持读查询）`)
+      throw new ServiceUnavailableError("数据库未连接，服务暂时不可用，写操作已阻止")
   }
 }
 
@@ -138,10 +139,20 @@ function buildPrismaProxy(real: any, forceMock = false) {
     get(target, prop: string) {
       if (prop === "$queryRaw" || prop === "$executeRaw") {
         const fn = (target as any)[prop]
+        const isWrite = prop === "$executeRaw"
         return (...callArgs: any[]) =>
-          ensureProbe().then((ok) =>
-            ok && !enabled.mock && !forceMock ? fn(...callArgs).catch(() => []) : [],
-          )
+          ensureProbe().then((ok) => {
+            if (ok && !enabled.mock && !forceMock) {
+              return fn(...callArgs).catch((err: any) => {
+                // 读查询失败回退空数组；写操作（executeRaw）失败必须暴露原始错误
+                if (isWrite) throw err
+                return []
+              })
+            }
+            // 离线：写操作无法执行，明确抛 503（而非静默返回空）
+            if (isWrite) throw new ServiceUnavailableError("数据库未连接，无法执行写操作")
+            return []
+          })
       }
       if (prop === "$transaction") {
         const fn = (target as any)[prop]
@@ -150,13 +161,14 @@ function buildPrismaProxy(real: any, forceMock = false) {
             if (ok && !enabled.mock && !forceMock) {
               try {
                 return fn(arg)
-              } catch {
-                return Array.isArray(arg) ? [] : null
+              } catch (err) {
+                // 真实事务失败要暴露错误，不要静默返回空（否则上层 result.xxx → TypeError → 500）
+                logger.db.error("[db] $transaction 失败", (err as any)?.message)
+                throw err
               }
             }
-            if (Array.isArray(arg)) return []
-            if (typeof arg === "function") return []
-            return []
+            // 离线：事务无法执行（初始化引导依赖事务写库），明确抛 503 而非返回空
+            throw new ServiceUnavailableError("数据库未连接，无法执行事务（初始化需要数据库）")
           })
       }
       if (typeof prop === "string" && prop.startsWith("$")) {

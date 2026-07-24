@@ -1,5 +1,6 @@
-import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
+import { GameCard, GameCardSkeleton, GameListRow, GameListRowSkeleton, type GameCardData } from "@/components/game-card"
 import { Pagination } from "@/components/ui/pagination"
+import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import { Suspense } from "react"
@@ -23,7 +24,17 @@ async function getTotalGames() {
   return prisma.game.count({ where: { isPublished: true } }).catch(() => 0)
 }
 
-function GridSkeleton() {
+type SortKey = "newest" | "popular" | "mostFaved"
+type ViewKey = "grid" | "list"
+
+function GridSkeleton({ view = "grid" }: { view?: ViewKey }) {
+  if (view === "list") {
+    return (
+      <div className="mt-4 flex flex-col gap-2">
+        {Array.from({ length: 8 }).map((_, i) => <GameListRowSkeleton key={i} />)}
+      </div>
+    )
+  }
   return (
     <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
@@ -31,13 +42,24 @@ function GridSkeleton() {
   )
 }
 
-async function GamesList({ page }: { page: number }) {
+const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favoriteCount?: "desc" }> = {
+  newest: { createdAt: "desc" },
+  popular: { viewCount: "desc" },
+  mostFaved: { favoriteCount: "desc" },
+}
+
+async function GamesList({ page, sort = "newest", view = "grid", year }: { page: number; sort?: SortKey; view?: ViewKey; year?: number }) {
   const skip = (page - 1) * GAMES_PER_PAGE
+
+  const where = {
+    isPublished: true,
+    ...(year ? { releaseDate: { gte: new Date(year, 0, 1), lt: new Date(year + 1, 0, 1) } } : {}),
+  }
 
   const [games, total] = await Promise.all([
     prisma.game.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: "desc" },
+      where,
+      orderBy: ORDER_BY[sort],
       skip,
       take: GAMES_PER_PAGE,
       select: {
@@ -49,7 +71,7 @@ async function GamesList({ page }: { page: number }) {
         resources: { select: { language: true, runType: true, resourceContent: true } },
       },
     }),
-    prisma.game.count({ where: { isPublished: true } }),
+    prisma.game.count({ where }),
   ]).catch(() => [[], 0] as [never[], number])
 
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
@@ -62,16 +84,42 @@ async function GamesList({ page }: { page: number }) {
     )
   }
 
+  const toCardData = (g: (typeof games)[number]) => ({ ...g, tags: g.tags.map((t) => t.tag) } as unknown as GameCardData)
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
-        {games.map((game) => (
-          <GameCard key={game.id} game={{ ...game, tags: game.tags.map(t => t.tag) } as unknown as GameCardData} />
-        ))}
+      <ResultToolbar
+        total={total}
+        resultLabel={year ? `${year} 年作品` : "全部游戏"}
+        sort={sort}
+        sortOptions={GAME_SORT_OPTIONS}
+        basePath="/games"
+        params={{ ...(year ? { year: String(year) } : {}) }}
+        view={view}
+      />
+      <div className="mt-4">
+        {view === "list" ? (
+          <div className="flex flex-col gap-2">
+            {games.map((game) => (
+              <GameListRow key={game.id} game={toCardData(game)} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+            {games.map((game) => (
+              <GameCard key={game.id} game={toCardData(game)} />
+            ))}
+          </div>
+        )}
       </div>
       {totalPages > 1 && (
         <div className="mt-8 flex justify-center">
-          <Pagination currentPage={page} totalPages={totalPages} baseUrl="/games" />
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            baseUrl="/games"
+            extraParams={{ ...(sort !== "newest" && { sort }), ...(view !== "grid" && { view }), ...(year ? { year: String(year) } : {}) }}
+          />
         </div>
       )}
       {totalPages <= 1 && (
@@ -86,20 +134,27 @@ async function GamesList({ page }: { page: number }) {
 export default async function GamesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ sort?: string; view?: string; page?: string; year?: string }>
 }) {
-  const { page: pageStr } = await searchParams
-  const page = Math.max(1, parseInt(pageStr || "1", 10) || 1)
+  const sp = await searchParams
+  const VALID_SORTS = ["newest", "popular", "mostFaved"] as const
+  const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
+  const VALID_VIEWS = ["grid", "list"] as const
+  const view = VALID_VIEWS.includes(sp.view as ViewKey) ? (sp.view as ViewKey) : "grid"
+  const page = Math.max(1, parseInt(sp.page || "1", 10) || 1)
+  const yearRaw = sp.year
+  const yearNum = yearRaw ? parseInt(yearRaw, 10) : NaN
+  const year = !Number.isNaN(yearNum) && yearNum > 1900 && yearNum < 2100 ? yearNum : undefined
   const total = await getTotalGames()
 
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-xl font-bold text-foreground">全部游戏</h1>
-        <p className="mt-1 text-sm text-muted-foreground">共收录 {total} 部同人游戏作品</p>
+        <p className="mt-1 text-sm text-muted-foreground">按最新、最热、收藏数浏览同人游戏作品</p>
       </div>
-      <Suspense fallback={<GridSkeleton />}>
-        <GamesList page={page} />
+      <Suspense fallback={<GridSkeleton view={view} />}>
+        <GamesList page={page} sort={sort} view={view} year={year} />
       </Suspense>
     </div>
   )

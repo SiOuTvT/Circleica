@@ -61,6 +61,18 @@ export class RateLimitError extends AppError {
   }
 }
 
+/**
+ * 服务不可用（503）：数据库未连接 / 依赖服务下线等。
+ * 与「服务器内部错误（500 INTERNAL）」区分——503 表示已知的可恢复性故障，
+ * 不应被当成未知异常吓用户。
+ */
+export class ServiceUnavailableError extends AppError {
+  constructor(message = "服务暂时不可用，请稍后再试") {
+    super(message, "SERVICE_UNAVAILABLE", 503)
+    this.name = "ServiceUnavailableError"
+  }
+}
+
 // ── 错误码类型 ──────────────────────
 
 export type ErrorCode =
@@ -70,4 +82,5 @@ export type ErrorCode =
   | "FORBIDDEN"
   | "CONFLICT"
   | "RATE_LIMITED"
+  | "SERVICE_UNAVAILABLE"
   | "INTERNAL"

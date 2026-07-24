@@ -1,7 +1,8 @@
-import { GameCard, GameCardSkeleton } from "@/components/game-card"
-import { MobileSortDropdown } from "@/components/mobile-sort-dropdown"
+import { GameCard, GameCardSkeleton, GameListRow, GameListRowSkeleton } from "@/components/game-card"
+import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
 import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
+import Link from "next/link"
 import { logger } from "@/lib/logger"
 import type { Metadata } from "next"
 
@@ -14,11 +15,8 @@ export const metadata: Metadata = {
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"
-import { Clock, Flame, Heart, Search, TrendingUp, X } from "lucide-react"
-import Link from "next/link"
+import { Flame, Search } from "lucide-react"
 import { Suspense } from "react"
-
-type SortKey = "newest" | "popular" | "mostFaved"
 
 interface GameWithTag {
   id: string
@@ -36,11 +34,8 @@ interface GameWithTag {
   tags: { tag: { name: string; color: string } }[]
 }
 
-const SORT_OPTIONS: { key: SortKey; label: string; icon: typeof Clock }[] = [
-  { key: "newest", label: "最新", icon: Clock },
-  { key: "popular", label: "最热", icon: TrendingUp },
-  { key: "mostFaved", label: "最多收藏", icon: Heart },
-]
+type SortKey = "newest" | "popular" | "mostFaved"
+type ViewKey = "grid" | "list"
 
 function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: string }[] {
   if (Array.isArray(raw)) return raw as { label?: string; url: string; platform?: string }[]
@@ -118,9 +113,9 @@ const getCachedRecommendedGames = unstable_cache(
 )
 
 async function SearchResults({
-  q, tag, sort, nsfw, page = 1,
+  q, tag, sort, nsfw, view, page = 1,
 }: {
-  q: string; tag: string; sort: SortKey; nsfw: boolean; page?: number
+  q: string; tag: string; sort: SortKey; nsfw: boolean; view?: ViewKey; page?: number
 }) {
   // 没有搜索词和标签时显示推荐游戏
   if (!q && !tag) {
@@ -209,13 +204,45 @@ async function SearchResults({
     )
   }
 
+  const resultLabel = q ? "搜索结果" : tag ? "标签结果" : "全部游戏"
+  const activeFilters = [
+    ...(q
+      ? [{ key: "q", label: `"${q}"`, basePath: "/search", clearParams: { ...(tag && { tag }), ...(nsfw && { nsfw: "1" }) } }]
+      : []),
+    ...(tag
+      ? [{ key: "tag", label: `#${tag}`, basePath: "/search", clearParams: { ...(q && { q }), ...(nsfw && { nsfw: "1" }) } }]
+      : []),
+    ...(nsfw
+      ? [{ key: "nsfw", label: "含 NSFW", basePath: "/search", clearParams: { ...(q && { q }), ...(tag && { tag }) } }]
+      : []),
+  ]
+
   return (
     <>
-      <p className="mb-4 text-xs text-muted-foreground">找到 {total} 个结果~</p>
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
-        {games.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
+      <ResultToolbar
+        total={total}
+        resultLabel={resultLabel}
+        sort={sort}
+        sortOptions={GAME_SORT_OPTIONS}
+        basePath="/search"
+        params={{ ...(q && { q }), ...(tag && { tag }), ...(nsfw && { nsfw: "1" }) }}
+        view={view ?? "grid"}
+        activeFilters={activeFilters}
+      />
+      <div className="mt-4">
+        {view === "list" ? (
+          <div className="flex flex-col gap-2">
+            {games.map((game) => (
+              <GameListRow key={game.id} game={game} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
+            {games.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+          </div>
+        )}
       </div>
       {totalPages > 1 && (
         <div className="mt-6">
@@ -228,6 +255,7 @@ async function SearchResults({
               ...(tag && { tag }),
               ...(sort !== "newest" && { sort }),
               ...(nsfw && { nsfw: "1" }),
+              ...(view && view !== "grid" && { view }),
             }}
           />
         </div>
@@ -236,7 +264,14 @@ async function SearchResults({
   )
 }
 
-function ResultsSkeleton() {
+function ResultsSkeleton({ view = "grid" }: { view?: ViewKey }) {
+  if (view === "list") {
+    return (
+      <div className="mt-4 flex flex-col gap-2">
+        {Array.from({ length: 8 }).map((_, i) => <GameListRowSkeleton key={i} />)}
+      </div>
+    )
+  }
   return (
     <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
@@ -247,82 +282,26 @@ function ResultsSkeleton() {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; sort?: string; nsfw?: string; page?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string; nsfw?: string; view?: string; page?: string }>
 }) {
   const sp = await searchParams
   const q = sp.q?.trim() ?? ""
   const tag = sp.tag?.trim() ?? ""
   const VALID_SORTS: SortKey[] = ["newest", "popular", "mostFaved"]
   const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
+  const VALID_VIEWS: ViewKey[] = ["grid", "list"]
+  const view = VALID_VIEWS.includes(sp.view as ViewKey) ? (sp.view as ViewKey) : undefined
   const nsfw = sp.nsfw === "1"
   const page = Math.max(1, parseInt(sp.page || "1"))
-
-  function buildHref(overrides: Record<string, string>) {
-    const p = new URLSearchParams()
-    if (q) p.set("q", q)
-    if (tag) p.set("tag", tag)
-    if (sort !== "newest") p.set("sort", sort)
-    if (nsfw) p.set("nsfw", "1")
-    Object.entries(overrides).forEach(([k, v]) => v ? p.set(k, v) : p.delete(k))
-    const s = p.toString()
-    return `/search${s ? `?${s}` : ""}`
-  }
 
   return (
     <div className="space-y-5">
       {/* 搜索框 */}
       <SearchBar defaultValue={q} />
 
-      {/* 当前筛选 + 排序 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-foreground">
-            {q && tag
-              ? `「${q}」· ${tag}`
-              : q
-              ? `「${q}」的搜索结果`
-              : tag
-              ? `# ${tag}`
-              : "全部游戏"}
-          </h2>
-          {(q || tag || sort !== "newest" || nsfw) && (
-            <Link href="/search" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <X className="h-3 w-3" strokeWidth={2} />
-              清除
-            </Link>
-          )}
-        </div>
-
-        {/* 排序 */}
-        <div className="hidden sm:flex items-center gap-1">
-          {SORT_OPTIONS.map(({ key, label, icon: Icon }) => (
-            <Link
-              key={key}
-              href={buildHref({ sort: key })}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors ${
-                sort === key ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
-              {label}
-            </Link>
-          ))}
-        </div>
-        <MobileSortDropdown
-          currentSort={sort}
-          options={SORT_OPTIONS.map(({ key, label }) => ({ key, label }))}
-          basePath="/search"
-          extraParams={{
-            ...(q && { q }),
-            ...(tag && { tag }),
-            ...(nsfw && { nsfw: "1" }),
-          }}
-        />
-      </div>
-
-      {/* 结果 */}
-      <Suspense fallback={<ResultsSkeleton />}>
-        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} page={page} />
+      {/* 结果（工具栏含排序 / 视图 / 计数 / 筛选 chips） */}
+      <Suspense fallback={<ResultsSkeleton view={view} />}>
+        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} view={view} page={page} />
       </Suspense>
     </div>
   )

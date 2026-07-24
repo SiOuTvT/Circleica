@@ -33,12 +33,12 @@
 - **绝不注入假数据做预览**：任何环境/离线/沙箱场景下，绝不用编造的游戏、公告、评论、用户、截图等假内容填充 UI。数据库不可达时只渲染页面自身已有的空状态/骨架框；需要演示数据请用户在本机填真实库。这是用户 2026-07-25 明确红线。
 
 ## 环境限制（重要，影响所有 DB 相关验证）
-- agent 沙箱对数据库端口（含 127.0.0.1:5432）做 TCP 拦截：握手能"连上"但真实协议流量被 RESET，故 Prisma / 原生 DB 驱动经沙箱**永远拿不到数据**。
+- **数据库不可达是「agent 环境网络层拦截 127.0.0.1:5432」，不是「沙箱专属」**：实测 `net.connect(5432)` 握手"连上"，但 `pg_isready` 报 `no response`、Prisma 直连报 `Can't reach database server`——即 5432 上有网络层代理只接 TCP 握手、掐真实 PG 协议。**此拦截对本 agent 环境内的一切进程都生效：沙箱进程、乃至 `dangerouslyDisableSandbox: true`（跑在沙箱隔离之外）的进程都连不上库**。已用 Prisma + pg_isready + 多端口探测三重确认。用户机器上 Postgres 进程确实在跑（PID 1986，`C:\Program Files\PostgreSQL\16\bin\postgres`），但它没在 5432 上监听 TCP（被拦截器占住），5433/5434 也未监听。
 - 后果与预览方案：agent 起的 dev server 能渲染 HTML 外壳、但所有 DB 查询失败。为此 `src/lib/prisma.ts` 给 `PrismaClient` 包了一层 Proxy——探测 `SELECT 1` 失败即进入「离线回退」：所有**读查询返回空结果**（findMany→[]、count→0、findUnique→null 等），页面照常渲染自身已有的**空状态/骨架框**（如游戏网格的"暂无游戏"、详情页的"游戏不存在"），**绝不注入任何假数据**。写操作在离线回退下被阻止抛错，避免静默假成功。真实环境连得上库则走真数据、完全不受影响。运行时要看真实库数据，仍须本机非沙箱终端跑 dev server。
-- **关键区分（已实证，重要）**：用户浏览器（含本机自己的浏览器）的 `localhost:765` 被端口转发到**沙箱**服务——证据是杀掉沙箱 server 后用户浏览器直接"打不开"（连接拒绝），而非落到本机 server。因此沙箱 765 数据恒失败；要看真实数据，须在本机终端用**非 765 端口**（如 `npx next dev -p 3000`）起服务，再在浏览器打开 `localhost:3000`（不要用 765，它永远指向沙箱）。
+- **关键区分（已实证，重要，2026-07-25 修正）**：此前以为"用 3000 端口起服务就能绕过沙箱挡库"——**错**。5432 拦截是 agent 环境网络层、对 agent 内所有进程（含 dangerouslyDisableSandbox）生效，所以**从 agent 内起的 3000 服务照样连不上库**。唯一能跑通 DB 的路径是：**用户本机（桌面，完全不经过本 agent）双击 `D:\Circleica\start-dev.bat`**，它起的 `localhost:3000` 是用户自己的进程/网络，不受 agent 网络层拦截，Postgres 可达 → 初始化/写数据成功。用户浏览器开 `localhost:765` 会经预览转发到 agent 内沙箱（无库），故别用 765。
 - 排查时别被 `net.connect → CONNECTED` 误导——那是 TCP 代理接住了握手，不代表真实可达。
 - **沙箱还会杀数据库后台进程**：曾用本机 PG 16 二进制在沙箱起 5433 实例（initdb + pg_ctl start 成功、日志显示监听 5433 且"准备接受连接"、裸 TCP 握手能拿到 PG 认证包），但一执行真实查询连接即被掐，日志报 `autovacuum worker took too long to start; canceled`（fork 出的后台进程被沙箱卡死/杀掉）。故**沙箱本地 PG 也无法提供真实查询**。
-- 结论：任何"经沙箱拿到**真实**数据"的路径都死（①②③④同上）。沙箱 765 现经**空结果回退**渲染 UI 预览（空框架，无假数据）；要看真实库数据，须本机非沙箱终端 `npm run dev`（端口 765 或 3000，本机浏览器开 localhost:3000 避开被转发的 765）。已生成 `D:\Circleica\start-dev.bat`（双击于文件资源管理器，非 WorkBuddy 终端）一键起 3000 端口并开浏览器。
+- 结论：任何"**从 agent 环境内**拿到真实数据"的路径都死（沙箱 / dangerouslyDisableSandbox / agent 内起的 765 或 3000 服务全都不行）。agent 内服务现经**空结果回退**渲染 UI 预览（空框架，无假数据）。要看真实库数据 / 初始化站点，唯一路径 = **在你自己桌面双击 `D:\Circleica\start-dev.bat`**（它是你本机进程，绕开 agent 网络层拦截），自动起 3000 并开浏览器 `localhost:3000`。`dev` 脚本默认端口已改为 3000（`package.json`），765 已弃用并杀掉旧进程。
 
 ## 沙箱预览的空结果回退（prisma offline fallback）— 绝不假数据
 - 触发：`src/lib/prisma.ts` 把真实 `PrismaClient` 包成 Proxy，首次查询前探测 `SELECT 1`；连不上库（沙箱/离线）就 `enabled.mock=true`，此后所有**读查询**改走 `getEmptyResult()` 返回空（findMany→[]、count→0、findUnique/findFirst→null、aggregate/groupBy→安全空对象），**不抛出、不返回任何假内容**。每个真实查询也包了 `.catch` 兜底切到空结果。写操作（create/update/delete…）在离线回退下直接 `throw` 阻止，避免静默假成功。

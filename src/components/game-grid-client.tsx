@@ -1,6 +1,7 @@
 "use client"
 
-import { GameCard, type GameCardData } from "@/components/game-card"
+import { GameCard, GameListRow, type GameCardData } from "@/components/game-card"
+import { ResultToolbar } from "@/components/result-toolbar"
 import { Pagination } from "@/components/ui/pagination"
 import { Gamepad2 } from "lucide-react"
 
@@ -11,23 +12,22 @@ interface Props {
   q: string
   nsfw: boolean
   page: number
+  sort?: string
+  view?: "grid" | "list"
 }
 
 const GAMES_PER_PAGE = 24
 
-export function GameGridClient({ initialGames, total, tag, q, nsfw, page }: Props) {
+export function GameGridClient({ initialGames, total, tag, q, nsfw, page, sort = "newest", view = "grid" }: Props) {
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
-
-  function buildHref(page: number): string {
-    const params = new URLSearchParams()
-    if (q) params.set("q", q)
-    if (tag && tag !== "全部") params.set("tag", tag)
-    if (nsfw) params.set("nsfw", "1")
-    if (page > 1) params.set("page", String(page))
-    const s = params.toString()
-    const base = tag && tag !== "全部" ? "/search" : "/"
-    return `${base}${s ? `?${s}` : ""}`
+  const isSearch = tag && tag !== "全部"
+  const basePath = isSearch ? "/search" : "/"
+  const params: Record<string, string> = {
+    ...(q && { q }),
+    ...(isSearch && { tag }),
+    ...(nsfw && { nsfw: "1" }),
   }
+  const resultLabel = q ? "搜索结果" : isSearch ? `# ${tag}` : "最新资源"
 
   return (
     <>
@@ -39,11 +39,31 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw, page }: Prop
           </p>
         </div>
       ) : (
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
-        {initialGames.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
-      </div>
+        <>
+          <ResultToolbar
+            total={total}
+            resultLabel={resultLabel}
+            sort={sort}
+            basePath={basePath}
+            params={params}
+            view={view}
+          />
+          <div className="mt-4">
+            {view === "list" ? (
+              <div className="flex flex-col gap-2">
+                {initialGames.map((game) => (
+                  <GameListRow key={game.id} game={game} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+                {initialGames.map((game) => (
+                  <GameCard key={game.id} game={game} />
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {totalPages > 1 && (
@@ -51,20 +71,16 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw, page }: Prop
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            baseUrl={tag && tag !== "全部" ? "/search" : "/"}
+            baseUrl={basePath}
             extraParams={{
               ...(q && { q }),
-              ...(tag && tag !== "全部" && { tag }),
+              ...(isSearch && { tag }),
               ...(nsfw && { nsfw: "1" }),
+              ...(sort !== "newest" && { sort }),
+              ...(view !== "grid" && { view }),
             }}
           />
         </div>
-      )}
-
-      {totalPages <= 1 && initialGames.length > 0 && (
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          — 已加载全部 {total} 个游戏 —
-        </p>
       )}
     </>
   )
