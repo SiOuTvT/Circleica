@@ -154,12 +154,12 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
           })
       }
       if (prop === "$transaction") {
-        const fn = (target as Record<string, unknown>)[prop]
+        const fn = (target as Record<string, unknown>)[prop] as (...a: unknown[]) => unknown
         return (arg: unknown) =>
           ensureProbe().then((ok) => {
             if (ok && !enabled.mock && !forceMock) {
               try {
-                return (fn as (a: unknown) => unknown)(arg)
+                return fn.call(target, arg)
               } catch (err) {
                 // 真实事务失败要暴露错误，不要静默返回空（否则上层 result.xxx → TypeError → 500）
                 logger.db.error("[db] $transaction 失败", (err as Error)?.message)

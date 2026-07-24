@@ -174,20 +174,25 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 }
 
-function CollectionStripCard({ collection }: { collection: CuratedCollectionData }) {
+function CollectionStripCard({ collection, isFirst = false }: { collection: CuratedCollectionData; isFirst?: boolean }) {
   const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
   return (
-    <Link href={`/curated-collections/${collection.id}`} className="group w-[200px] shrink-0 sm:w-[220px]">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border transition-all group-hover:scale-[1.02] group-hover:ring-[var(--theme-color)]/40">
+    <Link href={`/curated-collections/${collection.id}`} className={`group shrink-0 ${isFirst ? "w-[260px] sm:w-[300px]" : "w-[200px] sm:w-[230px]"}`}>
+      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-lg group-hover:ring-[var(--theme-color)]/40">
         {cover ? (
-          <Image src={cover} alt={collection.name} fill className="object-cover" sizes="220px" unoptimized />
+          <Image src={cover} alt={collection.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="300px" unoptimized />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-3">
-          <p className="truncate text-sm font-semibold text-white">{collection.name}</p>
-          <p className="text-xs text-white/70">{collection._count.games} 部</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          {isFirst && (
+            <span className="inline-block rounded-full bg-[var(--theme-color)]/80 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white mb-1.5">
+              编辑精选
+            </span>
+          )}
+          <p className="truncate text-sm font-heading font-semibold text-white sm:text-base">{collection.name}</p>
+          <p className="text-xs text-white/70 mt-0.5">{collection._count.games} 部</p>
         </div>
       </div>
     </Link>
@@ -205,7 +210,7 @@ export default async function DiscoverPage() {
           <Compass className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground">发现</h1>
+          <h1 className="text-xl font-heading font-semibold text-foreground">发现</h1>
           <p className="text-sm text-muted-foreground">按兴趣探索：编辑精选、热门系列、制作组与随机惊喜</p>
         </div>
       </header>
@@ -214,8 +219,8 @@ export default async function DiscoverPage() {
       <DiscoverySection title="编辑精选" description="编辑用心挑选的主题合集" icon={Layers} actionHref="/curated-collections">
         {data && data.collections.length > 0 ? (
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
-            {data.collections.map((c) => (
-              <CollectionStripCard key={c.id} collection={c} />
+            {data.collections.map((c, i) => (
+              <CollectionStripCard key={c.id} collection={c} isFirst={i === 0} />
             ))}
           </div>
         ) : (
@@ -267,16 +272,16 @@ export default async function DiscoverPage() {
               <Link
                 key={s.name}
                 href={`/search?q=${encodeURIComponent(s.name)}`}
-                className="group w-[140px] shrink-0 sm:w-[160px]"
+                className="group w-[160px] shrink-0 sm:w-[180px]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border transition-all group-hover:scale-[1.02] group-hover:ring-[var(--theme-color)]/40">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-[var(--theme-color)]/40">
                   {s.cover ? (
-                    <Image src={s.cover} alt={s.name} fill className="object-cover" sizes="160px" unoptimized />
+                    <Image src={s.cover} alt={s.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="180px" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-xs font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
                   {s.name}
                 </p>
                 <p className="text-micro text-muted-foreground">{s.count} 部</p>
@@ -296,16 +301,16 @@ export default async function DiscoverPage() {
               <Link
                 key={c.id}
                 href={`/search?q=${encodeURIComponent(c.name)}`}
-                className="group w-[140px] shrink-0 sm:w-[160px]"
+                className="group w-[160px] shrink-0 sm:w-[180px]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border transition-all group-hover:scale-[1.02] group-hover:ring-[var(--theme-color)]/40">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-[var(--theme-color)]/40">
                   {c.cover ? (
-                    <Image src={c.cover} alt={c.name} fill className="object-cover" sizes="160px" unoptimized />
+                    <Image src={c.cover} alt={c.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="180px" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-xs font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
                   {c.name}
                 </p>
                 <p className="text-micro text-muted-foreground">{c.count} 部</p>

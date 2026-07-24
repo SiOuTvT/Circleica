@@ -60,19 +60,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<FullThemeSettings>(DEFAULT_SETTINGS)
   const [, setLoaded] = useState(false)
 
-  // Fetch from server on mount
+  // Fetch from server on mount；API 为权威来源，localStorage 仅作 API 不可达时的回退
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem(STORAGE_KEY)
-      if (cached) {
-        const parsed = JSON.parse(cached) as FullThemeSettings
-        setSettings(parsed)
-        doApply(parsed)
-        // 设置 data-theme 属性
-        document.documentElement.setAttribute("data-theme", "custom")
-    }
-  } catch (err) { logger.api.warn("[ThemeProvider] load theme from localStorage failed", { error: err instanceof Error ? err.message : String(err) }) }
-
     const controller = new AbortController()
     apiFetchSafe<{
       themeColor?: string
@@ -91,11 +80,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           setSettings(s)
           doApply(s)
           localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
-          // 设置 data-theme 属性
           document.documentElement.setAttribute("data-theme", "custom")
         }
+        // API 正常返回但无 themeColor（未初始化/DB 无数据）：
+        // 保持服务端下发的颜色（ThemeScript 已在 <head> 中设置好），
+        // 不信任可能陈旧的 localStorage（避免重装后残留值覆盖默认薄荷）。
       })
-      .catch(() => {})
+      .catch(() => {
+        // 网络断开时回退 localStorage
+        try {
+          const cached = localStorage.getItem(STORAGE_KEY)
+          if (cached) {
+            const parsed = JSON.parse(cached) as FullThemeSettings
+            if (parsed.themeColor) {
+              setSettings(parsed)
+              doApply(parsed)
+              document.documentElement.setAttribute("data-theme", "custom")
+            }
+          }
+        } catch (err) { logger.api.warn("[ThemeProvider] fallback localStorage failed", { error: err instanceof Error ? err.message : String(err) }) }
+      })
       .finally(() => setLoaded(true))
 
     return () => controller.abort()

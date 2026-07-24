@@ -5,21 +5,21 @@
 UPDATE "Game"
 SET "searchVector" = to_tsvector('simple',
   coalesce("title", '') || ' ' || coalesce("originalWork", '') || ' ' || coalesce("englishName", '')
-);
+)::text;
 
 -- 2. Drop the expression index (wrong target)
 DROP INDEX IF EXISTS "Game_search_vector_gin_idx";
 
--- 3. Create GIN index on the actual column
+-- 3. Create GIN index on the actual column (expression index since column is text)
 CREATE INDEX IF NOT EXISTS "Game_searchVector_gin_idx"
-  ON "Game" USING gin ("searchVector");
+  ON "Game" USING gin (to_tsvector('simple', coalesce("searchVector", '')));
 
 -- 4. Create trigger function to auto-update searchVector on insert/update
 CREATE OR REPLACE FUNCTION game_search_vector_update() RETURNS trigger AS $$
 BEGIN
   NEW."searchVector" := to_tsvector('simple',
     coalesce(NEW."title", '') || ' ' || coalesce(NEW."originalWork", '') || ' ' || coalesce(NEW."englishName", '')
-  );
+  )::text;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -108,7 +108,11 @@ ALTER TABLE "User"
   FOREIGN KEY ("faveGameId") REFERENCES "Game"("id") ON DELETE SET NULL;
 
 -- 8. TagGroup.positions — String → Json (cast existing JSON strings)
-ALTER TABLE "TagGroup" ALTER COLUMN "positions" TYPE jsonb USING "positions"::jsonb;
+ALTER TABLE "TagGroup" ALTER COLUMN "positions" DROP DEFAULT;
+ALTER TABLE "TagGroup" ALTER COLUMN "positions" TYPE jsonb USING CASE
+  WHEN "positions" IS NULL OR "positions" = '' THEN '[]'::jsonb
+  ELSE "positions"::jsonb
+END;
 ALTER TABLE "TagGroup" ALTER COLUMN "positions" SET DEFAULT '[]'::jsonb;
 
 -- 9. User.uid — default '' → generate cuid for existing empty values

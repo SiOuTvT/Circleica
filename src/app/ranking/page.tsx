@@ -131,7 +131,7 @@ export default async function RankingPage({
           <Trophy className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">排行榜</h1>
+          <h1 className="text-2xl font-heading font-semibold tracking-tight">排行榜</h1>
           <p className="text-sm text-muted-foreground">按维度查看热门作品</p>
         </div>
       </header>

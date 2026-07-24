@@ -32,7 +32,7 @@ export default async function TagsPage() {
           <Tag className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground">标签浏览</h1>
+          <h1 className="text-xl font-heading font-semibold text-foreground">标签浏览</h1>
           <p className="text-sm text-muted-foreground">
             通过标签发现游戏，共 {data.stats.totalTags} 个标签，{data.stats.totalGames} 部游戏
           </p>

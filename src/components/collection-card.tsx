@@ -12,66 +12,90 @@ export function CollectionCard({
   description,
   count,
   covers,
+  featured,
 }: {
   id: string
   name: string
   description: string | null
   count: number
   covers: CollectionCardCover[]
+  featured?: boolean
 }) {
-  const shown = covers.slice(0, 4)
+  const primary = covers[0]
+
+  // featured 模式：首条合集放大型封面卡
+  if (featured && primary?.cover) {
+    return (
+      <Link
+        href={`/curated-collections/${id}`}
+        className="group relative block overflow-hidden rounded-2xl bg-muted transition-all duration-500 hover:shadow-lg"
+        style={{ aspectRatio: "21 / 9" }}
+      >
+        <Image
+          src={primary.cover}
+          alt={name}
+          fill
+          className="object-cover transition-all duration-700 group-hover:scale-105"
+          unoptimized
+          sizes="(max-width: 1024px) 100vw, 896px"
+        />
+        {/* 渐变遮罩 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+          <span className="inline-block rounded-full bg-[var(--theme-color)]/80 px-3 py-0.5 text-[11px] font-medium uppercase tracking-wider text-white mb-2">
+            编辑精选
+          </span>
+          <h2 className="text-xl font-heading font-semibold text-white sm:text-2xl">
+            {name}
+          </h2>
+          {description && (
+            <p className="mt-1 max-w-lg text-sm text-white/70 line-clamp-1">
+              {description}
+            </p>
+          )}
+          <p className="mt-2 text-xs text-white/50">{count} 部精选</p>
+        </div>
+      </Link>
+    )
+  }
+
+  // 普通模式：封面在左，信息在右
   return (
     <Link
       href={`/curated-collections/${id}`}
-      className="group block overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all hover:shadow-sm hover:ring-primary/40"
+      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-sm"
     >
-      {/* 堆叠封面预览 */}
-      <div className="relative h-44 overflow-hidden bg-muted">
-        {shown.length > 0 ? (
-          <div className="absolute inset-0 flex items-end justify-center pb-4">
-            {shown.map((g, i) => (
-              <div
-                key={`${g.title}-${i}`}
-                className="absolute transition-transform duration-300 group-hover:-translate-y-1"
-                style={{
-                  left: `${15 + i * 18}%`,
-                  zIndex: 4 - i,
-                  transform: `rotate(${(i - 1.5) * 3}deg)`,
-                }}
-              >
-                {g.cover ? (
-                  <Image
-                    src={g.cover}
-                    alt={g.title}
-                    width={100}
-                    height={140}
-                    className="h-[140px] w-[100px] rounded-lg object-cover shadow-md ring-1 ring-black/10"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-[140px] w-[100px] items-center justify-center rounded-lg bg-muted-foreground/10 text-xs text-muted-foreground ring-1 ring-black/10">
-                    无封面
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+      {/* 封面区 */}
+      <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 sm:w-24">
+        {primary?.cover ? (
+          <Image
+            src={primary.cover}
+            alt={name}
+            fill
+            className="object-cover transition-all duration-500 group-hover:scale-105"
+            unoptimized
+            sizes="(max-width: 640px) 80px, 96px"
+          />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-            暂无游戏
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+            <span className="text-xs font-bold text-primary/30">?</span>
           </div>
         )}
       </div>
 
-      {/* 信息 */}
-      <div className="space-y-1 p-4">
-        <h3 className="truncate font-semibold text-foreground transition-colors group-hover:text-primary">
+      {/* 信息区 */}
+      <div className="flex flex-col justify-center min-w-0 flex-1">
+        <h3 className="truncate text-sm font-heading font-semibold text-foreground transition-colors group-hover:text-primary sm:text-base">
           {name}
         </h3>
         {description && (
-          <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
+          <p className="mt-1 text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
+            {description}
+          </p>
         )}
-        <p className="text-xs text-muted-foreground">{count} 部游戏</p>
+        <p className="mt-2 text-[11px] tabular-nums text-muted-foreground/50">
+          {count} 部精选
+        </p>
       </div>
     </Link>
   )

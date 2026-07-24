@@ -2,8 +2,9 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { notFound } from "next/navigation"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
-import { GameCard } from "@/components/game-card"
 import Image from "next/image"
+import Link from "next/link"
+import { Eye, Heart } from "lucide-react"
 
 export const revalidate = 300
 
@@ -60,56 +61,108 @@ export default async function CuratedCollectionDetailPage({
 
   if (!collection) notFound()
 
-  const covers = collection.games.map((g) => g.game).filter((g) => g.coverImage)
+  const games = collection.games
+  const heroCover = games.find((g) => g.game.coverImage)?.game.coverImage ?? null
+  const gameCount = collection._count.games
 
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      {/* 顶部堆叠封面（克制、无 glow hero） */}
-      <div className="relative h-52 overflow-hidden rounded-2xl bg-muted sm:h-64">
-        {covers.length > 0 ? (
-          <div className="absolute inset-0 flex items-end justify-center pb-6">
-            {covers.slice(0, 5).map((g, i) => (
-              <div
-                key={g.id}
-                className="absolute"
-                style={{
-                  left: `${10 + i * 16}%`,
-                  zIndex: 5 - i,
-                  transform: `rotate(${(i - 2) * 2.5}deg)`,
-                }}
-              >
-                <Image
-                  src={g.coverImage as string}
-                  alt={g.title}
-                  width={120}
-                  height={168}
-                  className="h-[168px] w-[120px] rounded-xl object-cover shadow-md ring-1 ring-black/10"
-                  unoptimized
-                />
-              </div>
-            ))}
+    <div className="space-y-8 pt-4">
+      {/* ── 顶部区域：封面 + 信息 ── */}
+      <div className="space-y-6">
+        {/* 封面 hero（首部游戏的封面放大，有料才展示） */}
+        {heroCover ? (
+          <div className="relative overflow-hidden rounded-2xl bg-muted" style={{ aspectRatio: "21 / 9" }}>
+            <Image
+              src={heroCover}
+              alt={collection.name}
+              fill
+              className="object-cover"
+              unoptimized
+              priority
+              sizes="(max-width: 1024px) 100vw, 896px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           </div>
         ) : null}
+
+        {/* 合集信息 */}
+        <div className="space-y-2">
+          <h1 className="text-2xl font-heading font-bold text-foreground sm:text-3xl">
+            {collection.name}
+          </h1>
+          {collection.description && (
+            <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {collection.description}
+            </p>
+          )}
+          <p className="text-xs tabular-nums text-muted-foreground/60">
+            {gameCount} 部精选
+          </p>
+        </div>
       </div>
 
-      {/* 合集信息 */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{collection.name}</h1>
-        {collection.description && (
-          <p className="text-muted-foreground">{collection.description}</p>
-        )}
-        <p className="text-sm text-muted-foreground">{collection._count.games} 部游戏</p>
-      </div>
+      {/* ── 游戏游廊 ── */}
+      {games.length > 0 ? (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {games.map(({ game }, index) => {
+            const card = mapGameToCard(game)
+            return (
+              <Link
+                key={game.id}
+                href={`/games/${game.serialId}`}
+                className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-sm sm:p-5"
+              >
+                {/* 排名 */}
+                <div className="flex shrink-0 items-start pt-1">
+                  <span className="text-sm font-bold tabular-nums text-muted-foreground/30 transition-colors group-hover:text-primary/50">
+                    #{String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
 
-      {/* 游戏列表：复用统一 Game Card（与图鉴/发现页一致） */}
-      {collection.games.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {collection.games.map(({ game }) => (
-            <GameCard key={game.id} game={mapGameToCard(game)} />
-          ))}
+                {/* 封面 */}
+                <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/30 group-hover:shadow-md sm:w-24">
+                  {card.coverImage ? (
+                    <Image
+                      src={card.coverImage}
+                      alt={card.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      unoptimized
+                      sizes="(max-width: 640px) 80px, 96px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                      <span className="text-lg font-bold text-primary/30">?</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 信息 */}
+                <div className="flex flex-col justify-center min-w-0 flex-1">
+                  <h3 className="text-sm font-heading font-semibold text-foreground transition-colors group-hover:text-primary sm:text-base">
+                    {card.title}
+                  </h3>
+                  <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground/60">
+                    {card.viewCount != null && card.viewCount > 0 && (
+                      <span className="flex items-center gap-1 tabular-nums">
+                        <Eye className="h-3 w-3" strokeWidth={1.5} />
+                        {card.viewCount}
+                      </span>
+                    )}
+                    {card.favoriteCount > 0 && (
+                      <span className="flex items-center gap-1 tabular-nums">
+                        <Heart className="h-3 w-3" strokeWidth={1.5} />
+                        {card.favoriteCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
         </div>
       ) : (
-        <div className="py-12 text-center text-muted-foreground">该合集暂无游戏</div>
+        <div className="py-16 text-center text-sm text-muted-foreground">该合集暂无游戏</div>
       )}
     </div>
   )

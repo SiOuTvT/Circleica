@@ -5,10 +5,10 @@ import { CollectionCard } from "@/components/collection-card"
 
 export const metadata: Metadata = {
   title: "精选合集",
-  description: "精选游戏合集，发现更多精彩作品",
+  description: "编辑精选 · 发现更多精彩作品",
   openGraph: {
     title: "精选合集 · Circleica",
-    description: "精选游戏合集",
+    description: "编辑精选 · 发现更多精彩作品",
     images: ["/opengraph-image"],
   },
 }
@@ -49,28 +49,47 @@ export default async function CuratedCollectionsPage() {
 
   if (collections.length === 0) {
     return (
-      <div className="flex flex-col gap-6 pt-4">
-        <h1 className="text-2xl font-bold text-foreground">精选合集</h1>
-        <div className="py-16 text-center text-muted-foreground">暂无精选合集</div>
+      <div className="space-y-6 pt-4">
+        <h1 className="text-2xl font-heading font-semibold text-foreground">精选合集</h1>
+        <div className="py-20 text-center text-sm text-muted-foreground">暂无精选合集</div>
       </div>
     )
   }
 
+  const [featured, ...rest] = collections
+
   return (
-    <div className="flex flex-col gap-6 pt-4">
-      <h1 className="text-2xl font-bold text-foreground">精选合集</h1>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {collections.map((c) => (
-          <CollectionCard
-            key={c.id}
-            id={c.id}
-            name={c.name}
-            description={c.description}
-            count={c._count.games}
-            covers={c.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
-          />
-        ))}
-      </div>
+    <div className="space-y-8 pt-4">
+      {/* 页头 */}
+      <header className="flex items-center gap-3">
+        <h1 className="text-2xl font-heading font-semibold text-foreground">精选合集</h1>
+      </header>
+
+      {/* 编辑推荐（首条合集） */}
+      <CollectionCard
+        id={featured.id}
+        name={featured.name}
+        description={featured.description}
+        count={featured._count.games}
+        covers={featured.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
+        featured
+      />
+
+      {/* 其余合集 */}
+      {rest.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {rest.map((c) => (
+            <CollectionCard
+              key={c.id}
+              id={c.id}
+              name={c.name}
+              description={c.description}
+              count={c._count.games}
+              covers={c.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
