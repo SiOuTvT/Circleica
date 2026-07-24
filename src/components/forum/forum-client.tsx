@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, useRef } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { MessageSquare, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "../ui/confirm-dialog"
@@ -13,7 +13,7 @@ import { PostDetailModal } from "./post-detail-modal"
 import { EditPostModal } from "./edit-post-modal"
 import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
-import { api, apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe } from "@/lib/api-client"
 
 export interface ForumClientProps {
   initialPosts: Post[]
@@ -30,8 +30,6 @@ export function ForumClient({
   isAdmin,
   totalPages: initialTotalPages,
 }: ForumClientProps) {
-  const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
 
   // 帖子列表状态
@@ -176,11 +174,16 @@ export function ForumClient({
   return (
     <div>
       {/* 页头 */}
-      <div className="mb-4 sm:mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">求档 · 论坛</h1>
-          <p className="mt-1 text-sm text-muted-foreground">找不到资源？发帖求档，社区互助</p>
-        </div>
+      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+        <header className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+            <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">求档 · 论坛</h1>
+            <p className="text-sm text-muted-foreground">找不到资源？发帖求档，社区互助</p>
+          </div>
+        </header>
         {isLoggedIn && (
           <button
             onClick={() => setShowNewPost(true)}

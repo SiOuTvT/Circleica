@@ -2,7 +2,7 @@ import { LayoutShiftGuard } from "@/components/layout-shift-guard"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
-import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo } from "@/lib/site-settings"
+import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSiteSetting } from "@/lib/site-settings"
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
@@ -77,12 +77,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   const initialized = await isSiteInitialized()
 
+  // 权威主题色：优先 SiteSetting 下发的默认薄荷，覆盖陈旧 localStorage（修复"初始化页是紫色"）
+  const themeColor = await getSiteSetting("themeColor", "#5FA8A0")
+
   // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard
   // 这样 Setup 中的 signIn() 可以正常工作
   if (!initialized) {
     return (
       <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
-        <head><ThemeScript /></head>
+        <head><ThemeScript themeColor={themeColor} /></head>
         <body className="min-h-screen bg-background text-foreground">
           <Providers>
             <div className="min-h-screen flex items-center justify-center p-4">
@@ -99,7 +102,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <ThemeScript />
+        <ThemeScript themeColor={themeColor} />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
         <LayoutShiftGuard />

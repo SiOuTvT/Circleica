@@ -594,7 +594,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         const def = TAG_POSITIONS.find((p) => p.key === posKey)
                         if (!def) return null
                         return (
-                          <Badge variant="secondary" size="sm" title={def.description}>
+                          <Badge key={posKey} variant="secondary" size="sm" title={def.description}>
                             {def.icon} {def.label}
                           </Badge>
                         )

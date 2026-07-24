@@ -138,7 +138,6 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
             aria-label="搜索游戏"
             aria-autocomplete="list"
             aria-controls="search-suggestions"
-            aria-expanded={showSuggestions && suggestions.length > 0}
             className="flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none"
           />
           {value && (

@@ -1,5 +1,6 @@
 "use client"
 
+import { createElement } from "react"
 import { getIconForEmoji } from "@/lib/emoji-icons"
 
 /**
@@ -16,7 +17,7 @@ export function EmotionalIcon({
   if (!emoji) return null
   const Icon = getIconForEmoji(emoji)
   if (!Icon) return <span>{emoji}</span>
-  return <Icon className={className} strokeWidth={2} />
+  return createElement(Icon, { className, strokeWidth: 2 })
 }
 
 /**

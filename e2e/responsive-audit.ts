@@ -146,7 +146,7 @@ async function audit() {
         // Screenshot
         const ssPath = `${outDir}/${vp.name}-${pg.name}.png`;
         await page.screenshot({ path: ssPath, fullPage: false });
-      } catch (e) {
+      } catch (_e) {
         // Page might 404, that's ok
       }
     }

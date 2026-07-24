@@ -71,19 +71,19 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-3">
+      <div className="mb-8 flex flex-col items-start gap-4 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 p-4 ring-1 ring-border shadow-3 light:from-white light:via-white light:to-zinc-50 sm:flex-row sm:gap-6 sm:p-6 lg:p-8">
         {character.image ? (
-          <div className="relative h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 overflow-clip rounded-xl ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
+          <div className="relative mx-auto h-48 w-36 shrink-0 overflow-clip rounded-xl ring-2 ring-border/50 shadow-3 sm:mx-0 sm:h-64 sm:w-48 lg:h-80 lg:w-56">
             <Image src={character.image} alt={character.name} fill className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-48 w-36 sm:h-64 sm:w-48 lg:h-80 lg:w-56 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-400 text-5xl font-bold text-white ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
+          <div className="mx-auto flex h-48 w-36 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-5xl font-bold text-white ring-2 ring-border/50 shadow-3 sm:mx-0 sm:h-64 sm:w-48 lg:h-80 lg:w-56">
             {(character.original || character.name)[0]}
           </div>
         )}
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-baseline gap-3 mb-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-3 flex flex-wrap items-baseline gap-3">
             <h1 className="text-3xl font-bold text-foreground">{character.original || character.name}</h1>
             {character.original && character.name !== character.original && (
               <span className="text-base text-muted-foreground">{character.name}</span>
@@ -92,24 +92,24 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
 
           <TagGroup className="mb-4">
             {character.role && (
-              <Tag color="#f472b6">
+              <Tag color="var(--theme-color)">
                 {roleMap[character.role] || character.role}
               </Tag>
             )}
             {character.vnTitle && (
-              <Tag color="#f472b6">
+              <Tag color="var(--theme-color)">
                 {character.vnTitle}
               </Tag>
             )}
             {vndbId && (
-              <Tag color="#f472b6" href={`https://vndb.org/${vndbId}`}>
+              <Tag color="var(--theme-color)" href={`https://vndb.org/${vndbId}`}>
                 <Database className="h-3 w-3" strokeWidth={2} />VNDB · {vndbId}
               </Tag>
             )}
           </TagGroup>
 
           {/* 基本信息 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4 text-sm">
+          <div className="mb-4 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm sm:grid-cols-3">
             {character.gender && character.gender.length > 0 && (
               <div><span className="text-muted-foreground">性别: </span><span className="text-foreground">{character.gender.map(g => genderMap[g] || g).join(", ")}</span></div>
             )}
@@ -138,7 +138,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             <div className="mb-3">
               <div className="flex flex-wrap gap-1.5">
                 {character.aliases.slice(0, 8).map((alias, i) => (
-              <span key={i} className="rounded-full bg-pink-400/10 px-2.5 py-0.5 text-xs text-pink-300 ring-1 ring-pink-400/20">
+                  <span key={i} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs text-primary ring-1 ring-primary/20">
                     {alias}
                   </span>
                 ))}
@@ -152,12 +152,12 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
       {character.traits && character.traits.length > 0 && (
         <section className="mb-6">
           <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
+            <span className="h-5 w-1 rounded-full bg-primary" />
             角色特征
           </h2>
           <TagGroup>
             {character.traits.map((trait, i) => (
-              <Tag key={i} color="#f472b6">
+              <Tag key={i} color="var(--theme-color)">
                 {trait.name}
               </Tag>
             ))}
@@ -171,7 +171,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
         return (
           <section className="mb-6">
             <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-pink-300 to-pink-400" />
+            <span className="h-5 w-1 rounded-full bg-primary" />
             角色简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
               {translated && (
@@ -184,7 +184,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
               )}
             </h2>
             <div className="rounded-2xl bg-card/50 p-6 ring-1 ring-border">
-              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+              <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
             </div>
@@ -197,7 +197,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
         <button
           onClick={refresh}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl bg-pink-400/15 px-6 py-3 text-sm font-medium text-pink-300 ring-1 ring-pink-400/25 transition-all hover:bg-pink-400/25 hover:text-pink-200 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-primary/10 px-6 py-3 text-sm font-medium text-primary ring-1 ring-primary/25 transition-all hover:bg-primary/20 hover:text-primary disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           换一个角色

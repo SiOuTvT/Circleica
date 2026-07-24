@@ -3,7 +3,6 @@
 import { TurnstileCaptcha } from "@/components/turnstile-captcha"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
 import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
-import { EmotionalIcon } from "@/components/emotional-icon"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"

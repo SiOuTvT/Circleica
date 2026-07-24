@@ -3,7 +3,7 @@
 import { AvatarFrame } from "@/components/avatar-frame"
 import { CheckInToast } from "@/components/checkin-toast"
 import { NotificationBell } from "@/components/notification-bell"
-import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
+import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { api, apiFetchSafe, ApiError } from "@/lib/api-client"

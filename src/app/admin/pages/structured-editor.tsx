@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 import dynamic from "next/dynamic"
+import { useRef } from "react"
 import { Plus, X, ArrowUp, ArrowDown, Type, List, Pilcrow, LayoutTemplate, ExternalLink } from "lucide-react"
 
 const MicroRichEditor = dynamic(() => import("@/components/micro-rich-editor").then(m => ({ default: m.MicroRichEditor })), { ssr: false })
@@ -379,7 +380,7 @@ function BlockEditor({
                 </div>
               ))}
               {(!block.items || block.items.length === 0) && (
-                <p className="text-xs text-muted-foreground italic">暂无列表项，点击"添加"按钮开始</p>
+                <p className="text-xs text-muted-foreground italic">暂无列表项，点击「添加」按钮开始</p>
               )}
             </div>
           </div>
@@ -483,6 +484,7 @@ function BlockEditor({
 
 export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
   const blocks = parseHTMLToBlocks(html)
+  const blockSeq = useRef(0)
 
   const updateBlock = (index: number, updates: Partial<Block>) => {
     const newBlocks = blocks.map((b, i) => (i === index ? { ...b, ...updates } : b))
@@ -500,7 +502,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       qa: JSON.stringify({ q: "", a: "", isGrid: true }),
     }
     const newBlock: Block = {
-      id: `${type}-${Date.now()}`,
+      id: `${type}-${blockSeq.current++}`,
       type,
       content: defaultContent[type],
       items: type === "list" ? [""] : undefined,

@@ -20,10 +20,6 @@ export const metadata: Metadata = {
 
 const GAMES_PER_PAGE = 24
 
-async function getTotalGames() {
-  return prisma.game.count({ where: { isPublished: true } }).catch(() => 0)
-}
-
 type SortKey = "newest" | "popular" | "mostFaved"
 type ViewKey = "grid" | "list"
 
@@ -145,7 +141,6 @@ export default async function GamesPage({
   const yearRaw = sp.year
   const yearNum = yearRaw ? parseInt(yearRaw, 10) : NaN
   const year = !Number.isNaN(yearNum) && yearNum > 1900 && yearNum < 2100 ? yearNum : undefined
-  const total = await getTotalGames()
 
   return (
     <div>

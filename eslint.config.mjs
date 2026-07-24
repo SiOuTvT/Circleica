@@ -14,6 +14,14 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // 脚本文件使用 CommonJS require 语法，不需要 TypeScript 严格检查
     "scripts/**",
+    // 根目录临时/开发脚本（非应用源码，不纳入 lint 卡点）
+    "e2e_test.js",
+    "e2e_final.js",
+    "prod-sim-phase1.js",
+    "start-server.js",
+    "start-server2.js",
+    "start-server3.js",
+    "delete-checkin.ts",
   ]),
   {
     rules: {

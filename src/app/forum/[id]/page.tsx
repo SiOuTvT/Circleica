@@ -1,6 +1,5 @@
 import { ForumPostDetail } from "@/components/forum-post-detail"
 import { auth } from "@/lib/auth"
-import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import { hasRole } from "@/lib/permissions"

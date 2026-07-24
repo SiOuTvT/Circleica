@@ -4,7 +4,7 @@ import { TagCloud } from "@/components/tags/tag-cloud"
 import { TagCategory } from "@/components/tags/tag-category"
 import { TagIndex } from "@/components/tags/tag-index"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tag } from "lucide-react"
+import { LayoutGrid, Tag } from "lucide-react"
 
 import type { Metadata } from "next"
 
@@ -27,14 +27,17 @@ export default async function TagsPage() {
   return (
     <div className="space-y-6">
       {/* 页头 */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Tag className="h-6 w-6" strokeWidth={2} /> 标签浏览
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          通过标签发现游戏，共 {data.stats.totalTags} 个标签，{data.stats.totalGames} 部游戏
-        </p>
-      </div>
+      <header className="flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+          <Tag className="h-6 w-6" strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-foreground">标签浏览</h1>
+          <p className="text-sm text-muted-foreground">
+            通过标签发现游戏，共 {data.stats.totalTags} 个标签，{data.stats.totalGames} 部游戏
+          </p>
+        </div>
+      </header>
 
       {/* 热门标签云 */}
       <Suspense fallback={<Skeleton className="h-48 w-full rounded-2xl" />}>
@@ -43,8 +46,8 @@ export default async function TagsPage() {
 
       {/* 分类浏览 */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground">
-          📂 按分类浏览
+        <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+          <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.tagGroups.map((group) => (

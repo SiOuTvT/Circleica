@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { TagGroupWithTags } from "@/types/tags-browser"
 import { ColorTag } from "@/components/ui/tag"
 import { useState } from "react"

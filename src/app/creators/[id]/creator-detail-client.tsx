@@ -74,15 +74,15 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
   return (
     <div>
       {/* Hero */}
-      <div className="mb-8 flex flex-col items-start gap-4 sm:gap-6 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 light:from-white light:via-white light:to-zinc-50 p-4 sm:p-6 lg:p-8 ring-1 ring-border shadow-3">
-        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 w-full">
+      <div className="mb-8 flex flex-col items-start gap-4 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 p-4 ring-1 ring-border shadow-3 light:from-white light:via-white light:to-zinc-50 sm:gap-6 sm:p-6 lg:p-8">
+        <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:gap-6">
           {/* Avatar placeholder */}
-          <div className="flex h-28 w-28 sm:h-32 sm:w-32 lg:h-40 lg:w-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-400 ring-2 ring-border/50 shadow-3 mx-auto sm:mx-0">
+          <div className="mx-auto flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 ring-2 ring-border/50 shadow-3 sm:mx-0 sm:h-32 sm:w-32 lg:h-40 lg:w-40">
             <User className="h-16 w-16 text-white/80" strokeWidth={1.5} />
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-baseline gap-3 mb-3">
+          <div className="min-w-0 flex-1">
+            <div className="mb-3 flex flex-wrap items-baseline gap-3">
               <h1 className="text-3xl font-bold text-foreground">
                 {creator.original || creator.name}
               </h1>
@@ -91,25 +91,25 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               )}
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            <TagGroup className="mb-4">
               {/* 角色标签 */}
               {creator.roles.map(role => (
-                <Tag key={role} color="#818cf8">
+                <Tag key={role} color="var(--theme-color)">
                   {roleLabelMap[role] || role}
                 </Tag>
               ))}
               {genderLabel && (
-                <Tag color="#818cf8">
+                <Tag color="var(--theme-color)">
                   {genderLabel}
                 </Tag>
               )}
               {creator.vndbId && (
-                <Tag color="#818cf8" href={`https://vndb.org/s${creator.vndbId}`}>
+                <Tag color="var(--theme-color)" href={`https://vndb.org/s${creator.vndbId}`}>
                   <Database className="h-3 w-3" strokeWidth={2} />
                   VNDB · s{creator.vndbId}
                 </Tag>
               )}
-            </div>
+            </TagGroup>
 
           </div>
         </div>
@@ -125,7 +125,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
         return (
           <section className="mb-6">
             <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-              <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
+              <span className="h-5 w-1 rounded-full bg-primary" />
               创作者简介
               {!translated && <TranslateBtn text={cleaned} onTranslated={setTranslated} />}
               {translated && (
@@ -138,7 +138,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
               )}
             </h2>
             <div className="rounded-2xl bg-card/50 p-6 ring-1 ring-border">
-              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+              <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                 {translated && !showOriginal ? translated : cleaned}
               </p>
             </div>
@@ -150,7 +150,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
       {creator.vns.length > 0 && (
         <section className="mb-6">
           <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-gradient-to-b from-indigo-300 to-indigo-400" />
+            <span className="h-5 w-1 rounded-full bg-primary" />
             参与作品
           </h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
@@ -169,7 +169,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
                     <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground text-xs">封面还没上传~</div>
                   )}
                   {vn.rating ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-micro font-medium text-amber-400 backdrop-blur-sm">
+                    <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 rounded-md bg-black/60 px-1.5 py-0.5 text-micro font-medium text-amber-400 backdrop-blur-sm">
                       <Star className="h-2.5 w-2.5" strokeWidth={2} />
                       {formatRating(vn.rating)}
                     </div>
@@ -190,7 +190,7 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
         <button
           onClick={refresh}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl bg-indigo-400/15 px-6 py-3 text-sm font-medium text-indigo-300 ring-1 ring-indigo-400/25 transition-all hover:bg-indigo-400/25 hover:text-indigo-200 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-primary/10 px-6 py-3 text-sm font-medium text-primary ring-1 ring-primary/25 transition-all hover:bg-primary/20 hover:text-primary disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           换一个创作者

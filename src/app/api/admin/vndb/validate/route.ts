@@ -1,7 +1,6 @@
 import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
-import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 
 export const POST = withHandler(async (req) => {

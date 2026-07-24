@@ -10,7 +10,7 @@ import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, se
 import { getEmailConfigured } from "@/lib/service-config"
 import { toShanghaiDate } from "@/lib/date"
 import { sanitizeUrl } from "@/lib/sanitize"
-import { getStorage, deleteByUrl } from "@/lib/storage"
+import { deleteByUrl } from "@/lib/storage"
 import { validatePassword } from "@/lib/password"
 import { checkAchievements } from "@/lib/achievements"
 import bcrypt from "bcryptjs"

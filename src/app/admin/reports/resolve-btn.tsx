@@ -13,7 +13,7 @@ export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
 
   async function handleResolve() {
     // 删除该游戏的所有举报（视为已处理）
-    const { ok, error } = await apiFetchSafe("/api/admin/reports", {
+    const { ok } = await apiFetchSafe("/api/admin/reports", {
       method: "DELETE",
       body: { gameId },
     })

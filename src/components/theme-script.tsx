@@ -6,12 +6,16 @@ import { headers } from "next/headers"
  * Also handles dark/light mode: follows system preference on first visit,
  * then respects user's explicit choice from localStorage.
  */
-export async function ThemeScript() {
+export async function ThemeScript({ themeColor = "#5FA8A0" }: { themeColor?: string }) {
   const nonce = (await headers()).get("x-nonce") || undefined
   const script = `
     (function() {
       try {
         var root = document.documentElement;
+
+        // 服务端下发的权威主题色（来自 SiteSetting，默认薄荷）。优先于 localStorage，
+        // 避免陈旧/错误的 localStorage 主题色在加载前覆盖默认。
+        var serverColor = ${JSON.stringify(themeColor)};
         
         // ── Dark/Light mode: support dark / light / system ──
         var storedMode = localStorage.getItem('theme');
@@ -43,8 +47,8 @@ export async function ThemeScript() {
         
         var raw = localStorage.getItem('site-theme-settings');
         var settings = raw ? JSON.parse(raw) : null;
-        var color = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
-        if (!color) return;
+        var localColor = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
+        var color = serverColor || localColor || '#5FA8A0';
         color = color.replace('#', '');
 
         var r = parseInt(color.substring(0, 2), 16);

@@ -17,7 +17,7 @@ describe("API error → HTTP status mapping", () => {
     [() => new AppError("内部错误", "INTERNAL", 500), 500, "AppError"],
   ]
 
-  it.each(cases)("%s → status %i", (createErr, expectedStatus, name) => {
+  it.each(cases)("%s → status %i", (createErr, expectedStatus, _name) => {
     const err = createErr()
     expect(err.status).toBe(expectedStatus)
     expect(err).toBeInstanceOf(AppError)

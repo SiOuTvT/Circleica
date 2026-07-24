@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -34,10 +33,17 @@ export const metadata: Metadata = {
 
 export const revalidate = 120
 
+interface CuratedCollectionData {
+  id: string
+  name: string
+  games: { game: { id: string; serialId: number; title: string; coverImage: string | null } }[]
+  _count: { games: number }
+}
+
 interface DiscoveryData {
   newest: GameCardData[]
   popular: GameCardData[]
-  collections: any[]
+  collections: CuratedCollectionData[]
   series: { name: string; count: number; cover: string | null; title: string }[]
   creators: { id: string; name: string; avatar: string | null; cover: string | null; count: number }[]
   years: { year: number; count: number }[]
@@ -168,8 +174,8 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 }
 
-function CollectionStripCard({ collection }: { collection: any }) {
-  const cover = collection.games.map((g: any) => g.game.coverImage).find(Boolean) || null
+function CollectionStripCard({ collection }: { collection: CuratedCollectionData }) {
+  const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
   return (
     <Link href={`/curated-collections/${collection.id}`} className="group w-[200px] shrink-0 sm:w-[220px]">
       <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border transition-all group-hover:scale-[1.02] group-hover:ring-[var(--theme-color)]/40">
@@ -208,7 +214,7 @@ export default async function DiscoverPage() {
       <DiscoverySection title="编辑精选" description="编辑用心挑选的主题合集" icon={Layers} actionHref="/curated-collections">
         {data && data.collections.length > 0 ? (
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
-            {data.collections.map((c: any) => (
+            {data.collections.map((c) => (
               <CollectionStripCard key={c.id} collection={c} />
             ))}
           </div>

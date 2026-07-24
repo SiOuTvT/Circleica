@@ -100,13 +100,15 @@ export function CreditsClient() {
   return (
     <div className="space-y-6">
       {/* 顶部 */}
-      <div>
-        <div className="flex items-center gap-3">
-          <Users className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">制作组图鉴</h1>
+      <header className="flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+          <Users className="h-6 w-6" strokeWidth={1.5} />
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">探索每部作品背后的创作者</p>
-      </div>
+        <div>
+          <h1 className="text-xl font-bold text-foreground">制作组图鉴</h1>
+          <p className="text-sm text-muted-foreground">探索每部作品背后的创作者</p>
+        </div>
+      </header>
 
       {/* 搜索框 */}
       <div className="relative">

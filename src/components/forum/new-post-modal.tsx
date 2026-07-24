@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
-import { Loader2, Plus, X, MessageCircle, HelpCircle, Package, Coffee } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Loader2, X, MessageCircle, HelpCircle, Package, Coffee } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"

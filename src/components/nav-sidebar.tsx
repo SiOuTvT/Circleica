@@ -8,6 +8,7 @@ import {
   Layers,
   Library,
   Tag,
+  Trophy,
   Users,
 } from "lucide-react"
 import Link from "next/link"
@@ -24,6 +25,7 @@ const NAV_SECTIONS = [
       { icon: Users, label: "制作组图鉴", href: "/credits" },
       { icon: Layers, label: "精选合集", href: "/collections" },
       { icon: Tag, label: "标签浏览", href: "/tags" },
+      { icon: Trophy, label: "排行榜", href: "/ranking" },
     ],
   },
 ]

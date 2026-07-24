@@ -142,6 +142,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const prevImageRef = useRef<string>("")
   const [fading, setFading] = useState(false)
   const [displayImage, setDisplayImage] = useState(activeImage)
+  const [prevImage, setPrevImage] = useState("")
 
   // 预加载前后图片
   useEffect(() => {
@@ -163,6 +164,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   useEffect(() => {
     if (!activeImage) return
     if (prevImageRef.current !== activeImage) {
+      setPrevImage(prevImageRef.current)
       setFading(true)
       setDisplayImage(activeImage)
       prevImageRef.current = activeImage
@@ -241,9 +243,9 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       onTouchEnd={handleSwipeEnd}
     >
       {/* Previous image underneath for crossfade */}
-      {fading && prevImageRef.current && (
+      {fading && prevImage && (
         <Image
-          src={prevImageRef.current}
+          src={prevImage}
           alt=""
           fill
           className="object-cover"

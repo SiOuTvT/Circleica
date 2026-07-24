@@ -2,12 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
-import { CheckCircle2, ChevronLeft, Edit3, Eye, Heart, ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
+import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
 import { RichTextContent } from "../rich-text-content-wrapper"
-import type { Post, Comment, User } from "./forum-client-root"
+import type { Post, Comment } from "./forum-client-root"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
 import { EMOJI_LIST } from "@/lib/emoji"
@@ -64,7 +64,12 @@ interface PostDetailModalProps {
   onDeleteComment?: (id: string) => void
 }
 
-export function PostDetailModal({
+export function PostDetailModal(props: PostDetailModalProps) {
+  if (!props.post) return null
+  return <PostDetailModalInner {...props} post={props.post} />
+}
+
+function PostDetailModalInner({
   post,
   onClose,
   isLoggedIn,
@@ -78,7 +83,7 @@ export function PostDetailModal({
   commentInputRef,
   onLikeComment,
   onDeleteComment,
-}: PostDetailModalProps) {
+}: PostDetailModalProps & { post: Post & { comments: Comment[] } }) {
   const [commentText, setCommentText] = useState("")
   const [commentImageFile, setCommentImageFile] = useState<File | null>(null)
   const [commentImagePreview, setCommentImagePreview] = useState<string | null>(null)
@@ -132,8 +137,6 @@ export function PostDetailModal({
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
   }, [post, onClose])
-
-  if (!post) return null
 
   const isAuthor = currentUserId === post.user.id
 

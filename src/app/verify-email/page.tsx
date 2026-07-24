@@ -27,32 +27,21 @@ export default async function VerifyEmailPage({
     )
   }
 
+  let result: { email?: string } | null = null
+  let failed = false
+  let message = "验证失败"
   try {
     if (type === "change_email") {
-      const result = await authService.confirmEmailChange(token)
-      return (
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <ResultCard
-            status="success"
-            title="邮箱变更成功"
-            desc={`你的邮箱已更新为 ${result.email}`}
-          />
-        </div>
-      )
+      result = await authService.confirmEmailChange(token)
+    } else {
+      result = await authService.verifyEmail(token)
     }
-
-    const result = await authService.verifyEmail(token)
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <ResultCard
-          status="success"
-          title="邮箱验证成功"
-          desc="你的邮箱已验证，现在可以正常使用所有功能。"
-        />
-      </div>
-    )
   } catch (error) {
-    const message = error instanceof Error ? error.message : "验证失败"
+    failed = true
+    message = error instanceof Error ? error.message : "验证失败"
+  }
+
+  if (failed) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <ResultCard
@@ -64,6 +53,20 @@ export default async function VerifyEmailPage({
       </div>
     )
   }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <ResultCard
+        status="success"
+        title={type === "change_email" ? "邮箱变更成功" : "邮箱验证成功"}
+        desc={
+          type === "change_email"
+            ? `你的邮箱已更新为 ${result?.email}`
+            : "你的邮箱已验证，现在可以正常使用所有功能。"
+        }
+      />
+    </div>
+  )
 }
 
 function ResultCard({

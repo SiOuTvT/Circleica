@@ -1,4 +1,4 @@
-import { withHandler, json, paginated } from "@/lib/api-handler"
+import { withHandler, paginated } from "@/lib/api-handler"
 import { searchService } from "@/services/user"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { RateLimitError } from "@/lib/errors"

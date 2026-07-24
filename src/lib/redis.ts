@@ -241,7 +241,7 @@ class MemoryCache implements CacheClient {
 // 缓存/限流仍走内存实现 —— 分布式限流永不生效，多副本下认证限流被绕过。
 // 因此用惰性代理：每次调用时按 getRedisConfig() 的实时值选择后端。
 
-let _memoryFallback = new MemoryCache()
+const _memoryFallback = new MemoryCache()
 let _redisCache: RedisCache | null = null
 let _redisCacheUrl: string | null = null
 

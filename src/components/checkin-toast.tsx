@@ -29,7 +29,7 @@ export function CheckInToast({ marks, imageUrl: propImageUrl, onClose }: CheckIn
   const [config, setConfig] = useState<CheckInConfig>(DEFAULT_CONFIG)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const [isHovered, setIsHovered] = useState(false)
+  const [, setIsHovered] = useState(false)
 
   // 获取签到配置
   useEffect(() => {

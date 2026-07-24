@@ -16,7 +16,7 @@ import { PutObjectCommand, DeleteObjectCommand, S3Client } from "@aws-sdk/client
 import { mkdir, writeFile, unlink } from "fs/promises"
 import path from "path"
 import { logger } from "./logger"
-import { UPLOAD, STORAGE } from "./config"
+import { STORAGE } from "./config"
 import { getR2Config } from "./service-config"
 
 // ── 接口定义 ────────────────────────

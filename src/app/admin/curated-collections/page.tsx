@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { adminBtnPrimary, adminBtnDanger, adminInput } from "@/lib/admin-styles"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, X, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react"
+import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, X, ArrowUp, ArrowDown } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"

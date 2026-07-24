@@ -5,7 +5,7 @@ import { Eye, Heart, Lock, MessageSquare, Pin } from "lucide-react"
 import Link from "next/link"
 import { memo } from "react"
 import { Tag } from "@/components/ui/tag"
-import type { User, Post } from "./forum-client-root"
+import type { Post } from "./forum-client-root"
 import { timeAgo } from "@/lib/time-ago"
 import { UserAvatar } from "@/components/user-avatar"
 

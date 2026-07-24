@@ -25,11 +25,7 @@ export function CheckInConfigEditor() {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string>("")
 
-  useEffect(() => {
-    fetchConfig()
-  }, [])
-
-  const fetchConfig = async () => {
+  async function fetchConfig() {
     try {
       const { ok, data } = await apiFetchSafe<any>("/api/admin/checkin-config")
       if (!ok) throw new Error("加载配置失败")
@@ -40,6 +36,10 @@ export function CheckInConfigEditor() {
       toast.error("加载配置失败")
     }
   }
+
+  useEffect(() => {
+    fetchConfig()
+  }, [])
 
   const handleSave = async () => {
     setLoading(true)

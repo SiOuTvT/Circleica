@@ -46,7 +46,7 @@ export function ProfileContentTabs({ userId }: Props) {
   const [newFolderName, setNewFolderName] = useState("")
   const [modalCollection, setModalCollection] = useState<CollectionData | null>(null)
   const [creating, setCreating] = useState(false)
-  const [loadError, setLoadError] = useState(false)
+  const [, setLoadError] = useState(false)
 
   // 客户端按需加载数据 - 初始为空
   const [loadedFav, setLoadedFav] = useState(false)
@@ -231,10 +231,10 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
       )}
 
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div> : <>
-        <CollectionCard id="default" name="默认收藏夹" gameCount={defaultFolderGames.length} coverGames={defaultFolderGames}
+        <CollectionCard name="默认收藏夹" gameCount={defaultFolderGames.length} coverGames={defaultFolderGames}
           onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
         {collections.map((col) => (
-          <CollectionCard key={col.id} id={col.id} name={col.name} gameCount={col.favorites?.length ?? 0} coverGames={col.favorites?.map(f => f.game) ?? []}
+          <CollectionCard key={col.id} name={col.name} gameCount={col.favorites?.length ?? 0} coverGames={col.favorites?.map(f => f.game) ?? []}
             onOpen={() => onOpenFolder(col)} onDelete={() => onDeleteFolder(col.id)} />
         ))}
       </>}
@@ -251,8 +251,8 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
   )
 }
 
-function CollectionCard({ id, name, gameCount, coverGames, onOpen, onDelete, isDefault }: {
-  id: string; name: string; gameCount: number; coverGames: GameLite[]; onOpen: () => void; onDelete?: () => void; isDefault?: boolean
+function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefault }: {
+  name: string; gameCount: number; coverGames: GameLite[]; onOpen: () => void; onDelete?: () => void; isDefault?: boolean
 }) {
   return (
     <div className="group w-full rounded-xl bg-secondary/40 p-4 hover:bg-secondary/60">

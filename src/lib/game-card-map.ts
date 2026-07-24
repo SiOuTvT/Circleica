@@ -24,23 +24,30 @@ const CARD_TAG_COLOR = "#6b7280"
 /**
  * 将 Prisma Game（含 tags/resources）映射为 GameCard 所需的 GameCardData。
  * 资源标签来自 resources 的 language / runType / resourceContent 去重合并。
+ *
+ * opts.resourceTagColor：资源标签的统一颜色，默认 CARD_TAG_COLOR（灰）。首页会传入站点可配置的 cardTagColor。
+ * opts.coverFallback：封面为空时的回退图（如站点占位图），默认空串。
  */
-export function mapGameToCard(g: {
-  id: string
-  serialId?: number | null
-  title: string
-  coverImage: string | null
-  status: string
-  isNsfw: boolean
-  favoriteCount: number
-  viewCount?: number | null
-  downloadCount?: number | null
-  downloadLinks?: unknown
-  updatedAt?: Date | string
-  createdAt?: Date | string
-  tags?: { tag: { name: string; color: string } }[]
-  resources?: { language: unknown; runType: unknown; resourceContent: unknown }[]
-}): GameCardData {
+export function mapGameToCard(
+  g: {
+    id: string
+    serialId?: number | null
+    title: string
+    coverImage: string | null
+    status: string
+    isNsfw: boolean
+    favoriteCount: number
+    viewCount?: number | null
+    downloadCount?: number | null
+    downloadLinks?: unknown
+    updatedAt?: Date | string
+    createdAt?: Date | string
+    tags?: { tag: { name: string; color: string } }[]
+    resources?: { language: unknown; runType: unknown; resourceContent: unknown }[]
+  },
+  opts?: { resourceTagColor?: string; coverFallback?: string },
+): GameCardData {
+  const resourceTagColor = opts?.resourceTagColor ?? CARD_TAG_COLOR
   const downloadLinks = Array.isArray(g.downloadLinks) ? g.downloadLinks : []
   const seen = new Set<string>()
   const resourceTags: { name: string; color: string }[] = []
@@ -51,7 +58,7 @@ export function mapGameToCard(g: {
         for (const name of arr) {
           if (!seen.has(name)) {
             seen.add(name)
-            resourceTags.push({ name, color: CARD_TAG_COLOR })
+            resourceTags.push({ name, color: resourceTagColor })
           }
         }
       } catch {
@@ -63,7 +70,7 @@ export function mapGameToCard(g: {
     id: g.id,
     serialId: g.serialId,
     title: g.title,
-    coverImage: g.coverImage ?? "",
+    coverImage: g.coverImage || opts?.coverFallback || "",
     status: g.status,
     isNsfw: g.isNsfw,
     favoriteCount: g.favoriteCount,

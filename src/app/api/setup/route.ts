@@ -71,7 +71,7 @@ export const POST = withHandler(async (req) => {
       { key: "site_logo", value: body.siteLogo || "" },
       { key: "default_placeholder_image", value: body.placeholderImage || "" },
       { key: "registration_enabled", value: String(body.registrationEnabled ?? true) },
-      { key: "themeColor", value: body.themeColor || "#E0A87C" },
+      { key: "themeColor", value: body.themeColor || "#5FA8A0" },
     ]
 
     for (const s of settings) {
