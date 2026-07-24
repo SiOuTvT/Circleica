@@ -1,0 +1,30 @@
+D:\Circleica\src\__tests__\validations.test.ts
+  10:3  warning  'forumCommentSchema' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\app\admin\pages\structured-editor.tsx
+  545:9   warning  'toggleLayout' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  588:19  warning  'isSmallCardGrid' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\app\manifest.ts
+  3:7  warning  'BASE' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\components\collection-picker-dialog.tsx
+  10:10  warning  'apiDelete' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\components\forum\post-detail-modal.tsx
+  104:6  warning  React Hook useEffect has a missing dependency: 'post?.comments'. Either include it or remove the dependency array. If 'setLocalComments' needs the current value of 'post.comments', you can also switch to useReducer instead of useState and read 'post.comments' in the reducer  react-hooks/exhaustive-deps
+D:\Circleica\src\components\gallery-hero.tsx
+  42:9  warning  The 'galleryImages' conditional could make the dependencies of useEffect Hook (at line 161) change on every render. To fix this, wrap the initialization of 'galleryImages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+D:\Circleica\src\components\setup-wizard.tsx
+  376:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  513:84  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  609:26  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+D:\Circleica\src\components\tag-groups-manager.tsx
+   93:18  warning  'handleCreateGroup' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\components\tags-manager.tsx
+  47:18  warning  'handleCreate' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\components\top-nav.tsx
+  69:9  warning  'checkinMsg' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  70:9  warning  'checkinDupMsg' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+D:\Circleica\src\hooks\use-emotional-messages.ts
+  89:6  warning  React Hook useEffect has a missing dependency: 'keys'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+D:\Circleica\src\lib\prisma.ts
+  109:9   warning  'cache' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 96 problems (0 errors, 96 warnings)

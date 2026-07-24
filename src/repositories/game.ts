@@ -6,6 +6,15 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import type { PlayStatusType } from "@prisma/client"
 
+/** findRandom 原生 SQL 返回的精简游戏行（仅随机展示所需字段） */
+interface RandomGameRow {
+  id: string
+  serialId: number
+  title: string
+  coverImage: string | null
+  viewCount: number
+}
+
 export const gameRepo = {
   findPaginated(page: number, limit: number, filters?: {
     q?: string; sort?: string; tag?: string; isNsfw?: boolean
@@ -81,7 +90,7 @@ export const gameRepo = {
     const total = await prisma.game.count({ where: { isPublished: true } })
     if (total === 0) return []
     const offset = total > limit ? Math.floor(Math.random() * (total - limit)) : 0
-    return prisma.$queryRaw<any[]>(
+    return prisma.$queryRaw<RandomGameRow[]>(
       Prisma.sql`SELECT id, "serialId", title, "coverImage", "viewCount" FROM "Game" WHERE "isPublished" = true ORDER BY "serialId" LIMIT ${limit} OFFSET ${offset}`,
     )
   },
@@ -209,7 +218,7 @@ export const gameRepo = {
     })
   },
 
-  createResource(data: any) {
+  createResource(data: Prisma.GameResourceCreateInput | Prisma.GameResourceUncheckedCreateInput) {
     return prisma.gameResource.create({
       data,
       include: { entries: true },

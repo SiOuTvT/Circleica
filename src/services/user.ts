@@ -431,8 +431,8 @@ export const commentService = {
 // ── 搜索 ────────────────────────────
 
 export const searchService = {
-  search(q: string, page: number, limit: number): Promise<[any[], number]> {
-    if (!q?.trim()) return Promise.resolve([[], 0] as [any[], number])
+  search(q: string, page: number, limit: number) {
+    if (!q?.trim()) return Promise.resolve([[], 0] as [never[], number])
     return searchRepo.search(q.trim(), page, Math.min(limit, 50))
   },
 

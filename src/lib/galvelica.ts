@@ -119,26 +119,43 @@ function stripHtml(input: unknown): string {
     .trim()
 }
 
-function mapCard(g: any): GalvelicaWorkCard {
+/** mapCard 读取的游戏源结构（Game 实体结构满足；各调用点的 include 字段均覆盖以下子集） */
+interface GalvelicaCardSource {
+  id: string
+  serialId: number
+  title: string
+  originalWork?: string | null
+  coverImage?: string | null
+  studioName?: string | null
+  releaseDate?: Date | null
+  publishedAt?: Date | null
+  favoriteCount: number
+  viewCount: number
+  isNsfw: boolean
+  description?: string | null
+  tags?: { tag: { id: string; name: string; color: string | null; group?: { name: string | null; color: string | null } | null } }[]
+}
+
+function mapCard(g: GalvelicaCardSource): GalvelicaWorkCard {
   const year = g.releaseDate ? g.releaseDate.getFullYear() : g.publishedAt ? g.publishedAt.getFullYear() : null
   return {
     id: g.id,
     serialId: g.serialId,
     title: g.title,
-    originalWork: g.originalWork,
-    coverImage: g.coverImage,
-    studioName: g.studioName,
+    originalWork: g.originalWork ?? "",
+    coverImage: g.coverImage ?? "",
+    studioName: g.studioName ?? "",
     releaseYear: year,
     favoriteCount: g.favoriteCount,
     viewCount: g.viewCount,
     isNsfw: g.isNsfw,
     description: stripHtml(g.description).slice(0, 100),
-    tags: (g.tags ?? []).map((t: any) => ({
+    tags: (g.tags ?? []).map((t) => ({
       id: t.tag.id,
       name: t.tag.name,
-      color: t.tag.color,
-      groupName: t.tag.group?.name ?? null,
-      groupColor: t.tag.group?.color ?? null,
+      color: t.tag.color ?? "",
+      groupName: t.tag.group?.name ?? "",
+      groupColor: t.tag.group?.color ?? "",
     })),
   }
 }

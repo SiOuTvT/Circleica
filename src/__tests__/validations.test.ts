@@ -7,7 +7,6 @@ import {
   loginSchema,
   gameCommentSchema,
   forumPostSchema,
-  forumCommentSchema,
   gameCreateSchema,
   gameResourceCreateSchema,
   collectionCreateSchema,

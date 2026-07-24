@@ -541,20 +541,6 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
     return { start, end, isGrid: blockIsGrid }
   }
 
-  // 切换卡片布局（grid <-> stack）
-  const toggleLayout = (index: number) => {
-    const block = blocks[index]
-    if (block.type !== "card" && block.type !== "small-card" && block.type !== "qa") return
-    const data = JSON.parse(block.content)
-    const newBlocks = blocks.map((b, i) => {
-      if (i === index) {
-        return { ...b, content: JSON.stringify({ ...data, isGrid: !data.isGrid }) }
-      }
-      return b
-    })
-    onChange(blocksToHTML(newBlocks))
-  }
-
   // 单独切换小卡片布局
   const toggleSmallCardLayout = (index: number) => {
     const block = blocks[index]
@@ -583,10 +569,6 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
             const isInMultiCardGroup = group && (group.end - group.start + 1) > 1
             const isStartOfGroup = group && i === group.start
             const isGrid = group?.isGrid
-            // 单个小卡片也需要检查自身的 isGrid
-            const blockData = block.type === "small-card" ? JSON.parse(block.content) : null
-            const isSmallCardGrid = blockData?.isGrid
-
             // 如果是多卡片组的第一项，渲染容器
             if (isInMultiCardGroup && isStartOfGroup) {
               const groupBlocks = blocks.slice(group.start, group.end + 1)

@@ -1,0 +1,130 @@
+
+D:\Circleica\src\__tests__\validations.test.ts
+  10:3  warning  'forumCommentSchema' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Circleica\src\app\admin\achievements\page.tsx
+  64:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\checkins\page.tsx
+  56:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  64:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\curated-collections\page.tsx
+  184:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  187:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\pages\structured-editor.tsx
+  545:9   warning  'toggleLayout' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  588:19  warning  'isSmallCardGrid' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Circleica\src\app\admin\resource-tags\page.tsx
+  25:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\review\page.tsx
+  32:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\services\page.tsx
+   50:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  120:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\tags\[id]\detail-client.tsx
+  133:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\admin\users\page.tsx
+  36:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\app\manifest.ts
+  3:7  warning  'BASE' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Circleica\src\components\admin-global-search.tsx
+  72:52   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:67   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:87   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:104  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:119  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:139  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:27   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\admin\checkin-config-editor.tsx
+  30:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\collection-picker-dialog.tsx
+  10:10  warning  'apiDelete' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Circleica\src\components\forum-post-detail.tsx
+   78:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   93:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\forum-sidebar.tsx
+  79:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  80:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\forum\forum-client.tsx
+   77:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  130:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  262:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  306:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\forum\post-detail-modal.tsx
+  104:6  warning  React Hook useEffect has a missing dependency: 'post?.comments'. Either include it or remove the dependency array. If 'setLocalComments' needs the current value of 'post.comments', you can also switch to useReducer instead of useState and read 'post.comments' in the reducer  react-hooks/exhaustive-deps
+
+D:\Circleica\src\components\gallery-hero.tsx
+  42:9  warning  The 'galleryImages' conditional could make the dependencies of useEffect Hook (at line 161) change on every render. To fix this, wrap the initialization of 'galleryImages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+D:\Circleica\src\components\game-detail\resource-tab.tsx
+  348:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  348:91  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  369:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  369:79  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  398:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  398:79  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  429:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\game-form.tsx
+  264:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\music-manager.tsx
+  118:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\setup-wizard.tsx
+  376:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  513:84  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  609:26  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\Circleica\src\components\tag-groups-manager.tsx
+   93:18  warning  'handleCreateGroup' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   99:54  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  136:54  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  167:52  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  203:54  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  239:62  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  289:62  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+  352:52  warning  Unexpected any. Specify a different type                                             @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\tags-manager.tsx
+  47:18  warning  'handleCreate' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  52:54  warning  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  68:54  warning  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  82:52  warning  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\components\top-nav.tsx
+  69:9  warning  'checkinMsg' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  70:9  warning  'checkinDupMsg' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+D:\Circleica\src\components\vndb-import-manager.tsx
+  40:84  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\Circleica\src\hooks\use-emotional-messages.ts
+  89:6  warning  React Hook useEffect has a missing dependency: 'keys'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Circleica\src\lib\api-handler.ts
+  177:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 69 problems (0 errors, 69 warnings)
+

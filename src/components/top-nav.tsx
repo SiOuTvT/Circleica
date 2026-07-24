@@ -65,9 +65,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     if (typeof window === "undefined") return null
     try { return localStorage.getItem("local_avatar") } catch { return null }
   })
-  const { messages: checkinMsgs } = useEmotionalMessages(CHECKIN_MSG_KEYS)
-  const checkinMsg = checkinMsgs.checkin_success
-  const checkinDupMsg = checkinMsgs.checkin_duplicate
+  useEmotionalMessages(CHECKIN_MSG_KEYS)
 
   const userRef = useRef<HTMLDivElement>(null)
 

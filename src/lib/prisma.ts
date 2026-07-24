@@ -70,7 +70,7 @@ let probePromise: Promise<boolean> | null = null
 
 function ensureProbe(): Promise<boolean> {
   if (!probePromise) {
-    probePromise = (realPrisma as any)
+    probePromise = realPrisma
       .$queryRaw`SELECT 1`
       .then(() => true)
       .catch(() => {
@@ -84,7 +84,7 @@ function ensureProbe(): Promise<boolean> {
 /**
  * 离线回退时各读操作的空结果。写操作/未知方法直接抛错，避免静默假成功。
  */
-function getEmptyResult(modelName: string, method: string): any {
+function getEmptyResult(modelName: string, method: string): unknown {
   switch (method) {
     case "findMany":
     case "findRaw":
@@ -105,45 +105,44 @@ function getEmptyResult(modelName: string, method: string): any {
   }
 }
 
-function buildModelProxy(realModel: any, modelName: string, forceMock = false) {
-  const cache = new Map<string, any>()
-  return new Proxy(realModel, {
-    get(target, methodName: string) {
-      const fn = (target as any)[methodName]
+function buildModelProxy(realModel: unknown, modelName: string, forceMock = false) {
+  return new Proxy(realModel as object, {
+    get(target, methodName) {
+      const fn = (target as Record<string, unknown>)[methodName as string]
       if (typeof fn !== "function") return fn
-      return (...callArgs: any[]) =>
+      return (...callArgs: unknown[]) =>
         ensureProbe().then((ok) => {
           if (ok && !enabled.mock && !forceMock) {
-            return fn(...callArgs).catch((err: any) => {
+            return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
               enabled.mock = true
-              logger.db.warn(`[db-offline] ${modelName}.${methodName} 失败，回退空结果`, err?.message)
-              return getEmptyResult(modelName, methodName)
+              logger.db.warn(`[db-offline] ${modelName}.${String(methodName)} 失败，回退空结果`, { error: (err as Error)?.message })
+              return getEmptyResult(modelName, String(methodName))
             })
           }
-          return getEmptyResult(modelName, methodName)
+          return getEmptyResult(modelName, String(methodName))
         })
     },
   })
 }
 
-function buildPrismaProxy(real: any, forceMock = false) {
-  const modelCache = new Map<string, any>()
+function buildPrismaProxy(real: unknown, forceMock = false) {
+  const modelCache = new Map<string, unknown>()
   const getModelProxy = (modelName: string) => {
     if (!modelCache.has(modelName)) {
-      modelCache.set(modelName, buildModelProxy((real as any)[modelName], modelName, forceMock))
+      modelCache.set(modelName, buildModelProxy((real as Record<string, unknown>)[modelName], modelName, forceMock))
     }
     return modelCache.get(modelName)
   }
 
-  return new Proxy(real, {
-    get(target, prop: string) {
+  return new Proxy(real as object, {
+    get(target, prop) {
       if (prop === "$queryRaw" || prop === "$executeRaw") {
-        const fn = (target as any)[prop]
+        const fn = (target as Record<string, unknown>)[prop]
         const isWrite = prop === "$executeRaw"
-        return (...callArgs: any[]) =>
+        return (...callArgs: unknown[]) =>
           ensureProbe().then((ok) => {
             if (ok && !enabled.mock && !forceMock) {
-              return fn(...callArgs).catch((err: any) => {
+              return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
                 // 读查询失败回退空数组；写操作（executeRaw）失败必须暴露原始错误
                 if (isWrite) throw err
                 return []
@@ -155,15 +154,15 @@ function buildPrismaProxy(real: any, forceMock = false) {
           })
       }
       if (prop === "$transaction") {
-        const fn = (target as any)[prop]
-        return (arg: any) =>
+        const fn = (target as Record<string, unknown>)[prop]
+        return (arg: unknown) =>
           ensureProbe().then((ok) => {
             if (ok && !enabled.mock && !forceMock) {
               try {
-                return fn(arg)
+                return (fn as (a: unknown) => unknown)(arg)
               } catch (err) {
                 // 真实事务失败要暴露错误，不要静默返回空（否则上层 result.xxx → TypeError → 500）
-                logger.db.error("[db] $transaction 失败", (err as any)?.message)
+                logger.db.error("[db] $transaction 失败", (err as Error)?.message)
                 throw err
               }
             }
@@ -173,11 +172,11 @@ function buildPrismaProxy(real: any, forceMock = false) {
       }
       if (typeof prop === "string" && prop.startsWith("$")) {
         // $connect / $disconnect / $use / $extends / $on / $metrics ...
-        return (target as any)[prop]
+        return (target as Record<string, unknown>)[prop]
       }
-      const val = (target as any)[prop]
+      const val = (target as Record<string, unknown>)[prop as string]
       if (val && typeof val === "object") {
-        return getModelProxy(prop)
+        return getModelProxy(String(prop))
       }
       return val
     },

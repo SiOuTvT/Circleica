@@ -107,7 +107,7 @@ export const collectionRepo = {
 export const notificationRepo = {
   findPaginated(userId: string, page: number, limit: number, unreadOnly?: boolean) {
     const skip = (page - 1) * limit
-    const where: any = { userId }
+    const where: Prisma.NotificationWhereInput = { userId }
     if (unreadOnly) where.isRead = false
 
     return Promise.all([

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api-client"
+import { apiGet, apiPost, apiPut } from "@/lib/api-client"
 import { logger } from "@/lib/logger"
 import { Check, Folder, FolderPlus, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"

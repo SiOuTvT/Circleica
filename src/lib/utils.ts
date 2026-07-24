@@ -15,7 +15,7 @@ export function cn(...inputs: ClassValue[]) {
 export function withLabelableId(node: ReactNode, id: string): ReactNode {
   if (Array.isArray(node)) return Children.map(node, (n) => withLabelableId(n, id))
   if (!isValidElement(node)) return node
-  const el = node as ReactElement<any>
+  const el = node as ReactElement<Record<string, unknown>>
   const tag = el.type
   if (tag === "input" || tag === "select" || tag === "textarea") {
     return cloneElement(el, { id })

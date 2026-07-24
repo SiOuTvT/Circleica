@@ -1,7 +1,5 @@
 import { MetadataRoute } from "next"
 
-const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Circleica",
