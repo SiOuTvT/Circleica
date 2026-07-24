@@ -3,7 +3,7 @@
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useEffect, useRef, useState, memo } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react"
 
 // 检测是否为触摸设备
 const isTouchDevice = typeof window !== 'undefined' &&
@@ -39,7 +39,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
   const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const galleryImages = screenshots.length > 0 ? screenshots : []
+  const galleryImages = useMemo(() => screenshots.length > 0 ? screenshots : [], [screenshots])
   const hasMultipleImages = galleryImages.length > 1
 
   const stopAutoPlay = useCallback(() => {

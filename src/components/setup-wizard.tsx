@@ -373,6 +373,7 @@ export function SetupWizard() {
                     <Field label="站点 Logo" hint="建议 120×120 透明底 PNG，最大 2MB">
                       <div className="flex items-center gap-3 flex-wrap">
                         {logoPreview || form.siteLogo ? (
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={logoPreview || form.siteLogo} alt="Logo" className="h-11 w-11 rounded-lg object-contain bg-white/10 border border-white/10" />
                         ) : (
                           <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center text-lg border border-dashed", "bg-muted border-border text-muted-foreground")}>🎮</div>
@@ -510,7 +511,11 @@ export function SetupWizard() {
                       <SummaryRow label="站点名称" value={form.siteName} />
                       {form.siteDescription && <SummaryRow label="站点描述" value={form.siteDescription} />}
                       <SummaryRow label="Logo">
-                        {form.siteLogo ? <span className="flex items-center gap-2"><img src={logoPreview || form.siteLogo} alt="" className="w-6 h-6 rounded object-contain" /><span className={cn("text-sm", "text-muted-foreground")}>已上传</span></span> : <span className={cn("text-sm", "text-muted-foreground")}>使用默认</span>}
+                        {form.siteLogo ? <span className="flex items-center gap-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={logoPreview || form.siteLogo} alt="" className="w-6 h-6 rounded object-contain" />
+                          <span className={cn("text-sm", "text-muted-foreground")}>已上传</span>
+                        </span> : <span className={cn("text-sm", "text-muted-foreground")}>使用默认</span>}
                       </SummaryRow>
                       <SummaryRow label="主题色">
                         <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full" style={{ backgroundColor: form.themeColor }} /><span className={cn("text-sm font-medium", "text-foreground")}>{THEME_PRESETS.find(p => p.color === form.themeColor)?.label || form.themeColor}</span></span>
@@ -606,7 +611,12 @@ function PreviewPanel({ form, logoPreview }: {
   return (
     <div className={cn("rounded-xl overflow-clip border transition-colors", "bg-card border border-border")}>
       <div className="flex items-center gap-2 px-3 h-9 border-b border-border">
-        {form.siteLogo ? <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" /> : <span className="text-xs">🎮</span>}
+        {form.siteLogo ? (
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" />
+        ) : (
+          <span className="text-xs">🎮</span>
+        )}
         <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
       </div>
       <div className="p-3 space-y-3">

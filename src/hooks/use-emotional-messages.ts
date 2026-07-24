@@ -86,6 +86,7 @@ export function useEmotionalMessages(keys: string[]) {
       setLoading(false)
     })
     return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keysKey])
 
   return { messages, loading }
