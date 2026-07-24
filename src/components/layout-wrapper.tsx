@@ -31,6 +31,7 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
   const isAdminRoute = pathname.startsWith("/admin")
   const isFullscreenRoute = pathname === "/login" || pathname === "/register"
   const isNormalRoute = !isAdminRoute && !isFullscreenRoute
+  const isGalvelica = pathname.startsWith("/galvelica")
 
   /* ── 侧边栏状态 ── */
   const [navCollapsed, setNavCollapsed] = useState(false)
@@ -99,6 +100,12 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
   }, [])
 
   const toggleForum = useCallback(() => setForumOpen(v => !v), [])
+
+  // Galvelica 是独立子站：脱离主站框架（侧边栏 / 顶栏 / 面包屑 / 论坛栏 / 播放器），
+  // 由 src/app/galvelica/layout.tsx 提供自己的 Header / 导航 / Footer。
+  if (isGalvelica) {
+    return <BreadcrumbProvider>{children}</BreadcrumbProvider>
+  }
 
   return (
     <BreadcrumbProvider>

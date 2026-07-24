@@ -38,6 +38,8 @@ export interface GalvelicaWorkCard {
   viewCount: number
   isNsfw: boolean
   tags: GalvelicaTag[]
+  /** 纯文本简介（由 description 脱标签后截断，供杂志式卡片一句简介） */
+  description: string
 }
 
 export interface GalvelicaWorkDetail extends GalvelicaWorkCard {
@@ -91,6 +93,7 @@ function workCardSelect() {
     favoriteCount: true,
     viewCount: true,
     isNsfw: true,
+    description: true,
     tags: {
       select: {
         tag: {
@@ -106,6 +109,16 @@ function workCardSelect() {
   } satisfies Prisma.GameSelect
 }
 
+/** 把富文本 description 脱标签并折叠空白，得到纯文本（用于卡片一句简介） */
+function stripHtml(input: unknown): string {
+  if (typeof input !== "string" || !input) return ""
+  return input
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 function mapCard(g: any): GalvelicaWorkCard {
   const year = g.releaseDate ? g.releaseDate.getFullYear() : g.publishedAt ? g.publishedAt.getFullYear() : null
   return {
@@ -119,6 +132,7 @@ function mapCard(g: any): GalvelicaWorkCard {
     favoriteCount: g.favoriteCount,
     viewCount: g.viewCount,
     isNsfw: g.isNsfw,
+    description: stripHtml(g.description).slice(0, 100),
     tags: (g.tags ?? []).map((t: any) => ({
       id: t.tag.id,
       name: t.tag.name,
