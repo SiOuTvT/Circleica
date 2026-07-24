@@ -15,7 +15,8 @@ import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { timeAgoPublished } from "@/lib/time-ago"
-import { Tag, TagGroup } from "@/components/ui/tag"
+import { Tag } from "@/components/ui/tag"
+import { TagRow } from "@/components/tag-row"
 import { Download, Eye, Heart } from "lucide-react"
 import Image from "next/image"
 import { notFound, redirect } from "next/navigation"
@@ -229,10 +230,10 @@ export default async function GameDetailPage({
       <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
-          顶部双塔区 — 左 38% + 右 62%，底边齐平 520px
+          顶部双塔区 — 左 42% + 右 58%，左右始终等高（右列画廊 flex-fill）
       ═══════════════════════════════════════════════ */}
       <div className="overflow-hidden min-w-0">
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[38%_1fr] min-w-0">
+        <div className="grid items-stretch gap-4 sm:gap-5 lg:grid-cols-[42%_1fr] min-w-0">
 
           {/* ─── 左侧：单一整体大卡片 ─── */}
           <div
@@ -264,10 +265,10 @@ export default async function GameDetailPage({
             </div>
 
             {/* ②号位：标题 → 标签 → 发布者+按钮 → 数据 */}
-            <div className="flex flex-col flex-1 px-2.5 sm:px-5 pb-3 sm:pb-5 pt-2 sm:pt-3 min-h-0 min-w-0">
+            <div className="flex flex-col flex-1 px-4 sm:px-6 pb-5 sm:pb-6 pt-4 sm:pt-5 min-h-0 min-w-0">
 
               {/* ① 游戏标题 */}
-              <div className="mb-1 sm:mb-1.5">
+              <div className="mb-2 sm:mb-2.5">
                 <h1 className="font-bold leading-tight text-foreground text-xl sm:text-2xl lg:text-3xl">
                   {game.title}
                 </h1>
@@ -276,10 +277,10 @@ export default async function GameDetailPage({
                 )}
               </div>
 
-              {/* ② 标签行 */}
-              <TagGroup className="mt-1.5 sm:mt-2 mb-2 sm:mb-3">
-                {/* SFW/NSFW 标识 */}
-                <Tag color={game.isNsfw ? "#d87070" : undefined} className={game.isNsfw ? "" : "bg-blue-500/10 text-blue-500 border-blue-500/20"}>
+              {/* ② 标签行 — 自由换行，最多 2 行，超出折叠为「+N 更多」（左列高度不随标签数失控） */}
+              <TagRow className="mt-2 sm:mt-2.5 mb-3 sm:mb-4">
+                {/* SFW/NSFW 标识 — 语义色令牌 */}
+                <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
                 </Tag>
                 {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 颜色跟随主题色 */}
@@ -288,7 +289,7 @@ export default async function GameDetailPage({
                     {tag}
                   </Tag>
                 ))}
-              </TagGroup>
+              </TagRow>
 
               {/* ③ 发布者信息 + 功能按钮 */}
               <div className="flex items-center gap-2.5 sm:gap-3 mt-auto">
@@ -328,7 +329,7 @@ export default async function GameDetailPage({
               </div>
 
               {/* ④ 人气数据 */}
-              <div className="flex items-center gap-4 sm:gap-5 pt-3 sm:pt-4 mt-2 sm:mt-3 border-t border-border/40">
+              <div className="flex items-center gap-4 sm:gap-5 pt-4 sm:pt-5 mt-3 sm:mt-4 border-t border-border/40">
                 <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                   <Eye className="h-3.5 w-3.5" />
                   <span className="font-bold tabular-nums">{game.viewCount}</span>

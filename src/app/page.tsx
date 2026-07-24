@@ -198,14 +198,9 @@ export default async function HomePage({
       {/* Hero + 手机端随机按钮 — 紧密组合 */}
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
-          {/* 品牌卡 - 桌面端：编辑式 */}
-          <div className="relative hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
-            {/* 极淡薄荷光晕，提升高级感（不喧宾夺主） */}
-            <div
-              className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12), transparent 70%)" }}
-            />
-            <div className="relative flex flex-col flex-1 px-6 py-8 justify-between">
+          {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
+          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
+            <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
                 <p className="text-xs font-medium tracking-[0.2em] text-[var(--clr-blue)] uppercase">视觉小说 · 同人 · 资源</p>
                 <h2 className="mt-3 text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>

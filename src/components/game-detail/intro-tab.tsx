@@ -155,7 +155,7 @@ export function IntroTab({
     return (
       <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
         {description ? (
-          <RichTextContent html={description} className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground" />
+          <RichTextContent html={description} className="prose dark:prose-invert max-w-none text-sm leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
         ) : (
           <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
         )}
@@ -195,7 +195,7 @@ export function IntroTab({
         className="transition-opacity duration-150 ease-out"
         style={{ opacity: fading ? 0 : 1 }}
       >
-        <RichTextContent html={activeDesc.text} className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground" />
+        <RichTextContent html={activeDesc.text} className="prose dark:prose-invert max-w-none text-sm leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
       </div>
 
       {/* 制作人员折叠卡片 — 桌面默认展开，手机默认收起 */}
