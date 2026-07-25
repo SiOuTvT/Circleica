@@ -1,10 +1,21 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getWorkBySerialId } from "@/lib/galvelica"
-import { isNumericId } from "@/lib/serial-id"
+import { getWorkBySerialId, getWorkBySlug } from "@/lib/galvelica"
 import { WorkDetailView } from "@/components/galvelica/work-detail"
 
 export const dynamic = "force-dynamic"
+
+/**
+ * 作品档案详情路由（Stage E / F 统一入口）。
+ * URL 段可能是：
+ *   - 数字 serialId → 已收录作品（解析 Game → Work）
+ *   - slug          → 未收录作品（直接按 slug 解析 Work）
+ * 两者都渲染同一份 WorkDetailView。
+ */
+async function resolveWork(segment: string) {
+  if (/^\d+$/.test(segment)) return getWorkBySerialId(parseInt(segment, 10))
+  return getWorkBySlug(segment)
+}
 
 export async function generateMetadata({
   params,
@@ -12,8 +23,7 @@ export async function generateMetadata({
   params: Promise<{ serialId: string }>
 }): Promise<Metadata> {
   const { serialId } = await params
-  if (!isNumericId(serialId)) return { title: "作品档案 · Galvelica" }
-  const work = await getWorkBySerialId(parseInt(serialId, 10))
+  const work = await resolveWork(serialId)
   if (!work) return { title: "作品档案 · Galvelica" }
   return {
     title: `${work.title} · Galvelica 资料库`,
@@ -28,9 +38,7 @@ export default async function GalvelicaWorkDetail({
   params: Promise<{ serialId: string }>
 }) {
   const { serialId } = await params
-  if (!isNumericId(serialId)) notFound()
-
-  const work = await getWorkBySerialId(parseInt(serialId, 10))
+  const work = await resolveWork(serialId)
   if (!work) notFound()
 
   return <WorkDetailView work={work} />
