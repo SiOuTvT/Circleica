@@ -267,35 +267,36 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       })
       if (!ok) { setVndbError(error ?? "拉取失败"); return }
 
+      // API 返回 { success, data: { title, ... } }，json() helper 与 apiClient 双层结构
+      const d = (data as { data?: Record<string, unknown> })?.data ?? data
+
       // 自动填充字段（所有字段均可手动修改）
-      if (data.title) setTitle(data.title)
-      if (data.japaneseName) setOriginalWork(data.japaneseName)
-      if (data.englishName) setEnglishName(data.englishName)
-      if (data.aliases) setAliases(data.aliases)
-      if (data.description) setDescLangs(prev => ({ ...prev, en: data.description }))
-      if (data.studioName) setStudioName(data.studioName)
+      if (d.title) setTitle(d.title as string)
+      if (d.japaneseName) setOriginalWork(d.japaneseName as string)
+      if (d.englishName) setEnglishName(d.englishName as string)
+      if (d.aliases) setAliases(d.aliases as string)
+      if (d.description) setDescLangs(prev => ({ ...prev, en: d.description as string }))
+      if (d.studioName) setStudioName(d.studioName as string)
 
       // 发售日期
-      if (data.releaseDate) {
-        // VNDB 返回格式可能是 "2023-04-28" 或 "2023-04" 或 null
-        const dateStr = data.releaseDate.substring(0, 10)
+      if (d.releaseDate) {
+        const dateStr = (d.releaseDate as string).substring(0, 10)
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
           setReleaseDate(dateStr)
         }
       }
 
       // 标签：合并到已有标签列表 + 选中
-      if (data.tagIds?.length) {
+      if ((d.tagIds as string[])?.length) {
         setSelectedTags(prev => {
-          const merged = new Set([...prev, ...data.tagIds])
+          const merged = new Set([...prev, ...(d.tagIds as string[])])
           return Array.from(merged)
         })
 
-        // 如果 VNDB 返回了新标签信息，添加到本地标签列表
-        if (data.tagNames?.length) {
+        if ((d.tagNames as { id: string; name: string }[])?.length) {
           setTags(prev => {
             const existingIds = new Set(prev.map(t => t.id))
-            const newOnes = data.tagNames
+            const newOnes = (d.tagNames as { id: string; name: string }[])
               .filter((t: { id: string }) => !existingIds.has(t.id))
               .map((t: { id: string; name: string }) => ({
                 id: t.id,
@@ -309,8 +310,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       }
 
       // 创作者（脚本、原画、音乐等）
-      if (data.creators?.length) {
-        setCreators(data.creators)
+      if ((d.creators as unknown[])?.length) {
+        setCreators(d.creators as Array<{ vndbId: string; name: string; nameJa: string; role: string }>)
       }
 
       // 同步更新 VNDB ID

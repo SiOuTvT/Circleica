@@ -1,130 +1,61 @@
 import { headers } from "next/headers"
+import { THEME_PRESETS, DEFAULT_TOKENS, type ThemeTokens } from "@/lib/theme-presets"
 
 /**
- * Inline script to prevent flash of wrong theme color.
- * Reads from localStorage and applies CSS variables before React hydrates.
- * Also handles dark/light mode: follows system preference on first visit,
- * then respects user's explicit choice from localStorage.
+ * 根据 SiteSetting 中存储的 themeColor hex，解析出完整的 ThemeTokens。
+ * 如果是预设色 → 使用人工调好的 token 集；
+ * 如果是自定义色 → 使用原 hex 本身（不做自动派生）。
  */
-export async function ThemeScript({ themeColor = "#5FA8A0" }: { themeColor?: string }) {
+export function resolveThemeTokens(themeColor?: string): ThemeTokens {
+  if (themeColor) {
+    const preset = THEME_PRESETS.find((p) => p.color.toLowerCase() === themeColor.toLowerCase())
+    if (preset) return preset.tokens
+  }
+  return DEFAULT_TOKENS
+}
+
+/**
+ * Inline script to prevent flash of wrong theme.
+ * Applies preset tokens directly — no auto-derivation.
+ */
+export async function ThemeScript({ themeColor }: { themeColor?: string }) {
   const nonce = (await headers()).get("x-nonce") || undefined
+  const t = resolveThemeTokens(themeColor)
   const script = `
-    (function() {
-      try {
-        var root = document.documentElement;
-
-        // 服务端下发的权威主题色（来自 SiteSetting，默认薄荷）。优先于 localStorage，
-        // 避免陈旧/错误的 localStorage 主题色在加载前覆盖默认。
-        var serverColor = ${JSON.stringify(themeColor)};
-        
-        // ── Dark/Light mode: support dark / light / system ──
-        var storedMode = localStorage.getItem('theme');
-
-        function applyMode(mode) {
-          var isLight = false;
-          if (mode === 'light') {
-            isLight = true;
-          } else if (mode === 'dark') {
-            isLight = false;
-          } else {
-            // system or unset → follow OS preference
-            isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-          }
-          root.classList.toggle('light', isLight);
-          root.classList.toggle('dark', !isLight);
-        }
-
-        applyMode(storedMode);
-
-        // Listen for OS theme changes when in system mode
-        if (!storedMode || storedMode === 'system') {
-          window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', function() {
-            if (localStorage.getItem('theme') === 'system' || !localStorage.getItem('theme')) {
-              applyMode('system');
+    (function(){
+      try{
+        var r=document.documentElement;
+        var m=r.classList;
+        // Dark/Light mode
+        var s=localStorage.getItem('theme');
+        var isLight=false;
+        if(s==='light') isLight=true;
+        else if(s!=='dark') isLight=window.matchMedia('(prefers-color-scheme:light)').matches;
+        m.toggle('light',isLight);
+        m.toggle('dark',!isLight);
+        // Listen for OS changes
+        if(!s||s==='system'){
+          window.matchMedia('(prefers-color-scheme:light)').addEventListener('change',function(){
+            if(!localStorage.getItem('theme')||localStorage.getItem('theme')==='system'){
+              var l=window.matchMedia('(prefers-color-scheme:light)').matches;
+              r.classList.toggle('light',l);
+              r.classList.toggle('dark',!l);
             }
           });
         }
-        
-        var raw = localStorage.getItem('site-theme-settings');
-        var settings = raw ? JSON.parse(raw) : null;
-        var localColor = settings ? settings.themeColor : localStorage.getItem('site-theme-color');
-        var color = serverColor || localColor || '#5FA8A0';
-        color = color.replace('#', '');
-
-        var r = parseInt(color.substring(0, 2), 16);
-        var g = parseInt(color.substring(2, 4), 16);
-        var b = parseInt(color.substring(4, 6), 16);
-        var radius = settings ? settings.themeRadius : 12;
-        var shadowIntensity = settings ? settings.themeShadowIntensity : 50;
-        var alpha = settings ? settings.themeAlpha : 15;
-        
-        function darken(hex, amt) {
-          hex = hex.replace('#', '');
-          var dr = Math.max(0, Math.round(parseInt(hex.substring(0,2),16) * (1-amt)));
-          var dg = Math.max(0, Math.round(parseInt(hex.substring(2,4),16) * (1-amt)));
-          var db = Math.max(0, Math.round(parseInt(hex.substring(4,6),16) * (1-amt)));
-          return '#' + dr.toString(16).padStart(2,'0') + dg.toString(16).padStart(2,'0') + db.toString(16).padStart(2,'0');
-        }
-        function lighten(hex, amt) {
-          hex = hex.replace('#', '');
-          var lr = Math.min(255, Math.round(parseInt(hex.substring(0,2),16) + (255-parseInt(hex.substring(0,2),16))*amt));
-          var lg = Math.min(255, Math.round(parseInt(hex.substring(2,4),16) + (255-parseInt(hex.substring(2,4),16))*amt));
-          var lb = Math.min(255, Math.round(parseInt(hex.substring(4,6),16) + (255-parseInt(hex.substring(4,6),16))*amt));
-          return '#' + lr.toString(16).padStart(2,'0') + lg.toString(16).padStart(2,'0') + lb.toString(16).padStart(2,'0');
-        }
-        
-        var hex = '#' + color;
-        var glowOpacity = (alpha / 100) * 0.75;
-        var isDark = root.classList.contains('dark');
-        if (isDark) {
-          var primaryDark = darken(hex, 0.05);
-          root.style.setProperty('--primary', primaryDark);
-          root.style.setProperty('--ring', primaryDark);
-          root.style.setProperty('--accent', lighten(hex, 0.15));
-          root.style.setProperty('--clr-blue', primaryDark);
-          root.style.setProperty('--clr-sky', lighten(hex, 0.2));
-          root.style.setProperty('--clr-glow', 'rgba(' + r + ',' + g + ',' + b + ',' + glowOpacity + ')');
-        } else {
-          root.style.setProperty('--primary', hex);
-          root.style.setProperty('--ring', hex);
-          root.style.setProperty('--accent', lighten(hex, 0.45));
-          root.style.setProperty('--clr-blue', darken(hex, 0.2));
-          root.style.setProperty('--clr-sky', lighten(hex, 0.15));
-          root.style.setProperty('--clr-glow', 'rgba(' + r + ',' + g + ',' + b + ',' + glowOpacity + ')');
-        }
-        // 全局主题色原始 hex（供链接、NProgress、focus ring 等直接引用）
-        root.style.setProperty('--theme-color', hex);
-        // Hover / Active 加深色
-        root.style.setProperty('--theme-color-hover', darken(hex, 0.15));
-        root.style.setProperty('--theme-color-active', darken(hex, 0.25));
-        // 前景文字：WCAG 对比度计算
-        var R = r/255, G = g/255, B = b/255;
-        var bgLum = 0.2126*(R<=0.04045?R/12.92:Math.pow((R+0.055)/1.055,2.4))
-                  + 0.7152*(G<=0.04045?G/12.92:Math.pow((G+0.055)/1.055,2.4))
-                  + 0.0722*(B<=0.04045?B/12.92:Math.pow((B+0.055)/1.055,2.4));
-        var fg = (1.05/(bgLum+0.05)) >= 4.5 ? '#ffffff' : '#18181b';
-        root.style.setProperty('--primary-foreground', fg);
-        root.style.setProperty('--theme-fg', fg);
-
-        // Common variables
-        root.style.setProperty('--clr-warm', '#f59e0b');
-        root.style.setProperty('--theme-radius', radius + 'px');
-        root.style.setProperty('--theme-shadow-intensity', (shadowIntensity / 100).toString());
-        root.style.setProperty('--theme-alpha', (alpha / 100).toString());
-        // 计算色相
-        var r2 = r / 255, g2 = g / 255, b2 = b / 255;
-        var cmax = Math.max(r2, g2, b2), cmin = Math.min(r2, g2, b2), hue = 0;
-        if (cmax !== cmin) {
-          var cd = cmax - cmin;
-          if (cmax === r2) hue = ((g2 - b2) / cd + (g2 < b2 ? 6 : 0)) * 60;
-          else if (cmax === g2) hue = ((b2 - r2) / cd + 2) * 60;
-          else hue = ((r2 - g2) / cd + 4) * 60;
-        }
-        root.style.setProperty('--theme-hue', Math.round(hue).toString());
-        root.style.setProperty('--theme-r', r.toString());
-        root.style.setProperty('--theme-g', g.toString());
-        root.style.setProperty('--theme-b', b.toString());
-      } catch(e) {}
+        // Apply tokens — no derivation
+        r.style.setProperty('--primary','${t.primary}');
+        r.style.setProperty('--primary-hover','${t.hover}');
+        r.style.setProperty('--primary-active','${t.active}');
+        r.style.setProperty('--accent','${t.accent}');
+        r.style.setProperty('--ring','${t.ring}');
+        r.style.setProperty('--clr-glow','${t.glow}');
+        r.style.setProperty('--theme-color','${t.primary}');
+        r.style.setProperty('--theme-color-hover','${t.hover}');
+        r.style.setProperty('--theme-color-active','${t.active}');
+        r.style.setProperty('--clr-blue','${t.primary}');
+        r.style.setProperty('--clr-sky','${t.accent}');
+      }catch(e){}
     })();
   `
 

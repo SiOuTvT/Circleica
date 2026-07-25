@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useId } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { applyThemeColor } from "@/lib/theme-colors"
+import { applyThemeTokens, resolveTokens } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -127,7 +127,7 @@ export function SetupWizard() {
     if (document.documentElement.classList.contains("light")) {
       setMode("light")
     }
-    applyThemeColor(form.themeColor)
+    applyThemeTokens(resolveTokens(form.themeColor))
     return () => { document.documentElement.className = origClassesRef.current }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -137,7 +137,7 @@ export function SetupWizard() {
       const next = prev === "dark" ? "light" : "dark"
       document.documentElement.classList.toggle("light", next === "light")
       document.documentElement.classList.toggle("dark", next !== "light")
-      applyThemeColor(form.themeColor)
+      applyThemeTokens(resolveTokens(form.themeColor))
       return next
     })
   }, [form.themeColor])
@@ -149,7 +149,7 @@ export function SetupWizard() {
 
   function selectThemeColor(color: string) {
     update("themeColor", color)
-    applyThemeColor(color)
+    applyThemeTokens(resolveTokens(color))
   }
 
   function updateTagGroupColor(groupId: string, color: string) {

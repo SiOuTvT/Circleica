@@ -1,56 +1,76 @@
 "use client"
 
-import { darkenHex, getHue, hexToRgb, lightenHex } from "./theme-colors-shared"
+import type { ThemeTokens } from "./theme-presets"
+import { THEME_PRESETS, DEFAULT_TOKENS } from "./theme-presets"
 
-
-/* ── applyThemeColor：设置 :root CSS 变量（需要浏览器环境） ── */
-export function applyThemeColor(hex: string, radius = 12, shadowIntensity = 50, alpha = 15) {
-  const root = document.documentElement
-  const isDark = !root.classList.contains("light")
-  const [r, g, b] = hexToRgb(hex)
-  // 前景文字：按 WCAG 对比度选择白/黑，确保 ≥ 4.5:1
-  const R = r / 255, G = g / 255, B = b / 255
-  const bgLum = 0.2126 * (R <= 0.04045 ? R / 12.92 : Math.pow((R + 0.055) / 1.055, 2.4))
-              + 0.7152 * (G <= 0.04045 ? G / 12.92 : Math.pow((G + 0.055) / 1.055, 2.4))
-              + 0.0722 * (B <= 0.04045 ? B / 12.92 : Math.pow((B + 0.055) / 1.055, 2.4))
-  const whiteContrast = 1.05 / (bgLum + 0.05)
-  const fg = whiteContrast >= 4.5 ? "#ffffff" : "#18181b"
-  const alphaDecimal = alpha / 100
-  const hue = getHue(hex)
-
-  if (isDark) {
-    const primaryDark = darkenHex(hex, 0.05)
-    root.style.setProperty("--primary", primaryDark)
-    root.style.setProperty("--ring", primaryDark)
-    root.style.setProperty("--accent", lightenHex(hex, 0.15))
-    root.style.setProperty("--clr-blue", primaryDark)
-    root.style.setProperty("--clr-sky", lightenHex(hex, 0.2))
-    root.style.setProperty("--clr-glow", `rgba(${r}, ${g}, ${b}, ${alphaDecimal * 0.75})`)
-  } else {
-    root.style.setProperty("--primary", hex)
-    root.style.setProperty("--ring", hex)
-    root.style.setProperty("--accent", lightenHex(hex, 0.45))
-    root.style.setProperty("--clr-blue", darkenHex(hex, 0.2))
-    root.style.setProperty("--clr-sky", lightenHex(hex, 0.15))
-    root.style.setProperty("--clr-glow", `rgba(${r}, ${g}, ${b}, ${alphaDecimal * 0.75})`)
+/** 根据 hex 解析出 ThemeTokens（客户端版） */
+export function resolveTokens(hex?: string): ThemeTokens {
+  if (hex) {
+    const preset = THEME_PRESETS.find((p) => p.color.toLowerCase() === hex.toLowerCase())
+    if (preset) return preset.tokens
   }
+  return DEFAULT_TOKENS
+}
 
-  // 全局主题色原始 hex（供链接、NProgress、focus ring 等直接引用）
-  root.style.setProperty("--theme-color", hex)
-  // Hover / Active 加深色
-  root.style.setProperty("--theme-color-hover", darkenHex(hex, 0.15))
-  root.style.setProperty("--theme-color-active", darkenHex(hex, 0.25))
-  // 主题色前景文字（白/黑自动判定）
-  root.style.setProperty("--primary-foreground", fg)
-  root.style.setProperty("--theme-fg", fg)
+/**
+ * 应用主题 Token：直接设置精心设计的颜色值，不做任何自动派生。
+ * 每套预设的 hover / active / accent 都已人工调好，
+ * 不再依赖 darkenHex / lightenHex 一刀切。
+ */
+export function applyThemeTokens(tokens: ThemeTokens) {
+  const root = document.documentElement
 
-  // 通用变量
-  root.style.setProperty("--clr-warm", "#f59e0b")
-  root.style.setProperty("--theme-radius", `${radius}px`)
-  root.style.setProperty("--theme-shadow-intensity", `${shadowIntensity / 100}`)
-  root.style.setProperty("--theme-alpha", `${alphaDecimal}`)
-  root.style.setProperty("--theme-hue", `${hue}`)
-  root.style.setProperty("--theme-r", `${r}`)
-  root.style.setProperty("--theme-g", `${g}`)
-  root.style.setProperty("--theme-b", `${b}`)
+  // 强调色系
+  root.style.setProperty("--primary", tokens.primary)
+  root.style.setProperty("--primary-hover", tokens.hover)
+  root.style.setProperty("--primary-active", tokens.active)
+  root.style.setProperty("--accent", tokens.accent)
+  root.style.setProperty("--ring", tokens.ring)
+  root.style.setProperty("--clr-glow", tokens.glow)
+
+  // 向后兼容：--theme-color / --clr-blue / --clr-sky / --clr-warm
+  root.style.setProperty("--theme-color", tokens.primary)
+  root.style.setProperty("--theme-color-hover", tokens.hover)
+  root.style.setProperty("--theme-color-active", tokens.active)
+  root.style.setProperty("--clr-blue", tokens.primary)
+  root.style.setProperty("--clr-sky", tokens.accent)
+
+  // 原始分量（供 color-mix / rgba 引用）
+  const [r, g, b] = hexToRgb(tokens.primary)
+  root.style.setProperty("--theme-r", String(r))
+  root.style.setProperty("--theme-g", String(g))
+  root.style.setProperty("--theme-b", String(b))
+
+  // 前景文字（primary 上的文字颜色，WCAG 对比度）
+  root.style.setProperty("--primary-foreground", computeContrastFg(tokens.primary))
+  root.style.setProperty("--theme-fg", computeContrastFg(tokens.primary))
+}
+
+/** 兼容旧接口：从单个 hex 构建 ThemeTokens 并应用（不推荐） */
+export function applyThemeColor(hex: string) {
+  const tokens: ThemeTokens = {
+    primary: hex,
+    hover:   hex,  // 降级——建议使用预设
+    active:  hex,
+    accent:  hex,
+    ring:    hex,
+    glow:    hex.replace("#", "rgba(") + ",0.1)",
+  }
+  applyThemeTokens(tokens)
+}
+
+/* ── 工具 ── */
+
+function hexToRgb(hex: string): [number, number, number] {
+  const c = hex.replace("#", "")
+  return [parseInt(c.substring(0, 2), 16), parseInt(c.substring(2, 4), 16), parseInt(c.substring(4, 6), 16)]
+}
+
+function computeContrastFg(hex: string): string {
+  const [r, g, b] = hexToRgb(hex)
+  const R = r / 255, G = g / 255, B = b / 255
+  const lum = 0.2126 * (R <= 0.04045 ? R / 12.92 : Math.pow((R + 0.055) / 1.055, 2.4))
+            + 0.7152 * (G <= 0.04045 ? G / 12.92 : Math.pow((G + 0.055) / 1.055, 2.4))
+            + 0.0722 * (B <= 0.04045 ? B / 12.92 : Math.pow((B + 0.055) / 1.055, 2.4))
+  return (1.05 / (lum + 0.05)) >= 4.5 ? "#ffffff" : "#18181b"
 }

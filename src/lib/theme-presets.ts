@@ -1,13 +1,163 @@
-/** 主题色预设（setup-wizard + theme-editor 共用）
- *  精选 8 套，统一「深邃、微饱和、可作近黑底上小面积点缀」的克制逻辑。
+/** 主题色预设
+ *
+ *  精选 8 套，每套携带完整颜色 Token。
+ *  结构色（surface / card / border / muted / text）由 globals.css 统一管理，不随预设变化。
+ *  只有强调色系（primary / accent / ring / glow）每套不同。
+ *
+ *  hover 和 active 是精心配色的值，不是简单地 darken 一个百分比。
  *  薄荷绿为旗舰默认，呼应 Galvelica 的档案馆气质。 */
-export const THEME_PRESETS = [
-  { name: "mint", label: "薄荷", color: "#5FA8A0", desc: "安静 · 档案馆" },
-  { name: "dusk", label: "黛蓝", color: "#6E8CA8", desc: "沉静 · 夜色" },
-  { name: "haze", label: "雾紫", color: "#8E84B0", desc: "朦胧 · 梦境" },
-  { name: "ochre", label: "赭石", color: "#C0905E", desc: "温润 · 旧纸" },
-  { name: "pine", label: "松绿", color: "#5C8A7E", desc: "幽深 · 林间" },
-  { name: "rose", label: "灰玫", color: "#B08696", desc: "温柔 · 余晖" },
-  { name: "slate", label: "烟灰蓝", color: "#8898A8", desc: "沉稳 · 内敛" },
-  { name: "amber", label: "暖琥珀", color: "#D4A050", desc: "温暖 · 复古" },
-] as const
+
+export interface ThemeTokens {
+  primary: string
+  hover: string
+  active: string
+  /** 较浅的强调色，用于次要强调、icon、hover 背景 */
+  accent: string
+  /** 聚焦环颜色（通常 primary 半透明） */
+  ring: string
+  /** 辉光 / 阴影强调色（通常 primary 极低透明度） */
+  glow: string
+}
+
+export interface ThemePreset {
+  name: string
+  label: string
+  /** 预设主色（向后兼容 + 预览） */
+  color: string
+  desc: string
+  tokens: ThemeTokens
+}
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    name: "mint",
+    label: "薄荷",
+    color: "#5FA8A0",
+    desc: "安静 · 档案馆",
+    tokens: {
+      primary: "#5FA8A0",
+      hover:   "#4d918a",
+      active:  "#40807a",
+      accent:  "#7bbfb8",
+      ring:    "rgba(95,168,160,0.3)",
+      glow:    "rgba(95,168,160,0.08)",
+    },
+  },
+  {
+    name: "dusk",
+    label: "黛蓝",
+    color: "#6E8CA8",
+    desc: "沉静 · 夜色",
+    tokens: {
+      primary: "#6E8CA8",
+      hover:   "#5d7a94",
+      active:  "#4f6a82",
+      accent:  "#8fa6bc",
+      ring:    "rgba(110,140,168,0.3)",
+      glow:    "rgba(110,140,168,0.08)",
+    },
+  },
+  {
+    name: "haze",
+    label: "雾紫",
+    color: "#8E84B0",
+    desc: "朦胧 · 梦境",
+    tokens: {
+      primary: "#8E84B0",
+      hover:   "#7c729e",
+      active:  "#6b628c",
+      accent:  "#a9a0c4",
+      ring:    "rgba(142,132,176,0.3)",
+      glow:    "rgba(142,132,176,0.08)",
+    },
+  },
+  {
+    name: "ochre",
+    label: "赭石",
+    color: "#C0905E",
+    desc: "温润 · 旧纸",
+    tokens: {
+      primary: "#C0905E",
+      hover:   "#ac7d4d",
+      active:  "#996d3f",
+      accent:  "#d4ab7a",
+      ring:    "rgba(192,144,94,0.3)",
+      glow:    "rgba(192,144,94,0.08)",
+    },
+  },
+  {
+    name: "pine",
+    label: "松绿",
+    color: "#5C8A7E",
+    desc: "幽深 · 林间",
+    tokens: {
+      primary: "#5C8A7E",
+      hover:   "#4c786d",
+      active:  "#3f675e",
+      accent:  "#7ea89a",
+      ring:    "rgba(92,138,126,0.3)",
+      glow:    "rgba(92,138,126,0.08)",
+    },
+  },
+  {
+    name: "rose",
+    label: "灰玫",
+    color: "#B08696",
+    desc: "温柔 · 余晖",
+    tokens: {
+      primary: "#B08696",
+      hover:   "#9d7585",
+      active:  "#8c6676",
+      accent:  "#c7a2ae",
+      ring:    "rgba(176,134,150,0.3)",
+      glow:    "rgba(176,134,150,0.08)",
+    },
+  },
+  {
+    name: "slate",
+    label: "烟灰蓝",
+    color: "#8898A8",
+    desc: "沉稳 · 内敛",
+    tokens: {
+      primary: "#8898A8",
+      hover:   "#768598",
+      active:  "#667588",
+      accent:  "#a4b1bf",
+      ring:    "rgba(136,152,168,0.3)",
+      glow:    "rgba(136,152,168,0.08)",
+    },
+  },
+  {
+    name: "amber",
+    label: "暖琥珀",
+    color: "#D4A050",
+    desc: "温暖 · 复古",
+    tokens: {
+      primary: "#D4A050",
+      hover:   "#bf8d3f",
+      active:  "#aa7b33",
+      accent:  "#e0b86e",
+      ring:    "rgba(212,160,80,0.3)",
+      glow:    "rgba(212,160,80,0.08)",
+    },
+  },
+]
+
+/** 获取预设的主题 Token */
+export function getThemeTokens(presetName: string): ThemeTokens | null {
+  const preset = THEME_PRESETS.find((p) => p.name === presetName)
+  return preset?.tokens ?? null
+}
+
+/** 默认预设名 */
+export const DEFAULT_PRESET = "mint"
+
+/** 默认 Token */
+export const DEFAULT_TOKENS: ThemeTokens = {
+  primary: "#5FA8A0",
+  hover:   "#4d918a",
+  active:  "#40807a",
+  accent:  "#7bbfb8",
+  ring:    "rgba(95,168,160,0.3)",
+  glow:    "rgba(95,168,160,0.08)",
+}

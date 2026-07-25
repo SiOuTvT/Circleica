@@ -1,6 +1,6 @@
 "use client"
 
-import { applyThemeColor } from "@/lib/theme-colors"
+import { applyThemeTokens, resolveTokens } from "@/lib/theme-colors"
 import { logger } from "@/lib/logger"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -50,10 +50,13 @@ export function useThemeColor() {
 }
 
 function doApply(s: FullThemeSettings) {
-  // 使用 data-theme 属性持久化主题设置
   document.documentElement.setAttribute("data-theme", "custom")
-  // 同时设置 CSS 变量
-  applyThemeColor(s.themeColor, s.themeRadius, s.themeShadowIntensity, s.themeAlpha)
+  // 应用 Token（不自动派生颜色）
+  applyThemeTokens(resolveTokens(s.themeColor))
+  // 半径 / 阴影 / 透明度作为独立 CSS 变量
+  document.documentElement.style.setProperty("--theme-radius", `${s.themeRadius}px`)
+  document.documentElement.style.setProperty("--theme-shadow-intensity", `${s.themeShadowIntensity / 100}`)
+  document.documentElement.style.setProperty("--theme-alpha", `${(s.themeAlpha ?? 15) / 100}`)
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { applyThemeColor } from "@/lib/theme-colors"
+import { applyThemeTokens, resolveTokens } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { Check, Database, FileText, Loader2, Palette, RotateCcw, Save } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -44,7 +44,11 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
 
   // 实时预览
   useEffect(() => {
-    applyThemeColor(draft.themeColor, draft.themeRadius, draft.themeShadowIntensity, draft.themeAlpha)
+    const root = document.documentElement
+    applyThemeTokens(resolveTokens(draft.themeColor))
+    root.style.setProperty("--theme-radius", `${draft.themeRadius}px`)
+    root.style.setProperty("--theme-shadow-intensity", `${draft.themeShadowIntensity / 100}`)
+    root.style.setProperty("--theme-alpha", `${(draft.themeAlpha ?? 15) / 100}`)
   }, [draft])
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initialSettings)

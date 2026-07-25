@@ -282,12 +282,14 @@ main > * {
   --theme-g:       168;
   --theme-b:       160;
   --theme-color:         #5FA8A0;
-  --theme-color-hover:   #518F88;
-  --theme-color-active:  #477E78;
+  --theme-color-hover:   #4d918a;
+  --theme-color-active:  #40807a;
   --theme-fg:            #18181b;
 
   /* 主题色 — 薄荷绿，档案馆气质（旗舰默认，呼应 Galvelica） */
   --primary:          #5FA8A0;
+  --primary-hover:    #4d918a;
+  --primary-active:   #40807a;
   --primary-foreground: #0a0a0c;
   --clr-blue:   var(--primary);
   --clr-sky:    #f0a0b8;
@@ -415,8 +417,8 @@ main > * {
   --theme-g: 168;
   --theme-b: 160;
   --theme-color: #5FA8A0;
-  --theme-color-hover: #518F88;
-  --theme-color-active: #477E78;
+  --theme-color-hover: #4d918a;
+  --theme-color-active: #40807a;
   --theme-fg: #18181b;
 }
 
