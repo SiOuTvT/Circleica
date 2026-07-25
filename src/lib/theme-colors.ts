@@ -24,7 +24,8 @@ export function applyThemeTokens(tokens: ThemeTokens) {
   root.style.setProperty("--primary", tokens.primary)
   root.style.setProperty("--primary-hover", tokens.hover)
   root.style.setProperty("--primary-active", tokens.active)
-  root.style.setProperty("--accent", tokens.accent)
+  // 注意：--accent 是 shadcn 的中性 hover 底（ghost 按钮 / navlink hover 等），
+  // 必须保持中性，不能覆盖成主题强调色，否则全站中性 hover 会泛主题色。
   root.style.setProperty("--ring", tokens.ring)
   root.style.setProperty("--clr-glow", tokens.glow)
 

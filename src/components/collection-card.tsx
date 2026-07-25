@@ -42,7 +42,7 @@ export function CollectionCard({
         {/* 渐变遮罩 */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          <span className="inline-block rounded-full bg-[var(--theme-color)]/80 px-3 py-0.5 text-[11px] font-medium uppercase tracking-wider text-white mb-2">
+          <span className="inline-block rounded-full bg-primary/80 px-3 py-0.5 text-[11px] font-medium uppercase tracking-wider text-primary-foreground mb-2">
             编辑精选
           </span>
           <h2 className="text-xl font-heading font-semibold text-white sm:text-2xl">
@@ -63,7 +63,7 @@ export function CollectionCard({
   return (
     <Link
       href={`/curated-collections/${id}`}
-      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-sm"
+      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm"
     >
       {/* 封面区 */}
       <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 sm:w-24">

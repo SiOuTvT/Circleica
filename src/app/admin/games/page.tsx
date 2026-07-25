@@ -65,7 +65,7 @@ export default async function AdminGamesPage({
           </form>
           <Link
             href="/admin/games/import"
-            className="flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:ring-primary/40"
+            className="flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10"
           >
             <Download className="h-4 w-4 shrink-0" strokeWidth={2} />
             VNDB 导入

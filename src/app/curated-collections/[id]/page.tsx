@@ -110,7 +110,7 @@ export default async function CuratedCollectionDetailPage({
               <Link
                 key={game.id}
                 href={`/games/${game.serialId}`}
-                className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-sm sm:p-5"
+                className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm sm:p-5"
               >
                 {/* 排名 */}
                 <div className="flex shrink-0 items-start pt-1">
@@ -120,7 +120,7 @@ export default async function CuratedCollectionDetailPage({
                 </div>
 
                 {/* 封面 */}
-                <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/30 group-hover:shadow-md sm:w-24">
+                <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition-all duration-300 group-hover:ring-foreground/10 group-hover:shadow-md sm:w-24">
                   {card.coverImage ? (
                     <Image
                       src={card.coverImage}

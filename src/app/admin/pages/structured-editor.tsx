@@ -301,7 +301,7 @@ function BlockEditor({
       <div className="p-4 pt-6 space-y-3">
         {block.type === "heading" && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary">
+            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-muted text-muted-foreground">
               <Type className="h-4 w-4" />
             </div>
             <Input

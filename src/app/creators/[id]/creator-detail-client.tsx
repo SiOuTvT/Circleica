@@ -94,17 +94,17 @@ export function CreatorDetailClient({ creator }: { creator: CreatorData }) {
             <TagGroup className="mb-4">
               {/* 角色标签 */}
               {creator.roles.map(role => (
-                <Tag key={role} color="var(--theme-color)">
+                <Tag key={role}>
                   {roleLabelMap[role] || role}
                 </Tag>
               ))}
               {genderLabel && (
-                <Tag color="var(--theme-color)">
+                <Tag>
                   {genderLabel}
                 </Tag>
               )}
               {creator.vndbId && (
-                <Tag color="var(--theme-color)" href={`https://vndb.org/s${creator.vndbId}`}>
+                <Tag href={`https://vndb.org/s${creator.vndbId}`}>
                   <Database className="h-3 w-3" strokeWidth={2} />
                   VNDB · s{creator.vndbId}
                 </Tag>

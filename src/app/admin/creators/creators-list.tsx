@@ -33,7 +33,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
           <div
             key={creator.id}
             onClick={() => setSelectedCreator(creator)}
-            className="group relative flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-2 cursor-pointer"
+            className="group relative flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2 cursor-pointer"
           >
             {/* 头像 */}
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">

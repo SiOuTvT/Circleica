@@ -185,7 +185,7 @@ export function TagsOverviewClient({
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-primary/40 hover:shadow-2 cursor-pointer"
+            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2 cursor-pointer"
           >
             {/* 序号 */}
             <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-xs font-bold text-muted-foreground shrink-0">
@@ -342,7 +342,7 @@ function UngroupedTagsSection({
                 setAssigningId(assigningId === t.id ? null : t.id)
                 setAssignTarget("")
               }}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-all hover:ring-primary/50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-all hover:ring-foreground/15 cursor-pointer"
               style={{ color: t.color, background: `${t.color}15`, borderColor: `${t.color}30` }}
             >
               {t.name}

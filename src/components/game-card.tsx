@@ -74,7 +74,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      className="game-card group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all duration-300 hover:-translate-y-0.5 hover:ring-[var(--theme-color)]/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="game-card group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
@@ -164,7 +164,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
       {/* ─── 内容区：标题 + 资源标签（信息收敛） ─── */}
       <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
-        <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+        <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 text-foreground">
           {game.title}
         </h3>
 
@@ -229,7 +229,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      className="group flex items-center gap-4 rounded-xl bg-card p-3 ring-1 ring-border transition-all hover:ring-[var(--theme-color)]/40"
+      className="group flex items-center gap-4 rounded-xl bg-card p-3 ring-1 ring-border transition-all hover:ring-foreground/10"
       onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
@@ -293,7 +293,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
 
       {/* 信息 */}
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+        <h3 className="truncate text-sm font-semibold text-foreground">
           {game.title}
         </h3>
         <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">

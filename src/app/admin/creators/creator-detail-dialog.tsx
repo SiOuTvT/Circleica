@@ -85,7 +85,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
                     {creator.gender}
                   </span>
                 )}
-                <span className="inline-flex items-center text-xs font-medium text-primary bg-primary/10 rounded-full px-2.5 py-1 ring-1 ring-primary/20">
+                <span className="inline-flex items-center text-xs font-medium text-muted-foreground bg-secondary/80 rounded-full px-2.5 py-1 ring-1 ring-border">
                   {creator.gameCount} 个作品
                 </span>
                 {creator.vndbId && (
@@ -93,7 +93,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
                     href={`https://vndb.org/s${creator.vndbId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-secondary/80 rounded-full px-2.5 py-1 ring-1 ring-border hover:ring-primary/40 hover:text-foreground transition-all"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-secondary/80 rounded-full px-2.5 py-1 ring-1 ring-border hover:ring-foreground/10 hover:text-foreground transition-all"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     VNDB

@@ -176,7 +176,7 @@ export function ForumClient({
       {/* 页头 */}
       <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
         <header className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
             <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
           </div>
           <div>

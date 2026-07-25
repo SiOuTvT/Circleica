@@ -178,7 +178,7 @@ function CollectionStripCard({ collection, isFirst = false }: { collection: Cura
   const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
   return (
     <Link href={`/curated-collections/${collection.id}`} className={`group shrink-0 ${isFirst ? "w-[260px] sm:w-[300px]" : "w-[200px] sm:w-[230px]"}`}>
-      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-lg group-hover:ring-[var(--theme-color)]/40">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-lg group-hover:ring-foreground/10">
         {cover ? (
           <Image src={cover} alt={collection.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="300px" unoptimized />
         ) : (
@@ -187,7 +187,7 @@ function CollectionStripCard({ collection, isFirst = false }: { collection: Cura
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-4">
           {isFirst && (
-            <span className="inline-block rounded-full bg-[var(--theme-color)]/80 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white mb-1.5">
+            <span className="inline-block rounded-full bg-primary/80 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-foreground mb-1.5">
               编辑精选
             </span>
           )}
@@ -206,7 +206,7 @@ export default async function DiscoverPage() {
     <div className="space-y-10">
       {/* 页头 */}
       <header className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <Compass className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
@@ -274,14 +274,14 @@ export default async function DiscoverPage() {
                 href={`/search?q=${encodeURIComponent(s.name)}`}
                 className="group w-[160px] shrink-0 sm:w-[180px]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-[var(--theme-color)]/40">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-foreground/10">
                   {s.cover ? (
                     <Image src={s.cover} alt={s.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="180px" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground">
                   {s.name}
                 </p>
                 <p className="text-micro text-muted-foreground">{s.count} 部</p>
@@ -303,14 +303,14 @@ export default async function DiscoverPage() {
                 href={`/search?q=${encodeURIComponent(c.name)}`}
                 className="group w-[160px] shrink-0 sm:w-[180px]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-[var(--theme-color)]/40">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-md group-hover:ring-foreground/10">
                   {c.cover ? (
                     <Image src={c.cover} alt={c.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="180px" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground transition-colors group-hover:text-[var(--theme-color)]">
+                <p className="mt-1.5 truncate text-sm font-heading font-medium text-foreground">
                   {c.name}
                 </p>
                 <p className="text-micro text-muted-foreground">{c.count} 部</p>
@@ -335,9 +335,9 @@ export default async function DiscoverPage() {
               <Link
                 key={y.year}
                 href={`/games?year=${y.year}`}
-                className="group flex flex-col items-center gap-0.5 rounded-2xl bg-card px-5 py-3 ring-1 ring-border/50 transition-all duration-300 hover:ring-[var(--theme-color)]/40 hover:shadow-sm hover:-translate-y-0.5"
+                className="group flex flex-col items-center gap-0.5 rounded-2xl bg-card px-5 py-3 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm hover:-translate-y-0.5"
               >
-                <span className="text-lg font-bold tabular-nums text-foreground transition-colors group-hover:text-[var(--theme-color)]">{y.year}</span>
+                <span className="text-lg font-bold tabular-nums text-foreground">{y.year}</span>
                 <span className="text-xs tabular-nums text-muted-foreground/60">{y.count} 部</span>
               </Link>
             ))}

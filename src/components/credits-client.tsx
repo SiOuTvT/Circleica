@@ -90,7 +90,7 @@ export function CreditsClient() {
     <div className="space-y-8">
       {/* ── 页头 ── */}
       <header className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <Users className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
@@ -106,7 +106,7 @@ export function CreditsClient() {
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
           placeholder="搜索游戏名或创作者名..."
-          className="w-full rounded-xl bg-muted/50 pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 ring-1 ring-border outline-none transition-all focus:ring-[var(--theme-color)]/40 focus:bg-card"
+          className="w-full rounded-xl bg-muted/50 pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 ring-1 ring-border outline-none transition-all focus:ring-primary/30 focus:bg-card"
         />
       </div>
 
@@ -152,12 +152,12 @@ export function CreditsClient() {
           {games.map(game => (
             <div
               key={game.id}
-              className="group flex gap-5 rounded-2xl bg-card p-5 ring-1 ring-border/50 transition-all duration-300 hover:ring-primary/20 hover:shadow-sm"
+              className="group flex gap-5 rounded-2xl bg-card p-5 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm"
             >
               {/* ── 封皮区 ── */}
               <Link
                 href={`/games/${game.serialId}`}
-                className="relative w-24 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition-all duration-300 group-hover:ring-primary/30 group-hover:shadow-md sm:w-28 lg:w-[130px]"
+                className="relative w-24 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition-all duration-300 group-hover:ring-foreground/10 group-hover:shadow-md sm:w-28 lg:w-[130px]"
               >
                 {game.coverImage ? (
                   <Image

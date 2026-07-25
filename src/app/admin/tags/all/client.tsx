@@ -66,7 +66,7 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/admin/tags")}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-primary/40 hover:bg-primary/5 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-foreground/10 hover:bg-muted transition-all cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           返回

@@ -193,6 +193,8 @@ model Game {
   reports       GameReport[]
   ratings       GameRating[]
   creators      GameCreator[]
+  /// Galvelica 联动锚点（反向）：本 Game 若已被 Galvelica 收录，对应 Work.gameId 指向此处
+  galvelicaWork Work?        @relation("gameToGalvelica")
   resources     GameResource[]
   logs          GameLog[]
   curatedCollectionGames CuratedCollectionGame[]
@@ -228,6 +230,7 @@ model Tag {
   createdAt   DateTime  @default(now())
   group       TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   games       GameTag[]
+  works       WorkTag[]
   @@index([groupId])
   @@index([sortOrder])
 }
@@ -449,6 +452,7 @@ model Creator {
   wikipediaUrl String       @default("")
   createdAt   DateTime      @default(now())
   games       GameCreator[]
+  works       WorkCreator[]
 
   @@index([vndbId])
   @@index([name])
@@ -700,4 +704,125 @@ model UserAchievement {
   @@unique([userId, achievementId])
   @@index([userId])
   @@index([achievementId])
+}
+
+// ============================================================
+//  Galvelica 资料馆数据层 — 阶段 A 地基表
+//  基线：docs/galvelica-data-architecture.md（2026-07-25 ADR）
+//  Work 独立于 Game；两站联动唯一锚点 = Work.gameId（唯一可空）。
+//  Game/Tag/Creator 反向字段已在上方补回，关系完整。
+// ============================================================
+
+enum WorkSourceType {
+  VNDB
+  BANGUMI
+  EROGESCAPE
+  DLSITE
+  STEAM
+  MANUAL
+}
+
+enum InclusionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ── Galvelica 档案主体（独立于 Game，可无对应资源） ──
+model Work {
+  id            String   @id @default(cuid())
+  slug          String   @unique            // URL 用，如 /galvelica/works/<slug>
+  gameId        String?  @unique            // 已被 Circleica 收录则链接 Game；否则 null（联动锚点）
+  game          Game?    @relation("gameToGalvelica", fields: [gameId], references: [id], onDelete: SetNull)
+
+  // 融合后的「有效展示值」（单一真相，页面只读这里）
+  title         String
+  originalWork  String   @default("")
+  englishName   String   @default("")
+  aliases       String   @default("")       // 多源合并后的别名，逗号分隔
+  description   String   @default("")
+  coverImage    String   @default("")
+  releaseDate   DateTime?
+  studioName    String   @default("")
+  status        String   @default("")       // 完结/连载等（自由文本，后续可枚举）
+  duration      String   @default("")       // 对应 Game.gameDuration
+  isNsfw        Boolean  @default(false)
+
+  // 外链（按源选优后归一）
+  officialUrl   String   @default("")       // DLsite 优先
+  steamAppId    String   @default("")       // Steam 优先
+
+  // 字段级 provenance：field -> { source, manual }
+  provenance    Json     @default("{}")
+  // 被人工锁定、融合时跳过的字段名
+  manualFields  String[] @default([])
+
+  // 评分（融合时优先取本站 Game 评分，见 ADR §5 / §10.2）
+  ratingAvg     Float?
+  ratingCount   Int      @default(0)
+  viewCount     Int      @default(0)
+  favoriteCount Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastFusedAt   DateTime?
+
+  sources       WorkSource[]
+  tags          WorkTag[]
+  creators      WorkCreator[]
+  requests      InclusionRequest[]
+
+  @@index([title])
+  @@index([releaseDate])
+  @@index([isNsfw])
+}
+
+// ── 每源原始载荷 + 关联（provenance 的底层） ──
+model WorkSource {
+  id         String         @id @default(cuid())
+  workId     String
+  work       Work           @relation(fields: [workId], references: [id], onDelete: Cascade)
+  source     WorkSourceType
+  externalId String                             // 该源的作品 ID（v12345 / bgm123 / appid ...）
+  raw        Json                              // 该源返回的原始 payload（缓存，供重融合）
+  status     String         @default("ok")     // ok | stale | error
+  fetchedAt  DateTime       @default(now())
+  @@unique([workId, source])
+  @@index([source, externalId])
+}
+
+// ── 收录申请（Circleica↔Galvelica 联动载体） ──
+model InclusionRequest {
+  id          String                @id @default(cuid())
+  workId      String
+  work        Work                  @relation(fields: [workId], references: [id], onDelete: Cascade)
+  requestedBy String?               // 发起用户 ID（游客可为空）
+  status      InclusionRequestStatus @default(PENDING)
+  note        String                @default("")
+  reviewedBy  String?
+  decidedAt   DateTime?
+  createdAt   DateTime              @default(now())
+  @@index([status])
+  @@index([workId])
+}
+
+// ── 与 GameTag / GameCreator 平行的关系表 ──
+model WorkTag {
+  workId String
+  tagId  String
+  work   Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([workId, tagId])
+  @@index([tagId])
+}
+
+model WorkCreator {
+  id        String  @id @default(cuid())
+  workId    String
+  creatorId String
+  role      String                            // scenario / art / chardesign / music / director / songs
+  work      Work    @relation(fields: [workId], references: [id], onDelete: Cascade)
+  creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  @@unique([workId, creatorId, role])
+  @@index([creatorId])
 }

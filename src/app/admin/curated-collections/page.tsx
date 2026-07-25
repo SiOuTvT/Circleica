@@ -349,7 +349,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
 
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose}
-            className="h-10 px-4 rounded-xl text-sm font-medium bg-muted text-foreground ring-1 ring-border hover:ring-primary/40 transition-all">
+            className="h-10 px-4 rounded-xl text-sm font-medium bg-muted text-foreground ring-1 ring-border hover:ring-foreground/10 transition-all">
             取消
           </button>
           <button onClick={handleSave} disabled={saving} className={adminBtnPrimary}>

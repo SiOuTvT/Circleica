@@ -25,7 +25,7 @@ export function DiscoverySection({
     <section className="space-y-3">
       <div className="flex items-end justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Icon className="h-5 w-5 shrink-0 text-[var(--theme-color)]" strokeWidth={1.75} />
+          <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
           <div className="min-w-0">
             <h2 className="truncate text-base font-heading font-semibold text-foreground">{title}</h2>
             {description && <p className="truncate text-xs text-muted-foreground">{description}</p>}

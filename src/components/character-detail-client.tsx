@@ -92,17 +92,17 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
 
           <TagGroup className="mb-4">
             {character.role && (
-              <Tag color="var(--theme-color)">
+              <Tag>
                 {roleMap[character.role] || character.role}
               </Tag>
             )}
             {character.vnTitle && (
-              <Tag color="var(--theme-color)">
+              <Tag>
                 {character.vnTitle}
               </Tag>
             )}
             {vndbId && (
-              <Tag color="var(--theme-color)" href={`https://vndb.org/${vndbId}`}>
+              <Tag href={`https://vndb.org/${vndbId}`}>
                 <Database className="h-3 w-3" strokeWidth={2} />VNDB · {vndbId}
               </Tag>
             )}
@@ -138,7 +138,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             <div className="mb-3">
               <div className="flex flex-wrap gap-1.5">
                 {character.aliases.slice(0, 8).map((alias, i) => (
-                  <span key={i} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs text-primary ring-1 ring-primary/20">
+                  <span key={i} className="rounded-full bg-muted text-muted-foreground ring-1 ring-border">
                     {alias}
                   </span>
                 ))}
@@ -157,7 +157,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
           </h2>
           <TagGroup>
             {character.traits.map((trait, i) => (
-              <Tag key={i} color="var(--theme-color)">
+              <Tag key={i}>
                 {trait.name}
               </Tag>
             ))}

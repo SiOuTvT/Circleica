@@ -128,7 +128,7 @@ export default async function RankingPage({
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       {/* ── 页头 ── */}
       <header className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--theme-color)]/10 text-[var(--theme-color)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <Trophy className="h-6 w-6" strokeWidth={1.5} />
         </div>
         <div>
