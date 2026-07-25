@@ -14,7 +14,7 @@ interface WorkCardProps {
 export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
   return (
     <Link
-      href={`/galvelica/works/${work.serialId}`}
+      href={work.href}
       className="galvelica-card group block overflow-hidden rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gal-accent)]"
       title={work.title}
     >

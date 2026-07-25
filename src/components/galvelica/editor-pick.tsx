@@ -54,7 +54,7 @@ function Cover({ work, className }: { work: GalvelicaWorkCard; className?: strin
 function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
   return (
     <Link
-      href={`/galvelica/works/${work.serialId}`}
+      href={work.href}
       className="group grid gap-5 rounded-2xl border border-border bg-card p-4 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:grid-cols-[260px_1fr] sm:p-5"
       title={work.title}
     >
@@ -99,7 +99,7 @@ function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
 function EditorCompact({ work }: { work: GalvelicaWorkCard }) {
   return (
     <Link
-      href={`/galvelica/works/${work.serialId}`}
+      href={work.href}
       className="group flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_40%,transparent)]"
       title={work.title}
     >

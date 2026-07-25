@@ -30,7 +30,7 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
   const today = new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric" })
   return (
     <Link
-      href={`/galvelica/works/${work.serialId}`}
+      href={work.href}
       className="group flex gap-4 rounded-2xl border border-border bg-card p-4 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:gap-5 sm:p-5"
       title={work.title}
     >

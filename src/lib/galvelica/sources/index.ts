@@ -7,10 +7,11 @@
  */
 import type { SourceAdapter, SourceKey } from "./types"
 import { vndbAdapter } from "./vndb"
+import { bangumiAdapter } from "./bangumi"
 
 const registry: Partial<Record<SourceKey, SourceAdapter>> = {
   VNDB: vndbAdapter,
-  // BANGUMI: bangumiAdapter,    // Stage D
+  BANGUMI: bangumiAdapter, // Stage D：未配置 BANGUMI_ACCESS_TOKEN 时优雅降级
   // EROGESCAPE: erogescapeAdapter,
   // DLSITE: dlsiteAdapter,
   // STEAM: steamAdapter,
@@ -24,5 +25,5 @@ export function listAdapters(): SourceKey[] {
   return Object.keys(registry) as SourceKey[]
 }
 
-export { vndbAdapter }
+export { vndbAdapter, bangumiAdapter }
 export type { SourceAdapter, SourceKey, NormalizedWork } from "./types"
