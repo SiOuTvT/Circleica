@@ -316,7 +316,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
   const vndbId = vndbSource?.externalId ?? ""
   const gameId = work.gameId ?? fallbackGameId
   const serialId = work.game?.serialId ?? 0
-  const href = cardHref(work.gameId, serialId || null, work.slug)
+  const href = cardHref(gameId, serialId || null, work.slug)
 
   const tagNames = work.tags.map((t) => t.tag.name)
   const siblings = tagNames.length
@@ -336,7 +336,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
     href,
     slug: work.slug,
     gameId: work.gameId,
-    included: !!work.gameId,
+    included: !!gameId,
     releaseYear: year,
     englishName: work.englishName,
     aliases: work.aliases,

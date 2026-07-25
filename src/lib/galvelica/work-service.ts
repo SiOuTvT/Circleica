@@ -10,7 +10,6 @@
  */
 import { Prisma, type WorkSourceType } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import { logger } from "@/lib/logger"
 import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"

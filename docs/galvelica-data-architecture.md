@@ -311,9 +311,40 @@ Galvelica 搜索可覆盖：作品 / Staff / 社团 / 标签 / 发布时间 / �
 - **三条路由统一走适配器**：`/api/admin/vndb`（主）、`autofill`、`import` 全部改用 `vndbAdapter.fetchByExternalId + normalize`，对外响应形态保持兼容（主路由返回 `title/japaneseName/englishName/aliases/releaseDate/.../creators`；autofill 返回 `title/original/tags/creators/message`；import 路由建 `Game` 逻辑不变）。
 - **单一归一化真相源**：全站不再有两套 VNDB 名称 / 标签解析逻辑并存。
 
-### 下一步
-- **阶段 C（回填）**：把现有已发布 `Game`（有 `vndbId`）→ 生成 `Work` + `WorkSource{VNDB}`（`raw` 缓存原始 payload），设 `gameId`；需在你本机建完 Stage A 表后跑。
-- **阶段 D（多源融合）**：`BangumiAdapter` + 融合引擎（字段级优先级表生效）；这是让 Galvelica 真正「远大于 Circleica」的关键。
+### 阶段 C（回填）— 已落地 2026-07-25
+- **新增 `scripts/backfill-galvelica.ts`**（npm script `galvelica:backfill`）：遍历已发布 `Game` → slug=`g{serialId}`；有 `vndbId` 优先 `vndbAdapter.fetchByExternalId` 重拉原始 payload 入 `WorkSource{VNDB}`（失败回退 `MANUAL` 复用 Game 既有字段），创建 `Work` + 设 `gameId`；复制本站评分/浏览/收藏数到 `Work`。**幂等**（slug 已存在则跳过），可在真实库多次安全重跑。
+- **跑批在真实数据库执行**（沙箱无 DB，见 `MEMORY.md` 环境限制）：你本机建完 Stage A 表后 `npm run galvelica:backfill` 即可把历史游戏灌入 Galvelica 资料库、并自动融合 VNDB 字段。
+- 回填即触发 `fuseWork`（Stage D 引擎），所以 C 完成的同时首轮融合已就绪。
+
+### 阶段 D（多源融合）— 已落地 2026-07-25
+- **融合引擎 `src/lib/galvelica/fusion.ts`**：纯函数 `mergeSources(sources, manualFields)`，按 §5 字段级优先级表选优；`aliases`/`tags` 合并去重、`description` 取最长非空、`creators` 按 `(name,role)` 去重；导出 `FUSION_TABLE` 与类型。
+- **`BangumiAdapter`（`src/lib/galvelica/sources/bangumi.ts`）**：实现 `SourceAdapter`，`key="BANGUMI"`；`BANGUMI_ACCESS_TOKEN` 未配置时 `fetchByExternalId`/`search` 优雅返回 null/[]（不报错、不吃异常），配了令牌即自动进入多源融合。已注册进 `sources/index.ts`。
+- **编排层 `src/lib/galvelica/work-service.ts`**：`fuseWork(workId)`（读 Work+sources → 各源 `normalize` → `mergeSources` → 写标量字段+provenance → 同步 `WorkTag`/`WorkCreator`）、`getOrCreateWorkFromSource`、`refetchSource`、`slugify`。
+- **人工锁定**：`manualFields` 字段融合时跳过，落地「Galvelica 永远保留自己的最终资料」。
+- DLsite / Steam / ErogameScape 适配器按同一 `SourceAdapter` 接口留位，接入零改引擎。
+
+### 阶段 E（联动 UX）— 已落地 2026-07-25
+- **前端**：`src/components/galvelica/work-detail.tsx`（已收录/未收录两条路由复用的详情视图）；已收录→「查看资源·前往下载页」`/games/{serialId}`；未收录→ `<RequestInclusionButton>`。
+- **API**：`src/app/api/galvelica/[id]/request-inclusion/route.ts`（`POST`，已收录/已 Pending 返回 409，游客可提交 `requestedBy=null`，`auth()` from `@/lib/auth`）。
+- **后台队列**：`src/app/admin/inclusion-requests/page.tsx`（`requireAdmin()`，列 PENDING + 最近 20 条已处理；通过→用 Work 融合字段预填未发布 `Game` 草稿并设 `Work.gameId`；驳回→REJECTED）；侧边栏入口 + 待审数量 badge（`/api/admin/counts` 新增 `inclusionRequests` 计数）。
+- 效果：未收录作品页永不空页，走「申请收录 → 后台待审 → 一键建草稿」自然闭环。
+
+### 阶段 F（搜索分治）— 已落地 2026-07-25
+- **`src/lib/galvelica.ts` 整体重写**：公开类型/签名（`GalvelicaWorkCard`/`GalvelicaWorkDetail`/`listWorks`/`getWorkBySerialId`/`getPopularTags` 等）保持兼容；卡片/详情类型新增 `href`/`slug`/`included`/`gameId`。
+- **主路径改读 `Work`**：`workCardSelect`/`mapWorkCard`/`workWhere`/`buildDetailFromWork`/`getWorkBySlug`；通过 `archiveReady()`（`prisma.work.count()>0` 带缓存判定）**优雅回退**到旧 `Game` 实现（`*FromGame`）。即 Stage C 未跑前旧行为不变，跑完后自动切到资料库级阅读。
+- **详情路由 `works/[serialId]/page.tsx`**：`resolveWork(segment)` 数字走 `getWorkBySerialId`、否则走 `getWorkBySlug`，统一渲染 `<WorkDetailView>`（已删除冲突的 `[slug]` 同级目录）。
+- **消费组件同步**：14 处引用改为用 `work.href` 链接；`/api/search` 仍走 `searchService` 查 `Game`（Circleica 搜索分治不变）。
+- 效果：Galvelica 可搜索整个资料库（含 `gameId` 为空、未收录作品），实现「找不到资源，也能找到资料」。
+
+### 全部阶段落地状态（截至 2026-07-25）
+A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分治 —— **六项全部落地**。剩余仅「真实数据库执行」由你本机完成（沙箱无 DB，见下「执行清单」）。
+
+**执行清单（你本机、非沙箱）**：
+1. `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a`（建 Stage A 新表）
+2. `npm run galvelica:backfill`（Stage C 回填 + 首轮融合）
+3. 可选：在 `.env` 配 `BANGUMI_ACCESS_TOKEN`，重启后 Galvelica 自动多源融合 Bangumi 数据。
+
+> 沙箱环境无法连 DB（网络层拦截 5432，对 agent 内一切进程生效），故上述两条命令需在**你自己的桌面**（双击 `D:\Circleica\start-dev.bat` 起的 `localhost:3000`）执行；agent 内起的 765/3000 预览无库，仅渲染空框架、绝不注入假数据。
 
 ---
 

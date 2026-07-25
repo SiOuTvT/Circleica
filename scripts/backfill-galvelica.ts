@@ -117,7 +117,7 @@ async function main() {
         const fetched = await vndbAdapter.fetchByExternalId(g.vndbId)
         if (fetched != null) {
           source = "VNDB"
-          externalId = g.vndbId.replace(/^v/i, (m) => m) // 保留原 ID（含 v 前缀）
+          externalId = g.vndbId
           raw = fetched
           usedVndb = true
         }

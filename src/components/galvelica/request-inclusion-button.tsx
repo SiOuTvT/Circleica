@@ -23,7 +23,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
       })
       if (res.ok) {
         setDone(true)
-        toast.success("已提交收录申请，馆方审核通过后将建立资源页")
+        toast.success(`已为《${title}》提交收录申请，馆方审核通过后将建立资源页`)
       } else {
         const d = (await res.json().catch(() => ({}))) as { error?: string }
         if (res.status === 409) {

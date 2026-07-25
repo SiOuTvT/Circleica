@@ -280,11 +280,12 @@ export const reportRepo = {
 
 export const adminStatsRepo = {
   async getCounts() {
-    const [reports, unpublishedGames] = await Promise.all([
+    const [reports, unpublishedGames, inclusionRequests] = await Promise.all([
       prisma.gameReport.count(),
       prisma.game.count({ where: { isPublished: false } }),
+      prisma.inclusionRequest.count({ where: { status: "PENDING" } }),
     ])
-    return { reports, unpublishedGames }
+    return { reports, unpublishedGames, inclusionRequests }
   },
 }
 

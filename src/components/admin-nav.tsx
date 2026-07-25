@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart,
+  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
   LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
@@ -33,6 +33,7 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: LayoutDashboard, label: "仪表盘", href: "/admin", minRole: "ADMIN" },
       { icon: ClipboardCheck, label: "审核队列", href: "/admin/review", minRole: "ADMIN" },
+      { icon: Inbox, label: "收录申请", href: "/admin/inclusion-requests", minRole: "ADMIN" },
     ],
   },
   {
@@ -105,13 +106,13 @@ export function AdminNav() {
   const [collapsed, setCollapsed] = useState(false)
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark")
   const [mounted, setMounted] = useState(false)
-  const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number }>({ reports: 0, unpublishedGames: 0 })
+  const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number; inclusionRequests: number }>({ reports: 0, unpublishedGames: 0, inclusionRequests: 0 })
 
   // 获取待办数量
   useEffect(() => {
-    api.get<{ reports?: number; unpublishedGames?: number }>("/api/admin/counts")
+    api.get<{ reports?: number; unpublishedGames?: number; inclusionRequests?: number }>("/api/admin/counts")
       .then((data) => {
-        setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0 })
+        setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0, inclusionRequests: data.inclusionRequests ?? 0 })
       })
       .catch(() => {})
   }, [])
@@ -120,6 +121,7 @@ export function AdminNav() {
   const getBadgeCount = (href: string): number => {
     if (href === "/admin/reports") return badgeCounts.reports
     if (href === "/admin/games") return badgeCounts.unpublishedGames
+    if (href === "/admin/inclusion-requests") return badgeCounts.inclusionRequests
     return 0
   }
 
