@@ -23,7 +23,6 @@ import {
   processProducerResults,
   processCharacterResults,
 } from "./vndb-shared"
-import { cleanTags } from "./vndb-tags"
 
 interface VNDBCharacter {
   id: string
@@ -258,6 +257,31 @@ class VNDBClient {
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("Failed to fetch VN details", error)
+      return null
+    }
+  }
+
+  /**
+   * 拉取视觉小说完整原始 payload（融合 / 适配器用）。
+   * 比 getVisualNovel 多取 aliases + released，供 SourceAdapter 做名称解析与发售日归一。
+   * 复用 sendRequest 的代理 / IPv4 / 重试 / 熔断器 / 缓存。
+   */
+  async fetchVisualNovelRaw(vnId: string): Promise<unknown | null> {
+    const key = cacheKey("vndb", "vn_raw_fusion", vnId)
+    try {
+      return await cached(
+        key,
+        async () =>
+          this.sendRequest("vn", {
+            filters: ["id", "=", vnId],
+            fields:
+              "id,title,alttitle,aliases,released,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role",
+            results: 1,
+          }),
+        this.CACHE_TTL,
+      )
+    } catch (error) {
+      logger.db.error("[VNDB] fetchVisualNovelRaw failed", error)
       return null
     }
   }
@@ -536,49 +560,8 @@ class VNDBClient {
     }
   }
 
-  /**
-   * 从 VNDB ID 自动填充游戏信息
-   */
-  async autoFillFromVNDB(vndbId: string): Promise<{
-    title?: string
-    original?: string
-    description?: string
-    tags?: string[]
-    creators?: Array<{ vndbId: string; name: string; nameJa: string; role: string }>
-  } | null> {
-    try {
-      const vn = await this.getVisualNovel(`v${vndbId}`)
-
-      if (!vn) return null
-
-      // 提取标签（智能清洗：黑名单过滤 + 翻译 + 去重）
-      const tags = cleanTags(
-        (vn.tags || []).map(t => ({ name: t.name, rating: t.rating }))
-      ).slice(0, 10)
-
-      // 提取创作者信息（staff：脚本、原画、音乐等）
-      const creators = (vn.staff || [])
-        .filter(s => s.id && s.name)
-        .map(s => ({
-          vndbId: s.id.replace("s", ""),
-          name: s.name,
-          nameJa: s.original || "",
-          role: s.role || "other",
-        }))
-        .slice(0, 20)
-
-      return {
-        title: vn.title,
-        original: vn.alttitle,
-        description: vn.description,
-        tags,
-        creators,
-      }
-    } catch (error) {
-      logger.db.error("Failed to auto-fill from VNDB", error)
-      return null
-    }
-  }
+  // autoFillFromVNDB 已移除：归一化逻辑统一收敛到 src/lib/galvelica/sources/vndb.ts (VndbAdapter)。
+  // 调用方（/api/admin/vndb/* 路由）直接 `import { vndbAdapter }` 使用，避免两套归一化并存。
 
   /**
    * 获取角色详情（通过 VNDB character ID）

@@ -4,6 +4,7 @@ import { AppError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
+import { vndbAdapter } from "@/lib/galvelica/sources"
 import { GameStatus } from "@prisma/client"
 
 export const POST = withHandler(async (req) => {
@@ -40,13 +41,23 @@ export const POST = withHandler(async (req) => {
         continue
       }
 
-      // 自动填充信息
-      const autoFill = await vndbClient.autoFillFromVNDB(String(vndbId))
-
-      if (!autoFill) {
+      // 经 Galvelica 源适配器拉取并归一化（与 /api/admin/vndb 共用同一套逻辑）
+      const payload = await vndbAdapter.fetchByExternalId(String(vndbId))
+      if (!payload) {
         results.push({ vndbId, status: "failed", reason: "获取信息失败" })
         failCount++
         continue
+      }
+      const norm = vndbAdapter.normalize(payload)
+      if (!norm.title) {
+        results.push({ vndbId, status: "failed", reason: "获取信息失败" })
+        failCount++
+        continue
+      }
+      const autoFill = {
+        title: norm.title,
+        original: norm.originalWork ?? "",
+        tags: (norm.tags ?? []).map((t) => t.name),
       }
 
       // 创建游戏记录

@@ -302,8 +302,18 @@ Galvelica 搜索可覆盖：作品 / Staff / 社团 / 标签 / 发布时间 / �
   3. **跨源归并键**：以 `WorkSource.externalId`（每源各自）为存储基础；跨源同一作品归并（VNDB↔Bangumi 映射 / 标题+社团+年份模糊匹配）留到 Stage D 融合引擎，阶段 A 不建映射表。
   4. **DLsite/Steam/EGS 合规**：属 Stage B/D 适配器层，与 schema 无关；阶段 A 仅在 `WorkSourceType` 枚举预留值。
 
-### 下一步（待你本机建表后）
-- **阶段 B**：`VndbAdapter`（重构现有 `src/app/api/admin/vndb/*` autofill）+ `SourceAdapter` 接口契约（§4）。
+### 阶段 B（适配器）— 已落地 2026-07-25
+- **新增 `src/lib/galvelica/sources/`**：
+  - `types.ts`：`SourceKey` / `NormalizedWork` / `SourceAdapter` 接口（与 §4、Stage A 的 `WorkSourceType` 枚举一致；`SourceKey` 用 `EROGESCAPE` 对齐枚举值）。
+  - `vndb.ts`：`VndbAdapter` 实现，把原 `/api/admin/vndb` 的「名称解析 + 标签清洗 + 创作者提取」迁进 `fetchByExternalId + normalize`；传输层复用 `VNDBClient`（代理 / IPv4 / 重试 / 熔断器 / 缓存）；附带可选 `search()`。
+  - `index.ts`：`getAdapter(key)` / `listAdapters()` 注册表，`VNDB` 已注册，Bangumi 等留位注释。
+- **`VNDBClient` 瘦身**：新增 `fetchVisualNovelRaw(vnId)`（带 aliases + released 完整字段）；删除重复的 `autoFillFromVNDB`（归一化已归一到适配器），顺带移除 `vndb.ts` 里不再使用的 `cleanTags` 导入。
+- **三条路由统一走适配器**：`/api/admin/vndb`（主）、`autofill`、`import` 全部改用 `vndbAdapter.fetchByExternalId + normalize`，对外响应形态保持兼容（主路由返回 `title/japaneseName/englishName/aliases/releaseDate/.../creators`；autofill 返回 `title/original/tags/creators/message`；import 路由建 `Game` 逻辑不变）。
+- **单一归一化真相源**：全站不再有两套 VNDB 名称 / 标签解析逻辑并存。
+
+### 下一步
+- **阶段 C（回填）**：把现有已发布 `Game`（有 `vndbId`）→ 生成 `Work` + `WorkSource{VNDB}`（`raw` 缓存原始 payload），设 `gameId`；需在你本机建完 Stage A 表后跑。
+- **阶段 D（多源融合）**：`BangumiAdapter` + 融合引擎（字段级优先级表生效）；这是让 Galvelica 真正「远大于 Circleica」的关键。
 
 ---
 
