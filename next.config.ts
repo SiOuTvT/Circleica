@@ -15,6 +15,27 @@ const nextConfig: NextConfig = {
       // VNDB (视觉小说数据库)
       { protocol: "https", hostname: "static.vndb.org" },
       { protocol: "https", hostname: "t.vndb.org" },
+      { protocol: "https", hostname: "s.vndb.org" },
+      // CnGal (中文同人游戏资料站) — 封面/截图图床
+      { protocol: "https", hostname: "res.cngal.org" },
+      { protocol: "https", hostname: "tucang.cngal.top" },
+      { protocol: "https", hostname: "*.cngal.org" },
+      { protocol: "https", hostname: "*.cngal.top" },
+      // 其他已入库图床（历史封面回源）
+      { protocol: "https", hostname: "shared.cdn.queniuqe.com" },
+      { protocol: "https", hostname: "media.st.dl.eccdnx.com" },
+      // Steam (发现层封面 header_image)
+      { protocol: "https", hostname: "shared.cloudflare.steamstatic.com" },
+      { protocol: "https", hostname: "cdn.cloudflare.steamstatic.com" },
+      { protocol: "https", hostname: "shared.akamai.steamstatic.com" },
+      { protocol: "https", hostname: "store.steampowered.com" },
+      // Bangumi (同人闸门已收录)
+      { protocol: "https", hostname: "*.bgm.tv" },
+      { protocol: "https", hostname: "lain.bgm.tv" },
+      // 月幕 YmGal (发现层)
+      { protocol: "https", hostname: "images.yam-gal.com" },
+      { protocol: "https", hostname: "*.ymgal.net" },
+      { protocol: "https", hostname: "*.ymgal.org" },
       // 本地开发允许 localhost
       ...(process.env.NODE_ENV === "development"
         ? [{ protocol: "http" as const, hostname: "localhost" }]

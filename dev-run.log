@@ -1,0 +1,26 @@
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.5.37:3000
+- Environments: .env
+✓ Ready in 1029ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[90m2026-07-26T21:45:45.690Z[0m [33mWRN[0m [90m[DB][0m 安全警告 [90m{"issues":"NEXTAUTH_SECRET 使用了弱密钥，生产环境请运行: openssl rand -base64 32"}[0m
+[90m2026-07-26T21:45:47.162Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-07-26T21:45:47.162Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-07-26T21:45:47.162Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+Image with src "https://t.vndb.org/cv/07/118207.jpg" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "https://res.cngal.org/_content/CnGalWebSite.Shared/images/default/app.png" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "https://t.vndb.org/cv/30/3130.jpg" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "https://t.vndb.org/cv/82/182.jpg" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "https://t.vndb.org/cv/90/98090.jpg" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+Image with src "https://t.vndb.org/cv/79/135079.jpg" is using quality "80" which is not configured in images.qualities [75]. Please update your config to [75, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /galvelica 200 in 3.1s (next.js: 512ms, proxy.ts: 177ms, application-code: 2.4s)
+⨯ upstream image https://www.google.com/ resolved to private ip ["2001::1"]
+⨯ upstream image https://www.google.com/ resolved to private ip ["2001::1"]
