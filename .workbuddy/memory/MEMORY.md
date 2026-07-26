@@ -21,6 +21,7 @@
 
 ## 环境限制（重要）
 - ~~agent 环境网络层拦截 127.0.0.1:5432……连不上库~~ **已推翻（2026-07-26 实测）**：`dangerouslyDisableSandbox:true` 下 agent 直接 `npx tsx scripts/qa-ingest.ts` 成功连本地 Postgres 返回真实数据。该拦截本会话不成立。**以后要查库/跑 ingest 直接试，别先入为主推定连不上**；若某次真连不上再排查。
+- **活 PG 数据目录在 `D:\pgdata`**（家 AI 把库迁到了 D 盘，已确认 `/d/pgdata/PG_VERSION`+`base/`），但连接串仍是 `.env` 的 `postgresql://fangame:fangame2024@127.0.0.1:5432/circleica`。127.0.0.1:5432 唯一占用即家 AI 写入的库，迁 D 盘不改变连接目标，**agent 跑 ingest/QA 不会写错库**。
 - 离线回退：`src/lib/prisma.ts` Proxy 探测 SELECT 1 失败→读查询返回空（findMany→[]/count→0 等），绝不假数据；写操作 throw 阻止。
 - Bash 重定向用 `2>/dev/null` 绝不用 `2>nul`（Git Bash 会写 `nul` 保留名垃圾文件触发 Turbopack 崩溃）；强删保留名文件用 `\\?\` 长路径前缀 + Win32 API。
 
@@ -29,6 +30,7 @@
 - 严格同人闸门 `sources/doujin-gate.ts`：`GALVELICA_DOUJIN_ONLY` 默认 1 只收 VNDB/Bangumi；月幕等广义源设 0 放开；EGS 因中国 IP 墙未实现；nhentai/jandapress 等成人同人志(manga)排除。
 - 接入源：VNDB/Bangumi/月幕YmGal/CnGal(用户令牌已写 `.env` 的 CNGL_API_TOKEN)/Steam发现层。CnGal+Steam 默认收录(DOUJIN_CURATED=[VNDB,BANGUMI,CNGL,STEAM])。
 - **融合优先级铁律（用户 2026-07-26 强调「权威优先、高质量优先」）**：`fusion.ts` 的 FUSION_TABLE 必须按「每个字段谁最权威/质量最高谁排前」编排，且不能漏掉任何已接入源。各源权威面：VNDB=canonical 元数据最权威(标题/原名/发售日/简介/社团/标签/Staff)；BANGUMI=中文译名/别名/简介质量最高；YMGAL=补中文译名/封面/制作人员(无 tags/无稳定社团名)；CNGL=国产同人封面与制作组完整(无 tags)；STEAM=高质量封面(header_image)+可靠发售日(仅放行 VN genre，但 release_date 格式偶不规整故发售日排最后兜底)；DLSITE=官方购买链接(预留)；MANUAL=站长人工兜底(外部权威源存在时让位，已锁定字段不受影响)。曾漏：STEAM 只在 steamAppId 出现，coverImage/releaseDate/description 三个数组漏接 → 已修(把 STEAM 补进对应数组并按权威排序)。
+- **VNDB 收录关键坑（2026-07-26 踩过）**：① **扁平 filter `["field","op","value"]` 完全正常**（curl 验证 `id=v17`/`search=fate` 均 200，生产在用）；但 **server 端 ng(同人社团)关系过滤语法未破解**——`developers.type`/`["developers",[["type","=","ng"]]]`/`["developers","type","=","ng"]`/`["and",[...]]` 等 5 种全 400，故 `ingest-vndb.ts` 只能 `FILTER=null` + 循环内按 `developers.type==='ng'` 过滤，**不能指望 `GALVELICA_INGEST_FILTER` 做 API 级过滤**；翻全量 VNDB(~37k)约 2.5-3h，若 server 端 ng 过滤跑通则可降到 ~40min（家 AI 那版 ~40min 必用了某种能跑通的 ng 语法）。② VNDB v2 fields 里 `image` 必须写 `image.url`（裸 `image` 报 "image object requires sub-field(s)"），`vndb.ts` normalize 取封面要兼容 `string | {url}`。③ 跑 ingest 用 `npx tsx scripts/ingest-vndb.ts`（沙箱下 `npm run` 不注入 node_modules/.bin/tsx 会找不到命令）；RESET 重抓封面用 `GALVELICA_INGEST_RESET=1`。④ **地理/中国网络无关**：VNDB 从本机直连可达，400 是请求格式错（任何 IP 发同样错请求都 400），不是被墙（被墙会超时/连接拒绝）。
 - 资料馆填充焊进部署：`ingest` 服务(docker-compose profiles:[ingest], build.target:builder 复用含 src+tsx 构建阶段)+`ingest-entrypoint.sh`(DB等待+幂等断点续跑：backfill→vndb→cngal→discovery，月幕仅 DOUJIN_ONLY=0)；DEPLOYMENT.md 两方式均写「填充可选但推荐」。新机=`docker compose up -d`+可选 `docker compose run --rm ingest`，零额外手动代码。
 - tsc 0 error；改动文件 eslint 0 error。
 

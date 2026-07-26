@@ -118,8 +118,9 @@ class VndbAdapter implements SourceAdapter {
     /* ── 简介（去 BBCode） ── */
     const cleanDesc = stripVndbMarkup((vn.description as string | undefined) ?? "")
 
-    /* ── 封面（VNDB 主视觉图 URL） ── */
-    const coverImage = (vn.image as string | undefined) ?? undefined
+    /* ── 封面（VNDB 主视觉图 URL；image.url 返回字符串，旧路径可能返回 {url} 对象，兼容两种） ── */
+    const rawImage = vn.image as string | { url?: string } | undefined
+    const coverImage = typeof rawImage === "string" ? rawImage : rawImage?.url ?? undefined
 
     /* ── 标签（智能清洗：黑名单 + 翻译 + 去重） ── */
     const vnTags = (vn.tags as Array<{ name: string; rating?: number }> | undefined) ?? []

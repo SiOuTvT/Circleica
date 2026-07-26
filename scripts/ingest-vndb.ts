@@ -56,7 +56,7 @@ if (process.env.GALVELICA_INGEST_FILTER) {
 
 // 列表直接取融合所需全部字段，避免逐条二次拉取
 const LIST_FIELDS =
-  "id,title,alttitle,aliases,released,image,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role"
+  "id,title,alttitle,aliases,released,image.url,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role"
 
 const STATE_FILE = path.join(process.cwd(), ".galvelica-ingest.json")
 
