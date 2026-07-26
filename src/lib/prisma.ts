@@ -114,8 +114,15 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
         ensureProbe().then((ok) => {
           if (ok && !enabled.mock && !forceMock) {
             return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
-              enabled.mock = true
-              logger.db.warn(`[db-offline] ${modelName}.${String(methodName)} 失败，回退空结果`, { error: (err as Error)?.message })
+              // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
+              const msg = (err as Error)?.message ?? ""
+              const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
+              if (isConnectionError) {
+                enabled.mock = true
+                logger.db.warn(`[db-offline] ${modelName}.${String(methodName)} 连接失败，回退空结果`, { error: msg })
+              } else {
+                logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+              }
               return getEmptyResult(modelName, String(methodName))
             })
           }
