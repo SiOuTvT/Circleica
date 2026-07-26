@@ -338,14 +338,16 @@ Galvelica 搜索可覆盖：作品 / Staff / 社团 / 标签 / 发布时间 / �
 - 效果：Galvelica 可搜索整个资料库（含 `gameId` 为空、未收录作品），实现「找不到资源，也能找到资料」。
 
 ### 全部阶段落地状态（截至 2026-07-26）
-A 地基 / B 适配器 / C 回填（种子）/ D 多源融合 / E 联动 UX / F 搜索分治 —— **代码六项全部落地**。
+A 地基 / B 适配器 / C 回填（种子）/ D 多源融合 / E 联动 UX / F 搜索分治 —— **代码六项全部落地**；2026-07-26 追加 **CnGal 适配器 + Steam 发现层**（多源再扩大，覆盖「全球同人」）。
 ⚠️ **重要定位纠正**：Galvelica 从原始设定起就是「资料馆」，要收录**整个同人 VN 生态**（DB 远大于 Circleica）。因此「从 VNDB 整批抓同人目录」不是可选扩展，而是 Galvelica 的**核心功能**。Stage C 的回填只是把 Circleica 现有目录搬进资料馆当**种子**；真正让资料馆覆盖整个同人生态的，是下面的「广收录」命令。
 
 **执行清单（你本机、非沙箱）**：
-1. `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a`（建 Stage A 新表）
+1. `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a`（首次建 Stage A 新表；若已建过表、本次只是新增 `CNGL` 枚举，则改跑 `npx prisma migrate dev --name galvelica_cngal`）
 2. `npm run galvelica:backfill`（Stage C 回填：把 Circleica 已发布游戏灌进资料馆当种子 + 首轮融合）
-3. **`npm run galvelica:ingest-vndb`（广收录核心：从 VNDB 整批抓同人目录，建 Work+WorkSource{VNDB} 并融合）** —— 这才是让资料馆真正有「整个同人 VN 生态」数据的步骤；带限流 + 断点续跑（状态存 `.galvelica-ingest.json`），同人硬过滤在入库口落地「只收同人 VN」。
+3. **`npm run galvelica:ingest-vndb`（广收录核心：从 VNDB 整批抓同人目录）** —— 带限流 + 断点续跑（`.galvelica-ingest.json`），同人硬过滤在入库口落地「只收同人 VN」。
 4. 启用 Bangumi 多源融合（两步）：① 在 `.env` 加 `BANGUMI_ACCESS_TOKEN=你的令牌`；② 跑 `npm run galvelica:enrich-bangumi` 把现有作品关联到 Bangumi 并重融合（仅配令牌不跑此步 = 无效果）。
+5. **`npm run galvelica:ingest-cngal`（中文同人大本营）**：CnGal 按年月列出当月发售游戏 → 逐 id 拉详情建 `Work{CNGL}` 并融合；默认收录（`DOUJIN_CURATED`），限流 300ms、断点续跑（`.galvelica-ingest-cngal.json`）。可选：`.env` 已写入 `CNGL_API_TOKEN` 提额；`GALVELICA_CNGL_START_YEAR` 控制起始年。
+6. **`npm run galvelica:ingest-discovery`（Steam 发现层）**：按多语种关键词搜 Steam，仅放行 VN genre，把现有源漏掉的新同人/galgame 建为 `Work{STEAM}` 候选；去重、断点续跑（`.galvelica-ingest-discovery.json`）。
 
 > 沙箱环境无法连 DB（网络层拦截 5432，对 agent 内一切进程生效），故上述命令需在**你自己的桌面**（双击 `D:\Circleica\start-dev.bat` 起的 `localhost:3000`）执行；agent 内起的 765/3000 预览无库，仅渲染空框架、绝不注入假数据。
 > 广收录是长任务（同人目录量大，受 VNDB 速率限制），建议本机后台/空闲时跑；中断后重跑会自动从断点续跑，不会重复建。
@@ -357,13 +359,13 @@ A 地基 / B 适配器 / C 回填（种子）/ D 多源融合 / E 联动 UX / F 
 - 若只想保留自有目录、不抓全量生态：只跑 1–2 步即可，存储可忽略。
 
 **多源扩展与严格同人闸门（用户 2026-07-26 要求：更严 + 更广 + 跳过稀疏源）**：
-- **严格同人闸门**（`sources/doujin-gate.ts`，不变式「只收同人 VN」）：默认 `GALVELICA_DOUJIN_ONLY=1`，仅收录带同人标签的源（VNDB 同人标签 / Bangumi 同人标签）；月幕 YmGal 等「galge 广义」源默认跳过，设 `GALVELICA_DOUJIN_ONLY=0` 才放开。
-- **已接入源**：VNDB（核心，同人标签过滤）、Bangumi（中文社区，配令牌后融合）、**月幕 YmGal（新增，开放免费 API、补中文译名/别名/封面/制作人员；Game 模型无 tags，标签仍由 VNDB/Bangumi 提供）**。
-- **搜索发现的候选源（已筛）**：ErogameScape（EGS，日本最大 eroge 库，但中国 IP 可能墙 + API 不稳定 → **暂未实现，待可达时再加**）；月幕已实现对中文向站点价值最高。明确排除 nhentai/jandapress 等**成人同人志(manga)**——非 galge，会污染资料馆身份。
+- **严格同人闸门**（`sources/doujin-gate.ts`，不变式「只收同人 VN」）：默认 `GALVELICA_DOUJIN_ONLY=1`，仅收录带同人标签/同人向的源（`DOUJIN_CURATED` = VNDB / Bangumi / CnGal / Steam）；月幕 YmGal 等「galge 广义」源默认跳过，设 `GALVELICA_DOUJIN_ONLY=0` 才放开。
+- **已接入源**：VNDB（核心，同人标签过滤）、Bangumi（中文社区，配令牌后融合）、**月幕 YmGal（开放免费 API、补中文译名/别名/封面/制作人员；Game 模型无 tags，标签仍由 VNDB/Bangumi 提供）**、**CnGal（中文同人/独立 VN 大本营，默认收录，补中文名/别名/封面/Staff）**、**Steam（发现层，按 VN genre 校验后建候选 Work）**。
+- **发现层（已落地）**：Steam 商店 API（无需密钥）按多语种关键词（visual novel / dating sim / otome / 同人 / doujin …）检索，仅放行 `genre` 含 "Visual Novel"/"Dating Sim" 的应用，建 `Work{STEAM}` 候选（去重、不自动建草稿），补现有源可能漏掉的新 VN/同人。候选源仍筛：ErogameScape（EGS，中国 IP 可能墙 + API 不稳定 → **暂未实现**）、itch.io（需 API key → **暂未实现**）；明确排除 nhentai/jandapress 等**成人同人志(manga)**——非 galge。
 - **稀疏源跳过**：各 ingest 脚本首年首页不可达即优雅退出（不污染库）；月幕按发售年翻页枚举，空页跳过。
-- **融合优先级表**已加入 YMGAL（title/aliases/description/coverImage/releaseDate 兜底，studioName 仍由 VNDB/Bangumi 提供）。
-- **新增收录命令**：`npm run galvelica:ingest-ymgal`（需先 `GALVELICA_DOUJIN_ONLY=0`）。
-- **deploy 安全**：所有新增均为加法；`YMGAL` 已加入 `WorkSourceType` 枚举（并入 `galvelica_stage_a` 迁移），不影响现有部署；env 全可选、优雅降级。
+- **融合优先级表**已加入 YMGAL 与 CNGL（title/aliases/description/coverImage/releaseDate 兜底，studioName 仍由 VNDB/Bangumi 提供）。
+- **新增收录命令**：`npm run galvelica:ingest-ymgal`（需先 `GALVELICA_DOUJIN_ONLY=0`）；`npm run galvelica:ingest-cngal`（CnGal，默认收录，限流 300ms、断点续跑）；`npm run galvelica:ingest-discovery`（Steam 发现层，去重 + VN 校验）。
+- **deploy 安全**：所有新增均为加法；`CNGL` 已加入 `WorkSourceType` 枚举（需新增迁移 `galvelica_cngal`，见执行清单第 1 步）；`YMGAL`/`STEAM` 已并入此前迁移。现有部署的 `prisma migrate deploy` 会自动应用新迁移；env（`CNGL_API_TOKEN`/`BANGUMI_ACCESS_TOKEN`）全可选、优雅降级，不填不影响核心功能。
 
 ---
 

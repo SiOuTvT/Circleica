@@ -17,7 +17,7 @@ export function isDoujinOnly(): boolean {
 }
 
 /** 带同人标签、能可靠判定同人的源（严格模式下也收录）。 */
-const DOUJIN_CURATED: SourceKey[] = ["VNDB", "BANGUMI"]
+const DOUJIN_CURATED: SourceKey[] = ["VNDB", "BANGUMI", "CNGL", "STEAM"]
 
 /**
  * 该源当前是否被闸门放行。

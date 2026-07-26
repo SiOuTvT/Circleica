@@ -17,7 +17,9 @@
     "galvelica:backfill": "tsx scripts/backfill-galvelica.ts",
     "galvelica:enrich-bangumi": "tsx scripts/enrich-bangumi.ts",
     "galvelica:ingest-vndb": "tsx scripts/ingest-vndb.ts",
-    "galvelica:ingest-ymgal": "tsx scripts/ingest-ymgal.ts"
+    "galvelica:ingest-ymgal": "tsx scripts/ingest-ymgal.ts",
+    "galvelica:ingest-cngal": "tsx scripts/ingest-cngal.ts",
+    "galvelica:ingest-discovery": "tsx scripts/ingest-discovery.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

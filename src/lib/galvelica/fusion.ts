@@ -42,13 +42,13 @@ export interface FusedSource {
  * 数组顺序即「优 → 劣」；`aliases` 与 `description` 走特殊合并策略（见 mergeSources）。
  */
 export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
-  title: ["VNDB", "BANGUMI", "YMGAL", "MANUAL"], // 月幕补中文译名
+  title: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"], // 月幕/CnGal 补中文译名
   originalWork: ["VNDB", "MANUAL"],
   englishName: ["VNDB", "MANUAL"],
-  aliases: ["VNDB", "BANGUMI", "YMGAL"], // 合并去重（union），月幕别名补充
-  description: ["VNDB", "BANGUMI", "YMGAL", "MANUAL"], // 取最长非空，月幕简介兜底
-  coverImage: ["VNDB", "BANGUMI", "YMGAL", "MANUAL", "DLSITE"], // 月幕封面兜底
-  releaseDate: ["VNDB", "BANGUMI", "YMGAL", "MANUAL"],
+  aliases: ["VNDB", "BANGUMI", "YMGAL", "CNGL"], // 合并去重（union），月幕/CnGal 别名补充
+  description: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"], // 取最长非空，月幕/CnGal 简介兜底
+  coverImage: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL", "DLSITE"], // 月幕/CnGal 封面兜底
+  releaseDate: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"],
   studioName: ["VNDB", "BANGUMI", "MANUAL"], // 月幕 Game 模型无稳定社团名，由 VNDB/Bangumi 提供
   officialUrl: ["DLSITE", "MANUAL"], // DLsite 优先
   steamAppId: ["STEAM", "MANUAL"], // Steam 优先

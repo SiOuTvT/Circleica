@@ -13,6 +13,7 @@
 export type SourceKey =
   | "VNDB"
   | "BANGUMI"
+  | "CNGL"
   | "YMGAL"
   | "EROGESCAPE"
   | "DLSITE"

@@ -52,3 +52,5 @@ next-env.d.ts
 # Galvelica 广收录断点续跑状态文件（运行时生成，非项目内容）
 .galvelica-ingest.json
 .galvelica-ingest-ymgal.json
+.galvelica-ingest-cngal.json
+.galvelica-ingest-discovery.json
