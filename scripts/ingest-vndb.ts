@@ -30,24 +30,28 @@ const prisma = new PrismaClient()
 // 默认省空间：广收录是批量建库，融合完成后丢弃原始 JSON 缓存（省 70–80% 磁盘）。
 // 若想保留 raw 以便离线重融合，请设 GALVELICA_KEEP_RAW=1。
 if (!process.env.GALVELICA_KEEP_RAW) process.env.GALVELICA_KEEP_RAW = "0"
-const DOJIN_TAG = process.env.GALVELICA_DOJIN_TAG || "6229"
+const DOJIN_TAG = process.env.GALVELICA_DOJIN_TAG || "g6229"
 const PAGE_SIZE = Math.max(1, Number(process.env.GALVELICA_INGEST_BATCH || 25))
 const DELAY_MS = Math.max(0, Number(process.env.GALVELICA_INGEST_DELAY_MS || 6000))
 const HARD_LIMIT = process.env.GALVELICA_INGEST_LIMIT ? Number(process.env.GALVELICA_INGEST_LIMIT) : Infinity
 const RESET = process.env.GALVELICA_INGEST_RESET === "1"
 
 // 默认同人过滤；若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）
-const DEFAULT_FILTER: unknown[] = [["tag", "=", DOJIN_TAG]]
-let FILTER: unknown[]
+// 默认同人过滤；若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）
+// 注意：VNDB 没有 "doujin" 标签，正确的同人判断方式是开发商类型 "ng"（同人社团）
+// 默认不设 API 层过滤，改用处理阶段按开发商类型筛选
+let FILTER: unknown[] | null = null
 if (process.env.GALVELICA_INGEST_FILTER) {
   try {
-    FILTER = JSON.parse(process.env.GALVELICA_INGEST_FILTER)
+    const parsed = JSON.parse(process.env.GALVELICA_INGEST_FILTER)
+    FILTER = Array.isArray(parsed[0]) ? parsed : [parsed]
   } catch {
-    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，回退默认同人过滤")
-    FILTER = DEFAULT_FILTER
+    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，忽略，使用默认（无过滤，按开发商类型判断同人）")
+    FILTER = null
   }
 } else {
-  FILTER = DEFAULT_FILTER
+  // 不设 API 层过滤，在处理阶段按开发商类型 "ng"（同人社团）筛选
+  FILTER = null
 }
 
 // 列表直接取融合所需全部字段，避免逐条二次拉取
@@ -83,13 +87,13 @@ async function main() {
   let total = 0
 
   console.log(
-    `[ingest] 同人过滤=${JSON.stringify(FILTER)} 起始页=${page} 每页=${PAGE_SIZE} 限流=${DELAY_MS}ms` +
+    `[ingest] 同人过滤=${FILTER ? JSON.stringify(FILTER) : '按开发商类型ng（同人社团）'} 起始页=${page} 每页=${PAGE_SIZE} 限流=${DELAY_MS}ms` +
       (Number.isFinite(HARD_LIMIT) ? ` 上限=${HARD_LIMIT}` : ""),
   )
 
   while (true) {
     const { results, more } = await vndbClient.listVisualNovels({
-      filters: FILTER,
+      filters: FILTER ?? undefined,
       fields: LIST_FIELDS,
       page,
       results: PAGE_SIZE,
@@ -99,8 +103,8 @@ async function main() {
     if (results.length === 0) {
       if (page === state.page) {
         console.warn(
-          `[ingest] 首页无结果——可能同人标签 ID(${DOJIN_TAG})不对、或 VNDB 不可达。` +
-            ` 检查 GALVELICA_DOJIN_TAG / GALVELICA_INGEST_FILTER，或确认网络可达 api.vndb.org。`,
+          `[ingest] 首页无结果——VNDB 不可达或查询有误。` +
+            ` 检查 GALVELICA_INGEST_FILTER，或确认网络可达 api.vndb.org。`,
         )
       } else {
         console.log(`[ingest] 第 ${page} 页空，目录已到末尾。`)
@@ -111,6 +115,15 @@ async function main() {
     for (const vn of results) {
       const id = String((vn.id as string) ?? "")
       if (!id) continue
+
+      // 检查开发商类型：只处理 "ng"（同人社团）的 VN，跳过商业公司 "co" 和个人 "in"
+      const developers = (vn.developers as Array<Record<string, unknown>>) ?? []
+      const hasDoujinDev = developers.some(d => d.type === "ng")
+      if (!hasDoujinDev) {
+        // 非同人社团，跳过
+        continue
+      }
+
       total++
       const slug = slugify((vn.title as string) || "") || id
       try {
