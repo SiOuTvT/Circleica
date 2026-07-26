@@ -41,17 +41,44 @@ export interface FusedSource {
  * 字段级融合优先级表（ADR §5）。
  * 数组顺序即「优 → 劣」；`aliases` 与 `description` 走特殊合并策略（见 mergeSources）。
  */
+/**
+ * 字段级融合优先级表（ADR §5）—— 核心原则「权威优先、高质量优先」。
+ *
+ * 数组顺序即「优 → 劣」；取值策略见 mergeSources：
+ *   - 标量字段（title/releaseDate/coverImage/...）：按优先级取首个非空
+ *   - aliases：多源 union 去重
+ *   - description：取最长非空（= 信息最完整）
+ *
+ * 各源权威面（决定其在对应字段的排位）：
+ *   - VNDB      ：全球 VN 资料库，canonical 元数据最权威（标题/原名/发售日/简介/社团/标签/Staff）
+ *   - BANGUMI   ：中文社区，中文译名/别名/简介质量最高
+ *   - YMGAL     ：月幕，中文 galge 档案，补中文译名/封面/制作人员（无 tags、无稳定社团名）
+ *   - CNGL      ：CnGal，国产/汉化同人，封面与制作组完整（无 tags）
+ *   - STEAM     ：商店，提供高质量封面(header_image)与可靠发售日；仅放行 VN genre
+ *   - DLSITE    ：商业购买源，官方购买链接/商业封面最权威（暂未实现，预留位）
+ *   - MANUAL    ：站长人工条目/锁定字段；作兜底，外部权威源存在时让位（已锁定字段不受影响）
+ */
 export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
-  title: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"], // 月幕/CnGal 补中文译名
+  // canonical 标题：VNDB 权威；中文源按序补位（中文译名进 aliases/originalWork）
+  title: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"],
+  // 原名（日文/官方）：VNDB 最权威
   originalWork: ["VNDB", "MANUAL"],
+  // 英文名：VNDB 权威
   englishName: ["VNDB", "MANUAL"],
-  aliases: ["VNDB", "BANGUMI", "YMGAL", "CNGL"], // 合并去重（union），月幕/CnGal 别名补充
-  description: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"], // 取最长非空，月幕/CnGal 简介兜底
-  coverImage: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL", "DLSITE"], // 月幕/CnGal 封面兜底
-  releaseDate: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"],
-  studioName: ["VNDB", "BANGUMI", "MANUAL"], // 月幕 Game 模型无稳定社团名，由 VNDB/Bangumi 提供
-  officialUrl: ["DLSITE", "MANUAL"], // DLsite 优先
-  steamAppId: ["STEAM", "MANUAL"], // Steam 优先
+  // 别名：多源 union，VNDB 起头
+  aliases: ["VNDB", "BANGUMI", "YMGAL", "CNGL"],
+  // 简介：取最长非空（信息最完整）；VNDB 长简介优先，中文源补位，Steam 短描述兜底
+  description: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "STEAM", "MANUAL"],
+  // 封面：权威+高质量排序 —— VNDB(canonical) → STEAM(高分辨率商店图) → CNGL → YMGAL → BANGUMI → 人工 → DLSITE(商业预留)
+  coverImage: ["VNDB", "STEAM", "CNGL", "YMGAL", "BANGUMI", "MANUAL", "DLSITE"],
+  // 发售日：VNDB 权威 → 中文源(ISO) → STEAM(格式偶不规整，仅作最后兜底)
+  releaseDate: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "STEAM", "MANUAL"],
+  // 社团：VNDB(含 developers) → Bangumi → CnGal(productionGroups)；月幕/Steam 无稳定社团名不纳入
+  studioName: ["VNDB", "BANGUMI", "CNGL", "MANUAL"],
+  // 官方购买链接：DLsite 权威（暂未实现，预留）
+  officialUrl: ["DLSITE", "MANUAL"],
+  // Steam appid：Steam 权威
+  steamAppId: ["STEAM", "MANUAL"],
 }
 
 export interface FusionResult {

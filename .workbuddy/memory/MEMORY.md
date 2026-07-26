@@ -28,7 +28,7 @@
 - 阶段 A-F 全部实现。广收录(VNDB 整批同人)是核心非可选；Stage C 回填仅种子。
 - 严格同人闸门 `sources/doujin-gate.ts`：`GALVELICA_DOUJIN_ONLY` 默认 1 只收 VNDB/Bangumi；月幕等广义源设 0 放开；EGS 因中国 IP 墙未实现；nhentai/jandapress 等成人同人志(manga)排除。
 - 接入源：VNDB/Bangumi/月幕YmGal/CnGal(用户令牌已写 `.env` 的 CNGL_API_TOKEN)/Steam发现层。CnGal+Steam 默认收录(DOUJIN_CURATED=[VNDB,BANGUMI,CNGL,STEAM])。
-- 本机必跑：`prisma migrate dev --name galvelica_cngal`（新增 CNGL 枚举；agent 内 generate 因沙箱锁仅更新 TS 类型、引擎二进制 rename EPERM 拦）。迁移/回填/广收录命令见 package.json `galvelica:*`。
+- **融合优先级铁律（用户 2026-07-26 强调「权威优先、高质量优先」）**：`fusion.ts` 的 FUSION_TABLE 必须按「每个字段谁最权威/质量最高谁排前」编排，且不能漏掉任何已接入源。各源权威面：VNDB=canonical 元数据最权威(标题/原名/发售日/简介/社团/标签/Staff)；BANGUMI=中文译名/别名/简介质量最高；YMGAL=补中文译名/封面/制作人员(无 tags/无稳定社团名)；CNGL=国产同人封面与制作组完整(无 tags)；STEAM=高质量封面(header_image)+可靠发售日(仅放行 VN genre，但 release_date 格式偶不规整故发售日排最后兜底)；DLSITE=官方购买链接(预留)；MANUAL=站长人工兜底(外部权威源存在时让位，已锁定字段不受影响)。曾漏：STEAM 只在 steamAppId 出现，coverImage/releaseDate/description 三个数组漏接 → 已修(把 STEAM 补进对应数组并按权威排序)。
 - 资料馆填充焊进部署：`ingest` 服务(docker-compose profiles:[ingest], build.target:builder 复用含 src+tsx 构建阶段)+`ingest-entrypoint.sh`(DB等待+幂等断点续跑：backfill→vndb→cngal→discovery，月幕仅 DOUJIN_ONLY=0)；DEPLOYMENT.md 两方式均写「填充可选但推荐」。新机=`docker compose up -d`+可选 `docker compose run --rm ingest`，零额外手动代码。
 - tsc 0 error；改动文件 eslint 0 error。
 
