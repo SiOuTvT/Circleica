@@ -6,14 +6,13 @@
  *   - 幂等：同源同 externalId 的源复用已有 Work，重跑不重复建。
  *   - 限流：每页之间 sleep，避免触发 VNDB 速率限制（匿名约 100 命令/10 分钟）。
  *   - 断点续跑：已处理的页号存 .galvelica-ingest.json，中断后重跑从断点继续。
- *   - 同人硬过滤：默认按 VNDB 同人标签筛选；这是「只收同人 VN」不变式在入库口的落地。
+ *   - 同人硬过滤：默认按 VNDB 开发商关系类型 ng（同人社团）服务端筛选；这是「只收同人 VN」不变式在入库口的落地。
  *
  * 本脚本在能连 VNDB + DB 的本机运行（沙箱无库，跑不了）。
  *
  * 用法：
- *   npm run galvelica:ingest-vndb                                  # 全量同人（默认同人标签分页抓）
- *   GALVELICA_DOJIN_TAG=6229   npm run galvelica:ingest-vndb       # 指定同人标签 ID
- *   GALVELICA_INGEST_FILTER='[["tag","=","6229"]]' npm run ...     # 自定义整段 VNDB 过滤（JSON）
+ *   npm run galvelica:ingest-vndb                                  # 全量同人（默认 developer.type=ng 服务端筛选）
+ *   GALVELICA_INGEST_FILTER='["developer","=",["type","=","ng"]]' npm run ...  # 自定义整段 VNDB 过滤（JSON）
  *   GALVELICA_INGEST_LIMIT=200  npm run galvelica:ingest-vndb      # 调试：只抓前 N 个
  *   GALVELICA_INGEST_RESET=1    npm run galvelica:ingest-vndb      # 从头开始（清断点）
  */
@@ -30,28 +29,27 @@ const prisma = new PrismaClient()
 // 默认省空间：广收录是批量建库，融合完成后丢弃原始 JSON 缓存（省 70–80% 磁盘）。
 // 若想保留 raw 以便离线重融合，请设 GALVELICA_KEEP_RAW=1。
 if (!process.env.GALVELICA_KEEP_RAW) process.env.GALVELICA_KEEP_RAW = "0"
-const DOJIN_TAG = process.env.GALVELICA_DOJIN_TAG || "g6229"
 const PAGE_SIZE = Math.max(1, Number(process.env.GALVELICA_INGEST_BATCH || 25))
 const DELAY_MS = Math.max(0, Number(process.env.GALVELICA_INGEST_DELAY_MS || 6000))
 const HARD_LIMIT = process.env.GALVELICA_INGEST_LIMIT ? Number(process.env.GALVELICA_INGEST_LIMIT) : Infinity
 const RESET = process.env.GALVELICA_INGEST_RESET === "1"
 
-// 默认同人过滤；若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）
-// 默认同人过滤；若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）
-// 注意：VNDB 没有 "doujin" 标签，正确的同人判断方式是开发商类型 "ng"（同人社团）
-// 默认不设 API 层过滤，改用处理阶段按开发商类型筛选
-let FILTER: unknown[] | null = null
+// 默认同人过滤：服务端按「开发商关系类型 = ng（同人社团/业余团体）」直接筛。
+// VNDB Kana API 的正确写法：过滤字段是 developer（单数），其嵌套 producer 子过滤的
+// type 取值 "ng" 表示业余团体/同人社团。返回字段叫 developers，过滤字段叫 developer ——
+// 之前一直用错名字（developers/producers/producer 都试过）导致无法服务端过滤，只能拉全量再本地 gate。
+// 这样只需拉 ≈20.9k 条 ng VN（而非全量 37k），API 调用少约 45%，且由 API 权威判定不漏不误。
+// 若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）覆盖默认。
+const DEFAULT_DOJIN_FILTER: unknown[] = ["developer", "=", ["type", "=", "ng"]]
+let FILTER: unknown[] = DEFAULT_DOJIN_FILTER
 if (process.env.GALVELICA_INGEST_FILTER) {
   try {
     const parsed = JSON.parse(process.env.GALVELICA_INGEST_FILTER)
     FILTER = Array.isArray(parsed[0]) ? parsed : [parsed]
   } catch {
-    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，忽略，使用默认（无过滤，按开发商类型判断同人）")
-    FILTER = null
+    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，忽略，使用默认（同人社团 developer=ng）")
+    FILTER = DEFAULT_DOJIN_FILTER
   }
-} else {
-  // 不设 API 层过滤，在处理阶段按开发商类型 "ng"（同人社团）筛选
-  FILTER = null
 }
 
 // 列表直接取融合所需全部字段，避免逐条二次拉取
@@ -87,7 +85,7 @@ async function main() {
   let total = 0
 
   console.log(
-    `[ingest] 同人过滤=${FILTER ? JSON.stringify(FILTER) : '按开发商类型ng（同人社团）'} 起始页=${page} 每页=${PAGE_SIZE} 限流=${DELAY_MS}ms` +
+    `[ingest] 同人过滤=${JSON.stringify(FILTER)} 起始页=${page} 每页=${PAGE_SIZE} 限流=${DELAY_MS}ms` +
       (Number.isFinite(HARD_LIMIT) ? ` 上限=${HARD_LIMIT}` : ""),
   )
 
@@ -116,11 +114,11 @@ async function main() {
       const id = String((vn.id as string) ?? "")
       if (!id) continue
 
-      // 检查开发商类型：只处理 "ng"（同人社团）的 VN，跳过商业公司 "co" 和个人 "in"
+      // 服务端已按 developer.type=ng 筛选，这里作为防御性二次校验：
+      // 只处理含 "ng"（同人社团）开发商的 VN，跳过纯商业公司 "co" / 个人 "in"。
       const developers = (vn.developers as Array<Record<string, unknown>>) ?? []
       const hasDoujinDev = developers.some(d => d.type === "ng")
       if (!hasDoujinDev) {
-        // 非同人社团，跳过
         continue
       }
 
