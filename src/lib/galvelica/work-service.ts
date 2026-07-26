@@ -14,6 +14,107 @@ import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"
 
+/* ── 跨源匹配（去重核心） ─────────────────────────── */
+/**
+ * 归一化匹配键：去声调 / 小写 / 去非字母数字（保留中日韩）/ 去首尾空白。
+ * 用于跨源判定「同一作品」——VNDB 罗马音标题与 CnGal 中文译名经原名(anotherName)对齐。
+ */
+export function normalizeMatchKey(input: string | null | undefined): string {
+  if (!input) return ""
+  return input
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9一-鿿]/g, "")
+    .trim()
+}
+
+/** 取归一化作品的所有候选匹配键（title/originalWork/englishName/别名），长度 >=3 才计入。 */
+export function candidateMatchKeys(n: NormalizedWork): string[] {
+  const out = new Set<string>()
+  const texts: (string | undefined)[] = [n.title, n.originalWork, n.englishName, ...(n.aliases ?? [])]
+  for (const t of texts) {
+    const k = normalizeMatchKey(t)
+    if (k.length >= 3) out.add(k)
+  }
+  return [...out]
+}
+
+function dateMonthKey(d: Date | string | null | undefined): string | null {
+  if (!d) return null
+  const dt = typeof d === "string" ? new Date(d) : d
+  if (isNaN(dt.getTime())) return null
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}`
+}
+
+/** 两发售日是否兼容：一方缺失视为兼容；否则同月或相差 <=1.5 个月。 */
+export function releaseDatesCompatible(
+  a: Date | string | null | undefined,
+  b: Date | string | null | undefined,
+): boolean {
+  const ka = dateMonthKey(a)
+  const kb = dateMonthKey(b)
+  if (!ka || !kb) return true
+  if (ka === kb) return true
+  const ma = new Date(a!).getTime()
+  const mb = new Date(b!).getTime()
+  return Math.abs(ma - mb) / (1000 * 60 * 60 * 24 * 30) <= 1.5
+}
+
+/* 内存跨源索引：ingest 启动调用 buildCrossSourceIndex() 填充；upsertWorkFromRaw 据此把新源
+   挂到已有跨源 Work 而非新建。未构建时（如独立调用）回退为「不跨源匹配」，保持原行为、零回归。 */
+let crossSourceIndex: Map<string, string[]> | null = null
+
+export async function buildCrossSourceIndex(): Promise<void> {
+  crossSourceIndex = new Map()
+  const works = await prisma.work.findMany({
+    select: { id: true, title: true, originalWork: true, englishName: true, aliases: true },
+  })
+  for (const w of works) {
+    registerWorkToIndex(w.id, [w.title, w.originalWork, w.englishName, w.aliases])
+  }
+}
+
+function registerWorkToIndex(workId: string, texts: (string | null | undefined)[]): void {
+  if (!crossSourceIndex) return
+  for (const t of texts) {
+    const k = normalizeMatchKey(t)
+    if (k.length >= 3) {
+      const arr = crossSourceIndex.get(k) ?? []
+      if (!arr.includes(workId)) arr.push(workId)
+      crossSourceIndex.set(k, arr)
+    }
+  }
+}
+
+/**
+ * 为「即将入库的作品」寻找已有的跨源 Work（不同源、标题/原名/别名命中、发售日兼容）。
+ * 命中返回该 Work id，调用方应把新源挂到它上面而非新建 Work。无索引时返回 null。
+ */
+export async function findCrossSourceMatch(
+  sourceKey: SourceKey,
+  normalized: NormalizedWork,
+): Promise<string | null> {
+  if (!crossSourceIndex) return null
+  const keys = candidateMatchKeys(normalized)
+  if (keys.length === 0) return null
+  const candSet = new Set<string>()
+  for (const k of keys) for (const id of crossSourceIndex.get(k) ?? []) candSet.add(id)
+  if (candSet.size === 0) return null
+  const candidates = await prisma.work.findMany({
+    where: { id: { in: [...candSet] } },
+    select: { id: true, releaseDate: true, sources: { select: { source: true } } },
+  })
+  const myDate = normalized.releaseDate ? new Date(normalized.releaseDate) : null
+  for (const c of candidates) {
+    const sources = new Set(c.sources.map((s) => s.source))
+    if (sources.has(sourceKey)) continue // 同源不合并
+    if (!releaseDatesCompatible(myDate, c.releaseDate)) continue
+    return c.id
+  }
+  return null
+}
+
 /* ── slug 工具 ───────────────────────────────────── */
 
 export function slugify(input: string): string {
@@ -213,6 +314,13 @@ export async function upsertWorkFromRaw(
 
   let workId = existingSource?.workId
 
+  // 跨源匹配：若已有「不同源」的 Work 表示同一作品，则把当前源挂到它上面（去重），
+  // 而不是新建一个重复 Work。无内存索引时不匹配，保持原行为。
+  if (!workId) {
+    const matchId = await findCrossSourceMatch(sourceKey, normalized)
+    if (matchId) workId = matchId
+  }
+
   if (!workId) {
     const slug = await ensureUniqueSlug(opts.slug || slugify(normalized.title || externalId))
     const created = await prisma.work.create({
@@ -224,6 +332,14 @@ export async function upsertWorkFromRaw(
     })
     workId = created.id
   }
+
+  // 把本作品的匹配键登记进内存索引，供同一次 ingest 中后续条目做跨源去重
+  registerWorkToIndex(workId, [
+    normalized.title,
+    normalized.originalWork,
+    normalized.englishName,
+    (normalized.aliases ?? []).join(", "),
+  ])
 
   await prisma.workSource.upsert({
     where: { workId_source: { workId, source: sourceKey as WorkSourceType } },

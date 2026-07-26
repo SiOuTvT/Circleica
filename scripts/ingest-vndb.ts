@@ -21,7 +21,7 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
 import { PrismaClient } from "@prisma/client"
 import { vndbClient } from "@/lib/vndb"
-import { upsertWorkFromRaw, slugify } from "@/lib/galvelica/work-service"
+import { upsertWorkFromRaw, slugify, buildCrossSourceIndex } from "@/lib/galvelica/work-service"
 
 const prisma = new PrismaClient()
 
@@ -30,7 +30,7 @@ const prisma = new PrismaClient()
 // 若想保留 raw 以便离线重融合，请设 GALVELICA_KEEP_RAW=1。
 if (!process.env.GALVELICA_KEEP_RAW) process.env.GALVELICA_KEEP_RAW = "0"
 const PAGE_SIZE = Math.max(1, Number(process.env.GALVELICA_INGEST_BATCH || 25))
-const DELAY_MS = Math.max(0, Number(process.env.GALVELICA_INGEST_DELAY_MS || 6000))
+let DELAY_MS = Math.max(0, Number(process.env.GALVELICA_INGEST_DELAY_MS || 6000))
 const HARD_LIMIT = process.env.GALVELICA_INGEST_LIMIT ? Number(process.env.GALVELICA_INGEST_LIMIT) : Infinity
 const RESET = process.env.GALVELICA_INGEST_RESET === "1"
 
@@ -83,32 +83,75 @@ async function main() {
   let created = 0
   let failed = 0
   let total = 0
+  let emptyStreak = 0
 
   console.log(
     `[ingest] 同人过滤=${JSON.stringify(FILTER)} 起始页=${page} 每页=${PAGE_SIZE} 限流=${DELAY_MS}ms` +
       (Number.isFinite(HARD_LIMIT) ? ` 上限=${HARD_LIMIT}` : ""),
   )
 
+  // 构建跨源匹配索引：后续入库的新 VN 若与其他源已存在的 Work 表示同一作品，
+  // 会挂到它上面而非新建重复 Work（跨源去重，防未来重跑再生重复）。
+  await buildCrossSourceIndex()
+  console.log(`[ingest] 跨源索引已构建，开始拉取…`)
+
+  const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
   while (true) {
-    const { results, more } = await vndbClient.listVisualNovels({
-      filters: FILTER ?? undefined,
-      fields: LIST_FIELDS,
-      page,
-      results: PAGE_SIZE,
-      sort: "id",
-    })
+    let results: any[] = []
+    let more = false
+    let attempt = 0
+    let throttled = false
+    while (attempt < 60) {
+      try {
+        const resp: any = await vndbClient.listVisualNovels({
+          filters: FILTER ?? undefined,
+          fields: LIST_FIELDS,
+          page,
+          results: PAGE_SIZE,
+          sort: "id",
+        })
+        results = resp.results ?? []
+        more = Boolean(resp.more)
+        break
+      } catch (e) {
+        const msg = String((e as any)?.message ?? e)
+        if (msg.includes("429") || msg.includes("Throttled")) {
+          attempt++
+          throttled = true
+          const wait = Math.min(120000, 10000 * attempt)
+          console.warn(`[ingest] VNDB 限流 429，退避 ${wait}ms 后重试 (${attempt})`)
+          await sleep(wait)
+          continue
+        }
+        throw e
+      }
+    }
+    if (throttled) {
+      // 一旦被限流，永久降速，避免反复触发
+      DELAY_MS = Math.max(DELAY_MS, 4000)
+    }
 
     if (results.length === 0) {
-      if (page === state.page) {
+      if (page === 1) {
         console.warn(
           `[ingest] 首页无结果——VNDB 不可达或查询有误。` +
             ` 检查 GALVELICA_INGEST_FILTER，或确认网络可达 api.vndb.org。`,
         )
-      } else {
-        console.log(`[ingest] 第 ${page} 页空，目录已到末尾。`)
+        break
       }
-      break
+      // 空结果可能是 429 限流被 listVisualNovels 内部吞掉（返回 results:[]），
+      // 不一定是真末尾。重试同页几次，确认连续空才判定末尾。
+      emptyStreak++
+      if (emptyStreak >= 20) {
+        console.log(`[ingest] 连续 ${emptyStreak} 页空，判定目录已到末尾。`)
+        break
+      }
+      console.warn(`[ingest] 第 ${page} 页空（疑似限流被吞），退避后重试同页 (${emptyStreak}/20)`)
+      await sleep(Math.min(30000, 3000 * emptyStreak))
+      continue
     }
+    emptyStreak = 0
 
     for (const vn of results) {
       const id = String((vn.id as string) ?? "")
@@ -138,7 +181,7 @@ async function main() {
     saveState(page + 1)
     console.log(`[ingest] 页 ${page} 完成：累计 ${total}（新增 ${created} / 失败 ${failed}）`)
 
-    if (!more || total >= HARD_LIMIT) break
+    if (total >= HARD_LIMIT) break
     page++
     if (DELAY_MS > 0) await sleep(DELAY_MS)
   }

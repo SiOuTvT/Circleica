@@ -17,7 +17,7 @@ import { setTimeout as sleep } from "node:timers/promises"
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
 import { PrismaClient } from "@prisma/client"
-import { upsertWorkFromRaw, slugify } from "@/lib/galvelica/work-service"
+import { upsertWorkFromRaw, slugify, buildCrossSourceIndex } from "@/lib/galvelica/work-service"
 import { cngalAdapter, listCngalByMonth } from "@/lib/galvelica/sources/cngal"
 import { gateAllowsSource } from "@/lib/galvelica/sources/doujin-gate"
 
@@ -58,6 +58,11 @@ async function main() {
     await prisma.$disconnect()
     return
   }
+
+  // 构建跨源匹配索引（含 VNDB 等已入库作品）：本批 CnGal 作品若与既有 Work 表示同一作，
+  // 会挂到它上面而非新建重复 Work。
+  await buildCrossSourceIndex()
+  console.log(`[ingest-cngal] 跨源索引已构建，开始拉取…`)
 
   const state = loadState()
   let year = state.year
