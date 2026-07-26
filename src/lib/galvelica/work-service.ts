@@ -257,5 +257,39 @@ export async function refetchSource(workId: string, sourceKey: SourceKey): Promi
   return true
 }
 
+/**
+ * 给「已存在」的 Work 追加一个数据源（拉取原始载荷并重新融合）。
+ * 与 getOrCreateWorkFromSource 不同：本函数不会新建 Work，只往现有 Work 挂源，
+ * 用于回填后的多源补录（如 VNDB 资料库作品关联到 Bangumi）。返回是否成功。
+ */
+export async function attachSourceToWork(
+  workId: string,
+  sourceKey: SourceKey,
+  externalId: string,
+): Promise<boolean> {
+  const adapter = getAdapter(sourceKey)
+  if (!adapter) return false
+  const raw = await adapter.fetchByExternalId(externalId)
+  if (raw == null) return false
+  await prisma.workSource.upsert({
+    where: { workId_source: { workId, source: sourceKey as WorkSourceType } },
+    create: {
+      workId,
+      source: sourceKey as WorkSourceType,
+      externalId,
+      raw: raw as unknown as Prisma.InputJsonValue,
+      status: "ok",
+    },
+    update: {
+      externalId,
+      raw: raw as unknown as Prisma.InputJsonValue,
+      status: "ok",
+      fetchedAt: new Date(),
+    },
+  })
+  await fuseWork(workId)
+  return true
+}
+
 export { mergeSources }
 export type { FusionResult, FusedSource } from "./fusion"

@@ -322,6 +322,7 @@ Galvelica 搜索可覆盖：作品 / Staff / 社团 / 标签 / 发布时间 / �
 - **编排层 `src/lib/galvelica/work-service.ts`**：`fuseWork(workId)`（读 Work+sources → 各源 `normalize` → `mergeSources` → 写标量字段+provenance → 同步 `WorkTag`/`WorkCreator`）、`getOrCreateWorkFromSource`、`refetchSource`、`slugify`。
 - **人工锁定**：`manualFields` 字段融合时跳过，落地「Galvelica 永远保留自己的最终资料」。
 - DLsite / Steam / ErogameScape 适配器按同一 `SourceAdapter` 接口留位，接入零改引擎。
+- **启用 Bangumi 多源融合的实际步骤（重要）**：仅配 `BANGUMI_ACCESS_TOKEN` **不会**自动给现有作品灌 Bangumi 数据——backfill 只建 `WorkSource{VNDB}`，融合引擎只会对「已存在的 BANGUMI 源」生效。必须再跑 `npm run galvelica:enrich-bangumi`：它为尚无 BANGUMI 源的 Work 按标题在 Bangumi 搜 galgame（type=4）、取首个结果挂 `WorkSource{BANGUMI}` 并重融合（幂等、可重跑）。因 §5 优先级表 Bangumi 只「补充」标签/别名/简介(若 VNDB 为空)/封面(若 VNDB 为空)/原名(若 VNDB 为空)，`title`/发售日/社团/Staff 仍以 VNDB 优先，即便个别匹配不准也只多几个标签/别名，风险可控。新增 `scripts/enrich-bangumi.ts` + `work-service.attachSourceToWork`（给**已存在** Work 挂源并重融合，区别于会新建 Work 的 `getOrCreateWorkFromSource`）。
 
 ### 阶段 E（联动 UX）— 已落地 2026-07-25
 - **前端**：`src/components/galvelica/work-detail.tsx`（已收录/未收录两条路由复用的详情视图）；已收录→「查看资源·前往下载页」`/games/{serialId}`；未收录→ `<RequestInclusionButton>`。
@@ -342,7 +343,7 @@ A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分�
 **执行清单（你本机、非沙箱）**：
 1. `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a`（建 Stage A 新表）
 2. `npm run galvelica:backfill`（Stage C 回填 + 首轮融合）
-3. 可选：在 `.env` 配 `BANGUMI_ACCESS_TOKEN`，重启后 Galvelica 自动多源融合 Bangumi 数据。
+3. 启用 Bangumi 多源融合（两步）：① 在 `.env` 加 `BANGUMI_ACCESS_TOKEN=你的令牌`；② 跑 `npm run galvelica:enrich-bangumi` 把现有作品关联到 Bangumi 并重融合（仅配令牌不跑此步 = 无效果）。
 
 > 沙箱环境无法连 DB（网络层拦截 5432，对 agent 内一切进程生效），故上述两条命令需在**你自己的桌面**（双击 `D:\Circleica\start-dev.bat` 起的 `localhost:3000`）执行；agent 内起的 765/3000 预览无库，仅渲染空框架、绝不注入假数据。
 

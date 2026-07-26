@@ -76,5 +76,5 @@
 
 ## Galvelica 数据体系落地进度（2026-07-25 全阶段已落地）
 - 阶段 A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分治 —— **六项全部已实现**（代码层），详见 `docs/galvelica-data-architecture.md` §11 与各日期日志。
-- **用户本机必跑（沙箱无 DB，agent 内一切进程连不上库）**：① `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a` 建表；② `npm run galvelica:backfill` 回填+首轮融合；③ 可选 `.env` 配 `BANGUMI_ACCESS_TOKEN` 启用 Bangumi 多源融合。
+- **用户本机必跑（沙箱无 DB，agent 内一切进程连不上库）**：① `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a` 建表；② `npm run galvelica:backfill` 回填+首轮融合；③ 启用 Bangumi 多源融合需**两步**：`.env` 配 `BANGUMI_ACCESS_TOKEN` **且** 跑 `npm run galvelica:enrich-bangumi`（仅配令牌不会自动融合——backfill 只建 VNDB 源，需 enrich 脚本把作品关联到 Bangumi 并重融合；幂等可重跑）。
 - 代码已 `tsc --noEmit` EXIT 0、改动文件 eslint 0 error。未跑这两条命令前，`galvelica.ts` 经 `archiveReady()` 优雅回退旧 Game 视图，行为不变。
