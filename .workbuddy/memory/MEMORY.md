@@ -20,7 +20,7 @@
 - **Galvelica 部署安全铁律（2026-07-26）**：所有改动纯加法、deploy 安全、不破坏现有 Docker+pm2。新增 env 全可选优雅降级；新模型=多一个迁移文件，`prisma migrate deploy` 自动应用。
 
 ## 环境限制（重要）
-- agent 环境网络层拦截 127.0.0.1:5432（TCP 握手接住、真实 PG 协议掐断），agent 内一切进程（含 dangerouslyDisableSandbox）连不上库；沙箱还杀 PG 后台进程。唯一通库路径=用户桌面双击 `D:\Circleica\start-dev.bat`（本机进程绕开拦截）。`localhost:765` 经 agent 转发无库，别用。
+- ~~agent 环境网络层拦截 127.0.0.1:5432……连不上库~~ **已推翻（2026-07-26 实测）**：`dangerouslyDisableSandbox:true` 下 agent 直接 `npx tsx scripts/qa-ingest.ts` 成功连本地 Postgres 返回真实数据。该拦截本会话不成立。**以后要查库/跑 ingest 直接试，别先入为主推定连不上**；若某次真连不上再排查。
 - 离线回退：`src/lib/prisma.ts` Proxy 探测 SELECT 1 失败→读查询返回空（findMany→[]/count→0 等），绝不假数据；写操作 throw 阻止。
 - Bash 重定向用 `2>/dev/null` 绝不用 `2>nul`（Git Bash 会写 `nul` 保留名垃圾文件触发 Turbopack 崩溃）；强删保留名文件用 `\\?\` 长路径前缀 + Win32 API。
 
