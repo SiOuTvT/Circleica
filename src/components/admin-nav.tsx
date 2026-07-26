@@ -106,13 +106,13 @@ export function AdminNav() {
   const [collapsed, setCollapsed] = useState(false)
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark")
   const [mounted, setMounted] = useState(false)
-  const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number; inclusionRequests: number }>({ reports: 0, unpublishedGames: 0, inclusionRequests: 0 })
+  const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number; inclusionDrafts: number }>({ reports: 0, unpublishedGames: 0, inclusionDrafts: 0 })
 
   // 获取待办数量
   useEffect(() => {
-    api.get<{ reports?: number; unpublishedGames?: number; inclusionRequests?: number }>("/api/admin/counts")
+    api.get<{ reports?: number; unpublishedGames?: number; inclusionDrafts?: number }>("/api/admin/counts")
       .then((data) => {
-        setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0, inclusionRequests: data.inclusionRequests ?? 0 })
+        setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0, inclusionDrafts: data.inclusionDrafts ?? 0 })
       })
       .catch(() => {})
   }, [])
@@ -121,7 +121,7 @@ export function AdminNav() {
   const getBadgeCount = (href: string): number => {
     if (href === "/admin/reports") return badgeCounts.reports
     if (href === "/admin/games") return badgeCounts.unpublishedGames
-    if (href === "/admin/inclusion-requests") return badgeCounts.inclusionRequests
+    if (href === "/admin/inclusion-requests") return badgeCounts.inclusionDrafts
     return 0
   }
 

@@ -8,7 +8,7 @@
  *
  * 所有函数均为纯数据操作，不渲染、不鉴权；鉴权由调用方（路由 / 脚本 / 后台）负责。
  */
-import { Prisma, type WorkSourceType } from "@prisma/client"
+import { Prisma, type WorkSourceType, type GameStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
@@ -126,6 +126,7 @@ export async function fuseWork(workId: string): Promise<void> {
 
   const sources: FusedSource[] = []
   for (const s of work.sources) {
+    if (s.raw == null) continue // 省空间模式已清空 raw 的源跳过（需重融合时由 refetch 重新拉取）
     const adapter = getAdapter(s.source as SourceKey)
     let data: NormalizedWork
     if (adapter) {
@@ -183,18 +184,18 @@ export interface GetOrCreateOptions {
 }
 
 /**
- * 按数据源 + 外部 ID 拉取并建/更新 Work。
- * 返回 Work id；若适配器不可用或拉取失败返回 null。
+ * 用「已拉取到的原始 payload」建/更新 Work（不再二次拉取）。
+ * 供 getOrCreateWorkFromSource（先拉后建）与广收录脚本（列表直出 raw）共用。
+ * 幂等：同源同 externalId 的源复用已有 Work，不重复建。返回 Work id。
  */
-export async function getOrCreateWorkFromSource(
+export async function upsertWorkFromRaw(
   sourceKey: SourceKey,
   externalId: string,
+  raw: unknown,
   opts: GetOrCreateOptions = {},
 ): Promise<string | null> {
   const adapter = getAdapter(sourceKey)
   if (!adapter) return null
-
-  const raw = await adapter.fetchByExternalId(externalId)
   if (raw == null) return null
   const normalized = adapter.normalize(raw)
 
@@ -236,7 +237,33 @@ export async function getOrCreateWorkFromSource(
   })
 
   await fuseWork(workId)
+
+  // 省空间模式（GALVELICA_KEEP_RAW=0）：融合完成后丢弃原始 JSON 缓存，
+  // 仅保留 source 行（记录 externalId）以便日后按需重拉。可砍掉 70–80% 存储。
+  if (process.env.GALVELICA_KEEP_RAW === "0") {
+    await prisma.workSource.updateMany({
+      where: { workId, source: sourceKey as WorkSourceType },
+      data: { raw: Prisma.JsonNull },
+    })
+  }
+
   return workId
+}
+
+/**
+ * 按数据源 + 外部 ID 拉取并建/更新 Work。
+ * 返回 Work id；若适配器不可用或拉取失败返回 null。
+ */
+export async function getOrCreateWorkFromSource(
+  sourceKey: SourceKey,
+  externalId: string,
+  opts: GetOrCreateOptions = {},
+): Promise<string | null> {
+  const adapter = getAdapter(sourceKey)
+  if (!adapter) return null
+  const raw = await adapter.fetchByExternalId(externalId)
+  if (raw == null) return null
+  return upsertWorkFromRaw(sourceKey, externalId, raw, opts)
 }
 
 /** 重拉某源原始载荷并重新融合。 */
@@ -289,6 +316,70 @@ export async function attachSourceToWork(
   })
   await fuseWork(workId)
   return true
+}
+
+/* ── 收录采纳：自动建草稿（Stage E 采纳模型 A） ── */
+
+const VALID_GAME_STATUS: GameStatus[] = ["FINISHED", "ONGOING", "HIATUS", "CANCELLED"]
+
+/**
+ * 按 Work 融合字段预填一份「未发布 Game 草稿」并关联（采纳模型 A：申请即自动建草稿）。
+ * 幂等：若 Work 已绑定 Game（草稿或已发布），直接返回该 Game id，不再新建。
+ * 返回 Game id。
+ */
+export async function createDraftGameFromWork(workId: string): Promise<string> {
+  const work = await prisma.work.findUnique({
+    where: { id: workId },
+    include: {
+      sources: { select: { source: true, externalId: true } },
+      tags: { select: { tagId: true } },
+      creators: { select: { creatorId: true, role: true } },
+    },
+  })
+  if (!work) throw new Error("work not found")
+
+  if (work.gameId) {
+    const existing = await prisma.game.findUnique({ where: { id: work.gameId }, select: { id: true } })
+    if (existing) return existing.id
+  }
+
+  const vndbSource = work.sources.find((s) => s.source === "VNDB")
+  const status: GameStatus = VALID_GAME_STATUS.includes(work.status as GameStatus)
+    ? (work.status as GameStatus)
+    : "FINISHED"
+
+  const game = await prisma.game.create({
+    data: {
+      title: work.title,
+      originalWork: work.originalWork,
+      englishName: work.englishName,
+      description: work.description,
+      coverImage: work.coverImage,
+      releaseDate: work.releaseDate,
+      status,
+      gameDuration: work.duration,
+      aliases: work.aliases,
+      studioName: work.studioName,
+      isNsfw: work.isNsfw,
+      vndbId: vndbSource?.externalId ?? "",
+      isPublished: false,
+    },
+  })
+
+  const tagIds = work.tags.map((t) => t.tagId)
+  if (tagIds.length) {
+    await prisma.gameTag.createMany({
+      data: tagIds.map((tagId) => ({ gameId: game.id, tagId })),
+      skipDuplicates: true,
+    })
+  }
+  const creators = work.creators.map((c) => ({ gameId: game.id, creatorId: c.creatorId, role: c.role }))
+  if (creators.length) {
+    await prisma.gameCreator.createMany({ data: creators, skipDuplicates: true })
+  }
+
+  await prisma.work.update({ where: { id: work.id }, data: { gameId: game.id } })
+  return game.id
 }
 
 export { mergeSources }

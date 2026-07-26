@@ -48,3 +48,6 @@ next-env.d.ts
 
 # audit tool local cache (regenerable, not part of the project)
 .auditcache/
+
+# Galvelica 广收录断点续跑状态文件（运行时生成，非项目内容）
+.galvelica-ingest.json

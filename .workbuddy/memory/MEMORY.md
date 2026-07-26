@@ -74,7 +74,9 @@
 - **强删保留名文件**：`python -c "import ctypes; ctypes.windll.kernel32.DeleteFileW(ctypes.create_unicode_buffer(r'\\\\?\\D:\\path\\nul'))"`（用 `\\?\` 长路径前缀禁用保留名翻译，直接调 Win32 API）。临时脚本文件用 Write 落盘、`-c` 内联会因 shell 转义把 `\\?\` 吃掉，故删保留名文件务必走脚本文件方式。
 - 验证 Turbopack 是否真修好：重启 dev 后 `curl` 首页返回 200 且无 `FATAL`/`panic`/`reading file` 即代表编译恢复；运行时 "Invalid prisma invocation" 仅沙箱无 DB 时出现，本机有真库不出现。
 
-## Galvelica 数据体系落地进度（2026-07-25 全阶段已落地）
-- 阶段 A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分治 —— **六项全部已实现**（代码层），详见 `docs/galvelica-data-architecture.md` §11 与各日期日志。
-- **用户本机必跑（沙箱无 DB，agent 内一切进程连不上库）**：① `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a` 建表；② `npm run galvelica:backfill` 回填+首轮融合；③ 启用 Bangumi 多源融合需**两步**：`.env` 配 `BANGUMI_ACCESS_TOKEN` **且** 跑 `npm run galvelica:enrich-bangumi`（仅配令牌不会自动融合——backfill 只建 VNDB 源，需 enrich 脚本把作品关联到 Bangumi 并重融合；幂等可重跑）。
-- 代码已 `tsc --noEmit` EXIT 0、改动文件 eslint 0 error。未跑这两条命令前，`galvelica.ts` 经 `archiveReady()` 优雅回退旧 Game 视图，行为不变。
+## Galvelica 数据体系落地进度（2026-07-26 全阶段已落地 + 广收录核心）
+- 阶段 A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分治 —— **六项全部已实现**（代码层）；文档 §11 已落地。
+- **⚠️ 定位铁律**：Galvelica=资料馆是原始设定，要收录「整个同人 VN 生态」。**广收录（从 VNDB 整批抓同人目录）是核心功能，不是可选扩展**；Stage C 回填只是把 Circleica 现有目录搬进资料馆当种子。
+- **用户本机必跑（沙箱无 DB，agent 内一切进程连不上库）**：① `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a` 建表；② `npm run galvelica:backfill` 回填(种子)+首轮融合；③ **`npm run galvelica:ingest-vndb`（广收录核心，长任务，带限流+断点续跑，同人硬过滤在入库口落地「只收同人 VN」）**；④ 启用 Bangumi 多源融合需两步：`.env` 配 `BANGUMI_ACCESS_TOKEN` **且** 跑 `npm run galvelica:enrich-bangumi`。
+- 代码已 `tsc --noEmit` EXIT 0、改动文件 eslint 0 error。未跑命令前，`galvelica.ts` 经 `archiveReady()` 优雅回退旧 Game 视图，行为不变。
+- **⚠️ 部署安全铁律（用户 2026-07-26 强烈要求）**：Galvelica 所有改动必须**纯加法、deploy 安全、不破坏其现有 Docker+pm2 部署**。现状：docker-compose 有独立 `migrate` 服务跑 `prisma migrate deploy`（幂等，自动应用新迁移文件）；新模型=多一个迁移文件，他现有 `docker compose run --rm migrate` 步骤照常应用，部署方法不变；新增 env(BANGUMI_*/GALVELICA_*) 全可选优雅降级，无需改 docker-compose；即使不生成迁移/不灌数据，archiveReady() 回退 Game 视图→现有站绝不崩。唯一用户侧动作=本机 `prisma migrate dev --name galvelica_stage_a` 生成迁移文件进 git，之后部署全自动。后续任何 Galvelica 改动都须遵守此铁律，不得引入破坏性迁移或必填部署配置。

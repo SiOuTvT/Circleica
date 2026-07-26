@@ -15,7 +15,8 @@
     "theme:export": "tsx scripts/export-theme.ts",
     "theme:export:sql": "psql -d circleica -f scripts/export-theme.sql",
     "galvelica:backfill": "tsx scripts/backfill-galvelica.ts",
-    "galvelica:enrich-bangumi": "tsx scripts/enrich-bangumi.ts"
+    "galvelica:enrich-bangumi": "tsx scripts/enrich-bangumi.ts",
+    "galvelica:ingest-vndb": "tsx scripts/ingest-vndb.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

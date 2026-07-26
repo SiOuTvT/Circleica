@@ -716,6 +716,7 @@ model UserAchievement {
 enum WorkSourceType {
   VNDB
   BANGUMI
+  YMGAL
   EROGESCAPE
   DLSITE
   STEAM

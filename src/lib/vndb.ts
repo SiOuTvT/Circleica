@@ -287,6 +287,44 @@ class VNDBClient {
   }
 
   /**
+   * 分页枚举视觉小说（Galvelica 广收录 / 资料馆目录用）。
+   * 与 fetchVisualNovelRaw 不同：本方法一次返回「一整页」VN 列表（带 rich fields），
+   * 调用方直接归一化，避免逐条二次拉取，把 VNDB 命令数从「页数+作品数」降到「页数」。
+   * 返回该页结果与是否还有更多。
+   */
+  async listVisualNovels(opts: {
+    filters?: unknown[]
+    fields?: string
+    page?: number
+    results?: number
+    sort?: string
+    reverse?: boolean
+  }): Promise<{ results: Array<Record<string, unknown>>; more: boolean }> {
+    const { filters, fields = "id,title,alttitle", page = 1, results = 25, sort, reverse } = opts
+    const key = cacheKey("vndb", "vn_list", JSON.stringify({ filters, fields, page, results, sort, reverse }))
+    try {
+      return await cached(
+        key,
+        async () => {
+          const body: Record<string, unknown> = { fields, page, results }
+          if (filters) body.filters = filters
+          if (sort) body.sort = sort
+          if (reverse !== undefined) body.reverse = reverse
+          const data = await this.sendRequest("vn", body)
+          return {
+            results: (data.results || []) as Array<Record<string, unknown>>,
+            more: !!data.more,
+          }
+        },
+        this.CACHE_TTL,
+      )
+    } catch (error) {
+      logger.db.error("[VNDB] listVisualNovels failed", error)
+      return { results: [], more: false }
+    }
+  }
+
+  /**
    * 搜索创作者（个人）
    */
   async searchProducers(query: string, limit = 10): Promise<VNDBSearchResult> {

@@ -337,15 +337,24 @@ Galvelica 搜索可覆盖：作品 / Staff / 社团 / 标签 / 发布时间 / �
 - **消费组件同步**：14 处引用改为用 `work.href` 链接；`/api/search` 仍走 `searchService` 查 `Game`（Circleica 搜索分治不变）。
 - 效果：Galvelica 可搜索整个资料库（含 `gameId` 为空、未收录作品），实现「找不到资源，也能找到资料」。
 
-### 全部阶段落地状态（截至 2026-07-25）
-A 地基 / B 适配器 / C 回填 / D 多源融合 / E 联动 UX / F 搜索分治 —— **六项全部落地**。剩余仅「真实数据库执行」由你本机完成（沙箱无 DB，见下「执行清单」）。
+### 全部阶段落地状态（截至 2026-07-26）
+A 地基 / B 适配器 / C 回填（种子）/ D 多源融合 / E 联动 UX / F 搜索分治 —— **代码六项全部落地**。
+⚠️ **重要定位纠正**：Galvelica 从原始设定起就是「资料馆」，要收录**整个同人 VN 生态**（DB 远大于 Circleica）。因此「从 VNDB 整批抓同人目录」不是可选扩展，而是 Galvelica 的**核心功能**。Stage C 的回填只是把 Circleica 现有目录搬进资料馆当**种子**；真正让资料馆覆盖整个同人生态的，是下面的「广收录」命令。
 
 **执行清单（你本机、非沙箱）**：
 1. `npx prisma generate && npx prisma migrate dev --name galvelica_stage_a`（建 Stage A 新表）
-2. `npm run galvelica:backfill`（Stage C 回填 + 首轮融合）
-3. 启用 Bangumi 多源融合（两步）：① 在 `.env` 加 `BANGUMI_ACCESS_TOKEN=你的令牌`；② 跑 `npm run galvelica:enrich-bangumi` 把现有作品关联到 Bangumi 并重融合（仅配令牌不跑此步 = 无效果）。
+2. `npm run galvelica:backfill`（Stage C 回填：把 Circleica 已发布游戏灌进资料馆当种子 + 首轮融合）
+3. **`npm run galvelica:ingest-vndb`（广收录核心：从 VNDB 整批抓同人目录，建 Work+WorkSource{VNDB} 并融合）** —— 这才是让资料馆真正有「整个同人 VN 生态」数据的步骤；带限流 + 断点续跑（状态存 `.galvelica-ingest.json`），同人硬过滤在入库口落地「只收同人 VN」。
+4. 启用 Bangumi 多源融合（两步）：① 在 `.env` 加 `BANGUMI_ACCESS_TOKEN=你的令牌`；② 跑 `npm run galvelica:enrich-bangumi` 把现有作品关联到 Bangumi 并重融合（仅配令牌不跑此步 = 无效果）。
 
-> 沙箱环境无法连 DB（网络层拦截 5432，对 agent 内一切进程生效），故上述两条命令需在**你自己的桌面**（双击 `D:\Circleica\start-dev.bat` 起的 `localhost:3000`）执行；agent 内起的 765/3000 预览无库，仅渲染空框架、绝不注入假数据。
+> 沙箱环境无法连 DB（网络层拦截 5432，对 agent 内一切进程生效），故上述命令需在**你自己的桌面**（双击 `D:\Circleica\start-dev.bat` 起的 `localhost:3000`）执行；agent 内起的 765/3000 预览无库，仅渲染空框架、绝不注入假数据。
+> 广收录是长任务（同人目录量大，受 VNDB 速率限制），建议本机后台/空闲时跑；中断后重跑会自动从断点续跑，不会重复建。
+
+**存储说明（用户关注点）**：
+- 数据落在你本机 Postgres 的**磁盘**，不占网站运行时内存（列表/搜索均分页查询；ingest 是一次性批处理，跑完即退出）。
+- 全量同人目录（几万部）若保留原始 JSON 缓存，整库约几百 MB～近 1GB；这主要是 `WorkSource.raw` 缓存。
+- **已默认开启省空间模式**：`ingest-vndb` 在融合完成后丢弃 `raw` 缓存（仅留 source 行记录 externalId），整库降到约几十 MB、砍掉 70–80% 存储。若想保留 raw 以便离线重融合，跑前设 `GALVELICA_KEEP_RAW=1`。
+- 若只想保留自有目录、不抓全量生态：只跑 1–2 步即可，存储可忽略。
 
 ---
 
