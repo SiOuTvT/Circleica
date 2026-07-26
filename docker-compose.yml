@@ -52,6 +52,30 @@ services:
     profiles:
       - migrate
 
+  # ── Galvelica 资料馆填充（一次性，可选）────
+  # 复用 builder 构建阶段（含全量源码 + tsx），不污染生产运行镜像。
+  # 用法：docker compose run --rm ingest
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    entrypoint: ["/ingest-entrypoint.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://circleica:circleica@db:5432/circleica}
+      CNGL_API_TOKEN: ${CNGL_API_TOKEN:-}
+      BANGUMI_ACCESS_TOKEN: ${BANGUMI_ACCESS_TOKEN:-}
+      GALVELICA_DOUJIN_ONLY: ${GALVELICA_DOUJIN_ONLY:-1}
+      GALVELICA_KEEP_RAW: ${GALVELICA_KEEP_RAW:-0}
+      NODE_OPTIONS: ${NODE_OPTIONS:---max-old-space-size=2048}
+    networks:
+      - circleica
+    profiles:
+      - ingest
+
   # ── Circleica 应用 ────────────────────────────
   app:
     build:

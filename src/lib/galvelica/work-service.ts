@@ -147,6 +147,12 @@ export async function fuseWork(workId: string): Promise<void> {
 
   // 保留人工锁定字段的现有值
   const patch: Prisma.WorkUpdateInput = { ...(result.fields as Prisma.WorkUpdateInput) }
+  // releaseDate 字符串 → Date（Prisma DateTime 需要完整 ISO-8601）
+  if (typeof patch.releaseDate === "string" && patch.releaseDate) {
+    const d = new Date(patch.releaseDate + (patch.releaseDate.length === 10 ? "T00:00:00Z" : ""))
+    if (!isNaN(d.getTime())) patch.releaseDate = d
+    else delete patch.releaseDate
+  }
   // provenance：融合字段写引擎结果；人工字段标记 manual 并保留原 provenance（若有）
   const prevProvenance = (work.provenance ?? {}) as Record<string, { source: string; manual: boolean }>
   const nextProvenance: Record<string, { source: string; manual: boolean }> = {}

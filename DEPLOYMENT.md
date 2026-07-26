@@ -60,6 +60,21 @@ docker compose up -d
 
 等待构建完成（约 3-5 分钟），访问 `http://你的服务器IP`
 
+### 填充 Galvelica 资料馆（可选但推荐）
+
+站点启动后，Galvelica 资料馆默认是空的（数据从公开 API 实时重建，不随仓库分发，也不含任何假数据）。
+运行以下命令即可填充（幂等 + 断点续跑，可重复执行，中途失败重跑会从断点续接）：
+
+```bash
+docker compose run --rm ingest
+```
+
+该命令依次执行：回填本站已有游戏 → VNDB 同人抓取（核心）→ CnGal 国产同人 → Steam 发现层；
+月幕 YmGal 为广义 galge 源，默认严格同人模式下跳过，如需收录先设 `GALVELICA_DOUJIN_ONLY=0` 再运行。
+
+> 数据保存在 PostgreSQL，后续 `docker compose up -d` 重新部署不会丢失，无需每次重跑。
+> 未填充时站点正常运行，资料馆页面显示空状态占位，不影响其他功能。
+
 ### 4 查看日志
 
 ```bash
@@ -301,6 +316,22 @@ pm2 save
 curl -I http://localhost:3000
 ```
 
+### 填充 Galvelica 资料馆（可选但推荐）
+
+站点启动后，Galvelica 资料馆默认是空的。依次运行以下命令填充（幂等 + 断点续跑）：
+
+```bash
+npm run galvelica:backfill
+npm run galvelica:ingest-vndb
+npm run galvelica:ingest-cngal
+npm run galvelica:ingest-discovery
+# 月幕 YmGal（广义 galge 源，默认严格同人模式跳过；需先设 GALVELICA_DOUJIN_ONLY=0）
+GALVELICA_DOUJIN_ONLY=0 npm run galvelica:ingest-ymgal
+```
+
+> 数据保存在 PostgreSQL，后续 `pm2 restart` / 重新部署不会丢失，无需每次重跑。
+> 未填充时站点正常运行，资料馆页面显示空状态占位，不影响其他功能。
+
 ### 7 Nginx 反向代理
 
 ```bash
@@ -348,6 +379,9 @@ npx prisma migrate deploy
 npm run build
 pm2 restart circleica
 ```
+
+> 更新无需重跑资料馆填充：数据已持久化在 PostgreSQL，重新部署后仍在；
+> 如需增量补全新作品，可重跑上述 `galvelica:ingest-*` 命令（幂等续接）。
 
 ---
 

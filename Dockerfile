@@ -67,6 +67,10 @@ ENV APP_VERSION=${VERSION}
 # Build the application（TypeScript 检查需要较多内存）
 RUN NODE_OPTIONS="--max-old-space-size=2048" npx next build
 
+# 可选 `ingest` 服务入口（复用本构建阶段，含全量源码与 tsx，无需改动运行镜像）
+COPY ingest-entrypoint.sh /ingest-entrypoint.sh
+RUN chmod +x /ingest-entrypoint.sh
+
 # ═══════════════════════════════════════════
 # Stage 3: Production Runtime
 # ═══════════════════════════════════════════
@@ -103,7 +107,8 @@ RUN mkdir -p /app/public/uploads && \
 # Copy entrypoint scripts
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY migrate-entrypoint.sh /migrate-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh /migrate-entrypoint.sh
+COPY ingest-entrypoint.sh /ingest-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh /migrate-entrypoint.sh /ingest-entrypoint.sh
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
