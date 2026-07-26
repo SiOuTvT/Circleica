@@ -356,6 +356,15 @@ A 地基 / B 适配器 / C 回填（种子）/ D 多源融合 / E 联动 UX / F 
 - **已默认开启省空间模式**：`ingest-vndb` 在融合完成后丢弃 `raw` 缓存（仅留 source 行记录 externalId），整库降到约几十 MB、砍掉 70–80% 存储。若想保留 raw 以便离线重融合，跑前设 `GALVELICA_KEEP_RAW=1`。
 - 若只想保留自有目录、不抓全量生态：只跑 1–2 步即可，存储可忽略。
 
+**多源扩展与严格同人闸门（用户 2026-07-26 要求：更严 + 更广 + 跳过稀疏源）**：
+- **严格同人闸门**（`sources/doujin-gate.ts`，不变式「只收同人 VN」）：默认 `GALVELICA_DOUJIN_ONLY=1`，仅收录带同人标签的源（VNDB 同人标签 / Bangumi 同人标签）；月幕 YmGal 等「galge 广义」源默认跳过，设 `GALVELICA_DOUJIN_ONLY=0` 才放开。
+- **已接入源**：VNDB（核心，同人标签过滤）、Bangumi（中文社区，配令牌后融合）、**月幕 YmGal（新增，开放免费 API、补中文译名/别名/封面/制作人员；Game 模型无 tags，标签仍由 VNDB/Bangumi 提供）**。
+- **搜索发现的候选源（已筛）**：ErogameScape（EGS，日本最大 eroge 库，但中国 IP 可能墙 + API 不稳定 → **暂未实现，待可达时再加**）；月幕已实现对中文向站点价值最高。明确排除 nhentai/jandapress 等**成人同人志(manga)**——非 galge，会污染资料馆身份。
+- **稀疏源跳过**：各 ingest 脚本首年首页不可达即优雅退出（不污染库）；月幕按发售年翻页枚举，空页跳过。
+- **融合优先级表**已加入 YMGAL（title/aliases/description/coverImage/releaseDate 兜底，studioName 仍由 VNDB/Bangumi 提供）。
+- **新增收录命令**：`npm run galvelica:ingest-ymgal`（需先 `GALVELICA_DOUJIN_ONLY=0`）。
+- **deploy 安全**：所有新增均为加法；`YMGAL` 已加入 `WorkSourceType` 枚举（并入 `galvelica_stage_a` 迁移），不影响现有部署；env 全可选、优雅降级。
+
 ---
 
 *本文档为规划基线，落地前以对应阶段的实际实现为准。任何数据层 / 搜索 / 详情页改动都须以此为准，不得把 Galvelica 当 Circleica 镜像。*
