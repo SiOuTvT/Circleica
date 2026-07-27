@@ -43,16 +43,26 @@ export const POST = withHandler(async (req) => {
   const projectId = dsn.pathname.replace("/", "")
   const sentryUrl = `https://${dsn.hostname}/api/${projectId}/envelope/`
 
-  const response = await fetch(sentryUrl, {
-    method: "POST",
-    signal: AbortSignal.timeout(10_000),
-    body: envelope,
-    headers: {
-      "Content-Type": "application/x-sentry-envelope",
-    },
-  })
+  try {
+    const upstream = await fetch(sentryUrl, {
+      method: "POST",
+      signal: AbortSignal.timeout(10_000),
+      body: envelope,
+      headers: {
+        "Content-Type": "application/x-sentry-envelope",
+      },
+    })
 
-  return new NextResponse(response.body, {
-    status: response.status,
-  })
+    // 缓冲上游响应体后再返回，避免直接透传 ReadableStream 时因上游断连触发
+    // "failed to pipe response"（源站网络受限时 sentry.io 会中途断开）。
+    const body = await upstream.text()
+    return new NextResponse(body, {
+      status: upstream.status,
+      headers: { "Access-Control-Allow-Origin": "*" },
+    })
+  } catch {
+    // sentry.io 不可达（如源站被墙/超时）时静默丢弃，返回 200 避免污染服务端错误日志与误报 500。
+    // 错误上报失败不影响主应用，浏览器端 beacon 收到 200 即认为成功。
+    return new NextResponse(null, { status: 200 })
+  }
 })
