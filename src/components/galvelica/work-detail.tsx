@@ -79,6 +79,22 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
           {work.englishName && (
             <p className="mt-0.5 text-xs text-muted-foreground/70">{work.englishName}</p>
           )}
+          {work.doujinCategory && (
+            <span
+              className={`mt-2 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${
+                work.doujinCategory === "PURE"
+                  ? "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--primary)]"
+                  : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
+              }`}
+              title={
+                work.doujinCategory === "PURE"
+                  ? "纯正同人：个人或无注册社团自主制作，仅同人渠道分发"
+                  : "同人系公司：早年为同人社团、后期注册公司的厂商作品（同人衍生商业作）"
+              }
+            >
+              {work.doujinCategory === "PURE" ? "纯正同人" : "同人系公司商业作"}
+            </span>
+          )}
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             {work.ratingAvg != null && (

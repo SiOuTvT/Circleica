@@ -19,7 +19,9 @@
     "galvelica:ingest-vndb": "tsx scripts/ingest-vndb.ts",
     "galvelica:ingest-ymgal": "tsx scripts/ingest-ymgal.ts",
     "galvelica:ingest-cngal": "tsx scripts/ingest-cngal.ts",
-    "galvelica:ingest-discovery": "tsx scripts/ingest-discovery.ts"
+    "galvelica:ingest-discovery": "tsx scripts/ingest-discovery.ts",
+    "galvelica:ingest-egs": "tsx scripts/ingest-egs.ts",
+    "galvelica:purge-domestic": "tsx scripts/purge-domestic-sources.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",

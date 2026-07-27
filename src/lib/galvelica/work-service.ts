@@ -288,6 +288,8 @@ export interface GetOrCreateOptions {
   slug?: string
   /** 若已知对应 Game，回填 gameId 锚点 */
   gameId?: string
+  /** 同人分类（PURE 纯正同人 / DERIVATIVE 同人系公司商业作），由摄入脚本按生产者类型判定 */
+  doujinCategory?: "PURE" | "DERIVATIVE"
 }
 
 /**
@@ -328,6 +330,7 @@ export async function upsertWorkFromRaw(
         slug,
         gameId: opts.gameId,
         title: normalized.title || externalId,
+        doujinCategory: opts.doujinCategory ?? null,
       },
     })
     workId = created.id
@@ -357,6 +360,14 @@ export async function upsertWorkFromRaw(
       fetchedAt: new Date(),
     },
   })
+
+  // 同人分类：已知且 Work 当前为空则补写（跨源匹配挂到已有 Work 时也能补齐）
+  if (opts.doujinCategory) {
+    await prisma.work.updateMany({
+      where: { id: workId, doujinCategory: null },
+      data: { doujinCategory: opts.doujinCategory },
+    })
+  }
 
   await fuseWork(workId)
 

@@ -43,6 +43,8 @@ export interface GalvelicaWorkCard {
   viewCount: number
   isNsfw: boolean
   tags: GalvelicaTag[]
+  /** 同人分类：PURE=纯正同人，DERIVATIVE=同人系公司商业作，null=未定 */
+  doujinCategory: "PURE" | "DERIVATIVE" | null
   /** 纯文本简介（由 description 脱标签后截断，供杂志式卡片一句简介） */
   description: string
 }
@@ -156,6 +158,7 @@ interface WorkCardSource {
   viewCount: number
   isNsfw: boolean
   description: string
+  doujinCategory: "PURE" | "DERIVATIVE" | null
   game: { serialId: number } | null
   tags: { tag: { id: string; name: string; color: string | null; group?: { name: string | null; color: string | null } | null } }[]
 }
@@ -174,6 +177,7 @@ function workCardSelect() {
     viewCount: true,
     isNsfw: true,
     description: true,
+    doujinCategory: true,
     game: { select: { serialId: true } },
     tags: {
       select: {
@@ -200,6 +204,7 @@ function mapWorkCard(w: WorkCardSource): GalvelicaWorkCard {
     favoriteCount: w.favoriteCount,
     viewCount: w.viewCount,
     isNsfw: w.isNsfw,
+    doujinCategory: w.doujinCategory ?? null,
     description: stripHtml(w.description).slice(0, 100),
     tags: (w.tags ?? []).map((t) => ({
       id: t.tag.id,

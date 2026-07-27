@@ -174,20 +174,21 @@ async function main() {
       // 服务端已按「ng / in / 同人系公司白名单」筛选，这里作防御性二次校验：
       // 允许 业余社团(ng) / 个人(in) / 白名单内的同人出身公司(co)。
       const developers = (vn.developers as Array<Record<string, unknown>>) ?? []
-      const isDoujin = developers.some(
-        (d) =>
-          d.type === "ng" ||
-          d.type === "in" ||
-          (d.type === "co" && DOUJIN_ORIGIN_CO_IDS.includes(String(d.id ?? ""))),
+      const hasPure = developers.some((d) => d.type === "ng" || d.type === "in")
+      const isCoWhitelist = developers.some(
+        (d) => d.type === "co" && DOUJIN_ORIGIN_CO_IDS.includes(String(d.id ?? "")),
       )
+      const isDoujin = hasPure || isCoWhitelist
       if (!isDoujin) {
         continue
       }
+      // 同人分类：含 ng/in 开发者 → 纯正同人；仅命中同人系公司白名单 → 同人衍生商业作
+      const doujinCategory: "PURE" | "DERIVATIVE" = hasPure ? "PURE" : "DERIVATIVE"
 
       total++
       const slug = slugify((vn.title as string) || "") || id
       try {
-        const workId = await upsertWorkFromRaw("VNDB", id, { results: [vn] }, { slug })
+        const workId = await upsertWorkFromRaw("VNDB", id, { results: [vn] }, { slug, doujinCategory })
         if (workId) created++
         else failed++
       } catch (e) {

@@ -724,6 +724,12 @@ enum WorkSourceType {
   MANUAL
 }
 
+// 同人分类（Galvelica 对外展示）：纯正同人 vs 同人系公司商业作
+enum WorkCategory {
+  PURE        // 纯正同人：个人(in) / 无注册社团(ng)
+  DERIVATIVE  // 同人系公司：早年同人社团、后期注册公司的厂商作品
+}
+
 enum InclusionRequestStatus {
   PENDING
   APPROVED
@@ -749,6 +755,9 @@ model Work {
   status        String   @default("")       // 完结/连载等（自由文本，后续可枚举）
   duration      String   @default("")       // 对应 Game.gameDuration
   isNsfw        Boolean  @default(false)
+
+  // 同人分类（对外展示）：PURE=纯正同人，DERIVATIVE=同人系公司商业作；null=未定（人工/旧数据）
+  doujinCategory WorkCategory?
 
   // 外链（按源选优后归一）
   officialUrl   String   @default("")       // DLsite 优先

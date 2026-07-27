@@ -52,29 +52,31 @@ export interface FusedSource {
  * 各源权威面（决定其在对应字段的排位）：
  *   - VNDB      ：全球 VN 资料库，canonical 元数据最权威（标题/原名/发售日/简介/社团/标签/Staff）
  *   - BANGUMI   ：中文社区，中文译名/别名/简介质量最高
- *   - YMGAL     ：月幕，中文 galge 档案，补中文译名/封面/制作人员（无 tags、无稳定社团名）
- *   - CNGL      ：CnGal，国产/汉化同人，封面与制作组完整（无 tags）
  *   - STEAM     ：商店，提供高质量封面(header_image)与可靠发售日；仅放行 VN genre
  *   - DLSITE    ：商业购买源，官方购买链接/商业封面最权威（暂未实现，预留位）
  *   - MANUAL    ：站长人工条目/锁定字段；作兜底，外部权威源存在时让位（已锁定字段不受影响）
+ *
+ * 【用户铁律 2026-07-27】月幕(YmGal) / CnGal / KunMoe 全部排除，不接 API、不批量爬、不依赖，
+ * 故已从下方优先级表移除其源行（保持站点独立中立、不卷入国内圈人际关系）。已入库的
+ * 这两源旧数据由 purge 脚本清掉；next.config 图床白名单也已移除其域名。
  */
 export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
   // canonical 标题：VNDB 权威；中文源按序补位（中文译名进 aliases/originalWork）
-  title: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "MANUAL"],
+  title: ["VNDB", "BANGUMI", "MANUAL"],
   // 原名（日文/官方）：VNDB 最权威
   originalWork: ["VNDB", "MANUAL"],
   // 英文名：VNDB 权威
   englishName: ["VNDB", "MANUAL"],
   // 别名：多源 union，VNDB 起头
-  aliases: ["VNDB", "BANGUMI", "YMGAL", "CNGL"],
+  aliases: ["VNDB", "BANGUMI"],
   // 简介：取最长非空（信息最完整）；VNDB 长简介优先，中文源补位，Steam 短描述兜底
-  description: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "STEAM", "MANUAL"],
-  // 封面：权威+高质量排序 —— VNDB(canonical) → STEAM(高分辨率商店图) → CNGL → YMGAL → BANGUMI → 人工 → DLSITE(商业预留)
-  coverImage: ["VNDB", "STEAM", "CNGL", "YMGAL", "BANGUMI", "MANUAL", "DLSITE"],
+  description: ["VNDB", "BANGUMI", "STEAM", "MANUAL"],
+  // 封面：权威+高质量排序 —— VNDB(canonical) → STEAM(高分辨率商店图) → BANGUMI → 人工 → DLSITE(商业预留)
+  coverImage: ["VNDB", "STEAM", "BANGUMI", "MANUAL", "DLSITE"],
   // 发售日：VNDB 权威 → 中文源(ISO) → STEAM(格式偶不规整，仅作最后兜底)
-  releaseDate: ["VNDB", "BANGUMI", "YMGAL", "CNGL", "STEAM", "MANUAL"],
-  // 社团：VNDB(含 developers) → Bangumi → CnGal(productionGroups)；月幕/Steam 无稳定社团名不纳入
-  studioName: ["VNDB", "BANGUMI", "CNGL", "MANUAL"],
+  releaseDate: ["VNDB", "BANGUMI", "STEAM", "MANUAL"],
+  // 社团：VNDB(含 developers) → Bangumi；月幕/Steam 无稳定社团名不纳入
+  studioName: ["VNDB", "BANGUMI", "MANUAL"],
   // 官方购买链接：DLsite 权威（暂未实现，预留）
   officialUrl: ["DLSITE", "MANUAL"],
   // Steam appid：Steam 权威

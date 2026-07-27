@@ -11,14 +11,15 @@ import { bangumiAdapter } from "./bangumi"
 import { ymgalAdapter } from "./ymgal"
 import { cngalAdapter } from "./cngal"
 import { steamAdapter } from "./steam"
+import { erogesapeAdapter } from "./egs"
 
 const registry: Partial<Record<SourceKey, SourceAdapter>> = {
   VNDB: vndbAdapter,
   BANGUMI: bangumiAdapter, // Stage D：未配置 BANGUMI_ACCESS_TOKEN 时优雅降级
-  YMGAL: ymgalAdapter, // 月幕：galge 广义源，严格同人模式下由闸门跳过
-  CNGL: cngalAdapter, // CnGal：中文同人/独立 VN，默认收录
+  YMGAL: ymgalAdapter, // 月幕：已按用户铁律排除（闸门挡），保留适配器不调用
+  CNGL: cngalAdapter, // CnGal：已按用户铁律排除（闸门挡），保留适配器不调用
   STEAM: steamAdapter, // Steam 商店：发现层（VN genre 校验后建 Work）
-  // EROGESCAPE: erogescapeAdapter, // 待定：中国 IP 可能墙 + API 不稳定
+  EROGESCAPE: erogesapeAdapter, // 日本权威 galge 库；默认不摄入（GALVELICA_ENABLE_EGS=1 开启，需服务器出口代理）
   // DLSITE: dlsiteAdapter,
 }
 
@@ -30,5 +31,5 @@ export function listAdapters(): SourceKey[] {
   return Object.keys(registry) as SourceKey[]
 }
 
-export { vndbAdapter, bangumiAdapter, ymgalAdapter, cngalAdapter, steamAdapter }
+export { vndbAdapter, bangumiAdapter, ymgalAdapter, cngalAdapter, steamAdapter, erogesapeAdapter }
 export type { SourceAdapter, SourceKey, NormalizedWork } from "./types"

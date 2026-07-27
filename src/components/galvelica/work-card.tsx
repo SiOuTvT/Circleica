@@ -44,6 +44,22 @@ export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
             NSFW
           </span>
         )}
+        {work.doujinCategory && (
+          <span
+            className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
+              work.doujinCategory === "PURE"
+                ? "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--primary)]"
+                : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
+            }`}
+            title={
+              work.doujinCategory === "PURE"
+                ? "纯正同人：个人或无注册社团自主制作，仅同人渠道分发"
+                : "同人系公司：早年为同人社团、后期注册公司的厂商作品（同人衍生商业作）"
+            }
+          >
+            {work.doujinCategory === "PURE" ? "纯正同人" : "同人系公司"}
+          </span>
+        )}
       </div>
 
       {/* 信息区 */}
