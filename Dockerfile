@@ -64,8 +64,11 @@ ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
 ENV APP_VERSION=${VERSION}
 
-# Build the application（TypeScript 检查需要较多内存）
-RUN NODE_OPTIONS="--max-old-space-size=2048" npx next build
+# Build the application（TypeScript 检查需要较多内存，按项目真实需求设 2048）
+# 注意：不在 Dockerfile 里节流来迁就弱服务器——弱机器靠 SSH 加 swap / 构建时停旧容器解决。
+# 如需临时调，可经 Coolify Build arguments 传 NEXT_BUILD_MEMORY，但默认保持项目应得配置。
+ARG NEXT_BUILD_MEMORY=2048
+RUN NODE_OPTIONS="--max-old-space-size=${NEXT_BUILD_MEMORY}" npx next build
 
 # 可选 `ingest` 服务入口（复用本构建阶段，含全量源码与 tsx，无需改动运行镜像）
 COPY ingest-entrypoint.sh /ingest-entrypoint.sh

@@ -54,3 +54,6 @@ next-env.d.ts
 .galvelica-ingest-ymgal.json
 .galvelica-ingest-cngal.json
 .galvelica-ingest-discovery.json
+
+# agent 工作记忆（本地记忆/日志，非项目内容，禁止提交）
+.workbuddy/
