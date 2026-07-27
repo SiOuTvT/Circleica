@@ -3,6 +3,8 @@
  * 可在服务端和客户端共用
  */
 
+import { THEME_PRESETS, DEFAULT_TOKENS, type ThemeTokens } from "./theme-presets"
+
 /* ── 颜色工具函数 ── */
 export function hexToRgb(hex: string): [number, number, number] {
   let h = hex.replace("#", "")
@@ -57,5 +59,30 @@ export function getHue(hex: string): number {
     }
   }
   return Math.round(h)
+}
+
+/* ── 从任意 hex 派生完整 ThemeTokens（自定义主题色核心） ──
+ * hover / active 仅作接口兜底；真正的前台悬停/按下令牌由 CSS
+ * 用 color-mix(var(--primary) …) 实时派生，保证不做机械加深。 */
+export function deriveTokensFromHex(hex: string): ThemeTokens {
+  const [r, g, b] = hexToRgb(hex)
+  return {
+    primary: hex,
+    hover: lightenHex(hex, 0.06),
+    active: lightenHex(hex, 0.12),
+    accent: lightenHex(hex, 0.18),
+    ring: `rgba(${r}, ${g}, ${b}, 0.35)`,
+    glow: `rgba(${r}, ${g}, ${b}, 0.10)`,
+  }
+}
+
+/** 解析主题色 → ThemeTokens：预设走手工调好的 token，自定义色走派生（不再静默回退薄荷） */
+export function resolveThemeTokens(hex?: string): ThemeTokens {
+  if (hex) {
+    const preset = THEME_PRESETS.find((p) => p.color.toLowerCase() === hex.toLowerCase())
+    if (preset) return preset.tokens
+    return deriveTokensFromHex(hex)
+  }
+  return DEFAULT_TOKENS
 }
 

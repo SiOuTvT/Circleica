@@ -1,22 +1,11 @@
 import { headers } from "next/headers"
-import { THEME_PRESETS, DEFAULT_TOKENS, type ThemeTokens } from "@/lib/theme-presets"
-
-/**
- * 根据 SiteSetting 中存储的 themeColor hex，解析出完整的 ThemeTokens。
- * 如果是预设色 → 使用人工调好的 token 集；
- * 如果是自定义色 → 使用原 hex 本身（不做自动派生）。
- */
-export function resolveThemeTokens(themeColor?: string): ThemeTokens {
-  if (themeColor) {
-    const preset = THEME_PRESETS.find((p) => p.color.toLowerCase() === themeColor.toLowerCase())
-    if (preset) return preset.tokens
-  }
-  return DEFAULT_TOKENS
-}
+import { resolveThemeTokens } from "@/lib/theme-colors-shared"
 
 /**
  * Inline script to prevent flash of wrong theme.
- * Applies preset tokens directly — no auto-derivation.
+ * Applies --primary (and aliases) directly from resolved tokens.
+ * hover / active / soft tokens are owned by globals.css via color-mix,
+ * so any theme color (incl. custom) stays coherent and never mechanically darkened.
  */
 export async function ThemeScript({ themeColor }: { themeColor?: string }) {
   const nonce = (await headers()).get("x-nonce") || undefined
@@ -43,18 +32,15 @@ export async function ThemeScript({ themeColor }: { themeColor?: string }) {
             }
           });
         }
-        // Apply tokens — no derivation
+        // Apply tokens — primary + aliases only; hover/active/soft derived in CSS
         r.style.setProperty('--primary','${t.primary}');
-        r.style.setProperty('--primary-hover','${t.hover}');
-        r.style.setProperty('--primary-active','${t.active}');
-        r.style.setProperty('--accent','${t.accent}');
-        r.style.setProperty('--ring','${t.ring}');
-        r.style.setProperty('--clr-glow','${t.glow}');
         r.style.setProperty('--theme-color','${t.primary}');
-        r.style.setProperty('--theme-color-hover','${t.hover}');
-        r.style.setProperty('--theme-color-active','${t.active}');
+        r.style.setProperty('--theme-color-hover','${t.primary}');
+        r.style.setProperty('--theme-color-active','${t.primary}');
         r.style.setProperty('--clr-blue','${t.primary}');
         r.style.setProperty('--clr-sky','${t.accent}');
+        r.style.setProperty('--ring','${t.ring}');
+        r.style.setProperty('--clr-glow','${t.glow}');
       }catch(e){}
     })();
   `

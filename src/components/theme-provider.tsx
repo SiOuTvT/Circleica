@@ -56,7 +56,7 @@ function doApply(s: FullThemeSettings) {
   // 半径 / 阴影 / 透明度作为独立 CSS 变量
   document.documentElement.style.setProperty("--theme-radius", `${s.themeRadius}px`)
   document.documentElement.style.setProperty("--theme-shadow-intensity", `${s.themeShadowIntensity / 100}`)
-  document.documentElement.style.setProperty("--theme-alpha", `${(s.themeAlpha ?? 15) / 100}`)
+  document.documentElement.style.setProperty("--theme-alpha", `${(s.themeAlpha ?? 15)}%`)
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

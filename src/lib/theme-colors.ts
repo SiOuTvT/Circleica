@@ -1,31 +1,26 @@
 "use client"
 
 import type { ThemeTokens } from "./theme-presets"
-import { THEME_PRESETS, DEFAULT_TOKENS } from "./theme-presets"
+import { resolveThemeTokens } from "./theme-colors-shared"
 
 /** 根据 hex 解析出 ThemeTokens（客户端版） */
 export function resolveTokens(hex?: string): ThemeTokens {
-  if (hex) {
-    const preset = THEME_PRESETS.find((p) => p.color.toLowerCase() === hex.toLowerCase())
-    if (preset) return preset.tokens
-  }
-  return DEFAULT_TOKENS
+  return resolveThemeTokens(hex)
 }
 
 /**
- * 应用主题 Token：直接设置精心设计的颜色值，不做任何自动派生。
- * 每套预设的 hover / active / accent 都已人工调好，
- * 不再依赖 darkenHex / lightenHex 一刀切。
+ * 应用主题 Token。
+ * --primary 由 JS 注入；悬停/按下令牌（--primary-hover/--primary-active 等）
+ * 交由 globals.css 用 color-mix(var(--primary) …) 统一派生，
+ * 保证任何主题色（含自定义）都不做机械加深，前后台共用一套语言。
  */
 export function applyThemeTokens(tokens: ThemeTokens) {
   const root = document.documentElement
 
-  // 强调色系
+  // 强调色系：--primary 由 JS 注入
   root.style.setProperty("--primary", tokens.primary)
-  root.style.setProperty("--primary-hover", tokens.hover)
-  root.style.setProperty("--primary-active", tokens.active)
   // 注意：--accent 是 shadcn 的中性 hover 底（ghost 按钮 / navlink hover 等），
-  // 必须保持中性，不能覆盖成主题强调色，否则全站中性 hover 会泛主题色。
+  // 必须保持中性，不在此覆盖成主题强调色，否则全站中性 hover 会泛主题色。
   root.style.setProperty("--ring", tokens.ring)
   root.style.setProperty("--clr-glow", tokens.glow)
 

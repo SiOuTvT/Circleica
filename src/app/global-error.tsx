@@ -26,8 +26,8 @@ export default function GlobalError({
             justifyContent: "center",
             minHeight: "100dvh",
             fontFamily: "system-ui, -apple-system, sans-serif",
-            background: "#0a0a0a",
-            color: "#e5e5e5",
+            background: "var(--background, #08080a)",
+            color: "var(--foreground, #e8e8ec)",
             padding: "2rem",
           }}
         >
@@ -42,9 +42,7 @@ export default function GlobalError({
                 fontSize: "3rem",
                 fontWeight: "bold",
                 marginBottom: "0.5rem",
-                background: "linear-gradient(135deg, #ff6b6b, #ffa500)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "var(--primary, #5FA8A0)",
               }}
             >
               出错了
@@ -52,7 +50,7 @@ export default function GlobalError({
             <p
               style={{
                 fontSize: "1.125rem",
-                color: "#a3a3a3",
+                color: "var(--muted-foreground, #a1a1b5)",
                 marginBottom: "2rem",
                 lineHeight: 1.6,
               }}
@@ -66,8 +64,8 @@ export default function GlobalError({
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",
                   border: "none",
-                  background: "#3b82f6",
-                  color: "white",
+                  background: "var(--primary, #5FA8A0)",
+                  color: "var(--primary-foreground, #ffffff)",
                   fontSize: "1rem",
                   cursor: "pointer",
                   fontWeight: 500,
@@ -80,9 +78,9 @@ export default function GlobalError({
                 style={{
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",
-                  border: "1px solid #404040",
+                  border: "1px solid var(--border, rgba(255,255,255,0.08))",
                   background: "transparent",
-                  color: "#e5e5e5",
+                  color: "var(--foreground, #e8e8ec)",
                   fontSize: "1rem",
                   cursor: "pointer",
                   fontWeight: 500,
@@ -96,20 +94,20 @@ export default function GlobalError({
                 style={{
                   marginTop: "2rem",
                   textAlign: "left",
-                  background: "#1a1a1a",
+                  background: "var(--card, #151518)",
                   padding: "1rem",
                   borderRadius: "0.5rem",
-                  border: "1px solid #333",
+                  border: "1px solid var(--border, rgba(255,255,255,0.08))",
                   overflow: "auto",
                 }}
               >
-                <summary style={{ cursor: "pointer", color: "#a3a3a3", marginBottom: "0.5rem" }}>
+                <summary style={{ cursor: "pointer", color: "var(--muted-foreground, #a1a1b5)", marginBottom: "0.5rem" }}>
                   错误详情（仅开发环境）
                 </summary>
                 <pre
                   style={{
                     fontSize: "0.875rem",
-                    color: "#ef4444",
+                    color: "var(--destructive, #f87171)",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
                   }}

@@ -48,7 +48,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
     applyThemeTokens(resolveTokens(draft.themeColor))
     root.style.setProperty("--theme-radius", `${draft.themeRadius}px`)
     root.style.setProperty("--theme-shadow-intensity", `${draft.themeShadowIntensity / 100}`)
-    root.style.setProperty("--theme-alpha", `${(draft.themeAlpha ?? 15) / 100}`)
+    root.style.setProperty("--theme-alpha", `${(draft.themeAlpha ?? 15)}%`)
   }, [draft])
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initialSettings)

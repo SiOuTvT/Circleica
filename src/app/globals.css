@@ -162,6 +162,14 @@ main > * {
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  /* 主题色派生令牌（color-mix 实时计算，受 --theme-alpha 调节） */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-softer: var(--primary-softer);
+  --color-primary-selected: var(--primary-selected);
+  --color-primary-border: var(--primary-border);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -277,20 +285,30 @@ main > * {
 
   /* ── 动态主题变量（由 theme-colors.ts 动态覆盖） ── */
   --theme-radius:  12px;
-  --theme-alpha:   0.15;
+  --theme-alpha:   15%;
   --theme-r:       95;
   --theme-g:       168;
   --theme-b:       160;
   --theme-color:         #5FA8A0;
-  --theme-color-hover:   #4d918a;
-  --theme-color-active:  #40807a;
+  --theme-color-hover:   var(--primary-hover);
+  --theme-color-active:  var(--primary-active);
   --theme-fg:            #18181b;
 
-  /* 主题色 — 薄荷绿，档案馆气质（旗舰默认，呼应 Galvelica） */
+  /* ── 主题色系统（动态由 theme-colors.ts / ThemeScript 覆盖 --primary 等） ──
+     --primary 由 JS 注入；以下派生令牌全部基于 --primary 实时计算，
+     保证任何主题色（含自定义）都拥有一致的悬停/层级/软着色，且绝不做机械加深。 */
   --primary:          #5FA8A0;
-  --primary-hover:    #4d918a;
-  --primary-active:   #40807a;
-  --primary-foreground: #0a0a0c;
+  /* 悬停/按下：向白色提亮（lift），不加深——满足"hover/active 不都加深" */
+  --primary-hover:    color-mix(in srgb, var(--primary) 92%, white);
+  --primary-active:   color-mix(in srgb, var(--primary) 86%, white);
+  /* 实心按钮悬停用：比 --primary 略亮一档 */
+  --primary-strong:   color-mix(in srgb, var(--primary) 88%, white);
+  /* 软着色层级（受 --theme-alpha 调节；0% = 无着色） */
+  --primary-soft:     color-mix(in srgb, var(--primary) var(--theme-alpha), transparent);
+  --primary-softer:   color-mix(in srgb, var(--primary) calc(var(--theme-alpha) * 0.6), transparent);
+  --primary-selected: color-mix(in srgb, var(--primary) calc(var(--theme-alpha) + 8%), transparent);
+  --primary-border:   color-mix(in srgb, var(--primary) 35%, transparent);
+  --primary-foreground: #ffffff;
   --clr-blue:   var(--primary);
   --clr-sky:    #f0a0b8;
   --clr-glow:   rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
@@ -303,8 +321,8 @@ main > * {
 
   /* ── 统一 Tab 切换组件色 ── */
   --tab-trough:     #111113;           /* 底槽色，纯中性灰 */
-  --tab-active:     #222224;           /* 选中方块色，纯中性灰 */
-  --tab-active-text:#f0f0f4;           /* 选中文字：亮白 */
+  --tab-active:     color-mix(in srgb, var(--primary) 16%, transparent);  /* 选中方块：主题色软着色（不再死黑） */
+  --tab-active-text: var(--primary);  /* 选中文字：主题色 */
   --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
   --tab-hover-text: #a1a1aa;           /* 悬停提亮 */
 }
@@ -342,6 +360,14 @@ main > * {
   --destructive:   #ef4444;
   --ring:          #d4d4d8;
   --primary:       #5FA8A0;
+  /* 亮色主题同样用 color-mix 派生（与深色共用一套语言） */
+  --primary-hover:    color-mix(in srgb, var(--primary) 90%, white);
+  --primary-active:   color-mix(in srgb, var(--primary) 84%, white);
+  --primary-strong:   color-mix(in srgb, var(--primary) 86%, white);
+  --primary-soft:     color-mix(in srgb, var(--primary) var(--theme-alpha), transparent);
+  --primary-softer:   color-mix(in srgb, var(--primary) calc(var(--theme-alpha) * 0.6), transparent);
+  --primary-selected: color-mix(in srgb, var(--primary) calc(var(--theme-alpha) + 8%), transparent);
+  --primary-border:   color-mix(in srgb, var(--primary) 35%, transparent);
 
   /* 语义色 - 浅色模式 */
   --success:       #059669;
@@ -371,8 +397,8 @@ main > * {
 
   /* ── 统一 Tab 切换组件色（亮色主题） ── */
   --tab-trough:     #e8e8ec;           /* 底槽：极浅灰 */
-  --tab-active:     #ffffff;           /* 选中方块：纯白 */
-  --tab-active-text:#111111;           /* 选中文字：深色 */
+  --tab-active:     color-mix(in srgb, var(--primary) 14%, white);        /* 选中方块：主题色浅着 */
+  --tab-active-text: color-mix(in srgb, var(--primary) 68%, black);       /* 选中文字：加深一档保对比 */
   --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
   --tab-hover-text: #3f3f46;           /* 悬停提亮 */
 }
@@ -407,6 +433,72 @@ main > * {
 .light .bg-error\/10   { background-color: var(--error-soft) !important; }
 .light .bg-info\/10    { background-color: var(--info-soft) !important; }
 
+/* ════ 语义状态色：将散落的 rainbow 工具类收束到设计令牌 ════
+   仅作用于深色模式（:root:not(.light)），亮色由上方 .light 规则处理。
+   red/rose→--error  emerald/green→--success  amber→--warning  blue/sky→--info
+   有意为之的多色编码（勋章/排行/头像渐变/分类紫等）不在此收束，保留区分度。 */
+:root:not(.light) .bg-red-500\/5   { background-color: color-mix(in srgb, var(--error) 5%, transparent) !important; }
+:root:not(.light) .bg-red-500\/8   { background-color: color-mix(in srgb, var(--error) 8%, transparent) !important; }
+:root:not(.light) .bg-red-500\/10  { background-color: color-mix(in srgb, var(--error) 10%, transparent) !important; }
+:root:not(.light) .bg-red-500\/\[0\.08\] { background-color: color-mix(in srgb, var(--error) 8%, transparent) !important; }
+:root:not(.light) .bg-red-500\/15  { background-color: color-mix(in srgb, var(--error) 15%, transparent) !important; }
+:root:not(.light) .bg-red-500\/20  { background-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+:root:not(.light) .bg-red-500\/25  { background-color: color-mix(in srgb, var(--error) 25%, transparent) !important; }
+:root:not(.light) .bg-red-500\/50  { background-color: color-mix(in srgb, var(--error) 50%, transparent) !important; }
+:root:not(.light) .bg-red-500\/80  { background-color: color-mix(in srgb, var(--error) 80%, transparent) !important; }
+:root:not(.light) .bg-red-500\/90  { background-color: color-mix(in srgb, var(--error) 90%, transparent) !important; }
+:root:not(.light) .bg-red-50       { background-color: color-mix(in srgb, var(--error) 8%, transparent) !important; }
+:root:not(.light) .text-red-300,
+:root:not(.light) .text-red-400,
+:root:not(.light) .text-red-500,
+:root:not(.light) .text-red-600,
+:root:not(.light) .text-red-700    { color: var(--error) !important; }
+:root:not(.light) .ring-red-500\/15 { --tw-ring-color: color-mix(in srgb, var(--error) 15%, transparent) !important; }
+:root:not(.light) .ring-red-500\/20 { --tw-ring-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+:root:not(.light) .ring-red-500\/30 { --tw-ring-color: color-mix(in srgb, var(--error) 30%, transparent) !important; }
+:root:not(.light) .ring-red-500\/40 { --tw-ring-color: color-mix(in srgb, var(--error) 40%, transparent) !important; }
+:root:not(.light) .border-red-200   { border-color: var(--error) !important; }
+:root:not(.light) .border-red-500\/20 { border-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+:root:not(.light) .border-red-500\/30 { border-color: color-mix(in srgb, var(--error) 30%, transparent) !important; }
+
+:root:not(.light) .bg-rose-500\/10  { background-color: color-mix(in srgb, var(--error) 10%, transparent) !important; }
+:root:not(.light) .bg-rose-500\/20  { background-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+:root:not(.light) .text-rose-400,
+:root:not(.light) .text-rose-500    { color: var(--error) !important; }
+:root:not(.light) .ring-rose-500\/20 { --tw-ring-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+
+:root:not(.light) .bg-emerald-500   { background-color: var(--success) !important; }
+:root:not(.light) .bg-emerald-500\/10 { background-color: color-mix(in srgb, var(--success) 10%, transparent) !important; }
+:root:not(.light) .bg-emerald-500\/15 { background-color: color-mix(in srgb, var(--success) 15%, transparent) !important; }
+:root:not(.light) .bg-emerald-500\/20 { background-color: color-mix(in srgb, var(--success) 20%, transparent) !important; }
+:root:not(.light) .bg-emerald-500\/25 { background-color: color-mix(in srgb, var(--success) 25%, transparent) !important; }
+:root:not(.light) .text-emerald-400,
+:root:not(.light) .text-emerald-500   { color: var(--success) !important; }
+:root:not(.light) .ring-emerald-500\/20 { --tw-ring-color: color-mix(in srgb, var(--success) 20%, transparent) !important; }
+
+:root:not(.light) .bg-green-500\/10  { background-color: color-mix(in srgb, var(--success) 10%, transparent) !important; }
+:root:not(.light) .text-green-500    { color: var(--success) !important; }
+
+:root:not(.light) .bg-amber-500\/8   { background-color: color-mix(in srgb, var(--warning) 8%, transparent) !important; }
+:root:not(.light) .bg-amber-500\/10  { background-color: color-mix(in srgb, var(--warning) 10%, transparent) !important; }
+:root:not(.light) .bg-amber-500\/15  { background-color: color-mix(in srgb, var(--warning) 15%, transparent) !important; }
+:root:not(.light) .bg-amber-500\/20  { background-color: color-mix(in srgb, var(--warning) 20%, transparent) !important; }
+:root:not(.light) .bg-amber-500\/25  { background-color: color-mix(in srgb, var(--warning) 25%, transparent) !important; }
+:root:not(.light) .text-amber-400,
+:root:not(.light) .text-amber-500,
+:root:not(.light) .text-amber-600,
+:root:not(.light) .text-amber-700    { color: var(--warning) !important; }
+:root:not(.light) .ring-amber-500\/15 { --tw-ring-color: color-mix(in srgb, var(--warning) 15%, transparent) !important; }
+:root:not(.light) .ring-amber-500\/20 { --tw-ring-color: color-mix(in srgb, var(--warning) 20%, transparent) !important; }
+
+:root:not(.light) .bg-blue-500\/10   { background-color: color-mix(in srgb, var(--info) 10%, transparent) !important; }
+:root:not(.light) .bg-sky-500\/10    { background-color: color-mix(in srgb, var(--info) 10%, transparent) !important; }
+:root:not(.light) .text-blue-400,
+:root:not(.light) .text-blue-500,
+:root:not(.light) .text-blue-600     { color: var(--info) !important; }
+:root:not(.light) .text-sky-500      { color: var(--info) !important; }
+:root:not(.light) .ring-blue-500\/20 { --tw-ring-color: color-mix(in srgb, var(--info) 20%, transparent) !important; }
+
 /* ── 补全亮色模式主题动态变量（修复 --clr-blue/--clr-sky/--clr-glow/--theme-rgb 在亮色下缺失） ── */
 :root.light, .light {
   --clr-blue:   var(--primary);
@@ -417,13 +509,13 @@ main > * {
   --theme-g: 168;
   --theme-b: 160;
   --theme-color: #5FA8A0;
-  --theme-color-hover: #4d918a;
-  --theme-color-active: #40807a;
+  --theme-color-hover: var(--primary-hover);
+  --theme-color-active: var(--primary-active);
   --theme-fg: #18181b;
 }
 
 /* 头像占位符：浅色模式用深色文字 */
-.light .bg-primary\/80 { background-color: rgba(200, 144, 96, 0.9) !important; }
+.light .bg-primary\/80 { background-color: var(--primary-strong) !important; }
 .light .bg-primary\/80 .text-white,
 .light .bg-primary\/80.text-white { color: #ffffff !important; }
 
@@ -877,7 +969,8 @@ a.text-primary {
   color: var(--theme-color) !important;
 }
 a.text-primary:hover {
-  color: var(--theme-color-hover) !important;
+  /* 悬停向白色提亮（lift），不加深——避免"链接变深" */
+  color: var(--primary-strong) !important;
 }
 
 /* ── NProgress 进度条 — 跟随主题色 ── */
@@ -900,20 +993,22 @@ button[class*="pagination"] {
 .pagination-btn.active,
 .pagination-btn[aria-current="true"],
 button[class*="pagination"].active {
-  background-color: var(--theme-color) !important;
-  color: var(--theme-fg) !important;
-  border-color: var(--theme-color) !important;
+  /* 选中页：主题色软着色 + 主题色文字 + 主题色描边，不再实心死板 */
+  background-color: var(--primary-selected) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary-border) !important;
 }
 .pagination-btn:hover:not(:disabled):not(.active),
 button[class*="pagination"]:hover:not(:disabled):not(.active) {
   background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
 }
 
-/* ── Badge 标签跟随主题色 ── */
+/* ── Badge 标签跟随主题色（软着色，不再实心死板） ── */
 .badge-theme,
 span.bg-primary {
-  background-color: var(--theme-color) !important;
-  color: var(--theme-fg) !important;
+  background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
+  border: 1px solid var(--primary-border) !important;
 }
 
 /* ── 输入框聚焦 - 克制聚焦环（使用 outline 防止被 overflow-x: hidden 裁剪） ── */
@@ -1216,12 +1311,11 @@ a[href]:active {
   }
 }
 
-/* ── 游戏卡片标签样式 — 跟随动态主题色 ── */
-/* --clr-blue 由 theme-colors.ts 动态设置，深色/白天模式各自有正确值 */
+/* ── 游戏卡片标签样式 — 跟随动态主题色（软着色） ── */
 .game-card-tag {
-  background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.12);
-  color: var(--clr-blue);
-  border: 1px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
   padding: 4px 8px;
   font-size: 12px;
   transition: background-color var(--duration-normal);
@@ -1234,7 +1328,7 @@ a[href]:active {
   }
 }
 .game-card-tag:hover {
-  background-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.22);
+  background-color: var(--primary-selected);
 }
 
 /* 论坛筛选标签 hover */
@@ -1555,7 +1649,7 @@ body[data-has-bottom-nav="true"] {
 /* 全局可见的 Galvelica 主色（侧边栏入口位于 .galvelica-root 之外也可用） */
 :root {
   --gal-accent: #5FA8A0;        /* 铜绿 / 安静的档案馆绿 */
-  --gal-accent-strong: #4E8E87;
+  --gal-accent-strong: var(--gal-accent);
   --gal-accent-soft: rgba(95, 168, 160, 0.12);
   --gal-accent-softer: rgba(95, 168, 160, 0.06);
   --gal-paper: color-mix(in srgb, var(--background) 96%, #0c1413);
@@ -1574,8 +1668,8 @@ body[data-has-bottom-nav="true"] {
   --theme-g: 168;
   --theme-b: 160;
   --theme-color: #5FA8A0;
-  --theme-color-hover: #4E8E87;
-  --theme-color-active: #457f79;
+  --theme-color-hover: var(--primary-hover);
+  --theme-color-active: var(--primary-active);
   --theme-fg: #06201d;
 }
 .light .galvelica-root {
@@ -1587,8 +1681,8 @@ body[data-has-bottom-nav="true"] {
   --theme-g: 142;
   --theme-b: 134;
   --theme-color: #3f8e86;
-  --theme-color-hover: #357a73;
-  --theme-color-active: #2d6862;
+  --theme-color-hover: var(--primary-hover);
+  --theme-color-active: var(--primary-active);
   --theme-fg: #ffffff;
 }
 
