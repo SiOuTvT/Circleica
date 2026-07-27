@@ -642,6 +642,7 @@ function mapCardGame(g: GalvelicaCardSource): GalvelicaWorkCard {
     favoriteCount: g.favoriteCount,
     viewCount: g.viewCount,
     isNsfw: g.isNsfw,
+    doujinCategory: null,
     description: stripHtml(g.description).slice(0, 100),
     tags: (g.tags ?? []).map((t) => ({
       id: t.tag.id,
