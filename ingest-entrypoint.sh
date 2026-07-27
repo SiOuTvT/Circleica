@@ -67,11 +67,11 @@ run_step "VNDB 同人抓取（核心）" npm run galvelica:ingest-vndb
 run_step "CnGal 国产同人抓取" npm run galvelica:ingest-cngal
 run_step "Steam 发现层（补漏网新同人）" npm run galvelica:ingest-discovery
 
-# 月幕 YmGal 为广义 galge 源，严格同人模式下默认跳过
-if [ "${GALVELICA_DOUJIN_ONLY:-1}" = "0" ]; then
-  run_step "月幕 YmGal 抓取" npm run galvelica:ingest-ymgal
+# 月幕 YmGal 为最大中文 galge 库，默认纳入以补中文同人缺口（可用 GALVELICA_SKIP_YMGAL=1 跳过）
+if [ "${GALVELICA_SKIP_YMGAL:-0}" = "1" ]; then
+  printf "  ${Y}⚠${N} 跳过月幕 YmGal（GALVELICA_SKIP_YMGAL=1）\n"
 else
-  printf "  ${Y}⚠${N} 跳过月幕 YmGal（默认严格同人模式；设 GALVELICA_DOUJIN_ONLY=0 启用）\n"
+  run_step "月幕 YmGal 抓取（中文同人补充）" npm run galvelica:ingest-ymgal
 fi
 
 if [ -n "$FAILED" ]; then
