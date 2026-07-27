@@ -8,15 +8,15 @@
  *   npm run galvelica:purge-domestic          # 预览
  *   PURGE=1 npm run galvelica:purge-domestic  # 真删
  */
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, type WorkSourceType } from "@prisma/client"
 
 const prisma = new PrismaClient()
 const DRY = process.env.PURGE !== "1"
-const SOURCES = ["CNGL", "YMGAL"] as const
+const SOURCES: WorkSourceType[] = ["CNGL", "YMGAL"]
 
 async function main() {
   const ws = await prisma.workSource.findMany({
-    where: { source: { in: SOURCES as unknown as string[] } },
+    where: { source: { in: SOURCES } },
     select: { workId: true },
   })
   const workIds = Array.from(new Set(ws.map((w) => w.workId)))
@@ -29,7 +29,7 @@ async function main() {
   const orphanWorkIds: string[] = []
   for (const id of workIds) {
     const remaining = await prisma.workSource.count({
-      where: { workId: id, NOT: { source: { in: SOURCES as unknown as string[] } } },
+      where: { workId: id, NOT: { source: { in: SOURCES } } },
     })
     if (remaining === 0) orphanWorkIds.push(id)
   }
@@ -40,7 +40,7 @@ async function main() {
     return
   }
   const delWs = await prisma.workSource.deleteMany({
-    where: { source: { in: SOURCES as unknown as string[] } },
+    where: { source: { in: SOURCES } },
   })
   const delWorks = await prisma.work.deleteMany({ where: { id: { in: orphanWorkIds } } })
   console.log(`[purge] 已删 WorkSource=${delWs.count}，孤立 Work=${delWorks.count}`)
