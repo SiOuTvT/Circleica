@@ -11,7 +11,7 @@
  * 本脚本在能连 VNDB + DB 的本机运行（沙箱无库，跑不了）。
  *
  * 用法：
- *   npm run galvelica:ingest-vndb                                  # 全量同人（默认 developer.type=ng 服务端筛选）
+ *   npm run galvelica:ingest-vndb                                  # 全量同人（默认 ng+in+同人系公司白名单 服务端筛选）
  *   GALVELICA_INGEST_FILTER='["developer","=",["type","=","ng"]]' npm run ...  # 自定义整段 VNDB 过滤（JSON）
  *   GALVELICA_INGEST_LIMIT=200  npm run galvelica:ingest-vndb      # 调试：只抓前 N 个
  *   GALVELICA_INGEST_RESET=1    npm run galvelica:ingest-vndb      # 从头开始（清断点）
@@ -34,20 +34,34 @@ let DELAY_MS = Math.max(0, Number(process.env.GALVELICA_INGEST_DELAY_MS || 6000)
 const HARD_LIMIT = process.env.GALVELICA_INGEST_LIMIT ? Number(process.env.GALVELICA_INGEST_LIMIT) : Infinity
 const RESET = process.env.GALVELICA_INGEST_RESET === "1"
 
-// 默认同人过滤：服务端按「开发商关系类型 = ng（同人社团/业余团体）」直接筛。
-// VNDB Kana API 的正确写法：过滤字段是 developer（单数），其嵌套 producer 子过滤的
-// type 取值 "ng" 表示业余团体/同人社团。返回字段叫 developers，过滤字段叫 developer ——
-// 之前一直用错名字（developers/producers/producer 都试过）导致无法服务端过滤，只能拉全量再本地 gate。
-// 这样只需拉 ≈20.9k 条 ng VN（而非全量 37k），API 调用少约 45%，且由 API 权威判定不漏不误。
+// 默认同人过滤（按用户定义「个人或小社团自主制作」）：
+//   - ng  业余社团 / 同人サークル
+//   - in  个人
+//   - co  白名单：同人出身后转商业的知名社团（TYPE-MOON/âge/Nitroplus 等），其代表作属同人生态
+// VNDB Kana API 正确写法：过滤字段是 developer（单数），嵌套 producer 子过滤。
+// 注意：VNDB 无「是否同人」布尔字段，只能靠生产者类型 + co 白名单判定。
+// co 白名单默认种子见 DOUJIN_ORIGIN_CO_IDS；可用 GALVELICA_DOUJIN_CO_IDS 环境变量追加（逗号分隔）。
 // 若显式给了 GALVELICA_INGEST_FILTER 则用它（整段 VNDB filter JSON）覆盖默认。
-const DEFAULT_DOJIN_FILTER: unknown[] = ["developer", "=", ["type", "=", "ng"]]
+const DOUJIN_ORIGIN_CO_IDS: string[] = (
+  process.env.GALVELICA_DOUJIN_CO_IDS?.split(",").map((s) => s.trim()).filter(Boolean)
+) ?? ["p6", "p4", "p42", "p27", "p240", "p336", "p143", "p1040", "p65", "p13"]
+
+const DOUJIN_CO_BRANCHES = DOUJIN_ORIGIN_CO_IDS.map(
+  (id) => ["developer", "=", ["id", "=", id]] as unknown[],
+)
+const DEFAULT_DOJIN_FILTER: unknown[] = [
+  "or",
+  ["developer", "=", ["type", "=", "ng"]],
+  ["developer", "=", ["type", "=", "in"]],
+  ...DOUJIN_CO_BRANCHES,
+]
 let FILTER: unknown[] = DEFAULT_DOJIN_FILTER
 if (process.env.GALVELICA_INGEST_FILTER) {
   try {
     const parsed = JSON.parse(process.env.GALVELICA_INGEST_FILTER)
     FILTER = Array.isArray(parsed[0]) ? parsed : [parsed]
   } catch {
-    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，忽略，使用默认（同人社团 developer=ng）")
+    console.error("[ingest] GALVELICA_INGEST_FILTER 不是合法 JSON，忽略，使用默认（ng+in+同人系公司白名单）")
     FILTER = DEFAULT_DOJIN_FILTER
   }
 }
@@ -157,11 +171,16 @@ async function main() {
       const id = String((vn.id as string) ?? "")
       if (!id) continue
 
-      // 服务端已按 developer.type=ng 筛选，这里作为防御性二次校验：
-      // 只处理含 "ng"（同人社团）开发商的 VN，跳过纯商业公司 "co" / 个人 "in"。
+      // 服务端已按「ng / in / 同人系公司白名单」筛选，这里作防御性二次校验：
+      // 允许 业余社团(ng) / 个人(in) / 白名单内的同人出身公司(co)。
       const developers = (vn.developers as Array<Record<string, unknown>>) ?? []
-      const hasDoujinDev = developers.some(d => d.type === "ng")
-      if (!hasDoujinDev) {
+      const isDoujin = developers.some(
+        (d) =>
+          d.type === "ng" ||
+          d.type === "in" ||
+          (d.type === "co" && DOUJIN_ORIGIN_CO_IDS.includes(String(d.id ?? ""))),
+      )
+      if (!isDoujin) {
         continue
       }
 
