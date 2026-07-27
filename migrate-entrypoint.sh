@@ -39,7 +39,12 @@ fi
 # ── 执行迁移 (idempotent baseline) ──
 printf "  ⏳ 执行数据库迁移...\n"
 
-if npx prisma migrate deploy --schema=./prisma/schema.prisma; then
+PRISMA_BIN="./node_modules/.bin/prisma"
+if [ ! -x "$PRISMA_BIN" ]; then
+  PRISMA_BIN="npx prisma"
+fi
+
+if timeout 120 "$PRISMA_BIN" migrate deploy --schema=./prisma/schema.prisma; then
   printf "  ${G}✓${N} 数据库迁移完成\n"
 else
   printf "  ${R}✗${N} 数据库迁移失败\n"

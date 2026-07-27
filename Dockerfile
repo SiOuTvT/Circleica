@@ -128,9 +128,13 @@ ENV APP_VERSION=${VERSION}
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
+# Prisma 引擎类型与构建阶段保持一致，确保 migrate / 运行时查询引擎可用
+ENV PRISMA_QUERY_ENGINE_TYPE=library
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+# start-period 放宽到 120s：弱机器上「迁移 + 冷启动」可能超过 30s，
+# 否则新容器尚未监听 3000 端口就被判 unhealthy 并回滚，部署永远过不了。
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Start application via entrypoint

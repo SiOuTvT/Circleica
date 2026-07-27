@@ -1,5 +1,10 @@
 #!/bin/sh
-set -e
+# 启动入口（生产）
+# 设计要点：
+#  - 迁移采用 best-effort：成功则应用；失败仅记录并继续启动。
+#    避免「迁移失败 → 容器退出 → 重启循环 → Coolify 判 unhealthy 回滚」的死循环。
+#  - 使用本地 ./node_modules/.bin/prisma，避免 npx 在网络受限环境解析失败。
+#  - 单次迁移最多 2 分钟（timeout 120），防止卡死拖垮部署。
 
 C='\033[0;36m'
 G='\033[0;32m'
@@ -10,7 +15,6 @@ N='\033[0m'
 
 SECRET_FILE="/app/.secret"
 
-# ── 启动横幅 ─────────────────────────
 echo ""
 printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
 printf "${C}${B} Circleica 正在启动...${N}\n"
@@ -31,32 +35,35 @@ if [ -z "$NEXTAUTH_SECRET" ]; then
   fi
 fi
 
-# ── 数据库迁移 (idempotent baseline) ─
-printf "  ⏳ 执行数据库迁移...\n"
-MIGRATE_OK=false
-
-for RETRY in $(seq 0 5); do
-  MIGRATE_OUTPUT=$(npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1)
-  MIGRATE_EXIT=$?
-
-  if [ $MIGRATE_EXIT -eq 0 ]; then
-    MIGRATE_OK=true
-    printf "  ${G}✓${N} 数据库迁移完成\n"
-    break
+# ── 数据库迁移 (best-effort, 不阻断启动) ──
+if [ -z "$DATABASE_URL" ]; then
+  printf "  ${Y}⚠${N} 未设置 DATABASE_URL，跳过迁移（应用运行时将报错，请在环境变量中配置）\n"
+else
+  printf "  ⏳ 执行数据库迁移...\n"
+  PRISMA_BIN="./node_modules/.bin/prisma"
+  if [ ! -x "$PRISMA_BIN" ]; then
+    PRISMA_BIN="npx prisma"
   fi
-
-  printf "  ${Y}⚠${N} 迁移失败:\n"
-  echo "$MIGRATE_OUTPUT" | while IFS= read -r line; do printf "    %s\n" "$line"; done
-
-  if [ $RETRY -lt 5 ]; then
-    printf "  ${Y}⏳${N} 等待重试 (${RETRY}/5)...\n"
+  MIGRATE_OK=false
+  rm -f /tmp/migrate.log
+  for RETRY in 1 2 3; do
+    if timeout 120 "$PRISMA_BIN" migrate deploy --schema=./prisma/schema.prisma > /tmp/migrate.log 2>&1; then
+      MIGRATE_OK=true
+      break
+    fi
+    printf "  ${Y}⚠${N} 迁移尝试 ${RETRY}/3 失败，3s 后重试\n"
     sleep 3
+  done
+  if [ "$MIGRATE_OK" = true ]; then
+    printf "  ${G}✓${N} 数据库迁移完成\n"
+  else
+    printf "  ${R}✗${N} 数据库迁移失败（best-effort：仍启动服务，详见下方日志）\n"
+    printf "  ${R}   常见原因：_prisma_migrations 存在卡死/冲突迁移（历史被杀部署导致漂移）。\n"
+    printf "  ${R}   修复：在容器内执行 \`npx prisma migrate resolve --applied <迁移名>\` 后重跑 migrate deploy。\n"
+    printf "  ${R}──── 迁移日志 ────\n"
+    sed 's/^/    /' /tmp/migrate.log 2>/dev/null
+    printf "  ${R}─────────────────\n"
   fi
-done
-
-if [ "$MIGRATE_OK" != true ]; then
-  printf "  ${R}✗${N} 数据库迁移失败\n"
-  exit 1
 fi
 
 # ── 状态面板 ─────────────────────────
