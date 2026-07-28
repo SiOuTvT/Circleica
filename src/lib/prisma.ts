@@ -113,7 +113,7 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
       return (...callArgs: unknown[]) =>
         ensureProbe().then((ok) => {
           if (ok && !enabled.mock && !forceMock) {
-            return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
+            return (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs).catch((err: unknown) => {
               // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
               const msg = (err as Error)?.message ?? ""
               const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
@@ -149,7 +149,7 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
         return (...callArgs: unknown[]) =>
           ensureProbe().then((ok) => {
             if (ok && !enabled.mock && !forceMock) {
-              return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
+              return (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs).catch((err: unknown) => {
                 // 写操作失败暴露原始错误；读查询失败抛异常让上层感知
                 if (isWrite) throw err
                 throw err
