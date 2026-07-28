@@ -5,10 +5,10 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
 import { vndbAdapter } from "@/lib/galvelica/sources"
-import { GameStatus } from "@prisma/client"
+import { adminGameService } from "@/services/admin"
 
 export const POST = withHandler(async (req) => {
-  await requireAdminRole()
+  const auth = await requireAdminRole()
 
   const { vndbIds } = await safeParseJson(req)
 
@@ -54,47 +54,32 @@ export const POST = withHandler(async (req) => {
         failCount++
         continue
       }
-      const autoFill = {
-        title: norm.title,
-        original: norm.originalWork ?? "",
-        tags: (norm.tags ?? []).map((t) => t.name),
-      }
 
-      // 创建游戏记录
-      const game = await prisma.game.create({
-        data: {
-          title: autoFill.title || `VNDB #${vndbId}`,
-          originalWork: autoFill.original || "",
-          description: "",
+      // 构造与草稿表单提交相同的 DTO，复用统一的 Save Service（adminGameService.create）。
+      // 这样批量导入与草稿导入共用「Normalize → Draft → Save」同一套管道，
+      // 不再维护两套保存逻辑；Creator 关联 / 事务原子性 / 字段落库与草稿流完全一致。
+      const game = await adminGameService.create(
+        {
+          title: norm.title,
+          originalWork: norm.originalWork ?? "",
+          englishName: norm.englishName ?? "",
+          aliases: (norm.aliases ?? []).join(", "),
+          releaseDate: norm.releaseDate ?? null,
+          description: norm.description ?? "",
+          studioName: norm.studioName ?? "",
+          coverImage: norm.coverImage ?? "",
           vndbId: String(vndbId),
           isPublished: false, // 默认不发布，需要管理员审核
-          isNsfw: false,
-          status: GameStatus.FINISHED,
-          favoriteCount: 0,
-          viewCount: 0,
-          coverImage: "",
-          screenshots: [],
-          downloadLinks: [],
+          tagNames: (norm.tags ?? []).map((t) => t.name),
+          creators: (norm.creators ?? []).map((c) => ({
+            vndbId: c.sourceId ?? "",
+            name: c.name,
+            nameJa: c.nameJa ?? "",
+            role: c.role,
+          })),
         },
-      })
-
-      // 添加标签
-      if (autoFill.tags && autoFill.tags.length > 0) {
-        for (const tagName of autoFill.tags.slice(0, 5)) {
-          const tag = await prisma.tag.upsert({
-            where: { name: tagName },
-            update: {},
-            create: { name: tagName, color: "#8b5cf6" },
-          })
-
-          await prisma.gameTag.create({
-            data: {
-              gameId: game.id,
-              tagId: tag.id,
-            },
-          })
-        }
-      }
+        auth.userId,
+      )
 
       results.push({ vndbId, status: "success", gameId: game.id })
       successCount++
