@@ -14,6 +14,41 @@ import { sanitizeUrl } from "@/lib/sanitize"
 import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 
+/**
+ * 把一组创作者（来自 VNDB 拉取或手动添加）解析并关联到游戏。
+ * 规则：Creator 只在「保存游戏」时 upsert（按 vndbId 优先、name 兜底），
+ * 绝不提前写库；关联统一先删后建，保证与本次提交完全一致。
+ * 必须在事务（tx）内调用，确保创作者与游戏、标签的原子性。
+ */
+async function linkGameCreators(
+  tx: Prisma.TransactionClient,
+  creators: unknown,
+  gameId: string,
+) {
+  if (!Array.isArray(creators) || creators.length === 0) return
+  const links: { gameId: string; creatorId: string; role: string }[] = []
+  for (const c of creators as Array<{ vndbId?: string; name?: string; nameJa?: string; role?: string }>) {
+    const vndbId = c.vndbId ? String(c.vndbId).trim() : ""
+    const name = c.name ? String(c.name).trim() : ""
+    if (!name) continue
+    // Creator.vndbId 非唯一索引，手动 upsert：优先 vndbId，其次 name
+    let creator = vndbId ? await tx.creator.findFirst({ where: { vndbId } }) : null
+    if (!creator && name) creator = await tx.creator.findFirst({ where: { name } })
+    if (!creator) {
+      creator = await tx.creator.create({
+        data: { vndbId, name, nameJa: c.nameJa ? String(c.nameJa) : "" },
+        select: { id: true },
+      })
+    }
+    links.push({ gameId, creatorId: creator.id, role: c.role || "other" })
+  }
+  // 全量替换该游戏的创作者关联，保证与本次提交完全一致
+  await tx.gameCreator.deleteMany({ where: { gameId } })
+  if (links.length > 0) {
+    await tx.gameCreator.createMany({ data: links, skipDuplicates: true })
+  }
+}
+
 // ── 成就 ────────────────────────────
 
 export const achievementService = {
@@ -388,49 +423,60 @@ export const adminGameService = {
 
   async create(data: Record<string, unknown>, publisherId: string) {
     if (!data.title?.toString().trim()) throw new ValidationError("游戏标题不能为空")
-    const game = await prisma.game.create({
-      data: {
-        title: String(data.title).trim(),
-        originalWork: data.originalWork ? String(data.originalWork).trim() : "",
-        description: data.description ? String(data.description).trim() : "",
-        coverImage: data.coverImage ? String(data.coverImage).trim() : "",
-        status: (data.status as GameStatus) || "FINISHED",
-        isNsfw: Boolean(data.isNsfw),
-        vndbId: data.vndbId ? String(data.vndbId).trim() : "",
-        releaseDate: data.releaseDate ? new Date(String(data.releaseDate)) : null,
-        gameDuration: data.gameDuration ? String(data.gameDuration).trim() : "",
-        studioName: data.studioName ? String(data.studioName).trim() : "",
-        englishName: data.englishName ? String(data.englishName).trim() : "",
-        aliases: data.aliases ? String(data.aliases).trim() : "",
-        publisherId,
-        isPublished: data.isPublished === true,
-      },
-    })
-    // 处理标签关联（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
-    const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
-    const newTagNames = Array.isArray(data.tagNames)
-      ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
-      : []
-    if (newTagNames.length) {
-      await ensurePresetTagGroups()
-      const created = await Promise.all(
-        newTagNames.map((name) =>
-          prisma.tag.upsert({
-            where: { name },
-            update: {},
-            create: { name, color: "#6b7280", groupId: "preset_detail_header" },
-            select: { id: true },
-          }),
-        ),
-      )
-      for (const t of created) if (!tagIds.includes(t.id)) tagIds.push(t.id)
-    }
-    if (tagIds.length > 0) {
-      await prisma.gameTag.createMany({
-        data: tagIds.map((tagId: string) => ({ gameId: game.id, tagId })),
-        skipDuplicates: true,
+    // 预创建预设标签组（幂等，仅确保 preset_detail_header 存在；不写任何业务数据）
+    await ensurePresetTagGroups()
+
+    const game = await prisma.$transaction(async (tx) => {
+      const created = await tx.game.create({
+        data: {
+          title: String(data.title).trim(),
+          originalWork: data.originalWork ? String(data.originalWork).trim() : "",
+          description: data.description ? String(data.description).trim() : "",
+          coverImage: data.coverImage ? String(data.coverImage).trim() : "",
+          status: (data.status as GameStatus) || "FINISHED",
+          isNsfw: Boolean(data.isNsfw),
+          vndbId: data.vndbId ? String(data.vndbId).trim() : "",
+          releaseDate: data.releaseDate ? new Date(String(data.releaseDate)) : null,
+          gameDuration: data.gameDuration ? String(data.gameDuration).trim() : "",
+          studioName: data.studioName ? String(data.studioName).trim() : "",
+          englishName: data.englishName ? String(data.englishName).trim() : "",
+          aliases: data.aliases ? String(data.aliases).trim() : "",
+          publisherId,
+          isPublished: data.isPublished === true,
+        },
       })
-    }
+
+      // 处理标签关联（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
+      const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
+      const newTagNames = Array.isArray(data.tagNames)
+        ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
+        : []
+      if (newTagNames.length) {
+        const tagCreated = await Promise.all(
+          newTagNames.map((name) =>
+            tx.tag.upsert({
+              where: { name },
+              update: {},
+              create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+              select: { id: true },
+            }),
+          ),
+        )
+        for (const t of tagCreated) if (!tagIds.includes(t.id)) tagIds.push(t.id)
+      }
+      if (tagIds.length > 0) {
+        await tx.gameTag.createMany({
+          data: tagIds.map((tagId: string) => ({ gameId: created.id, tagId })),
+          skipDuplicates: true,
+        })
+      }
+
+      // 创作者关联（VNDB 拉取的 staff：保存时才 upsert Creator 并关联，绝不提前写库）
+      await linkGameCreators(tx, data.creators, created.id)
+
+      return created
+    })
+
     await logAudit({ userId: publisherId, action: "game.create", target: game.id })
     return game
   },
@@ -443,55 +489,53 @@ export const adminGameService = {
 
   async update(id: string, data: Record<string, unknown>) {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
-    // 字段白名单，防止 mass assignment
-    const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
-      "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
-      "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
-    const safe: Record<string, unknown> = {}
-    for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
-    const result = await adminGameRepo.update(id, safe)
+    // 预创建预设标签组（幂等，仅确保预设分组存在）
+    await ensurePresetTagGroups()
 
-    // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
-    if (Array.isArray(data.tagIds) || Array.isArray(data.tagNames)) {
-      const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
-      const newTagNames = Array.isArray(data.tagNames)
-        ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
-        : []
-      if (newTagNames.length) {
-        await ensurePresetTagGroups()
-        const created = await Promise.all(
-          newTagNames.map((name) =>
-            prisma.tag.upsert({
-              where: { name },
-              update: {},
-              create: { name, color: "#6b7280", groupId: "preset_detail_header" },
-              select: { id: true },
-            }),
-          ),
-        )
-        for (const t of created) if (!tagIds.includes(t.id)) tagIds.push(t.id)
-      }
-      await prisma.gameTag.deleteMany({ where: { gameId: id } })
-      if (tagIds.length > 0) {
-        await prisma.gameTag.createMany({
-          data: tagIds.map((tagId: string) => ({ gameId: id, tagId })),
-          skipDuplicates: true,
-        })
-      }
-    }
+    const result = await prisma.$transaction(async (tx) => {
+      // 字段白名单，防止 mass assignment
+      const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
+        "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
+        "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
+      const safe: Record<string, unknown> = {}
+      for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
+      const updated = await tx.game.update({ where: { id }, data: safe })
 
-    // 处理创作者关联更新
-    if (Array.isArray(data.creators)) {
-      await prisma.gameCreator.deleteMany({ where: { gameId: id } })
-      if (data.creators.length > 0) {
-        await prisma.gameCreator.createMany({
-          data: data.creators.map((c: { creatorId: string; role: string }) => ({
-            gameId: id, creatorId: c.creatorId, role: c.role,
-          })),
-          skipDuplicates: true,
-        })
+      // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
+      if (Array.isArray(data.tagIds) || Array.isArray(data.tagNames)) {
+        const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
+        const newTagNames = Array.isArray(data.tagNames)
+          ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
+          : []
+        if (newTagNames.length) {
+          const tagCreated = await Promise.all(
+            newTagNames.map((name) =>
+              tx.tag.upsert({
+                where: { name },
+                update: {},
+                create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+                select: { id: true },
+              }),
+            ),
+          )
+          for (const t of tagCreated) if (!tagIds.includes(t.id)) tagIds.push(t.id)
+        }
+        await tx.gameTag.deleteMany({ where: { gameId: id } })
+        if (tagIds.length > 0) {
+          await tx.gameTag.createMany({
+            data: tagIds.map((tagId: string) => ({ gameId: id, tagId })),
+            skipDuplicates: true,
+          })
+        }
       }
-    }
+
+      // 处理创作者关联更新（VNDB 拉取的 staff 只带 vndbId/name，无 creatorId：保存时 upsert Creator 再关联）
+      if (Array.isArray(data.creators)) {
+        await linkGameCreators(tx, data.creators, id)
+      }
+
+      return updated
+    })
 
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
