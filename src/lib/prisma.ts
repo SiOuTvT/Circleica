@@ -150,14 +150,14 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
           ensureProbe().then((ok) => {
             if (ok && !enabled.mock && !forceMock) {
               return (fn as (...a: unknown[]) => Promise<unknown>)(...callArgs).catch((err: unknown) => {
-                // 读查询失败回退空数组；写操作（executeRaw）失败必须暴露原始错误
+                // 写操作失败暴露原始错误；读查询失败抛异常让上层感知
                 if (isWrite) throw err
-                return []
+                throw err
               })
             }
             // 离线：写操作无法执行，明确抛 503（而非静默返回空）
             if (isWrite) throw new ServiceUnavailableError("数据库未连接，无法执行写操作")
-            return []
+            throw new ServiceUnavailableError("数据库未连接，无法执行读查询")
           })
       }
       if (prop === "$transaction") {
