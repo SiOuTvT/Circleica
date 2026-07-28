@@ -68,6 +68,8 @@ export const POST = withHandler(async (req) => {
           description: norm.description ?? "",
           studioName: norm.studioName ?? "",
           coverImage: norm.coverImage ?? "",
+          gameDuration: norm.gameDuration ?? "",
+          screenshots: norm.screenshots ?? [],
           vndbId: String(vndbId),
           isPublished: false, // 默认不发布，需要管理员审核
           tagNames: (norm.tags ?? []).map((t) => t.name),

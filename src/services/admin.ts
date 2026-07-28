@@ -441,6 +441,10 @@ export const adminGameService = {
           studioName: data.studioName ? String(data.studioName).trim() : "",
           englishName: data.englishName ? String(data.englishName).trim() : "",
           aliases: data.aliases ? String(data.aliases).trim() : "",
+          // 截图（VNDB screenshots 或手动上传，均为 URL 字符串数组，存 Json）
+          screenshots: Array.isArray(data.screenshots)
+            ? (data.screenshots as unknown[]).filter((x) => typeof x === "string")
+            : [],
           publisherId,
           isPublished: data.isPublished === true,
         },

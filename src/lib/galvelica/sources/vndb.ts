@@ -144,6 +144,23 @@ class VndbAdapter implements SourceAdapter {
       }))
       .slice(0, 20)
 
+    /* ── 游戏时长（VNDB length 1-5 → 可读文本） ── */
+    const LENGTH_LABELS: Record<number, string> = {
+      1: "很短 (约 < 2 小时)",
+      2: "短 (约 2–10 小时)",
+      3: "中等 (约 10–30 小时)",
+      4: "长 (约 30–50 小时)",
+      5: "很长 (约 > 50 小时)",
+    }
+    const rawLength = typeof vn.length === "number" ? vn.length : undefined
+    const gameDuration = rawLength && LENGTH_LABELS[rawLength] ? LENGTH_LABELS[rawLength] : undefined
+
+    /* ── 截图（VNDB screenshots{id,url}） ── */
+    const scList = (vn.screenshots as Array<{ url?: string }> | undefined) ?? []
+    const screenshots = scList
+      .map((s) => (typeof s?.url === "string" ? s.url : undefined))
+      .filter((u): u is string => typeof u === "string" && u.length > 0)
+
     return {
       title: primaryName,
       originalWork: japaneseName,
@@ -151,6 +168,8 @@ class VndbAdapter implements SourceAdapter {
       aliases: extraAliases,
       description: cleanDesc,
       coverImage,
+      gameDuration,
+      screenshots,
       releaseDate: released ?? undefined,
       studioName,
       tags: tagNames.map((name) => ({ name })),

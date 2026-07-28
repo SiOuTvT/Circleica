@@ -32,6 +32,10 @@ export const POST = withHandler(async (req) => {
     releaseDate: norm.releaseDate ?? null,
     description: norm.description ?? "",
     studioName: norm.studioName ?? "",
+    // 封面 / 时长 / 截图：拉取即填回表单草稿，保存时随游戏一并入库
+    coverImage: norm.coverImage ?? "",
+    gameDuration: norm.gameDuration ?? "",
+    screenshots: norm.screenshots ?? [],
     // 仅返回标签名称作为草稿，不创建 Tag 记录；保存时再入库
     tagNames: (norm.tags ?? []).map((t) => t.name),
     creators: (norm.creators ?? []).map((c) => ({

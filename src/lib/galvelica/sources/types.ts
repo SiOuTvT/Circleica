@@ -33,6 +33,10 @@ export interface NormalizedWork {
   aliases?: string[]
   description?: string
   coverImage?: string
+  /** 游戏时长（VNDB length 1-5 映射后的可读文本，如「中等 (约 10–30 小时)」） */
+  gameDuration?: string
+  /** 截图 URL 列表（VNDB screenshots{id,url}） */
+  screenshots?: string[]
   /** ISO 字符串，如 "2023-04-28" / "2023-04" */
   releaseDate?: string
   /** 开发社团（可多个，逗号分隔） */

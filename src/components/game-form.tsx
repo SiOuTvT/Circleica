@@ -316,6 +316,20 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         setCreators(d.creators as Array<{ vndbId: string; name: string; nameJa: string; role: string }>)
       }
 
+      // 封面图（VNDB 主视觉）
+      if (d.coverImage) setCoverImage(d.coverImage as string)
+
+      // 游戏时长（VNDB length 1-5 已映射为可读文本）
+      if (d.gameDuration) setGameDuration(d.gameDuration as string)
+
+      // 截图（VNDB screenshots，合并去重，不覆盖手动添加）
+      if (Array.isArray(d.screenshots) && d.screenshots.length) {
+        setScreenshots((prev) => Array.from(new Set([
+          ...prev,
+          ...(d.screenshots as unknown[]).map((s) => String(s)).filter(Boolean),
+        ])))
+      }
+
       // 同步更新 VNDB ID
       setVndbId(id)
       setVndbSuccess("VNDB 数据拉取成功！所有字段均可手动修改。")
