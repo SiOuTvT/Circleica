@@ -1,16 +1,10 @@
 import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { AppError } from "@/lib/errors"
-import { logger } from "@/lib/logger"
-import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
-import { prisma } from "@/lib/prisma"
 import { vndbAdapter } from "@/lib/galvelica/sources"
 
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
-
-  // 确保预设标签组存在（VNDB 导入会引用 preset_detail_header）
-  await ensurePresetTagGroups()
 
   const { vndbId } = await safeParseJson(req)
   if (!vndbId?.trim()) {
@@ -18,6 +12,8 @@ export const POST = withHandler(async (req) => {
   }
 
   // 通过 Galvelica 源适配器拉取并归一化（传输层复用 VNDBClient：代理 / IPv4 / 重试 / 缓存）
+  // 仅做「导入草稿」：把数据填充回后台表单，绝不在此写数据库。
+  // 标签 / 关联数据在保存游戏成功后才由 adminGameService 创建并关联（见 src/services/admin.ts）。
   const payload = await vndbAdapter.fetchByExternalId(vndbId.trim())
   if (!payload) {
     throw new AppError("未找到对应的 VNDB 游戏", "NOT_FOUND", 404)
@@ -28,35 +24,6 @@ export const POST = withHandler(async (req) => {
     throw new AppError("未找到对应的 VNDB 游戏", "NOT_FOUND", 404)
   }
 
-  // 标签：查询已有 / 自动创建缺失（默认分配到"详情页信息栏标签"组）
-  const tagNames = (norm.tags ?? []).map((t) => t.name)
-  const existingTags = await prisma.tag.findMany({
-    where: { name: { in: tagNames } },
-    select: { id: true, name: true },
-  })
-  const existingNameSet = new Set(existingTags.map((t) => t.name))
-
-  const newTagNames = tagNames.filter((n) => !existingNameSet.has(n))
-  const newTags = (
-    await Promise.all(
-      newTagNames.map((name) =>
-        prisma.tag
-          .create({
-            data: { name, color: "#6b7280", groupId: "preset_detail_header" },
-            select: { id: true, name: true },
-          })
-          .catch((err) => {
-            logger.db.warn("[VndbRoute] create tag failed (possible duplicate)", {
-              error: err instanceof Error ? err.message : String(err),
-            })
-            return null
-          }),
-      ),
-    )
-  ).filter(Boolean) as { id: string; name: string }[]
-
-  const allTagIds = [...existingTags, ...newTags].map((t) => t.id)
-
   return json({
     title: norm.title,
     japaneseName: norm.originalWork ?? "",
@@ -65,8 +32,8 @@ export const POST = withHandler(async (req) => {
     releaseDate: norm.releaseDate ?? null,
     description: norm.description ?? "",
     studioName: norm.studioName ?? "",
-    tagIds: allTagIds,
-    tagNames: [...existingTags, ...newTags].map((t) => ({ id: t.id, name: t.name })),
+    // 仅返回标签名称作为草稿，不创建 Tag 记录；保存时再入库
+    tagNames: (norm.tags ?? []).map((t) => t.name),
     creators: (norm.creators ?? []).map((c) => ({
       vndbId: c.sourceId ?? "",
       name: c.name,

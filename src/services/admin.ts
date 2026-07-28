@@ -12,6 +12,7 @@ import path from "path"
 import { logAudit } from "@/lib/audit-log"
 import { sanitizeUrl } from "@/lib/sanitize"
 import { logger } from "@/lib/logger"
+import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 
 // ── 成就 ────────────────────────────
 
@@ -405,10 +406,28 @@ export const adminGameService = {
         isPublished: data.isPublished === true,
       },
     })
-    // 处理标签关联
-    if (Array.isArray(data.tagIds) && data.tagIds.length > 0) {
+    // 处理标签关联（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
+    const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
+    const newTagNames = Array.isArray(data.tagNames)
+      ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
+      : []
+    if (newTagNames.length) {
+      await ensurePresetTagGroups()
+      const created = await Promise.all(
+        newTagNames.map((name) =>
+          prisma.tag.upsert({
+            where: { name },
+            update: {},
+            create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+            select: { id: true },
+          }),
+        ),
+      )
+      for (const t of created) if (!tagIds.includes(t.id)) tagIds.push(t.id)
+    }
+    if (tagIds.length > 0) {
       await prisma.gameTag.createMany({
-        data: data.tagIds.map((tagId: string) => ({ gameId: game.id, tagId })),
+        data: tagIds.map((tagId: string) => ({ gameId: game.id, tagId })),
         skipDuplicates: true,
       })
     }
@@ -432,12 +451,30 @@ export const adminGameService = {
     for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
     const result = await adminGameRepo.update(id, safe)
 
-    // 处理标签关联更新
-    if (Array.isArray(data.tagIds)) {
+    // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
+    if (Array.isArray(data.tagIds) || Array.isArray(data.tagNames)) {
+      const tagIds = Array.isArray(data.tagIds) ? [...(data.tagIds as string[])] : []
+      const newTagNames = Array.isArray(data.tagNames)
+        ? (data.tagNames as string[]).map((n) => String(n).trim()).filter(Boolean)
+        : []
+      if (newTagNames.length) {
+        await ensurePresetTagGroups()
+        const created = await Promise.all(
+          newTagNames.map((name) =>
+            prisma.tag.upsert({
+              where: { name },
+              update: {},
+              create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+              select: { id: true },
+            }),
+          ),
+        )
+        for (const t of created) if (!tagIds.includes(t.id)) tagIds.push(t.id)
+      }
       await prisma.gameTag.deleteMany({ where: { gameId: id } })
-      if (data.tagIds.length > 0) {
+      if (tagIds.length > 0) {
         await prisma.gameTag.createMany({
-          data: data.tagIds.map((tagId: string) => ({ gameId: id, tagId })),
+          data: tagIds.map((tagId: string) => ({ gameId: id, tagId })),
           skipDuplicates: true,
         })
       }

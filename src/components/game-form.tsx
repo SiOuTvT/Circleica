@@ -76,12 +76,20 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   function setDescLang(lang: LangKey, val: string) {
     setDescLangs(prev => ({ ...prev, [lang]: val }))
   }
+  /** 粗略判断 VNDB 简介语言：日文(kana/kanji)→ja，含汉字→zh，其余(拉丁)→en */
+  function detectDescriptionLang(text: string): LangKey {
+    if (/[぀-ゟ゠-ヿ]/.test(text)) return "ja"
+    if (/[一-鿿]/.test(text)) return "zh"
+    return "en"
+  }
   const [coverImage, setCoverImage]     = useState(initialData?.coverImage ?? "")
   const [screenshots, setScreenshots]  = useState<string[]>(initialData?.screenshots ?? [])
   const [isNsfw, setIsNsfw]            = useState(initialData?.isNsfw ?? false)
   const [vndbId, setVndbId]            = useState(initialData?.vndbId ?? "")
   const [isPublished, setIsPublished]  = useState(initialData?.isPublished ?? true)
   const [selectedTags, setSelectedTags]= useState<string[]>(initialData?.tagIds ?? [])
+  // VNDB 拉取的标签草稿名称（尚未入库，保存游戏后才创建并关联）
+  const [draftTagNames, setDraftTagNames] = useState<string[]>([])
 
   // 新增字段
   const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
@@ -114,7 +122,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       title: "", originalWork: "", englishName: "", aliases: "",
       descLangs: { zh: "", en: "", ja: "", other: "" },
       vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
-      isNsfw: false, isPublished: true, selectedTags: [] as string[],
+      isNsfw: false, isPublished: true, selectedTags: [] as string[], draftTagNames: [] as string[],
     },
     enabled: !isEdit,
   })
@@ -125,9 +133,9 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     updateDraft({
       title, originalWork, englishName, aliases,
       descLangs, vndbId, releaseDate, studioName, gameDuration,
-      isNsfw, isPublished, selectedTags,
+      isNsfw, isPublished, selectedTags, draftTagNames,
     })
-  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, updateDraft])
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
 
   // 从草稿恢复表单
   function restoreDraft() {
@@ -143,6 +151,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setIsNsfw(draft.isNsfw)
     setIsPublished(draft.isPublished)
     setSelectedTags(draft.selectedTags)
+    setDraftTagNames(draft.draftTagNames)
     setDraftRestored(true)
   }
 
@@ -250,6 +259,9 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   function toggleTag(id: string) {
     setSelectedTags((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id])
   }
+  function removeDraftTag(name: string) {
+    setDraftTagNames((prev) => prev.filter((t) => t !== name))
+  }
 
   /* ── VNDB 一键拉取 ── */
   async function handleVndbFetch() {
@@ -275,7 +287,12 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       if (d.japaneseName) setOriginalWork(d.japaneseName as string)
       if (d.englishName) setEnglishName(d.englishName as string)
       if (d.aliases) setAliases(d.aliases as string)
-      if (d.description) setDescLangs(prev => ({ ...prev, en: d.description as string }))
+      // 简介：按内容语言归类到对应 Tab，并自动切换过去以便立即可见
+      if (d.description) {
+        const lang = detectDescriptionLang(d.description as string)
+        setDescLangs(prev => ({ ...prev, [lang]: d.description as string }))
+        setActiveDescLang(lang)
+      }
       if (d.studioName) setStudioName(d.studioName as string)
 
       // 发售日期
@@ -286,27 +303,12 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         }
       }
 
-      // 标签：合并到已有标签列表 + 选中
-      if ((d.tagIds as string[])?.length) {
-        setSelectedTags(prev => {
-          const merged = new Set([...prev, ...(d.tagIds as string[])])
+      // 标签：仅作为草稿名称暂存（拉取 ≠ 入库），保存游戏时才创建并关联
+      if (Array.isArray(d.tagNames) && d.tagNames.length) {
+        setDraftTagNames(prev => {
+          const merged = new Set([...prev, ...(d.tagNames as string[])])
           return Array.from(merged)
         })
-
-        if ((d.tagNames as { id: string; name: string }[])?.length) {
-          setTags(prev => {
-            const existingIds = new Set(prev.map(t => t.id))
-            const newOnes = (d.tagNames as { id: string; name: string }[])
-              .filter((t: { id: string }) => !existingIds.has(t.id))
-              .map((t: { id: string; name: string }) => ({
-                id: t.id,
-                name: t.name,
-                color: "#6b7280",
-                groupId: null as string | null,
-              }))
-            return [...prev, ...newOnes]
-          })
-        }
       }
 
       // 创作者（脚本、原画、音乐等）
@@ -336,6 +338,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       downloadLinks: [],
       isNsfw, vndbId, isPublished,
       tagIds: selectedTags,
+      tagNames: draftTagNames,
       resourceTags: [], // 后台表单不直接编辑资源标签，由前台资源链接管理
       releaseDate: releaseDate || null,
       gameDuration,
@@ -698,6 +701,23 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 </Tag>
               )
             })}
+          </div>
+        )}
+        {/* VNDB 拉取的待创建标签（保存游戏后才写入数据库） */}
+        {draftTagNames.length > 0 && (
+          <div className="mb-3">
+            <p className="mb-1.5 text-xs text-muted-foreground">VNDB 拉取的标签（保存游戏后才会创建）：</p>
+            <div className="flex flex-wrap gap-1 sm:gap-1.5">
+              {draftTagNames.map((name) => (
+                <Tag key={name} color="#6b7280" className="gap-1">
+                  {name}
+                  <button type="button" onClick={() => removeDraftTag(name)}
+                    className="hover:text-red-400 transition-colors cursor-pointer">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Tag>
+              ))}
+            </div>
           </div>
         )}
         {/* 按标签组分类显示 */}
