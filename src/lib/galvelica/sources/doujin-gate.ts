@@ -4,12 +4,11 @@
  * - 默认 DOUJIN_ONLY=1：仅收录「带同人标签」的源。
  *   当前白名单 DOUJIN_CURATED = VNDB / BANGUMI / STEAM。
  *   - VNDB：核心权威源（全球公认，按生产者类型 ng/in 判同人 + 同人系公司白名单）；
- *   - BANGUMI：中文译名/别名质量高（是否纳入待用户拍板，见 MEMORY.md 数据源铁律）；
+ *   - BANGUMI：中文译名/别名质量高；
  *   - STEAM：仅放行 VN 类型，补漏网新同人。
  * - 设为 0（GALVELICA_DOUJIN_ONLY=0）：放开其它「galge 广义」源（当前无其它已接线源）。
  *
- * 【用户铁律 2026-07-27】月幕(YmGal) / CnGal / KunMoe 全部排除：不接 API、不批量爬、
- * 不依赖，以保持站点独立中立、不卷入国内圈人际关系。故已从白名单移除，gate 直接挡。
+ * 月幕(YmGal) / CnGal / KunMoe 已从白名单移除，gate 直接拦截。
  *
  * 各源在入库口调用 gateAllowsSource() 自审；不允许的源直接跳过（不建 Work）。
  */

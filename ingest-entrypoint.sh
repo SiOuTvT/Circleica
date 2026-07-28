@@ -64,19 +64,15 @@ run_step() {
 
 run_step "回填本站已发布游戏（空库则为空操作）" npm run galvelica:backfill
 run_step "VNDB 同人抓取（核心）" npm run galvelica:ingest-vndb
-# CnGal 已按用户铁律排除（2026-07-27）；闸门挡，不再抓。
 run_step "Steam 发现层（补漏网新同人）" npm run galvelica:ingest-discovery
 
-# ErogameScape（日本权威 galge 库）默认关：需服务器出口代理/可达性（中国大陆大概率被墙）。
-# 设 GALVELICA_ENABLE_EGS=1 才抓；摄入时统一按 DERIVATIVE 兜底，默认仅补强已匹配作品。
+# ErogameScape 默认关：需服务器出口代理。
+# 设 GALVELICA_ENABLE_EGS=1 启用。
 if [ "${GALVELICA_ENABLE_EGS:-0}" = "1" ]; then
   run_step "ErogameScape 抓取（需服务器出口代理）" npm run galvelica:ingest-egs
 else
   printf "  ${Y}⚠${N} 跳过 ErogameScape（默认关；设 GALVELICA_ENABLE_EGS=1 启用，需出口代理）\n"
 fi
-
-# 月幕 YmGal / CnGal / KunMoe 已被用户铁律排除（2026-07-27）：不接 API、不批量爬、不依赖，
-# 以保持站点独立中立、不卷入国内圈人际关系。CnGal 也已从 DOUJIN_CURATED 移除，故此处不再抓取。
 
 if [ -n "$FAILED" ]; then
   printf "  ${R}⚠${N} 以下源填充失败:$FAILED\n"

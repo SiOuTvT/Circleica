@@ -1,6 +1,5 @@
 /**
  * 清理被排除数据源（CnGal / YmGal）的残留数据。
- * 用户铁律（2026-07-27）：月幕/CnGal/KunMoe 全部排除，不接 API、不批量爬、不依赖。
  * 本脚本删除 WorkSource 中 source∈(CNGL,YMGAL) 的行；若某 Work 因此彻底无源，则连 Work 一并删。
  *
  * 安全：默认 DRY-RUN（只统计不删）。加 PURGE=1 才真删。

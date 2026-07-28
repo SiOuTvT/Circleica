@@ -8,7 +8,7 @@
  * 注意：月幕 Game 模型**无 tags 字段**，标签仍由 VNDB / Bangumi 提供；月幕只补
  * 标题 / 别名 / 简介 / 封面 / 制作人员。这是设计取舍，非遗漏。
  *
- * ⚠️ 闸门：月幕是「galge 广义」源（含商业品牌），默认严格同人模式下不收录，
+ * ⚠️ 月幕是「galge 广义」源（含商业品牌），默认严格同人模式下不收录，
  * 需设 GALVELICA_DOUJIN_ONLY=0 才放开（见 sources/doujin-gate.ts）。
  */
 import type { NormalizedWork, SourceAdapter, SourceKey } from "./types"

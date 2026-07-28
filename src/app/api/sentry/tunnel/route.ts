@@ -61,7 +61,7 @@ export const POST = withHandler(async (req) => {
       headers: { "Access-Control-Allow-Origin": "*" },
     })
   } catch {
-    // sentry.io 不可达（如源站被墙/超时）时静默丢弃，返回 200 避免污染服务端错误日志与误报 500。
+    // sentry.io 不可达（超时等）时静默丢弃，返回 200 避免误报 500。
     // 错误上报失败不影响主应用，浏览器端 beacon 收到 200 即认为成功。
     return new NextResponse(null, { status: 200 })
   }

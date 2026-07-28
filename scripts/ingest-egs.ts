@@ -1,7 +1,7 @@
 /**
  * Galvelica 摄入 — ErogameScape（日本权威 galge 库）。
  *
- * ⚠️ EGS 在中国大陆大概率被 GFW 阻断，需服务器具备出口代理/可达性（infra 侧配置）。
+ * ⚠️ 需服务器具备出口代理/可达性。
  * 默认不启用：ingest-entrypoint.sh 仅在 GALVELICA_ENABLE_EGS=1 时调用本脚本。
  *
  * 同人判定策略（EGS 无干净「同人」标记）：

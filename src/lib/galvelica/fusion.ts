@@ -56,9 +56,8 @@ export interface FusedSource {
  *   - DLSITE    ：商业购买源，官方购买链接/商业封面最权威（暂未实现，预留位）
  *   - MANUAL    ：站长人工条目/锁定字段；作兜底，外部权威源存在时让位（已锁定字段不受影响）
  *
- * 【用户铁律 2026-07-27】月幕(YmGal) / CnGal / KunMoe 全部排除，不接 API、不批量爬、不依赖，
- * 故已从下方优先级表移除其源行（保持站点独立中立、不卷入国内圈人际关系）。已入库的
- * 这两源旧数据由 purge 脚本清掉；next.config 图床白名单也已移除其域名。
+ * 月幕(YmGal) / CnGal / KunMoe 已从下方优先级表移除；已入库的旧数据由 purge 脚本清掉。
+ * next.config 图床白名单也已移除其域名。
  */
 export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
   // canonical 标题：VNDB 权威；中文源按序补位（中文译名进 aliases/originalWork）
