@@ -15,6 +15,29 @@ import { apiFetchSafe } from "@/lib/api-client"
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
 
+/** VNDB 平台代码 → 可读标签（用于表单多选展示，存储仍使用代码数组） */
+const PLATFORM_OPTIONS: { code: string; label: string }[] = [
+  { code: "win", label: "Windows" },
+  { code: "lin", label: "Linux" },
+  { code: "mac", label: "macOS" },
+  { code: "ios", label: "iOS" },
+  { code: "and", label: "Android" },
+  { code: "web", label: "Web" },
+  { code: "mob", label: "Mobile" },
+  { code: "psp", label: "PSP" },
+  { code: "ps2", label: "PS2" },
+  { code: "ps3", label: "PS3" },
+  { code: "ps4", label: "PS4" },
+  { code: "ps5", label: "PS5" },
+  { code: "psv", label: "PS Vita" },
+  { code: "xbo", label: "Xbox One" },
+  { code: "x360", label: "Xbox 360" },
+  { code: "switch", label: "Switch" },
+  { code: "wii", label: "Wii" },
+  { code: "drc", label: "Dreamcast" },
+  { code: "vnd", label: "Visual Novel" },
+]
+
 interface Props {
   tags: Tag[]
   tagGroups?: TagGroup[]
@@ -26,6 +49,8 @@ interface Props {
     tagIds: string[]
     releaseDate?: string; gameDuration?: string; studioName?: string
     englishName?: string; aliases?: string
+    platforms?: string[]
+    officialWebsite?: string
     creators?: Array<{ vndbId: string; name: string; nameJa: string; role: string }>
   }
 }
@@ -97,6 +122,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const [studioName, setStudioName] = useState(initialData?.studioName ?? "")
   const [englishName, setEnglishName] = useState(initialData?.englishName ?? "")
   const [aliases, setAliases] = useState(initialData?.aliases ?? "")
+  const [platforms, setPlatforms] = useState<string[]>(initialData?.platforms ?? [])
+  const [officialWebsite, setOfficialWebsite] = useState(initialData?.officialWebsite ?? "")
 
   // 创作者（VNDB 拉取或手动添加）
   const [creators, setCreators] = useState<Array<{ vndbId: string; name: string; nameJa: string; role: string }>>(
@@ -122,6 +149,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       title: "", originalWork: "", englishName: "", aliases: "",
       descLangs: { zh: "", en: "", ja: "", other: "" },
       vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
+      platforms: [] as string[], officialWebsite: "",
       isNsfw: false, isPublished: true, selectedTags: [] as string[], draftTagNames: [] as string[],
     },
     enabled: !isEdit,
@@ -133,9 +161,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     updateDraft({
       title, originalWork, englishName, aliases,
       descLangs, vndbId, releaseDate, studioName, gameDuration,
+      platforms, officialWebsite,
       isNsfw, isPublished, selectedTags, draftTagNames,
     })
-  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, platforms, officialWebsite, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
 
   // 从草稿恢复表单
   function restoreDraft() {
@@ -148,6 +177,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setReleaseDate(draft.releaseDate)
     setStudioName(draft.studioName)
     setGameDuration(draft.gameDuration)
+    setPlatforms(draft.platforms)
+    setOfficialWebsite(draft.officialWebsite)
     setIsNsfw(draft.isNsfw)
     setIsPublished(draft.isPublished)
     setSelectedTags(draft.selectedTags)
@@ -330,6 +361,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         ])))
       }
 
+      // 平台（VNDB platforms 代码数组）
+      if (Array.isArray(d.platforms) && d.platforms.length) {
+        setPlatforms((prev) => Array.from(new Set([...prev, ...(d.platforms as string[])])))
+      }
+
       // 同步更新 VNDB ID
       setVndbId(id)
       setVndbSuccess("VNDB 数据拉取成功！所有字段均可手动修改。")
@@ -359,6 +395,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       studioName,
       englishName,
       aliases,
+      platforms,
+      officialWebsite: officialWebsite.trim(),
       creators: creators.length ? creators : undefined,
     }
 
@@ -390,6 +428,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const idRelease = useId()
   const idStudio = useId()
   const idDuration = useId()
+  const idWebsite = useId()
+  const idPlatforms = useId()
 
 
 
@@ -671,6 +711,34 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               <div>
                 <label htmlFor={idDuration} className={labelCls}>游戏时长</label>
                 <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+              </div>
+              <div>
+                <label htmlFor={idWebsite} className={labelCls}>官方网站</label>
+                <input id={idWebsite} value={officialWebsite} onChange={(e) => setOfficialWebsite(e.target.value)} placeholder="https://…" className={inputCls} />
+              </div>
+            </div>
+
+            {/* 支持平台（多选，存储 VNDB 平台代码） */}
+            <div className="pt-3 border-t border-border" id={idPlatforms}>
+              <label className={labelCls}>支持平台</label>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORM_OPTIONS.map((p) => {
+                  const active = platforms.includes(p.code)
+                  return (
+                    <button
+                      key={p.code}
+                      type="button"
+                      onClick={() => setPlatforms((prev) => (active ? prev.filter((c) => c !== p.code) : [...prev, p.code]))}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${
+                        active
+                          ? "bg-primary/15 text-primary ring-primary/30"
+                          : "text-muted-foreground ring-border hover:bg-secondary"
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  )
+                })}
               </div>
             </div>
             <div className="flex flex-wrap gap-4 pt-2 border-t border-border">

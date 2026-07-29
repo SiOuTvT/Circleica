@@ -161,6 +161,9 @@ class VndbAdapter implements SourceAdapter {
       .map((s) => (typeof s?.url === "string" ? s.url : undefined))
       .filter((u): u is string => typeof u === "string" && u.length > 0)
 
+    /* ── 平台（VNDB platforms 字符串数组，如 win/lin/mac/ios/and/psp/ps2/drc/vnd/web/mob…） ── */
+    const platforms = (vn.platforms as string[] | undefined) ?? []
+
     return {
       title: primaryName,
       originalWork: japaneseName,
@@ -170,6 +173,7 @@ class VndbAdapter implements SourceAdapter {
       coverImage,
       gameDuration,
       screenshots,
+      platforms,
       releaseDate: released ?? undefined,
       studioName,
       tags: tagNames.map((name) => ({ name })),

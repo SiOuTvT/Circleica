@@ -445,6 +445,12 @@ export const adminGameService = {
           screenshots: Array.isArray(data.screenshots)
             ? (data.screenshots as unknown[]).filter((x) => typeof x === "string")
             : [],
+          // 平台（VNDB platforms 代码数组，存 Json）
+          platforms: Array.isArray(data.platforms)
+            ? (data.platforms as unknown[]).filter((x) => typeof x === "string")
+            : [],
+          // 官方网站（VNDB 无干净官网字段，当前仅人工填写）
+          officialWebsite: data.officialWebsite ? String(data.officialWebsite).trim() : "",
           publisherId,
           isPublished: data.isPublished === true,
         },
@@ -499,6 +505,7 @@ export const adminGameService = {
     const result = await prisma.$transaction(async (tx) => {
       // 字段白名单，防止 mass assignment
       const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
+        "platforms", "officialWebsite",
         "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
         "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
       const safe: Record<string, unknown> = {}

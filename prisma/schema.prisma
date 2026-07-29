@@ -163,6 +163,8 @@ model Game {
   description   String       @default("")
   coverImage    String       @default("")
   screenshots   Json         @default("[]")
+  platforms      Json         @default("[]")
+  officialWebsite String       @default("")
   downloadLinks Json         @default("[]")
   status        GameStatus     @default(FINISHED)
   isNsfw        Boolean      @default(false)

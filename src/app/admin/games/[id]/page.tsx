@@ -35,13 +35,15 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
 
   if (!game) notFound()
 
-  // screenshots 和 downloadLinks 是 Json 类型，直接使用
+  // Json 字段需显式解析为对应 TS 类型，避免 Prisma JsonValue 与组件 prop 类型不匹配
   const screenshots: string[] = Array.isArray(game.screenshots) ? game.screenshots as string[] : []
+  const platforms: string[] = Array.isArray(game.platforms) ? (game.platforms as unknown[]).filter((x) => typeof x === "string") : []
   const downloadLinks: { url: string; label: string }[] = Array.isArray(game.downloadLinks) ? game.downloadLinks as { url: string; label: string }[] : []
 
   const gameData = {
     ...game,
     screenshots,
+    platforms,
     downloadLinks,
     tagIds: game.tags.map((t) => t.tag.id),
     creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
