@@ -1,7 +1,14 @@
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import type { Metadata } from "next"
+import { ArchiveShell } from "@/components/archive/archive-shell"
+import { ArchiveHero } from "@/components/archive/archive-hero"
+import { EntityCard, type CollectionCardData } from "@/components/archive/entity-card"
 import { CollectionCard } from "@/components/collection-card"
+import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
+import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
+import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "精选合集",
@@ -36,9 +43,7 @@ export default async function CuratedCollectionsPage() {
         games: {
           orderBy: { sortOrder: "asc" },
           take: 4,
-          include: {
-            game: { select: { id: true, serialId: true, title: true, coverImage: true } },
-          },
+          include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
         },
         _count: { select: { games: true } },
       },
@@ -47,49 +52,74 @@ export default async function CuratedCollectionsPage() {
     // 数据库不可用（构建期/沙箱）：返回空列表，绝不注入假数据
   }
 
-  if (collections.length === 0) {
+  const total = collections.length
+  const density = computeDensity(total)
+
+  // 空态：保留页头与品牌语言，不渲染列表
+  if (total === 0) {
     return (
-      <div className="space-y-6 pt-4">
-        <h1 className="text-2xl font-heading font-semibold text-foreground">精选合集</h1>
-        <div className="py-20 text-center text-sm text-muted-foreground">暂无精选合集</div>
-      </div>
+      <ArchiveShell entity="collection" density="standard">
+        <ArchiveHero
+          variant="series"
+          eyebrow="编辑精选"
+          title="精选合集"
+          lede="编辑精选 · 发现更多精彩作品"
+        />
+        <ArchivePlaceholder state="empty" entity="collection" message="暂无精选合集" />
+      </ArchiveShell>
     )
   }
 
+  // 编辑精选式布局：首条 featured 大卡（策展表达）+ 其余 EntityCard 网格（浏览效率）
   const [featured, ...rest] = collections
 
   return (
-    <div className="space-y-8 pt-4">
-      {/* 页头 */}
-      <header className="flex items-center gap-3">
-        <h1 className="text-2xl font-heading font-semibold text-foreground">精选合集</h1>
-      </header>
+    <ArchiveShell
+      entity="collection"
+      density={density}
+      breadcrumb={
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Link href="/" className="transition-colors hover:text-foreground">
+            首页
+          </Link>
+          <span className="text-muted-foreground/40">/</span>
+          <span className="text-foreground">精选合集</span>
+        </nav>
+      }
+      header={
+        <ArchiveHero
+          variant="series"
+          eyebrow="编辑精选"
+          title="精选合集"
+          lede="编辑精选 · 发现更多精彩作品"
+          meta={<span className="tabular-nums">共 {total} 个合集</span>}
+        />
+      }
+    >
+      {featured && (
+        <CollectionCard
+          id={featured.id}
+          name={featured.name}
+          description={featured.description}
+          count={featured._count.games}
+          covers={featured.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
+          featured
+        />
+      )}
 
-      {/* 编辑推荐（首条合集） */}
-      <CollectionCard
-        id={featured.id}
-        name={featured.name}
-        description={featured.description}
-        count={featured._count.games}
-        covers={featured.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
-        featured
-      />
-
-      {/* 其余合集 */}
       {rest.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((c) => (
-            <CollectionCard
-              key={c.id}
-              id={c.id}
-              name={c.name}
-              description={c.description}
-              count={c._count.games}
-              covers={c.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
-            />
-          ))}
+        <div className={cn("grid gap-3", DENSITY_GRID[density])}>
+          {rest.map((c) => {
+            const data: CollectionCardData = {
+              id: c.id,
+              name: c.name,
+              gameCount: c._count.games,
+              coverImage: c.games[0]?.game.coverImage ?? null,
+            }
+            return <EntityCard key={c.id} variant="collection" data={data} />
+          })}
         </div>
       )}
-    </div>
+    </ArchiveShell>
   )
 }

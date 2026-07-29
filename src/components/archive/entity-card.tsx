@@ -24,9 +24,10 @@ export interface CreatorCardData {
   roles: string[]
 }
 
+/** Collection（精选合集）卡片数据契约。路由按 id，非 slug。M3 实装视觉变体。 */
 export interface CollectionCardData {
+  id: string
   name: string
-  slug: string
   gameCount: number
   coverImage?: string | null
 }
@@ -160,15 +161,36 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
   )
 }
 
+function CollectionCard({ data }: { data: CollectionCardData }) {
+  return (
+    <CardShell href={`/curated-collections/${data.id}`}>
+      <CoverMedia cover={data.coverImage} initial={data.name} />
+      <div className="flex flex-1 flex-col gap-1 p-3.5">
+        <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+          {data.name}
+        </h3>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="tabular-nums text-foreground/80">{data.gameCount}</span>
+          <span>部精选</span>
+        </div>
+      </div>
+    </CardShell>
+  )
+}
+
 /**
  * EntityCard — 卡片外壳（Framework，Archive 浏览体系共用）
  *
- * M2 实现 studio / creator 两个变体（落地列表页使用）。
- * collection 仅保留数据契约接口（CollectionCardData），其独立页面在后续阶段开发，此处不预埋半成品视觉。
+ * studio / creator 在 M1/M2 落地；collection 在 M3 落地（精选合集列表网格）。
+ * 三者共用 CardShell / CoverMedia 外壳与 onError 兜底，各自视觉不同（同源但不同）。
  */
 export function EntityCard(
-  props: { variant: "studio"; data: StudioCardData } | { variant: "creator"; data: CreatorCardData },
+  props:
+    | { variant: "studio"; data: StudioCardData }
+    | { variant: "creator"; data: CreatorCardData }
+    | { variant: "collection"; data: CollectionCardData },
 ) {
   if (props.variant === "creator") return <CreatorCard data={props.data} />
+  if (props.variant === "collection") return <CollectionCard data={props.data} />
   return <StudioCard data={props.data} />
 }
