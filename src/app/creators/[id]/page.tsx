@@ -1,223 +1,132 @@
-import type { Metadata } from "next"
-import Link from "next/link"
+import { logger } from "@/lib/logger"
+import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
-import { ChevronLeft } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { getCreatorDetail, type CreatorGameItem } from "@/lib/creators"
-import { GameCard, type GameCardData } from "@/components/game-card"
-import { Tag } from "@/components/ui/tag"
-import { ArchiveShell } from "@/components/archive/archive-shell"
-import { ArchiveHero } from "@/components/archive/archive-hero"
-import { StatsBar } from "@/components/archive/stats-bar"
-import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
-import { roleLabel } from "@/lib/role-labels"
+import { CreatorDetailClient } from "./creator-detail-client"
 
-export const dynamic = "force-dynamic"
+// 缓存创作者页面 1 小时（VNDB 数据变化不频繁）
+export const revalidate = 3600
 
-type RawSP = Record<string, string | string[] | undefined>
+interface ProducerData {
+  id: string
+  name: string
+  original?: string
+  description?: string
+  developed?: Array<{
+    id: string
+    title: string
+    rating?: number
+    image?: { url: string }
+  }>
+}
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<Metadata> {
-  const { id } = await params
+interface CreatorData {
+  id: string
+  name: string
+  original?: string
+  description?: string
+  gender?: string
+  vndbId: string
+  roles: string[]
+  vns: Array<{
+    id: string
+    title: string
+    original?: string
+    role: string
+    rating?: number
+    image?: string
+  }>
+}
+
+/** 将 producer 数据转换为 creator 格式 */
+function mapProducerToCreator(producer: ProducerData, vndbId: string): CreatorData {
   return {
-    title: `创作者 · Circleica`,
-    description: `浏览 Circleica 中创作者的参与作品、所属制作组与角色。`,
+    id: producer.id,
+    name: producer.name,
+    original: producer.original || "",
+    description: producer.description || "",
+    gender: undefined,
+    vndbId,
+    roles: [],
+    vns: (producer.developed || []).map((vn) => ({
+      id: vn.id,
+      title: vn.title,
+      original: "",
+      role: "开发者",
+      rating: vn.rating,
+      image: vn.image?.url,
+    })),
+  }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  try {
+    // 尝试获取创作者名称用于标题
+    let creatorName: string | null = null
+    let creatorDesc: string | null = null
+    if (id.startsWith("s")) {
+      const staff = await vndbClient.getStaffDetail(id.slice(1))
+      creatorName = staff?.name || null
+      creatorDesc = staff?.description || null
+    } else if (id.startsWith("p")) {
+      const producer = await vndbClient.getProducer(id.slice(1))
+      creatorName = producer?.name || null
+      creatorDesc = producer?.description || null
+    } else {
+      const staff = await vndbClient.getStaffDetail(id)
+      creatorName = staff?.name || null
+      creatorDesc = staff?.description || null
+      if (!creatorName) {
+        const producer = await vndbClient.getProducer(id)
+        creatorName = producer?.name || null
+        creatorDesc = producer?.description || null
+      }
+    }
+    if (creatorName) {
+      const description = creatorDesc?.replace(/<[^>]+>/g, "").slice(0, 160) || `${creatorName} - 创作者详情`
+      return {
+        title: `${creatorName} · 创作者 · Circleica`,
+        description,
+        openGraph: { title: `${creatorName} · 创作者`, description, images: ["/opengraph-image"] },
+        alternates: { canonical: `/creators/${id}` },
+      }
+    }
+  } catch (err) { logger.db.warn("[CreatorPage] generateMetadata VNDB failed", { error: err instanceof Error ? err.message : String(err) }) }
+  return {
+    title: `创作者详情 · Circleica`,
+    description: "查看创作者详细信息",
+    openGraph: { title: "创作者详情 · Circleica", description: "查看创作者详细信息", images: ["/opengraph-image"] },
     alternates: { canonical: `/creators/${id}` },
   }
 }
 
-function toGameCardData(g: CreatorGameItem): GameCardData {
-  return {
-    id: g.id,
-    serialId: g.serialId,
-    title: g.title,
-    coverImage: g.coverImage || "",
-    tags: [],
-    favoriteCount: g.favoriteCount,
-    isNsfw: false,
-    status: "",
-  }
-}
-
-const GAME_GRID_CLASS = "grid gap-3"
-
-export default async function CreatorDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>
-  searchParams: Promise<RawSP>
-}) {
+export default async function CreatorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const sp = await searchParams
-  const page = Math.max(1, parseInt((Array.isArray(sp.page) ? sp.page[0] : sp.page) || "1", 10) || 1)
 
-  const detail = await getCreatorDetail(id, page)
-  if (!detail) notFound()
+  let creator: CreatorData | null = null
 
-  const base = `/creators/${id}`
-  const prevHref = detail.page > 1 ? `${base}?page=${detail.page - 1}` : null
-  const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
-
-  const years = detail.games
-    .map((g) => (g.releaseDate ? new Date(g.releaseDate).getFullYear() : null))
-    .filter((y): y is number => y !== null)
-  const yearSpan = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : "—"
-  const genderLabel = detail.gender === "m" ? "男性" : detail.gender === "f" ? "女性" : ""
-
-  const density = computeDensity(detail.gameCount)
-  const displayName = detail.nameJa || detail.name
-
-  return (
-    <ArchiveShell
-      entity="creator"
-      density={density}
-      breadcrumb={
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link
-            href="/creators"
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 font-medium text-foreground/80 transition-colors hover:text-primary"
-          >
-            <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-            创作者图鉴
-          </Link>
-          <span className="text-muted-foreground/40">/</span>
-          <span className="truncate text-foreground">{displayName}</span>
-        </nav>
+  try {
+    // id 格式如 s123（staff）或 p123（producer）
+    if (id.startsWith("s")) {
+      const staff = await vndbClient.getStaffDetail(id.slice(1))
+      if (staff) creator = { ...staff, vndbId: id.slice(1), roles: staff.roles || [], vns: staff.vns || [] }
+    } else if (id.startsWith("p")) {
+      const producer = await vndbClient.getProducer(id.slice(1))
+      if (producer) creator = mapProducerToCreator(producer, id.slice(1))
+    } else {
+      // 纯数字 ID，尝试 staff 先，失败再 producer
+      const staff = await vndbClient.getStaffDetail(id)
+      if (staff) creator = { ...staff, vndbId: id, roles: staff.roles || [], vns: staff.vns || [] }
+      if (!creator) {
+        const producer = await vndbClient.getProducer(id)
+        if (producer) creator = mapProducerToCreator(producer, id)
       }
-      header={
-        <ArchiveHero
-          variant="person"
-          eyebrow="Creator"
-          title={displayName}
-          cover={detail.avatar}
-          fallbackInitial={detail.name}
-          lede={detail.bio || undefined}
-          meta={
-            <>
-              <span>
-                共 <span className="tabular-nums text-foreground">{detail.gameCount}</span> 部作品
-              </span>
-              {genderLabel && (
-                <>
-                  <span className="text-muted-foreground/30">·</span>
-                  <span>{genderLabel}</span>
-                </>
-              )}
-              {detail.vndbId && (
-                <>
-                  <span className="text-muted-foreground/30">·</span>
-                  <a
-                    href={`https://vndb.org/s${detail.vndbId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary/80 hover:text-primary"
-                  >
-                    VNDB · s{detail.vndbId}
-                  </a>
-                </>
-              )}
-            </>
-          }
-        />
-      }
-    >
-      <StatsBar
-        items={[
-          { label: "作品数", value: detail.gameCount },
-          { label: "角色种类", value: detail.roles.length },
-          { label: "所属制作组", value: detail.studios.length },
-          { label: "活动年份", value: yearSpan },
-        ]}
-      />
+    }
+  } catch (error) {
+    logger.db.error(`[CreatorPage] VNDB API error for ${id}`, error)
+  }
 
-      {detail.roles.length > 0 && (
-        <section>
-          <h2 className="mb-3 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-primary" />
-            参与角色
-          </h2>
-          <div className="flex flex-wrap gap-1.5">
-            {detail.roles.map((r) => (
-              <Tag key={r} className="px-2 py-0.5 text-xs">
-                {roleLabel(r)}
-              </Tag>
-            ))}
-          </div>
-        </section>
-      )}
+  if (!creator) notFound()
 
-      <section>
-        <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-          <span className="h-5 w-1 rounded-full bg-primary" />
-          参与作品
-        </h2>
-        {detail.games.length === 0 ? (
-          <p className="py-10 text-center text-sm text-muted-foreground">该创作者暂无已收录的作品</p>
-        ) : (
-          <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
-            {detail.games.map((g) => (
-              <GameCard key={g.id} game={toGameCardData(g)} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {detail.studios.length > 0 && (
-        <section>
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-primary" />
-            所属制作组
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {detail.studios.map((s) => (
-              <Link
-                key={s.normalized}
-                href={`/credits/studio/${encodeURIComponent(s.normalized)}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-card px-3 py-2 text-sm ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
-              >
-                <span className="font-medium text-foreground transition-colors group-hover:text-primary">
-                  {s.name}
-                </span>
-                <span className="tabular-nums text-xs text-muted-foreground">{s.gameCount} 部</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {(prevHref || nextHref) && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          {prevHref ? (
-            <Link
-              href={prevHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
-            >
-              上一页
-            </Link>
-          ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">上一页</span>
-          )}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
-            <span className="tabular-nums text-foreground/90">{detail.page}</span>
-            <span>/</span>
-            <span className="tabular-nums">{detail.totalPages}</span>
-          </div>
-          {nextHref ? (
-            <Link
-              href={nextHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
-            >
-              下一页
-            </Link>
-          ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">下一页</span>
-          )}
-        </div>
-      )}
-    </ArchiveShell>
-  )
+  return <CreatorDetailClient creator={creator} />
 }
