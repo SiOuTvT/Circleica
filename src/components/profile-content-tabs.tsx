@@ -18,7 +18,13 @@ interface GameLite {
   id: string; serialId?: number; title: string; coverImage?: string; isNsfw?: boolean; originalWork?: string
 }
 interface CommentLite {
-  id: string; content: string; createdAt: Date; game: { id: string; serialId?: number; title: string }
+  id: string; content: string; createdAt: Date
+  // game 可能为 null（游戏被删除后外键未级联清理），渲染时必须判空，否则 c.game.serialId 抛错
+  game: { id: string; serialId?: number; title: string } | null
+}
+interface PlayStatusLite {
+  game: GameLite | null
+  status: string
 }
 interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
@@ -53,14 +59,18 @@ export function ProfileContentTabs({ userId }: Props) {
   const [loadedPlay, setLoadedPlay] = useState(false)
   const [loadedComments, setLoadedComments] = useState(false)
   const [localFav, setLocalFav] = useState<GameLite[]>([])
-  const [localPlay, setLocalPlay] = useState<{ game: GameLite; status: string }[]>([])
+  const [localPlay, setLocalPlay] = useState<PlayStatusLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
     try {
-      const data = await apiGet<{ success: boolean; data: GameLite[] }>(`/api/profile/${userId}/favorites`)
-      setLocalFav(Array.isArray(data.data) ? data.data : [])
+      // API 返回 Favorite[]（每项含嵌套 game），需提取 game 并过滤掉孤儿记录（game 为 null）
+      const data = await apiGet<{ success: boolean; data: { id: string; game: GameLite | null }[] }>(`/api/profile/${userId}/favorites`)
+      const games = Array.isArray(data.data)
+        ? data.data.map((f) => f.game).filter((g): g is GameLite => g !== null)
+        : []
+      setLocalFav(games)
       setLoadedFav(true)
     } catch { setLoadError(true) }
   }, [userId, loadedFav])
@@ -68,7 +78,7 @@ export function ProfileContentTabs({ userId }: Props) {
   const loadPlayStatus = useCallback(async () => {
     if (loadedPlay) return
     try {
-      const data = await apiGet<{ success: boolean; data: { game: GameLite; status: string }[] }>(`/api/profile/${userId}/play-status`)
+      const data = await apiGet<{ success: boolean; data: PlayStatusLite[] }>(`/api/profile/${userId}/play-status`)
       setLocalPlay(Array.isArray(data.data) ? data.data : [])
       setLoadedPlay(true)
     } catch { setLoadError(true) }
@@ -322,14 +332,27 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
   if (comments.length === 0) return <div className="flex flex-col items-center justify-center py-12 text-center"><MessageSquare className="h-10 w-10 text-muted-foreground/30 mb-3" /><p className="text-sm text-muted-foreground">还没有发表评论</p></div>
   return (
     <div className="flex flex-col gap-2.5">
-      {comments.map((c) => (
-        <Link key={c.id} href={`/games/${c.game.serialId ?? c.game.id}`} className="group rounded-xl bg-secondary/40 p-3.5 hover:bg-secondary/70">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
-            <span className="font-medium text-foreground group-hover:text-primary">{c.game.title}</span><span>·</span><Calendar className="h-3 w-3" /><span>{formatDate(c.createdAt)}</span>
+      {comments.map((c) => {
+        const game = c.game
+        const body = (
+          <>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
+              <span className="font-medium text-foreground group-hover:text-primary">{game ? game.title : "已删除的游戏"}</span><span>·</span><Calendar className="h-3 w-3" /><span>{formatDate(c.createdAt)}</span>
+            </div>
+            <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
+          </>
+        )
+        // 游戏已被删除（game 为 null）时不渲染跳转链接，避免悬空链接与崩溃
+        return game ? (
+          <Link key={c.id} href={`/games/${game.serialId ?? game.id}`} className="group rounded-xl bg-secondary/40 p-3.5 hover:bg-secondary/70">
+            {body}
+          </Link>
+        ) : (
+          <div key={c.id} className="rounded-xl bg-secondary/40 p-3.5 opacity-70">
+            {body}
           </div>
-          <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
-        </Link>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -348,7 +371,7 @@ function TabLoadingSkeleton() {
   )
 }
 
-function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; status: string }[] }) {
+function PlayTab({ playStatusGames }: { playStatusGames: PlayStatusLite[] }) {
   const { message: playMsg } = useEmotionalMessage(PLAY_MSG_KEY)
   if (playStatusGames.length === 0) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -359,13 +382,17 @@ function PlayTab({ playStatusGames }: { playStatusGames: { game: GameLite; statu
   const colors: Record<string, string> = { "想玩": "bg-sky-500/10 text-sky-400", "在玩": "bg-amber-500/10 text-amber-400", "玩过": "bg-emerald-500/10 text-emerald-400", "搁置": "bg-muted-foreground/10 text-muted-foreground", "弃坑": "bg-rose-500/10 text-rose-400" }
   return (
     <div className="flex flex-col gap-2">
-      {playStatusGames.map(({ game, status }) => (
-        <Link key={game.id} href={`/games/${game.serialId ?? game.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
-          {game.coverImage ? <Image src={game.coverImage} alt={game.title} width={36} height={48} className="h-12 w-9 rounded-md object-cover" unoptimized /> : <div className="flex h-12 w-9 items-center justify-center rounded-md bg-muted"><Gamepad2 className="h-4 w-4" /></div>}
-          <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{game.title}</p></div>
-          <Tag variant="badge" className={colors[status] || "bg-muted text-muted-foreground"}>{status}</Tag>
-        </Link>
-      ))}
+      {playStatusGames.map(({ game, status }) => {
+        // 游戏已被删除（game 为 null）时不渲染跳转链接
+        if (!game) return null
+        return (
+          <Link key={game.id} href={`/games/${game.serialId ?? game.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
+            {game.coverImage ? <Image src={game.coverImage} alt={game.title} width={36} height={48} className="h-12 w-9 rounded-md object-cover" unoptimized /> : <div className="flex h-12 w-9 items-center justify-center rounded-md bg-muted"><Gamepad2 className="h-4 w-4" /></div>}
+            <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{game.title}</p></div>
+            <Tag variant="badge" className={colors[status] || "bg-muted text-muted-foreground"}>{status}</Tag>
+          </Link>
+        )
+      })}
     </div>
   )
 }

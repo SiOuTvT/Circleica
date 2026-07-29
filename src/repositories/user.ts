@@ -66,7 +66,13 @@ export const collectionRepo = {
       where: { userId },
       orderBy: { sortOrder: "asc" },
       take: 200,
-      include: { _count: { select: { favorites: true } } },
+      // 加载收藏夹内实际游戏（含封面/标题/serialId），供前端展示数量、封面与详情弹窗。
+      // 旧实现仅 _count，导致收藏夹卡片显示 0 部、弹窗显示为空。
+      include: {
+        favorites: {
+          include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+        },
+      },
     })
   },
 
@@ -271,15 +277,16 @@ export const checkinRepo = {
 export const profileRepo = {
   findComments(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit
-    return Promise.all([
-      prisma.comment.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        skip, take: limit,
-        include: { game: { select: { id: true, title: true, coverImage: true } } },
-      }),
-      prisma.comment.count({ where: { userId } }),
-    ])
+    // 直接返回评论数组（与 findFavorites / findPlayStatuses 一致），
+    // 由 route 的 json() 包装为 { success, data }，客户端 data.data 即数组。
+    // 注意：旧实现返回 [comments, count] 元组，但客户端按数组处理，
+    // 导致首页渲染 c.game 为 undefined 而崩溃（评论 tab 偶发报错的根因）。
+    return prisma.comment.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      skip, take: limit,
+      include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+    })
   },
 
   findFavorites(userId: string) {
@@ -295,7 +302,8 @@ export const profileRepo = {
     return prisma.playStatus.findMany({
       where: { userId },
       take: 200,
-      include: { game: { select: { id: true, title: true, coverImage: true } } },
+      // 补上 serialId，使游玩记录链接正确指向 /games/<serialId>（与收藏夹一致）
+      include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
     })
   },
 }
