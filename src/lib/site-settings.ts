@@ -41,6 +41,22 @@ export const getSiteSetting = cache(
   }
 )
 
+/**
+ * 首屏关键读取：绕过 unstable_cache，直接读 DB。
+ * 仅用于 RootLayout 注入主题色（ThemeScript），保证「第一次绘制即正确主题」，
+ * 杜绝 FOUC——旧 Data Cache / ISR 快照可能残留过期主题色（如先粉后薄荷的闪烁）。
+ * 注意：不进 unstable_cache，故写库后无需等 TTL 即可在下次请求拿到新值。
+ */
+export async function getSiteSettingFresh(key: string, fallback = ""): Promise<string> {
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key } })
+    return setting?.value ?? fallback
+  } catch (e) {
+    logger.db.error(`SiteSetting 直接读取失败: ${key}`, e)
+    return fallback
+  }
+}
+
 // ── 全量读取 ────────────────────────
 
 const _getCachedSettings = unstable_cache(
@@ -75,17 +91,21 @@ export async function updateSiteSettings(data: Record<string, unknown>): Promise
   const entries = Object.entries(data).filter(([k]) => typeof k === "string")
 
   // 批量 upsert（事务内执行）
-  await prisma.$transaction(
-    entries.map(([key, value]) =>
-      prisma.siteSetting.upsert({
-        where: { key },
-        update: { value: String(value ?? "") },
-        create: { key, value: String(value ?? "") },
-      })
+  // 防御：entries 为空时跳过事务——prisma.$transaction([]) 会抛错导致整次保存 500，
+  // 例如 pages-manager 保存空值、settings 全字段被过滤时。
+  if (entries.length > 0) {
+    await prisma.$transaction(
+      entries.map(([key, value]) =>
+        prisma.siteSetting.upsert({
+          where: { key },
+          update: { value: String(value ?? "") },
+          create: { key, value: String(value ?? "") },
+        })
+      )
     )
-  )
+  }
 
-  revalidateTag("site-settings", "max")
+  revalidateTag("site-settings")
   logger.cache.info("SiteSettings 缓存已清除", { keys: entries.map(([k]) => k).join(",") })
 
   return getSiteSettings()
