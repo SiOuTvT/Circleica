@@ -7,33 +7,40 @@
 
 Archive Design System 是一套**统一的设计体系（设计语言 + 公共组件）**，**不是一整个页面**。
 
-四类 Archive（Game / Studio / Creator / Collection）是**四种不同类型的独立功能模块 / 独立页面**，不是把它们做成一个页面，也**不是**一个页面里切几个 Tab：
+**Archive 浏览体系**（Studio / Creator / Collection 三类，以及未来 Tag/Publisher/Event/Character）是**独立功能模块 / 独立页面**；Game Detail **不属于 Archive 模块**，仅复用 Archive Design Language（见下方「Game Detail 架构约束」）。三者**不是**做成一个页面，也**不是**一个页面里切几个 Tab：
 
-| Archive | 页面 | 构成 |
-|---------|------|------|
-| Game Archive | 游戏详情页（现有页面，不新增） | 单层详情页 |
-| Studio Archive | 制作组图鉴 | 列表页 + 制作组详情页 |
-| Creator Archive（新增） | 创作者图鉴 | 列表页 + 创作者详情页 |
-| Collection Archive | 精选合集 | 列表页 + 合集详情页 |
+| 模块 | 归属 | 页面 | 构成 |
+|------|------|------|------|
+| Studio Archive | Archive 浏览体系（继承 ArchiveShell） | 制作组图鉴 | 列表页 + 制作组详情页 |
+| Creator Archive（新增） | Archive 浏览体系（继承 ArchiveShell） | 创作者图鉴 | 列表页 + 创作者详情页 |
+| Collection Archive | Archive 浏览体系（继承 ArchiveShell） | 精选合集 | 列表页 + 合集详情页 |
+| Game Detail | 核心内容页（仅复用设计语言，**不**继承 ArchiveShell） | 游戏详情页（现有页面） | 单层详情页 |
 
-### 共享什么（同源）
+### 共享什么（同源 vs 框架，须分清）
 
-四类 Archive 共享的是**一套设计语言与公共组件**，具体共享清单：
+Archive 浏览体系（Studio / Creator / Collection，以及未来 Tag/Publisher/Event/Character）共用一套**设计语言**与**公共组件**；Game Detail 仅复用**设计语言子集**，不进入 Archive Framework。
 
+**① Archive Design Language（设计语言，Game Detail 也复用）**
 - Design Token（主色 / 语义色 / 圆角 / 间距 / 字号 / 动效令牌）
-- ArchiveShell（骨架）
 - ArchiveHero（编辑式标题区）
-- StatsBar（统计条）
+- StatsBar（统计条，按需）
 - Skeleton（骨架屏）
 - ArchivePlaceholder（三态占位）
-- FilterSort（筛排）
-- Pager（分页）
 - 动效（统一 transition 规则）
 - 留白（统一节奏）
 - 配色（统一主色与中性色）
-- 档案馆语言（编辑式层级 / 索引 / 拼贴 / 统计的表达语汇）
 
-**不共享的，是页面本身。**
+**② Archive Framework（框架，仅 Archive 浏览体系继承，Game Detail 不继承）**
+- ArchiveShell（骨架：Hero+Toolbar+Index+Grid+Pager+Placeholder 结构）
+- AZIndex（字母索引）
+- FilterSort（筛排）
+- Pager（分页）
+- EntityCard（archive 卡片外壳）
+- 档案馆语言（索引浏览 / 拼贴 / 统计的浏览语汇）
+
+> **Game Detail 与 Archive Framework 的边界**：Game Detail **永远作为独立业务页面**存在，属于网站**核心内容页**，**不属于 Archive 浏览体系**。Archive Design Language 可以服务于 Game Detail；**Archive Framework（尤其 ArchiveShell）不服务 Game Detail**。禁止为了兼容 Game Detail 去修改 ArchiveShell。
+
+**不共享的，是页面本身（且 Framework 仅限 Archive 浏览体系）。**
 
 ### 各自独立什么（不同）
 
@@ -56,7 +63,7 @@ Archive Design System 是一套**统一的设计体系（设计语言 + 公共�
 
 ### 未来 Archive 扩展原则
 
-未来若增加 Tag / Publisher / Event / Character 等 Archive，**也必须遵循同样原则**：
+未来若增加 Tag / Publisher / Event / Character 等 Archive，**也必须遵循同样原则**（均继承 ArchiveShell，作为独立页面）：
 
 - 每增加一个 Archive = 新增一个**独立页面**（独立列表页 + 详情页、独立入口）；
 - **绝对不是**往现有页面里继续塞 Tab、塞切换、塞 Variant。
@@ -65,23 +72,45 @@ Archive Design System 是一套**统一的设计体系（设计语言 + 公共�
 ### 当前开发阶段约束
 
 - **当前只开发 Studio Archive。** Creator Archive、Collection Archive 现在只**锁定设计契约与公共组件接口**，不提前实现、不预埋半成品、不为了未来功能影响当前 Studio 体验。
-- **开发顺序始终保持：Studio → Creator → Collection**（Game 为既有详情页，不计入新开序列）。
+- **开发顺序始终保持：Studio → Creator → Collection**（Game Detail 为核心内容页，本就不在 Archive 开发序列内，仅其设计语言与 Archive 体系保持一致即可）。
 - 护栏：M1 起方向不再频繁调整，逐模块落地 + 验证。
 
 **绝对禁止（红线）：**
 - ❌ 把 Studio / Creator / Collection 做成一个大页面
-- ❌ 把四类 Archive 做成一个页面里用 Tab 切换
+- ❌ 把 Archive 浏览体系做成一个页面里用 Tab 切换
 - ❌ 因为共用组件而牺牲各自的独立性
 - ❌ 为未来复用过度抽象当前页面
 - ❌ 为了未来功能在 Studio 里预埋半成品 / 妥协当前体验
 
 各页面重点（互不相同）：
-- Game Archive：阅读一部游戏
+- Game Detail（核心内容页）：阅读一部游戏
 - Studio Archive：浏览一个制作组的发展、作品以及成员（非百科介绍）
 - Creator Archive：浏览一个人的履历、参与作品、所属制作组
 - Collection Archive：浏览一个系列的发展、作品顺序、推荐理由、系列介绍、世界观
 
 它们只是**共用一套设计系统**，而不是做成一个页面。
+
+## Game Detail 架构约束（最高优先级 · 长期架构约束）
+
+**Game Detail 不属于 Archive 模块。它只复用 Archive Design Language，不进入 Archive Framework。**
+
+- Game Detail **不继承 ArchiveShell**。
+- Game Detail **不参与 Archive 公共页面结构**（无列表 / 索引 / 分页 / FilterSort 注入）。
+- Game Detail 只允许复用 **Archive Design Language 子集**：
+  - Design Token
+  - ArchiveHero（编辑式标题）
+  - StatsBar（按需）
+  - Skeleton
+  - ArchivePlaceholder
+  - 动效
+  - 留白
+  - 配色
+- **禁止为了兼容 Game Detail 去修改 ArchiveShell。** ArchiveShell 的契约只服务于 Archive 浏览体系。
+- **ArchiveShell 只服务于**：Studio Archive / Creator Archive / Collection Archive（以及未来 Tag / Publisher / Event / Character Archive）。
+- **Game Detail 永远作为独立业务页面存在**：属于网站核心内容页，**不属于 Archive 浏览体系**。
+- 关系公式：**Archive Design Language 可服务 Game Detail；Archive Framework 不服务 Game Detail。**
+
+> 当 Game Detail 的展示需求与 ArchiveShell 的结构假设冲突时，以 Game Detail 自身设计为准，不得反向改造 ArchiveShell 去"兼容"它。
 
 ## 令牌基线（强制复用）
 - 主色 `--mint:#5FA8A0`；hover `#69ada6` / active `#72b2ab` / accent `#7bbfb8`；ring `rgba(95,168,160,.3)`；glow `rgba(95,168,160,.08)`。
@@ -89,11 +118,11 @@ Archive Design System 是一套**统一的设计体系（设计语言 + 公共�
 - 密度令牌 `--archive-density: compact | standard | dense`（驱动列数/内边距/字号/索引显隐）—— **全系统最高优先级**。
 - 序号徽标 `--archive-order`、推荐理由 `--archive-reason`；留白 `--space-lg`(compact)/`--space-sm`(dense)。
 
-## 1. 四类档案定位表
+## 1. Archive 档案定位表（浏览体系三类 + 核心内容页）
 
 | 类型 | 定位 | 列表 | 信息架构区块顺序 | 主焦点 | 复用公共组件 |
 |------|------|:---:|-----------------|--------|-------------|
-| **Game** | 详情叶节点（设计体系最深叶节点，不新增页，非合并为单一页面） | 否 | Hero(编辑式)→StatsBar→Placeholder/正文 | 单作品深度阅读 | Shell(detail子集)·Hero·StatsBar·Placeholder·Skeleton |
+| **Game Detail** | 核心内容页（**非 Archive 模块**，仅复用设计语言，不继承 ArchiveShell） | 否 | Hero(编辑式)→StatsBar→Placeholder/正文 | 单作品深度阅读 | Hero·StatsBar·Placeholder·Skeleton（仅设计语言，**不**继承 ArchiveShell/EntityCard/AZIndex/Pager） |
 | **Studio** | 制作组组织档案 | 是 | Hero(org)→StatsBar→创作者拼贴→AZ网格→Pager | 组织身份+创作者聚合 | 全 9 件 |
 | **Creator** | 个人创作者档案（独立页） | 是 | Hero(person)→隶属组胶囊→StatsBar→履历网格→AZIndex→Pager | 头像+角色标签 | 全 9 件（独立 entity） |
 | **Collection** | 精选系列档案 | 是 | Hero(series)→StatsBar→有序作品流(序号)→世界观长文→Pager | 有序流+长文 | 全 9 件（无 AZIndex） |
@@ -106,13 +135,13 @@ Studio（组织）与 Creator（个人）是**两个独立 Archive 类型**：�
 - **Studio（组织）**：AZIndex（组名首字母）+ 网格 + 创作者拼贴（横向关系网），无序号、无长文 → 「这是一个组织」。
 - **Collection（系列）**：有序流（1,2,3 + `--archive-order` 序号 + `--archive-reason` 推荐理由）+ 世界观长文（max 68ch）→ 「这是一个系列」。
 - **Creator（个人）**：履历网格 + 角色标签 + 隶属组胶囊 + 头像环（主色作头像环）→ 「这是一个人」。
-- **Game（详情叶）**：不参与列表对比，仅作设计体系最深叶节点（指设计语言层级，非页面合并），遵循同套编辑式语言（Hero/StatsBar/Placeholder），无列表/索引/分页。
+- **Game Detail（核心内容页）**：**不属于 Archive 模块**，仅复用设计语言（Hero/StatsBar/Placeholder/Skeleton），**不继承 ArchiveShell**，无列表/索引/分页/FilterSort。
 
 ## 4. 公共组件契约表（9 件）
 
-| 组件 | 职责 | 关键 props | 变体 | 四类复用 |
+| 组件 | 职责 | 关键 props | 变体 | Archive 浏览体系复用 |
 |------|------|-----------|------|---------|
-| **ArchiveShell** | 骨架插槽 Hero+Toolbar+Index+Grid+Pager+Placeholder | `entity`,`density`,`slots` | 按 entity 注入 | Game(detail子集)·Studio·Creator·Collection 全用 |
+| **ArchiveShell** | 骨架插槽 Hero+Toolbar+Index+Grid+Pager+Placeholder | `entity`,`density`,`slots` | 按 entity 注入 | **Studio·Creator·Collection（+未来扩展）全用；Game✗（仅复用设计语言，不继承 Shell）** |
 | **AZIndex** | A–Z+# sticky 索引条 | `available[]`,`active` | 稀疏自动隐藏 | Game✗·Studio✓字母·Creator✓名·Collection✗ |
 | **ArchiveHero** | 编辑式标题区 | `variant`,`title`,`lede`,`meta[]` | org/person/series | 四类全用（Game=detail 契约） |
 | **StatsBar** | 统计条 | `items[]`,`density` | 按实体传 items | 四类全用 |
@@ -122,7 +151,7 @@ Studio（组织）与 Creator（个人）是**两个独立 Archive 类型**：�
 | **FilterSortBar** | 筛排 | `filters[]`,`sort[]` | — | Game✗·Studio·Creator·Collection 用 |
 | **Pager** | 分页 | `page`,`total` | — | Game✗·Studio·Creator·Collection 用 |
 
-**原则**：Shell/Index/Stats/Hero/Placeholder/Skeleton/FilterSort/Pager 公共复用；EntityCard 与 ArchiveHero 共享外壳 + variant 切换（零重做）。Game 仅取详情向子集（Hero/StatsBar/Placeholder/Skeleton），不用 AZIndex/Pager/列表/EntityCard。
+**原则**：Archive Framework（Shell/Index/Stats/Hero/Placeholder/Skeleton/FilterSort/Pager）由 Archive 浏览体系公共复用；EntityCard 与 ArchiveHero 共享外壳 + variant 切换（零重做）。Game Detail 仅复用设计语言子集（Hero/StatsBar/Placeholder/Skeleton），**不继承 ArchiveShell / EntityCard**，不用 AZIndex/Pager/列表/FilterSort。
 
 ## 5. 密度三态（空/少/多）— 最高优先级
 现实约束：主站多同人，制作组常仅 1~3 部。**须适配空/少/多三态：空不崩、少不空、多不乱。**
@@ -132,11 +161,11 @@ Studio（组织）与 Creator（个人）是**两个独立 Archive 类型**：�
 - `≥12` → **dense**：网格 +1 列（4→5/6）、AZIndex sticky 强依赖、卡片降载（仅封面+名+作品数）、StatsBar 加均值/年份分布。
 - ArchiveShell 计算注入 `--archive-density`，组件读令牌切换内边距/字号/列数（compact `--space-lg`、dense `--space-sm`）。
 
-## 6. 复用矩阵（四类 × 组件）
+## 6. 复用矩阵（Archive 浏览体系 × 组件；Game Detail 仅复用设计语言，见约束）
 
-| 组件 | Game | Studio | Creator | Collection |
+| 组件 | Game Detail | Studio | Creator | Collection |
 |------|:---:|:---:|:---:|:---:|
-| ArchiveShell | ✓detail | ✓ | ✓ | ✓ |
+| ArchiveShell | ✗（仅设计语言） | ✓ | ✓ | ✓ |
 | AZIndex | ✗ | ✓字母 | ✓名 | ✗ |
 | ArchiveHero | ✓detail | ✓org | ✓person | ✓series |
 | StatsBar | ✓ | ✓ | ✓ | ✓ |

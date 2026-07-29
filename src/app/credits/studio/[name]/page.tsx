@@ -1,11 +1,16 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import Image from "next/image"
-import { ChevronLeft, Users } from "lucide-react"
+import { notFound } from "next/navigation"
+import { ChevronLeft } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { getMakerDetail, type MakerGameItem } from "@/lib/makers"
 import { GameCard, type GameCardData } from "@/components/game-card"
 import { Tag } from "@/components/ui/tag"
+import { ArchiveShell } from "@/components/archive/archive-shell"
+import { ArchiveHero } from "@/components/archive/archive-hero"
+import { StatsBar } from "@/components/archive/stats-bar"
+import { computeDensity } from "@/components/archive/density"
 
 export const dynamic = "force-dynamic"
 
@@ -48,6 +53,12 @@ function toGameCardData(g: MakerGameItem): GameCardData {
   }
 }
 
+const gameGridByDensity = {
+  compact: "grid-cols-2 gap-3 sm:grid-cols-3",
+  standard: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  dense: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
+} as const
+
 export default async function MakerDetailPage({
   params,
   searchParams,
@@ -67,47 +78,65 @@ export default async function MakerDetailPage({
   const prevHref = detail.page > 1 ? `${base}?page=${detail.page - 1}` : null
   const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
 
+  const totalFav = detail.games.reduce((s, g) => s + (g.favoriteCount || 0), 0)
+  const years = detail.games
+    .map((g) => (g.releaseDate ? new Date(g.releaseDate).getFullYear() : null))
+    .filter((y): y is number => y !== null)
+  const yearSpan = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : "—"
+
+  const density = computeDensity(detail.gameCount)
+
   return (
-    <div className="space-y-8">
-      {/* 面包屑 */}
-      <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/credits" className="inline-flex items-center gap-1 rounded-lg px-2 py-1 font-medium text-foreground/80 transition-colors hover:text-primary">
-          <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-          制作组图鉴
-        </Link>
-        <span className="text-muted-foreground/40">/</span>
-        <span className="truncate text-foreground">{detail.name}</span>
-      </nav>
+    <ArchiveShell
+      entity="studio"
+      density={density}
+      breadcrumb={
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Link
+            href="/credits/studio"
+            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 font-medium text-foreground/80 transition-colors hover:text-primary"
+          >
+            <ChevronLeft className="h-4 w-4" strokeWidth={2} />
+            制作组图鉴
+          </Link>
+          <span className="text-muted-foreground/40">/</span>
+          <span className="truncate text-foreground">{detail.name}</span>
+        </nav>
+      }
+      header={
+        <ArchiveHero
+          variant="org"
+          eyebrow="Studio"
+          title={detail.name}
+          cover={detail.coverImage}
+          fallbackInitial={detail.name}
+          meta={
+            <>
+              <span>
+                共 <span className="tabular-nums text-foreground">{detail.gameCount}</span> 部作品
+              </span>
+              {detail.creators.length > 0 && (
+                <>
+                  <span className="text-muted-foreground/30">·</span>
+                  <span>
+                    <span className="tabular-nums text-foreground">{detail.creators.length}</span> 位参与创作者
+                  </span>
+                </>
+              )}
+            </>
+          }
+        />
+      }
+    >
+      <StatsBar
+        items={[
+          { label: "作品数", value: detail.gameCount },
+          { label: "参与创作者", value: detail.creators.length },
+          { label: "收藏总数", value: totalFav.toLocaleString() },
+          { label: "活动年份", value: yearSpan },
+        ]}
+      />
 
-      {/* 制作组头 */}
-      <header className="flex flex-col gap-5 sm:flex-row sm:items-center">
-        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-muted ring-1 ring-border/60 sm:h-32 sm:w-32">
-          {detail.coverImage ? (
-            <Image src={detail.coverImage} alt={detail.name} fill className="object-cover" unoptimized sizes="128px" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
-              <span className="text-3xl font-bold text-primary/30">{detail.name.slice(0, 1)}</span>
-            </div>
-          )}
-        </div>
-        <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2">
-            <Users className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-            <h1 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">{detail.name}</h1>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            共 <span className="tabular-nums text-foreground">{detail.gameCount}</span> 部作品
-            {detail.creators.length > 0 && (
-              <>
-                <span className="mx-2 text-muted-foreground/30">·</span>
-                <span className="tabular-nums text-foreground">{detail.creators.length}</span> 位参与创作者
-              </>
-            )}
-          </p>
-        </div>
-      </header>
-
-      {/* 作品区 */}
       <section>
         <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
           <span className="h-5 w-1 rounded-full bg-primary" />
@@ -116,7 +145,7 @@ export default async function MakerDetailPage({
         {detail.games.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">该制作组暂无已收录的作品</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className={cn("grid", gameGridByDensity[density])}>
             {detail.games.map((g) => (
               <GameCard key={g.id} game={toGameCardData(g)} />
             ))}
@@ -124,7 +153,6 @@ export default async function MakerDetailPage({
         )}
       </section>
 
-      {/* 参与创作者关联区 */}
       {detail.creators.length > 0 && (
         <section>
           <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
@@ -140,7 +168,14 @@ export default async function MakerDetailPage({
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/50">
                   {c.avatar ? (
-                    <Image src={c.avatar} alt={c.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized sizes="44px" />
+                    <Image
+                      src={c.avatar}
+                      alt={c.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      unoptimized
+                      sizes="44px"
+                    />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
                       <span className="text-sm font-bold text-primary/40">{(c.nameJa || c.name).slice(0, 1)}</span>
@@ -165,11 +200,13 @@ export default async function MakerDetailPage({
         </section>
       )}
 
-      {/* 分页 */}
       {(prevHref || nextHref) && (
         <div className="flex items-center justify-center gap-3 pt-2">
           {prevHref ? (
-            <Link href={prevHref} className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground">
+            <Link
+              href={prevHref}
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
+            >
               上一页
             </Link>
           ) : (
@@ -181,7 +218,10 @@ export default async function MakerDetailPage({
             <span className="tabular-nums">{detail.totalPages}</span>
           </div>
           {nextHref ? (
-            <Link href={nextHref} className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground">
+            <Link
+              href={nextHref}
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
+            >
               下一页
             </Link>
           ) : (
@@ -189,6 +229,6 @@ export default async function MakerDetailPage({
           )}
         </div>
       )}
-    </div>
+    </ArchiveShell>
   )
 }

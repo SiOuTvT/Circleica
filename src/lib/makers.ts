@@ -56,7 +56,7 @@ export interface MakerListResult {
   page: number
 }
 
-const LIST_PAGE_SIZE = 24
+export const LIST_PAGE_SIZE = 24
 const DETAIL_PAGE_SIZE = 24
 
 /**
@@ -67,8 +67,11 @@ export async function getMakers(opts: {
   search?: string
   sort?: "count" | "name"
   page?: number
+  /** 自定义页大小；不传用 LIST_PAGE_SIZE。Archive 列表索引场景传大值取全量。 */
+  pageSize?: number
 }): Promise<MakerListResult> {
-  const { search = "", sort = "count", page = 1 } = opts
+  const { search = "", sort = "count", page = 1, pageSize } = opts
+  const size = Math.min(Math.max(pageSize ?? LIST_PAGE_SIZE, 1), 1000)
   const pageNum = Math.max(1, page)
 
   const where = search.trim()
@@ -138,10 +141,10 @@ export async function getMakers(opts: {
   }
 
   const total = visible.length
-  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(total / size))
   const safePage = Math.min(pageNum, totalPages)
-  const start = (safePage - 1) * LIST_PAGE_SIZE
-  const paged = visible.slice(start, start + LIST_PAGE_SIZE)
+  const start = (safePage - 1) * size
+  const paged = visible.slice(start, start + size)
 
   return { makers: paged, total, totalPages, page: safePage }
 }
