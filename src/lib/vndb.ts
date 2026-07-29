@@ -275,7 +275,7 @@ class VNDBClient {
           this.sendRequest("vn", {
             filters: ["id", "=", vnId],
             fields:
-              "id,title,alttitle,aliases,released,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,image.url,length,screenshots{id,url},platforms",
+              "id,title,alttitle,aliases,released,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,image.url,length,screenshots{id,url},platforms,languages,olang",
             results: 1,
           }),
         this.CACHE_TTL,

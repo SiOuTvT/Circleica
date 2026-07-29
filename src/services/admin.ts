@@ -451,6 +451,14 @@ export const adminGameService = {
             : [],
           // 官方网站（VNDB 无干净官网字段，当前仅人工填写）
           officialWebsite: data.officialWebsite ? String(data.officialWebsite).trim() : "",
+          // 游戏语言（VNDB languages 代码数组，存 Json）
+          languages: Array.isArray(data.languages)
+            ? (data.languages as unknown[]).filter((x) => typeof x === "string")
+            : [],
+          // 原始语言（VNDB olang 单值代码，存 String）
+          originalLanguage: data.originalLanguage ? String(data.originalLanguage).trim() : "",
+          // 年龄分级（手动维护，存 String：0/12/15/18；VNDB 无干净来源）
+          ageRating: data.ageRating ? String(data.ageRating).trim() : "",
           publisherId,
           isPublished: data.isPublished === true,
         },
@@ -505,7 +513,7 @@ export const adminGameService = {
     const result = await prisma.$transaction(async (tx) => {
       // 字段白名单，防止 mass assignment
       const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
-        "platforms", "officialWebsite",
+        "platforms", "officialWebsite", "languages", "originalLanguage", "ageRating",
         "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
         "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
       const safe: Record<string, unknown> = {}

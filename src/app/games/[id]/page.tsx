@@ -188,6 +188,8 @@ export default async function GameDetailPage({
   }
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
+  const platforms = safeParse<string[]>(game.platforms, [])
+  const languages = safeParse<string[]>(game.languages, [])
 
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
@@ -380,6 +382,13 @@ export default async function GameDetailPage({
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
             studioName={game.studioName ?? undefined}
+            platforms={platforms}
+            officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
+            languages={languages}
+            originalLanguage={game.originalLanguage ? game.originalLanguage : undefined}
+            ageRating={game.ageRating ? game.ageRating : undefined}
+            englishName={game.englishName ? game.englishName : undefined}
+            status={game.status}
             username={session?.user?.name || undefined}
             userAvatar={session?.user?.image || null}
             resourceTagColor={resourceTagColor}

@@ -39,6 +39,8 @@ export const POST = withHandler(async (req) => {
     // 仅返回标签名称作为草稿，不创建 Tag 记录；保存时再入库
     tagNames: (norm.tags ?? []).map((t) => t.name),
     platforms: norm.platforms ?? [],
+    languages: norm.languages ?? [],
+    originalLanguage: norm.originalLanguage ?? "",
     officialWebsite: norm.officialWebsite ?? "",
     creators: (norm.creators ?? []).map((c) => ({
       vndbId: c.sourceId ?? "",

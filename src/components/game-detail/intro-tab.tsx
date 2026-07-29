@@ -2,9 +2,10 @@
 
 import { cn } from "@/lib/utils"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { Building2, Calendar, ChevronDown, Clock, ExternalLink, Gamepad2, Users } from "lucide-react"
+import { ChevronDown, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { GameInfoList, type GameInfoData } from "./game-info-list"
 
 /* ═══════════════════════════════════════════════
    语言优先级：中文 > English > 日本語 > 其他
@@ -274,82 +275,23 @@ function CreatorsGrid({
    ═══════════════════════════════════════════════ */
 
 export function ArchiveCard({
-  releaseDate,
-  studioName,
-  gameDuration,
-  vndbId,
-  gameTags,
+  data,
   isOpen,
   onToggle,
 }: {
-  releaseDate?: string
-  studioName?: string
-  gameDuration?: string
-  vndbId?: string
-  gameTags?: { name: string; color: string; groupName?: string }[]
+  data: GameInfoData
   isOpen: boolean
   onToggle: () => void
 }) {
   return (
     <div className="mt-3 lg:hidden">
       <CollapsibleCard
-        icon={<Calendar className="h-4 w-4 opacity-60" />}
+        icon={<ChevronDown className="h-4 w-4 opacity-60" />}
         label="游戏档案"
         isOpen={isOpen}
         onToggle={onToggle}
       >
-        <div className="space-y-2">
-          {/* 信息行 — 统一 gap-3, h-9 */}
-          {([
-            releaseDate ? { icon: <Calendar className="h-4 w-4 text-muted-foreground" />, label: "发售日期", value: releaseDate } : null,
-            studioName ? { icon: <Building2 className="h-4 w-4 text-muted-foreground" />, label: "制作会社", value: studioName, isTag: true } : null,
-            gameDuration ? { icon: <Clock className="h-4 w-4 text-muted-foreground" />, label: "游戏时长", value: gameDuration, isTag: true } : null,
-            vndbId ? (() => {
-              const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
-              const numericId = rawId.replace(/^v/, "")
-              return { icon: <ExternalLink className="h-4 w-4 text-muted-foreground" />, label: "VNDB", value: `v${numericId}`, href: `https://vndb.org/v${numericId}`, isTag: true }
-            })() : null,
-          ].filter(Boolean) as { icon: React.ReactNode; label: string; value: string; href?: string; isTag?: boolean }[]).map((row, i) => (
-            <div key={i} className="flex items-center gap-3 h-9">
-              {row.icon}
-              <span className="text-sm text-muted-foreground shrink-0">{row.label}</span>
-              {row.href ? (
-                <a href={row.href} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center no-underline">
-                  <span className="inline-flex items-center rounded-md px-2 py-0.5 text-sm font-medium bg-secondary text-foreground leading-none hover:opacity-80 transition-opacity">
-                    {row.value}
-                  </span>
-                </a>
-              ) : row.isTag ? (
-                <span className="ml-auto inline-flex items-center rounded-md px-2 py-0.5 text-sm font-medium bg-secondary text-foreground leading-none">
-                  {row.value}
-                </span>
-              ) : (
-                <span className="ml-auto text-sm font-medium text-foreground">{row.value}</span>
-              )}
-            </div>
-          ))}
-
-          {/* 游戏标签 — flex，第二行从 x=0 开始 */}
-          {gameTags && gameTags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 -mx-4 px-4">
-              <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground shrink-0 leading-none">游戏标签</span>
-              {gameTags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center rounded-md px-2 text-sm font-semibold shrink-0 leading-none"
-                  style={{
-                    background: tag.color ? `${tag.color}20` : "var(--secondary)",
-                    color: tag.color || "#6b7280",
-                    border: tag.color ? `1px solid ${tag.color}30` : "1px solid var(--border)",
-                  }}
-                >
-                  {tag.name}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        <GameInfoList data={data} />
       </CollapsibleCard>
     </div>
   )

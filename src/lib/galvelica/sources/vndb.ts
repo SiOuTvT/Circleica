@@ -164,6 +164,12 @@ class VndbAdapter implements SourceAdapter {
     /* ── 平台（VNDB platforms 字符串数组，如 win/lin/mac/ios/and/psp/ps2/drc/vnd/web/mob…） ── */
     const platforms = (vn.platforms as string[] | undefined) ?? []
 
+    /* ── 游戏语言（VNDB languages 字符串数组，如 en/ja/zh/ko…） ── */
+    const languages = (vn.languages as string[] | undefined) ?? []
+
+    /* ── 原始语言（VNDB olang 单值字符串，如 ja/en/zh；注意 Kana API 字段名为 olang 而非 orig_lang） ── */
+    const originalLanguage = typeof vn.olang === "string" && vn.olang.length > 0 ? vn.olang : undefined
+
     return {
       title: primaryName,
       originalWork: japaneseName,
@@ -174,6 +180,8 @@ class VndbAdapter implements SourceAdapter {
       gameDuration,
       screenshots,
       platforms,
+      languages,
+      originalLanguage,
       releaseDate: released ?? undefined,
       studioName,
       tags: tagNames.map((name) => ({ name })),

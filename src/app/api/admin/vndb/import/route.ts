@@ -71,6 +71,8 @@ export const POST = withHandler(async (req) => {
           gameDuration: norm.gameDuration ?? "",
           screenshots: norm.screenshots ?? [],
           platforms: norm.platforms ?? [],
+          languages: norm.languages ?? [],
+          originalLanguage: norm.originalLanguage ?? "",
           officialWebsite: norm.officialWebsite ?? "",
           vndbId: String(vndbId),
           isPublished: false, // 默认不发布，需要管理员审核

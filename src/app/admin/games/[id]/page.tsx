@@ -38,13 +38,18 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
   // Json 字段需显式解析为对应 TS 类型，避免 Prisma JsonValue 与组件 prop 类型不匹配
   const screenshots: string[] = Array.isArray(game.screenshots) ? game.screenshots as string[] : []
   const platforms: string[] = Array.isArray(game.platforms) ? (game.platforms as unknown[]).filter((x) => typeof x === "string") : []
+  const languages: string[] = Array.isArray(game.languages) ? (game.languages as unknown[]).filter((x) => typeof x === "string") : []
   const downloadLinks: { url: string; label: string }[] = Array.isArray(game.downloadLinks) ? game.downloadLinks as { url: string; label: string }[] : []
 
   const gameData = {
     ...game,
     screenshots,
     platforms,
+    languages,
     downloadLinks,
+    originalLanguage: typeof game.originalLanguage === "string" ? game.originalLanguage : "",
+    ageRating: typeof game.ageRating === "string" ? game.ageRating : "",
+    status: game.status,
     tagIds: game.tags.map((t) => t.tag.id),
     creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
     releaseDate: game.releaseDate ? toShanghaiDate(game.releaseDate) : undefined,

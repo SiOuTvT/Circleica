@@ -11,32 +11,25 @@ import { memo, useEffect, useRef, useState, useId } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { apiFetchSafe } from "@/lib/api-client"
+import {
+  PLATFORM_LABELS, PLATFORM_ORDER, LANGUAGE_LABELS, LANGUAGE_ORDER,
+  GAME_STATUS_LABELS, GAME_STATUS_ORDER, AGE_RATING_LABELS, AGE_RATING_ORDER,
+} from "@/lib/game-meta"
 
 interface Tag { id: string; name: string; color: string; groupId?: string | null }
 interface TagGroup { id: string; name: string; color: string; tags: Tag[] }
 
 /** VNDB 平台代码 → 可读标签（用于表单多选展示，存储仍使用代码数组） */
-const PLATFORM_OPTIONS: { code: string; label: string }[] = [
-  { code: "win", label: "Windows" },
-  { code: "lin", label: "Linux" },
-  { code: "mac", label: "macOS" },
-  { code: "ios", label: "iOS" },
-  { code: "and", label: "Android" },
-  { code: "web", label: "Web" },
-  { code: "mob", label: "Mobile" },
-  { code: "psp", label: "PSP" },
-  { code: "ps2", label: "PS2" },
-  { code: "ps3", label: "PS3" },
-  { code: "ps4", label: "PS4" },
-  { code: "ps5", label: "PS5" },
-  { code: "psv", label: "PS Vita" },
-  { code: "xbo", label: "Xbox One" },
-  { code: "x360", label: "Xbox 360" },
-  { code: "switch", label: "Switch" },
-  { code: "wii", label: "Wii" },
-  { code: "drc", label: "Dreamcast" },
-  { code: "vnd", label: "Visual Novel" },
-]
+const PLATFORM_OPTIONS: { code: string; label: string }[] = PLATFORM_ORDER.map((code) => ({
+  code,
+  label: PLATFORM_LABELS[code] ?? code.toUpperCase(),
+}))
+
+/** 游戏语言 → 多选选项（用于表单多选展示，存储仍使用代码数组） */
+const LANGUAGE_OPTIONS: { code: string; label: string }[] = LANGUAGE_ORDER.map((code) => ({
+  code,
+  label: LANGUAGE_LABELS[code] ?? code.toUpperCase(),
+}))
 
 interface Props {
   tags: Tag[]
@@ -51,6 +44,9 @@ interface Props {
     englishName?: string; aliases?: string
     platforms?: string[]
     officialWebsite?: string
+    languages?: string[]
+    originalLanguage?: string
+    ageRating?: string
     creators?: Array<{ vndbId: string; name: string; nameJa: string; role: string }>
   }
 }
@@ -124,6 +120,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const [aliases, setAliases] = useState(initialData?.aliases ?? "")
   const [platforms, setPlatforms] = useState<string[]>(initialData?.platforms ?? [])
   const [officialWebsite, setOfficialWebsite] = useState(initialData?.officialWebsite ?? "")
+  const [languages, setLanguages] = useState<string[]>(initialData?.languages ?? [])
+  const [originalLanguage, setOriginalLanguage] = useState(initialData?.originalLanguage ?? "")
+  const [ageRating, setAgeRating] = useState(initialData?.ageRating ?? "")
+  const [status, setStatus] = useState(initialData?.status ?? "FINISHED")
 
   // 创作者（VNDB 拉取或手动添加）
   const [creators, setCreators] = useState<Array<{ vndbId: string; name: string; nameJa: string; role: string }>>(
@@ -150,6 +150,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       descLangs: { zh: "", en: "", ja: "", other: "" },
       vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
       platforms: [] as string[], officialWebsite: "",
+      languages: [] as string[], originalLanguage: "", ageRating: "", status: "FINISHED",
       isNsfw: false, isPublished: true, selectedTags: [] as string[], draftTagNames: [] as string[],
     },
     enabled: !isEdit,
@@ -161,10 +162,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     updateDraft({
       title, originalWork, englishName, aliases,
       descLangs, vndbId, releaseDate, studioName, gameDuration,
-      platforms, officialWebsite,
+      platforms, officialWebsite, languages, originalLanguage, ageRating, status,
       isNsfw, isPublished, selectedTags, draftTagNames,
     })
-  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, platforms, officialWebsite, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, platforms, officialWebsite, languages, originalLanguage, ageRating, status, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
 
   // 从草稿恢复表单
   function restoreDraft() {
@@ -179,6 +180,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setGameDuration(draft.gameDuration)
     setPlatforms(draft.platforms)
     setOfficialWebsite(draft.officialWebsite)
+    setLanguages(draft.languages)
+    setOriginalLanguage(draft.originalLanguage)
+    setAgeRating(draft.ageRating)
+    setStatus(draft.status)
     setIsNsfw(draft.isNsfw)
     setIsPublished(draft.isPublished)
     setSelectedTags(draft.selectedTags)
@@ -366,6 +371,14 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         setPlatforms((prev) => Array.from(new Set([...prev, ...(d.platforms as string[])])))
       }
 
+      // 游戏语言（VNDB languages 代码数组）
+      if (Array.isArray(d.languages) && d.languages.length) {
+        setLanguages((prev) => Array.from(new Set([...prev, ...(d.languages as string[])])))
+      }
+
+      // 原始语言（VNDB olang 单值代码）
+      if (d.originalLanguage) setOriginalLanguage(d.originalLanguage as string)
+
       // 同步更新 VNDB ID
       setVndbId(id)
       setVndbSuccess("VNDB 数据拉取成功！所有字段均可手动修改。")
@@ -397,6 +410,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       aliases,
       platforms,
       officialWebsite: officialWebsite.trim(),
+      languages,
+      originalLanguage: originalLanguage.trim(),
+      ageRating: ageRating.trim(),
+      status,
       creators: creators.length ? creators : undefined,
     }
 
@@ -430,6 +447,9 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const idDuration = useId()
   const idWebsite = useId()
   const idPlatforms = useId()
+  const idOriginal = useId()
+  const idAge = useId()
+  const idStatus = useId()
 
 
 
@@ -741,6 +761,57 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 })}
               </div>
             </div>
+            {/* 游戏语言（多选，存储语言代码） */}
+            <div className="pt-3 border-t border-border">
+              <label className={labelCls}>游戏语言</label>
+              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
+                {LANGUAGE_OPTIONS.map((l) => {
+                  const active = languages.includes(l.code)
+                  return (
+                    <button
+                      key={l.code}
+                      type="button"
+                      onClick={() => setLanguages((prev) => (active ? prev.filter((c) => c !== l.code) : [...prev, l.code]))}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${
+                        active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* 原始语言 / 年龄分级 / 制作状态 */}
+            <div className="grid grid-cols-1 gap-3 pt-3 border-t border-border sm:grid-cols-3">
+              <div>
+                <label htmlFor={idOriginal} className={labelCls}>原始语言</label>
+                <select id={idOriginal} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={inputCls}>
+                  <option value="">未设置</option>
+                  {LANGUAGE_ORDER.map((code) => (
+                    <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor={idAge} className={labelCls}>年龄分级</label>
+                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={inputCls}>
+                  {AGE_RATING_ORDER.map((v) => (
+                    <option key={v} value={v}>{AGE_RATING_LABELS[v]}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor={idStatus} className={labelCls}>制作状态</label>
+                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
+                  {GAME_STATUS_ORDER.map((v) => (
+                    <option key={v} value={v}>{GAME_STATUS_LABELS[v]}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                 <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />

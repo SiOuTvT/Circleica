@@ -56,6 +56,10 @@ export interface NormalizedWork {
   steamAppId?: string
   /** 支持平台代码（VNDB platforms：win/lin/mac/ios/and/psp/ps2/drc/vnd/web/mob…） */
   platforms?: string[]
+  /** 游戏语言代码数组（VNDB languages：en/ja/zh/ko…） */
+  languages?: string[]
+  /** 原始语言代码（VNDB olang：单值，如 ja/en/zh） */
+  originalLanguage?: string
   /** 官方网站（VNDB 无干净官网字段，保留接口位，由人工填写） */
   officialWebsite?: string
 }

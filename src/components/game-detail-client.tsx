@@ -1,7 +1,6 @@
 "use client"
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
-import { Building2, Calendar, Clock, ExternalLink, Gamepad2 } from "lucide-react"
 import { EmotionalIcon } from "@/components/emotional-icon"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
@@ -9,8 +8,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
+import { GameInfoList } from "./game-detail/game-info-list"
 import { ReportDialog } from "./game-detail/report-dialog"
-import { Tag } from "@/components/ui/tag"
 
 /** 资源 Tab — 懒加载 */
 const ResourceTab = dynamic(() => import("./game-detail/resource-tab").then(m => ({ default: m.ResourceTab })), {
@@ -69,6 +68,13 @@ export default function GameDetailClient({
   releaseDate,
   gameDuration,
   studioName,
+  platforms,
+  officialWebsite,
+  languages,
+  originalLanguage,
+  ageRating,
+  englishName,
+  status,
   username,
   userAvatar,
   resourceTagColor,
@@ -89,6 +95,13 @@ export default function GameDetailClient({
   releaseDate?: string
   gameDuration?: string
   studioName?: string
+  platforms?: string[]
+  officialWebsite?: string
+  languages?: string[]
+  originalLanguage?: string
+  ageRating?: string
+  englishName?: string
+  status?: string
   username?: string
   userAvatar?: string | null
   resourceTagColor?: string
@@ -318,8 +331,15 @@ export default function GameDetailClient({
           <div className="lg:hidden">
             <ArchiveCard
               releaseDate={releaseDate}
+              status={status}
               studioName={studioName}
               gameDuration={gameDuration}
+              platforms={platforms}
+              officialWebsite={officialWebsite}
+              languages={languages}
+              originalLanguage={originalLanguage}
+              ageRating={ageRating}
+              englishName={englishName}
               vndbId={vndbId}
               gameTags={gameTags}
               isOpen={mobileArchiveOpen}
@@ -331,77 +351,23 @@ export default function GameDetailClient({
         {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
         <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border card-shadow">
 
-          {/* 档案行列表 */}
-          <div className="space-y-3.5">
-
-            {/* 发售日期 */}
-            {releaseDate && (
-              <div className="flex items-start gap-2.5">
-                <Calendar className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0 text-muted-foreground">发售日期：</span>
-                  <span className="text-sm font-semibold text-foreground">{releaseDate}</span>
-                </div>
-              </div>
-            )}
-
-            {/* 制作会社 */}
-            {studioName && (
-              <div className="flex items-start gap-2.5">
-                <Building2 className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0 text-muted-foreground">制作会社：</span>
-                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold bg-secondary text-foreground">{studioName}</span>
-                </div>
-              </div>
-            )}
-
-            {/* 游戏时长 */}
-            {gameDuration && (
-              <div className="flex items-start gap-2.5">
-                <Clock className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-                <div className="flex flex-wrap items-center gap-x-1.5 min-w-0">
-                  <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏时长：</span>
-                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold bg-secondary text-foreground">
-                    {gameDuration}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* VNDB 链接 */}
-            {vndbId && (() => {
-              const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
-              const numericId = rawId.replace(/^v/, "")
-              return (
-                <div className="flex items-start gap-2.5">
-                  <ExternalLink className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-                  <div className="flex items-center gap-x-1.5 min-w-0">
-                    <span className="text-sm font-medium shrink-0 text-muted-foreground">VNDB：</span>
-                    <a
-                      href={`https://vndb.org/v${numericId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80 bg-secondary text-foreground"
-                    >
-                      v{numericId}
-                    </a>
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* 游戏标签 */}
-            {gameTags && gameTags.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 -mx-4 px-4">
-                <Gamepad2 className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={2} />
-                <span className="text-sm font-medium shrink-0 text-muted-foreground">游戏标签</span>
-                {gameTags.map((tag, i) => (
-                  <Tag key={i} color={tag.color || "#6b7280"}>{tag.name}</Tag>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* 档案行列表 — 统一信息卡 */}
+          <GameInfoList
+            data={{
+              releaseDate,
+              status,
+              studioName,
+              gameDuration,
+              platforms,
+              officialWebsite,
+              languages,
+              originalLanguage,
+              ageRating,
+              englishName,
+              vndbId,
+              gameTags,
+            }}
+          />
         </div>
       </div>
 
