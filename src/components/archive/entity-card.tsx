@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { roleLabel } from "@/lib/role-labels"
 
 export interface StudioCardData {
   name: string
@@ -13,10 +14,8 @@ export interface StudioCardData {
   coverImage: string | null
   creatorCount: number
 }
-/**
- * 组件契约（仅数据接口，供未来 Creator / Collection 页面复用）。
- * M1 不实现其视觉变体，避免预埋半成品。
- */
+
+/** 组件契约（仅数据接口，供未来 Collection 页面复用）。M2 不实现其视觉变体，避免预埋半成品。 */
 export interface CreatorCardData {
   id: string
   name: string
@@ -24,6 +23,7 @@ export interface CreatorCardData {
   avatar?: string | null
   roles: string[]
 }
+
 export interface CollectionCardData {
   name: string
   slug: string
@@ -84,15 +84,7 @@ function CoverMedia({
   )
 }
 
-/**
- * EntityCard — 卡片外壳（Framework，Archive 浏览体系共用）
- *
- * M1 仅实现 studio 变体（落地列表页使用）。
- * creator / collection 仅保留数据契约接口（CreatorCardData / CollectionCardData），
- * 其独立页面在后续阶段开发，此处不预埋半成品视觉。
- */
-export function EntityCard(props: { variant: "studio"; data: StudioCardData }) {
-  const { data } = props
+function StudioCard({ data }: { data: StudioCardData }) {
   return (
     <CardShell href={`/credits/studio/${encodeURIComponent(data.normalized)}`}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
@@ -114,4 +106,69 @@ export function EntityCard(props: { variant: "studio"; data: StudioCardData }) {
       </div>
     </CardShell>
   )
+}
+
+function CreatorAvatar({ avatar, initial }: { avatar: string | null | undefined; initial: string }) {
+  const [errored, setErrored] = useState(false)
+  if (avatar && !errored) {
+    return (
+      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/60">
+        <Image
+          src={avatar}
+          alt=""
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          unoptimized
+          sizes="48px"
+          onError={() => setErrored(true)}
+        />
+      </div>
+    )
+  }
+  return (
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-border/60">
+      <span className="text-sm font-bold text-primary/40">{initial.slice(0, 1)}</span>
+    </div>
+  )
+}
+
+function CreatorCard({ data }: { data: CreatorCardData }) {
+  const display = data.nameJa || data.name
+  return (
+    <CardShell href={`/creators/${data.id}`} className="flex-row">
+      <div className="flex items-center gap-3 p-3.5">
+        <CreatorAvatar avatar={data.avatar} initial={display} />
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+            {display}
+          </h3>
+          {data.roles.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {data.roles.slice(0, 3).map((r) => (
+                <span
+                  key={r}
+                  className="rounded bg-primary/10 px-1.5 py-0 text-[10px] leading-4 text-primary/80"
+                >
+                  {roleLabel(r)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </CardShell>
+  )
+}
+
+/**
+ * EntityCard — 卡片外壳（Framework，Archive 浏览体系共用）
+ *
+ * M2 实现 studio / creator 两个变体（落地列表页使用）。
+ * collection 仅保留数据契约接口（CollectionCardData），其独立页面在后续阶段开发，此处不预埋半成品视觉。
+ */
+export function EntityCard(
+  props: { variant: "studio"; data: StudioCardData } | { variant: "creator"; data: CreatorCardData },
+) {
+  if (props.variant === "creator") return <CreatorCard data={props.data} />
+  return <StudioCard data={props.data} />
 }
