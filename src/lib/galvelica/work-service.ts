@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma"
 import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"
+import { linkGameStudios } from "@/services/admin"
 
 /* ── 跨源匹配（去重核心） ─────────────────────────── */
 /**
@@ -492,7 +493,6 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
       status,
       gameDuration: work.duration,
       aliases: work.aliases,
-      studioName: work.studioName,
       isNsfw: work.isNsfw,
       vndbId: vndbSource?.externalId ?? "",
       isPublished: false,
@@ -510,6 +510,12 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
   if (creators.length) {
     await prisma.gameCreator.createMany({ data: creators, skipDuplicates: true })
   }
+
+  // 制作组：按名称归一后 upsert Studio 并关联 GameStudio（替代已删除的 Game.studioName 列）
+  const studioNames = work.studioName
+    ? work.studioName.split(",").map((s) => s.trim()).filter(Boolean)
+    : []
+  await linkGameStudios(prisma, studioNames, game.id)
 
   await prisma.work.update({ where: { id: work.id }, data: { gameId: game.id } })
   return game.id

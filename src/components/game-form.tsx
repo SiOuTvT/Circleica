@@ -447,7 +447,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const idDuration = useId()
   const idWebsite = useId()
   const idPlatforms = useId()
-  const idOriginal = useId()
+  const idOriginalLanguage = useId()
   const idAge = useId()
   const idStatus = useId()
 
@@ -792,8 +792,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             {/* 原始语言 / 年龄分级 / 制作状态 */}
             <div className="grid grid-cols-1 gap-3 pt-3 border-t border-border sm:grid-cols-3">
               <div>
-                <label htmlFor={idOriginal} className={labelCls}>原始语言</label>
-                <select id={idOriginal} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={inputCls}>
+                <label htmlFor={idOriginalLanguage} className={labelCls}>原始语言</label>
+                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={inputCls}>
                   <option value="">未设置</option>
                   {LANGUAGE_ORDER.map((code) => (
                     <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>

@@ -107,7 +107,7 @@ export const POST = withHandler(async (req) => {
     throw new ConflictError("站点已完成初始化")
   }
 
-  revalidateTag("site-settings")
+  revalidateTag("site-settings", { expire: 0 })
 
   return json({
     userId: result.user.id,

@@ -1,0 +1,767 @@
+<!--
+  Circleica「制作组图鉴」档案馆页面
+  Design System 参考实现（创作者 / 标签 / 合集 档案页均复用此规范）
+  模板来源：prototype-templates / web-prototype
+  设计令牌：直接照用主理人提供的 light / dark / primary / 类型徽标 / 间距 / 字号 / 圆角 / 阴影 规范
+  说明：本页所有数据为「设计原型示例数据」，非真实统计。
+  断点：≤640px 字母索引横滚、网格降 2 列、Hero 堆叠、StatsBar 换行。
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>制作组图鉴 · Circleica 档案馆</title>
+<style>
+  /* ============================================================
+     1. 设计令牌（Design Tokens）
+     ============================================================ */
+  :root {
+    /* 色彩 —— light */
+    --background: #F7F9F8;
+    --card: #FFFFFF;
+    --muted: #F0F3F2;
+    --foreground: #1A2B29;
+    --muted-foreground: #5C6B69;
+    --border: #E3E9E7;
+
+    /* 主色 primary */
+    --primary: #5FA8A0;
+    --primary-hover: #69ada6;
+    --primary-active: #72b2ab;
+    --ring: rgba(95, 168, 160, .3);
+    --glow: rgba(95, 168, 160, .08);
+
+    /* 类型徽标 */
+    --badge-doujin-bg: color-mix(#5FA8A0 14%, transparent);
+    --badge-doujin-fg: #3E7A73;
+    --badge-personal-bg: #ECEEEC;
+    --badge-personal-fg: #5C6B69;
+    --badge-commercial-bg: #EFE9E4;
+    --badge-commercial-fg: #6B5645;
+
+    /* 间距刻度 4/8/12/16/24/32/48 */
+    --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+    --s6: 24px; --s8: 32px; --s12: 48px;
+
+    /* 圆角：卡 1rem / 输入 .75rem / 缩略 .5rem */
+    --r-card: 1rem;
+    --r-input: .75rem;
+    --r-sm: .5rem;
+
+    /* 阴影 */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .04);
+    --shadow-hover: 0 4px 12px rgba(95, 168, 160, .12);
+
+    /* 排版 */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body.dark {
+    --background: #121816;
+    --card: #1A201E;
+    --muted: #232A28;
+    --foreground: #E8EFED;
+    --muted-foreground: #9AA8A5;
+    --border: #2C3432;
+    /* 浅色徽标底在暗色下改为低透叠加，保持可读 */
+    --badge-personal-bg: color-mix(#ECEEEC 12%, transparent);
+    --badge-commercial-bg: color-mix(#EFE9E4 14%, transparent);
+    /* 暗底加深商业徽标前景，保证 AA 对比度 */
+    --badge-commercial-fg: #C9B09C;
+  }
+
+  /* ============================================================
+     2. 基础排版与全局
+     ============================================================ */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: .9375rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s ease, color .25s ease;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--s6); }
+
+  /* 字号阶梯 */
+  .display { font-size: 2rem; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+  .h2 { font-size: 1.5rem; line-height: 1.3; font-weight: 700; }
+  .h3 { font-size: 1.125rem; line-height: 1.4; font-weight: 600; }
+  .body { font-size: .9375rem; line-height: 1.6; }
+  .sm { font-size: .8125rem; line-height: 1.5; }
+  .xs { font-size: .6875rem; }
+
+  .muted { color: var(--muted-foreground); }
+
+  /* 设计目的标注 */
+  .purpose {
+    margin: var(--s2) 0 0;
+    font-size: .75rem;
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+
+  /* 区块间距 */
+  section { margin-top: var(--s12); }
+
+  /* 类型徽标 */
+  .badge {
+    display: inline-flex; align-items: center; gap: var(--s1);
+    font-size: .6875rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge-doujin { background: var(--badge-doujin-bg); color: var(--badge-doujin-fg); }
+  .badge-personal { background: var(--badge-personal-bg); color: var(--badge-personal-fg); }
+  .badge-commercial { background: var(--badge-commercial-bg); color: var(--badge-commercial-fg); }
+
+  /* 通用按钮 */
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--s2);
+    font-size: .8125rem; font-weight: 600;
+    padding: 8px 14px; border-radius: var(--r-input);
+    border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+    cursor: pointer; transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-hover); }
+  .btn:active { background: var(--primary-active); }
+
+  /* ============================================================
+     3. 顶部条 + 主题切换
+     ============================================================ */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(var(--background) 86%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .brand { display: flex; align-items: center; gap: var(--s2); font-weight: 700; }
+  .brand .logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    display: grid; place-items: center; color: #fff;
+  }
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .8125rem; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+    cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .theme-toggle:hover { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  /* 主题图标：浅色显示月（切深色），深色显示日（切浅色） */
+  .theme-toggle .icon-sun { display: none; }
+  body.dark .theme-toggle .icon-moon { display: none; }
+  body.dark .theme-toggle .icon-sun { display: inline; }
+
+  /* 移动端预览说明块 */
+  .mobile-note {
+    background: var(--glow);
+    border: 1px dashed var(--primary);
+    border-radius: var(--r-input);
+    padding: var(--s3) var(--s4);
+    font-size: .75rem; color: var(--muted-foreground);
+    display: flex; gap: var(--s2); align-items: flex-start;
+  }
+  .mobile-note b { color: var(--badge-doujin-fg); }
+
+  /* ============================================================
+     4. Hero 编辑式标题区
+     ============================================================ */
+  .hero {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: var(--s8); flex-wrap: wrap;
+    padding-top: var(--s12);
+  }
+  .hero-left { display: flex; gap: var(--s4); align-items: flex-start; }
+  .hero-badge {
+    width: 52px; height: 52px; border-radius: 14px; flex: none;
+    background: var(--badge-doujin-bg); color: var(--badge-doujin-fg);
+    display: grid; place-items: center;
+  }
+  .hero-sub { margin: var(--s2) 0 0; color: var(--muted-foreground); }
+  .hero-stats { display: flex; gap: var(--s8); }
+  .hero-stat .num { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hero-stat .lbl { font-size: .75rem; color: var(--muted-foreground); }
+
+  /* ============================================================
+     5. StatsBar 统计区
+     ============================================================ */
+  .statsbar {
+    display: flex; align-items: center; gap: var(--s8); flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-card); padding: var(--s6) var(--s8);
+    box-shadow: var(--shadow-sm);
+  }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat .k { font-size: 1.625rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat .v { font-size: .75rem; color: var(--muted-foreground); }
+  .stat-div { width: 1px; align-self: stretch; background: var(--border); }
+
+  /* ============================================================
+     6. 搜索栏
+     ============================================================ */
+  .search { position: relative; max-width: 480px; }
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground); }
+  .search input {
+    width: 100%; padding: 12px 14px 12px 42px;
+    font-size: .9375rem; font-family: inherit;
+    background: var(--card); color: var(--foreground);
+    border: 1px solid var(--border); border-radius: var(--r-input);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .search input::placeholder { color: var(--muted-foreground); }
+  .search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  /* ============================================================
+     7. AlphaIndex 字母索引（sticky）
+     ============================================================ */
+  .alpha-wrap { position: sticky; top: 56px; z-index: 40; }
+  .alpha {
+    display: flex; gap: var(--s2); height: 44px; align-items: center;
+    overflow-x: auto; scrollbar-width: none;
+    background: color-mix(var(--background) 90%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 var(--s6);
+  }
+  .alpha::-webkit-scrollbar { display: none; }
+  .alpha a, .alpha span {
+    flex: none; width: 32px; height: 32px; border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: .8125rem; font-weight: 600; text-decoration: none;
+    color: var(--foreground); transition: background .15s ease, color .15s ease;
+  }
+  .alpha a:hover { background: var(--glow); color: var(--primary); }
+  .alpha .disabled { color: var(--muted-foreground); opacity: .35; pointer-events: none; }
+  .alpha .hash { color: var(--muted-foreground); }
+
+  /* ============================================================
+     8. 排序 / 筛选
+     ============================================================ */
+  .controls { display: flex; flex-wrap: wrap; gap: var(--s6); align-items: center; justify-content: space-between; }
+  .control-group { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+  .control-label { font-size: .75rem; color: var(--muted-foreground); font-weight: 600; }
+  .toggle {
+    display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+    background: var(--card);
+  }
+  .toggle button {
+    border: 0; background: transparent; color: var(--muted-foreground);
+    font-size: .8125rem; padding: 7px 14px; cursor: pointer; font-family: inherit;
+    transition: background .15s ease, color .15s ease;
+  }
+  .toggle button.active { background: var(--primary); color: #fff; }
+  .capsule {
+    font-size: .8125rem; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--card); color: var(--muted-foreground);
+    cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .capsule:hover { border-color: var(--primary); color: var(--foreground); }
+  .capsule.active { background: var(--glow); border-color: var(--primary); color: var(--badge-doujin-fg); font-weight: 600; }
+
+  /* ============================================================
+     9. ArchiveCard 卡片
+     ============================================================ */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(264px, 1fr)); gap: var(--s6); }
+  .grp-head { display: flex; align-items: center; gap: var(--s2); margin: var(--s8) 0 var(--s4); }
+  .grp-head .letter { font-size: 1.125rem; font-weight: 700; }
+  .grp-head .count { font-size: .75rem; color: var(--muted-foreground); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-card); overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: color-mix(var(--primary) 40%, var(--border));
+  }
+  .card-cover {
+    position: relative; aspect-ratio: 16 / 10; overflow: hidden;
+    background: linear-gradient(135deg, color-mix(var(--primary) 22%, var(--muted)), var(--muted));
+  }
+  .card-cover .badge { position: absolute; top: 12px; left: 12px; z-index: 2; }
+  /* 叠压缩略拼贴：右下角固定 44px 尺寸，rounded-lg，叠压 8px */
+  .collage { position: absolute; right: 12px; bottom: 12px; display: flex; }
+  .collage span {
+    width: 44px; height: 44px; border-radius: 8px; border: 2px solid var(--card);
+    margin-left: -8px; box-shadow: 0 1px 3px rgba(0,0,0,.18);
+  }
+  .collage span:first-child { margin-left: 0; }
+  .collage .t1 { background: linear-gradient(135deg, #cfe3df, #9fc4be); }
+  .collage .t2 { background: linear-gradient(135deg, #e7d9cd, #c9b09c); }
+  .collage .t3 { background: linear-gradient(135deg, #d7e0dd, #aac0bb); }
+  /* 无封面 letter 占位 */
+  .cover-letter {
+    display: grid; place-items: center; gap: 4px;
+    background: var(--muted); color: var(--muted-foreground);
+  }
+  .cover-letter .big { font-size: 2.25rem; font-weight: 800; opacity: .5; }
+  .cover-letter svg { opacity: .35; }
+  .card-body { padding: var(--s4); }
+  .card-body h3 { margin: 0; }
+  .card-body .meta { margin: 4px 0 0; font-size: .8125rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+  /* ============================================================
+     10. 空数据三态
+     ============================================================ */
+  .state-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--r-card);
+    padding: var(--s12) var(--s6); text-align: center; box-shadow: var(--shadow-sm);
+  }
+  .state-block svg { color: var(--muted-foreground); opacity: .5; margin-bottom: var(--s3); }
+  .state-block h3 { margin: 0 0 var(--s2); }
+  .state-block p { margin: 0 0 var(--s4); color: var(--muted-foreground); }
+
+  /* ============================================================
+     11. Loading 骨架屏
+     ============================================================ */
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+  .skeleton .sk-cover { aspect-ratio: 16 / 10; background: var(--muted); animation: pulse 1.4s ease-in-out infinite; }
+  .skeleton .sk-line { height: 12px; border-radius: 6px; background: var(--muted); margin-top: var(--s3); animation: pulse 1.4s ease-in-out infinite; }
+  .skeleton .sk-line.short { width: 60%; }
+  .skeleton .card { padding: 0; }
+  .skeleton .sk-body { padding: var(--s4); }
+
+  /* ============================================================
+     12. 分页
+     ============================================================ */
+  .pager { display: flex; align-items: center; justify-content: center; gap: var(--s2); margin-top: var(--s8); }
+  .pager a {
+    min-width: 36px; height: 36px; padding: 0 10px; border-radius: var(--r-input);
+    display: grid; place-items: center; text-decoration: none;
+    border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+    font-size: .8125rem; transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .pager a:hover { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+  .pager a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .pager a.disabled { opacity: .35; pointer-events: none; }
+
+  /* ============================================================
+     13. Footer
+     ============================================================ */
+  footer {
+    margin-top: var(--s12); border-top: 1px solid var(--border);
+    background: var(--card);
+  }
+  .footer-inner { display: flex; flex-wrap: wrap; gap: var(--s8); justify-content: space-between; padding: var(--s8) var(--s6); }
+  .footer-col h4 { margin: 0 0 var(--s3); font-size: .8125rem; }
+  .footer-col a { display: block; color: var(--muted-foreground); text-decoration: underline; text-underline-offset: 3px; font-size: .8125rem; padding: 3px 0; }
+  .footer-col a:hover { color: var(--primary); }
+  .footer-bottom { border-top: 1px solid var(--border); padding: var(--s4) var(--s6); font-size: .75rem; color: var(--muted-foreground); text-align: center; }
+
+  /* ============================================================
+     14. 响应式断点 ≤640px
+     ============================================================ */
+  @media (max-width: 640px) {
+    .wrap { padding: 0 var(--s4); }
+    .hero { flex-direction: column; align-items: flex-start; padding-top: var(--s8); }
+    .hero-stats { gap: var(--s6); }
+    .statsbar { gap: var(--s6); padding: var(--s4); }
+    .stat-div { display: none; }
+    .stat { flex: 1 1 40%; }
+    .alpha { padding: 0 var(--s4); }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: var(--s4); }
+    .controls { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ============================================================
+     15. 无障碍：尊重减少动效偏好
+     ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部条 + 主题切换 -->
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+        </span>
+        <span>Circleica 档案馆</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" aria-pressed="false">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="label">深色模式</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- 移动端预览说明块 -->
+    <div class="mobile-note" style="margin-top:var(--s6)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M11 18h2"/></svg>
+      <span><b>移动端预览：</b>本原型内置真实响应式断点（≤640px）。缩窄窗口即可看到字母索引横滚、网格降为 2 列、Hero 堆叠、StatsBar 换行。所有数据均为设计原型示例。</span>
+    </div>
+
+    <!-- ========================= 模块 1：Hero ========================= -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-left">
+        <div class="hero-badge" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg>
+        </div>
+        <div>
+          <h1 class="display" id="hero-title">制作组图鉴</h1>
+          <p class="hero-sub sm">同人社团 · 小型制作组 · 个人作者</p>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">9</div><div class="lbl">收录制作组（示例）</div></div>
+        <div class="hero-stat"><div class="num">1998–2025</div><div class="lbl">收录年代跨度（示例）</div></div>
+      </div>
+    </section>
+    <p class="purpose">设计目的：以编辑式（editorial）标题建立档案馆的「目录感」，左侧徽标点明内容类型，右侧轻量关键统计提供信任锚点，但不喧宾夺主——真正的硬数据留给下方 StatsBar。</p>
+
+    <!-- ========================= 模块 2：StatsBar ========================= -->
+    <section class="statsbar" aria-label="档案馆统计">
+      <div class="stat"><span class="k">1,284</span><span class="v">作品数</span></div>
+      <div class="stat-div" aria-hidden="true"></div>
+      <div class="stat"><span class="k">342</span><span class="v">参与创作者数</span></div>
+      <div class="stat-div" aria-hidden="true"></div>
+      <div class="stat"><span class="k">8,650</span><span class="v">总收藏</span></div>
+      <div class="stat-div" aria-hidden="true"></div>
+      <div class="stat"><span class="k">27</span><span class="v">年代跨度（年）</span></div>
+    </section>
+    <p class="purpose">设计目的：用 tabular-nums + 1px 分隔把四项核心指标做成「仪表读数」式横排，便于快速扫读且不诱导点击；分隔线替代卡片描边，避免与下方卡片视觉重复。</p>
+
+    <!-- ========================= 模块 3：搜索栏 ========================= -->
+    <section class="search" aria-label="搜索制作组">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" placeholder="搜制作组名称…" aria-label="搜制作组名称" />
+    </section>
+    <p class="purpose">设计目的：搜索是档案馆最高频入口，置于索引与卡片之上；图标内嵌降低视觉噪声，focus 态用主色 ring 而非重边框，保持轻量。</p>
+
+    <!-- ========================= 模块 4：AlphaIndex 字母索引 ========================= -->
+    <div class="alpha-wrap">
+      <nav class="alpha" aria-label="字母索引">
+        <a href="#grp-A">A</a>
+        <a href="#grp-B">B</a>
+        <a href="#grp-C">C</a>
+        <span class="disabled">D</span>
+        <span class="disabled">E</span>
+        <span class="disabled">F</span>
+        <a href="#grp-G">G</a>
+        <span class="disabled">H</span>
+        <span class="disabled">I</span>
+        <span class="disabled">J</span>
+        <span class="disabled">K</span>
+        <span class="disabled">L</span>
+        <span class="disabled">M</span>
+        <a href="#grp-N">N</a>
+        <a href="#grp-O">O</a>
+        <span class="disabled">P</span>
+        <span class="disabled">Q</span>
+        <span class="disabled">R</span>
+        <a href="#grp-S">S</a>
+        <span class="disabled">T</span>
+        <span class="disabled">U</span>
+        <span class="disabled">V</span>
+        <span class="disabled">W</span>
+        <span class="disabled">X</span>
+        <a href="#grp-Y">Y</a>
+        <a href="#grp-Z">Z</a>
+        <a href="#grp-HASH" class="hash">#</a>
+      </nav>
+    </div>
+    <p class="purpose">设计目的：sticky 横条让长列表始终可跳转；无数据字母置灰且禁用点击，传达「此处为空」而不制造死链；点击锚点平滑滚动到对应字母分组。</p>
+
+    <!-- ========================= 模块 5：排序 / 筛选 ========================= -->
+    <section class="controls" aria-label="排序与筛选">
+      <div class="control-group">
+        <span class="control-label">排序</span>
+        <div class="toggle" role="group" aria-label="排序方式">
+          <button class="active">作品数</button>
+          <button>名称</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">筛选（创作者视角 · 本页并列展示）</span>
+        <button class="capsule active">全部</button>
+        <button class="capsule">脚本</button>
+        <button class="capsule">原画</button>
+        <button class="capsule">音乐</button>
+        <button class="capsule">翻译</button>
+        <button class="capsule">主编</button>
+      </div>
+    </section>
+    <p class="purpose">设计目的：排序 toggle 与角色胶囊共用一套「选中=主色填充/描边」语言，保证与卡片徽标同源；本页以制作组为主，故把创作者页的角色筛选并列展示，作为跨档案页复用示范。</p>
+
+    <!-- ========================= 模块 6：ArchiveCard 卡片 ========================= -->
+    <div id="archive-grid">
+
+      <!-- A -->
+      <div class="grp-head" id="grp-A"><span class="letter">A</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-doujin">同人</span>
+            <div class="collage"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">あっぷりけ（Applique）</h3>
+            <p class="meta">9 作品 · 4 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- B -->
+      <div class="grp-head" id="grp-B"><span class="letter">B</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-personal">个人</span>
+            <div class="collage"><span class="t2"></span><span class="t3"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">白猫軒</h3>
+            <p class="meta">3 作品 · 1 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- C（无封面 letter 占位） -->
+      <div class="grp-head" id="grp-C"><span class="letter">C</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover cover-letter">
+            <span class="big">蒼</span>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span class="badge badge-commercial" style="position:absolute;top:12px;left:12px">商业衍生</span>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">蒼き翼制作委員会</h3>
+            <p class="meta">14 作品 · 6 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- G -->
+      <div class="grp-head" id="grp-G"><span class="letter">G</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-doujin">同人</span>
+            <div class="collage"><span class="t3"></span><span class="t1"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">月光工房</h3>
+            <p class="meta">7 作品 · 3 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- N -->
+      <div class="grp-head" id="grp-N"><span class="letter">N</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-commercial">商业衍生</span>
+            <div class="collage"><span class="t1"></span><span class="t2"></span><span class="t3"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">Nitro+</h3>
+            <p class="meta">28 作品 · 12 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- O -->
+      <div class="grp-head" id="grp-O"><span class="letter">O</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-doujin">同人</span>
+            <div class="collage"><span class="t2"></span><span class="t1"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">橘色れくいえむ（Orange Requiem）</h3>
+            <p class="meta">5 作品 · 2 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- S -->
+      <div class="grp-head" id="grp-S"><span class="letter">S</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-commercial">商业衍生</span>
+            <div class="collage"><span class="t3"></span><span class="t2"></span><span class="t1"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">Studio Vermilion</h3>
+            <p class="meta">11 作品 · 5 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Y -->
+      <div class="grp-head" id="grp-Y"><span class="letter">Y</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-doujin">同人</span>
+            <div class="collage"><span class="t1"></span><span class="t3"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">ゆずソフト（Yuzu Soft）</h3>
+            <p class="meta">16 作品 · 7 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Z（无封面 letter 占位） -->
+      <div class="grp-head" id="grp-Z"><span class="letter">Z</span><span class="count">1 个制作组</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover cover-letter">
+            <span class="big">主</span>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span class="badge badge-doujin" style="position:absolute;top:12px;left:12px">同人</span>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">主权同人社团</h3>
+            <p class="meta">6 作品 · 8 创作者</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- # -->
+      <div class="grp-head" id="grp-HASH"><span class="letter">#</span><span class="count">数字 / 符号开头</span></div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-cover">
+            <span class="badge badge-personal">个人</span>
+            <div class="collage"><span class="t2"></span><span class="t3"></span></div>
+          </div>
+          <div class="card-body">
+            <h3 class="h3">0X_STUDIO</h3>
+            <p class="meta">4 作品 · 2 创作者</p>
+          </div>
+        </article>
+      </div>
+
+    </div>
+    <p class="purpose">设计目的：卡片固定 16/10 封面比例统一栅格节奏；右下角克制拼贴（30% 尺寸、叠压 8px）暗示「作品集」而不破坏封面；左上角类型徽标与全站令牌同源；hover 仅做 4px lift + ring 变化，反馈明确但不浮夸。无封面情形用大字 letter + 占位图标降级，保证布局一致。</p>
+
+    <!-- ========================= 模块 7：空数据三态 ========================= -->
+    <section aria-label="空数据状态示例">
+      <div class="grp-head"><span class="letter">空数据三态</span><span class="count">独立区块展示</span></div>
+
+      <h3 class="h3" style="margin:var(--s6) 0 var(--s3)">Empty · 暂无数据</h3>
+      <div class="state-block">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h8"/></svg>
+        <h3 class="h3">暂无制作组档案</h3>
+        <p>该索引字母下还没有收录任何制作组。</p>
+      </div>
+
+      <h3 class="h3" style="margin:var(--s8) 0 var(--s3)">NotFound · 筛选无结果</h3>
+      <div class="state-block">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></svg>
+        <h3 class="h3">未找到匹配的制作组</h3>
+        <p>试着放宽筛选条件或更换搜索关键词。</p>
+        <button class="btn btn-primary">清除筛选</button>
+      </div>
+
+      <h3 class="h3" style="margin:var(--s8) 0 var(--s3)">Error · 加载失败</h3>
+      <div class="state-block">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <h3 class="h3">加载失败</h3>
+        <p>档案数据未能成功获取，请稍后重试。</p>
+        <button class="btn btn-primary">重试</button>
+      </div>
+    </section>
+    <p class="purpose">设计目的：把 Empty / NotFound / Error 三态并列展示，作为全档案页统一的状态语言；文案区分「无数据」与「无匹配」，避免用户误判；操作按钮仅在可恢复态（NotFound/Error）出现。</p>
+
+    <!-- ========================= 模块 8：Loading 骨架屏 ========================= -->
+    <section aria-label="加载骨架屏示例">
+      <div class="grp-head"><span class="letter">Loading</span><span class="count">8 张骨架卡</span></div>
+      <div class="grid skeleton">
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+        <div class="card"><div class="sk-cover"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line short"></div></div></div>
+      </div>
+    </section>
+    <p class="purpose">设计目的：骨架屏用 muted 色块 + 极轻 pulse 维持布局占位，避免加载时内容跳动（CLS）；仅在加载态出现，与正式卡片同尺寸，切换无位移。</p>
+
+    <!-- ========================= 模块 9：分页 ========================= -->
+    <nav class="pager" aria-label="分页">
+      <a href="#" class="disabled" aria-disabled="true">上一页</a>
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">4</a>
+      <a href="#">下一页</a>
+    </nav>
+    <p class="purpose">设计目的：分页用等宽方块 + 当前页主色填充，控制长列表的认知负荷；两端禁用态（首/末页）用降透明传达不可用，而非隐藏导致用户困惑。</p>
+
+  </div><!-- /wrap -->
+
+  <!-- ========================= 模块 10：Footer ========================= -->
+  <footer>
+    <div class="wrap footer-inner">
+      <div class="footer-col" style="max-width:280px">
+        <h4>Circleica 档案馆</h4>
+        <p class="sm muted" style="margin:0">收录同人社团、小型制作组与个人作者的创作档案。</p>
+      </div>
+      <div class="footer-col">
+        <h4>浏览</h4>
+        <a href="#">制作组图鉴</a>
+        <a href="#">创作者索引</a>
+        <a href="#">标签云</a>
+        <a href="#">合集</a>
+      </div>
+      <div class="footer-col">
+        <h4>关于</h4>
+        <a href="#">收录标准</a>
+        <a href="#">投稿须知</a>
+        <a href="#">联系我们</a>
+      </div>
+      <div class="footer-col">
+        <h4>法律</h4>
+        <a href="#">使用条款</a>
+        <a href="#">隐私政策</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 1998–2025 Circleica 档案馆 · 设计原型示例，数据非真实统计。</div>
+  </footer>
+
+  <script>
+    // 主题切换：在 body 上切换 .dark，复用同一套令牌
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      var label = btn.querySelector('.label');
+      btn.addEventListener('click', function () {
+        var dark = document.body.classList.toggle('dark');
+        btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        label.textContent = dark ? '浅色模式' : '深色模式';
+      });
+    })();
+  </script>
+
+</body>
+</html>

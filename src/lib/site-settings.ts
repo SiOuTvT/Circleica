@@ -105,7 +105,7 @@ export async function updateSiteSettings(data: Record<string, unknown>): Promise
     )
   }
 
-  revalidateTag("site-settings")
+  revalidateTag("site-settings", { expire: 0 })
   logger.cache.info("SiteSettings 缓存已清除", { keys: entries.map(([k]) => k).join(",") })
 
   return getSiteSettings()

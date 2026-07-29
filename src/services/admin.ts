@@ -32,8 +32,8 @@ async function linkGameCreators(
     const name = c.name ? String(c.name).trim() : ""
     if (!name) continue
     // Creator.vndbId 非唯一索引，手动 upsert：优先 vndbId，其次 name
-    let creator = vndbId ? await tx.creator.findFirst({ where: { vndbId } }) : null
-    if (!creator && name) creator = await tx.creator.findFirst({ where: { name } })
+    let creator = vndbId ? await tx.creator.findFirst({ where: { vndbId }, select: { id: true } }) : null
+    if (!creator && name) creator = await tx.creator.findFirst({ where: { name }, select: { id: true } })
     if (!creator) {
       creator = await tx.creator.create({
         data: { vndbId, name, nameJa: c.nameJa ? String(c.nameJa) : "" },
@@ -55,7 +55,7 @@ async function linkGameCreators(
  * 后续更新不覆盖，保留规范名）；关联先删后建，保证与本次提交完全一致。
  * aliases 在摄入期收集原始写法（JSON 数组）。必须在事务（tx）内调用。
  */
-async function linkGameStudios(
+export async function linkGameStudios(
   tx: Prisma.TransactionClient,
   studios: unknown,
   gameId: string,

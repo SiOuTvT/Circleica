@@ -330,18 +330,20 @@ export default function GameDetailClient({
         {tab === "intro" && (
           <div className="lg:hidden">
             <ArchiveCard
-              releaseDate={releaseDate}
-              status={status}
-              studios={studios}
-              gameDuration={gameDuration}
-              platforms={platforms}
-              officialWebsite={officialWebsite}
-              languages={languages}
-              originalLanguage={originalLanguage}
-              ageRating={ageRating}
-              englishName={englishName}
-              vndbId={vndbId}
-              gameTags={gameTags}
+              data={{
+                releaseDate,
+                status,
+                studios,
+                gameDuration,
+                platforms,
+                officialWebsite,
+                languages,
+                originalLanguage,
+                ageRating,
+                englishName,
+                vndbId,
+                gameTags,
+              }}
               isOpen={mobileArchiveOpen}
               onToggle={() => setMobileArchiveOpen(v => !v)}
             />

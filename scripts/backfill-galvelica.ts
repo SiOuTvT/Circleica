@@ -29,7 +29,7 @@ function gameToNormalized(g: {
   description: string
   coverImage: string
   releaseDate: Date | null
-  studioName: string
+  studios: { studio: { displayName: string | null } }[]
   tags: { tag: { name: string } }[]
   creators: { role: string; creator: { name: string; nameJa: string } }[]
 }): NormalizedWork {
@@ -43,7 +43,7 @@ function gameToNormalized(g: {
     description: g.description,
     coverImage: g.coverImage,
     releaseDate: g.releaseDate ? g.releaseDate.toISOString().slice(0, 10) : undefined,
-    studioName: g.studioName,
+    studioName: g.studios.map((s) => s.studio?.displayName ?? "").filter(Boolean).join(", "),
     tags: g.tags.map((t) => ({ name: t.tag.name })),
     creators: g.creators.map((c) => ({ name: c.creator.name, role: c.role, nameJa: c.creator.nameJa })),
   }
@@ -70,7 +70,7 @@ async function main() {
       description: true,
       coverImage: true,
       releaseDate: true,
-      studioName: true,
+      studios: { select: { studio: { select: { displayName: true } } } },
       vndbId: true,
       viewCount: true,
       favoriteCount: true,
