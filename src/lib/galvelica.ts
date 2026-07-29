@@ -593,7 +593,7 @@ interface GalvelicaCardSource {
   title: string
   originalWork?: string | null
   coverImage?: string | null
-  studioName?: string | null
+  studios?: { studio: { displayName: string | null } }[]
   releaseDate?: Date | null
   publishedAt?: Date | null
   favoriteCount: number
@@ -610,7 +610,7 @@ function workCardSelectGame() {
     title: true,
     originalWork: true,
     coverImage: true,
-    studioName: true,
+    studios: { select: { studio: { select: { displayName: true } } } },
     releaseDate: true,
     publishedAt: true,
     favoriteCount: true,
@@ -637,7 +637,7 @@ function mapCardGame(g: GalvelicaCardSource): GalvelicaWorkCard {
     title: g.title,
     originalWork: g.originalWork ?? "",
     coverImage: g.coverImage ?? "",
-    studioName: g.studioName ?? "",
+    studioName: (g.studios ?? []).map((s) => s.studio?.displayName ?? "").filter(Boolean).join(", "),
     releaseYear: year,
     favoriteCount: g.favoriteCount,
     viewCount: g.viewCount,
@@ -669,14 +669,14 @@ function publishedWhere(q: GalvelicaListQuery): Prisma.GameWhereInput {
       ],
     })
   }
-  if (q.studio) and.push({ studioName: q.studio })
+  if (q.studio) and.push({ studios: { some: { studio: { displayName: { equals: q.studio, mode: "insensitive" } } } } })
   if (q.search && q.search.trim()) {
     const s = q.search.trim()
     and.push({
       OR: [
         { title: { contains: s, mode: "insensitive" } },
         { originalWork: { contains: s, mode: "insensitive" } },
-        { studioName: { contains: s, mode: "insensitive" } },
+        { studios: { some: { studio: { displayName: { contains: s, mode: "insensitive" } } } } },
         { aliases: { contains: s, mode: "insensitive" } },
       ],
     })

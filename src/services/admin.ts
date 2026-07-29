@@ -60,7 +60,8 @@ async function linkGameStudios(
   studios: unknown,
   gameId: string,
 ) {
-  if (!Array.isArray(studios) || studios.length === 0) return
+  // 非数组（如 undefined）视为「不修改关联」，直接跳过，保留现有关联；空数组则清空关联
+  if (!Array.isArray(studios)) return
   const links: { gameId: string; studioId: string; role: string | null }[] = []
   for (const raw of studios as unknown[]) {
     const name = typeof raw === "string" ? raw.trim() : ""
