@@ -10,21 +10,12 @@ import { Tag } from "@/components/ui/tag"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { StatsBar } from "@/components/archive/stats-bar"
-import { computeDensity } from "@/components/archive/density"
+import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
+import { ROLE_LABELS } from "@/lib/role-labels"
 
 export const dynamic = "force-dynamic"
 
 type RawSP = Record<string, string | string[] | undefined>
-
-const ROLE_LABELS: Record<string, string> = {
-  scenario: "脚本",
-  art: "原画",
-  chardesign: "角色设计",
-  music: "音乐",
-  songs: "主题曲",
-  director: "导演",
-  other: "其他",
-}
 
 export async function generateMetadata({
   params,
@@ -53,11 +44,7 @@ function toGameCardData(g: MakerGameItem): GameCardData {
   }
 }
 
-const gameGridByDensity = {
-  compact: "grid-cols-2 gap-3 sm:grid-cols-3",
-  standard: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
-  dense: "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
-} as const
+const GAME_GRID_CLASS = "grid gap-3"
 
 export default async function MakerDetailPage({
   params,
@@ -145,7 +132,7 @@ export default async function MakerDetailPage({
         {detail.games.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">该制作组暂无已收录的作品</p>
         ) : (
-          <div className={cn("grid", gameGridByDensity[density])}>
+          <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
             {detail.games.map((g) => (
               <GameCard key={g.id} game={toGameCardData(g)} />
             ))}

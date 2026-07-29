@@ -1,17 +1,11 @@
 import { cn } from "@/lib/utils"
-import type { ArchiveDensity } from "./density"
+import { DENSITY_GRID, type ArchiveDensity } from "./density"
 
 interface SkeletonGridProps {
   count?: number
   density?: ArchiveDensity
   variant?: "studio" | "creator" | "collection"
   className?: string
-}
-
-const gridByDensity: Record<ArchiveDensity, string> = {
-  compact: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-  standard: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
-  dense: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
 }
 
 function SkeletonCard({ variant }: { variant: "studio" | "creator" | "collection" }) {
@@ -48,7 +42,7 @@ export function SkeletonGrid({
   className,
 }: SkeletonGridProps) {
   return (
-    <div className={cn("grid gap-3", gridByDensity[density], className)}>
+    <div className={cn("grid gap-3", DENSITY_GRID[density], className)}>
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonCard key={i} variant={variant} />
       ))}

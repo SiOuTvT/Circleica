@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import type { ReactNode } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -25,14 +28,23 @@ function HeroCover({
   initial: string
   shape: "rect" | "circle"
 }) {
+  const [errored, setErrored] = useState(false)
   const shapeCls =
     shape === "circle"
       ? "h-20 w-20 shrink-0 rounded-full sm:h-24 sm:w-24"
       : "h-28 w-28 shrink-0 rounded-2xl sm:h-32 sm:w-32"
-  if (cover) {
+  if (cover && !errored) {
     return (
       <div className={cn("relative overflow-hidden bg-muted ring-1 ring-border/60", shapeCls)}>
-        <Image src={cover} alt="" fill className="object-cover" unoptimized sizes="128px" />
+        <Image
+          src={cover}
+          alt=""
+          fill
+          className="object-cover"
+          unoptimized
+          sizes="128px"
+          onError={() => setErrored(true)}
+        />
       </div>
     )
   }
@@ -81,7 +93,7 @@ export function ArchiveHero({
             {eyebrow}
           </p>
         )}
-        <h1 className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">{title}</h1>
+        <h1 className="break-words font-heading text-2xl font-semibold text-foreground sm:text-3xl">{title}</h1>
         {lede && <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">{lede}</p>}
         {meta && (
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">

@@ -11,6 +11,17 @@
 
 export type ArchiveDensity = "compact" | "standard" | "dense"
 
+/**
+ * 网格列数映射（最高优先级密度令牌的 JS 实现）。
+ * 统一供 SkeletonGrid / Studio 列表 / Studio 详情（GameCard 网格）复用，
+ * 避免密度逻辑在多处手写复制。
+ */
+export const DENSITY_GRID: Record<ArchiveDensity, string> = {
+  compact: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  standard: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+  dense: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
+}
+
 export function computeDensity(count: number): ArchiveDensity {
   if (count <= 0) return "standard"
   if (count <= 3) return "compact"
@@ -18,14 +29,21 @@ export function computeDensity(count: number): ArchiveDensity {
   return "dense"
 }
 
-/** 取名称首字作为分组 key：拉丁字母大写、数字归 #、CJK 及其它取首字符 */
+/**
+ * 取名称首字作为分组 key：
+ *  - 拉丁字母 → 大写
+ *  - 数字 → #（与符号/标点统一）
+ *  - CJK / 假名 → 取首字符（按中文序排序）
+ *  - 其它符号/标点 → #（避免索引出现孤立符号键）
+ */
 export function firstCharKey(name: string): string {
   const s = (name || "").trim()
   if (!s) return "#"
   const ch = s[0]
   if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase()
   if (/[0-9]/.test(ch)) return "#"
-  return ch
+  if (/[぀-ヿ一-鿿㐀-䶿]/.test(ch)) return ch
+  return "#"
 }
 
 export interface LetterGroup<T> {
