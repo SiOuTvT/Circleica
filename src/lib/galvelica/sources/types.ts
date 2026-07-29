@@ -41,6 +41,8 @@ export interface NormalizedWork {
   releaseDate?: string
   /** 开发社团（可多个，逗号分隔） */
   studioName?: string
+  /** 开发社团（多值数组，Circleica 制作组关联使用，不重新拼接） */
+  studios?: string[]
   tags?: { name: string; sourceId?: string }[]
   creators?: {
     name: string

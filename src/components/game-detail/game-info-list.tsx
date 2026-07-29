@@ -9,7 +9,7 @@ import {
 export interface GameInfoData {
   releaseDate?: string
   status?: string
-  studioName?: string
+  studios?: { name: string; normalized: string }[]
   gameDuration?: string
   platforms?: string[]
   languages?: string[]
@@ -74,14 +74,14 @@ function Link({ href, children }: { href: string; children: React.ReactNode }) {
  */
 export function GameInfoList({ data }: { data: GameInfoData }) {
   const {
-    releaseDate, status, studioName, gameDuration, platforms, languages,
+    releaseDate, status, studios, gameDuration, platforms, languages,
     originalLanguage, ageRating, officialWebsite, englishName, vndbId, gameTags,
   } = data
 
   const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
   const langChips = (languages ?? []).map((c) => langLabel(c))
   const hasContent =
-    releaseDate || status || studioName || gameDuration || platformChips.length ||
+    releaseDate || status || (studios && studios.length) || gameDuration || platformChips.length ||
     langChips.length || originalLanguage || ageRating || officialWebsite || englishName || vndbId || (gameTags && gameTags.length)
 
   if (!hasContent) return null
@@ -103,9 +103,17 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
         </Row>
       )}
 
-      {studioName && (
+      {studios && studios.length > 0 && (
         <Row icon={<Building2 className="h-4 w-4" strokeWidth={2} />} label="制作会社">
-          <Pill>{studioName}</Pill>
+          {studios.map((s) => (
+            <a
+              key={s.normalized}
+              href={`/credits/studio/${encodeURIComponent(s.normalized)}`}
+              className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition-all hover:opacity-80 bg-secondary text-foreground"
+            >
+              {s.name}
+            </a>
+          ))}
         </Row>
       )}
 

@@ -131,6 +131,8 @@ class VndbAdapter implements SourceAdapter {
     /* ── 开发商 ── */
     const devs = (vn.developers as Array<{ name: string }> | undefined) ?? []
     const studioName = devs.length > 0 ? devs.map((d) => d.name).join(", ") : ""
+    // 多值数组：Circleica 制作组关联直接使用，绝不重新拼接为字符串
+    const studios = devs.map((d) => d.name)
 
     /* ── 创作者（staff：脚本、原画、音乐等） ── */
     const staffList = (vn.staff as Array<{ id: string; name: string; original?: string; role: string }> | undefined) ?? []
@@ -184,6 +186,7 @@ class VndbAdapter implements SourceAdapter {
       originalLanguage,
       releaseDate: released ?? undefined,
       studioName,
+      studios,
       tags: tagNames.map((name) => ({ name })),
       creators,
     }

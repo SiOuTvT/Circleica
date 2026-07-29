@@ -16,7 +16,10 @@ export const GET = withHandler(async (req, ctx) => {
         orderBy: { sortOrder: "asc" },
         include: {
           game: {
-            select: { id: true, serialId: true, title: true, coverImage: true, studioName: true, releaseDate: true },
+            select: {
+              id: true, serialId: true, title: true, coverImage: true, releaseDate: true,
+              studios: { include: { studio: { select: { displayName: true } } } },
+            },
           },
         },
       },
@@ -24,7 +27,18 @@ export const GET = withHandler(async (req, ctx) => {
   })
 
   if (!collection) throw new NotFoundError("合集")
-  return json(collection)
+  // 把每个游戏的 studios 关系拍平为展示名数组，供前端直接渲染
+  const shaped = {
+    ...collection,
+    games: collection.games.map((cg) => ({
+      ...cg,
+      game: {
+        ...cg.game,
+        studios: cg.game.studios.map((s) => s.studio.displayName),
+      },
+    })),
+  }
+  return json(shaped)
 })
 
 // PUT — 更新合集

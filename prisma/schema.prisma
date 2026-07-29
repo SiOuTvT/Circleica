@@ -54,48 +54,48 @@ enum NotificationTargetTypeEnum {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  serialId      Int            @unique @default(autoincrement())
-  uid           String         @unique @default(cuid())
-  username      String         @unique
-  email         String         @unique
-  password      String
-  avatar        String         @default("")
-  avatarFrameId String?
-  composedAvatarUrl String?    @default("")
-  banner        String         @default("")
-  bio           String         @default("")
-  role          UserRole       @default(USER)
-  emailVerified Boolean        @default(false)
-  emailVerifiedAt DateTime?
-  faveGameId    String?
-  createdAt     DateTime       @default(now())
-  avatarFrame   AvatarFrame?   @relation(fields: [avatarFrameId], references: [id], onDelete: SetNull)
-  faveGame      Game?          @relation("faveGame", fields: [faveGameId], references: [id], onDelete: SetNull)
-  comments      Comment[]
-  favorites     Favorite[]
-  playStatuses  PlayStatus[]
-  forumPosts    ForumPost[]
-  forumComments ForumComment[]
-  checkIns      CheckIn[]
-  resetTokens   PasswordResetToken[]
-  emailTokens   EmailVerificationToken[]
-  ratings       GameRating[]
-  accounts      Account[]
-  sessions      Session[]
-  following     Follow[]        @relation("following")
-  followers     Follow[]        @relation("followers")
-  notifications Notification[]  @relation("notifications")
-  sentNotifications Notification[] @relation("notificationTarget")
-  collections      Collection[]
-  publishedGames   Game[]         @relation("publisher")
-  gameResources    GameResource[]
-  forumPostLikes   ForumPostLike[]
+  id                String                   @id @default(cuid())
+  serialId          Int                      @unique @default(autoincrement())
+  uid               String                   @unique @default(cuid())
+  username          String                   @unique
+  email             String                   @unique
+  password          String
+  avatar            String                   @default("")
+  avatarFrameId     String?
+  composedAvatarUrl String?                  @default("")
+  banner            String                   @default("")
+  bio               String                   @default("")
+  role              UserRole                 @default(USER)
+  emailVerified     Boolean                  @default(false)
+  emailVerifiedAt   DateTime?
+  faveGameId        String?
+  createdAt         DateTime                 @default(now())
+  avatarFrame       AvatarFrame?             @relation(fields: [avatarFrameId], references: [id], onDelete: SetNull)
+  faveGame          Game?                    @relation("faveGame", fields: [faveGameId], references: [id], onDelete: SetNull)
+  comments          Comment[]
+  favorites         Favorite[]
+  playStatuses      PlayStatus[]
+  forumPosts        ForumPost[]
+  forumComments     ForumComment[]
+  checkIns          CheckIn[]
+  resetTokens       PasswordResetToken[]
+  emailTokens       EmailVerificationToken[]
+  ratings           GameRating[]
+  accounts          Account[]
+  sessions          Session[]
+  following         Follow[]                 @relation("following")
+  followers         Follow[]                 @relation("followers")
+  notifications     Notification[]           @relation("notifications")
+  sentNotifications Notification[]           @relation("notificationTarget")
+  collections       Collection[]
+  publishedGames    Game[]                   @relation("publisher")
+  gameResources     GameResource[]
+  forumPostLikes    ForumPostLike[]
   forumCommentLikes ForumCommentLike[]
-  commentLikes     CommentLike[]
-  achievements     UserAchievement[]
-  resourceReports  ResourceReport[]
-  auditLogs        AuditLog[]
+  commentLikes      CommentLike[]
+  achievements      UserAchievement[]
+  resourceReports   ResourceReport[]
+  auditLogs         AuditLog[]
 
   @@index([role])
   @@index([avatarFrameId])
@@ -123,6 +123,7 @@ model Follow {
   createdAt   DateTime @default(now())
   follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
@@ -142,6 +143,7 @@ model Account {
   id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
@@ -152,58 +154,60 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 
 model Game {
-  id            String       @id @default(cuid())
-  serialId      Int          @unique @default(autoincrement())
-  title         String
-  originalWork  String       @default("")
-  description   String       @default("")
-  coverImage    String       @default("")
-  screenshots   Json         @default("[]")
-  platforms      Json         @default("[]")
-  officialWebsite String       @default("")
-  languages      Json         @default("[]")   // 游戏语言代码数组（VNDB languages：en/ja/zh/ko…）
-  originalLanguage String     @default("")     // 原始语言代码（VNDB olang：ja/en/zh…）
-  ageRating      String       @default("")     // 年龄分级（手动维护：0/12/15/18；VNDB Kana API 无干净年龄分级字段）
-  downloadLinks Json         @default("[]")
-  status        GameStatus     @default(FINISHED)
-  isNsfw        Boolean      @default(false)
-  vndbId        String       @default("")
-  viewCount     Int          @default(0)
-  downloadCount Int          @default(0)
-  favoriteCount Int          @default(0)
-  isPublished   Boolean      @default(false)
-  publishedAt   DateTime?
-  reviewedBy    String?
-  reviewedAt    DateTime?
-  rejectReason  String       @default("")
-  releaseDate   DateTime?
-  gameDuration  String       @default("")
-  studioName    String       @default("")
-  englishName   String       @default("")
-  aliases       String       @default("")
-  publisherId   String?
+  id                     String                  @id @default(cuid())
+  serialId               Int                     @unique @default(autoincrement())
+  title                  String
+  originalWork           String                  @default("")
+  description            String                  @default("")
+  coverImage             String                  @default("")
+  screenshots            Json                    @default("[]")
+  platforms              Json                    @default("[]")
+  officialWebsite        String                  @default("")
+  languages              Json                    @default("[]") // 游戏语言代码数组（VNDB languages：en/ja/zh/ko…）
+  originalLanguage       String                  @default("") // 原始语言代码（VNDB olang：ja/en/zh…）
+  ageRating              String                  @default("") // 年龄分级（手动维护：0/12/15/18；VNDB Kana API 无干净年龄分级字段）
+  downloadLinks          Json                    @default("[]")
+  status                 GameStatus              @default(FINISHED)
+  isNsfw                 Boolean                 @default(false)
+  vndbId                 String                  @default("")
+  viewCount              Int                     @default(0)
+  downloadCount          Int                     @default(0)
+  favoriteCount          Int                     @default(0)
+  isPublished            Boolean                 @default(false)
+  publishedAt            DateTime?
+  reviewedBy             String?
+  reviewedAt             DateTime?
+  rejectReason           String                  @default("")
+  releaseDate            DateTime?
+  gameDuration           String                  @default("")
+  englishName            String                  @default("")
+  aliases                String                  @default("")
+  publisherId            String?
   /// PostgreSQL 全文搜索向量
-  searchVector  String       @default("") @db.Text
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  publisher     User?        @relation("publisher", fields: [publisherId], references: [id], onDelete: SetNull)
-  tags          GameTag[]
-  comments      Comment[]
-  favorites     Favorite[]
-  playStatuses  PlayStatus[]
-  reports       GameReport[]
-  ratings       GameRating[]
-  creators      GameCreator[]
+  searchVector           String                  @default("") @db.Text
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  publisher              User?                   @relation("publisher", fields: [publisherId], references: [id], onDelete: SetNull)
+  tags                   GameTag[]
+  comments               Comment[]
+  favorites              Favorite[]
+  playStatuses           PlayStatus[]
+  reports                GameReport[]
+  ratings                GameRating[]
+  creators               GameCreator[]
+  /// 制作组关联（多对多：一个游戏可挂多个制作组 / 联合制作）
+  studios                GameStudio[]
   /// Galvelica 联动锚点（反向）：本 Game 若已被 Galvelica 收录，对应 Work.gameId 指向此处
-  galvelicaWork Work?        @relation("gameToGalvelica")
-  resources     GameResource[]
-  logs          GameLog[]
+  galvelicaWork          Work?                   @relation("gameToGalvelica")
+  resources              GameResource[]
+  logs                   GameLog[]
   curatedCollectionGames CuratedCollectionGame[]
-  faveGameUsers User[]        @relation("faveGame")
+  faveGameUsers          User[]                  @relation("faveGame")
 
   @@index([isPublished, isNsfw, createdAt])
   @@index([isPublished, viewCount])
@@ -213,13 +217,42 @@ model Game {
   @@index([publisherId])
 }
 
+/// 制作组 / 社团基础实体（资源站专用，非百科系统）
+/// 由 VNDB 摄入期按 normalizedName 归一派生；aliases 收集历史脏写法供未来人工合并。
+model Studio {
+  id             String       @id @default(cuid())
+  normalizedName String       @unique // 小写 + trim 的路由 key / 去重 key
+  displayName    String // 规范展示名（后台可手工改）
+  aliases        String       @default("[]") // JSON 数组：摄入期收集的所有原始写法
+  vndbId         String? // 预留：未来 VNDB producer 关联（不填）
+  producerType   String? // 预留：co/in/ng ↔ 商业/个人/同人团体（不填）
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  games          GameStudio[]
+
+  @@index([normalizedName])
+}
+
+/// 游戏 ↔ 制作组 关联（多对多，支持联合制作）
+model GameStudio {
+  gameId   String
+  studioId String
+  role     String? // 预留：developer/cooperation/...（Phase 1 不填）
+  game     Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  studio   Studio  @relation(fields: [studioId], references: [id], onDelete: Cascade)
+
+  @@id([gameId, studioId])
+  @@index([studioId])
+  @@index([gameId])
+}
+
 model TagGroup {
   id          String   @id @default(cuid())
   name        String   @unique
   description String   @default("")
   color       String   @default("#7c8a9e")
-  positions   Json       @default("[]")  // JSON array of position keys
-  isPreset    Boolean  @default(false)  // 系统内置组，不可删除
+  positions   Json     @default("[]") // JSON array of position keys
+  isPreset    Boolean  @default(false) // 系统内置组，不可删除
   tags        Tag[]
   createdAt   DateTime @default(now())
 }
@@ -236,6 +269,7 @@ model Tag {
   group       TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   games       GameTag[]
   works       WorkTag[]
+
   @@index([groupId])
   @@index([sortOrder])
 }
@@ -245,23 +279,24 @@ model GameTag {
   tagId  String
   game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
   tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
   @@id([gameId, tagId])
   @@index([tagId])
 }
 
 model Comment {
-  id        String    @id @default(cuid())
+  id        String        @id @default(cuid())
   gameId    String
   userId    String
   content   String
-  imageUrl  String    @default("")
-  likeCount Int       @default(0)
+  imageUrl  String        @default("")
+  likeCount Int           @default(0)
   parentId  String?
-  createdAt DateTime  @default(now())
-  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
-  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime      @default(now())
+  game      Game          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   Comment[]     @relation("CommentReplies")
   likes     CommentLike[]
 
   @@index([gameId, createdAt])
@@ -270,25 +305,25 @@ model Comment {
 }
 
 model GameResource {
-  id              String           @id @default(cuid())
+  id              String              @id @default(cuid())
   gameId          String
   userId          String
-  resourceName    String           @default("")
-  resourceNote    String           @default("")
+  resourceName    String              @default("")
+  resourceNote    String              @default("")
   /// JSON 数组：平台标签 ["PC", "Android", ...]
-  platform        Json             @default("[]")
+  platform        Json                @default("[]")
   /// JSON 数组：语言标签 ["中文", "日文", ...]
-  language        Json             @default("[]")
+  language        Json                @default("[]")
   /// JSON 数组：运行方式 ["ONS", "Kirikiri", ...]
-  runType         Json             @default("[]")
+  runType         Json                @default("[]")
   /// JSON 数组：资源内容 ["本体", "存档", ...]
-  resourceContent Json             @default("[]")
-  isReported      Boolean          @default(false)
+  resourceContent Json                @default("[]")
+  isReported      Boolean             @default(false)
   reportedAt      DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  game            Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  game            Game                @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries         GameResourceEntry[]
   reports         ResourceReport[]
 
@@ -298,13 +333,13 @@ model GameResource {
 }
 
 model GameResourceEntry {
-  id              String        @id @default(cuid())
-  resourceId      String
-  url             String
-  extractCode     String        @default("")
-  decompressCode  String        @default("")
-  fileSize        String        @default("")
-  resource        GameResource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  resourceId     String
+  url            String
+  extractCode    String       @default("")
+  decompressCode String       @default("")
+  fileSize       String       @default("")
+  resource       GameResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@index([resourceId])
 }
@@ -323,14 +358,15 @@ model ResourceReport {
 }
 
 model Favorite {
-  id           String   @id @default(cuid())
+  id           String      @id @default(cuid())
   userId       String
   gameId       String
   collectionId String?
-  createdAt    DateTime @default(now())
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game         Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+
   @@unique([userId, gameId])
   @@index([gameId])
   @@index([collectionId])
@@ -353,12 +389,13 @@ model Collection {
 }
 
 model PlayStatus {
-  id     String @id @default(cuid())
+  id     String         @id @default(cuid())
   userId String
   gameId String
   status PlayStatusType @default(WANT_TO_PLAY)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game   Game           @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
   @@unique([userId, gameId])
   @@index([gameId])
 }
@@ -370,6 +407,7 @@ model GameReport {
   reason    String   @default("")
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
   @@unique([gameId, ip])
   @@index([createdAt])
 }
@@ -446,18 +484,18 @@ model AuditLog {
 }
 
 model Creator {
-  id          String        @id @default(cuid())
-  vndbId      String        @default("")
-  name        String
-  nameJa      String        @default("")
-  avatar      String        @default("")
-  bio         String        @default("")
-  gender      String        @default("")
-  twitterUrl  String        @default("")
-  wikipediaUrl String       @default("")
-  createdAt   DateTime      @default(now())
-  games       GameCreator[]
-  works       WorkCreator[]
+  id           String        @id @default(cuid())
+  vndbId       String        @default("")
+  name         String
+  nameJa       String        @default("")
+  avatar       String        @default("")
+  bio          String        @default("")
+  gender       String        @default("")
+  twitterUrl   String        @default("")
+  wikipediaUrl String        @default("")
+  createdAt    DateTime      @default(now())
+  games        GameCreator[]
+  works        WorkCreator[]
 
   @@index([vndbId])
   @@index([name])
@@ -468,74 +506,76 @@ model GameCreator {
   id        String  @id @default(cuid())
   gameId    String
   creatorId String
-  role      String  // scenario / art / chardesign / music / director / songs
+  role      String // scenario / art / chardesign / music / director / songs
   game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
   creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
   @@unique([gameId, creatorId, role])
   @@index([gameId])
   @@index([creatorId])
 }
 
 model GameRating {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   gameId    String
   userId    String
-  score     Int       @db.SmallInt // 1-5
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int      @db.SmallInt // 1-5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([gameId, userId])
   @@index([gameId])
   @@index([userId])
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  token     String   @unique
+  token     String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model EmailVerificationToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   email     String
-  tokenHash String   @unique
-  type      String   @default("verify")
+  tokenHash String    @unique
+  type      String    @default("verify")
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model CuratedCollection {
-  id          String   @id @default(cuid())
+  id          String                  @id @default(cuid())
   name        String
-  description String   @default("")
-  sortOrder   Int      @default(0)
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String                  @default("")
+  sortOrder   Int                     @default(0)
+  published   Boolean                 @default(true)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
   games       CuratedCollectionGame[]
 
   @@index([sortOrder])
 }
 
 model CuratedCollectionGame {
-  id          String           @id @default(cuid())
+  id           String            @id @default(cuid())
   collectionId String
-  gameId      String
-  sortOrder   Int              @default(0)
-  collection  CuratedCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  game        Game              @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId       String
+  sortOrder    Int               @default(0)
+  collection   CuratedCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  game         Game              @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
   @@unique([collectionId, gameId])
   @@index([collectionId])
@@ -549,26 +589,27 @@ model CheckIn {
   marks     Int      @default(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, date])
   @@index([userId])
   @@index([createdAt])
 }
 
 model ForumPost {
-  id        String         @id @default(cuid())
+  id        String            @id @default(cuid())
   userId    String
   title     String
   content   String
-  imageUrl  String         @default("")
-  likeCount Int            @default(0)
-  isSolved  Boolean        @default(false)
-  isPinned  Boolean        @default(false)
-  isLocked  Boolean        @default(false)
-  category  ForumPostCategory  @default(discussion)
-  viewCount Int            @default(0)
-  updatedAt DateTime       @default(now()) @updatedAt
-  createdAt DateTime       @default(now())
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl  String            @default("")
+  likeCount Int               @default(0)
+  isSolved  Boolean           @default(false)
+  isPinned  Boolean           @default(false)
+  isLocked  Boolean           @default(false)
+  category  ForumPostCategory @default(discussion)
+  viewCount Int               @default(0)
+  updatedAt DateTime          @default(now()) @updatedAt
+  createdAt DateTime          @default(now())
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  ForumComment[]
   likes     ForumPostLike[]
 
@@ -580,16 +621,16 @@ model ForumPost {
 }
 
 model ForumComment {
-  id        String    @id @default(cuid())
+  id        String             @id @default(cuid())
   postId    String
   userId    String
   content   String
-  imageUrl  String    @default("")
-  likeCount Int       @default(0)
-  updatedAt DateTime  @updatedAt
-  createdAt DateTime  @default(now())
-  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl  String             @default("")
+  likeCount Int                @default(0)
+  updatedAt DateTime           @updatedAt
+  createdAt DateTime           @default(now())
+  post      ForumPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   likes     ForumCommentLike[]
 
   @@index([postId, createdAt])
@@ -597,16 +638,16 @@ model ForumComment {
 }
 
 model Notification {
-  id         String   @id @default(cuid())
-  userId     String   // 接收通知的用户
-  actorId    String   // 触发通知的用户
+  id         String                     @id @default(cuid())
+  userId     String // 接收通知的用户
+  actorId    String // 触发通知的用户
   type       NotificationTypeEnum
   targetType NotificationTargetTypeEnum
-  targetId   String   // 关联对象 ID
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  user       User     @relation("notifications", fields: [userId], references: [id], onDelete: Cascade)
-  actor      User     @relation("notificationTarget", fields: [actorId], references: [id], onDelete: Cascade)
+  targetId   String // 关联对象 ID
+  isRead     Boolean                    @default(false)
+  createdAt  DateTime                   @default(now())
+  user       User                       @relation("notifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor      User                       @relation("notificationTarget", fields: [actorId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead, createdAt])
   @@index([actorId])
@@ -614,23 +655,25 @@ model Notification {
 }
 
 model ForumPostLike {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   postId    String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@unique([userId, postId])
   @@index([postId])
 }
 
 model ForumCommentLike {
-  id        String      @id @default(cuid())
+  id        String       @id @default(cuid())
   userId    String
   commentId String
-  createdAt DateTime    @default(now())
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   comment   ForumComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
   @@unique([userId, commentId])
   @@index([commentId])
 }
@@ -642,29 +685,30 @@ model CommentLike {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
   @@unique([userId, commentId])
   @@index([commentId])
 }
 
 /// 情感化消息管理 — 可在后台自定义各场景的提示文案和插图
 model EmotionalMessage {
-  id         String   @id @default(cuid())
+  id        String   @id @default(cuid())
   /// 唯一标识，如 "favorite_added", "checkin_success", "empty_search" 等
-  key        String   @unique
+  key       String   @unique
   /// 场景分类: toast / empty / error / success
-  category   String
+  category  String
   /// 正标题
-  title      String   @default("")
+  title     String   @default("")
   /// 副标题或描述
-  subtitle   String   @default("")
+  subtitle  String   @default("")
   /// 插图 URL（可选，用于空状态/错误页等）
-  imageUrl   String   @default("")
+  imageUrl  String   @default("")
   /// 自定义 emoji 作为图标替代（当无插图时使用）
-  emoji      String   @default("")
+  emoji     String   @default("")
   /// 是否启用（禁用时走前端默认文案）
-  enabled    Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
 }
@@ -679,19 +723,19 @@ model SiteSetting {
 
 /// 成就定义 — 由管理员在后台创建
 model Achievement {
-  id              String   @id @default(cuid())
-  name            String                // 成就名称
-  description     String   @default("") // 成就描述
-  icon            String   @default("") // 成就图标 URL
-  characterImage  String   @default("") // 解锁卡片角色立绘 URL（透明底 PNG）
-  category        String   @default("general") // 分类
-  conditionType   String                // 条件类型：favorite_count / comment_count / play_count / checkin_streak / forum_post_count / register_days
-  conditionTarget Int      @default(1)  // 目标值
-  points          Int      @default(10) // 积分权重
-  hidden          Boolean  @default(true) // 是否隐藏（全部默认隐藏）
-  isActive        Boolean  @default(true) // 是否启用
-  unlockCount     Int      @default(0)  // 解锁人数（定时统计更新）
-  createdAt       DateTime @default(now())
+  id              String            @id @default(cuid())
+  name            String // 成就名称
+  description     String            @default("") // 成就描述
+  icon            String            @default("") // 成就图标 URL
+  characterImage  String            @default("") // 解锁卡片角色立绘 URL（透明底 PNG）
+  category        String            @default("general") // 分类
+  conditionType   String // 条件类型：favorite_count / comment_count / play_count / checkin_streak / forum_post_count / register_days
+  conditionTarget Int               @default(1) // 目标值
+  points          Int               @default(10) // 积分权重
+  hidden          Boolean           @default(true) // 是否隐藏（全部默认隐藏）
+  isActive        Boolean           @default(true) // 是否启用
+  unlockCount     Int               @default(0) // 解锁人数（定时统计更新）
+  createdAt       DateTime          @default(now())
   users           UserAchievement[]
 
   @@index([category])
@@ -699,6 +743,7 @@ model Achievement {
   @@index([isActive])
   @@index([createdAt])
 }
+
 model UserAchievement {
   id            String      @id @default(cuid())
   userId        String
@@ -706,6 +751,7 @@ model UserAchievement {
   unlockedAt    DateTime    @default(now())
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
   @@unique([userId, achievementId])
   @@index([userId])
   @@index([achievementId])
@@ -731,8 +777,8 @@ enum WorkSourceType {
 
 // 同人分类（Galvelica 对外展示）：纯正同人 vs 同人系公司商业作
 enum WorkCategory {
-  PURE        // 纯正同人：个人(in) / 无注册社团(ng)
-  DERIVATIVE  // 同人系公司：早年同人社团、后期注册公司的厂商作品
+  PURE // 纯正同人：个人(in) / 无注册社团(ng)
+  DERIVATIVE // 同人系公司：早年同人社团、后期注册公司的厂商作品
 }
 
 enum InclusionRequestStatus {
@@ -743,50 +789,50 @@ enum InclusionRequestStatus {
 
 // ── Galvelica 档案主体（独立于 Game，可无对应资源） ──
 model Work {
-  id            String   @id @default(cuid())
-  slug          String   @unique            // URL 用，如 /galvelica/works/<slug>
-  gameId        String?  @unique            // 已被 Circleica 收录则链接 Game；否则 null（联动锚点）
-  game          Game?    @relation("gameToGalvelica", fields: [gameId], references: [id], onDelete: SetNull)
+  id     String  @id @default(cuid())
+  slug   String  @unique // URL 用，如 /galvelica/works/<slug>
+  gameId String? @unique // 已被 Circleica 收录则链接 Game；否则 null（联动锚点）
+  game   Game?   @relation("gameToGalvelica", fields: [gameId], references: [id], onDelete: SetNull)
 
   // 融合后的「有效展示值」（单一真相，页面只读这里）
-  title         String
-  originalWork  String   @default("")
-  englishName   String   @default("")
-  aliases       String   @default("")       // 多源合并后的别名，逗号分隔
-  description   String   @default("")
-  coverImage    String   @default("")
-  releaseDate   DateTime?
-  studioName    String   @default("")
-  status        String   @default("")       // 完结/连载等（自由文本，后续可枚举）
-  duration      String   @default("")       // 对应 Game.gameDuration
-  isNsfw        Boolean  @default(false)
+  title        String
+  originalWork String    @default("")
+  englishName  String    @default("")
+  aliases      String    @default("") // 多源合并后的别名，逗号分隔
+  description  String    @default("")
+  coverImage   String    @default("")
+  releaseDate  DateTime?
+  studioName   String    @default("")
+  status       String    @default("") // 完结/连载等（自由文本，后续可枚举）
+  duration     String    @default("") // 对应 Game.gameDuration
+  isNsfw       Boolean   @default(false)
 
   // 同人分类（对外展示）：PURE=纯正同人，DERIVATIVE=同人系公司商业作；null=未定（人工/旧数据）
   doujinCategory WorkCategory?
 
   // 外链（按源选优后归一）
-  officialUrl   String   @default("")       // DLsite 优先
-  steamAppId    String   @default("")       // Steam 优先
+  officialUrl String @default("") // DLsite 优先
+  steamAppId  String @default("") // Steam 优先
 
   // 字段级 provenance：field -> { source, manual }
-  provenance    Json     @default("{}")
+  provenance   Json     @default("{}")
   // 被人工锁定、融合时跳过的字段名
-  manualFields  String[] @default([])
+  manualFields String[] @default([])
 
   // 评分（融合时优先取本站 Game 评分，见 ADR §5 / §10.2）
   ratingAvg     Float?
-  ratingCount   Int      @default(0)
-  viewCount     Int      @default(0)
-  favoriteCount Int      @default(0)
+  ratingCount   Int    @default(0)
+  viewCount     Int    @default(0)
+  favoriteCount Int    @default(0)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastFusedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastFusedAt DateTime?
 
-  sources       WorkSource[]
-  tags          WorkTag[]
-  creators      WorkCreator[]
-  requests      InclusionRequest[]
+  sources  WorkSource[]
+  tags     WorkTag[]
+  creators WorkCreator[]
+  requests InclusionRequest[]
 
   @@index([title])
   @@index([releaseDate])
@@ -799,25 +845,27 @@ model WorkSource {
   workId     String
   work       Work           @relation(fields: [workId], references: [id], onDelete: Cascade)
   source     WorkSourceType
-  externalId String                             // 该源的作品 ID（v12345 / bgm123 / appid ...）
-  raw        Json                              // 该源返回的原始 payload（缓存，供重融合）
-  status     String         @default("ok")     // ok | stale | error
+  externalId String // 该源的作品 ID（v12345 / bgm123 / appid ...）
+  raw        Json // 该源返回的原始 payload（缓存，供重融合）
+  status     String         @default("ok") // ok | stale | error
   fetchedAt  DateTime       @default(now())
+
   @@unique([workId, source])
   @@index([source, externalId])
 }
 
 // ── 收录申请（Circleica↔Galvelica 联动载体） ──
 model InclusionRequest {
-  id          String                @id @default(cuid())
+  id          String                 @id @default(cuid())
   workId      String
-  work        Work                  @relation(fields: [workId], references: [id], onDelete: Cascade)
-  requestedBy String?               // 发起用户 ID（游客可为空）
+  work        Work                   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  requestedBy String? // 发起用户 ID（游客可为空）
   status      InclusionRequestStatus @default(PENDING)
-  note        String                @default("")
+  note        String                 @default("")
   reviewedBy  String?
   decidedAt   DateTime?
-  createdAt   DateTime              @default(now())
+  createdAt   DateTime               @default(now())
+
   @@index([status])
   @@index([workId])
 }
@@ -826,8 +874,9 @@ model InclusionRequest {
 model WorkTag {
   workId String
   tagId  String
-  work   Work @relation(fields: [workId], references: [id], onDelete: Cascade)
-  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
   @@id([workId, tagId])
   @@index([tagId])
 }
@@ -836,9 +885,10 @@ model WorkCreator {
   id        String  @id @default(cuid())
   workId    String
   creatorId String
-  role      String                            // scenario / art / chardesign / music / director / songs
+  role      String // scenario / art / chardesign / music / director / songs
   work      Work    @relation(fields: [workId], references: [id], onDelete: Cascade)
   creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
   @@unique([workId, creatorId, role])
   @@index([creatorId])
 }

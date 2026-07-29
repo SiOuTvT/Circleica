@@ -133,7 +133,7 @@ export const gameCreateSchema = z.object({
   coverImage: z.string().url().optional(),
   originalWork: z.string().max(200).optional(),
   englishName: z.string().max(200).optional(),
-  studioName: z.string().max(200).optional(),
+  studios: z.array(z.string().max(200)).max(20).optional(),
   isNsfw: z.boolean().optional(),
   tags: z.array(z.string().max(50)).max(20).optional(),
   creatorId: z.string().optional(),

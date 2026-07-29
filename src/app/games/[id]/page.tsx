@@ -96,6 +96,9 @@ export default async function GameDetailPage({
         creators: {
           include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
         },
+        studios: {
+          include: { studio: { select: { displayName: true, normalizedName: true } } },
+        },
         publisher: { select: { id: true, username: true, avatar: true } },
       },
     })
@@ -381,7 +384,7 @@ export default async function GameDetailPage({
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
-            studioName={game.studioName ?? undefined}
+            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName }))}
             platforms={platforms}
             officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
             languages={languages}

@@ -67,7 +67,7 @@ export default function GameDetailClient({
   vndbId,
   releaseDate,
   gameDuration,
-  studioName,
+  studios,
   platforms,
   officialWebsite,
   languages,
@@ -94,7 +94,7 @@ export default function GameDetailClient({
   vndbId?: string
   releaseDate?: string
   gameDuration?: string
-  studioName?: string
+  studios?: { name: string; normalized: string }[]
   platforms?: string[]
   officialWebsite?: string
   languages?: string[]
@@ -332,7 +332,7 @@ export default function GameDetailClient({
             <ArchiveCard
               releaseDate={releaseDate}
               status={status}
-              studioName={studioName}
+              studios={studios}
               gameDuration={gameDuration}
               platforms={platforms}
               officialWebsite={officialWebsite}
@@ -356,7 +356,7 @@ export default function GameDetailClient({
             data={{
               releaseDate,
               status,
-              studioName,
+              studios,
               gameDuration,
               platforms,
               officialWebsite,

@@ -31,7 +31,7 @@ export const POST = withHandler(async (req) => {
     aliases: (norm.aliases ?? []).join(", "),
     releaseDate: norm.releaseDate ?? null,
     description: norm.description ?? "",
-    studioName: norm.studioName ?? "",
+    studios: norm.studios ?? [],
     // 封面 / 时长 / 截图：拉取即填回表单草稿，保存时随游戏一并入库
     coverImage: norm.coverImage ?? "",
     gameDuration: norm.gameDuration ?? "",

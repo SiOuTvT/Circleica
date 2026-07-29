@@ -308,6 +308,7 @@ export const adminGameRepo = {
           favoriteCount: true, createdAt: true, updatedAt: true,
           publisher: { select: { id: true, username: true } },
           tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
+          studios: { take: 3, select: { studio: { select: { displayName: true } } } },
         },
       }),
       prisma.game.count({ where }),

@@ -813,11 +813,15 @@ async function getStudiosFromGame(): Promise<{ name: string; count: number }[]> 
   const key = cacheKey("galvelica", "studios")
   const cached = await cache.get<{ name: string; count: number }[]>(key)
   if (cached) return cached
-  const rows = await prisma.game.findMany({ where: { isPublished: true, NOT: { studioName: "" } }, select: { studioName: true } })
+  const rows = await prisma.gameStudio.findMany({
+    where: { game: { isPublished: true } },
+    select: { studio: { select: { displayName: true } } },
+  })
   const map = new Map<string, number>()
   for (const r of rows) {
-    if (!r.studioName) continue
-    map.set(r.studioName, (map.get(r.studioName) ?? 0) + 1)
+    const name = r.studio.displayName
+    if (!name) continue
+    map.set(name, (map.get(name) ?? 0) + 1)
   }
   const studios = [...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hans-CN"))
   await cache.set(key, studios, GAL_CACHE_TTL)

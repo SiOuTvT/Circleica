@@ -4,18 +4,17 @@ import { logger } from "@/lib/logger"
 /**
  * 制作组/社团档案数据层（Circleica 资源站专用）
  *
- * 说明：Circleica 的 Game.studioName 是自由文本品牌名（由 VNDB 摄入填充），
- * 没有规范化的 Studio 实体。本层在查询时按 studioName 归一（trim + 小写）聚合，
- * 派生出「制作组」条目。未来若建 Studio 实体（从 VNDB producer 规范），
- * 只需把这里的聚合切换为查 Studio 表，调用方无需改动。
+ * 数据模型：Studio 实体 + GameStudio 多对多关联（Studio 表为唯一真源，
+ * 不再依赖 Game.studioName 自由文本）。本层直接查 Studio 表聚合，
+ * 调用方（credits-client / studio/[name] 页）契约不变。
  *
- * 数据边界：只用本站 Game / Creator 数据，不拉 Galvelica 全量资料库。
+ * 数据边界：只用本站 Game / Creator / Studio 数据，不拉 Galvelica 全量资料库。
  */
 
 export interface MakerSummary {
-  /** 展示名（取该归一名下出现频率最高的原始写法） */
+  /** 展示名（Studio.displayName） */
   name: string
-  /** 归一 key（小写 trim），用作路由参数与去重 */
+  /** 归一 key（Studio.normalizedName），用作路由参数与去重 */
   normalized: string
   gameCount: number
   coverImage: string | null
@@ -60,48 +59,10 @@ export interface MakerListResult {
 const LIST_PAGE_SIZE = 24
 const DETAIL_PAGE_SIZE = 24
 
-function normalizeStudioName(raw: string): string {
-  return raw.trim().toLowerCase()
-}
-
-interface RawGameRow {
-  id: string
-  serialId: number
-  title: string
-  coverImage: string
-  studioName: string
-  favoriteCount: number
-  releaseDate: Date | null
-  creators: { role: string; creator: { id: string; name: string; nameJa: string | null; avatar: string; vndbId: string } }[]
-}
-
 /**
- * 拉取所有已发布且有 studioName 的游戏（含其创作者）。
- * 站点为同人资源站，游戏体量可控，一次性聚合后再在内存中分页/排序。
- * 若未来游戏量变大，应改为 Studio 实体 + 预聚合表。
+ * 列表：直接查 Studio 表（带已发布作品数 + 代表封面 + 关联创作者数）。
+ * 一次 $queryRaw 聚合关联创作者，避免 N+1。
  */
-async function fetchPublishedGamesWithMakers(): Promise<RawGameRow[]> {
-  return prisma.game.findMany({
-    where: { isPublished: true, studioName: { not: "" } },
-    select: {
-      id: true,
-      serialId: true,
-      title: true,
-      coverImage: true,
-      studioName: true,
-      favoriteCount: true,
-      releaseDate: true,
-      creators: {
-        select: {
-          role: true,
-          creator: { select: { id: true, name: true, nameJa: true, avatar: true, vndbId: true } },
-        },
-      },
-    },
-    orderBy: { favoriteCount: "desc" },
-  }) as Promise<RawGameRow[]>
-}
-
 export async function getMakers(opts: {
   search?: string
   sort?: "count" | "name"
@@ -110,104 +71,144 @@ export async function getMakers(opts: {
   const { search = "", sort = "count", page = 1 } = opts
   const pageNum = Math.max(1, page)
 
-  let games: RawGameRow[]
+  const where = search.trim()
+    ? {
+        OR: [
+          { displayName: { contains: search.trim(), mode: "insensitive" as const } },
+          { aliases: { contains: search.trim() } },
+        ],
+      }
+    : {}
+
+  let studios: Array<{
+    id: string
+    displayName: string
+    normalizedName: string
+    _count: { games: number }
+    games: { game: { coverImage: string | null; favoriteCount: number } }[]
+  }>
   try {
-    games = await fetchPublishedGamesWithMakers()
+    studios = await prisma.studio.findMany({
+      where,
+      include: {
+        _count: { select: { games: { where: { game: { isPublished: true } } } } },
+        games: {
+          where: { game: { isPublished: true } },
+          select: { game: { select: { coverImage: true, favoriteCount: true } } },
+          orderBy: { game: { favoriteCount: "desc" } },
+          take: 1,
+        },
+      },
+    })
   } catch (e) {
     logger.db.error("[getMakers] 拉取制作组失败", e)
     return { makers: [], total: 0, totalPages: 1, page: pageNum }
   }
 
-  // 搜索过滤（按 studioName 不区分大小写）
-  const q = search.trim().toLowerCase()
-  const filtered = q ? games.filter((g) => g.studioName.toLowerCase().includes(q)) : games
-
-  // 按归一 studioName 聚合
-  const map = new Map<string, { display: string; displayCount: number; games: RawGameRow[] }>()
-  for (const g of filtered) {
-    const key = normalizeStudioName(g.studioName)
-    if (!key) continue
-    const entry = map.get(key)
-    if (entry) {
-      entry.games.push(g)
-      entry.displayCount++
-    } else {
-      map.set(key, { display: g.studioName, displayCount: 1, games: [g] })
-    }
+  // 关联创作者数（一次聚合，避免 N+1）
+  const creatorCountByStudio = new Map<string, number>()
+  try {
+    const rows = await prisma.$queryRaw<{ studioId: string; cnt: number }[]>`
+      SELECT gs."studioId" AS "studioId", COUNT(DISTINCT gc."creatorId")::int AS cnt
+      FROM "GameStudio" gs
+      JOIN "Game" g ON g.id = gs."gameId"
+      JOIN "GameCreator" gc ON gc."gameId" = g.id
+      WHERE g."isPublished" = true
+      GROUP BY gs."studioId"
+    `
+    for (const r of rows) creatorCountByStudio.set(r.studioId, r.cnt)
+  } catch (e) {
+    logger.db.error("[getMakers] 统计关联创作者失败", e)
   }
 
-  const makers: MakerSummary[] = []
-  for (const [key, entry] of map.entries()) {
-    // 代表封面 = 该组 favoriteCount 最高的游戏封面
-    let cover: string | null = null
-    let maxFav = -1
-    const creatorIds = new Set<string>()
-    for (const g of entry.games) {
-      if (g.favoriteCount > maxFav && g.coverImage) {
-        maxFav = g.favoriteCount
-        cover = g.coverImage
-      }
-      for (const c of g.creators) {
-        if (!c.creator.id) continue
-        creatorIds.add(c.creator.id)
-      }
-    }
-    makers.push({
-      name: entry.display,
-      normalized: key,
-      gameCount: entry.games.length,
-      coverImage: cover,
-      creatorCount: creatorIds.size,
-    })
-  }
+  const makers: MakerSummary[] = studios.map((s) => ({
+    name: s.displayName,
+    normalized: s.normalizedName,
+    gameCount: s._count.games,
+    coverImage: s.games[0]?.game.coverImage ?? null,
+    creatorCount: creatorCountByStudio.get(s.id) ?? 0,
+  }))
 
-  // 排序
+  // 仅展示有已发布作品者
+  const visible = makers.filter((m) => m.gameCount > 0)
   if (sort === "name") {
-    makers.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"))
+    visible.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"))
   } else {
-    makers.sort((a, b) => b.gameCount - a.gameCount || a.name.localeCompare(b.name, "zh-Hans-CN"))
+    visible.sort((a, b) => b.gameCount - a.gameCount || a.name.localeCompare(b.name, "zh-Hans-CN"))
   }
 
-  const total = makers.length
+  const total = visible.length
   const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE))
   const safePage = Math.min(pageNum, totalPages)
   const start = (safePage - 1) * LIST_PAGE_SIZE
-  const paged = makers.slice(start, start + LIST_PAGE_SIZE)
+  const paged = visible.slice(start, start + LIST_PAGE_SIZE)
 
   return { makers: paged, total, totalPages, page: safePage }
 }
 
+/**
+ * 详情：查单 Studio（按 normalizedName），附已发布作品（含关联创作者）+ 代表封面。
+ */
 export async function getMakerDetail(name: string, page = 1): Promise<MakerDetail | null> {
-  const key = normalizeStudioName(name)
+  const key = name.trim().toLowerCase()
   if (!key) return null
 
-  let games: RawGameRow[]
+  let studio: {
+    displayName: string
+    normalizedName: string
+    games: {
+      game: {
+        id: string
+        serialId: number
+        title: string
+        coverImage: string
+        releaseDate: Date | null
+        favoriteCount: number
+        creators: {
+          role: string
+          creator: { id: string; name: string; nameJa: string | null; avatar: string | null; vndbId: string }
+        }[]
+      }
+    }[]
+  } | null
   try {
-    games = await fetchPublishedGamesWithMakers()
+    studio = await prisma.studio.findUnique({
+      where: { normalizedName: key },
+      include: {
+        games: {
+          where: { game: { isPublished: true } },
+          include: {
+            game: {
+              select: {
+                id: true,
+                serialId: true,
+                title: true,
+                coverImage: true,
+                releaseDate: true,
+                favoriteCount: true,
+                creators: {
+                  include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true, vndbId: true } } },
+                },
+              },
+            },
+          },
+          orderBy: { game: { favoriteCount: "desc" } },
+        },
+      },
+    })
   } catch (e) {
     logger.db.error("[getMakerDetail] 拉取制作组详情失败", e)
     return null
   }
 
-  const owned = games.filter((g) => normalizeStudioName(g.studioName) === key)
-  if (owned.length === 0) return null
+  if (!studio) return null
 
-  // 展示名：取该组出现频率最高的原始写法
-  const displayCount = new Map<string, number>()
-  for (const g of owned) displayCount.set(g.studioName, (displayCount.get(g.studioName) ?? 0) + 1)
-  let displayName = owned[0].studioName
-  let max = -1
-  for (const [n, c] of displayCount) {
-    if (c > max) {
-      max = c
-      displayName = n
-    }
-  }
+  const ownedGames = studio.games.map((gs) => gs.game)
 
   // 代表封面
   let cover: string | null = null
   let maxFav = -1
-  for (const g of owned) {
+  for (const g of ownedGames) {
     if (g.favoriteCount > maxFav && g.coverImage) {
       maxFav = g.favoriteCount
       cover = g.coverImage
@@ -216,7 +217,7 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
 
   // 关联创作者（去重，附带角色集合）
   const creatorMap = new Map<string, MakerCreatorItem>()
-  for (const g of owned) {
+  for (const g of ownedGames) {
     for (const c of g.creators) {
       const cid = c.creator.vndbId ? `s${c.creator.vndbId}` : c.creator.id
       if (!cid) continue
@@ -237,7 +238,7 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
   const creators = Array.from(creatorMap.values()).sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"))
 
   // 作品分页（按 favoriteCount 降序）
-  const sortedGames = [...owned].sort(
+  const sortedGames = [...ownedGames].sort(
     (a, b) => b.favoriteCount - a.favoriteCount || a.title.localeCompare(b.title, "zh-Hans-CN"),
   )
   const total = sortedGames.length
@@ -254,8 +255,8 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
   }))
 
   return {
-    name: displayName,
-    normalized: key,
+    name: studio.displayName,
+    normalized: studio.normalizedName,
     gameCount: total,
     coverImage: cover,
     games: pagedGames,

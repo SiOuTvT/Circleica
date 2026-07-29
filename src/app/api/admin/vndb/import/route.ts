@@ -66,7 +66,7 @@ export const POST = withHandler(async (req) => {
           aliases: (norm.aliases ?? []).join(", "),
           releaseDate: norm.releaseDate ?? null,
           description: norm.description ?? "",
-          studioName: norm.studioName ?? "",
+          studios: norm.studios ?? [],
           coverImage: norm.coverImage ?? "",
           gameDuration: norm.gameDuration ?? "",
           screenshots: norm.screenshots ?? [],

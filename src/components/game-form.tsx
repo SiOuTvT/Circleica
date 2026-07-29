@@ -40,7 +40,7 @@ interface Props {
     coverImage: string; screenshots: string[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]
-    releaseDate?: string; gameDuration?: string; studioName?: string
+    releaseDate?: string; gameDuration?: string; studios?: string[]
     englishName?: string; aliases?: string
     platforms?: string[]
     officialWebsite?: string
@@ -115,7 +115,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   // 新增字段
   const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
   const [gameDuration, setGameDuration] = useState(initialData?.gameDuration ?? "")
-  const [studioName, setStudioName] = useState(initialData?.studioName ?? "")
+  const [studios, setStudios] = useState<string[]>(initialData?.studios ?? [])
   const [englishName, setEnglishName] = useState(initialData?.englishName ?? "")
   const [aliases, setAliases] = useState(initialData?.aliases ?? "")
   const [platforms, setPlatforms] = useState<string[]>(initialData?.platforms ?? [])
@@ -148,7 +148,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     defaultValue: {
       title: "", originalWork: "", englishName: "", aliases: "",
       descLangs: { zh: "", en: "", ja: "", other: "" },
-      vndbId: "", releaseDate: "", studioName: "", gameDuration: "",
+      vndbId: "", releaseDate: "", studios: [] as string[], gameDuration: "",
       platforms: [] as string[], officialWebsite: "",
       languages: [] as string[], originalLanguage: "", ageRating: "", status: "FINISHED",
       isNsfw: false, isPublished: true, selectedTags: [] as string[], draftTagNames: [] as string[],
@@ -161,11 +161,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     if (isEdit) return
     updateDraft({
       title, originalWork, englishName, aliases,
-      descLangs, vndbId, releaseDate, studioName, gameDuration,
+      descLangs, vndbId, releaseDate, studios, gameDuration,
       platforms, officialWebsite, languages, originalLanguage, ageRating, status,
       isNsfw, isPublished, selectedTags, draftTagNames,
     })
-  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studioName, gameDuration, platforms, officialWebsite, languages, originalLanguage, ageRating, status, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
+  }, [isEdit, title, originalWork, englishName, aliases, descLangs, vndbId, releaseDate, studios, gameDuration, platforms, officialWebsite, languages, originalLanguage, ageRating, status, isNsfw, isPublished, selectedTags, draftTagNames, updateDraft])
 
   // 从草稿恢复表单
   function restoreDraft() {
@@ -176,7 +176,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setDescLangs(draft.descLangs)
     setVndbId(draft.vndbId)
     setReleaseDate(draft.releaseDate)
-    setStudioName(draft.studioName)
+    setStudios(draft.studios ?? [])
     setGameDuration(draft.gameDuration)
     setPlatforms(draft.platforms)
     setOfficialWebsite(draft.officialWebsite)
@@ -329,7 +329,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         setDescLangs(prev => ({ ...prev, [lang]: d.description as string }))
         setActiveDescLang(lang)
       }
-      if (d.studioName) setStudioName(d.studioName as string)
+      if (Array.isArray(d.studios) && d.studios.length) setStudios(d.studios as string[])
 
       // 发售日期
       if (d.releaseDate) {
@@ -405,7 +405,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       resourceTags: [], // 后台表单不直接编辑资源标签，由前台资源链接管理
       releaseDate: releaseDate || null,
       gameDuration,
-      studioName,
+      studios,
       englishName,
       aliases,
       platforms,
@@ -725,8 +725,14 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
               </div>
               <div>
-                <label htmlFor={idStudio} className={labelCls}>制作会社</label>
-                <input id={idStudio} value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="如：Key" className={inputCls} />
+                <label htmlFor={idStudio} className={labelCls}>制作会社（多个用逗号分隔）</label>
+                <input
+                  id={idStudio}
+                  value={studios.join(", ")}
+                  onChange={(e) => setStudios(e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                  placeholder="如：Key, Type-Moon"
+                  className={inputCls}
+                />
               </div>
               <div>
                 <label htmlFor={idDuration} className={labelCls}>游戏时长</label>

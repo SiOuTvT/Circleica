@@ -24,7 +24,7 @@ interface GameItem {
   serialId: number
   title: string
   coverImage: string
-  studioName?: string
+  studios?: string[]
   releaseDate?: string
 }
 
@@ -184,7 +184,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
         const data = await api.get<{ data?: any }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
         // /api/admin/games 返回 { success, data: [games[], count] }
         const games = Array.isArray(data.data) ? data.data : (data.data?.games || [])
-        setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studioName: g.studioName })))
+        setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studios: (g.studios ?? []).map((s: any) => s.studio.displayName) })))
       } catch { setSearchResults([]) }
       finally { setSearching(false) }
     }, 300)
@@ -301,7 +301,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{g.title}</p>
-                      {g.studioName && <p className="text-xs text-muted-foreground truncate">{g.studioName}</p>}
+                      {g.studios && g.studios.length > 0 && <p className="text-xs text-muted-foreground truncate">{g.studios.join(", ")}</p>}
                     </div>
                     {games.some(x => x.id === g.id) && (
                       <span className="text-xs text-muted-foreground">已添加</span>

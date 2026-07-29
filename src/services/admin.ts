@@ -49,6 +49,38 @@ async function linkGameCreators(
   }
 }
 
+/**
+ * 把一组制作组（来自 VNDB 拉取或手动添加，字符串名称数组）归一后关联到游戏。
+ * 规则：Studio 按 normalizedName（小写 trim）upsert（展示名取首次提供的写法，
+ * 后续更新不覆盖，保留规范名）；关联先删后建，保证与本次提交完全一致。
+ * aliases 在摄入期收集原始写法（JSON 数组）。必须在事务（tx）内调用。
+ */
+async function linkGameStudios(
+  tx: Prisma.TransactionClient,
+  studios: unknown,
+  gameId: string,
+) {
+  if (!Array.isArray(studios) || studios.length === 0) return
+  const links: { gameId: string; studioId: string; role: string | null }[] = []
+  for (const raw of studios as unknown[]) {
+    const name = typeof raw === "string" ? raw.trim() : ""
+    if (!name) continue
+    const normalized = name.toLowerCase()
+    const studio = await tx.studio.upsert({
+      where: { normalizedName: normalized },
+      update: {},
+      create: { normalizedName: normalized, displayName: name, aliases: JSON.stringify([name]) },
+      select: { id: true },
+    })
+    links.push({ gameId, studioId: studio.id, role: null })
+  }
+  // 全量替换该游戏的制组关联，保证与本次提交完全一致
+  await tx.gameStudio.deleteMany({ where: { gameId } })
+  if (links.length > 0) {
+    await tx.gameStudio.createMany({ data: links, skipDuplicates: true })
+  }
+}
+
 // ── 成就 ────────────────────────────
 
 export const achievementService = {
@@ -438,7 +470,6 @@ export const adminGameService = {
           vndbId: data.vndbId ? String(data.vndbId).trim() : "",
           releaseDate: data.releaseDate ? new Date(String(data.releaseDate)) : null,
           gameDuration: data.gameDuration ? String(data.gameDuration).trim() : "",
-          studioName: data.studioName ? String(data.studioName).trim() : "",
           englishName: data.englishName ? String(data.englishName).trim() : "",
           aliases: data.aliases ? String(data.aliases).trim() : "",
           // 截图（VNDB screenshots 或手动上传，均为 URL 字符串数组，存 Json）
@@ -491,6 +522,8 @@ export const adminGameService = {
 
       // 创作者关联（VNDB 拉取的 staff：保存时才 upsert Creator 并关联，绝不提前写库）
       await linkGameCreators(tx, data.creators, created.id)
+      // 制作组关联（VNDB 拉取的 devs：保存时才 upsert Studio 并关联，绝不提前写库）
+      await linkGameStudios(tx, data.studios, created.id)
 
       return created
     })
@@ -515,7 +548,7 @@ export const adminGameService = {
       const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
         "platforms", "officialWebsite", "languages", "originalLanguage", "ageRating",
         "downloadLinks", "status", "isNsfw", "vndbId", "isPublished", "releaseDate",
-        "gameDuration", "studioName", "englishName", "aliases", "rejectReason"]
+        "gameDuration", "englishName", "aliases", "rejectReason"]
       const safe: Record<string, unknown> = {}
       for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
       const updated = await tx.game.update({ where: { id }, data: safe })
@@ -551,6 +584,11 @@ export const adminGameService = {
       // 处理创作者关联更新（VNDB 拉取的 staff 只带 vndbId/name，无 creatorId：保存时 upsert Creator 再关联）
       if (Array.isArray(data.creators)) {
         await linkGameCreators(tx, data.creators, id)
+      }
+
+      // 处理制作组关联更新（VNDB 拉取的 devs 只带名称：保存时 upsert Studio 再关联）
+      if (Array.isArray(data.studios)) {
+        await linkGameStudios(tx, data.studios, id)
       }
 
       return updated
