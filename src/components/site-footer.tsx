@@ -15,7 +15,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           {/* 左：品牌介绍 */}
-          <div className="max-w-sm text-left">
+          <div className="max-w-sm pt-1 text-left sm:pt-0">
             <span className="font-heading text-base font-bold leading-none text-primary">{siteName}</span>
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">
@@ -49,7 +49,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         </div>
 
         {/* 底栏 */}
-        <div className="mt-3 border-t border-border/60 pt-1.5 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
+        <div className="mt-2 border-t border-border/60 pt-1.5 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
           © {new Date().getFullYear()} {siteName}. 保留所有权利。
         </div>
       </div>
