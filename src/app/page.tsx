@@ -185,9 +185,9 @@ export default async function HomePage({
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
-                <p className="text-xs font-medium tracking-[0.2em] text-[var(--clr-blue)] uppercase">视觉小说 · 同人 · 资源</p>
+                <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">视觉小说资源站</p>
                 <h2 className="mt-3 text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>
-                <p className="mt-2 text-base text-muted-foreground">{siteDesc || "GalGame 同人世界的一站式入口"}</p>
+                <p className="mt-2 text-base text-muted-foreground">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
               </div>
               {/* 统计行 */}
               <div className="flex gap-6">

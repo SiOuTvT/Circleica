@@ -45,7 +45,7 @@ export default async function CreatorsPage({
           variant="person"
           eyebrow="creators"
           title="创作者图鉴"
-          lede="脚本 · 原画 · 音乐 · 导演。按名称首字浏览全部创作者档案与参与作品。"
+          lede="这里收录脚本、原画、音乐、导演等创作者，按名称首字浏览档案与参与作品。"
           meta={
             query ? (
               <span>

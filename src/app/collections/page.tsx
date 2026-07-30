@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "精选合集",
-  description: "编辑精选 · 发现更多精彩作品",
+  description: "编辑挑选的同人游戏合集",
   openGraph: {
     title: "精选合集 · Circleica",
-    description: "编辑精选 · 发现更多精彩作品",
+    description: "编辑挑选的同人游戏合集",
     images: ["/opengraph-image"],
   },
 }
@@ -74,7 +74,7 @@ export default async function CuratedCollectionsPage({
           variant="series"
           eyebrow="collections"
           title="精选合集"
-          lede="编辑精选 · 发现更多精彩作品"
+          lede="编辑挑选的同人游戏合集"
           search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
         />
         <ArchivePlaceholder state="empty" entity="collection" message="暂无精选合集" />
@@ -98,7 +98,7 @@ export default async function CuratedCollectionsPage({
           variant="series"
           eyebrow="collections"
           title="精选合集"
-          lede="编辑精选 · 发现更多精彩作品"
+          lede="编辑挑选的同人游戏合集"
           meta={<span className="tabular-nums">共 {total} 个合集</span>}
           search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
         />

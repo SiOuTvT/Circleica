@@ -45,7 +45,7 @@ export default async function CreditsPage({
           variant="org"
           eyebrow="studios"
           title="制作组图鉴"
-          lede="同人社团 · 小型制作组 · 个人作者。按名称首字浏览全部制作组档案。"
+          lede="这里收录同人社团、小型制作组与个人作者，按名称首字浏览全部档案。"
           meta={
             query ? (
               <span>

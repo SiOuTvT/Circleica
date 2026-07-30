@@ -11,14 +11,14 @@ const DEFAULT_CONTENTS: Record<string, string> = {
   page_about: `<h2 class="text-lg font-semibold text-foreground mb-2">我们是谁</h2>
 <p class="text-sm text-muted-foreground leading-relaxed">
 Circleica是一个面向 Galgame/视觉小说爱好者的社区平台。
-我们致力于为玩家提供一个发现、分享、讨论同人游戏的一站式入口。
+这里收录同人游戏资源，可以浏览、搜索、按标签筛选，也能发帖讨论和分享。
 </p>
 
 <h2 class="text-lg font-semibold text-foreground mb-3">核心功能</h2>
 <div class="grid gap-3 sm:grid-cols-2">
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">游戏收录</h3>
-<p class="text-xs text-muted-foreground leading-relaxed">收录海量同人游戏资源，支持标签筛选、搜索、收藏</p>
+<p class="text-xs text-muted-foreground leading-relaxed">站内的同人游戏资源按标签筛选、搜索、收藏都行。</p>
 </div>
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">制作组图鉴</h3>
