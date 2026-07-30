@@ -6,6 +6,16 @@ import { usePathname } from "next/navigation"
 import { useBreadcrumb } from "./breadcrumb-context"
 
 /**
+ * Archive 浏览体系路由前缀 — 这些页面由 ArchiveHero 自包含标题，不需要全局面包屑
+ */
+const ARCHIVE_ROUTE_PREFIXES = new Set([
+  "credits",
+  "creators",
+  "curated-collections",
+  "tags",
+])
+
+/**
  * 路由段 → 中文名映射（仅用于有独立页面的路由）
  * ⚠️ 不要把没有独立页面的路由（如 games, profile, creators, announcements, characters）加进来
  */
@@ -176,6 +186,9 @@ export function Breadcrumb() {
   if (pathname === "/") return null
 
   const segments = pathname.split("/").filter(Boolean)
+
+  // Archive 浏览体系页面由 ArchiveHero 自包含标题，不显示全局面包屑
+  if (segments.length > 0 && ARCHIVE_ROUTE_PREFIXES.has(segments[0])) return null
 
   // 优先尝试特殊路径处理
   const specialCrumbs = buildSpecialCrumbs(segments, pathname, dynamicLabels)
