@@ -4,11 +4,11 @@ import { DENSITY_GRID, type ArchiveDensity } from "./density"
 interface SkeletonGridProps {
   count?: number
   density?: ArchiveDensity
-  variant?: "studio" | "creator" | "collection"
+  variant?: "studio" | "creator" | "collection" | "tag"
   className?: string
 }
 
-function SkeletonCard({ variant }: { variant: "studio" | "creator" | "collection" }) {
+function SkeletonCard({ variant }: { variant: "studio" | "creator" | "collection" | "tag" }) {
   if (variant === "creator") {
     return (
       <div className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60">

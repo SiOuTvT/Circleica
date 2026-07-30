@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { SkeletonGrid } from "./skeleton-grid"
 
 export type PlaceholderState = "loading" | "empty" | "error"
-export type ArchiveEntity = "studio" | "creator" | "collection" | "game"
+export type ArchiveEntity = "studio" | "creator" | "collection" | "game" | "tag"
 
 interface ArchivePlaceholderProps {
   state: PlaceholderState
@@ -13,7 +13,7 @@ interface ArchivePlaceholderProps {
   /** 错误态重试入口（服务端安全，避免 client onClick） */
   retryHref?: string
   loadingCount?: number
-  loadingVariant?: "studio" | "creator" | "collection"
+  loadingVariant?: "studio" | "creator" | "collection" | "tag"
   className?: string
 }
 
@@ -22,6 +22,7 @@ const ENTITY_LABELS: Record<ArchiveEntity, string> = {
   creator: "创作者",
   collection: "合集",
   game: "作品",
+  tag: "标签",
 }
 
 /**

@@ -6,7 +6,7 @@
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import type { TagBrowserData, TagInfo, TagGroupWithTags, TagWithGroup } from "@/types/tags-browser"
+import type { TagBrowserData, TagDetail, TagGameItem, TagInfo, TagGroupWithTags, TagWithGroup } from "@/types/tags-browser"
 
 /**
  * 获取标签浏览页面数据（带缓存）
@@ -192,6 +192,78 @@ function buildTagsByLetter(tagGroups: TagGroupWithTags[]): Record<string, TagWit
   }
 
   return result
+}
+
+/**
+ * 标签详情：标签本身 + 该标签下已发布游戏（全量查询，超安全阈值截断展示）
+ * DB 不可达返回 null（绝不注入假数据）。
+ */
+const TAG_GAME_LIMIT = 60
+
+export async function getTagDetail(id: string): Promise<TagDetail | null> {
+  try {
+    const tag = await prisma.tag.findUnique({
+      where: { id },
+      include: { group: { select: { id: true, name: true, color: true } } },
+    })
+    if (!tag) return null
+
+    const total = await prisma.gameTag.count({
+      where: { tagId: id, game: { isPublished: true } },
+    })
+
+    const rows = await prisma.gameTag.findMany({
+      where: { tagId: id, game: { isPublished: true } },
+      include: {
+        game: {
+          select: {
+            id: true,
+            serialId: true,
+            title: true,
+            coverImage: true,
+            isNsfw: true,
+            status: true,
+            favoriteCount: true,
+            viewCount: true,
+            downloadCount: true,
+          },
+        },
+      },
+      orderBy: [{ game: { favoriteCount: "desc" } }],
+      take: TAG_GAME_LIMIT + 1,
+    })
+
+    const items: TagGameItem[] = rows
+      .filter((r) => r.game)
+      .map((r) => ({
+        id: r.game.id,
+        serialId: r.game.serialId,
+        title: r.game.title,
+        coverImage: r.game.coverImage,
+        isNsfw: r.game.isNsfw,
+        status: r.game.status ?? "",
+        favoriteCount: r.game.favoriteCount ?? 0,
+        viewCount: r.game.viewCount,
+        downloadCount: r.game.downloadCount,
+      }))
+
+    const hasMore = items.length > TAG_GAME_LIMIT
+    const games = hasMore ? items.slice(0, TAG_GAME_LIMIT) : items
+
+    return {
+      id: tag.id,
+      name: tag.name,
+      description: tag.description,
+      color: tag.color,
+      group: tag.group,
+      games,
+      gameCount: total,
+      hasMore,
+    }
+  } catch (error) {
+    logger.db.error("[TagsBrowser] getTagDetail failed", error)
+    return null
+  }
 }
 
 /**

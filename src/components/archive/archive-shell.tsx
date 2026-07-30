@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils"
 import type { ArchiveDensity } from "./density"
 
 interface ArchiveShellProps {
-  /** Archive 浏览体系实体（仅 studio / creator / collection，不含 Game Detail） */
-  entity: "studio" | "creator" | "collection"
+  /** Archive 浏览体系实体（studio / creator / collection / tag，不含 Game Detail） */
+  entity: "studio" | "creator" | "collection" | "tag"
   /** 密度三态：JS 层经 DENSITY_GRID 驱动网格列数；data-density 属性供 CSS / QA 钩子 */
   density: ArchiveDensity
   breadcrumb?: ReactNode
@@ -28,7 +28,7 @@ interface ArchiveShellProps {
  * 注入 data-archive-entity / data-density，供子组件与 CSS / QA 钩子读取。
  * 密度经 DENSITY_GRID（density.ts）在 JS 层驱动网格列数。
  *
- * ⚠️ 架构边界：ArchiveShell 只服务于 Studio / Creator / Collection（及未来扩展）。
+ * ⚠️ 架构边界：ArchiveShell 只服务于 Studio / Creator / Collection / Tag（及未来扩展）。
  * Game Detail 永不进入此框架，亦不反向改造本组件以兼容 Game Detail。
  */
 export function ArchiveShell({

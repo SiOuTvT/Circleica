@@ -5,7 +5,7 @@ import type { ReactNode } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
-export type ArchiveHeroVariant = "org" | "person" | "series" | "detail"
+export type ArchiveHeroVariant = "org" | "person" | "series" | "detail" | "tag"
 
 interface ArchiveHeroProps {
   variant: ArchiveHeroVariant
@@ -64,7 +64,9 @@ function HeroCover({
 
 /**
  * ArchiveHero — 编辑式标题区（Design Language，四类档案 + Game Detail 共用）
- * variant: org(组织) / person(个人) / series(系列) / detail(Game Detail 契约)
+ * variant: org(组织) / person(个人) / series(系列) / detail(Game Detail 契约) / tag(标签分类)
+ *
+ * tag variant — taxonomy 定位：展示标签名称、分组、描述、关联游戏数，不模拟实体 Hero（无封面）。
  */
 export function ArchiveHero({
   variant,
@@ -78,15 +80,21 @@ export function ArchiveHero({
 }: ArchiveHeroProps) {
   const shape: "rect" | "circle" = variant === "person" ? "circle" : "rect"
   const initial = fallbackInitial || title
+  const isTag = variant === "tag"
   return (
     <header
       className={cn(
         "flex flex-col gap-5",
-        variant === "person" && "sm:flex-row sm:items-center",
+        (variant === "person" || isTag) && "sm:flex-row sm:items-center",
         className,
       )}
     >
-      <HeroCover cover={cover} initial={initial} shape={shape} />
+      {!isTag && <HeroCover cover={cover} initial={initial} shape={shape} />}
+      {isTag && (
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-muted/60 ring-1 ring-border/60">
+          <span className="font-heading text-xl font-semibold text-primary/40">#</span>
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         {eyebrow && (
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
