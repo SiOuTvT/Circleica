@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M4 Tag Archive 预览 · Circleica</title>
+<style>
+  :root{
+    --background:#08080a; --card:#151518; --card-2:#1b1b1f;
+    --primary:#5FA8A0; --primary-soft:rgba(95,168,160,.15); --primary-softer:rgba(95,168,160,.06);
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.14);
+    --fg:#ededed; --muted:#9a9aa2; --muted-2:#6f6f78;
+    --warning:#d9a441;
+    --font-heading:"Noto Serif SC",Georgia,"Songti SC",serif;
+    --font-body:"Inter","Noto Sans SC",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--background);color:var(--fg);font-family:var(--font-body);line-height:1.5;padding:32px 20px;max-width:1100px;margin:0 auto}
+  a{color:inherit;text-decoration:none}
+  .shell{display:flex;flex-direction:column;gap:24px}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+  h1{font-family:var(--font-heading);font-size:30px;font-weight:600;line-height:1.2}
+  h2{font-size:15px;font-weight:600;font-family:var(--font-heading);display:flex;align-items:center;gap:6px;margin-bottom:14px}
+  .lede{margin-top:8px;color:var(--muted);font-size:14px;max-width:60ch}
+  .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted)}
+  .meta b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+  /* tag hero */
+  .hero{display:flex;gap:20px;align-items:center}
+  .hero-badge{width:64px;height:64px;flex:none;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:24px;font-weight:600;color:rgba(95,168,160,.4)}
+  /* stats bar */
+  .stats{display:flex;flex-wrap:wrap;gap:24px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:14px 20px}
+  .stat{display:flex;flex-direction:column}
+  .stat .l{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted-2)}
+  .stat .v{font-family:var(--font-heading);font-size:20px;font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums;margin-top:2px}
+  /* tag card grid */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:1024px){.grid{grid-template-columns:repeat(4,1fr)}}
+  .tagcard{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;transition:.2s}
+  .tagcard:hover{transform:translateY(-1px);border-color:var(--border-strong);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .tc-main{min-width:0;flex:1}
+  .tc-name{font-size:14px;font-weight:500;display:flex;align-items:baseline;gap:6px}
+  .tc-name .n{color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tc-name .c{font-size:11px;color:var(--muted-2);font-variant-numeric:tabular-nums;flex:none}
+  .tc-grp{font-size:11px;color:var(--muted-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* azindex */
+  .az{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;background:rgba(21,21,24,.9);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);border-radius:12px;padding:8px 4px;margin-top:4px}
+  .az a{min-width:28px;text-align:center;padding:4px 8px;font-size:12px;font-weight:500;border-radius:6px;color:var(--muted);transition:.15s}
+  .az a:hover{background:rgba(255,255,255,.06);color:var(--fg)}
+  .az a.on{background:var(--primary);color:#06120f}
+  .letter-h{display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:12px}
+  .letter-h .k{font-size:14px;font-weight:700}
+  .letter-h .n{font-size:12px;color:var(--muted-2)}
+  .sec{scroll-mt-24}
+  .group{margin-top:24px}
+  /* hot cloud + category */
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+  .cloud{display:flex;flex-wrap:wrap;gap:8px 10px}
+  .cloudtag{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:500;border:1px solid;transition:.15s}
+  .cloudtag:hover{transform:scale(1.04)}
+  .cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media(min-width:1024px){.cat-grid{grid-template-columns:repeat(3,1fr)}}
+  .cat{border:1px solid var(--border);border-radius:12px;padding:16px;border-top:3px solid}
+  .cat h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .cat .cdot{width:8px;height:8px;border-radius:50%}
+  .cat .ctags{display:flex;flex-wrap:wrap;gap:6px}
+  .ctag{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid;font-weight:500}
+  /* game card */
+  .games{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:640px){.games{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:1024px){.games{grid-template-columns:repeat(4,1fr)}}
+  .game{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:.2s}
+  .game:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35);border-color:var(--border-strong)}
+  .cover{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:30px;font-weight:700;color:rgba(255,255,255,.25);position:relative}
+  .game .body{padding:10px 12px 12px}
+  .game .t{font-size:15px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .game .ft{display:flex;gap:10px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .hint{margin-top:16px;text-align:center;font-size:12px;color:var(--muted-2)}
+  .divider{height:1px;background:var(--border);margin:8px 0}
+  .tagchip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--border);color:var(--muted);margin-right:4px}
+  .empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:80px 0;text-align:center;color:var(--muted)}
+  .empty .ic{font-size:48px;opacity:.2}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ 列表页：标签图鉴 ============ -->
+  <div class="hero">
+    <div class="hero-badge">#</div>
+    <div style="min-width:0;flex:1">
+      <p class="eyebrow">标签图鉴</p>
+      <h1>标签</h1>
+      <p class="lede">通过标签发现游戏，按分类与首字母索引浏览。</p>
+      <div class="meta">
+        <span>共 <b>258</b> 个标签</span><span style="color:var(--muted-2)">·</span>
+        <span><b>18 042</b> 部作品</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="l">标签数</span><span class="v">258</span></div>
+    <div class="stat"><span class="l">作品数</span><span class="v">18 042</span></div>
+    <div class="stat"><span class="l">分类数</span><span class="v">4</span></div>
+  </div>
+
+  <!-- 补充区块：分类浏览 -->
+  <div>
+    <h2>▦ 按分类浏览</h2>
+    <div class="cat-grid">
+      <div class="cat" style="border-top-color:#5FA8A0">
+        <h3><span class="cdot" style="background:#5FA8A0"></span>题材</h3>
+        <div class="ctags">
+          <span class="ctag" style="background:rgba(95,168,160,.1);color:#5FA8A0;border-color:rgba(95,168,160,.3)">纯爱 402</span>
+          <span class="ctag" style="background:rgba(95,168,160,.1);color:#5FA8A0;border-color:rgba(95,168,160,.3)">凌辱 318</span>
+          <span class="ctag" style="background:rgba(95,168,160,.1);color:#5FA8A0;border-color:rgba(95,168,160,.3)">悬疑 271</span>
+        </div>
+      </div>
+      <div class="cat" style="border-top-color:#d67676">
+        <h3><span class="cdot" style="background:#d67676"></span>玩法</h3>
+        <div class="ctags">
+          <span class="ctag" style="background:rgba(214,118,118,.1);color:#d67676;border-color:rgba(214,118,118,.3)">ADV 512</span>
+          <span class="ctag" style="background:rgba(214,118,118,.1);color:#d67676;border-color:rgba(214,118,118,.3)">模拟 143</span>
+        </div>
+      </div>
+      <div class="cat" style="border-top-color:#848cd2">
+        <h3><span class="cdot" style="background:#848cd2"></span>风格</h3>
+        <div class="ctags">
+          <span class="ctag" style="background:rgba(132,140,210,.1);color:#848cd2;border-color:rgba(132,140,210,.3)">治愈 209</span>
+          <span class="ctag" style="background:rgba(132,140,210,.1);color:#848cd2;border-color:rgba(132,140,210,.3)">黑暗 97</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全部标签索引 -->
+  <div>
+    <h2># 全部标签</h2>
+    <nav class="az">
+      <a href="#tag-letter-A" class="on">A</a>
+      <a href="#tag-letter-C">C</a>
+      <a href="#tag-letter-H">H</a>
+      <a href="#tag-letter-S">S</a>
+      <a href="#tag-letter-0-9">#</a>
+      <a href="#tag-letter-%E6%BC%AB">颜</a>
+    </nav>
+
+    <div class="group sec" id="tag-letter-A">
+      <div class="letter-h"><span class="k">A</span><span class="n">12 个标签</span></div>
+      <div class="grid">
+        <a class="tagcard" href="#"><span class="dot" style="background:#5FA8A0"></span><div class="tc-main"><div class="tc-name"><span class="n">ADV</span><span class="c">512</span></div><div class="tc-grp">玩法</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#d67676"></span><div class="tc-main"><div class="tc-name"><span class="n">AI 生成</span><span class="c">38</span></div><div class="tc-grp">技术</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#848cd2"></span><div class="tc-main"><div class="tc-name"><span class="n">暗黑</span><span class="c">97</span></div><div class="tc-grp">风格</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#deaa5a"></span><div class="tc-main"><div class="tc-name"><span class="n">喜剧</span><span class="c">76</span></div><div class="tc-grp">题材</div></div></a>
+      </div>
+    </div>
+
+    <div class="group sec" id="tag-letter-C">
+      <div class="letter-h"><span class="k">C</span><span class="n">8 个标签</span></div>
+      <div class="grid">
+        <a class="tagcard" href="#"><span class="dot" style="background:#5FA8A0"></span><div class="tc-main"><div class="tc-name"><span class="n">纯爱</span><span class="c">402</span></div><div class="tc-grp">题材</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#c878b4"></span><div class="tc-main"><div class="tc-name"><span class="n">催泪</span><span class="c">134</span></div><div class="tc-grp">风格</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#78be8c"></span><div class="tc-main"><div class="tc-name"><span class="n">穿越</span><span class="c">61</span></div><div class="tc-grp">题材</div></div></a>
+      </div>
+    </div>
+
+    <div class="group sec" id="tag-letter-0-9">
+      <div class="letter-h"><span class="k">#</span><span class="n">5 个标签</span></div>
+      <div class="grid">
+        <a class="tagcard" href="#"><span class="dot" style="background:#848cd2"></span><div class="tc-main"><div class="tc-name"><span class="n">3D</span><span class="c">89</span></div><div class="tc-grp">技术</div></div></a>
+        <a class="tagcard" href="#"><span class="dot" style="background:#d67676"></span><div class="tc-main"><div class="tc-name"><span class="n">2D</span><span class="c">211</span></div><div class="tc-grp">技术</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ============ 详情页示例 ============ -->
+  <div class="hero">
+    <div class="hero-badge">#</div>
+    <div style="min-width:0;flex:1">
+      <p class="eyebrow">标签</p>
+      <h1>纯爱</h1>
+      <p class="lede">以恋爱与情感为主轴的作品，强调人物羁绊与情感描写。</p>
+      <div class="meta">
+        <span>分组：<b>题材</b></span><span style="color:var(--muted-2)">·</span>
+        <span>共 <b>402</b> 部作品</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="l">作品数</span><span class="v">402</span></div>
+    <div class="stat"><span class="l">分组</span><span class="v">题材</span></div>
+  </div>
+
+  <div>
+    <h2><span style="display:inline-block;width:4px;height:20px;background:var(--primary);border-radius:2px;margin-right:10px;vertical-align:middle"></span>作品</h2>
+    <div class="games">
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#5FA8A0,#2c4a47)">星</div><div class="body"><div class="t">星空下的约定</div><div class="ft"><span>👁 12k</span><span>♥ 3.2k</span></div></div></a>
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#d67676,#4a2c2c)">恋</div><div class="body"><div class="t">恋之光景</div><div class="ft"><span>👁 9.8k</span><span>♥ 2.7k</span></div></div></a>
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#848cd2,#2c2c4a)">青</div><div class="body"><div class="t">青空之约</div><div class="ft"><span>👁 8.1k</span><span>♥ 2.1k</span></div></div></a>
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#deaa5a,#4a3c2c)">夏</div><div class="body"><div class="t">夏日的彼端</div><div class="ft"><span>👁 7.4k</span><span>♥ 1.9k</span></div></div></a>
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#78be8c,#2c4a30)">花</div><div class="body"><div class="t">花与乙女</div><div class="ft"><span>👁 6.2k</span><span>♥ 1.6k</span></div></div></a>
+      <a class="game" href="#"><div class="cover" style="background:linear-gradient(135deg,#c878b4,#4a2c44)">谎</div><div class="body"><div class="t">谎月物语</div><div class="ft"><span>👁 5.5k</span><span>♥ 1.3k</span></div></div></a>
+    </div>
+    <p class="hint">仅展示前 60 部作品，完整列表与筛选请在搜索中查看。</p>
+  </div>
+
+  <!-- 空态示例（无关联游戏） -->
+  <div class="divider"></div>
+  <div class="empty">
+    <div class="ic">#</div>
+    <p>该标签暂无已收录的作品</p>
+  </div>
+
+</div>
+</body>
+</html>
