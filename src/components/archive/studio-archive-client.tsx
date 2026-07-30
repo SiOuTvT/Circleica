@@ -132,6 +132,7 @@ export function StudioArchiveClient({
                     key={m.normalized}
                     variant="studio"
                     data={{
+                      slug: m.slug,
                       name: m.name,
                       normalized: m.normalized,
                       gameCount: m.gameCount,

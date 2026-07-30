@@ -16,6 +16,8 @@ export interface MakerSummary {
   name: string
   /** 归一 key（Studio.normalizedName），用作路由参数与去重 */
   normalized: string
+  /** Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离 */
+  slug: string | null
   gameCount: number
   coverImage: string | null
   creatorCount: number
@@ -32,6 +34,8 @@ export interface MakerGameItem {
 
 export interface MakerCreatorItem {
   id: string
+  /** Archive 稳定可读路由（CJK 直出），与 id 解耦 */
+  slug: string | null
   name: string
   nameJa: string | null
   avatar: string | null
@@ -41,6 +45,8 @@ export interface MakerCreatorItem {
 export interface MakerDetail {
   name: string
   normalized: string
+  /** Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离 */
+  slug: string | null
   gameCount: number
   coverImage: string | null
   games: MakerGameItem[]
@@ -87,6 +93,7 @@ export async function getMakers(opts: {
     id: string
     displayName: string
     normalizedName: string
+    slug: string | null
     _count: { games: number }
     games: { game: { coverImage: string | null; favoriteCount: number } }[]
   }>
@@ -127,6 +134,7 @@ export async function getMakers(opts: {
   const makers: MakerSummary[] = studios.map((s) => ({
     name: s.displayName,
     normalized: s.normalizedName,
+    slug: s.slug ?? null,
     gameCount: s._count.games,
     coverImage: s.games[0]?.game.coverImage ?? null,
     creatorCount: creatorCountByStudio.get(s.id) ?? 0,
@@ -150,15 +158,16 @@ export async function getMakers(opts: {
 }
 
 /**
- * 详情：查单 Studio（按 normalizedName），附已发布作品（含关联创作者）+ 代表封面。
+ * 详情：查单 Studio（按 slug），附已发布作品（含关联创作者）+ 代表封面。
  */
-export async function getMakerDetail(name: string, page = 1): Promise<MakerDetail | null> {
-  const key = name.trim().toLowerCase()
+export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetail | null> {
+  const key = slug.trim()
   if (!key) return null
 
   let studio: {
     displayName: string
     normalizedName: string
+    slug: string | null
     games: {
       game: {
         id: string
@@ -169,14 +178,14 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
         favoriteCount: number
         creators: {
           role: string
-          creator: { id: string; name: string; nameJa: string | null; avatar: string | null; vndbId: string }
+          creator: { id: string; slug: string | null; name: string; nameJa: string | null; avatar: string | null; vndbId: string }
         }[]
       }
     }[]
   } | null
   try {
     studio = await prisma.studio.findUnique({
-      where: { normalizedName: key },
+      where: { slug: key },
       include: {
         games: {
           where: { game: { isPublished: true } },
@@ -190,7 +199,7 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
                 releaseDate: true,
                 favoriteCount: true,
                 creators: {
-                  include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true, vndbId: true } } },
+                  include: { creator: true },
                 },
               },
             },
@@ -230,6 +239,7 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
       } else {
         creatorMap.set(cid, {
           id: cid,
+          slug: c.creator.slug || null,
           name: c.creator.name,
           nameJa: c.creator.nameJa || null,
           avatar: c.creator.avatar || null,
@@ -260,11 +270,31 @@ export async function getMakerDetail(name: string, page = 1): Promise<MakerDetai
   return {
     name: studio.displayName,
     normalized: studio.normalizedName,
+    slug: studio.slug ?? null,
     gameCount: total,
     coverImage: cover,
     games: pagedGames,
     totalPages,
     page: safePage,
     creators,
+  }
+}
+
+/**
+ * 旧路由兼容：按 normalizedName（旧 URL 参数）查当前 slug，供 /credits/studio/[name] redirect 使用。
+ * 只返回主站 Studio 的 slug，不拉副站数据。
+ */
+export async function getStudioSlugByName(normalizedName: string): Promise<string | null> {
+  const key = normalizedName.trim().toLowerCase()
+  if (!key) return null
+  try {
+    const s = await prisma.studio.findUnique({
+      where: { normalizedName: key },
+      select: { slug: true },
+    })
+    return s?.slug ?? null
+  } catch (e) {
+    logger.db.error("[getStudioSlugByName] 查询失败", e)
+    return null
   }
 }

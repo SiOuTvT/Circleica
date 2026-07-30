@@ -111,7 +111,7 @@ export function CreatorArchiveClient({
       {loading ? (
         <ArchivePlaceholder state="loading" entity="creator" loadingCount={density === "dense" ? 12 : 8} loadingVariant="creator" />
       ) : error ? (
-        <ArchivePlaceholder state="error" entity="creator" retryHref="/creators" />
+        <ArchivePlaceholder state="error" entity="creator" retryHref="/credits/creator" />
       ) : creators.length === 0 ? (
         <ArchivePlaceholder
           state="empty"
@@ -134,6 +134,7 @@ export function CreatorArchiveClient({
                     variant="creator"
                     data={{
                       id: c.id,
+                      slug: c.slug,
                       name: c.name,
                       nameJa: c.nameJa,
                       avatar: c.avatar,

@@ -16,6 +16,8 @@ export interface CreatorSummary {
   name: string
   nameJa?: string | null
   avatar?: string | null
+  /** Archive 稳定可读路由（CJK 直出），与 id 解耦 */
+  slug: string | null
   gameCount: number
   roles: string[]
 }
@@ -61,6 +63,7 @@ export async function getCreators(opts: {
     name: string
     nameJa: string
     avatar: string
+    slug: string | null
     _count: { games: number }
     games: { role: string }[]
   }>
@@ -86,6 +89,7 @@ export async function getCreators(opts: {
     name: c.name,
     nameJa: c.nameJa || null,
     avatar: c.avatar || null,
+    slug: c.slug ?? null,
     gameCount: c._count.games,
     roles: Array.from(new Set(c.games.map((g) => g.role))),
   }))
@@ -116,6 +120,8 @@ export interface CreatorGameItem {
 }
 
 export interface CreatorStudioItem {
+  /** Archive 稳定可读路由（CJK 直出），与 id 解耦 */
+  slug: string | null
   normalized: string
   name: string
   gameCount: number
@@ -123,6 +129,8 @@ export interface CreatorStudioItem {
 
 export interface CreatorDetail {
   id: string
+  /** Archive 稳定可读路由（CJK 直出），与 id 解耦 */
+  slug: string | null
   name: string
   nameJa: string | null
   avatar: string | null
@@ -142,14 +150,18 @@ export interface CreatorDetail {
 const DETAIL_PAGE_SIZE = 24
 
 /**
- * 详情：本地 Creator 聚合（作品 + 所属制作组）。
+ * 详情：本地 Creator 聚合（作品 + 所属制作组），按 slug 查询。
  * 与 Studio 详情（getMakerDetail）同构，作为 Creator Archive 详情页数据源。
+ * 只用主站本地数据，不拉副站/VNDB/Random。
  */
-export async function getCreatorDetail(id: string, page = 1): Promise<CreatorDetail | null> {
+export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorDetail | null> {
+  const key = slug.trim()
+  if (!key) return null
   const safePage = Math.max(1, page)
 
   let creator: {
     id: string
+    slug: string | null
     name: string
     nameJa: string
     avatar: string
@@ -173,7 +185,7 @@ export async function getCreatorDetail(id: string, page = 1): Promise<CreatorDet
   } | null
   try {
     creator = await prisma.creator.findUnique({
-      where: { id },
+      where: { slug: key },
       include: {
         games: {
           where: { game: { isPublished: true } },
@@ -213,19 +225,19 @@ export async function getCreatorDetail(id: string, page = 1): Promise<CreatorDet
       FROM "GameCreator" gc
       JOIN "GameStudio" gs ON gs."gameId" = gc."gameId"
       JOIN "Game" g ON g.id = gc."gameId"
-      WHERE gc."creatorId" = ${id} AND g."isPublished" = true
+      WHERE gc."creatorId" = ${creator.id} AND g."isPublished" = true
       GROUP BY gs."studioId"
     `
     if (rows.length) {
       const studioRows = await prisma.studio.findMany({
         where: { id: { in: rows.map((r) => r.studioId) } },
-        select: { id: true, normalizedName: true, displayName: true },
+        select: { id: true, slug: true, normalizedName: true, displayName: true },
       })
       const map = new Map(studioRows.map((s) => [s.id, s]))
       studios = rows
         .map((r) => {
           const s = map.get(r.studioId)
-          return s ? { normalized: s.normalizedName, name: s.displayName, gameCount: r.cnt } : null
+          return s ? { slug: s.slug ?? null, normalized: s.normalizedName, name: s.displayName, gameCount: r.cnt } : null
         })
         .filter((x): x is CreatorStudioItem => x !== null)
         .sort((a, b) => b.gameCount - a.gameCount)
@@ -239,6 +251,7 @@ export async function getCreatorDetail(id: string, page = 1): Promise<CreatorDet
 
   return {
     id: creator.id,
+    slug: creator.slug ?? null,
     name: creator.name,
     nameJa: creator.nameJa || null,
     avatar: creator.avatar || null,
@@ -261,5 +274,23 @@ export async function getCreatorDetail(id: string, page = 1): Promise<CreatorDet
     studios,
     totalPages,
     page: safePage,
+  }
+}
+
+/**
+ * 旧路由兼容：按 id（旧 URL 参数）查当前 slug，供 /creators/[id] redirect 使用。
+ * 只返回主站 Creator 的 slug，不拉副站/VNDB/Random 数据。
+ */
+export async function getCreatorSlugById(id: string): Promise<string | null> {
+  if (!id) return null
+  try {
+    const c = await prisma.creator.findUnique({
+      where: { id },
+      select: { slug: true },
+    })
+    return c?.slug ?? null
+  } catch (e) {
+    logger.db.error("[getCreatorSlugById] 查询失败", e)
+    return null
   }
 }

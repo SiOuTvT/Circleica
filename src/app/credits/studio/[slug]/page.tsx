@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getMakerDetail, type MakerGameItem } from "@/lib/makers"
+import { getMakerDetail, getStudioSlugByName, type MakerGameItem } from "@/lib/makers"
 import { GameCard, type GameCardData } from "@/components/game-card"
 import { Tag } from "@/components/ui/tag"
 import { ArchiveShell } from "@/components/archive/archive-shell"
@@ -20,14 +20,14 @@ type RawSP = Record<string, string | string[] | undefined>
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ name: string }>
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { name } = await params
-  const decoded = decodeURIComponent(name)
+  const { slug } = await params
+  const decoded = decodeURIComponent(slug)
   return {
     title: `制作组：${decoded} · Circleica`,
     description: `浏览 Circleica 中制作组「${decoded}」的作品与参与创作者。`,
-    alternates: { canonical: `/credits/studio/${name}` },
+    alternates: { canonical: `/credits/studio/${slug}` },
   }
 }
 
@@ -50,18 +50,25 @@ export default async function MakerDetailPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ name: string }>
+  params: Promise<{ slug: string }>
   searchParams: Promise<RawSP>
 }) {
-  const { name } = await params
+  const { slug } = await params
   const sp = await searchParams
   const page = Math.max(1, parseInt((Array.isArray(sp.page) ? sp.page[0] : sp.page) || "1", 10) || 1)
-  const decoded = decodeURIComponent(name)
+  const decoded = decodeURIComponent(slug)
 
   const detail = await getMakerDetail(decoded, page)
-  if (!detail) notFound()
+  if (!detail) {
+    // 旧路由 /credits/studio/[normalizedName] 兼容：按 normalizedName 取 slug 后 308 跳转
+    const legacySlug = await getStudioSlugByName(decoded)
+    if (legacySlug && legacySlug !== decoded) {
+      permanentRedirect(`/credits/studio/${encodeURIComponent(legacySlug)}`)
+    }
+    notFound()
+  }
 
-  const base = `/credits/studio/${name}`
+  const base = `/credits/studio/${slug}`
   const prevHref = detail.page > 1 ? `${base}?page=${detail.page - 1}` : null
   const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
 
@@ -149,8 +156,8 @@ export default async function MakerDetailPage({
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {detail.creators.map((c) => (
               <Link
-                key={c.id}
-                href={`/creators/${c.id}`}
+                key={c.slug ?? c.id}
+                href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
                 className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/50">

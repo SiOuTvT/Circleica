@@ -222,6 +222,7 @@ model Game {
 model Studio {
   id             String       @id @default(cuid())
   normalizedName String       @unique // 小写 + trim 的路由 key / 去重 key
+  slug          String?      @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
   displayName    String // 规范展示名（后台可手工改）
   aliases        String       @default("[]") // JSON 数组：摄入期收集的所有原始写法
   vndbId         String? // 预留：未来 VNDB producer 关联（不填）
@@ -376,6 +377,7 @@ model Collection {
   id          String     @id @default(cuid())
   userId      String
   name        String
+  slug        String?    @unique // Archive 稳定可读路由（CJK 直出）
   description String     @default("")
   isDefault   Boolean    @default(false)
   sortOrder   Int        @default(0)
@@ -486,6 +488,7 @@ model AuditLog {
 model Creator {
   id           String        @id @default(cuid())
   vndbId       String        @default("")
+  slug         String?       @unique // Archive 稳定可读路由（CJK 直出）
   name         String
   nameJa       String        @default("")
   avatar       String        @default("")

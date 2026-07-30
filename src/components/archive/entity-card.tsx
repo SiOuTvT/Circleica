@@ -9,6 +9,8 @@ import { roleLabel } from "@/lib/role-labels"
 
 export interface StudioCardData {
   name: string
+  /** Archive 稳定可读路由（CJK 直出） */
+  slug: string | null
   normalized: string
   gameCount: number
   coverImage: string | null
@@ -18,6 +20,8 @@ export interface StudioCardData {
 /** 组件契约（仅数据接口，供未来 Collection 页面复用）。M2 不实现其视觉变体，避免预埋半成品。 */
 export interface CreatorCardData {
   id: string
+  /** Archive 稳定可读路由（CJK 直出） */
+  slug: string | null
   name: string
   nameJa?: string | null
   avatar?: string | null
@@ -87,7 +91,7 @@ function CoverMedia({
 
 function StudioCard({ data }: { data: StudioCardData }) {
   return (
-    <CardShell href={`/credits/studio/${encodeURIComponent(data.normalized)}`}>
+    <CardShell href={`/credits/studio/${encodeURIComponent(data.slug ?? data.normalized)}`}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
@@ -136,7 +140,7 @@ function CreatorAvatar({ avatar, initial }: { avatar: string | null | undefined;
 function CreatorCard({ data }: { data: CreatorCardData }) {
   const display = data.nameJa || data.name
   return (
-    <CardShell href={`/creators/${data.id}`} className="flex-row">
+    <CardShell href={`/credits/creator/${encodeURIComponent(data.slug ?? data.id)}`} className="flex-row">
       <div className="flex items-center gap-3 p-3.5">
         <CreatorAvatar avatar={data.avatar} initial={display} />
         <div className="min-w-0 flex-1">
