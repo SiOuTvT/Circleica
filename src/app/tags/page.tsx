@@ -1,11 +1,9 @@
-import Link from "next/link"
 import { getTagBrowserData } from "@/lib/tags-browser"
 import { TagCategory } from "@/components/tags/tag-category"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { AZIndex } from "@/components/archive/az-index"
 import { TagCard } from "@/components/archive/tag-card"
-import { StatsBar } from "@/components/archive/stats-bar"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
 import { computeDensity } from "@/components/archive/density"
 import { LayoutGrid, Tag as TagIcon } from "lucide-react"
@@ -30,14 +28,13 @@ const ANCHOR_PREFIX = "tag-letter-"
 
 /**
  * 标签图鉴（Archive 浏览体系，tag 实体）
- * 列表 Archive 化：ArchiveShell + ArchiveHero(tag) + StatsBar + 补充区块(热门云/分类) + AZIndex + TagCard 网格。
+ * 列表 Archive 化：ArchiveShell + ArchiveHero(tag) + 补充区块(分类) + AZIndex + TagCard 网格。
  * 保持 Server Component：AZIndex 静态渲染 + anchor 跳转，不引入额外 hydration。
  */
 export default async function TagsPage() {
   const data = await getTagBrowserData()
 
   const totalTags = data.stats.totalTags
-  const totalGames = data.stats.totalGames
   const letters = Object.keys(data.tagsByLetter).sort()
   const density = computeDensity(totalTags)
 
@@ -45,43 +42,15 @@ export default async function TagsPage() {
     <ArchiveShell
       entity="tag"
       density={density}
-      breadcrumb={
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link href="/" className="transition-colors hover:text-foreground">
-            首页
-          </Link>
-          <span className="text-muted-foreground/40">/</span>
-          <span className="text-foreground">标签</span>
-        </nav>
-      }
       header={
         <ArchiveHero
           variant="tag"
           eyebrow="标签图鉴"
           title="标签"
           lede="通过标签发现游戏，按分类与首字母索引浏览。"
-          meta={
-            <>
-              <span>
-                共 <span className="tabular-nums text-foreground">{totalTags}</span> 个标签
-              </span>
-              <span className="text-muted-foreground/30">·</span>
-              <span>
-                <span className="tabular-nums text-foreground">{totalGames}</span> 部作品
-              </span>
-            </>
-          }
         />
       }
     >
-      <StatsBar
-        items={[
-          { label: "标签数", value: totalTags },
-          { label: "作品数", value: totalGames },
-          { label: "分类数", value: data.tagGroups.length },
-        ]}
-      />
-
       {/* 补充区块：分类浏览（只要有分类就显示，不依赖标签是否关联作品） */}
       {data.tagGroups.length > 0 && (
         <section>
