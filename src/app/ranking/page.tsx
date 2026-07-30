@@ -181,24 +181,21 @@ export default async function RankingPage({
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-medium text-muted-foreground/70">时间</span>
-          <div className="flex gap-0.5 rounded-lg bg-muted p-0.5">
-            {SCOPES.map((s) => (
-              <Link
-                key={s.key}
-                href={`/ranking?dim=${dim}&scope=${s.key}`}
-                className={cn(
-                  "rounded-md px-2 py-1 text-[11px] font-medium transition-all",
-                  scope === s.key
-                    ? "bg-card text-foreground shadow-sm ring-1 ring-border"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {s.label}
-              </Link>
-            ))}
-          </div>
+        <div className="flex gap-1 rounded-lg bg-muted p-1">
+          {SCOPES.map((s) => (
+            <Link
+              key={s.key}
+              href={`/ranking?dim=${dim}&scope=${s.key}`}
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+                scope === s.key
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {s.label}
+            </Link>
+          ))}
         </div>
       </div>
 

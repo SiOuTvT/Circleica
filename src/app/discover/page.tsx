@@ -8,6 +8,8 @@ import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
 import { ForYou } from "@/components/discover/for-you"
 import { RandomDiscovery } from "@/components/discover/random-discovery"
+import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
+import type { GameCardData } from "@/components/game-card"
 
 export const metadata: Metadata = {
   title: "发现",
@@ -32,11 +34,12 @@ interface CuratedCollectionData {
 interface DiscoveryData {
   collections: CuratedCollectionData[]
   years: { year: number; count: number }[]
+  popular: GameCardData[]
 }
 
 async function getDiscoveryData(): Promise<DiscoveryData | null> {
   try {
-    const [collections, years] = await Promise.all([
+    const [collections, years, popular] = await Promise.all([
       prisma.curatedCollection.findMany({
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -58,11 +61,18 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         ORDER BY year DESC
         LIMIT 12
       `,
+      prisma.game.findMany({
+        where: { isPublished: true, isNsfw: false },
+        orderBy: { favoriteCount: "desc" },
+        take: 9,
+        select: GAME_CARD_SELECT,
+      }),
     ])
 
     return {
       collections,
       years: years.map((y) => ({ year: Number(y.year), count: Number(y.count) })),
+      popular: popular.map((g) => mapGameToCard(g)),
     }
   } catch {
     // 数据库不可用（构建期/沙箱）：返回空，绝不注入假数据
@@ -152,7 +162,7 @@ export default async function DiscoverPage() {
 
       {/* 3. 刷推荐 */}
       <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
-        <ForYou />
+        <ForYou popular={data?.popular ?? []} />
       </DiscoverySection>
 
       {/* 随机 + 时间轴：仅小按钮（折叠，不重复外链） */}
