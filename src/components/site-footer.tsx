@@ -49,7 +49,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         </div>
 
         {/* 底栏 */}
-        <div className="mt-2 border-t border-border/60 pt-1.5 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
+        <div className="mt-3 border-t border-border/60 pt-1.5 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
           © {new Date().getFullYear()} {siteName}. 保留所有权利。
         </div>
       </div>
