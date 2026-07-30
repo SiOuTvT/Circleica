@@ -87,20 +87,20 @@ export function ArchiveHero({
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-center gap-4">
-        <div className="flex h-10 w-fit shrink-0 items-center justify-center rounded-none bg-transparent text-primary shadow-none ring-0 sm:h-11">
-          <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} aria-hidden />
+        <div className="flex h-12 w-fit shrink-0 items-center justify-center rounded-none bg-transparent text-primary shadow-none ring-0 sm:h-12">
+          <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0">
           {eyebrow && (
-            <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
           )}
-          <h1 className="break-words font-heading text-lg font-bold leading-tight text-foreground sm:text-xl">
+          <h1 className="break-words font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">
             {title}
           </h1>
         </div>
       </div>
       {lede && (
-        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{lede}</p>
+        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">{lede}</p>
       )}
       {search && <div className="mt-1">{search}</div>}
       {meta && (
