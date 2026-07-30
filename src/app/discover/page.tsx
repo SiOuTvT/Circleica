@@ -6,12 +6,12 @@ import { CalendarDays, ChevronRight, History, Shuffle, Sparkles } from "lucide-r
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
-import { RandomDiscovery } from "@/components/discover/random-discovery"
 import { ForYou } from "@/components/discover/for-you"
+import { RandomDiscovery } from "@/components/discover/random-discovery"
 
 export const metadata: Metadata = {
   title: "发现",
-  description: "探索同人游戏：编辑精选、个性化推荐、随机惊喜与年份时间轴，按你的兴趣发现更多好作品",
+  description: "接着看、看点精选、刷刷推荐——找到下一部想玩的作品",
   openGraph: {
     title: "发现 · Circleica",
     description: "探索同人游戏，发现更多好作品",
@@ -70,7 +70,7 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 }
 
-/** 主编精选：非对称大特稿卡，作为发现页的编辑锚点 */
+/** 主编精选：非对称大特稿卡，编辑锚点（平衡权重，不压顶） */
 function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
   const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
   const firstTitle = collection.games[0]?.game.title
@@ -78,7 +78,7 @@ function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
   return (
     <section className="group relative overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition-shadow hover:shadow-lg">
       <div className="grid sm:grid-cols-2">
-        <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[300px]">
+        <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[280px]">
           {cover ? (
             <Image
               src={cover}
@@ -117,22 +117,31 @@ function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
   )
 }
 
+/** 折叠小按钮样式（默认只显示 summary，展开后才露出内容） */
+const summaryBtn =
+  "inline-flex list-none cursor-pointer items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground [details[open]_&]:bg-card [details[open]_&]:text-foreground [&::-webkit-details-marker]:hidden"
+
 export default async function DiscoverPage() {
   const data = await getDiscoveryData()
   const featured = data?.collections?.[0] ?? null
   const years = data?.years ?? []
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {/* 页头（全站统一 ArchiveHero） */}
       <ArchiveHero
         variant="discover"
         eyebrow="discover"
         title="发现"
-        lede="编辑精选、个性推荐与随机惊喜，帮你找到下一部想玩的作品"
+        lede="接着看、看点精选、刷刷推荐——找到下一部想玩的作品"
       />
 
-      {/* 主编精选：编辑锚点 */}
+      {/* 1. 接着看 */}
+      <DiscoverySection title="继续浏览" description="你最近看过的作品" icon={History}>
+        <RecentlyViewed />
+      </DiscoverySection>
+
+      {/* 2. 看点精选（平衡权重，不压顶） */}
       {featured ? (
         <EditorFeature collection={featured} />
       ) : (
@@ -141,40 +150,45 @@ export default async function DiscoverPage() {
         </div>
       )}
 
-      {/* 个性化双栏 */}
-      <div className="grid gap-10 sm:grid-cols-2">
-        <DiscoverySection title="继续浏览" description="你最近看过的作品" icon={History}>
-          <RecentlyViewed />
-        </DiscoverySection>
-        <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
-          <ForYou />
-        </DiscoverySection>
-      </div>
-
-      {/* 随机发现 */}
-      <DiscoverySection title="随机发现" description="换个心情，随便看看" icon={Shuffle}>
-        <RandomDiscovery />
+      {/* 3. 刷推荐 */}
+      <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
+        <ForYou />
       </DiscoverySection>
 
-      {/* 时间轴 */}
-      <DiscoverySection title="时间轴" description="按发行年份回顾" icon={CalendarDays} actionHref="/games">
-        {years.length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {years.map((y) => (
-              <Link
-                key={y.year}
-                href={`/games?year=${y.year}`}
-                className="group flex flex-col items-center gap-0.5 rounded-2xl bg-card px-5 py-3 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm hover:-translate-y-0.5"
-              >
-                <span className="text-lg font-bold tabular-nums text-foreground">{y.year}</span>
-                <span className="text-xs tabular-nums text-muted-foreground/60">{y.count} 部</span>
-              </Link>
-            ))}
+      {/* 随机 + 时间轴：仅小按钮（折叠，不重复外链） */}
+      <div className="flex flex-wrap items-center gap-3">
+        <details>
+          <summary className={summaryBtn}>
+            <Shuffle className="h-3.5 w-3.5" strokeWidth={1.75} />
+            随机一个
+          </summary>
+          <div className="mt-3">
+            <RandomDiscovery autoLoad={false} />
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">暂无年份数据</p>
-        )}
-      </DiscoverySection>
+        </details>
+        <details>
+          <summary className={summaryBtn}>
+            <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.75} />
+            时间轴
+          </summary>
+          <div className="mt-3">
+            {years.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {years.map((y) => (
+                  <span
+                    key={y.year}
+                    className="rounded-full bg-card px-3 py-1 text-xs tabular-nums text-muted-foreground ring-1 ring-border/50"
+                  >
+                    {y.year} · {y.count} 部
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">暂无年份数据</p>
+            )}
+          </div>
+        </details>
+      </div>
     </div>
   )
 }

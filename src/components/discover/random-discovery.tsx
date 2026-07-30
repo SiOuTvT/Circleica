@@ -6,7 +6,7 @@ import { apiFetchSafe } from "@/lib/api-client"
 import { Shuffle } from "lucide-react"
 
 /** 随机发现：客户端拉取一批随机作品，支持「换一批」 */
-export function RandomDiscovery() {
+export function RandomDiscovery({ autoLoad = true }: { autoLoad?: boolean }) {
   const [games, setGames] = useState<GameCardData[] | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -26,8 +26,8 @@ export function RandomDiscovery() {
   }, [])
 
   useEffect(() => {
-    load()
-  }, [load])
+    if (autoLoad) load()
+  }, [load, autoLoad])
 
   return (
     <div className="space-y-3">

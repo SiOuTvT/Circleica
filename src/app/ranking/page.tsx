@@ -31,12 +31,17 @@ const SCOPES: { key: ScopeKey; label: string }[] = [
 const VALID_DIMS: DimKey[] = ["rating", "favorite", "view", "comment"]
 const VALID_SCOPES: ScopeKey[] = ["all", "year", "3y"]
 
+/** 时间范围起点（null 表示不限） */
+function scopeFromDate(scope: ScopeKey): Date | null {
+  if (scope === "all") return null
+  const y = new Date().getFullYear()
+  return scope === "year" ? new Date(y, 0, 1) : new Date(y - 2, 0, 1)
+}
+
 /** 时间范围 → Prisma where 片段（空对象表示不限） */
 function scopeFilter(scope: ScopeKey) {
-  if (scope === "all") return {}
-  const y = new Date().getFullYear()
-  const from = scope === "year" ? new Date(y, 0, 1) : new Date(y - 2, 0, 1)
-  return { releaseDate: { gte: from } }
+  const from = scopeFromDate(scope)
+  return from ? { releaseDate: { gte: from } } : {}
 }
 
 function fmtNum(n: number): string {
@@ -55,8 +60,14 @@ async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
   const dateWhere = scopeFilter(scope)
 
   if (dim === "rating") {
+    // 评分维度：必须在「时间窗内」重新排名，而非全站排名后再砍老游戏
+    const from = scopeFromDate(scope)
+    const ratingWhere = from
+      ? { game: { isPublished: true, releaseDate: { gte: from } } }
+      : { game: { isPublished: true } }
     const grouped = await prisma.gameRating.groupBy({
       by: ["gameId"],
+      where: ratingWhere,
       _avg: { score: true },
       _count: { _all: true },
       orderBy: { _avg: { score: "desc" } },
@@ -170,21 +181,24 @@ export default async function RankingPage({
             </Link>
           ))}
         </nav>
-        <div className="flex gap-1 rounded-lg bg-muted p-1">
-          {SCOPES.map((s) => (
-            <Link
-              key={s.key}
-              href={`/ranking?dim=${dim}&scope=${s.key}`}
-              className={cn(
-                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
-                scope === s.key
-                  ? "bg-card text-foreground shadow-sm ring-1 ring-border"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {s.label}
-            </Link>
-          ))}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] font-medium text-muted-foreground/70">时间</span>
+          <div className="flex gap-0.5 rounded-lg bg-muted p-0.5">
+            {SCOPES.map((s) => (
+              <Link
+                key={s.key}
+                href={`/ranking?dim=${dim}&scope=${s.key}`}
+                className={cn(
+                  "rounded-md px-2 py-1 text-[11px] font-medium transition-all",
+                  scope === s.key
+                    ? "bg-card text-foreground shadow-sm ring-1 ring-border"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {s.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
