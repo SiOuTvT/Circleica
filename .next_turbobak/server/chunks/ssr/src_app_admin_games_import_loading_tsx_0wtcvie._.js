@@ -1,5 +1,0 @@
-;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="b4720364-9f7f-b822-2789-5bf84cccc9e7")}catch(e){}}();
-module.exports=[522853,a=>{"use strict";var b=a.i(907997);a.s(["default",0,function(){return(0,b.jsxs)("div",{className:"space-y-6 animate-pulse",children:[(0,b.jsxs)("div",{className:"flex items-center justify-between",children:[(0,b.jsx)("div",{className:"h-8 w-48 rounded-lg bg-muted"}),(0,b.jsx)("div",{className:"h-10 w-32 rounded-lg bg-muted"})]}),(0,b.jsxs)("div",{className:"rounded-xl border border-border p-6 space-y-4",children:[(0,b.jsx)("div",{className:"h-4 w-32 rounded bg-muted"}),(0,b.jsx)("div",{className:"h-10 w-full rounded-lg bg-muted"}),(0,b.jsx)("div",{className:"h-64 w-full rounded-lg bg-muted"})]})]})}])},539710,a=>{a.n(a.i(522853))}];
-
-//# debugId=b4720364-9f7f-b822-2789-5bf84cccc9e7
-//# sourceMappingURL=src_app_admin_games_import_loading_tsx_0wtcvie._.js.map

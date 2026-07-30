@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "debugId": "5e257df7-f840-5b3a-dbc1-a0d309877c73",
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/app/admin/tags/%5Bid%5D/loading.tsx"],"sourcesContent":["import { AdminPageSkeleton } from \"@/components/admin/admin-page-skeleton\"\n\nexport default function Loading() {\n  return <AdminPageSkeleton rows={5} />\n}\n"],"names":["Loading","rows"],"mappings":"0DAAA,EAAA,EAAA,CAAA,CAAA,yBAEe,SAASA,EACtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,EAAA,iBAAiB,CAAA,CAACC,KAAM,GAClC"}}]
-}

@@ -57,3 +57,16 @@ next-env.d.ts
 
 # agent 工作记忆（本地记忆/日志，非项目内容，禁止提交）
 .workbuddy/
+
+# agent 临时产物（截图/日志/一次性脚本，禁止提交进仓库；物理文件一律放系统 TEMP，不放项目内）
+.dev_webpack*.log
+kill_dev*.cmd
+.next_turbobak
+.probe*/
+.tmpshots/
+.shot*
+.fix_nul.cjs
+.shoot*.cjs
+check.cjs
+dump*.cjs
+verify*.cjs

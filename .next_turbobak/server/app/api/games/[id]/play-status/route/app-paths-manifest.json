@@ -1,3 +1,0 @@
-{
-  "/api/games/[id]/play-status/route": "app/api/games/[id]/play-status/route.js"
-}

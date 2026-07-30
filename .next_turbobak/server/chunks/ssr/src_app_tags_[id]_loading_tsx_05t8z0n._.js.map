@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "debugId": "d9d9d2cb-2678-6602-ef95-ae2cf40d5ae1",
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/app/tags/%5Bid%5D/loading.tsx"],"sourcesContent":["import { ArchiveShell } from \"@/components/archive/archive-shell\"\nimport { ArchivePlaceholder } from \"@/components/archive/archive-placeholder\"\n\nexport default function TagDetailLoading() {\n  return (\n    <ArchiveShell entity=\"tag\" density=\"standard\">\n      <div className=\"h-16 w-16 shrink-0 animate-pulse rounded-2xl bg-muted/60 ring-1 ring-border/60\" />\n      <div className=\"h-7 w-40 rounded skeleton-shimmer\" />\n      <ArchivePlaceholder state=\"loading\" entity=\"tag\" loadingCount={12} loadingVariant=\"tag\" />\n    </ArchiveShell>\n  )\n}\n"],"names":["TagDetailLoading","entity","density","className","state","loadingCount","loadingVariant"],"mappings":"0DAAA,EAAA,EAAA,CAAA,CAAA,QACA,EAAA,EAAA,CAAA,CAAA,yBAEe,SAASA,EACtB,MACE,CAAA,EAAA,EAAA,IAAA,EAAC,EAAA,YAAY,CAAA,CAACC,OAAO,MAAMC,QAAQ,qBACjC,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,CAAIC,UAAU,mFACf,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,CAAIA,UAAU,sCACf,CAAA,EAAA,EAAA,GAAA,EAAC,EAAA,kBAAkB,CAAA,CAACC,MAAM,UAAUH,OAAO,MAAMI,aAAc,GAAIC,eAAe,UAGxF"}}]
-}

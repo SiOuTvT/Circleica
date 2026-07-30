@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "debugId": "ece8306a-d4a8-8573-3686-d6e02400cce1",
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/components/rich-text-content-wrapper.tsx"],"sourcesContent":["\"use client\"\n\nimport dynamic from \"next/dynamic\"\n\nconst RichTextContent = dynamic(\n  () => import(\"./rich-text-content\").then(m => ({ default: m.RichTextContent })),\n  {\n    loading: () => <div className=\"animate-pulse rounded-lg bg-muted h-20\" />,\n    ssr: false,\n  }\n)\n\nexport { RichTextContent }\n"],"names":["RichTextContent","loading","className","ssr"],"mappings":"0DAIA,IAAMA,EAAkB,CAAA,EAFxB,AAEwB,EAFxB,CAAA,CAAA,QAEwB,OAAA,AAAO,EAAA,UAAA,EAAA,sCAG3BC,QAAS,IAAM,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,CAAIC,UAAU,2CAC9BC,KAAK"}}]
-}

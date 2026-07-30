@@ -1,5 +1,0 @@
-;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="54a12e34-8af3-184a-adb7-bf32f754823b")}catch(e){}}();
-module.exports=[889221,a=>{"use strict";a.i(907997),a.i(599475);var b=a.i(352425);let c={alt:"Circleica · 资源大厅",contentType:"image/png",dynamic:"force-dynamic",size:{width:1200,height:630}};async function d(a){let{__metadata_id__:d,...e}=await a.params,f=(0,b.fillMetadataSegment)("/",e,"opengraph-image",!1);return[function(a){let b={alt:a.alt,type:a.contentType||"image/png",url:f+"?c4c65ae602bd942e"},{size:c}=a;return c&&(b.width=c.width,b.height=c.height),b}(c)]}a.s(["default",0,d],889221)},108858,a=>{a.n(a.i(889221))}];
-
-//# debugId=54a12e34-8af3-184a-adb7-bf32f754823b
-//# sourceMappingURL=src_app_opengraph-image--metadata_15q1-ln.js.map

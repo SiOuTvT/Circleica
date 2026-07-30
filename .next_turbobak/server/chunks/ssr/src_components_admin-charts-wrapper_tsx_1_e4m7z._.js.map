@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "debugId": "5bb8efaf-907f-7a0e-78bb-3f755b80defb",
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/components/admin-charts-wrapper.tsx"],"sourcesContent":["\"use client\"\n\nimport dynamic from \"next/dynamic\"\n\ninterface ChartDataPoint {\n  date: string\n  value: number\n}\n\ninterface AdminChartsWrapperProps {\n  gamesByDay: ChartDataPoint[]\n  usersByDay: ChartDataPoint[]\n  commentsByDay: ChartDataPoint[]\n}\n\nconst AdminCharts = dynamic(() => import(\"@/components/admin-charts\").then(m => ({ default: m.AdminCharts })), {\n  loading: () => <div className=\"h-[180px] animate-pulse rounded-xl bg-muted/50\" />,\n  ssr: false,\n})\n\nexport function AdminChartsWrapper(props: AdminChartsWrapperProps) {\n  return <AdminCharts {...props} />\n}\n"],"names":["AdminCharts","loading","className","ssr","AdminChartsWrapper","props"],"mappings":"0DAeA,IAAMA,EAAc,CAAA,EAAA,AAbpB,EAAA,CAAA,CAAA,QAaoB,OAAA,AAAO,EAAA,UAAA,EAAA,sCACzBC,QAAS,IAAM,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,CAAIC,UAAU,mDAC9BC,KAAK,gCAGA,SAASC,AAAmBC,CAA8B,EAC/D,MAAO,CAAA,EAAA,EAAA,GAAA,EAACL,EAAAA,CAAa,GAAGK,CAAK,EAC/B"}}]
-}
