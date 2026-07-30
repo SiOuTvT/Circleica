@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M3 Collection Archive · 合集展示卡预览</title>
+<style>
+  :root{
+    --background:#08080a; --foreground:#e8e8ec; --card:#151518; --card-foreground:#e8e8ec;
+    --border:rgba(255,255,255,0.08); --muted:#111114; --muted-foreground:#a1a1b5;
+    --primary:#5FA8A0; --primary-foreground:#ffffff;
+    --font-sans:'PingFang SC','Microsoft YaHei','Source Han Sans SC',sans-serif;
+    --font-heading:'Songti SC','Noto Serif SC',Georgia,'Times New Roman',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--background);color:var(--foreground);font-family:var(--font-sans);line-height:1.7;padding:32px 20px 64px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto}
+  a{color:inherit;text-decoration:none}
+
+  /* ── 页头 Hero (ArchiveHero series) ── */
+  .breadcrumb{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted-foreground);margin-bottom:18px}
+  .breadcrumb a{transition:color .2s}
+  .breadcrumb a:hover{color:var(--foreground)}
+  .breadcrumb .sep{color:rgba(161,161,181,0.4)}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);font-weight:500}
+  .hero-title{font-family:var(--font-heading);font-size:34px;font-weight:700;letter-spacing:-.01em;margin:6px 0 8px}
+  .hero-lede{color:var(--muted-foreground);font-size:15px}
+  .hero-meta{margin-top:10px;font-size:13px;color:var(--muted-foreground)}
+  .hero-meta b{color:var(--foreground);font-variant-numeric:tabular-nums;font-weight:600}
+
+  /* ── Featured 大卡 (CollectionCard featured 21:9) ── */
+  .featured{position:relative;display:block;overflow:hidden;border-radius:16px;background:var(--muted);aspect-ratio:21/9;margin:24px 0 28px;transition:box-shadow .4s,transform .4s}
+  .featured:hover{box-shadow:0 16px 48px rgba(0,0,0,.35);transform:translateY(-2px)}
+  .featured .bg{position:absolute;inset:0;background:linear-gradient(135deg,#1f4a44,#2f7d72 60%,#3a2f5b);background-size:cover}
+  .featured .scrim{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82),rgba(0,0,0,.3),transparent)}
+  .featured .pad{position:absolute;left:0;right:0;bottom:0;padding:28px 32px}
+  .pill{display:inline-block;border-radius:9999px;background:rgba(95,168,160,.8);color:#fff;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;margin-bottom:8px}
+  .featured h2{font-family:var(--font-heading);font-size:24px;font-weight:600;color:#fff}
+  .featured p{margin-top:4px;font-size:14px;color:rgba(255,255,255,.72);max-width:620px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .featured .cnt{margin-top:8px;font-size:12px;color:rgba(255,255,255,.55)}
+
+  /* ── 区块标题 ── */
+  .section-h{font-family:var(--font-heading);font-size:18px;font-weight:600;margin:34px 0 14px;display:flex;align-items:baseline;gap:10px}
+  .section-h small{font-size:12px;color:var(--muted-foreground);font-family:var(--font-sans);font-weight:400}
+
+  /* ── 网格 ── */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+  /* ════════ 合集展示卡 (CollectionShowcaseCard) ════════ */
+  .showcase{display:flex;height:180px;overflow:hidden;border-radius:16px;background:var(--card);border:1px solid var(--border);transition:transform .3s,box-shadow .3s, border-color .3s}
+  .showcase:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.18);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .showcase .stack{position:relative;flex:none;height:100%}
+  .tile{position:absolute;top:50%;transform:translateY(-50%);width:96px;height:140px;border-radius:12px;overflow:hidden;background:var(--muted);border:2px solid var(--card);box-shadow:0 4px 12px rgba(0,0,0,.35)}
+  .tile .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(95,168,160,.12),rgba(95,168,160,.05))}
+  .tile .fallback span{font-size:18px;font-weight:700;color:rgba(95,168,160,.3)}
+  .tile .lbl{position:absolute;left:6px;bottom:5px;font-size:9px;color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.7)}
+  .showcase .info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:20px 20px 20px 12px}
+  .showcase .tag{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(95,168,160,.72)}
+  .showcase .name{font-family:var(--font-heading);font-size:16px;font-weight:600;color:var(--foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+  .showcase:hover .name{color:var(--primary)}
+  .showcase .desc{font-size:12px;color:rgba(161,161,181,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .showcase .cnt{margin-top:2px;font-size:12px;color:var(--muted-foreground)}
+  .showcase .cnt b{color:rgba(232,232,236,.85);font-variant-numeric:tabular-nums;font-weight:600}
+
+  /* ── 封面样本渐变 ── */
+  .cvA{background:linear-gradient(135deg,#3a2f5b,#5b4b8a)}
+  .cvB{background:linear-gradient(135deg,#1f4a44,#2f7d72)}
+  .cvC{background:linear-gradient(135deg,#5b3a3a,#8a4b4b)}
+  .cvD{background:linear-gradient(135deg,#2a3a5b,#4b6b8a)}
+  .cvE{background:linear-gradient(135deg,#5b4a2a,#8a7d4b)}
+
+  /* ════════ 对比：Studio / Creator / Collection ════════ */
+  .cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  @media(max-width:760px){.cmp{grid-template-columns:1fr}}
+  /* Studio 竖卡 */
+  .studio{display:flex;flex-direction:column;overflow:hidden;border-radius:16px;background:var(--card);border:1px solid var(--border);transition:transform .3s,box-shadow .3s}
+  .studio:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .studio .cover{aspect-ratio:16/10;background:linear-gradient(135deg,#5b4b8a,#3a2f5b);position:relative}
+  .studio .cover .grad{position:absolute;inset-x:0;bottom:0;height:48px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent)}
+  .studio .body{padding:14px;display:flex;flex-direction:column;gap:4px}
+  .studio .body h3{font-family:var(--font-heading);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+  .studio:hover .body h3{color:var(--primary)}
+  .studio .body .m{font-size:12px;color:var(--muted-foreground)}
+  .studio .body .m b{color:rgba(232,232,236,.8);font-variant-numeric:tabular-nums}
+  /* Creator 横卡 */
+  .creator{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--border);transition:transform .3s,box-shadow .3s}
+  .creator:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .creator .ava{width:48px;height:48px;border-radius:9999px;flex:none;background:linear-gradient(135deg,rgba(95,168,160,.15),rgba(95,168,160,.05));display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+  .creator .ava span{font-size:14px;font-weight:700;color:rgba(95,168,160,.4)}
+  .creator .meta{min-width:0}
+  .creator .meta h3{font-family:var(--font-heading);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .creator .meta .roles{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .creator .meta .roles span{font-size:10px;line-height:16px;padding:0 6px;border-radius:6px;background:rgba(95,168,160,.1);color:rgba(95,168,160,.8)}
+  .note{margin-top:10px;font-size:12px;color:var(--muted-foreground);background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .note b{color:var(--foreground);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 页头 -->
+  <nav class="breadcrumb">
+    <a href="#">首页</a><span class="sep">/</span><span style="color:var(--foreground)">精选合集</span>
+  </nav>
+  <div class="eyebrow">编辑精选</div>
+  <h1 class="hero-title">精选合集</h1>
+  <p class="hero-lede">编辑精选 · 发现更多精彩作品</p>
+  <p class="hero-meta">共 <b>6</b> 个合集</p>
+
+  <!-- Featured 大卡 -->
+  <a class="featured" href="#">
+    <div class="bg"></div>
+    <div class="scrim"></div>
+    <div class="pad">
+      <span class="pill">编辑精选</span>
+      <h2>夏日限定的清凉物语</h2>
+      <p>海风、汽水与蝉鸣——编辑为你精选的 12 部夏日主题佳作</p>
+      <div class="cnt">12 部精选</div>
+    </div>
+  </a>
+
+  <!-- 合集展示卡网格 -->
+  <div class="section-h">合集展示卡 <small>CollectionShowcaseCard · 横向长卡 + 多封面错位叠放</small></div>
+  <div class="grid">
+
+    <!-- 3 张封面 -->
+    <a class="showcase" href="#">
+      <div class="stack" style="width:164px">
+        <div class="tile cvA" style="left:0;z-index:3"><span class="lbl">海风奇缘</span></div>
+        <div class="tile cvB" style="left:34px;z-index:2"><span class="lbl">潮声</span></div>
+        <div class="tile cvC" style="left:68px;z-index:1"><span class="lbl">盛夏</span></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">夏日限定的清凉物语</div>
+        <div class="desc">海风、汽水与蝉鸣精选合集</div>
+        <div class="cnt"><b>12</b> 部精选</div>
+      </div>
+    </a>
+
+    <!-- 2 张封面 -->
+    <a class="showcase" href="#">
+      <div class="stack" style="width:130px">
+        <div class="tile cvD" style="left:0;z-index:2"><span class="lbl">星之轨迹</span></div>
+        <div class="tile cvE" style="left:34px;z-index:1"><span class="lbl">夜航</span></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">星空下的浪漫科幻</div>
+        <div class="desc">硬核与温柔并存的宇宙物语</div>
+        <div class="cnt"><b>2</b> 部精选</div>
+      </div>
+    </a>
+
+    <!-- 1 张封面 -->
+    <a class="showcase" href="#">
+      <div class="stack" style="width:96px">
+        <div class="tile cvB" style="left:0;z-index:1"><span class="lbl">孤灯</span></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">一个人也能走的路</div>
+        <div class="desc">独处与自我和解的单元剧</div>
+        <div class="cnt"><b>1</b> 部精选</div>
+      </div>
+    </a>
+
+    <!-- 含缺封面（中间 null）→ 首字兜底 -->
+    <a class="showcase" href="#">
+      <div class="stack" style="width:164px">
+        <div class="tile cvA" style="left:0;z-index:3"><span class="lbl">迷途</span></div>
+        <div class="tile" style="left:34px;z-index:2"><div class="fallback"><span>迷</span></div></div>
+        <div class="tile cvC" style="left:68px;z-index:1"><span class="lbl">归处</span></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">都市夜归人</div>
+        <div class="desc">霓虹下的迷失与重逢</div>
+        <div class="cnt"><b>9</b> 部精选</div>
+      </div>
+    </a>
+
+    <!-- 0 封面（空合集兜底）-->
+    <a class="showcase" href="#">
+      <div class="stack" style="width:96px">
+        <div class="tile" style="left:0;z-index:1"><div class="fallback"><span>新</span></div></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">即将上线的预告合集</div>
+        <div class="desc">由编辑悉心挑选的精品合集</div>
+        <div class="cnt"><b>0</b> 部精选</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- 对比 -->
+  <div class="section-h">三档案并排对比 <small>Studio（网格竖卡） · Creator（头像横卡） · Collection（合集展示卡）</small></div>
+  <div class="cmp">
+    <div class="studio">
+      <div class="cover"><div class="grad"></div></div>
+      <div class="body">
+        <h3>柚子社</h3>
+        <div class="m"><b>18</b> 部作品 · <b>42</b> 位创作者</div>
+      </div>
+    </div>
+    <div class="creator">
+      <div class="ava"><span>凉</span></div>
+      <div class="meta">
+        <h3>凉元悠</h3>
+        <div class="roles"><span>原画</span><span>角色设计</span></div>
+      </div>
+    </div>
+    <a class="showcase" href="#">
+      <div class="stack" style="width:164px">
+        <div class="tile cvA" style="left:0;z-index:3"></div>
+        <div class="tile cvB" style="left:34px;z-index:2"></div>
+        <div class="tile cvC" style="left:68px;z-index:1"></div>
+      </div>
+      <div class="info">
+        <span class="tag">精选合集</span>
+        <div class="name">编辑严选 · 本月最佳</div>
+        <div class="desc">由编辑悉心挑选的精品合集</div>
+        <div class="cnt"><b>8</b> 部精选</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>设计判定：</b>Collection 用专属「合集展示卡」（多封面错位叠放 + 横向长卡），与 Studio 竖卡（单封面 + 作品/创作者数）、Creator 头像横卡（圆形头像 + 角色标签）在视觉语言上明显区分，<b>保留了 curated 的独特策展感</b>，没有退化成普通 Archive 列表项。封面数量固定规则：1→1 / 2→2 / 3+→前 3 张。
+  </div>
+
+</div>
+</body>
+</html>

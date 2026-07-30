@@ -4,10 +4,10 @@ import { Prisma } from "@prisma/client"
 import type { Metadata } from "next"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
-import { EntityCard, type CollectionCardData } from "@/components/archive/entity-card"
+import { CollectionShowcaseCard } from "@/components/archive/collection-showcase-card"
 import { CollectionCard } from "@/components/collection-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
+import { computeDensity } from "@/components/archive/density"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -71,7 +71,15 @@ export default async function CuratedCollectionsPage() {
   }
 
   // 编辑精选式布局：首条 featured 大卡（策展表达）+ 其余 EntityCard 网格（浏览效率）
-  const [featured, ...rest] = collections
+  // Featured 选取规则（运营可控）：复用 CuratedCollection.sortOrder（升序，值越小越靠前），
+  // 显式选取 sortOrder 最小的合集作为 Featured 首位。后台编辑 sortOrder 即可指定/更换 Featured 合集，
+  // 不新增 featured 字段或复杂机制；即便查询排序被改动，Featured 位仍由 sortOrder 值决定，不漂移。
+  const minSortOrder = collections.reduce(
+    (min, c) => (c.sortOrder < min ? c.sortOrder : min),
+    Number.POSITIVE_INFINITY,
+  )
+  const featured = collections.find((c) => c.sortOrder === minSortOrder) ?? null
+  const rest = featured ? collections.filter((c) => c !== featured) : collections
 
   return (
     <ArchiveShell
@@ -108,16 +116,17 @@ export default async function CuratedCollectionsPage() {
       )}
 
       {rest.length > 0 && (
-        <div className={cn("grid gap-3", DENSITY_GRID[density])}>
-          {rest.map((c) => {
-            const data: CollectionCardData = {
-              id: c.id,
-              name: c.name,
-              gameCount: c._count.games,
-              coverImage: c.games[0]?.game.coverImage ?? null,
-            }
-            return <EntityCard key={c.id} variant="collection" data={data} />
-          })}
+        <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2")}>
+          {rest.map((c) => (
+            <CollectionShowcaseCard
+              key={c.id}
+              id={c.id}
+              name={c.name}
+              gameCount={c._count.games}
+              covers={c.games.slice(0, 4).map((g) => g.game.coverImage)}
+              description={c.description}
+            />
+          ))}
         </div>
       )}
     </ArchiveShell>
