@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarDays, ChevronRight, History, Sparkles } from "lucide-react"
+import { CalendarDays, ChevronRight, Clock, History, Sparkles } from "lucide-react"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
@@ -34,11 +34,12 @@ interface DiscoveryData {
   collections: CuratedCollectionData[]
   years: { year: number; count: number }[]
   popular: GameCardData[]
+  recent: GameCardData[]
 }
 
 async function getDiscoveryData(): Promise<DiscoveryData | null> {
   try {
-    const [collections, years, popular] = await Promise.all([
+    const [collections, years, popular, recent] = await Promise.all([
       prisma.curatedCollection.findMany({
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -66,12 +67,19 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         take: 9,
         select: GAME_CARD_SELECT,
       }),
+      prisma.game.findMany({
+        where: { isPublished: true, isNsfw: false, releaseDate: { not: null } },
+        orderBy: { releaseDate: "desc" },
+        take: 8,
+        select: GAME_CARD_SELECT,
+      }),
     ])
 
     return {
       collections,
       years: years.map((y) => ({ year: Number(y.year), count: Number(y.count) })),
       popular: popular.map((g) => mapGameToCard(g)),
+      recent: recent.map((g) => mapGameToCard(g)),
     }
   } catch {
     // 数据库不可用（构建期/沙箱）：返回空，绝不注入假数据
@@ -126,14 +134,12 @@ function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
   )
 }
 
-/** 折叠小按钮样式（默认只显示 summary，展开后才露出内容） */
-const summaryBtn =
-  "inline-flex list-none cursor-pointer items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground [details[open]_&]:bg-card [details[open]_&]:text-foreground [&::-webkit-details-marker]:hidden"
-
 export default async function DiscoverPage() {
   const data = await getDiscoveryData()
   const featured = data?.collections?.[0] ?? null
   const years = data?.years ?? []
+  const recent = data?.recent ?? []
+  const maxYear = years.length ? Math.max(...years.map((y) => y.count)) : 1
 
   return (
     <div className="space-y-8">
@@ -164,31 +170,40 @@ export default async function DiscoverPage() {
         <ForYou popular={data?.popular ?? []} />
       </DiscoverySection>
 
-      {/* 时间轴：仅小按钮（折叠，不重复外链；随机发现已由侧边栏全局提供，不在本页重复） */}
-      <div className="flex flex-wrap items-center gap-3">
-        <details>
-          <summary className={summaryBtn}>
-            <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.75} />
-            时间轴
-          </summary>
-          <div className="mt-3">
-            {years.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {years.map((y) => (
-                  <span
-                    key={y.year}
-                    className="rounded-full bg-card px-3 py-1 text-xs tabular-nums text-muted-foreground ring-1 ring-border/50"
-                  >
-                    {y.year} · {y.count} 部
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">暂无年份数据</p>
-            )}
+      {/* 4. 发行时间轴（升级为正式板块：自包含年份发行量可视化，不外链别的页面） */}
+      <DiscoverySection title="发行时间轴" description="全站作品的年代分布" icon={CalendarDays}>
+        {years.length > 0 ? (
+          <div className="space-y-2.5">
+            {years.map((y) => {
+              const pct = Math.max(6, Math.round((y.count / maxYear) * 100))
+              return (
+                <div key={y.year} className="flex items-center gap-3">
+                  <span className="w-12 shrink-0 text-sm tabular-nums text-muted-foreground">{y.year}</span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary/70" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">{y.count} 部</span>
+                </div>
+              )
+            })}
           </div>
-        </details>
-      </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">暂无年份数据</p>
+        )}
+      </DiscoverySection>
+
+      {/* 5. 最近上新（真实内容、自包含，与 /games 完整浏览列表区分） */}
+      <DiscoverySection title="最近上新" description="刚刚入库的作品" icon={Clock}>
+        {recent.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {recent.map((g) => (
+              <GameCard key={g.id} game={g} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">暂无新作</p>
+        )}
+      </DiscoverySection>
     </div>
   )
 }
