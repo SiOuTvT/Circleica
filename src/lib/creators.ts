@@ -44,14 +44,17 @@ export async function getCreators(opts: {
   const size = Math.min(Math.max(pageSize ?? CREATOR_LIST_PAGE_SIZE, 1), 1000)
   const pageNum = Math.max(1, page)
 
+  // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
   const where = search.trim()
     ? {
         OR: [
           { name: { contains: search.trim(), mode: "insensitive" as const } },
           { nameJa: { contains: search.trim(), mode: "insensitive" as const } },
         ],
+        ...publishedGameFilter,
       }
-    : {}
+    : publishedGameFilter
 
   let creators: Array<{
     id: string

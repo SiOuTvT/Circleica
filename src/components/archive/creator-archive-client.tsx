@@ -1,8 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import Link from "next/link"
-import { Search, Users } from "lucide-react"
+import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import { parseApiResponse } from "@/lib/api-handler"
@@ -100,17 +99,6 @@ export function CreatorArchiveClient() {
     <ArchiveShell
       entity="creator"
       density={density}
-      breadcrumb={
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link
-            href="/creators"
-            className="inline-flex items-center gap-1 rounded-lg px-2 py-1 font-medium text-foreground/80 transition-colors hover:text-primary"
-          >
-            <Users className="h-4 w-4" strokeWidth={2} />
-            创作者图鉴
-          </Link>
-        </nav>
-      }
       header={
         <ArchiveHero
           variant="person"
