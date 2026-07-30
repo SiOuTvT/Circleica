@@ -1,12 +1,14 @@
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
-import type { ArchiveDensity } from "./density"
+import type { ArchiveDensity, ArchiveState } from "./density"
 
 interface ArchiveShellProps {
   /** Archive 浏览体系实体（studio / creator / collection / tag，不含 Game Detail） */
   entity: "studio" | "creator" | "collection" | "tag"
   /** 密度三态：JS 层经 DENSITY_GRID 驱动网格列数；data-density 属性供 CSS / QA 钩子 */
   density: ArchiveDensity
+  /** 归档态（空 / 少 / 多）：由页面经 computeArchiveState 推导后注入；data-archive-state 供 CSS / QA 钩子 */
+  state?: ArchiveState
   breadcrumb?: ReactNode
   /** ArchiveHero 区域 */
   header?: ReactNode
@@ -34,6 +36,7 @@ interface ArchiveShellProps {
 export function ArchiveShell({
   entity,
   density,
+  state,
   breadcrumb,
   header,
   toolbar,
@@ -43,7 +46,12 @@ export function ArchiveShell({
   className,
 }: ArchiveShellProps) {
   return (
-    <div data-archive-entity={entity} data-density={density} className={cn("space-y-6", className)}>
+    <div
+      data-archive-entity={entity}
+      data-density={density}
+      data-archive-state={state}
+      className={cn("space-y-6", className)}
+    >
       {breadcrumb && <div className="text-sm">{breadcrumb}</div>}
       {header && <div>{header}</div>}
       {toolbar && <div>{toolbar}</div>}

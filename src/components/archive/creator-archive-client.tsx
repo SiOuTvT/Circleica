@@ -10,7 +10,7 @@ import { EntityCard } from "./entity-card"
 import { AZIndex } from "./az-index"
 import { ArchivePlaceholder } from "./archive-placeholder"
 import { groupByFirstChar, DENSITY_GRID } from "./density"
-import type { ArchiveDensity } from "./density"
+import type { ArchiveDensity, ArchiveState } from "./density"
 import type { CreatorSummary, CreatorListResult } from "@/lib/creators"
 
 const PAGE_SIZE = 1000
@@ -27,12 +27,14 @@ export function CreatorArchiveClient({
   sort,
   total,
   density,
+  state,
   header,
 }: {
   q: string
   sort: "count" | "name"
   total: number
   density: ArchiveDensity
+  state?: ArchiveState
   header: ReactNode
 }) {
   const [creators, setCreators] = useState<CreatorSummary[]>([])
@@ -97,6 +99,7 @@ export function CreatorArchiveClient({
     <ArchiveShell
       entity="creator"
       density={density}
+      state={state}
       header={header}
       index={!loading && !error ? <AZIndex available={availableLetters} active={activeLetter} anchorPrefix={ANCHOR_PREFIX} /> : undefined}
     >

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { getMakers } from "@/lib/makers"
-import { computeDensity } from "@/components/archive/density"
+import { computeDensity, computeArchiveState } from "@/components/archive/density"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { StudioArchiveClient } from "@/components/archive/studio-archive-client"
@@ -33,6 +33,7 @@ export default async function CreditsPage({
     // 数据库不可用：返回 0，绝注入假数据
   }
   const density = computeDensity(total)
+  const state = computeArchiveState(total)
 
   return (
     <StudioArchiveClient
@@ -40,6 +41,7 @@ export default async function CreditsPage({
       sort={sort}
       total={total}
       density={density}
+      state={state}
       header={
         <ArchiveHero
           variant="org"

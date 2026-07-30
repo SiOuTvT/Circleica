@@ -30,6 +30,27 @@ export function computeDensity(count: number): ArchiveDensity {
 }
 
 /**
+ * 归档态（空 / 少 / 多）—— P2-8 三态的语义层。
+ *
+ * 与 `computeDensity`（视觉网格密度，仅驱动列数）分工：
+ *   - state 回答"这一页处于哪种数据可用性档位"（驱动占位 / 是否显示索引 / 是否分页）；
+ *   - density 回答"网格用几列"。
+ * 两者都由条数推导，但语义独立，避免把"空"误当成"有数据的标准密度"。
+ *
+ * 阈值与密度对齐：`few` 覆盖 compact(1-3)+standard(4-11)，`many` 对应 dense(≥12)。
+ */
+export type ArchiveState = "empty" | "few" | "many"
+
+/** 少态上限：≤ 此数视作"少"（一屏可容纳，无需分页 / 索引自动收起） */
+export const FEW_MAX = 11
+
+export function computeArchiveState(count: number): ArchiveState {
+  if (count <= 0) return "empty"
+  if (count <= FEW_MAX) return "few"
+  return "many"
+}
+
+/**
  * 取名称首字作为分组 key：
  *  - 拉丁字母 → 大写
  *  - 数字 → #（与符号/标点统一）

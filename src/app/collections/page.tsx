@@ -7,7 +7,7 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { CollectionShowcaseCard } from "@/components/archive/collection-showcase-card"
 import { CollectionCard } from "@/components/collection-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity } from "@/components/archive/density"
+import { computeDensity, computeArchiveState } from "@/components/archive/density"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -65,11 +65,12 @@ export default async function CuratedCollectionsPage({
 
   const total = collections.length
   const density = computeDensity(total)
+  const state = computeArchiveState(total)
 
   // 空态：保留页头与品牌语言，不渲染列表
   if (total === 0) {
     return (
-      <ArchiveShell entity="collection" density="standard">
+      <ArchiveShell entity="collection" density={density} state="empty">
         <ArchiveHero
           variant="series"
           eyebrow="collections"
@@ -93,6 +94,7 @@ export default async function CuratedCollectionsPage({
     <ArchiveShell
       entity="collection"
       density={density}
+      state={state}
       header={
         <ArchiveHero
           variant="series"

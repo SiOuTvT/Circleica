@@ -6,7 +6,7 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { AZIndex } from "@/components/archive/az-index"
 import { TagCard } from "@/components/archive/tag-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity } from "@/components/archive/density"
+import { computeDensity, computeArchiveState } from "@/components/archive/density"
 import { LayoutGrid, Tag as TagIcon } from "lucide-react"
 
 import type { Metadata } from "next"
@@ -57,11 +57,13 @@ export default async function TagsPage({
     .filter((l) => (tagsByLetter[l]?.length ?? 0) > 0)
     .sort()
   const density = computeDensity(totalTags)
+  const state = computeArchiveState(totalTags)
 
   return (
     <ArchiveShell
       entity="tag"
       density={density}
+      state={state}
       header={
         <ArchiveHero
           variant="tag"
