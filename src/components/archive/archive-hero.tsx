@@ -87,14 +87,14 @@ export function ArchiveHero({
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center text-primary sm:h-14 sm:w-14">
-          <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary sm:h-11 sm:w-11">
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0">
           {eyebrow && (
             <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
           )}
-          <h1 className="break-words font-heading text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+          <h1 className="break-words font-heading text-lg font-bold leading-tight text-foreground sm:text-xl">
             {title}
           </h1>
         </div>

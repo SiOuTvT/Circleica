@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import type { Metadata } from "next"
@@ -94,15 +93,6 @@ export default async function CuratedCollectionsPage({
     <ArchiveShell
       entity="collection"
       density={density}
-      breadcrumb={
-        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Link href="/" className="transition-colors hover:text-foreground">
-            首页
-          </Link>
-          <span className="text-muted-foreground/40">/</span>
-          <span className="text-foreground">精选合集</span>
-        </nav>
-      }
       header={
         <ArchiveHero
           variant="series"
