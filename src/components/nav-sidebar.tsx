@@ -9,6 +9,7 @@ import {
   Library,
   Tag,
   Trophy,
+  User,
   Users,
 } from "lucide-react"
 import Link from "next/link"
@@ -23,6 +24,7 @@ const NAV_SECTIONS = [
       { icon: Home, label: "首页", href: "/" },
       { icon: Compass, label: "发现", href: "/discover" },
       { icon: Users, label: "制作组图鉴", href: "/credits" },
+      { icon: User, label: "创作者图鉴", href: "/creators" },
       { icon: Layers, label: "精选合集", href: "/collections" },
       { icon: Tag, label: "标签浏览", href: "/tags" },
       { icon: Trophy, label: "排行榜", href: "/ranking" },

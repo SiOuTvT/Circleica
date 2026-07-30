@@ -1,18 +1,13 @@
-import { CreditsClient } from "@/components/credits-client"
-
 import type { Metadata } from "next"
+import { StudioArchiveClient } from "@/components/archive/studio-archive-client"
 
 export const metadata: Metadata = {
-  title: "制作组图鉴",
-  description: "探索每部作品背后的创作者，发现脚本家、画师、音乐人等",
-  openGraph: { title: "制作组图鉴 · Circleica", description: "探索每部作品背后的创作者", images: ["/opengraph-image"] },
+  title: "制作组图鉴 · Circleica",
+  description: "浏览 Circleica 中的同人社团、小型制作组与作者档案，按名称首字索引。",
   alternates: { canonical: "/credits" },
 }
 
 export default function CreditsPage() {
-  return (
-    <div>
-      <CreditsClient />
-    </div>
-  )
+  // 制作组图鉴已纯化：仅保留社团/小型制作组的展示与搜索（创作者独立为 /creators）
+  return <StudioArchiveClient />
 }
