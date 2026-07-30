@@ -1,45 +1,45 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Search } from "lucide-react"
+import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import { parseApiResponse } from "@/lib/api-handler"
 import { ArchiveShell } from "./archive-shell"
-import { ArchiveHero } from "./archive-hero"
 import { EntityCard } from "./entity-card"
 import { AZIndex } from "./az-index"
 import { ArchivePlaceholder } from "./archive-placeholder"
-import { computeDensity, groupByFirstChar, DENSITY_GRID } from "./density"
+import { groupByFirstChar, DENSITY_GRID } from "./density"
+import type { ArchiveDensity } from "./density"
 import type { MakerSummary, MakerListResult } from "@/lib/makers"
 
 const PAGE_SIZE = 1000
 const ANCHOR_PREFIX = "archive-letter-"
 
 /**
- * Studio Archive 列表（M1 首个落地页面）
+ * Studio Archive 列表（M1 首个落地页面，列表交互层）。
  *
- * 验证点：
- *  - density 三态：compact(1~3) / standard(4~11) / dense(≥12) 驱动网格列数
- *  - ArchivePlaceholder 三态：loading / empty / error
- *  - AZIndex 稀疏自动隐藏（可用首字 < 2 时隐藏）+ scroll-spy 高亮当前分区
- *  - 不同数据量下布局稳定（空不崩 / 少不空 / 多不乱）
+ * 页头(header)由 Server Component 在 page.tsx 渲染后作为 prop 传入，本组件不再渲染 ArchiveHero，
+ * 仅负责：基于 q / sort 走 URL 驱动的 fetch、网格渲染、AZIndex、scroll-spy、三态占位。
  */
-export function StudioArchiveClient() {
-  const [searchInput, setSearchInput] = useState("")
-  const [search, setSearch] = useState("")
-  const [sort, setSort] = useState<"count" | "name">("name")
+export function StudioArchiveClient({
+  q,
+  sort,
+  total,
+  density,
+  header,
+}: {
+  q: string
+  sort: "count" | "name"
+  total: number
+  density: ArchiveDensity
+  header: ReactNode
+}) {
   const [makers, setMakers] = useState<MakerSummary[]>([])
-  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [activeLetter, setActiveLetter] = useState<string | undefined>(undefined)
   const reqId = useRef(0)
-
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 300)
-    return () => clearTimeout(t)
-  }, [searchInput])
 
   const fetchAll = useCallback(async () => {
     const id = ++reqId.current
@@ -47,12 +47,11 @@ export function StudioArchiveClient() {
     setError(false)
     try {
       const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE) })
-      if (search) params.set("search", search)
+      if (q) params.set("search", q)
       const res = await api.get<{ data: MakerListResult }>(`/api/credits/studios?${params}`)
       if (id !== reqId.current) return
       const d = parseApiResponse<MakerListResult>(res)
       setMakers(d.makers || [])
-      setTotal(d.total || 0)
     } catch {
       if (id === reqId.current) {
         setMakers([])
@@ -61,14 +60,13 @@ export function StudioArchiveClient() {
     } finally {
       if (id === reqId.current) setLoading(false)
     }
-  }, [sort, search])
+  }, [sort, q])
 
   useEffect(() => {
     fetchAll()
   }, [fetchAll])
 
   const groups = groupByFirstChar(makers, (m) => m.name)
-  const density = computeDensity(makers.length)
   const availableLetters = groups.map((g) => g.key)
   const truncated = !loading && !error && makers.length > 0 && total > makers.length
 
@@ -92,64 +90,13 @@ export function StudioArchiveClient() {
     )
     els.forEach((el) => obs.observe(el))
     return () => obs.disconnect()
-  }, [loading, error, makers, search, sort])
+  }, [loading, error, makers, q, sort])
 
   return (
     <ArchiveShell
       entity="studio"
       density={density}
-      header={
-        <ArchiveHero
-          variant="org"
-          eyebrow="studios"
-          title="制作组图鉴"
-          lede="同人社团 · 小型制作组 · 个人作者。按名称首字浏览全部制作组档案。"
-          meta={
-            search ? (
-              <span>
-                匹配 <span className="tabular-nums text-foreground">{total}</span> 个制作组
-              </span>
-            ) : (
-              <span>
-                共 <span className="tabular-nums text-foreground">{total}</span> 个制作组
-              </span>
-            )
-          }
-          search={
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative w-full max-w-md flex-1">
-                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="搜索制作组名称..."
-                  className="w-full rounded-xl bg-muted/50 py-2.5 pl-10 pr-4 text-sm text-foreground outline-none ring-1 ring-border transition-all placeholder:text-muted-foreground/60 focus:bg-card focus:ring-primary/30"
-                />
-              </div>
-              <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5 text-xs ring-1 ring-border">
-                <button
-                  onClick={() => setSort("count")}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 transition-all",
-                    sort === "count" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  作品数
-                </button>
-                <button
-                  onClick={() => setSort("name")}
-                  className={cn(
-                    "rounded-md px-2.5 py-1 transition-all",
-                    sort === "name" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  名称
-                </button>
-              </div>
-            </div>
-          }
-        />
-      }
+      header={header}
       index={!loading && !error ? <AZIndex available={availableLetters} active={activeLetter} anchorPrefix={ANCHOR_PREFIX} /> : undefined}
     >
       {truncated && (
@@ -165,7 +112,7 @@ export function StudioArchiveClient() {
         <ArchivePlaceholder
           state="empty"
           entity="studio"
-          message={search ? "没有匹配的制作组" : "暂无收录的制作组"}
+          message={q ? "没有匹配的制作组" : "暂无收录的制作组"}
         />
       ) : (
         <div className="space-y-8">
