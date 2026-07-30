@@ -113,7 +113,7 @@ export function StudioArchiveClient() {
       header={
         <ArchiveHero
           variant="org"
-          eyebrow="Archive"
+          eyebrow="studios"
           title="制作组图鉴"
           lede="同人社团 · 小型制作组 · 个人作者。按名称首字浏览全部制作组档案。"
           meta={
@@ -127,40 +127,40 @@ export function StudioArchiveClient() {
               </span>
             )
           }
+          search={
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative w-full max-w-md flex-1">
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="搜索制作组名称..."
+                  className="w-full rounded-xl bg-muted/50 py-2.5 pl-10 pr-4 text-sm text-foreground outline-none ring-1 ring-border transition-all placeholder:text-muted-foreground/60 focus:bg-card focus:ring-primary/30"
+                />
+              </div>
+              <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5 text-xs ring-1 ring-border">
+                <button
+                  onClick={() => setSort("count")}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 transition-all",
+                    sort === "count" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  作品数
+                </button>
+                <button
+                  onClick={() => setSort("name")}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 transition-all",
+                    sort === "name" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  名称
+                </button>
+              </div>
+            </div>
+          }
         />
-      }
-      toolbar={
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full max-w-md flex-1">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="搜索制作组名称..."
-              className="w-full rounded-xl bg-muted/50 py-2.5 pl-10 pr-4 text-sm text-foreground outline-none ring-1 ring-border transition-all placeholder:text-muted-foreground/60 focus:bg-card focus:ring-primary/30"
-            />
-          </div>
-          <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5 text-xs ring-1 ring-border">
-            <button
-              onClick={() => setSort("count")}
-              className={cn(
-                "rounded-md px-2.5 py-1 transition-all",
-                sort === "count" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              作品数
-            </button>
-            <button
-              onClick={() => setSort("name")}
-              className={cn(
-                "rounded-md px-2.5 py-1 transition-all",
-                sort === "name" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              名称
-            </button>
-          </div>
-        </div>
       }
       index={!loading && !error ? <AZIndex available={availableLetters} active={activeLetter} anchorPrefix={ANCHOR_PREFIX} /> : undefined}
     >

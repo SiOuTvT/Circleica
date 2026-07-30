@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client"
 import type { Metadata } from "next"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
+import { HeaderSearch } from "@/components/archive/header-search"
 import { CollectionShowcaseCard } from "@/components/archive/collection-showcase-card"
 import { CollectionCard } from "@/components/collection-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
@@ -33,10 +34,17 @@ type CollectionSummary = Prisma.CuratedCollectionGetPayload<{
   }
 }>
 
-export default async function CuratedCollectionsPage() {
-  let collections: CollectionSummary[] = []
+export default async function CuratedCollectionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const { q } = await searchParams
+  const query = q?.trim().toLowerCase()
+
+  let all: CollectionSummary[] = []
   try {
-    collections = await prisma.curatedCollection.findMany({
+    all = await prisma.curatedCollection.findMany({
       where: { published: true },
       orderBy: { sortOrder: "asc" },
       include: {
@@ -52,6 +60,10 @@ export default async function CuratedCollectionsPage() {
     // 数据库不可用（构建期/沙箱）：返回空列表，绝不注入假数据
   }
 
+  const collections = query
+    ? all.filter((c) => c.name.toLowerCase().includes(query) || (c.description ?? "").toLowerCase().includes(query))
+    : all
+
   const total = collections.length
   const density = computeDensity(total)
 
@@ -61,19 +73,16 @@ export default async function CuratedCollectionsPage() {
       <ArchiveShell entity="collection" density="standard">
         <ArchiveHero
           variant="series"
-          eyebrow="编辑精选"
+          eyebrow="collections"
           title="精选合集"
           lede="编辑精选 · 发现更多精彩作品"
+          search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
         />
         <ArchivePlaceholder state="empty" entity="collection" message="暂无精选合集" />
       </ArchiveShell>
     )
   }
 
-  // 编辑精选式布局：首条 featured 大卡（策展表达）+ 其余 EntityCard 网格（浏览效率）
-  // Featured 选取规则（运营可控）：复用 CuratedCollection.sortOrder（升序，值越小越靠前），
-  // 显式选取 sortOrder 最小的合集作为 Featured 首位。后台编辑 sortOrder 即可指定/更换 Featured 合集，
-  // 不新增 featured 字段或复杂机制；即便查询排序被改动，Featured 位仍由 sortOrder 值决定，不漂移。
   const minSortOrder = collections.reduce(
     (min, c) => (c.sortOrder < min ? c.sortOrder : min),
     Number.POSITIVE_INFINITY,
@@ -97,10 +106,11 @@ export default async function CuratedCollectionsPage() {
       header={
         <ArchiveHero
           variant="series"
-          eyebrow="编辑精选"
+          eyebrow="collections"
           title="精选合集"
           lede="编辑精选 · 发现更多精彩作品"
           meta={<span className="tabular-nums">共 {total} 个合集</span>}
+          search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
         />
       }
     >
