@@ -1,0 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="3bc22935-4ad9-e6d4-4698-85509e47e1ae")}catch(e){}}();
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,928816,e=>{"use strict";var t=e.i(843476);let s=(0,e.i(770703).default)(()=>e.A(427687).then(e=>({default:e.AdminCharts})),{loadableGenerated:{modules:[180405]},loading:()=>(0,t.jsx)("div",{className:"h-[180px] animate-pulse rounded-xl bg-muted/50"}),ssr:!1});e.s(["AdminChartsWrapper",0,function(e){return(0,t.jsx)(s,{...e})}])},427687,e=>{e.v(t=>Promise.all(["static/chunks/1r8vxu38n9vnr.js"].map(t=>e.l(t))).then(()=>t(180405)))}]);
+
+//# debugId=3bc22935-4ad9-e6d4-4698-85509e47e1ae

@@ -1,0 +1,3 @@
+{
+  "/api/admin/vndb/validate/route": "app/api/admin/vndb/validate/route.js"
+}

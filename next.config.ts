@@ -51,8 +51,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["192.168.5.53", "192.168.*", "10.*"],
 
-  // 显式启用 Turbopack（Next.js 16 默认），消除 webpack 兼容警告
-  turbopack: {},
+  // ⚠️ 退出 Turbopack，改用 Webpack：Next.js 16 的 Turbopack 在 Windows 上有已知 bug
+  // —— dev 时会在项目根目录生成 nul 空文件、并偶发 panic 导致页面停在旧缓存(用户 2026-07-30 踩坑)。
+  // 同时本项目含自定义 webpack 配置(dompurify 别名)，Turbopack 会忽略它，必须走 --webpack。
+  // 对应标志已在 package.json 的 dev / build 脚本中加 --webpack。
 
   // 仅在生产构建（webpack）时生效，Turbopack（dev）忽略此配置
   webpack(config, { isServer }) {

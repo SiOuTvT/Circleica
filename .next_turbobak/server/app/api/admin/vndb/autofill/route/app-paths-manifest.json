@@ -1,0 +1,3 @@
+{
+  "/api/admin/vndb/autofill/route": "app/api/admin/vndb/autofill/route.js"
+}

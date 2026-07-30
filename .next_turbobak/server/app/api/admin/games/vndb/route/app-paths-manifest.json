@@ -1,0 +1,3 @@
+{
+  "/api/admin/games/vndb/route": "app/api/admin/games/vndb/route.js"
+}

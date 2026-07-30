@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "debugId": "cbec26f5-74e2-22b0-d490-f7874c980142",
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/app/admin/emotional-messages/loading.tsx"],"sourcesContent":["import { AdminPageSkeleton } from \"@/components/admin/admin-page-skeleton\"\n\nexport default function Loading() {\n  return <AdminPageSkeleton rows={5} />\n}\n"],"names":["Loading","rows"],"mappings":"0DAAA,EAAA,EAAA,CAAA,CAAA,yBAEe,SAASA,EACtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,EAAA,iBAAiB,CAAA,CAACC,KAAM,GAClC"}}]
+}

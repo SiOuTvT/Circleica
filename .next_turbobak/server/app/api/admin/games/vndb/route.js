@@ -1,0 +1,13 @@
+var R=require("../../../../../chunks/[turbopack]_runtime.js")("server/app/api/admin/games/vndb/route.js")
+R.c("server/chunks/node_modules_zod_v4_classic_errors_0tp0y-q.js")
+R.c("server/chunks/[root-of-the-server]__0p3-z5g._.js")
+R.c("server/chunks/node_modules_bcryptjs_index_0k82xso.js")
+R.c("server/chunks/[root-of-the-server]__0fsq_q-._.js")
+R.c("server/chunks/_20j9ibh._.js")
+R.c("server/chunks/node_modules_next_16bdwk4._.js")
+R.c("server/chunks/[root-of-the-server]__1qf-nfy._.js")
+R.c("server/chunks/node_modules_next_1ir7qn-._.js")
+R.c("server/chunks/node_modules_next_dist_1_lpwll._.js")
+R.c("server/chunks/_next-internal_server_app_api_admin_games_vndb_route_actions_185xctd.js")
+R.m(360043)
+module.exports=R.m(360043).exports

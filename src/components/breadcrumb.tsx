@@ -38,7 +38,7 @@ const ROUTE_NAMES: Record<string, string> = {
   checkins: "签到管理",
   favorites: "收藏管理",
   follows: "关注管理",
-  creators: "创作者管理",
+  creators: "创作者图鉴",
   "emotional-messages": "情感消息管理",
   "site-settings": "站点设置",
   "avatar-frames": "头像框管理",

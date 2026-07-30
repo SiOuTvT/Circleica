@@ -1,0 +1,3 @@
+{
+  "/api/admin/tags/[id]/route": "app/api/admin/tags/[id]/route.js"
+}

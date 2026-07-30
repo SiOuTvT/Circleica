@@ -1,0 +1,18 @@
+{
+  "node": {
+    "4060449debbc1afdf37b2d234de56faea1bdb1c87a": {
+      "workers": {
+        "app/admin/inclusion-requests/page": {
+          "moduleId": 289911,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/admin/inclusion-requests/page.tsx"
+        }
+      },
+      "filename": "src/app/admin/inclusion-requests/page.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "UL6nTVRW8fn+qW9tpkhwSFeBZd0sSlFkbB1RMVCuqz4="
+}

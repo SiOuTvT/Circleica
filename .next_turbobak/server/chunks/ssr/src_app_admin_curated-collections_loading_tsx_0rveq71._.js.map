@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "debugId": "a3201a88-e1f5-f568-a117-426efe112aeb",
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["../../../../src/app/admin/curated-collections/loading.tsx"],"sourcesContent":["import { AdminGridSkeleton } from \"@/components/admin/admin-page-skeleton\"\n\nexport default function Loading() {\n  return <AdminGridSkeleton count={4} />\n}\n"],"names":["Loading","count"],"mappings":"yDAAA,EAAA,EAAA,CAAA,CAAA,yBAEe,SAASA,EACtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,EAAA,iBAAiB,CAAA,CAACC,MAAO,GACnC"}}]
+}

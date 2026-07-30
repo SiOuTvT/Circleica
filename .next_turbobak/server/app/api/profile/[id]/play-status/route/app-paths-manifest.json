@@ -1,0 +1,3 @@
+{
+  "/api/profile/[id]/play-status/route": "app/api/profile/[id]/play-status/route.js"
+}

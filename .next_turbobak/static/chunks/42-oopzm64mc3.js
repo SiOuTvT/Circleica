@@ -1,0 +1,4 @@
+;!function(){try { var e="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof global?global:"undefined"!=typeof window?window:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&((e._debugIds|| (e._debugIds={}))[n]="d81d8331-0ba9-f9aa-ef9f-1a77a513b59c")}catch(e){}}();
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,398267,e=>{"use strict";var t=e.i(843476);let s=(0,e.i(770703).default)(()=>e.A(773962).then(e=>({default:e.RichTextContent})),{loadableGenerated:{modules:[225907]},loading:()=>(0,t.jsx)("div",{className:"animate-pulse rounded-lg bg-muted h-20"}),ssr:!1});e.s(["RichTextContent",0,s])},773962,e=>{e.v(t=>Promise.all(["static/chunks/0drom7qg7w-ol.js","static/chunks/06ijq9hopnite.js"].map(t=>e.l(t))).then(()=>t(225907)))}]);
+
+//# debugId=d81d8331-0ba9-f9aa-ef9f-1a77a513b59c

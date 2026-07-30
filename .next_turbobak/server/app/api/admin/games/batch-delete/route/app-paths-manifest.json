@@ -1,0 +1,3 @@
+{
+  "/api/admin/games/batch-delete/route": "app/api/admin/games/batch-delete/route.js"
+}
