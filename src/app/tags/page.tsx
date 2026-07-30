@@ -41,21 +41,6 @@ export default async function TagsPage() {
   const letters = Object.keys(data.tagsByLetter).sort()
   const density = computeDensity(totalTags)
 
-  // 空态：保留页头与品牌语言，不渲染列表（绝不注入假数据）
-  if (letters.length === 0) {
-    return (
-      <ArchiveShell entity="tag" density="standard">
-        <ArchiveHero
-          variant="tag"
-          eyebrow="标签图鉴"
-          title="标签"
-          lede="通过标签发现游戏，按分类与首字母索引浏览。"
-        />
-        <ArchivePlaceholder state="empty" entity="tag" message="暂无收录的标签" />
-      </ArchiveShell>
-    )
-  }
-
   return (
     <ArchiveShell
       entity="tag"
@@ -97,45 +82,57 @@ export default async function TagsPage() {
         ]}
       />
 
-      {/* 补充区块：分类浏览（保留现有组件，链接已指向详情页） */}
-      <section>
-        <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
-          <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {data.tagGroups.map((group) => (
-            <TagCategory key={group.id} group={group} />
-          ))}
-        </div>
-      </section>
+      {/* 补充区块：分类浏览（只要有分类就显示，不依赖标签是否关联作品） */}
+      {data.tagGroups.length > 0 && (
+        <section>
+          <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
+            <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {data.tagGroups.map((group) => (
+              <TagCategory key={group.id} group={group} />
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* 全部标签索引：AZIndex（静态） + TagCard 网格（按首字母分组，anchor 跳转） */}
+      {/* 全部标签索引：AZIndex（静态）+ TagCard 网格（按首字母分组）；无标签时占位 */}
       <section>
         <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
           <TagIcon className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 全部标签
         </h2>
-        <AZIndex available={letters} anchorPrefix={ANCHOR_PREFIX} />
-        <div className="mt-4 space-y-6">
-          {letters.map((letter) => {
-            const tags = data.tagsByLetter[letter]
-            if (!tags || tags.length === 0) return null
-            return (
-              <div key={letter} id={`${ANCHOR_PREFIX}${encodeURIComponent(letter)}`} className="scroll-mt-20">
-                <div className="mb-3 flex items-baseline gap-2 border-b border-border/50 pb-1.5">
-                  <span className="text-sm font-bold text-foreground">
-                    {letter === "0-9" ? "#" : letter}
-                  </span>
-                  <span className="text-xs text-muted-foreground/60">{tags.length} 个标签</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-                  {tags.map((tag) => (
-                    <TagCard key={tag.id} tag={tag} />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        {letters.length === 0 ? (
+          <ArchivePlaceholder
+            state="empty"
+            entity="tag"
+            message="暂无已收录作品的标签"
+          />
+        ) : (
+          <>
+            <AZIndex available={letters} anchorPrefix={ANCHOR_PREFIX} />
+            <div className="mt-4 space-y-6">
+              {letters.map((letter) => {
+                const tags = data.tagsByLetter[letter]
+                if (!tags || tags.length === 0) return null
+                return (
+                  <div key={letter} id={`${ANCHOR_PREFIX}${encodeURIComponent(letter)}`} className="scroll-mt-20">
+                    <div className="mb-3 flex items-baseline gap-2 border-b border-border/50 pb-1.5">
+                      <span className="text-sm font-bold text-foreground">
+                        {letter === "0-9" ? "#" : letter}
+                      </span>
+                      <span className="text-xs text-muted-foreground/60">{tags.length} 个标签</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                      {tags.map((tag) => (
+                        <TagCard key={tag.id} tag={tag} />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        )}
       </section>
     </ArchiveShell>
   )
