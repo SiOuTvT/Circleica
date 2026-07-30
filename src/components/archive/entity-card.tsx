@@ -163,7 +163,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
 
 function CollectionCard({ data }: { data: CollectionCardData }) {
   return (
-    <CardShell href={`/curated-collections/${data.id}`}>
+    <CardShell href={`/collections/${data.id}`}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">

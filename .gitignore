@@ -62,6 +62,7 @@ next-env.d.ts
 .dev_webpack*.log
 kill_dev*.cmd
 .next_turbobak
+.next_bak*/        # 调试时改名的 .next 残留，禁止提交；应移出项目或清理
 .probe*/
 .tmpshots/
 .shot*

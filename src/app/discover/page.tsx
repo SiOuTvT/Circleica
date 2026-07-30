@@ -177,7 +177,7 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
 function CollectionStripCard({ collection, isFirst = false }: { collection: CuratedCollectionData; isFirst?: boolean }) {
   const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
   return (
-    <Link href={`/curated-collections/${collection.id}`} className={`group shrink-0 ${isFirst ? "w-[260px] sm:w-[300px]" : "w-[200px] sm:w-[230px]"}`}>
+    <Link href={`/collections/${collection.id}`} className={`group shrink-0 ${isFirst ? "w-[260px] sm:w-[300px]" : "w-[200px] sm:w-[230px]"}`}>
       <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-lg group-hover:ring-foreground/10">
         {cover ? (
           <Image src={cover} alt={collection.name} fill className="object-cover transition-all duration-700 group-hover:scale-105" sizes="300px" unoptimized />
@@ -216,7 +216,7 @@ export default async function DiscoverPage() {
       </header>
 
       {/* 编辑精选 */}
-      <DiscoverySection title="编辑精选" description="编辑用心挑选的主题合集" icon={Layers} actionHref="/curated-collections">
+      <DiscoverySection title="编辑精选" description="编辑用心挑选的主题合集" icon={Layers} actionHref="/collections">
         {data && data.collections.length > 0 ? (
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
             {data.collections.map((c, i) => (

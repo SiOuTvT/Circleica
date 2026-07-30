@@ -1,1 +1,0 @@
-globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/notifications/unread-count/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"D:\\Circleica\\src\\app\\api\\notifications\\unread-count\\route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};

@@ -40,7 +40,7 @@ const navGroups: NavGroup[] = [
     label: "内容管理",
     items: [
       { icon: Gamepad2, label: "游戏", href: "/admin/games", minRole: "ADMIN" },
-      { icon: List, label: "精选合集", href: "/admin/curated-collections", minRole: "ADMIN" },
+      { icon: List, label: "精选合集", href: "/admin/collections", minRole: "ADMIN" },
       { icon: Tag, label: "标签管理", href: "/admin/tags", minRole: "ADMIN" },
       { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN" },
       { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN" },

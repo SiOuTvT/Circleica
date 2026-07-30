@@ -1,1 +1,0 @@
-{"kind":"FETCH","data":{"headers":{},"body":"{\"avatar\":\"\",\"avatarFrameId\":null,\"serialId\":1,\"composedAvatarUrl\":\"\",\"role\":\"SUPER_ADMIN\",\"emailVerified\":false}","status":200,"url":""},"revalidate":30,"tags":["session-user"]}

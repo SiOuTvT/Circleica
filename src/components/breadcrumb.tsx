@@ -12,7 +12,6 @@ import { useBreadcrumb } from "./breadcrumb-context"
 const ROUTE_NAMES: Record<string, string> = {
   forum: "求档区",
   collections: "精选合集",
-  "curated-collections": "精选合集",
   credits: "制作组图鉴",
   search: "搜索",
   login: "登录",

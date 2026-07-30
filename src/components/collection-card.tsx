@@ -27,7 +27,7 @@ export function CollectionCard({
   if (featured && primary?.cover) {
     return (
       <Link
-        href={`/curated-collections/${id}`}
+        href={`/collections/${id}`}
         className="group relative block overflow-hidden rounded-2xl bg-muted transition-all duration-500 hover:shadow-lg"
         style={{ aspectRatio: "21 / 9" }}
       >
@@ -62,7 +62,7 @@ export function CollectionCard({
   // 普通模式：封面在左，信息在右
   return (
     <Link
-      href={`/curated-collections/${id}`}
+      href={`/collections/${id}`}
       className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm"
     >
       {/* 封面区 */}
