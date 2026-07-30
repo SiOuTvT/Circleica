@@ -6,6 +6,7 @@ import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, GameListRow, type GameCardData } from "@/components/game-card"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { ArchiveHero } from "@/components/archive/archive-hero"
 
 export const metadata: Metadata = {
   title: "排行榜 · Circleica",
@@ -110,9 +111,7 @@ export default async function RankingPage({
   searchParams: Promise<{ dim?: string }>
 }) {
   const sp = await searchParams
-  const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey)
-    ? (sp.dim as DimKey)
-    : "rating"
+  const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "rating"
 
   let items: RankedItem[] = []
   try {
@@ -125,20 +124,18 @@ export default async function RankingPage({
   const rest = items.slice(3)
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* ── 页头 ── */}
-      <header className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-          <Trophy className="h-6 w-6" strokeWidth={1.5} />
-        </div>
-        <div>
-          <h1 className="text-2xl font-heading font-semibold tracking-tight">排行榜</h1>
-          <p className="text-sm text-muted-foreground">按维度查看热门作品</p>
-        </div>
-      </header>
+    <div className="space-y-6">
+      {/* 页头（全站统一 ArchiveHero） */}
+      <ArchiveHero
+        variant="ranking"
+        eyebrow="ranking"
+        title="排行榜"
+        lede="按评分、收藏、浏览与评论，发现大家都在玩的作品"
+        meta={items.length > 0 ? <span className="tabular-nums">共 {items.length} 部</span> : undefined}
+      />
 
-      {/* ── 维度切换 ── */}
-      <nav className="mt-6 flex gap-1 rounded-xl bg-muted p-1">
+      {/* 维度切换 */}
+      <nav className="flex gap-1 rounded-xl bg-muted p-1">
         {DIMS.map((d) => (
           <Link
             key={d.key}
@@ -156,16 +153,16 @@ export default async function RankingPage({
       </nav>
 
       {items.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
+        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
           <Trophy className="mx-auto h-10 w-10 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="mt-3 text-sm text-muted-foreground">暂无榜单数据</p>
           <p className="mt-1 text-xs text-muted-foreground/70">收录更多作品后，这里会按维度展示排行</p>
         </div>
       ) : (
         <>
-          {/* ── TOP 3 ── */}
+          {/* TOP 3 */}
           {top3.length > 0 && (
-            <section className="mt-8 grid gap-5 sm:grid-cols-3">
+            <section className="mt-2 grid gap-5 sm:grid-cols-3">
               {top3.map((item, i) => (
                 <div key={item.card.id} className="relative flex flex-col items-center">
                   {/* 奖牌 */}
@@ -192,9 +189,9 @@ export default async function RankingPage({
             </section>
           )}
 
-          {/* ── 第 4 名及以后 ── */}
+          {/* 第 4 名及以后 */}
           {rest.length > 0 && (
-            <section className="mt-8 space-y-1">
+            <section className="mt-2 space-y-1">
               {rest.map((item, i) => {
                 const rank = i + 4
                 return (

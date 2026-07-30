@@ -1,9 +1,9 @@
 import type { ReactNode } from "react"
-import { Layers, Users, User, Tag as TagIcon } from "lucide-react"
+import { Layers, Users, User, Tag as TagIcon, Compass, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroCover } from "./hero-cover"
 
-export type ArchiveHeroVariant = "org" | "person" | "series" | "detail" | "tag"
+export type ArchiveHeroVariant = "org" | "person" | "series" | "detail" | "tag" | "discover" | "ranking"
 
 interface ArchiveHeroProps {
   variant: ArchiveHeroVariant
@@ -24,6 +24,8 @@ const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
   person: User,
   tag: TagIcon,
   detail: Layers,
+  discover: Compass,
+  ranking: Trophy,
 }
 
 /**
@@ -100,7 +102,7 @@ export function ArchiveHero({
         </div>
       </div>
       {lede && (
-        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-base">{lede}</p>
+        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{lede}</p>
       )}
       {search && <div className="mt-1">{search}</div>}
       {meta && (
