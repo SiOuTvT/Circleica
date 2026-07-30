@@ -4,7 +4,6 @@ import { Trophy } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, GameListRow, type GameCardData } from "@/components/game-card"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 
@@ -14,6 +13,7 @@ export const metadata: Metadata = {
 }
 
 type DimKey = "rating" | "favorite" | "view" | "comment"
+type ScopeKey = "all" | "year" | "3y"
 
 const DIMS: { key: DimKey; label: string }[] = [
   { key: "rating", label: "评分" },
@@ -22,7 +22,22 @@ const DIMS: { key: DimKey; label: string }[] = [
   { key: "comment", label: "评论" },
 ]
 
+const SCOPES: { key: ScopeKey; label: string }[] = [
+  { key: "all", label: "全部" },
+  { key: "year", label: "本年" },
+  { key: "3y", label: "近三年" },
+]
+
 const VALID_DIMS: DimKey[] = ["rating", "favorite", "view", "comment"]
+const VALID_SCOPES: ScopeKey[] = ["all", "year", "3y"]
+
+/** 时间范围 → Prisma where 片段（空对象表示不限） */
+function scopeFilter(scope: ScopeKey) {
+  if (scope === "all") return {}
+  const y = new Date().getFullYear()
+  const from = scope === "year" ? new Date(y, 0, 1) : new Date(y - 2, 0, 1)
+  return { releaseDate: { gte: from } }
+}
 
 function fmtNum(n: number): string {
   if (n >= 10000) return (n / 10000).toFixed(1) + "w"
@@ -36,7 +51,9 @@ interface RankedItem {
   unit: string
 }
 
-async function getRanked(dim: DimKey): Promise<RankedItem[]> {
+async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
+  const dateWhere = scopeFilter(scope)
+
   if (dim === "rating") {
     const grouped = await prisma.gameRating.groupBy({
       by: ["gameId"],
@@ -51,7 +68,7 @@ async function getRanked(dim: DimKey): Promise<RankedItem[]> {
       .slice(0, 50)
     const ids = filtered.map((g) => g.gameId)
     const rows = await prisma.game.findMany({
-      where: { id: { in: ids }, isPublished: true },
+      where: { id: { in: ids }, isPublished: true, ...dateWhere },
       select: GAME_CARD_SELECT,
     })
     const byId = new Map(rows.map((r) => [r.id, r]))
@@ -70,7 +87,7 @@ async function getRanked(dim: DimKey): Promise<RankedItem[]> {
 
   if (dim === "comment") {
     const rows = await prisma.game.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, ...dateWhere },
       orderBy: { comments: { _count: "desc" } },
       take: 50,
       select: { ...GAME_CARD_SELECT, _count: { select: { comments: true } } },
@@ -87,7 +104,7 @@ async function getRanked(dim: DimKey): Promise<RankedItem[]> {
       ? { favoriteCount: "desc" as const }
       : { viewCount: "desc" as const }
   const rows = await prisma.game.findMany({
-    where: { isPublished: true },
+    where: { isPublished: true, ...dateWhere },
     orderBy,
     take: 50,
     select: GAME_CARD_SELECT,
@@ -108,14 +125,15 @@ const MEDALS = [
 export default async function RankingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ dim?: string }>
+  searchParams: Promise<{ dim?: string; scope?: string }>
 }) {
   const sp = await searchParams
   const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "rating"
+  const scope: ScopeKey = VALID_SCOPES.includes(sp.scope as ScopeKey) ? (sp.scope as ScopeKey) : "all"
 
   let items: RankedItem[] = []
   try {
-    items = await getRanked(dim)
+    items = await getRanked(dim, scope)
   } catch {
     items = []
   }
@@ -134,23 +152,41 @@ export default async function RankingPage({
         meta={items.length > 0 ? <span className="tabular-nums">共 {items.length} 部</span> : undefined}
       />
 
-      {/* 维度切换 */}
-      <nav className="flex gap-1 rounded-xl bg-muted p-1">
-        {DIMS.map((d) => (
-          <Link
-            key={d.key}
-            href={`/ranking?dim=${d.key}`}
-            className={cn(
-              "flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium transition-all",
-              dim === d.key
-                ? "bg-card text-foreground shadow-sm ring-1 ring-border"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {d.label}
-          </Link>
-        ))}
-      </nav>
+      {/* 控制条：维度 + 时间范围 */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <nav className="flex gap-1 rounded-xl bg-muted p-1">
+          {DIMS.map((d) => (
+            <Link
+              key={d.key}
+              href={`/ranking?dim=${d.key}&scope=${scope}`}
+              className={cn(
+                "flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium transition-all",
+                dim === d.key
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {d.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="flex gap-1 rounded-lg bg-muted p-1">
+          {SCOPES.map((s) => (
+            <Link
+              key={s.key}
+              href={`/ranking?dim=${dim}&scope=${s.key}`}
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+                scope === s.key
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
@@ -160,12 +196,11 @@ export default async function RankingPage({
         </div>
       ) : (
         <>
-          {/* TOP 3 */}
+          {/* TOP 3 领奖台 */}
           {top3.length > 0 && (
             <section className="mt-2 grid gap-5 sm:grid-cols-3">
               {top3.map((item, i) => (
                 <div key={item.card.id} className="relative flex flex-col items-center">
-                  {/* 奖牌 */}
                   <div
                     className={cn(
                       "absolute -top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ring-4 shadow-lg",
@@ -176,7 +211,6 @@ export default async function RankingPage({
                   >
                     {i + 1}
                   </div>
-                  {/* 封面 */}
                   <div className="w-full max-w-[200px]">
                     <GameCard game={item.card} />
                   </div>

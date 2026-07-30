@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarDays, History, Layers, LayoutGrid, Shuffle, Sparkles } from "lucide-react"
+import { CalendarDays, ChevronRight, History, Shuffle, Sparkles } from "lucide-react"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
@@ -40,7 +40,7 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
       prisma.curatedCollection.findMany({
         where: { published: true },
         orderBy: { sortOrder: "asc" },
-        take: 12,
+        take: 8,
         include: {
           games: {
             orderBy: { sortOrder: "asc" },
@@ -70,133 +70,97 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 }
 
-function CollectionStripCard({ collection, isFirst = false }: { collection: CuratedCollectionData; isFirst?: boolean }) {
+/** 主编精选：非对称大特稿卡，作为发现页的编辑锚点 */
+function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
   const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
+  const firstTitle = collection.games[0]?.game.title
+
   return (
-    <Link
-      href={`/collections/${collection.id}`}
-      className={`group shrink-0 ${isFirst ? "w-[260px] sm:w-[300px]" : "w-[200px] sm:w-[230px]"}`}
-    >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-muted ring-1 ring-border/60 transition-all duration-500 group-hover:scale-[1.03] group-hover:shadow-lg group-hover:ring-foreground/10">
-        {cover ? (
-          <Image
-            src={cover}
-            alt={collection.name}
-            fill
-            className="object-cover transition-all duration-700 group-hover:scale-105"
-            sizes="300px"
-            unoptimized
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">无封面</div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          {isFirst && (
-            <span className="inline-block rounded-full bg-primary/80 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-foreground mb-1.5">
-              编辑精选
-            </span>
+    <section className="group relative overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition-shadow hover:shadow-lg">
+      <div className="grid sm:grid-cols-2">
+        <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[300px]">
+          {cover ? (
+            <Image
+              src={cover}
+              alt={collection.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+              sizes="(max-width: 640px) 100vw, 50vw"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/40">无封面</div>
           )}
-          <p className="truncate text-sm font-heading font-semibold text-white sm:text-base">{collection.name}</p>
-          <p className="text-xs text-white/70 mt-0.5">{collection._count.games} 部</p>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:bg-gradient-to-r sm:from-black/40 sm:via-transparent sm:to-transparent" />
+        </div>
+        <div className="flex flex-col justify-center gap-4 p-6 sm:p-8">
+          <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            主编精选
+          </span>
+          <div>
+            <h2 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">{collection.name}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {firstTitle ? `收录《${firstTitle}》等 ` : ""}
+              {collection._count.games} 部作品
+            </p>
+          </div>
+          <Link
+            href={`/collections/${collection.id}`}
+            className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+          >
+            查看精选合集
+            <ChevronRight className="h-4 w-4" strokeWidth={2} />
+          </Link>
         </div>
       </div>
-    </Link>
-  )
-}
-
-interface BrowseEntry {
-  href: string
-  label: string
-  sub: string
-  icon: typeof Layers
-}
-
-const BROWSE_ENTRIES: BrowseEntry[] = [
-  { href: "/games", label: "全部作品", sub: "按发行浏览完整档案", icon: Layers },
-  { href: "/ranking", label: "排行榜", sub: "评分 · 收藏 · 浏览", icon: Sparkles },
-  { href: "/collections", label: "精选合集", sub: "编辑主题合集", icon: Layers },
-  { href: "/tags", label: "标签", sub: "按题材检索", icon: Layers },
-  { href: "/studios", label: "制作组", sub: "社团与工作室", icon: Layers },
-  { href: "/creators", label: "创作者", sub: "画师 · 剧本 · 音乐", icon: Layers },
-]
-
-function BrowseEntryCard({ entry }: { entry: BrowseEntry }) {
-  const Icon = entry.icon
-  return (
-    <Link
-      href={entry.href}
-      className="group flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm hover:ring-foreground/15"
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-        <Icon className="h-5 w-5" strokeWidth={1.75} />
-      </div>
-      <div className="min-w-0">
-        <p className="truncate text-sm font-heading font-semibold text-foreground">{entry.label}</p>
-        <p className="truncate text-xs text-muted-foreground">{entry.sub}</p>
-      </div>
-    </Link>
+    </section>
   )
 }
 
 export default async function DiscoverPage() {
   const data = await getDiscoveryData()
+  const featured = data?.collections?.[0] ?? null
+  const years = data?.years ?? []
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       {/* 页头（全站统一 ArchiveHero） */}
       <ArchiveHero
         variant="discover"
         eyebrow="discover"
         title="发现"
-        lede="按兴趣探索：编辑精选、个性化推荐、随机惊喜与年份时间轴"
+        lede="编辑精选、个性推荐与随机惊喜，帮你找到下一部想玩的作品"
       />
 
-      {/* 编辑精选 */}
-      <DiscoverySection title="编辑精选" description="编辑用心挑选的主题合集" icon={Layers} actionHref="/collections">
-        {data && data.collections.length > 0 ? (
-          <div
-            className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20"
-            style={{ contain: "layout style" }}
-          >
-            {data.collections.map((c, i) => (
-              <CollectionStripCard key={c.id} collection={c} isFirst={i === 0} />
-            ))}
-          </div>
-        ) : (
+      {/* 主编精选：编辑锚点 */}
+      {featured ? (
+        <EditorFeature collection={featured} />
+      ) : (
+        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
           <p className="text-sm text-muted-foreground">暂无精选合集</p>
-        )}
-      </DiscoverySection>
+        </div>
+      )}
 
-      {/* 继续浏览 */}
-      <DiscoverySection title="继续浏览" description="你最近看过的作品" icon={History}>
-        <RecentlyViewed />
-      </DiscoverySection>
-
-      {/* 为你推荐（相似作品） */}
-      <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
-        <ForYou />
-      </DiscoverySection>
+      {/* 个性化双栏 */}
+      <div className="grid gap-10 sm:grid-cols-2">
+        <DiscoverySection title="继续浏览" description="你最近看过的作品" icon={History}>
+          <RecentlyViewed />
+        </DiscoverySection>
+        <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
+          <ForYou />
+        </DiscoverySection>
+      </div>
 
       {/* 随机发现 */}
       <DiscoverySection title="随机发现" description="换个心情，随便看看" icon={Shuffle}>
         <RandomDiscovery />
       </DiscoverySection>
 
-      {/* 快速入口 */}
-      <DiscoverySection title="快速入口" description="按维度浏览整个档案库" icon={LayoutGrid}>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {BROWSE_ENTRIES.map((e) => (
-            <BrowseEntryCard key={e.href} entry={e} />
-          ))}
-        </div>
-      </DiscoverySection>
-
       {/* 时间轴 */}
       <DiscoverySection title="时间轴" description="按发行年份回顾" icon={CalendarDays} actionHref="/games">
-        {data && data.years.length > 0 ? (
+        {years.length > 0 ? (
           <div className="flex flex-wrap gap-3">
-            {data.years.map((y) => (
+            {years.map((y) => (
               <Link
                 key={y.year}
                 href={`/games?year=${y.year}`}
