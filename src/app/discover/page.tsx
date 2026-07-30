@@ -2,12 +2,11 @@ import { prisma } from "@/lib/prisma"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarDays, ChevronRight, History, Shuffle, Sparkles } from "lucide-react"
+import { CalendarDays, ChevronRight, History, Sparkles } from "lucide-react"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
 import { ForYou } from "@/components/discover/for-you"
-import { RandomDiscovery } from "@/components/discover/random-discovery"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import type { GameCardData } from "@/components/game-card"
 
@@ -165,17 +164,8 @@ export default async function DiscoverPage() {
         <ForYou popular={data?.popular ?? []} />
       </DiscoverySection>
 
-      {/* 随机 + 时间轴：仅小按钮（折叠，不重复外链） */}
+      {/* 时间轴：仅小按钮（折叠，不重复外链；随机发现已由侧边栏全局提供，不在本页重复） */}
       <div className="flex flex-wrap items-center gap-3">
-        <details>
-          <summary className={summaryBtn}>
-            <Shuffle className="h-3.5 w-3.5" strokeWidth={1.75} />
-            随机一个
-          </summary>
-          <div className="mt-3">
-            <RandomDiscovery autoLoad={false} />
-          </div>
-        </details>
         <details>
           <summary className={summaryBtn}>
             <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.75} />

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 type DimKey = "rating" | "favorite" | "view" | "comment"
-type ScopeKey = "all" | "year" | "3y"
+type ScopeKey = "month" | "3m" | "6m"
 
 const DIMS: { key: DimKey; label: string }[] = [
   { key: "rating", label: "评分" },
@@ -23,25 +23,32 @@ const DIMS: { key: DimKey; label: string }[] = [
 ]
 
 const SCOPES: { key: ScopeKey; label: string }[] = [
-  { key: "all", label: "全部" },
-  { key: "year", label: "本年" },
-  { key: "3y", label: "近三年" },
+  { key: "month", label: "本月" },
+  { key: "3m", label: "近三月" },
+  { key: "6m", label: "近半年" },
 ]
 
 const VALID_DIMS: DimKey[] = ["rating", "favorite", "view", "comment"]
-const VALID_SCOPES: ScopeKey[] = ["all", "year", "3y"]
+const VALID_SCOPES: ScopeKey[] = ["month", "3m", "6m"]
 
-/** 时间范围起点（null 表示不限） */
-function scopeFromDate(scope: ScopeKey): Date | null {
-  if (scope === "all") return null
-  const y = new Date().getFullYear()
-  return scope === "year" ? new Date(y, 0, 1) : new Date(y - 2, 0, 1)
+/** 时间范围起点（按相对窗口计算，最大不超过近半年） */
+function scopeFromDate(scope: ScopeKey): Date {
+  const now = new Date()
+  if (scope === "month") return new Date(now.getFullYear(), now.getMonth(), 1)
+  if (scope === "3m") {
+    const d = new Date(now)
+    d.setMonth(d.getMonth() - 3)
+    return d
+  }
+  // 6m（默认）
+  const d = new Date(now)
+  d.setMonth(d.getMonth() - 6)
+  return d
 }
 
-/** 时间范围 → Prisma where 片段（空对象表示不限） */
+/** 时间范围 → Prisma where 片段 */
 function scopeFilter(scope: ScopeKey) {
-  const from = scopeFromDate(scope)
-  return from ? { releaseDate: { gte: from } } : {}
+  return { releaseDate: { gte: scopeFromDate(scope) } }
 }
 
 function fmtNum(n: number): string {
@@ -140,7 +147,7 @@ export default async function RankingPage({
 }) {
   const sp = await searchParams
   const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "rating"
-  const scope: ScopeKey = VALID_SCOPES.includes(sp.scope as ScopeKey) ? (sp.scope as ScopeKey) : "all"
+  const scope: ScopeKey = VALID_SCOPES.includes(sp.scope as ScopeKey) ? (sp.scope as ScopeKey) : "6m"
 
   let items: RankedItem[] = []
   try {
