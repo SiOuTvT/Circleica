@@ -27,7 +27,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
           </div>
 
           {/* 右：关于 + GitHub */}
-          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm sm:justify-end">
+          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm leading-none sm:justify-end">
             {ABOUT_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -49,7 +49,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         </div>
 
         {/* 底栏 */}
-        <div className="mt-3 border-t border-border/60 pt-2 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
+        <div className="mt-3 border-t border-border/60 pt-1.5 text-center text-xs text-muted-foreground/70 sm:mt-6 sm:pt-4">
           © {new Date().getFullYear()} {siteName}. 保留所有权利。
         </div>
       </div>
