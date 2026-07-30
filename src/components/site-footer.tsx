@@ -13,9 +13,9 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
     <footer role="contentinfo" className="border-t border-border bg-muted/30">
       <div className="mx-auto max-w-[1140px] px-4 py-6">
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
-        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
           {/* 左：品牌介绍 */}
-          <div className="max-w-sm space-y-1.5 text-center sm:text-left">
+          <div className="max-w-sm space-y-1.5 text-left">
             <span className="font-heading text-base font-bold leading-none text-primary">{siteName}</span>
             <p className="text-sm text-muted-foreground">
               视觉小说资源档案库，收录制作组、创作者与精选合集。
@@ -24,7 +24,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
           </div>
 
           {/* 右：关于 + GitHub */}
-          <nav aria-label="关于" className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm sm:justify-end">
+          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm sm:justify-end">
             {ABOUT_LINKS.map((link) => (
               <Link
                 key={link.href}
