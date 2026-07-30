@@ -126,15 +126,15 @@ export function ArchiveHero({
   // 浏览页：放大图标 + 三层文字 + 搜索（统一视觉基因）
   return (
     <header className={cn("flex flex-col gap-4", className)}>
-      <div className="flex items-center gap-5">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center text-primary sm:h-16 sm:w-16">
-          <Icon className="h-9 w-9 sm:h-10 sm:w-10" strokeWidth={2} aria-hidden />
+      <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary sm:h-12 sm:w-12">
+          <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0">
           {eyebrow && (
             <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
           )}
-          <h1 className="break-words font-heading text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+          <h1 className="break-words font-heading text-2xl font-bold leading-tight text-foreground sm:text-3xl">
             {title}
           </h1>
         </div>
