@@ -79,8 +79,8 @@ export function ArchiveHero({
   className,
 }: ArchiveHeroProps) {
   const shape: "rect" | "circle" = variant === "person" ? "circle" : "rect"
-  const initial = fallbackInitial || title
   const isTag = variant === "tag"
+  const initial = isTag ? "#" : fallbackInitial || title
   return (
     <header
       className={cn(
@@ -89,12 +89,7 @@ export function ArchiveHero({
         className,
       )}
     >
-      {!isTag && <HeroCover cover={cover} initial={initial} shape={shape} />}
-      {isTag && (
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-muted/60 ring-1 ring-border/60">
-          <span className="font-heading text-xl font-semibold text-primary/40">#</span>
-        </div>
-      )}
+      <HeroCover cover={cover} initial={initial} shape={shape} />
       <div className="min-w-0 flex-1">
         {eyebrow && (
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
