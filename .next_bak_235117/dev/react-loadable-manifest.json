@@ -1,0 +1,38 @@
+{
+  "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\web-socket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts": {
+    "id": "..\\node_modules\\next\\dist\\client\\dev\\hot-reloader\\app\\web-socket.js -> @vercel/turbopack-ecmascript-runtime/browser/dev/hmr-client/hmr-client.ts",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js"
+    ]
+  },
+  "components\\layout-wrapper.tsx -> @/components/email-verification-banner": {
+    "id": "components\\layout-wrapper.tsx -> @/components/email-verification-banner",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_email-verification-banner_tsx.js"
+    ]
+  },
+  "components\\layout-wrapper.tsx -> @/components/forum-sidebar": {
+    "id": "components\\layout-wrapper.tsx -> @/components/forum-sidebar",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_forum-sidebar_tsx.js"
+    ]
+  },
+  "components\\layout-wrapper.tsx -> @/components/music-player": {
+    "id": "components\\layout-wrapper.tsx -> @/components/music-player",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_music-player_tsx.js"
+    ]
+  },
+  "components\\layout-wrapper.tsx -> @/components/nav-sidebar": {
+    "id": "components\\layout-wrapper.tsx -> @/components/nav-sidebar",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_nav-sidebar_tsx.js"
+    ]
+  },
+  "components\\random-discover-btns.tsx -> @/lib/vndb-client": {
+    "id": "components\\random-discover-btns.tsx -> @/lib/vndb-client",
+    "files": [
+      "static/chunks/_app-pages-browser_src_lib_vndb-client_ts.js"
+    ]
+  }
+}
