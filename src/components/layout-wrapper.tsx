@@ -2,6 +2,7 @@
 
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
+import { SiteFooter } from "@/components/site-footer"
 import { TopNav } from "@/components/top-nav"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
@@ -147,25 +148,7 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
                 </div>
               </div>
             </div>
-            <footer role="contentinfo" className="border-t border-border bg-muted/30 py-8">
-              <div className="mx-auto max-w-[1140px] px-4">
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-                  {/* 品牌区 */}
-                  <div className="space-y-2">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--clr-blue)]">视觉小说 · 同人 · 资源</p>
-                    <p className="font-[var(--font-heading)] text-lg leading-tight text-foreground">{siteName}</p>
-                    <p className="text-xs text-muted-foreground">完全免费开放的视觉小说档案库</p>
-                    <p className="text-xs text-muted-foreground/70">本站资源均来自互联网，仅供学习交流使用</p>
-                  </div>
-                  {/* 链接区 */}
-                  <nav className="flex flex-col gap-2 sm:items-end">
-                    <a href="/about" className="text-xs text-muted-foreground transition-colors hover:text-[var(--clr-blue)]">关于我们</a>
-                    <a href="/rules" className="text-xs text-muted-foreground transition-colors hover:text-[var(--clr-blue)]">社区规范</a>
-                    <a href="/contact" className="text-xs text-muted-foreground transition-colors hover:text-[var(--clr-blue)]">联系我们</a>
-                  </nav>
-                </div>
-              </div>
-            </footer>
+            <SiteFooter siteName={siteName} />
           </div>
         )}
       </main>
