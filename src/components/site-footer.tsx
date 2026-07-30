@@ -15,8 +15,8 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           {/* 左：品牌介绍 */}
-          <div className="max-w-sm pt-1 text-left sm:pt-0">
-            <span className="font-heading text-base font-bold leading-none text-primary">{siteName}</span>
+          <div className="max-w-sm text-left">
+            <span className="font-heading text-base font-bold text-primary">{siteName}</span>
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">
               <p className="text-sm text-muted-foreground">
@@ -27,7 +27,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
           </div>
 
           {/* 右：关于 + GitHub */}
-          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm leading-none sm:justify-end">
+          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm sm:justify-end">
             {ABOUT_LINKS.map((link) => (
               <Link
                 key={link.href}
