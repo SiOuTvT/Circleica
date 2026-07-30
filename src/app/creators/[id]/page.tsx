@@ -1,6 +1,7 @@
 import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
+import { BreadcrumbSetter, BreadcrumbParentSetter } from "@/components/breadcrumb-setter"
 import { CreatorDetailClient } from "./creator-detail-client"
 
 // 缓存创作者页面 1 小时（VNDB 数据变化不频繁）
@@ -128,5 +129,11 @@ export default async function CreatorPage({ params }: { params: Promise<{ id: st
 
   if (!creator) notFound()
 
-  return <CreatorDetailClient creator={creator} />
+  return (
+    <>
+      <BreadcrumbSetter segment={id} label={creator.name} />
+      <BreadcrumbParentSetter crumbs={[{ label: "创作者图鉴", href: "/creators" }]} />
+      <CreatorDetailClient creator={creator} />
+    </>
+  )
 }

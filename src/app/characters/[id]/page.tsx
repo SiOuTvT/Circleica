@@ -2,6 +2,7 @@ import { CharacterDetailClient } from "@/components/character-detail-client"
 import { logger } from "@/lib/logger"
 import { vndbClient } from "@/lib/vndb"
 import { notFound } from "next/navigation"
+import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 
 // 缓存角色页面 1 小时（VNDB 数据变化不频繁）
 export const revalidate = 3600
@@ -40,5 +41,10 @@ export default async function CharacterPage({ params }: { params: Promise<{ id: 
 
   if (!character) notFound()
 
-  return <CharacterDetailClient character={character} vndbId={id} />
+  return (
+    <>
+      <BreadcrumbSetter segment={id} label={character.name} />
+      <CharacterDetailClient character={character} vndbId={id} />
+    </>
+  )
 }

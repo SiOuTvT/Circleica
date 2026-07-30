@@ -8,7 +8,7 @@ import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
 import { ForYou } from "@/components/discover/for-you"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
-import type { GameCardData } from "@/components/game-card"
+import { GameCard, type GameCardData } from "@/components/game-card"
 
 export const metadata: Metadata = {
   title: "发现",
