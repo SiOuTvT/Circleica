@@ -25,6 +25,7 @@ export const revalidate = 120
 
 interface CuratedCollectionData {
   id: string
+  slug: string | null
   name: string
   games: { game: { id: string; serialId: number; title: string; coverImage: string | null } }[]
   _count: { games: number }
@@ -122,7 +123,7 @@ function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
             </p>
           </div>
           <Link
-            href={`/collections/${collection.id}`}
+            href={collection.slug ? `/credits/collection/${encodeURIComponent(collection.slug)}` : `/collections/${collection.id}`}
             className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
           >
             查看精选合集
