@@ -70,14 +70,22 @@ export default async function CuratedCollectionsPage({
   // 空态：保留页头与品牌语言，不渲染列表
   if (total === 0) {
     return (
-      <ArchiveShell entity="collection" density={density} state="empty">
-        <ArchiveHero
-          variant="series"
-          eyebrow="collections"
-          title="精选合集"
-          lede="编辑挑选的同人游戏合集"
-          search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
-        />
+      <ArchiveShell
+        entity="collection"
+        density={density}
+        state="empty"
+        // 页头必须走 header 槽（与下方常态分支一致）：作为 children 传入会落进不同的
+        // 容器层级，space-y 间距计算随之改变，导致空态/非空态之间页头位置跳动。
+        header={
+          <ArchiveHero
+            variant="series"
+            eyebrow="collections"
+            title="精选合集"
+            lede="编辑挑选的同人游戏合集"
+            search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
+          />
+        }
+      >
         <ArchivePlaceholder state="empty" entity="collection" message="暂无精选合集" />
       </ArchiveShell>
     )

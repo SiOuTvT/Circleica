@@ -100,21 +100,32 @@ export async function getRateLimit(key: string, config: RateLimitConfig): Promis
 }
 
 /**
- * 获取客户端 IP 地址
- * 注意：x-forwarded-for 在无反向代理时可被客户端伪造。
- * 生产环境应确保有反向代理（nginx/Cloudflare）设置此头。
- * 仅用于速率限制等临时场景，不用于永久存储。
+ * 获取客户端 IP 地址（用于限流键，不作永久存储）
+ *
+ * 安全前提：**这些头全部由客户端可写**，只有在反向代理会强制覆写它们时才可信。
+ * 部署要求：nginx / Traefik / Cloudflare 必须先 reset 再写入 `x-forwarded-for` 等头，
+ * 否则攻击者可自填任意 IP，使登录(5/min)、注册(3/h) 等限流键失效、暴力破解防护被绕过。
+ *
+ * 关于 `cf-connecting-ip`：该头仅在 Cloudflare 回源链路上才由 CF 强制写入。
+ * 若站点并未挂在 Cloudflare 后面，它就是一个纯粹由客户端伪造、却又优先级最高的头 ——
+ * 攻击者只要带上它即可绕开全部限流。故改为**显式开关**，默认不信任。
+ * 部署在 Cloudflare 后面时，设置环境变量 `TRUST_CF_CONNECTING_IP=1` 启用。
  */
 export function getClientIP(req: Request | Headers): string {
   const get = (k: string) => (req instanceof Headers ? req.get(k) : req.headers.get(k))
-  // 优先使用可信代理写入的权威客户端 IP 头
-  const cf = get("cf-connecting-ip")
-  if (cf) return cf.trim()
+
+  if (process.env.TRUST_CF_CONNECTING_IP === "1") {
+    const cf = get("cf-connecting-ip")
+    if (cf) return cf.trim()
+  }
+
   const realIP = get("x-real-ip")
   if (realIP) return realIP.trim()
+
   const forwarded = get("x-forwarded-for")
   if (forwarded) {
-    // X-Forwarded-For: client, proxy1, proxy2 …… 最左为客户端可伪造，最右为可信代理追加的真实客户端 IP
+    // X-Forwarded-For: client, proxy1, proxy2 …… 最左可由客户端伪造；
+    // 最右一段是紧邻的可信代理追加的、它实际看到的对端地址，故取最右。
     const segments = forwarded.split(",").map((s) => s.trim()).filter(Boolean)
     return segments[segments.length - 1] ?? "unknown"
   }

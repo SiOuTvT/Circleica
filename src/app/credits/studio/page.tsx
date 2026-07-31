@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import { getMakers } from "@/lib/makers"
-import { computeDensity } from "@/components/archive/density"
+import { countMakers } from "@/lib/makers"
+import { computeDensity, computeArchiveState } from "@/components/archive/density"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { StudioArchiveClient } from "@/components/archive/studio-archive-client"
@@ -24,14 +24,16 @@ export default async function StudioArchivePage({
   const sort = sortRaw === "count" ? "count" : "name"
   const query = q?.trim() || ""
 
+  // 服务端只需要总数（页头文案 + 密度/档位推导），列表数据由 client 组件按 q/sort 拉取。
+  // 这里用轻量 count 而非 getMakers 全量聚合，避免同一份重查询在服务端白跑一遍。
   let total = 0
   try {
-    const res = await getMakers({ search: query, sort, pageSize: 1000 })
-    total = res.total
+    total = await countMakers({ search: query })
   } catch {
-    // 数据库不可用：返回 0，绝注入假数据
+    // 数据库不可用：返回 0，绝不注入假数据
   }
   const density = computeDensity(total)
+  const state = computeArchiveState(total)
 
   return (
     <StudioArchiveClient
@@ -39,6 +41,7 @@ export default async function StudioArchivePage({
       sort={sort}
       total={total}
       density={density}
+      state={state}
       header={
         <ArchiveHero
           variant="org"
