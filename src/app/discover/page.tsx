@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -38,9 +39,27 @@ interface DiscoveryData {
   recent: GameCardData[]
 }
 
+/**
+ * 发现页数据：四个板块**各自独立降级**。
+ *
+ * 此前四个查询共用一个 Promise.all + 整体 catch，任意一个失败就整页返回 null。
+ * 尤其年份聚合走的是 $queryRaw —— 它在数据库不可达时的行为是**抛错**
+ * （与 model 方法返回空结果不同），于是一条非关键的可视化查询即可打空整个发现页，
+ * 再叠加 `revalidate = 120` 把空页固化两分钟。
+ *
+ * 改为 allSettled 后：某块查询失败只会让该板块缺席，其余板块照常展示。
+ */
 async function getDiscoveryData(): Promise<DiscoveryData | null> {
+  const settle = <T,>(r: PromiseSettledResult<T>, fallback: T, label: string): T => {
+    if (r.status === "fulfilled") return r.value
+    logger.db.warn(`[discover] ${label} 查询失败，该板块降级为空`, {
+      error: r.reason instanceof Error ? r.reason.message : String(r.reason),
+    })
+    return fallback
+  }
+
   try {
-    const [collections, years, popular, recent] = await Promise.all([
+    const [collectionsR, yearsR, popularR, recentR] = await Promise.allSettled([
       prisma.curatedCollection.findMany({
         where: { published: true },
         orderBy: { sortOrder: "asc" },
@@ -75,6 +94,16 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         select: GAME_CARD_SELECT,
       }),
     ])
+
+    const collections = settle(collectionsR, [] as CuratedCollectionData[], "精选合集")
+    const years = settle(yearsR, [] as { year: number; count: number }[], "发行年份聚合")
+    const popular = settle(popularR, [], "热门作品")
+    const recent = settle(recentR, [], "最近上新")
+
+    // 四块全空 = 数据库整体不可用，交给上层渲染空态（绝不注入假数据）
+    if (collections.length === 0 && years.length === 0 && popular.length === 0 && recent.length === 0) {
+      return null
+    }
 
     return {
       collections,

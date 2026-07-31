@@ -36,8 +36,8 @@ const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
  * 详情页（传 cover）由 HeroCover（独立 client 子组件）渲染实体真封面。
  *
  * 浏览页（不传 cover）：
- *  - 左：放大的主题色矢量图标（text-primary，无灰底框），高度与右侧「英文副标题 + 主标题」两行文字对齐
- *  - 右两层：英文副标题（顶部）→ 衬线大字主标题（中部，显著放大）
+ *  - 左：主题色矢量图标（text-primary，无灰底框），高度与右侧「英文副标题 + 主标题」两行文字对齐
+ *  - 右两层：英文副标题（顶部）→ 衬线主标题（text-xl sm:text-2xl，**小于**详情页的 text-2xl sm:text-3xl）
  *  - 搜索框 / 筛选区紧随介绍文案下方
  */
 export function ArchiveHero({
@@ -89,7 +89,9 @@ export function ArchiveHero({
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-fit shrink-0 items-center justify-center rounded-none bg-transparent text-primary shadow-none ring-0 sm:h-12">
+        {/* 图标为纯矢量、无容器装饰：早期的 rounded-none / bg-transparent / shadow-none / ring-0
+            与 sm:h-12（同值重复）均为去掉灰底框后残留的空声明，已清理 */}
+        <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
           <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0">

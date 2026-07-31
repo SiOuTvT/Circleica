@@ -14,7 +14,8 @@ export default function TagsLoading() {
       </div>
       <div className="h-4 w-64 max-w-prose rounded bg-muted/60" />
       <div className="h-10 w-full max-w-md rounded-xl bg-muted/40" />
-      <ArchivePlaceholder state="loading" entity="tag" loadingCount={24} loadingVariant="tag" />
+      {/* density 与外层 ArchiveShell 声明保持一致，避免骨架自身的栅格与容器令牌错位 */}
+      <ArchivePlaceholder state="loading" entity="tag" loadingCount={24} loadingDensity="standard" loadingVariant="tag" />
     </ArchiveShell>
   )
 }

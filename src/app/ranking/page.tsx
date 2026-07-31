@@ -134,10 +134,14 @@ async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
   }))
 }
 
+// 奖章配色：名次是核心信息，前景/背景对比度需满足 WCAG AA（4.5:1）。
+// 金 amber-400(#fbbf24) 配白字仅约 1.65:1，故改用 amber-950(#451a03) ≈ 9.2:1；
+// 银 slate-300 + slate-800 ≈ 9:1、铜 orange-700 + 白字 ≈ 5.1:1，均已达标。
+// 三者均为固定色（不随主题切换），深浅色模式表现一致。
 const MEDALS = [
-  { border: "ring-amber-400/70", bg: "bg-amber-400", fg: "text-white", label: "bg-amber-400 text-white" },
-  { border: "ring-slate-300/70", bg: "bg-slate-300", fg: "text-slate-800", label: "bg-slate-300 text-slate-800" },
-  { border: "ring-orange-600/60", bg: "bg-orange-700", fg: "text-white", label: "bg-orange-700 text-white" },
+  { border: "ring-amber-400/70", bg: "bg-amber-400", fg: "text-amber-950" },
+  { border: "ring-slate-300/70", bg: "bg-slate-300", fg: "text-slate-800" },
+  { border: "ring-orange-600/60", bg: "bg-orange-700", fg: "text-white" },
 ]
 
 export default async function RankingPage({
@@ -251,7 +255,7 @@ export default async function RankingPage({
                     key={item.card.id}
                     className="flex items-center gap-4 rounded-xl px-3 py-2.5 transition-colors hover:bg-muted/50"
                   >
-                    <span className="w-8 shrink-0 text-center text-sm font-bold tabular-nums text-muted-foreground/40">
+                    <span className="w-8 shrink-0 text-center text-sm font-bold tabular-nums text-muted-foreground/70">
                       {String(rank).padStart(2, "0")}
                     </span>
                     <div className="min-w-0 flex-1">

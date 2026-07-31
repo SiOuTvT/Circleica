@@ -2,6 +2,7 @@ import Link from "next/link"
 import { LayoutGrid, User, BookOpen, Inbox, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SkeletonGrid } from "./skeleton-grid"
+import type { ArchiveDensity } from "./density"
 
 export type PlaceholderState = "loading" | "empty" | "error"
 export type ArchiveEntity = "studio" | "creator" | "collection" | "game" | "tag"
@@ -14,6 +15,12 @@ interface ArchivePlaceholderProps {
   retryHref?: string
   loadingCount?: number
   loadingVariant?: "studio" | "creator" | "collection" | "tag"
+  /**
+   * 骨架屏栅格密度，必须与页面 computeDensity 的结果一致。
+   * 不传则回落 standard —— 当页面实际是 compact/dense 时，
+   * 加载完成前后列数会突变造成布局跳动（CLS），违背骨架屏"防跳动"的初衷。
+   */
+  loadingDensity?: ArchiveDensity
   className?: string
 }
 
@@ -38,10 +45,18 @@ export function ArchivePlaceholder({
   retryHref,
   loadingCount,
   loadingVariant,
+  loadingDensity,
   className,
 }: ArchivePlaceholderProps) {
   if (state === "loading") {
-    return <SkeletonGrid count={loadingCount ?? 6} variant={loadingVariant ?? "studio"} className={className} />
+    return (
+      <SkeletonGrid
+        count={loadingCount ?? 6}
+        density={loadingDensity ?? "standard"}
+        variant={loadingVariant ?? "studio"}
+        className={className}
+      />
+    )
   }
 
   const label = ENTITY_LABELS[entity]
@@ -50,15 +65,15 @@ export function ArchivePlaceholder({
     const Icon = entity === "creator" ? User : entity === "collection" ? BookOpen : entity === "game" ? Inbox : LayoutGrid
     return (
       <div className={cn("flex flex-col items-center gap-3 py-20 text-center", className)}>
-        <Icon className="h-12 w-12 text-muted-foreground/20" strokeWidth={1} />
+        <Icon className="h-12 w-12 text-muted-foreground/20" strokeWidth={1} aria-hidden />
         <p className="text-sm text-muted-foreground">{message ?? `暂无收录的${label}`}</p>
       </div>
     )
   }
 
   return (
-    <div className={cn("flex flex-col items-center gap-3 py-20 text-center", className)}>
-      <AlertTriangle className="h-12 w-12 text-warning/40" strokeWidth={1} />
+    <div role="alert" className={cn("flex flex-col items-center gap-3 py-20 text-center", className)}>
+      <AlertTriangle className="h-12 w-12 text-warning/40" strokeWidth={1} aria-hidden />
       <p className="text-sm text-muted-foreground">{message ?? "加载失败，请稍后重试"}</p>
       {retryHref && (
         <Link

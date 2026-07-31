@@ -525,16 +525,12 @@ main > * {
     @apply outline-none;
   }
 
-  /* 焦点样式 - 键盘用户可见 */
-  a:focus-visible,
-  button:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  [tabindex]:focus-visible {
-    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
-    outline: none;
-  }
+  /* 焦点样式统一定义在下方未分层的 `*:focus-visible` 规则中（搜索「焦点环」）。
+   *
+   * 此处原有一条 `ring-2 ring-primary ring-offset-2` 规则，但 CSS 级联中
+   * **未分层样式恒优先于任何 @layer**（与特异性无关），而 Tailwind 的 ring-* 由
+   * box-shadow 实现，会被那条规则的 `box-shadow: none` 直接清零 —— 即该规则从未生效。
+   * 保留它会让人误以为焦点环规范是 ring-primary，故删除，避免设计体系与实际渲染不符。 */
 
   body {
     @apply bg-background text-foreground;
@@ -938,18 +934,34 @@ main > * {
   display: none;
 }
 
-/* ── 焦点环 - 简洁聚焦指示 ── */
+/* ── 焦点环 - 简洁聚焦指示 ──
+ *
+ * 可达性基线：WCAG 2.4.7（焦点可见）+ 1.4.11（非文本对比 ≥ 3:1）。
+ *
+ * 原实现用 0.4 alpha 稀释主题色，实测对比度：亮色 1.43:1、暗色 2.02:1，全模式不达标
+ * （亮色尤其严重 —— 浅 teal 铺在 #fafafa 上几乎融为一体，键盘用户看不清焦点在哪）。
+ *
+ * 现方案分两层，且刻意**不改动 --theme-r/g/b 本身**：
+ *   1) outline 改用主题实色（去掉 alpha 稀释）→ 暗色即可达约 7.2:1；
+ *   2) 亮色下主题色天然偏浅（实色也仅约 2.65:1），再叠一圈中性反差外圈补足。
+ *      外圈取 --foreground 而非主题色，因此与后台自定义主题色解耦 ——
+ *      无论用户把主题色设成多浅的颜色，焦点位置始终可辨识。
+ *
+ * 不采用「把亮色的 --theme-r/g/b 调深」的做法：该变量为 ::selection 等共用，
+ * 且会被 theme-colors.ts 按用户设置动态覆盖，硬编码深色值只在默认主题下有效。
+ */
 *:focus-visible {
-  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
+  outline: 2px solid var(--theme-color);
   outline-offset: 2px;
   box-shadow: none;
   border-radius: inherit;
 }
 
 .light *:focus-visible {
-  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
+  outline: 2px solid var(--theme-color);
   outline-offset: 2px;
-  box-shadow: none;
+  /* 中性反差外圈：亮色背景下约 3.8:1，独立于主题色保证达标 */
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--foreground) 55%, transparent);
 }
 
 /* ── 全局选区颜色 - 品牌色 ── */
