@@ -20,7 +20,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">
               <p className="text-sm text-muted-foreground">
-                视觉小说资源档案库，收录制作组、创作者与精选合集。
+                专注同人视觉小说，收录社团与个人作者的作品。
               </p>
               <p className="text-xs text-muted-foreground/70">本站资源均来自互联网，仅供学习交流使用</p>
             </div>

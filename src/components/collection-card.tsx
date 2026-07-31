@@ -8,6 +8,7 @@ export interface CollectionCardCover {
 
 export function CollectionCard({
   id,
+  slug,
   name,
   description,
   count,
@@ -15,6 +16,8 @@ export function CollectionCard({
   featured,
 }: {
   id: string
+  /** Archive 稳定可读路由（CJK 直出）；缺省回退旧路由由 308 接住 */
+  slug?: string | null
   name: string
   description: string | null
   count: number
@@ -22,12 +25,16 @@ export function CollectionCard({
   featured?: boolean
 }) {
   const primary = covers[0]
+  // slug 优先走新路由 /credits/collection/[slug]；缺失时回退旧 /collections/[id]（旧路由 308 再接）
+  const href = slug
+    ? `/credits/collection/${encodeURIComponent(slug)}`
+    : `/collections/${id}`
 
   // featured 模式：首条合集放大型封面卡
   if (featured && primary?.cover) {
     return (
       <Link
-        href={`/collections/${id}`}
+        href={href}
         className="group relative block overflow-hidden rounded-2xl bg-muted transition-all duration-500 hover:shadow-lg"
         style={{ aspectRatio: "21 / 9" }}
       >
@@ -62,7 +69,7 @@ export function CollectionCard({
   // 普通模式：封面在左，信息在右
   return (
     <Link
-      href={`/collections/${id}`}
+      href={href}
       className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm"
     >
       {/* 封面区 */}

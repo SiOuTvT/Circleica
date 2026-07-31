@@ -28,9 +28,11 @@ export interface CreatorCardData {
   roles: string[]
 }
 
-/** Collection（精选合集）卡片数据契约。路由按 id，非 slug。M3 实装视觉变体。 */
+/** Collection（精选合集）卡片数据契约。M3 起路由按 slug（CJK 直出），缺省回退旧 /collections/[id]。 */
 export interface CollectionCardData {
   id: string
+  /** Archive 稳定可读路由（CJK 直出） */
+  slug: string | null
   name: string
   gameCount: number
   coverImage?: string | null
@@ -166,8 +168,11 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
 }
 
 function CollectionCard({ data }: { data: CollectionCardData }) {
+  const href = data.slug
+    ? `/credits/collection/${encodeURIComponent(data.slug)}`
+    : `/collections/${data.id}`
   return (
-    <CardShell href={`/collections/${data.id}`}>
+    <CardShell href={href}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">

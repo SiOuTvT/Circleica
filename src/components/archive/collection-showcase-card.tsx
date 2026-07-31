@@ -31,18 +31,23 @@ const TILE_OFFSET = 44
  */
 export function CollectionShowcaseCard({
   id,
+  slug,
   name,
   gameCount,
   covers,
   description,
-}: CollectionShowcaseData) {
+}: CollectionShowcaseData & { slug?: string | null }) {
   const shown = covers.slice(0, 4)
+  // slug 优先走新路由 /credits/collection/[slug]；缺失时回退旧 /collections/[id]（旧路由 308 再接）
+  const href = slug
+    ? `/credits/collection/${encodeURIComponent(slug)}`
+    : `/collections/${id}`
   const tiles = shown.length > 0 ? shown : [null]
   const stackWidth = (tiles.length - 1) * TILE_OFFSET + TILE_W
 
   return (
     <Link
-      href={`/collections/${id}`}
+      href={href}
       className="group flex h-[180px] items-stretch overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
     >
       {/* 左：封面横向错位叠放，体现精选集合感 */}
