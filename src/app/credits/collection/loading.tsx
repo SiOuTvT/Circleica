@@ -1,19 +1,15 @@
 import { ArchiveShell } from "@/components/archive/archive-shell"
-import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
+import { ArchiveHeroSkeleton } from "@/components/archive/archive-hero-skeleton"
 
+/**
+ * 精选合集加载骨架。
+ * 页头走四页共用的 ArchiveHeroSkeleton；列表部分是本页独有的
+ * 「featured 大卡 + 三列网格」结构，与 page.tsx 的真实布局对应，故保留手写。
+ */
 export default function CuratedCollectionsLoading() {
   return (
     <ArchiveShell entity="collection" density="standard">
-      {/* 骨架页头：尺寸与真实 ArchiveHero 一致（h-12 w-12 sm:h-14 sm:w-14） */}
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 shrink-0 animate-pulse rounded-xl bg-muted/60 sm:h-14 sm:w-14" />
-        <div className="space-y-2">
-          <div className="h-3 w-20 rounded bg-muted/60" />
-          <div className="h-7 w-28 rounded bg-muted/60" />
-        </div>
-      </div>
-      <div className="h-4 w-64 max-w-prose rounded bg-muted/60" />
-      <div className="h-10 w-full max-w-md rounded-xl bg-muted/40" />
+      <ArchiveHeroSkeleton />
       {/* 合集卡片骨架 */}
       <div className="space-y-4">
         <div className="h-64 w-full animate-pulse rounded-2xl bg-muted/40 sm:h-72" />

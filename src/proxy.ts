@@ -55,6 +55,65 @@ function buildCSP(nonce: string): string {
   return `default-src 'self'; ${scriptSrc}; ${_cspTemplate.rest}`
 }
 
+// ── 需要登录才能访问的页面（精确匹配，不做前缀通配）──
+// 用 Set 精确匹配而非 startsWith("/profile")：/profile/[id] 是公开的用户主页，
+// 前缀通配会把它一起挡掉。
+//
+// 这些页面自己也有 redirect("/login")，但页面内的 redirect() 在文档请求（首屏直达）下
+// 会被流式 RSC 渲染吞掉：layout 外壳已以 200 发出，页面再抛 NEXT_REDIRECT 已无法回改状态码，
+// Next 降级为 body 内嵌的 RSC 软跳转（客户端 JS 完成跳转）—— 用户会先白等约一秒再被弹走。
+// （此降级源于流式 RSC 渲染本身，与是否有 loading.tsx / 根级 Suspense 无关，已实测证伪该旧假设。）
+// 在 proxy 层先拦一道拿到的是真正的 307，还省掉一次注定要丢弃的页面渲染。
+// 页面内的 redirect 一律保留，作为纵深防御。
+const AUTH_REQUIRED_PATHS = new Set(["/profile", "/profile/edit", "/notifications"])
+
+// getToken 的 salt 默认取 cookieName（见 @auth/core/jwt 的 `salt = cookieName`），
+// 而签发侧用的是 auth.ts 里 cookies.sessionToken.name。
+// 两处必须同名，否则解密静默失败、getToken 恒返回 null，
+// 表现为已登录用户被反复弹回登录页。改 cookie 名时务必同步这里。
+const SESSION_COOKIE_NAME = "circleica-session-token"
+
+function readToken(req: NextRequest) {
+  return getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: SESSION_COOKIE_NAME })
+}
+
+/** 安全头。抽成函数是为了让重定向响应也能带上 —— 早前只有放行分支设置，
+ *  守卫拦截产生的 3xx 一律裸奔，HSTS 也跟着丢，等于给降级攻击留了个窗口。 */
+function withSecurityHeaders(res: NextResponse, req: NextRequest): NextResponse {
+  res.headers.set("X-Content-Type-Options", "nosniff")
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
+  res.headers.set("X-Frame-Options", "DENY")
+  // X-XSS-Protection 已废弃，设为 0 禁用（依赖 CSP 防护）
+  res.headers.set("X-XSS-Protection", "0")
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+  res.headers.set("Cross-Origin-Opener-Policy", "same-origin")
+  res.headers.set("Cross-Origin-Resource-Policy", "same-origin")
+
+  // HSTS：真实协议需从 x-forwarded-proto 判断（H2）。
+  // 反向代理（TLS 终止）后 req.nextUrl.protocol 常为 http，若仅据此判断，
+  // 会导致 HTTPS 站点永远不发送 HSTS，失去传输安全保护。
+  const proto =
+    req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    req.nextUrl.protocol.replace(":", "")
+  if (proto === "https") {
+    res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+  } else {
+    res.headers.delete("Strict-Transport-Security")
+  }
+  return res
+}
+
+/** 统一的重定向出口，保证 3xx 也带全套安全头。 */
+function redirectTo(req: NextRequest, url: URL): NextResponse {
+  return withSecurityHeaders(NextResponse.redirect(url), req)
+}
+
+function loginUrlFor(req: NextRequest, callbackPath: string): URL {
+  const url = new URL("/login", req.url)
+  url.searchParams.set("callbackUrl", callbackPath)
+  return url
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -85,48 +144,30 @@ export async function proxy(req: NextRequest) {
     res = NextResponse.next()
   }
 
+  // 登录守卫：未登录访问受保护页面，直接 307 到登录页
+  // 尾部斜杠归一后再比对，避免 /notifications/ 绕过（Next 默认 trailingSlash=false，
+  // 但反向代理改写路径时仍可能带上）。
+  const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname
+  if (AUTH_REQUIRED_PATHS.has(normalizedPath)) {
+    const token = await readToken(req)
+    if (!token) return redirectTo(req, loginUrlFor(req, normalizedPath))
+  }
+
   // 管理后台路由保护
   if (pathname.startsWith("/admin")) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, cookieName: "circleica-session-token" })
-    if (!token) {
-      const loginUrl = new URL("/login", req.url)
-      loginUrl.searchParams.set("callbackUrl", pathname)
-      return NextResponse.redirect(loginUrl)
-    }
+    const token = await readToken(req)
+    if (!token) return redirectTo(req, loginUrlFor(req, pathname))
     const role = token.role as string
     if (!hasRole(role as UserRole, "ADMIN")) {
-      return NextResponse.redirect(new URL("/", req.url))
+      return redirectTo(req, new URL("/", req.url))
     }
     // SUPER_ADMIN 专属路由受保护：ADMIN 不可访问（路由清单由 lib/permissions 统一维护）
     if (role === "ADMIN" && isSuperAdminRoute(pathname)) {
-      return NextResponse.redirect(new URL("/admin", req.url))
+      return redirectTo(req, new URL("/admin", req.url))
     }
   }
 
-  // 安全头
-  res.headers.set("X-Content-Type-Options", "nosniff")
-  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
-  res.headers.set("X-Frame-Options", "DENY")
-  // X-XSS-Protection 已废弃，设为 0 禁用（依赖 CSP 防护）
-  res.headers.set("X-XSS-Protection", "0")
-  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
-  res.headers.set("Cross-Origin-Opener-Policy", "same-origin")
-  res.headers.set("Cross-Origin-Resource-Policy", "same-origin")
-
-  // HSTS：真实协议需从 x-forwarded-proto 判断（H2）。
-  // 反向代理（TLS 终止）后 req.nextUrl.protocol 常为 http，若仅据此判断，
-  // 会导致 HTTPS 站点永远不发送 HSTS，失去传输安全保护。
-  const proto =
-    req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
-    req.nextUrl.protocol.replace(":", "")
-  const isSecure = proto === "https"
-  if (isSecure) {
-    res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-  } else {
-    res.headers.delete("Strict-Transport-Security")
-  }
-
-  return res
+  return withSecurityHeaders(res, req)
 }
 
 export const config = {

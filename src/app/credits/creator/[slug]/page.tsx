@@ -68,10 +68,6 @@ export default async function CreatorDetailPage({
   const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
 
   const totalFav = detail.games.reduce((s, g) => s + (g.favoriteCount || 0), 0)
-  const years = detail.games
-    .map((g) => (g.releaseDate ? new Date(g.releaseDate).getFullYear() : null))
-    .filter((y): y is number => y !== null)
-  const yearSpan = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : "—"
 
   const density = computeDensity(detail.gameCount)
 

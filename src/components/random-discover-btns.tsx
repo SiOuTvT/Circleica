@@ -14,19 +14,16 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   async function go() {
     setLoading(true)
     try {
-      // 动态导入 VNDB 客户端，避免首屏加载
-      const { getRandomStaff, getRandomProducer } = await import("@/lib/vndb-client")
-      let creator: { vndbId?: string; id?: string; name?: string } | null = await getRandomStaff()
-      if (!creator) {
-        creator = await getRandomProducer()
-      }
+      // 只在本站创作者里随机：M2 之后详情页统一是 /credits/creator/[slug]，
+      // 旧实现取 VNDB 数字 id 跳 /creators/[id]，主站没有落地页，必然 404。
+      const { ok, data } = await apiFetchSafe<{ slug?: string }>("/api/creators/random", { cache: "no-store" })
 
-      if (creator && creator.vndbId) {
-        router.push(`/creators/${creator.vndbId}`)
+      if (ok && data?.slug) {
+        router.push(`/credits/creator/${encodeURIComponent(data.slug)}`)
       } else {
-        // 都没获取到，随机跳到一个游戏
-        const { ok, data: data2 } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
-        if (ok && data2?.id) {
+        // 本站暂无创作者：降级跳一部随机游戏
+        const { ok: ok2, data: data2 } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
+        if (ok2 && data2?.id) {
           router.push(`/games/${data2.serialId ?? data2.id}`)
         } else {
           toast.error("暂无可推荐的内容")
@@ -62,6 +59,7 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
 
   async function go() {
     setLoading(true)
+    let navigated = false
     try {
       // 直接在浏览器端调用 VNDB API
       const { getRandomCharacter } = await import("@/lib/vndb-client")
@@ -69,20 +67,23 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
 
       if (character && character.vndbId) {
         router.push(`/characters/${character.vndbId}`)
-      } else {
-        // VNDB 不可达时与「随机创作者」同构降级：跳一部随机游戏，而不是只报错
-        const { ok, data } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
-        if (ok && data?.id) {
-          router.push(`/games/${data.serialId ?? data.id}`)
-        } else {
-          toast.error("暂无可推荐的内容")
-        }
+        navigated = true
+        return
       }
     } catch (error) {
-      logger.game.error("Random character error", error)
-      toast.error(`随机角色获取失败: ${error instanceof Error ? error.message : '未知错误'}`)
+      // VNDB 境外直连超时/不可达：记录后走与「随机创作者」同构的降级，
+      // 而不是只弹错误——避免角色入口在 VNDB 抖动时彻底失效（review-#14）
+      logger.game.error("Random character VNDB 失败，降级为随机游戏", error)
     } finally {
-      setLoading(false)
+      if (!navigated) setLoading(false)
+    }
+
+    // 到达这里：VNDB 无结果 / 超时 / 不可达 → 与「随机创作者」同构降级跳一部随机游戏
+    const { ok, data } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
+    if (ok && data?.id) {
+      router.push(`/games/${data.serialId ?? data.id}`)
+    } else {
+      toast.error("暂无可推荐的内容")
     }
   }
 

@@ -1,5 +1,19 @@
 import { GameCardSkeleton } from "@/components/game-card"
 
+// ─────────────────────────────────────────────────────────────
+// 首页专属骨架。必须放在 (home) 路由组内，不能放回 src/app/loading.tsx。
+//
+// 理由：这份骨架画的是首页布局（品牌卡 + 公告位 + 游戏网格）。若放在根级 src/app/loading.tsx，
+// 它会成为**全站**的 Suspense fallback —— 所有没有自己 loading.tsx 的页面在加载时都会闪一下
+// 首页骨架，包括 Archive 列表页，直接违反四页同源。收进 (home) 后作用域被限定在首页自身。
+//
+// （注：迁移前一度怀疑根级 loading 的 Suspense 边界会把页面内 redirect() 降级成软跳转，
+//  但实测移除根级 loading 后 /register 等页面内 redirect 仍为 200 软跳转 —— 该降级源于流式
+//  RSC 渲染本身，与根级 loading 无关。静态跳转已改由 next.config.ts redirects 与 proxy.ts 处理。）
+//
+// (home) 是路由组，不参与 URL 段，首页仍是 "/"，但骨架的作用域被收敛到首页自身。
+// ─────────────────────────────────────────────────────────────
+
 export default function HomeLoading() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pt-4">

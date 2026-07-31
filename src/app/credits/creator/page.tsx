@@ -29,7 +29,7 @@ export default async function CreatorArchivePage({
     const res = await getCreators({ search: query, sort, pageSize: 1000 })
     total = res.total
   } catch {
-    // 数据库不可用：返回 0，绝注入假数据
+    // 数据库不可用：返回 0，绝不注入假数据
   }
   const density = computeDensity(total)
   const state = computeArchiveState(total)

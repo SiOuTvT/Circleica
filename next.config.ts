@@ -47,6 +47,33 @@ const nextConfig: NextConfig = {
   // 部署在代理后需确保代理正确覆写这些头，否则仍可能错误判断客户端协议，导致 NextAuth/CSRF/重定向异常（H3）。
   // 注意不要自行伪造 X-Forwarded-Proto 响应头，真实协议应由代理填写。
 
+  // 静态路由跳转（M2/M3/M4 图鉴迁移的旧路由别名 + /register 便捷别名）。
+  //
+  // ⚠️ 必须放在配置层，不能写成页面里的 redirect()/permanentRedirect()：
+  // 本应用页面内的 redirect() 在「文档请求（首屏直达）」下会被 Next 以流式 RSC 渲染，
+  // layout 外壳已开始以 200 发出，页面再抛 NEXT_REDIRECT 时状态码无法回改，
+  // 于是降级成 body 内嵌的 RSC 软跳转指令（`NEXT_REDIRECT;replace;/x;3xx;`，实测 HTTP 层是 200，
+  // 由客户端 JS 完成跳转）。这对站点迁移别名是致命的：搜索引擎/无 JS 爬虫拿到的是 200，
+  // 永久跳转信号丢失，权重合并慢且不确定。
+  // （注：此降级与根级 loading.tsx 无关——移除根级 loading 后 /register 仍为 200 软跳转，
+  //  已实测证伪「Suspense 边界是根因」的旧假设；真正原因是流式 RSC 渲染本身。）
+  // 配置层 redirects 在文件系统路由之前生效，产出的是真正的 HTTP 308/307，无 JS 依赖。
+  //
+  // 只有「静态可枚举」的跳转能进这里；依赖 DB 查 slug 的旧详情路由
+  // （/creators/[id] /collections/[id] /tags/[id]）与 serialId 归一（/games/[id] /user/[id]）
+  // 无法静态化，保留页面内 redirect（软跳转对同资源归一/遗留详情可接受）；
+  // 鉴权跳转（/profile /profile/edit /notifications）走 proxy.ts 守卫产出真 307。
+  async redirects() {
+    return [
+      { source: "/credits", destination: "/credits/studio", permanent: true },
+      { source: "/creators", destination: "/credits/creator", permanent: true },
+      { source: "/collections", destination: "/credits/collection", permanent: true },
+      { source: "/tags", destination: "/credits/tag", permanent: true },
+      // /register 是登录页注册 tab 的便捷别名，静态且无条件 → 配置层给真 307
+      { source: "/register", destination: "/login?tab=register", permanent: false },
+    ]
+  },
+
   compress: true,
   typescript: { ignoreBuildErrors: false },
   reactStrictMode: true,

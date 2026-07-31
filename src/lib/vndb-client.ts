@@ -35,7 +35,7 @@ async function vndbPost(endpoint: string, data: Record<string, unknown>, retries
           "User-Agent": "Circleica/1.0",
         },
         body: JSON.stringify(data),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(8000),
       })
 
       if (!response.ok) {

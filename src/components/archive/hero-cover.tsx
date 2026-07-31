@@ -25,7 +25,11 @@ export function HeroCover({
   if (cover && !errored) {
     return (
       <div className={cn("relative overflow-hidden bg-muted ring-1 ring-border/60", shapeCls)}>
-        {/* 详情页实体真封面，由调用方提供 coverImage */}
+        {/* 详情页实体真封面，由调用方提供 coverImage。
+            这里刻意用原生 <img> 而非 next/image：封面来源是 R2 / VNDB 等外部域，
+            走 next/image 需要为每个可能的图源维护 remotePatterns，任一遗漏就是整块封面裂图；
+            而这里已有 onError → 首字母渐变占位的降级，比优化收益更重要。 */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={cover}
           alt=""

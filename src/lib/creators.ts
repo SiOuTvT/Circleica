@@ -281,6 +281,35 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
  * 旧路由兼容：按 id（旧 URL 参数）查当前 slug，供 /creators/[id] redirect 使用。
  * 只返回主站 Creator 的 slug，不拉副站/VNDB/Random 数据。
  */
+/**
+ * 随机取一位「本站已发布作品」的创作者 slug（供首页/侧栏「随机创作者」跳转）。
+ *
+ * 资源站边界：只在本站 Creator 表内随机，不走 VNDB。
+ * M2 之后 Creator 详情统一是 /credits/creator/[slug]，VNDB 数字 id 在主站没有落地页，
+ * 用它跳转必然 404 —— 所以随机入口必须从本站库取 slug。
+ * 无数据时返回 null，由调用方降级（绝不注入假数据）。
+ */
+export async function getRandomCreatorSlug(): Promise<string | null> {
+  try {
+    const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
+    const where = { ...publishedGameFilter, slug: { not: null } }
+    const total = await prisma.creator.count({ where })
+    if (total === 0) return null
+
+    const skip = Math.floor(Math.random() * total)
+    const picked = await prisma.creator.findFirst({
+      where,
+      select: { slug: true },
+      orderBy: { id: "asc" },
+      skip,
+    })
+    return picked?.slug ?? null
+  } catch (e) {
+    logger.db.error("[getRandomCreatorSlug] 查询失败", e)
+    return null
+  }
+}
+
 export async function getCreatorSlugById(id: string): Promise<string | null> {
   if (!id) return null
   try {
