@@ -109,7 +109,13 @@ export function CreatorArchiveClient({
         </p>
       )}
       {loading ? (
-        <ArchivePlaceholder state="loading" entity="creator" loadingCount={density === "dense" ? 12 : 8} loadingVariant="creator" />
+        <ArchivePlaceholder
+          state="loading"
+          entity="creator"
+          loadingCount={density === "dense" ? 12 : 8}
+          loadingDensity={density}
+          loadingVariant="creator"
+        />
       ) : error ? (
         <ArchivePlaceholder state="error" entity="creator" retryHref="/credits/creator" />
       ) : creators.length === 0 ? (

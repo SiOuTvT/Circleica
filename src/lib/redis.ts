@@ -19,6 +19,27 @@ interface CacheClient {
   incr(key: string, ttlSeconds?: number): Promise<number>
 }
 
+// ============ 故障可见性 ============
+
+/**
+ * 缓存故障告警（限流 60s 一次）。
+ *
+ * Redis 不可用时每个请求都会走 catch，直接打日志会瞬间刷屏；
+ * 但完全静默又会让"缓存全失效、全部回源打库"变成看不见的故障。
+ */
+let lastCacheWarnAt = 0
+const CACHE_WARN_INTERVAL_MS = 60_000
+
+function warnCacheFailureThrottled(op: string, key: string, err: unknown): void {
+  const now = Date.now()
+  if (now - lastCacheWarnAt < CACHE_WARN_INTERVAL_MS) return
+  lastCacheWarnAt = now
+  logger.db.warn(`[cache] Redis ${op} 失败，已回退直连数据源（60s 内不再重复告警）`, {
+    key,
+    error: err instanceof Error ? err.message : String(err),
+  })
+}
+
 // ============ Redis 实现 ============
 
 class RedisCache implements CacheClient {
@@ -52,7 +73,10 @@ class RedisCache implements CacheClient {
       return typeof result.result === "string"
         ? JSON.parse(result.result)
         : result.result
-    } catch {
+    } catch (err) {
+      // 读缓存失败会静默退化为 100% 回源打库，不留痕迹就无从察觉 Redis 已挂，
+      // 这里降噪记录（限流避免刷屏），保持"失败即回源"的行为不变。
+      warnCacheFailureThrottled("get", key, err)
       return null
     }
   }
@@ -273,8 +297,30 @@ export const isRedisAvailable = (): boolean => !!getRedisConfig()
 // ============ 便捷缓存工具 ============
 
 /**
+ * 进程内在途请求表（single-flight）。
+ *
+ * 解决缓存击穿：key 过期的瞬间，所有并发请求都会判定未命中并同时打到数据库。
+ * 同一 key 只放行一次 fetcher，其余调用复用同一个 Promise。
+ */
+const inFlight = new Map<string, Promise<unknown>>()
+
+/**
+ * 给 TTL 施加 ±10% 抖动，避免缓存雪崩。
+ *
+ * 固定 TTL 会让「部署/重启后同一时刻批量生成的 key」在未来同一时刻集体过期，
+ * 形成周期性的同步回源尖峰。
+ */
+function jitterTtl(ttlSeconds: number): number {
+  if (ttlSeconds <= 0) return ttlSeconds
+  const delta = ttlSeconds * 0.1
+  return Math.max(1, Math.round(ttlSeconds + (Math.random() * 2 - 1) * delta))
+}
+
+/**
  * 带缓存的数据获取
  * 如果缓存中有数据则直接返回，否则执行 fetcher 并缓存结果
+ *
+ * 特性：命中判定区分「未缓存」与「缓存了 null」；同 key 并发只回源一次；TTL 带抖动。
  */
 export async function cached<T>(
   key: string,
@@ -284,9 +330,22 @@ export async function cached<T>(
   const cachedValue = await cache.get<T>(key)
   if (cachedValue !== null) return cachedValue
 
-  const value = await fetcher()
-  await cache.set(key, value, ttlSeconds)
-  return value
+  // 已有同 key 在途：复用，避免并发穿透
+  const pending = inFlight.get(key)
+  if (pending) return pending as Promise<T>
+
+  const task = (async () => {
+    try {
+      const value = await fetcher()
+      await cache.set(key, value, jitterTtl(ttlSeconds))
+      return value
+    } finally {
+      inFlight.delete(key)
+    }
+  })()
+
+  inFlight.set(key, task)
+  return task
 }
 
 /**

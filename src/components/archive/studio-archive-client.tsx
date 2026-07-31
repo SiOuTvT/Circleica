@@ -108,7 +108,12 @@ export function StudioArchiveClient({
         </p>
       )}
       {loading ? (
-        <ArchivePlaceholder state="loading" entity="studio" loadingCount={density === "dense" ? 12 : 8} />
+        <ArchivePlaceholder
+          state="loading"
+          entity="studio"
+          loadingCount={density === "dense" ? 12 : 8}
+          loadingDensity={density}
+        />
       ) : error ? (
         <ArchivePlaceholder state="error" entity="studio" retryHref="/credits/studio" />
       ) : makers.length === 0 ? (

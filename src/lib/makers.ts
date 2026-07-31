@@ -69,6 +69,41 @@ const DETAIL_PAGE_SIZE = 24
  * 列表：直接查 Studio 表（带已发布作品数 + 代表封面 + 关联创作者数）。
  * 一次 $queryRaw 聚合关联创作者，避免 N+1。
  */
+/** 列表检索条件（getMakers / countMakers 共用，避免两处口径漂移） */
+function buildMakerWhere(search: string) {
+  const q = search.trim()
+  return q
+    ? {
+        OR: [
+          { displayName: { contains: q, mode: "insensitive" as const } },
+          { aliases: { contains: q } },
+        ],
+      }
+    : {}
+}
+
+/**
+ * 列表计数：只统计「有已发布作品」的制作组数量（与 getMakers 的 visible 口径一致）。
+ *
+ * 存在意义：列表页服务端只需要一个总数用于页头文案与密度推导，
+ * 若为此调用 getMakers 会连带执行 findMany + _count + 封面取数 + $queryRaw 创作者聚合，
+ * 且结果被整份丢弃 —— 在弱服务器上是可观的无谓开销。
+ */
+export async function countMakers(opts: { search?: string } = {}): Promise<number> {
+  try {
+    return await prisma.studio.count({
+      where: {
+        ...buildMakerWhere(opts.search ?? ""),
+        // 与列表一致：仅计入拥有已发布作品者（同时也是主/副站数据的隔离边界）
+        games: { some: { game: { isPublished: true } } },
+      },
+    })
+  } catch (e) {
+    logger.db.error("[countMakers] 统计制作组失败", e)
+    return 0
+  }
+}
+
 export async function getMakers(opts: {
   search?: string
   sort?: "count" | "name"
@@ -80,14 +115,7 @@ export async function getMakers(opts: {
   const size = Math.min(Math.max(pageSize ?? LIST_PAGE_SIZE, 1), 1000)
   const pageNum = Math.max(1, page)
 
-  const where = search.trim()
-    ? {
-        OR: [
-          { displayName: { contains: search.trim(), mode: "insensitive" as const } },
-          { aliases: { contains: search.trim() } },
-        ],
-      }
-    : {}
+  const where = buildMakerWhere(search)
 
   let studios: Array<{
     id: string

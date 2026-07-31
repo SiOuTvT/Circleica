@@ -64,17 +64,75 @@ if (process.env.NODE_ENV !== "production") {
  * - 探测失败（沙箱/离线）→ 所有「读查询」返回空结果（findMany→[]、count→0、
  *   findUnique→null 等），页面照常渲染自身已有的空状态/骨架框，不再整页报错，
  *   也绝不注入假数据。写操作在离线回退下会被阻止并抛错，避免静默假成功。
+ *
+ * 【自愈】离线标志带时间窗，不再是一次抖动就永久降级：
+ * 进入离线后仅在 OFFLINE_RETRY_MS 窗口内直接返回空结果；窗口过期即"半开"，
+ * 放行一次真实查询探活——成功则自动恢复在线，失败则重新计时。
+ * 生产环境下首次转为离线会上报 Sentry，避免"整站空数据但无人知情"。
  */
-const enabled = { mock: false }
+const OFFLINE_RETRY_MS = 30_000
+
+/** 离线起始时间戳；0 表示在线 */
+const offlineState = { since: 0 }
 let probePromise: Promise<boolean> | null = null
 
+function markOffline(context: string, message: string): void {
+  const wasOnline = offlineState.since === 0
+  offlineState.since = Date.now()
+  // 让下一次半开探活重新发起探测，而不是复用已 resolve 的旧结果
+  probePromise = null
+
+  if (!wasOnline) return
+
+  logger.db.error(
+    `[db-offline] 数据库连接失败，进入离线降级（${OFFLINE_RETRY_MS / 1000}s 后自动半开重试）`,
+    `${context}: ${message}`,
+  )
+
+  // 生产环境显式告警：离线降级返回的是空结果而非报错，页面看起来"正常"，
+  // 不上报就会变成静默故障。
+  if (process.env.NODE_ENV === "production") {
+    import("@sentry/nextjs")
+      .then((Sentry) => {
+        Sentry.captureMessage(`[db-offline] ${context}: ${message}`, "error")
+      })
+      .catch(() => {})
+  }
+}
+
+function markOnline(): void {
+  if (offlineState.since === 0) return
+  offlineState.since = 0
+  logger.db.info("[db-online] 数据库连接已恢复，离线降级解除")
+}
+
+/**
+ * 是否处于离线降级窗口内。
+ * 副作用：窗口过期时自动转入"半开"（清除离线标志），让下一次调用真实探活。
+ */
+function isOfflineWindowActive(): boolean {
+  if (offlineState.since === 0) return false
+  if (Date.now() - offlineState.since >= OFFLINE_RETRY_MS) {
+    offlineState.since = 0
+    probePromise = null
+    logger.db.warn("[db-halfopen] 离线窗口到期，放行一次探活请求")
+    return false
+  }
+  return true
+}
+
 function ensureProbe(): Promise<boolean> {
+  if (isOfflineWindowActive()) return Promise.resolve(false)
+
   if (!probePromise) {
     probePromise = realPrisma
       .$queryRaw`SELECT 1`
-      .then(() => true)
-      .catch(() => {
-        enabled.mock = true
+      .then(() => {
+        markOnline()
+        return true
+      })
+      .catch((err: unknown) => {
+        markOffline("probe", (err as Error)?.message ?? "unknown")
         return false
       })
   }
@@ -112,19 +170,25 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
       if (typeof fn !== "function") return fn
       return (...callArgs: unknown[]) =>
         ensureProbe().then((ok) => {
-          if (ok && !enabled.mock && !forceMock) {
-            return (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs).catch((err: unknown) => {
-              // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
-              const msg = (err as Error)?.message ?? ""
-              const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
-              if (isConnectionError) {
-                enabled.mock = true
-                logger.db.warn(`[db-offline] ${modelName}.${String(methodName)} 连接失败，回退空结果`, { error: msg })
-              } else {
-                logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
-              }
-              return getEmptyResult(modelName, String(methodName))
-            })
+          if (ok && !isOfflineWindowActive() && !forceMock) {
+            return (fn as (...a: unknown[]) => Promise<unknown>)
+              .call(target, ...callArgs)
+              .then((result: unknown) => {
+                // 真实查询成功即视为链路健康（覆盖半开探活成功的场景）
+                markOnline()
+                return result
+              })
+              .catch((err: unknown) => {
+                // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
+                const msg = (err as Error)?.message ?? ""
+                const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
+                if (isConnectionError) {
+                  markOffline(`${modelName}.${String(methodName)}`, msg)
+                } else {
+                  logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+                }
+                return getEmptyResult(modelName, String(methodName))
+              })
           }
           return getEmptyResult(modelName, String(methodName))
         })
@@ -148,10 +212,14 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
         const isWrite = prop === "$executeRaw"
         return (...callArgs: unknown[]) =>
           ensureProbe().then((ok) => {
-            if (ok && !enabled.mock && !forceMock) {
+            if (ok && !isOfflineWindowActive() && !forceMock) {
               return (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs).catch((err: unknown) => {
+                // 连接级失败要登记离线，否则 $queryRaw 抛错后状态机无感知
+                const msg = (err as Error)?.message ?? ""
+                if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)) {
+                  markOffline(String(prop), msg)
+                }
                 // 写操作失败暴露原始错误；读查询失败抛异常让上层感知
-                if (isWrite) throw err
                 throw err
               })
             }
@@ -164,7 +232,7 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
         const fn = (target as Record<string, unknown>)[prop] as (...a: unknown[]) => unknown
         return (arg: unknown) =>
           ensureProbe().then((ok) => {
-            if (ok && !enabled.mock && !forceMock) {
+            if (ok && !isOfflineWindowActive() && !forceMock) {
               try {
                 return fn.call(target, arg)
               } catch (err) {

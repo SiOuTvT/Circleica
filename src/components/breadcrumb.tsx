@@ -203,7 +203,7 @@ export function Breadcrumb() {
             <span key={`${crumb.href}-${i}`} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
               <CrumbSeparator />
               {isLast ? (
-                <span className="inline-flex items-center text-foreground font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
+                <span aria-current="page" className="inline-flex items-center text-foreground font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
                   {crumb.label}
                 </span>
               ) : (
@@ -278,7 +278,7 @@ export function Breadcrumb() {
           <span key={`${crumb.href}-${i}`} className="inline-flex shrink-0 items-center gap-1.5 leading-none">
             <CrumbSeparator />
             {isLast ? (
-              <span className="inline-flex items-center text-foreground font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
+              <span aria-current="page" className="inline-flex items-center text-foreground font-medium leading-none max-w-[180px] sm:max-w-[280px] truncate" title={crumb.label}>
                 {crumb.label}
               </span>
             ) : (

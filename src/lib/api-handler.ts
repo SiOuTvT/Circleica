@@ -92,7 +92,16 @@ function errorResponse(message: string, status: number, code?: string, details?:
 
 // ── Handler 包装 ────────────────────
 
-type RouteHandler = (req: NextRequest, ctx?: { params: Promise<Record<string, string>> }) => Promise<NextResponse>
+/**
+ * Route handler 签名。
+ *
+ * ⚠️ `ctx` 必须是**必填**参数：Next.js 会为每个 route 生成类型校验文件
+ * （`.next/types/app/**\/route.ts`），要求第二个参数可赋给 `RouteContext`。
+ * 写成 `ctx?:` 会让推导出的类型带上 `| undefined`，构建期直接 TS2344 失败。
+ * 运行时 Next 总会传入 context 对象（无动态段时 params 解析为 {}），
+ * 处理器内部按需声明 `(req)` 或 `(req, ctx)` 都不受影响。
+ */
+type RouteHandler = (req: NextRequest, ctx: { params: Promise<Record<string, string>> }) => Promise<NextResponse>
 
 /**
  * 包装 API Route Handler，统一处理异常

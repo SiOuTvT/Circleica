@@ -22,12 +22,6 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
       }
 
       if (creator && creator.vndbId) {
-        // 保存到服务器数据库（不阻塞导航）
-        apiFetchSafe("/api/creators/save", {
-          method: "POST",
-          body: creator,
-        }).catch(() => {})
-
         router.push(`/creators/${creator.vndbId}`)
       } else {
         // 都没获取到，随机跳到一个游戏
@@ -74,15 +68,15 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
       const character = await getRandomCharacter()
 
       if (character && character.vndbId) {
-        // 保存到服务器数据库（不阻塞导航）
-        apiFetchSafe("/api/characters/save", {
-          method: "POST",
-          body: character,
-        }).catch(() => {})
-
         router.push(`/characters/${character.vndbId}`)
       } else {
-        toast.error("暂无角色数据，请稍后重试")
+        // VNDB 不可达时与「随机创作者」同构降级：跳一部随机游戏，而不是只报错
+        const { ok, data } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
+        if (ok && data?.id) {
+          router.push(`/games/${data.serialId ?? data.id}`)
+        } else {
+          toast.error("暂无可推荐的内容")
+        }
       }
     } catch (error) {
       logger.game.error("Random character error", error)

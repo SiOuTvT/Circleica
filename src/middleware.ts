@@ -49,7 +49,33 @@ function buildCSP(nonce: string): string {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const res = NextResponse.next()
+
+  // CSP 仅对页面路由启用，不对 API 设置（避免干扰 NextAuth）
+  const isPageRoute = !pathname.startsWith("/api/")
+
+  // ── CSP nonce 传递 ──
+  // 关键：nonce 必须写进「请求头」，不能只写响应头。
+  // Server Component 里的 headers() 读到的是**请求头**，仅 res.headers.set("x-nonce")
+  // 会让组件侧恒为 undefined —— 生产 CSP 含 'nonce-xxx' 'strict-dynamic' 时，
+  // 无 nonce 的内联脚本（主题脚本 + Next 自身的 hydration 脚本）会被浏览器全部拦截，
+  // 表现为线上白屏 / 主题闪烁；而 dev 分支用 'unsafe-inline'，本地完全复现不出来。
+  //
+  // 同时把 CSP 也写入请求头：Next 会据此为自己注入的 script 标签补 nonce 属性，
+  // 缺这一步则框架脚本在 strict-dynamic 下依然被拦。
+  let res: NextResponse
+
+  if (isPageRoute) {
+    const nonce = generateNonce()
+    const csp = buildCSP(nonce)
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set("x-nonce", nonce)
+    requestHeaders.set("Content-Security-Policy", csp)
+    res = NextResponse.next({ request: { headers: requestHeaders } })
+    res.headers.set("Content-Security-Policy", csp)
+    res.headers.set("x-nonce", nonce)
+  } else {
+    res = NextResponse.next()
+  }
 
   // 管理后台路由保护
   if (pathname.startsWith("/admin")) {
@@ -90,14 +116,6 @@ export async function middleware(req: NextRequest) {
     res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
   } else {
     res.headers.delete("Strict-Transport-Security")
-  }
-
-  // CSP 仅对页面路由设置，不对 API 设置（避免干扰 NextAuth）
-  if (!pathname.startsWith("/api/")) {
-    const nonce = generateNonce()
-    res.headers.set("Content-Security-Policy", buildCSP(nonce))
-    // 传递 nonce 给 Next.js，使其在内联脚本上自动添加 nonce 属性
-    res.headers.set("x-nonce", nonce)
   }
 
   return res
