@@ -219,6 +219,8 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
         setToastMarks(data.data?.marks ?? 0)
         setTotalMarks(prev => prev + (data.data?.marks ?? 0))
         try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: toShanghaiDate(new Date()), checkedIn: true })) } catch {}
+        // 刷新当前路由的服务端组件（首页「今日签到」等统计缓存已在服务端失效）→ 无需手动硬刷新
+        router.refresh()
       })
       .catch((err) => {
         // 409 冲突（已签到）：视为已签到

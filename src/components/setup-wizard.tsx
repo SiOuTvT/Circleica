@@ -404,7 +404,7 @@ export function SetupWizard() {
                           {THEME_PRESETS.map(p => {
                             const selected = form.themeColor === p.color
                             return (
-                              <button key={p.name} type="button" onClick={() => selectThemeColor(p.color)} className={cn("group relative flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl transition-all", selected ? "bg-[var(--theme-color)]/10 ring-2 ring-[var(--theme-color)]/40 scale-[1.02]" : ("hover:bg-muted"))} title={`${p.label} — ${p.desc}`}>
+                              <button key={p.name} type="button" onClick={() => selectThemeColor(p.color)} className={cn("group relative flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl transition-all", selected ? "bg-[var(--theme-color)]/10 ring-2 ring-[var(--theme-color)]/40 scale-[1.02]" : ("hover:bg-muted"))} title={p.label}>
                                 <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all", selected && "ring-2 ring-white/30 scale-110")} style={{ backgroundColor: p.color }}>
                                   {selected && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold drop-shadow">✓</span>}
                                 </div>

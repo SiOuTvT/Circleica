@@ -13,6 +13,7 @@ import { sanitizeUrl } from "@/lib/sanitize"
 import { deleteByUrl } from "@/lib/storage"
 import { validatePassword } from "@/lib/password"
 import { checkAchievements } from "@/lib/achievements"
+import { invalidateHomeStats } from "@/lib/home-stats"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
@@ -472,6 +473,8 @@ export const checkinService = {
     }
     // 触发成就检查
     checkAchievements(userId).catch(() => {})
+    // 「今日签到」是全站统计，签到后失效首页缓存，配合客户端 router.refresh() 即时反映
+    await invalidateHomeStats()
     return { marks, streak }
   },
 

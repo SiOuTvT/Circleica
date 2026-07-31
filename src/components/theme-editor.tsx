@@ -138,7 +138,6 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
                         )}
                       </div>
                       <span className="text-xs font-medium text-foreground">{preset.label}</span>
-                      <span className="text-micro text-muted-foreground">{preset.desc}</span>
                     </button>
                   )
                 })}

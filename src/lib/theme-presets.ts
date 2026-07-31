@@ -1,6 +1,6 @@
 /** 主题色预设
  *
- *  精选 8 套，每套携带完整颜色 Token。
+ *  精选 10 套，每套携带完整颜色 Token。
  *  结构色（surface / card / border / muted / text）由 globals.css 统一管理，不随预设变化。
  *  只有强调色系（primary / accent / ring / glow）每套不同。
  *
@@ -25,7 +25,6 @@ export interface ThemePreset {
   label: string
   /** 预设主色（向后兼容 + 预览） */
   color: string
-  desc: string
   tokens: ThemeTokens
 }
 
@@ -34,7 +33,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "mint",
     label: "薄荷",
     color: "#5FA8A0",
-    desc: "安静 · 档案馆",
     tokens: {
       primary: "#5FA8A0",
       hover:   "#69ada6",
@@ -48,7 +46,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "dusk",
     label: "黛蓝",
     color: "#6E8CA8",
-    desc: "沉静 · 夜色",
     tokens: {
       primary: "#6E8CA8",
       hover:   "#7793ad",
@@ -62,7 +59,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "haze",
     label: "雾紫",
     color: "#8E84B0",
-    desc: "朦胧 · 梦境",
     tokens: {
       primary: "#8E84B0",
       hover:   "#958bb5",
@@ -76,7 +72,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "ochre",
     label: "赭石",
     color: "#C0905E",
-    desc: "温润 · 旧纸",
     tokens: {
       primary: "#C0905E",
       hover:   "#c49768",
@@ -90,7 +85,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "pine",
     label: "松绿",
     color: "#5C8A7E",
-    desc: "幽深 · 林间",
     tokens: {
       primary: "#5C8A7E",
       hover:   "#669186",
@@ -104,7 +98,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "rose",
     label: "灰玫",
     color: "#B08696",
-    desc: "温柔 · 余晖",
     tokens: {
       primary: "#B08696",
       hover:   "#b58d9c",
@@ -118,7 +111,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "slate",
     label: "烟灰蓝",
     color: "#8898A8",
-    desc: "沉稳 · 内敛",
     tokens: {
       primary: "#8898A8",
       hover:   "#8f9ead",
@@ -132,7 +124,6 @@ export const THEME_PRESETS: ThemePreset[] = [
     name: "amber",
     label: "暖琥珀",
     color: "#D4A050",
-    desc: "温暖 · 复古",
     tokens: {
       primary: "#D4A050",
       hover:   "#d7a65b",
@@ -140,6 +131,32 @@ export const THEME_PRESETS: ThemePreset[] = [
       accent:  "#e0b86e",
       ring:    "rgba(212,160,80,0.3)",
       glow:    "rgba(212,160,80,0.08)",
+    },
+  },
+  {
+    name: "clay",
+    label: "陶红",
+    color: "#B87A6E",
+    tokens: {
+      primary: "#B87A6E",
+      hover:   "#c08276",
+      active:  "#c6887c",
+      accent:  "#d29286",
+      ring:    "rgba(184,122,110,0.3)",
+      glow:    "rgba(184,122,110,0.08)",
+    },
+  },
+  {
+    name: "indigo",
+    label: "绀青",
+    color: "#505F82",
+    tokens: {
+      primary: "#505F82",
+      hover:   "#5b6a8d",
+      active:  "#657494",
+      accent:  "#7685a6",
+      ring:    "rgba(80,95,130,0.3)",
+      glow:    "rgba(80,95,130,0.08)",
     },
   },
 ]

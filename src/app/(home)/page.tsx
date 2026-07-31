@@ -6,9 +6,9 @@ import { buildGameSearchFilter } from "@/lib/filters"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
-import { cache, cacheKey } from "@/lib/redis"
+import { cache } from "@/lib/redis"
 import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
-import { toShanghaiDate } from "@/lib/date"
+import { homeStatsCacheKey } from "@/lib/home-stats"
 import { Suspense } from "react"
 
 type HomeAnnouncement = {
@@ -117,11 +117,10 @@ export default async function HomePage({
   // 获取站点品牌信息
   const [siteName, siteDesc] = await Promise.all([getSiteName(), getSiteDescription()])
 
-  // 统计数据缓存 key（按日期和 nsfw 状态区分）
+  // 统计数据缓存 key（按日期和 nsfw 状态区分，与写操作侧 invalidateHomeStats 同源）
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const dateStr = toShanghaiDate(today)
-  const statsCacheKey = cacheKey("homepage:stats", dateStr, nsfw ? "1" : "0")
+  const statsCacheKey = homeStatsCacheKey(nsfw)
 
   // 全局去重 Map（模块级单例，跨 HMR 持久化于 globalThis），防止并发请求同时 miss 缓存
   const pendingMap = PENDING_HOLDER.map
