@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getCreators } from "@/lib/creators"
+import { countCreators } from "@/lib/creators"
 import { computeDensity, computeArchiveState } from "@/components/archive/density"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
@@ -26,8 +26,8 @@ export default async function CreatorArchivePage({
 
   let total = 0
   try {
-    const res = await getCreators({ search: query, sort, pageSize: 1000 })
-    total = res.total
+    // 服务端只需要总数（页头文案 + 密度/档位推导），用轻量 count 而非 getCreators 全量聚合
+    total = await countCreators({ search: query })
   } catch {
     // 数据库不可用：返回 0，绝不注入假数据
   }

@@ -108,14 +108,25 @@ export async function getMakers(opts: {
   search?: string
   sort?: "count" | "name"
   page?: number
-  /** 自定义页大小；不传用 LIST_PAGE_SIZE。Archive 列表索引场景传大值取全量。 */
+  /** 自定义页大小；不传用 LIST_PAGE_SIZE。Archive 列表索引场景由客户端分批增量拉取（不再一次取全量）。 */
   pageSize?: number
 }): Promise<MakerListResult> {
   const { search = "", sort = "count", page = 1, pageSize } = opts
   const size = Math.min(Math.max(pageSize ?? LIST_PAGE_SIZE, 1), 1000)
   const pageNum = Math.max(1, page)
 
-  const where = buildMakerWhere(search)
+  // 分页下沉到 SQL：只拉当前页 + 计数，杜绝全表加载后在内存排序切片（大库下每次请求全表扫描是性能黑洞）。
+  // 排序以 SQL 为准（跨页稳定）：count = 已发布作品数降序 + 展示名兜底；name = 展示名升序。
+  // 注：orderBy 的 _count 统计的是关联表全量（未过滤 isPublished），与展示口径的过滤计数存在理论上限差异，
+  // 未发布草稿量极少时影响可忽略，换取 SQL 分页的正确性与稳定性。
+  const where = {
+    ...buildMakerWhere(search),
+    // 与 countMakers 一致：仅计入拥有已发布作品者（主/副站隔离边界）
+    games: { some: { game: { isPublished: true } } },
+  }
+  const orderBy = sort === "name"
+    ? [{ displayName: "asc" as const }]
+    : [{ games: { _count: "desc" as const } }, { displayName: "asc" as const }]
 
   let studios: Array<{
     id: string
@@ -124,20 +135,27 @@ export async function getMakers(opts: {
     slug: string | null
     _count: { games: number }
     games: { game: { coverImage: string | null; favoriteCount: number } }[]
-  }>
+  }> = []
+  let total = 0
   try {
-    studios = await prisma.studio.findMany({
-      where,
-      include: {
-        _count: { select: { games: { where: { game: { isPublished: true } } } } },
-        games: {
-          where: { game: { isPublished: true } },
-          select: { game: { select: { coverImage: true, favoriteCount: true } } },
-          orderBy: { game: { favoriteCount: "desc" } },
-          take: 1,
+    ;[studios, total] = await Promise.all([
+      prisma.studio.findMany({
+        where,
+        orderBy,
+        skip: (pageNum - 1) * size,
+        take: size,
+        include: {
+          _count: { select: { games: { where: { game: { isPublished: true } } } } },
+          games: {
+            where: { game: { isPublished: true } },
+            select: { game: { select: { coverImage: true, favoriteCount: true } } },
+            orderBy: { game: { favoriteCount: "desc" } },
+            take: 1,
+          },
         },
-      },
-    })
+      }),
+      prisma.studio.count({ where }),
+    ])
   } catch (e) {
     logger.db.error("[getMakers] 拉取制作组失败", e)
     return { makers: [], total: 0, totalPages: 1, page: pageNum }
@@ -168,21 +186,8 @@ export async function getMakers(opts: {
     creatorCount: creatorCountByStudio.get(s.id) ?? 0,
   }))
 
-  // 仅展示有已发布作品者
-  const visible = makers.filter((m) => m.gameCount > 0)
-  if (sort === "name") {
-    visible.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"))
-  } else {
-    visible.sort((a, b) => b.gameCount - a.gameCount || a.name.localeCompare(b.name, "zh-Hans-CN"))
-  }
-
-  const total = visible.length
   const totalPages = Math.max(1, Math.ceil(total / size))
-  const safePage = Math.min(pageNum, totalPages)
-  const start = (safePage - 1) * size
-  const paged = visible.slice(start, start + size)
-
-  return { makers: paged, total, totalPages, page: safePage }
+  return { makers, total, totalPages, page: pageNum }
 }
 
 /**

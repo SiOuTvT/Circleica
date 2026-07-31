@@ -31,6 +31,38 @@ export interface CreatorListResult {
 
 export const CREATOR_LIST_PAGE_SIZE = 24
 
+/** 列表检索条件（getCreators / countCreators 共用，避免两处口径漂移） */
+function buildCreatorWhere(search: string) {
+  const q = search.trim()
+  // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
+  return q
+    ? {
+        OR: [
+          { name: { contains: q, mode: "insensitive" as const } },
+          { nameJa: { contains: q, mode: "insensitive" as const } },
+        ],
+        ...publishedGameFilter,
+      }
+    : publishedGameFilter
+}
+
+/**
+ * 列表计数：只统计「关联主站已发布游戏」的创作者数量（与 getCreators 口径一致）。
+ *
+ * 存在意义：列表页服务端只需要一个总数用于页头文案与密度推导，
+ * 若为此调用 getCreators 会连带执行 findMany + _count + 角色取数（大库下 1000 行级），
+ * 且结果被整份丢弃 —— 在弱服务器上是可观的无谓开销。
+ */
+export async function countCreators(opts: { search?: string } = {}): Promise<number> {
+  try {
+    return await prisma.creator.count({ where: buildCreatorWhere(opts.search ?? "") })
+  } catch (e) {
+    logger.db.error("[countCreators] 统计创作者失败", e)
+    return 0
+  }
+}
+
 /**
  * 列表：直接查 Creator 表（带已发布作品数 + 派生角色）。
  * 排序在内存完成（Archive 列表索引场景由客户端取全量后分组）。
@@ -39,24 +71,21 @@ export async function getCreators(opts: {
   search?: string
   sort?: "count" | "name"
   page?: number
-  /** 自定义页大小；不传用 CREATOR_LIST_PAGE_SIZE。Archive 列表索引场景传大值取全量。 */
+  /** 自定义页大小；不传用 CREATOR_LIST_PAGE_SIZE。Archive 列表索引场景由客户端分批增量拉取。 */
   pageSize?: number
 }): Promise<CreatorListResult> {
   const { search = "", sort = "count", page = 1, pageSize } = opts
   const size = Math.min(Math.max(pageSize ?? CREATOR_LIST_PAGE_SIZE, 1), 1000)
   const pageNum = Math.max(1, page)
 
-  // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
-  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
-  const where = search.trim()
-    ? {
-        OR: [
-          { name: { contains: search.trim(), mode: "insensitive" as const } },
-          { nameJa: { contains: search.trim(), mode: "insensitive" as const } },
-        ],
-        ...publishedGameFilter,
-      }
-    : publishedGameFilter
+  const where = buildCreatorWhere(search)
+
+  // 分页下沉到 SQL（只拉当前页 + 计数），排序以 SQL 为准（跨页稳定）：
+  // count = 已发布作品数降序 + 名称兜底；name = 日文名优先（无日文名者按名称排在段尾）。
+  // 注：orderBy 的 _count 统计关联表全量（未过滤 isPublished），与展示口径存在理论差异，未发布草稿极少时影响可忽略。
+  const orderBy = sort === "name"
+    ? [{ nameJa: "asc" as const }, { name: "asc" as const }]
+    : [{ games: { _count: "desc" as const } }, { name: "asc" as const }]
 
   let creators: Array<{
     id: string
@@ -66,19 +95,26 @@ export async function getCreators(opts: {
     slug: string | null
     _count: { games: number }
     games: { role: string }[]
-  }>
+  }> = []
+  let total = 0
   try {
-    creators = await prisma.creator.findMany({
-      where,
-      include: {
-        _count: { select: { games: { where: { game: { isPublished: true } } } } },
-        games: {
-          where: { game: { isPublished: true } },
-          select: { role: true },
-          take: 12,
+    ;[creators, total] = await Promise.all([
+      prisma.creator.findMany({
+        where,
+        orderBy,
+        skip: (pageNum - 1) * size,
+        take: size,
+        include: {
+          _count: { select: { games: { where: { game: { isPublished: true } } } } },
+          games: {
+            where: { game: { isPublished: true } },
+            select: { role: true },
+            take: 12,
+          },
         },
-      },
-    })
+      }),
+      prisma.creator.count({ where }),
+    ])
   } catch (e) {
     logger.db.error("[getCreators] 拉取创作者失败", e)
     return { creators: [], total: 0, totalPages: 1, page: pageNum }
@@ -94,19 +130,8 @@ export async function getCreators(opts: {
     roles: Array.from(new Set(c.games.map((g) => g.role))),
   }))
 
-  if (sort === "name") {
-    summaries.sort((a, b) => (a.nameJa || a.name).localeCompare(b.nameJa || b.name, "ja"))
-  } else {
-    summaries.sort((a, b) => b.gameCount - a.gameCount)
-  }
-
-  const total = summaries.length
   const totalPages = Math.max(1, Math.ceil(total / size))
-  const safePage = Math.min(pageNum, totalPages)
-  const start = (safePage - 1) * size
-  const paged = summaries.slice(start, start + size)
-
-  return { creators: paged, total, totalPages, page: safePage }
+  return { creators: summaries, total, totalPages, page: pageNum }
 }
 
 export interface CreatorGameItem {

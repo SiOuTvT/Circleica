@@ -8,12 +8,14 @@ import { parseApiResponse } from "@/lib/api-handler"
 import { ArchiveShell } from "./archive-shell"
 import { EntityCard } from "./entity-card"
 import { AZIndex } from "./az-index"
+import { ArchiveLoadMore } from "./load-more"
 import { ArchivePlaceholder } from "./archive-placeholder"
 import { groupByFirstChar, DENSITY_GRID } from "./density"
 import type { ArchiveDensity, ArchiveState } from "./density"
 import type { CreatorSummary, CreatorListResult } from "@/lib/creators"
 
-const PAGE_SIZE = 1000
+/** 首屏 + 每批增量加载的条数（分页由服务端 SQL 完成，避免一次全量拉取大库） */
+const PAGE_SIZE = 96
 const ANCHOR_PREFIX = "archive-letter-"
 
 /**
@@ -21,6 +23,7 @@ const ANCHOR_PREFIX = "archive-letter-"
  *
  * 页头(header)由 Server Component 在 page.tsx 渲染后作为 prop 传入，本组件不再渲染 ArchiveHero，
  * 仅负责：基于 q / sort 走 URL 驱动的 fetch、网格渲染、AZIndex、scroll-spy、三态占位。
+ * 列表分批增量加载：首屏一页（96 条）+ 「加载更多」按钮追加，AZIndex 随已加载数据增长。
  */
 export function CreatorArchiveClient({
   q,
@@ -39,20 +42,26 @@ export function CreatorArchiveClient({
 }) {
   const [creators, setCreators] = useState<CreatorSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(false)
   const [activeLetter, setActiveLetter] = useState<string | undefined>(undefined)
   const reqId = useRef(0)
 
-  const fetchAll = useCallback(async () => {
+  const fetchPage = useCallback(async (page: number): Promise<CreatorListResult> => {
+    const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE), page: String(page) })
+    if (q) params.set("search", q)
+    const res = await api.get<{ data: CreatorListResult }>(`/api/creators?${params}`)
+    return parseApiResponse<CreatorListResult>(res)
+  }, [sort, q])
+
+  // 首屏 / q、sort 变化时重置
+  const reset = useCallback(async () => {
     const id = ++reqId.current
     setLoading(true)
     setError(false)
     try {
-      const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE) })
-      if (q) params.set("search", q)
-      const res = await api.get<{ data: CreatorListResult }>(`/api/creators?${params}`)
+      const d = await fetchPage(1)
       if (id !== reqId.current) return
-      const d = parseApiResponse<CreatorListResult>(res)
       setCreators(d.creators || [])
     } catch {
       if (id === reqId.current) {
@@ -62,16 +71,35 @@ export function CreatorArchiveClient({
     } finally {
       if (id === reqId.current) setLoading(false)
     }
-  }, [sort, q])
+  }, [fetchPage])
 
   useEffect(() => {
-    fetchAll()
-  }, [fetchAll])
+    reset()
+  }, [reset])
+
+  // 追加下一页（去重，防止边界重复）
+  const loadMore = useCallback(async () => {
+    if (loadingMore) return
+    setLoadingMore(true)
+    try {
+      const nextPage = Math.floor(creators.length / PAGE_SIZE) + 1
+      const d = await fetchPage(nextPage)
+      setCreators((prev) => {
+        const seen = new Set(prev.map((c) => c.id))
+        const fresh = (d.creators || []).filter((c) => !seen.has(c.id))
+        return fresh.length ? [...prev, ...fresh] : prev
+      })
+    } catch {
+      // 静默失败：控件保持可点击，用户可重试
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [fetchPage, creators.length, loadingMore])
 
   const groupName = (c: CreatorSummary) => c.nameJa || c.name
   const groups = groupByFirstChar(creators, groupName)
   const availableLetters = groups.map((g) => g.key)
-  const truncated = !loading && !error && creators.length > 0 && total > creators.length
+  const hasMore = !loading && !error && creators.length > 0 && total > creators.length
 
   // scroll-spy：高亮当前可见首字分区
   useEffect(() => {
@@ -103,10 +131,14 @@ export function CreatorArchiveClient({
       header={header}
       index={!loading && !error ? <AZIndex available={availableLetters} active={activeLetter} anchorPrefix={ANCHOR_PREFIX} /> : undefined}
     >
-      {truncated && (
-        <p className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          当前展示前 {creators.length} 位创作者（共 {total} 位），完整索引仍在完善。
-        </p>
+      {hasMore && (
+        <ArchiveLoadMore
+          loaded={creators.length}
+          total={total}
+          entity="创作者"
+          loadingMore={loadingMore}
+          onLoadMore={loadMore}
+        />
       )}
       {loading ? (
         <ArchivePlaceholder
