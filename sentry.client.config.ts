@@ -1,7 +1,9 @@
 import * as Sentry from "@sentry/nextjs"
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  // 必须用 NEXT_PUBLIC_ 前缀：Next 只把 NEXT_PUBLIC_* 内联进浏览器 bundle，
+  // 服务端变量（SENTRY_DSN）在客户端求值恒为 undefined，会让 SDK 静默禁用。
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   
   // 仅在生产环境启用
   enabled: process.env.NODE_ENV === "production",

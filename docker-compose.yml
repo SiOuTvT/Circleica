@@ -84,6 +84,13 @@ services:
       args:
         VERSION: ${VERSION:-0.1.0}
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        # NEXT_PUBLIC_* 必须在构建期注入（Next.js 会把它内联进浏览器 bundle），
+        # 运行时再给已经来不及，浏览器侧拿到的会是 undefined。
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        # 以下三个仅用于构建期上传 sourcemap，不进 runner 镜像层。
+        SENTRY_ORG: ${SENTRY_ORG:-}
+        SENTRY_PROJECT: ${SENTRY_PROJECT:-}
+        SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
     container_name: circleica-app
     restart: unless-stopped
     stop_grace_period: 10s
@@ -103,10 +110,13 @@ services:
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
+      # 服务端 / Edge 运行时上报用；客户端用 NEXT_PUBLIC_SENTRY_DSN（构建期已内联，
+      # 这里再给一份是为了 instrumentation.ts 的启用判断能读到统一值）。
       SENTRY_DSN: ${SENTRY_DSN:-}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       SENTRY_ORG: ${SENTRY_ORG:-}
       SENTRY_PROJECT: ${SENTRY_PROJECT:-}
-      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+      # SENTRY_AUTH_TOKEN 只在构建期上传 sourcemap 用，运行时无需持有 → 不注入容器。
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
       UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
       UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
