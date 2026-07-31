@@ -95,7 +95,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
                 {tags.map((tag) => (
                   <Link
                     key={tag.id}
-                    href={`/tags/${tag.id}`}
+                    href={tag.slug ? `/credits/tag/${encodeURIComponent(tag.slug)}` : `/tags/${tag.id}`}
                     className="inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-1"
                     style={{
                       backgroundColor: `${tag.color || tag.group.color}18`,

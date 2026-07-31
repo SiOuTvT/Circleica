@@ -96,6 +96,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
       .map((tag) => ({
         id: tag.id,
         name: tag.name,
+        slug: tag.slug,
         color: tag.color || group.color,
         gameCount: countMap.get(tag.id) ?? 0,
       }))
@@ -124,7 +125,7 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
   const tagIds = tagStats.map(ts => ts.tagId)
   const tags = await prisma.tag.findMany({
     where: { id: { in: tagIds } },
-    select: { id: true, name: true, color: true },
+    select: { id: true, name: true, slug: true, color: true },
   })
 
   const tagMap = new Map(tags.map(t => [t.id, t]))
@@ -136,6 +137,7 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
       return {
         id: tag.id,
         name: tag.name,
+        slug: tag.slug,
         color: tag.color || "#6b7280",
         gameCount: ts._count.tagId,
       }
@@ -200,20 +202,24 @@ function buildTagsByLetter(tagGroups: TagGroupWithTags[]): Record<string, TagWit
  */
 const TAG_GAME_LIMIT = 60
 
-export async function getTagDetail(id: string): Promise<TagDetail | null> {
+/**
+ * 标签详情（按 slug 路由）：标签本身 + 该标签下已发布游戏（全量查询，超安全阈值截断展示）
+ * DB 不可达返回 null（绝不注入假数据）。slug 缺失的存量标签在回填前不可达。
+ */
+export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null> {
   try {
     const tag = await prisma.tag.findUnique({
-      where: { id },
+      where: { slug },
       include: { group: { select: { id: true, name: true, color: true } } },
     })
     if (!tag) return null
 
     const total = await prisma.gameTag.count({
-      where: { tagId: id, game: { isPublished: true } },
+      where: { tagId: tag.id, game: { isPublished: true } },
     })
 
     const rows = await prisma.gameTag.findMany({
-      where: { tagId: id, game: { isPublished: true } },
+      where: { tagId: tag.id, game: { isPublished: true } },
       include: {
         game: {
           select: {
@@ -253,6 +259,7 @@ export async function getTagDetail(id: string): Promise<TagDetail | null> {
     return {
       id: tag.id,
       name: tag.name,
+      slug: tag.slug,
       description: tag.description,
       color: tag.color,
       group: tag.group,
@@ -261,7 +268,7 @@ export async function getTagDetail(id: string): Promise<TagDetail | null> {
       hasMore,
     }
   } catch (error) {
-    logger.db.error("[TagsBrowser] getTagDetail failed", error)
+    logger.db.error("[TagsBrowser] getTagDetailBySlug failed", error)
     return null
   }
 }

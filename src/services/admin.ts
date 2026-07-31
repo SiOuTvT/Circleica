@@ -11,6 +11,7 @@ import fs from "fs/promises"
 import path from "path"
 import { logAudit } from "@/lib/audit-log"
 import { sanitizeUrl } from "@/lib/sanitize"
+import { slugify } from "@/lib/slug"
 import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 
@@ -368,8 +369,18 @@ export const tagService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
+    const name = String(raw.name).trim()
+    // 生成稳定可读 slug（CJK 直出），循环查重追加 -n 直到唯一
+    const baseSlug = slugify(name)
+    let slug = baseSlug
+    let n = 2
+    while (await prisma.tag.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${n}`
+      n++
+    }
     const result = await tagRepo.create({
-      name: String(raw.name).trim(),
+      name,
+      slug,
       description: raw.description ? String(raw.description) : "",
       color: raw.color ? String(raw.color) : "#a78bfa",
       sortOrder: Number(raw.sortOrder) || 0,

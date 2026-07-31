@@ -5,6 +5,7 @@
 export interface TagInfo {
   id: string
   name: string
+  slug: string | null
   color: string
   gameCount: number
 }
@@ -56,6 +57,7 @@ export interface TagGameItem {
 export interface TagDetail {
   id: string
   name: string
+  slug: string | null
   description: string | null
   color: string | null
   group: { id: string; name: string; color: string } | null

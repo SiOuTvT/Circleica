@@ -47,7 +47,7 @@ export function TagCategory({ group }: TagCategoryProps) {
             key={tag.id}
             variant="content"
             color={tag.color}
-            href={`/tags/${tag.id}`}
+            href={tag.slug ? `/credits/tag/${encodeURIComponent(tag.slug)}` : `/tags/${tag.id}`}
             title={`${tag.gameCount} 个游戏`}
           >
             {tag.name}
