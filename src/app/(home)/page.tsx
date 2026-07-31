@@ -6,7 +6,7 @@ import { buildGameSearchFilter } from "@/lib/filters"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
-import { cache } from "@/lib/redis"
+import { cache, cacheKey } from "@/lib/redis"
 import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
 import { homeStatsCacheKey } from "@/lib/home-stats"
 import { Suspense } from "react"
@@ -25,6 +25,9 @@ type HomeAnnouncement = {
 }
 
 type StatsPending = Map<string, Promise<[number, number, number, HomeAnnouncement[]]>>
+/** 游戏网格缓存载荷（mapGameToCard 输出为纯可序列化数据，可进 Redis） */
+type CachedGrid = { games: ReturnType<typeof mapGameToCard>[]; total: number }
+type GridPending = Map<string, Promise<CachedGrid>>
 
 // 全局去重 Map 单例：跨请求防止缓存 miss 时并发重复查询；存于 globalThis 以在 dev HMR 期间持久化。
 // 仅在模块顶层初始化 globalThis（react-hooks/immutability 不允许在组件/钩子内重赋值外部绑定），
@@ -34,6 +37,12 @@ const globalRef = globalThis as Record<string, unknown>
 const PENDING_HOLDER: { map: StatsPending } =
   (globalRef[PENDING_HOLDER_KEY] as { map: StatsPending } | undefined) ?? { map: new Map() }
 if (!globalRef[PENDING_HOLDER_KEY]) globalRef[PENDING_HOLDER_KEY] = PENDING_HOLDER
+
+// 游戏网格单飞去重（与统计分属不同类型载荷，独立持有，避免类型互相污染）
+const GRID_PENDING_KEY = "__circleica_homepage_grid_pending"
+const GRID_PENDING: { map: GridPending } =
+  (globalRef[GRID_PENDING_KEY] as { map: GridPending } | undefined) ?? { map: new Map() }
+if (!globalRef[GRID_PENDING_KEY]) globalRef[GRID_PENDING_KEY] = GRID_PENDING
 
 export const revalidate = 60
 
@@ -59,39 +68,64 @@ async function GameGridServer({ tag, q, nsfw, sort = "newest", view = "grid", pa
   const GAMES_PER_PAGE = 24
   const skip = (page - 1) * GAMES_PER_PAGE
 
-  const [games, total] = await Promise.all([
-    prisma.game.findMany({
-      where,
-      orderBy: ORDER_BY[sort],
-      skip,
-      take: GAMES_PER_PAGE,
-      select: GAME_CARD_SELECT,
-    }),
-    prisma.game.count({ where }),
-  ]).catch((err) => {
-    logger.db.error("[HomePage] Game query failed", err)
-    return [[], 0] as [never[], number]
-  })
+  // 游戏网格 60s Redis 短缓存（与品牌区统计同源模式）：
+  // 首页每次导航都全量查库（findMany + count + tagGroup + placeholder）是移动端慢的根因之一。
+  // 短 TTL：后台发布/编辑游戏后最多 60s 内自动刷新，无需手动硬刷新。
+  const gridCacheKey = cacheKey("homepage:games:grid", tag, q, nsfw ? "1" : "0", sort, String(page))
+  const pendingMap = GRID_PENDING.map
 
-  if (!games.length) {
-    return <GameGridClient initialGames={[]} total={0} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
+  let gridData: CachedGrid
+  try {
+    const cached = await cache.get<CachedGrid>(gridCacheKey)
+    if (cached) {
+      gridData = cached
+    } else {
+      // 复用全局单飞去重：并发请求只查一次库，其余等同一 Promise
+      let pending = pendingMap.get(gridCacheKey)
+      if (!pending) {
+        pending = (async () => {
+          const [games, total] = await Promise.all([
+            prisma.game.findMany({
+              where,
+              orderBy: ORDER_BY[sort],
+              skip,
+              take: GAMES_PER_PAGE,
+              select: GAME_CARD_SELECT,
+            }),
+            prisma.game.count({ where }),
+          ])
+          if (!games.length) return { games: [], total } as CachedGrid
+
+          const placeholder = await getSiteSetting("default_placeholder_image")
+
+          // 获取"首页卡片标签"组的颜色（站点可配置，未配置则回退默认灰）
+          let cardTagColor = "#6b7280"
+          try {
+            const homeCardTag = await prisma.tagGroup.findFirst({
+              where: { positions: { array_contains: ["home_card"] } },
+              select: { color: true },
+            })
+            if (homeCardTag?.color) cardTagColor = homeCardTag.color
+          } catch (err) { logger.db.warn("[HomePage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+
+          return {
+            games: games.map((g) => mapGameToCard(g, { resourceTagColor: cardTagColor, coverFallback: placeholder })),
+            total,
+          } as CachedGrid
+        })().finally(() => {
+          pendingMap.delete(gridCacheKey)
+        })
+        pendingMap.set(gridCacheKey, pending)
+      }
+      gridData = await pending!
+      await cache.set(gridCacheKey, gridData, 60).catch(() => {})
+    }
+  } catch (err) {
+    logger.db.error("[HomePage] Game query failed", err)
+    gridData = { games: [], total: 0 }
   }
 
-  const placeholder = await getSiteSetting("default_placeholder_image")
-
-  // 获取"首页卡片标签"组的颜色（站点可配置，未配置则回退默认灰）
-  let cardTagColor = "#6b7280"
-  try {
-    const homeCardTag = await prisma.tagGroup.findFirst({
-      where: { positions: { array_contains: ["home_card"] } },
-      select: { color: true },
-    })
-    if (homeCardTag?.color) cardTagColor = homeCardTag.color
-  } catch (err) { logger.db.warn("[HomePage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
-
-  const mapped = games.map((g) => mapGameToCard(g, { resourceTagColor: cardTagColor, coverFallback: placeholder }))
-
-  return <GameGridClient initialGames={mapped} total={total} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
+  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
 }
 
 export default async function HomePage({

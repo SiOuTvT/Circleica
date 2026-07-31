@@ -110,7 +110,11 @@ async function withSentry(config: NextConfig): Promise<NextConfig> {
   });
 }
 
-const configPromise = process.env.NODE_ENV === "development"
+// Sentry 仅当配置了 DSN 才注入：未配置时完全不启用 @sentry/nextjs webpack 插件，
+// 客户端不再打包 Sentry SDK（省 ~456K 首屏 JS，移动端首屏大头）；服务端 instrumentation.ts 已有同款守卫。
+// 开发环境始终跳过（避免 OpenTelemetry 等重依赖拖慢 dev 启动）。
+const sentryEnabled = !!(process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN);
+const configPromise = process.env.NODE_ENV === "development" || !sentryEnabled
   ? Promise.resolve(nextConfig)
   : withSentry(nextConfig);
 
