@@ -261,6 +261,7 @@ model TagGroup {
 model Tag {
   id          String    @id @default(cuid())
   name        String    @unique
+  slug        String?   @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
   description String    @default("")
   color       String    @default("#a78bfa")
   sortOrder   Int       @default(0)
@@ -377,7 +378,6 @@ model Collection {
   id          String     @id @default(cuid())
   userId      String
   name        String
-  slug        String?    @unique // Archive 稳定可读路由（CJK 直出）
   description String     @default("")
   isDefault   Boolean    @default(false)
   sortOrder   Int        @default(0)
@@ -562,6 +562,7 @@ model EmailVerificationToken {
 model CuratedCollection {
   id          String                  @id @default(cuid())
   name        String
+  slug        String?                 @unique // Archive 稳定可读路由（CJK 直出）
   description String                  @default("")
   sortOrder   Int                     @default(0)
   published   Boolean                 @default(true)
