@@ -89,6 +89,9 @@ printf "${C}${B}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 export NODE_ENV=production
-export NODE_OPTIONS="--max-old-space-size=512 --max-http-header-size=1048576"
+# 运行期堆上限：默认 1024MB，可由 Coolify 环境变量 NODE_OPTIONS_MB 覆盖。
+# 注意：禁止把值硬焊死为低于真实需求的数字（如 512MB）来迁就弱机器——
+# 这是项目配置降配，违反站点铁律；弱机器内存不足应在服务器侧解决（加 swap / 扩盘）。
+export NODE_OPTIONS="--max-old-space-size=${NODE_OPTIONS_MB:-1024} --max-http-header-size=1048576"
 
 exec node server.js

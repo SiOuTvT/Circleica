@@ -2,6 +2,7 @@ import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { logger } from "@/lib/logger"
 import { ValidationError, RateLimitError } from "@/lib/errors"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { requireAuth } from "@/lib/auth-context"
 
 // 翻译专用限流：每分钟 10 次
 const TRANSLATE_RATE_LIMIT = {
@@ -46,6 +47,9 @@ async function translateWithGoogle(text: string): Promise<string | null> {
 }
 
 export const POST = withHandler(async (req) => {
+  // 翻译代理走第三方外部服务，匿名调用可被滥用（刷额度 / 成本），须登录后使用。
+  await requireAuth()
+
   const rl = await checkRateLimit(TRANSLATE_RATE_LIMIT)
   if (!rl.success) throw new RateLimitError(TRANSLATE_RATE_LIMIT.message)
 

@@ -6,8 +6,9 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { AZIndex } from "@/components/archive/az-index"
 import { TagCard } from "@/components/archive/tag-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity, computeArchiveState } from "@/components/archive/density"
+import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
 import { LayoutGrid, Tag as TagIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 import type { Metadata } from "next"
 
@@ -81,7 +82,7 @@ export default async function TagsPage({
           <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
             <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={cn("grid gap-4", DENSITY_GRID[density])}>
             {data.tagGroups.map((group) => (
               <TagCategory key={group.id} group={group} />
             ))}
@@ -115,7 +116,7 @@ export default async function TagsPage({
                       </span>
                       <span className="text-xs text-muted-foreground/60">{tags.length} 个标签</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                    <div className={cn("grid gap-2.5", DENSITY_GRID[density])}>
                       {tags.map((tag) => (
                         <TagCard key={tag.id} tag={tag} />
                       ))}

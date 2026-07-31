@@ -2,6 +2,14 @@ import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
 
+// ─────────────────────────────────────────────────────────────
+// Next.js 16 起 `middleware` 文件约定已废弃，官方改用 `proxy`。
+// 文件名必须是 `src/proxy.ts`，且导出的函数必须叫 `proxy`（或 default），
+// 否则构建期直接抛 ProxyMissingExportError。
+// 行为、matcher 配置与原 middleware 完全一致；standalone 产物中 Next 仍会把
+// proxy.js 回写为 middleware.js，运行时（node .next/standalone/server.js）无感。
+// ─────────────────────────────────────────────────────────────
+
 // 生成随机 nonce（16 字节 base64）
 function generateNonce(): string {
   const array = new Uint8Array(16)
@@ -47,7 +55,7 @@ function buildCSP(nonce: string): string {
   return `default-src 'self'; ${scriptSrc}; ${_cspTemplate.rest}`
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // CSP 仅对页面路由启用，不对 API 设置（避免干扰 NextAuth）

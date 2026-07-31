@@ -7,7 +7,7 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { CollectionShowcaseCard } from "@/components/archive/collection-showcase-card"
 import { CollectionCard } from "@/components/collection-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity, computeArchiveState } from "@/components/archive/density"
+import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -127,7 +127,7 @@ export default async function CuratedCollectionsPage({
       )}
 
       {rest.length > 0 && (
-        <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2")}>
+        <div className={cn("grid gap-4", DENSITY_GRID[density])}>
           {rest.map((c) => (
             <CollectionShowcaseCard
               key={c.id}

@@ -33,9 +33,10 @@ const nextConfig: NextConfig = {
         : []),
     ],
     formats: ["image/avif", "image/webp"],
-    // 允许 SVG（示例数据回退层用 data URI SVG 作封面/截图，确保设计预览可见）
-    dangerouslyAllowSVG: true,
-    contentDispositionType: "attachment",
+    // 不允许 SVG 经 next/image 优化：SVG 可内嵌 <script>/<foreignObject> 执行脚本，
+    // 若经此通道服务用户上传内容将构成存储型 XSS。全站唯一 SVG 用法是 setup-wizard
+    // 中下拉箭头的 CSS background-image data URI，不经过 next/image，关闭不影响功能。
+    dangerouslyAllowSVG: false,
   },
   poweredByHeader: false,
   output: "standalone",

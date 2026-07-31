@@ -938,30 +938,30 @@ main > * {
  *
  * 可达性基线：WCAG 2.4.7（焦点可见）+ 1.4.11（非文本对比 ≥ 3:1）。
  *
- * 原实现用 0.4 alpha 稀释主题色，实测对比度：亮色 1.43:1、暗色 2.02:1，全模式不达标
- * （亮色尤其严重 —— 浅 teal 铺在 #fafafa 上几乎融为一体，键盘用户看不清焦点在哪）。
+ * 演进：
+ *   v1 用 0.4 alpha 稀释主题色 → 亮色仅 1.43:1、暗色 2.02:1，全模式不达标。
+ *   v2 改主题实色 + 中性外圈 → 仍不彻底：主题色由用户自选、无下界，
+ *       亮色下选浅黄等浅色时实色描边仍 ≈1:1 不可见。
+ *   v3（当前）根因修复：在 theme-colors.ts 按各模式背景派生对比度安全的
+ *       --focus-ring-light / --focus-ring-dark（校验 ≥ 目标对比度后写入），
+ *       此处仅按 .light 类选用对应变量。用户切明暗模式只切 class，无需重跑派生。
+ *       与用户自选主题色彻底解耦 —— 任何主题下焦点位置始终可辨识。
  *
- * 现方案分两层，且刻意**不改动 --theme-r/g/b 本身**：
- *   1) outline 改用主题实色（去掉 alpha 稀释）→ 暗色即可达约 7.2:1；
- *   2) 亮色下主题色天然偏浅（实色也仅约 2.65:1），再叠一圈中性反差外圈补足。
- *      外圈取 --foreground 而非主题色，因此与后台自定义主题色解耦 ——
- *      无论用户把主题色设成多浅的颜色，焦点位置始终可辨识。
- *
- * 不采用「把亮色的 --theme-r/g/b 调深」的做法：该变量为 ::selection 等共用，
+ * 不采用「把亮色的 --theme-r/g/b 调深」：该变量为 ::selection 等共用，
  * 且会被 theme-colors.ts 按用户设置动态覆盖，硬编码深色值只在默认主题下有效。
  */
 *:focus-visible {
-  outline: 2px solid var(--theme-color);
+  outline: 2px solid var(--focus-ring-dark);
   outline-offset: 2px;
   box-shadow: none;
   border-radius: inherit;
 }
 
 .light *:focus-visible {
-  outline: 2px solid var(--theme-color);
+  outline: 2px solid var(--focus-ring-light);
   outline-offset: 2px;
-  /* 中性反差外圈：亮色背景下约 3.8:1，独立于主题色保证达标 */
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--foreground) 55%, transparent);
+  /* 中性反差外圈：与主题色解耦的双重保险，亮底上进一步突出焦点位置 */
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--foreground) 35%, transparent);
 }
 
 /* ── 全局选区颜色 - 品牌色 ── */
