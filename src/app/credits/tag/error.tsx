@@ -4,9 +4,9 @@ import { useEffect } from "react"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
 
-export default function TagDetailError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function TagListError({ error, _reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error("[TagDetail] render error", error)
+    console.error("[TagList] render error", error)
   }, [error])
 
   return (
