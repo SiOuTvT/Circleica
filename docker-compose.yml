@@ -127,7 +127,9 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      # start_period 必须覆盖「启动 + 迁移」最坏耗时。此前 30s 窄于迁移最坏路径（约 366s），
+      # 首次部署/大迁移时容器会在还没起来时就被判 unhealthy 触发回滚。留到 420s。
+      start_period: 420s
     networks:
       - circleica
 

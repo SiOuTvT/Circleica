@@ -9,6 +9,11 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // 调试时把 .next 改名留下的构建产物残留（.next_bak_*/.next_bak2_* 等）。
+    // 这些是编译输出不是源码，一旦被 lint 扫到会瞬间灌进上万条噪声错误，
+    // 把真实的源码问题淹没。.gitignore 已忽略同名模式，这里同步挡掉。
+    ".next_bak*/**",
+    ".next_turbobak/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

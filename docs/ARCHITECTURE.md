@@ -74,6 +74,6 @@ HTTP 请求
 3. **速率限制**：确认写类接口（发帖、评论、收藏、签到等）是否需统一限流。
 4. **代理安全头**：核对 `next.config.ts` 的 `headers()` 与 `trustProxy`，避免 HSTS 缺失 / SSL 剥离面。
 5. **Docker 口令**：`docker-compose.yml` 中 `POSTGRES_PASSWORD` 等当前为弱口令占位，**仅限本地**；任何非纯本地部署须改为密钥/env 注入。
-6. **CSP**：`middleware.ts` 的 `connect-src` 需覆盖实际上传域名（如 UploadThing `utfs.io`）。
+6. **CSP**：`src/proxy.ts`（Next 16 起取代 `middleware.ts` 约定）的 `connect-src` 需覆盖实际上传域名（如 UploadThing `utfs.io`）。
 
 > 本文件为**解释性文档（explanation）**，只讲"为什么这样设计"。具体"怎么跑起来"见 [入门指南](GETTING_STARTED.md)，"每个接口怎么调"见 [API 参考](API_REFERENCE.md)。
