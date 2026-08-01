@@ -78,12 +78,12 @@ ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 ENV APP_VERSION=${VERSION}
 
-# Build the application（webpack 生产构建 + 132 页面，内存峰值约 3GB+，按项目真实需求设 4096；
-# 弱机器请 SSH 加 swap 或构建时停旧容器释放内存，禁止调低默认值迁就——那是无效降级）
+# Build the application（webpack 生产构建，132 页面）
+# 内存默认 2048：实测 2GB 物理 + 4G swap 的轻量服务器可跑（4096 会压爆 swap 导致构建卡死数十分钟）；
+# 更强机器可经 Coolify Build arguments 传 NEXT_BUILD_MEMORY=4096 提速。构建时确保旧容器已停、留足内存。
 # ⚠️ 必须带 --webpack 退出 Turbopack：项目有自定义 webpack 配置（isomorphic-dompurify→dompurify 别名），
 # Turbopack 会忽略它导致构建挂起直至超时（Coolify 部署曾因此失败：裸 npx next build 默认走 Turbopack）。
-# 如需临时调内存，可经 Coolify Build arguments 传 NEXT_BUILD_MEMORY，但默认保持项目应得配置。
-ARG NEXT_BUILD_MEMORY=4096
+ARG NEXT_BUILD_MEMORY=2048
 RUN NODE_OPTIONS="--max-old-space-size=${NEXT_BUILD_MEMORY}" npx next build --webpack
 
 # 可选 `ingest` 服务入口（复用本构建阶段，含全量源码与 tsx，无需改动运行镜像）
