@@ -1852,6 +1852,13 @@ body[data-has-bottom-nav="true"] {
 .announce-slot-mark { color: var(--slot-mark); }
 .announce-slot-text { color: var(--slot-mark-text); }
 
+/* 真实公告的封面加载失败兜底面（AnnounceSwiper 内）。
+   原本用 bg-gradient-to-br from-zinc-200 dark:from-zinc-800，与空槽同根问题：
+   .dark 是运行时类，SSR 首屏没有它 → 先渲染浅灰再翻黑。改用 slot 色板统一治理。 */
+.announce-cover-fallback {
+  background: var(--slot-panel);
+}
+
 /* prefers-reduced-motion：本节所有 class 均不含 animation，PRM 天然满足，
     无需在 PRM 块中新增任何规则。上面唯一的 transition（仅用于亮/暗主题切换时的平滑过渡）
    已被全局 PRM 块降到 0.01ms。 */

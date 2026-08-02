@@ -84,8 +84,11 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
             onLoad={() => setImgError(false)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900">
-            <ImageIcon className="h-12 w-12 text-white/20" strokeWidth={1} />
+          // 封面加载失败的兜底面。用 --slot-panel（深色为基础值 + .light 覆盖）而非 dark: 前缀：
+          // 本项目 .dark 类是 <head> 内联脚本运行时打的，SSR 首屏 HTML 上没有它，
+          // 用 dark: 会导致首屏先渲染浅色再翻黑，在深色页面里闪一块大色板。
+          <div className="announce-cover-fallback flex h-full w-full items-center justify-center">
+            <ImageIcon className="announce-slot-mark h-12 w-12" strokeWidth={1} />
           </div>
         )}
       </div>
