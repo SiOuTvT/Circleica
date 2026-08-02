@@ -70,8 +70,19 @@ export default async function TagsPage({
         <ArchiveHero
           variant="tag"
           eyebrow="tags"
-          title="标签浏览"
+          title="标签图鉴"
           lede="通过标签发现游戏，按分类与首字母索引浏览。"
+          meta={
+            query ? (
+              <span>
+                匹配 <span className="tabular-nums text-foreground">{totalTags}</span> 个标签
+              </span>
+            ) : (
+              <span>
+                共 <span className="tabular-nums text-foreground">{totalTags}</span> 个标签
+              </span>
+            )
+          }
           search={<HeaderSearch q={q} placeholder="搜索标签名称..." />}
         />
       }
