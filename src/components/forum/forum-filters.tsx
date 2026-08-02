@@ -28,24 +28,26 @@ export function ForumFilters({
 }: ForumFiltersProps) {
   return (
     <div className="mb-4 space-y-3">
-      {/* 搜索框 */}
+      {/* 搜索框（Archive 设计语言：rounded-xl + ring-border/50） */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
         <input
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="搜索帖子标题或内容…"
-          className="w-full rounded-xl bg-card pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all"
+          className="w-full rounded-xl bg-card pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border/50 outline-none focus:ring-primary/40 transition-all"
         />
       </div>
 
-      {/* 分类标签 */}
-      <div className="flex flex-wrap gap-1 sm:gap-1.5">
+      {/* 分类标签（Archive 软选中：bg-primary/10 + text-primary + ring-primary/40） */}
+      <div className="flex flex-wrap gap-1.5">
         <button
           onClick={() => onCategoryChange("")}
           className={cn(
-            "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
-            !activeCategory ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
+            "rounded-xl px-3.5 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
+            !activeCategory
+              ? "bg-primary/10 text-primary ring-primary/40"
+              : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"
           )}
         >
           全部
@@ -57,8 +59,10 @@ export function ForumFilters({
             key={cat.value}
             onClick={() => onCategoryChange(cat.value)}
             className={cn(
-              "rounded-lg px-3 py-2 text-xs font-medium transition-all ring-1 min-h-[36px] flex items-center gap-1.5",
-              activeCategory === cat.value ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"
+              "rounded-xl px-3.5 py-2 text-xs font-medium transition-all ring-1 min-h-[36px] flex items-center gap-1.5",
+              activeCategory === cat.value
+                ? "bg-primary/10 text-primary ring-primary/40"
+                : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {cat.label}

@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { EmptyState } from "@/components/ui/empty-state"
 import { timeAgo } from "@/lib/time-ago"
+import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
@@ -209,11 +210,12 @@ export default function NotificationsClient({
                 key={n.id}
                 href={href}
                 onClick={() => { if (!n.isRead) markRead([n.id]) }}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all cursor-pointer ${
-                  !n.isRead
-                    ? "bg-primary/5 border-l-2 border-primary"
-                    : "hover:bg-accent"
-                }`}
+                className={cn(
+                  "group flex items-center gap-3 rounded-xl bg-card px-4 py-3 cursor-pointer",
+                  "ring-1 ring-border/50 transition-all duration-200",
+                  "hover:ring-primary/30 hover:bg-accent/30",
+                  !n.isRead && "ring-primary/30 bg-primary/[0.04]"
+                )}
               >
                 {/* 头像 */}
                 <div className="relative shrink-0">
@@ -223,32 +225,32 @@ export default function NotificationsClient({
                       alt=""
                       width={40}
                       height={40}
-                      className="rounded-full object-cover"
+                      className="rounded-full object-cover ring-1 ring-border/50"
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
                       {n.actor.username[0]?.toUpperCase()}
                     </div>
                   )}
                   {!n.isRead && (
-                    <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />
+                    <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-card bg-primary" />
                   )}
                 </div>
 
                 {/* 内容 */}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">{config.text(n.actor.username, n.targetGame?.title)}</p>
+                  <p className={cn("text-sm leading-relaxed", !n.isRead ? "text-foreground" : "text-foreground/80")}>{config.text(n.actor.username, n.targetGame?.title)}</p>
                   {config.subtitle && (
                     <p className="mt-0.5 text-xs text-muted-foreground">{config.subtitle(n.actor.username, n.targetGame?.title)}</p>
                   )}
-                  <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.createdAt)}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground/70">{timeAgo(n.createdAt)}</p>
                 </div>
 
                 {/* 删除按钮 */}
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSingleDeleteId(n.id) }}
-                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
