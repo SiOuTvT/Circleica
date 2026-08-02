@@ -114,8 +114,25 @@ function loginUrlFor(req: NextRequest, callbackPath: string): URL {
   return url
 }
 
+// 静态资源不执行脚本 → 不需要 CSP/nonce，但仍需 nosniff / CORP 等安全头。
+// 每请求 crypto.getRandomValues + 拼 CSP，在「一页几十张图」的弱机上是纯浪费 CPU。
+const STATIC_ASSET_RE =
+  /^\/uploads\/|\.(?:png|jpe?g|gif|webp|avif|svg|ico|css|js|woff2?|txt|xml|webmanifest)$/i
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // 静态资源：不执行脚本 → 跳过 nonce/CSP 生成（省弱机 CPU），直接带安全头 + 长缓存返回。
+  // 但不能从 matcher 踢掉（仍需 X-Content-Type-Options: nosniff 防 MIME 嗅探）。
+  const isStaticAsset = STATIC_ASSET_RE.test(pathname)
+  if (isStaticAsset) {
+    const res = NextResponse.next()
+    if (pathname.startsWith("/uploads/")) {
+      // 上传文件名 `${timestamp}-${randomHex}.${ext}`（storage.ts:56）永不复用 → immutable 安全
+      res.headers.set("Cache-Control", "public, max-age=31536000, immutable")
+    }
+    return withSecurityHeaders(res, req)
+  }
 
   // CSP 仅对页面路由启用，不对 API 设置（避免干扰 NextAuth）
   const isPageRoute = !pathname.startsWith("/api/")

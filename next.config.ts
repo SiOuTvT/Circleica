@@ -37,9 +37,38 @@ const nextConfig: NextConfig = {
     // 若经此通道服务用户上传内容将构成存储型 XSS。全站唯一 SVG 用法是 setup-wizard
     // 中下拉箭头的 CSS background-image data URI，不经过 next/image，关闭不影响功能。
     dangerouslyAllowSVG: false,
+    // 优化产物磁盘缓存 31 天（默认仅 4h，image-config.js:57）。
+    // 过期后 next/image 会在源站 CPU 上重新解码+重编码 AVIF —— 2GB 弱机上最贵的一笔开销。
+    // 图片 URL 由 src+w+q 唯一决定，源图换了 URL 也会换，长缓存无副作用（纯赚，不降画质）。
+    minimumCacheTTL: 2678400, // 31 天
   },
   poweredByHeader: false,
   output: "standalone",
+
+  // 客户端 Router Cache 存活期（P0-1 性能：治「切换都要等很长时间」）。
+  // 根 layout 读 headers()（theme-script.tsx）使全站 132 个页面全部为 dynamic，
+  // 而 staleTimes.dynamic 默认 0 → 每次前进/后退/重访都打服务器做一次完整 RSC 渲染（弱机上最贵的一笔）。
+  // 设为 30s 后，30 秒内重访直接命中客户端缓存：0 网络往返、0 服务器负载，来回切页瞬开。
+  // 数据新鲜度代价与项目原本就想要的 revalidate=60 同量级，不算降级；随时可回退成 0。
+  experimental: {
+    staleTimes: { dynamic: 30, static: 300 },
+  },
+
+  // 静态资源长缓存头（P1-1）。仅给内容不可变的静态资源，绝不给 HTML 页面路由：
+  // proxy.ts 每请求生成 CSP nonce，共享缓存 HTML 会让 nonce 变成公开固定值（安全降级）
+  // 或 nonce 不匹配（全站白屏）。_next/static 已由 Next 自动 immutable，这里只补 /uploads。
+  async headers() {
+    return [
+      {
+        // 上传文件名为 `${timestamp}-${randomHex}.${ext}`（src/lib/storage.ts:56），
+        // URL 永不复用 → immutable 安全。
+        source: "/uploads/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+    ]
+  },
 
   // 信任反向代理（nginx/Cloudflare 等）转发的 x-forwarded-* 头：
   // Next.js 16 默认直接读取上游代理写入的 x-forwarded-proto / x-forwarded-for 来判定协议与客户端地址，

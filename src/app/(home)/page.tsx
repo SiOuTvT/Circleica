@@ -47,9 +47,25 @@ if (!globalRef[GRID_PENDING_KEY]) globalRef[GRID_PENDING_KEY] = GRID_PENDING
 export const revalidate = 60
 
 function GameGridSkeleton() {
+  // 加载态与「无数据常驻态」一致：8 张空卡，加载前后视觉不闪。
   return (
     <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
-      {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
+      {Array.from({ length: 8 }).map((_, i) => <GameCardSkeleton key={i} />)}
+    </div>
+  )
+}
+
+/** 公告区占位卡：无公告时常驻，与 AnnounceSwiper 同尺寸，有公告时覆盖。 */
+function AnnouncePlaceholder() {
+  return (
+    <div className="relative w-full h-[200px] sm:h-[220px] lg:h-[310px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]">
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-800 dark:to-zinc-900" />
+      <div className="absolute inset-x-0 bottom-0 z-[1] h-[60%] bg-gradient-to-t from-black/60 via-black/20 to-transparent dark:from-black/70 dark:via-black/30" />
+      <div className="absolute inset-0 z-[2] flex flex-col justify-end gap-2 p-3.5 sm:p-4">
+        <div className="h-7 w-7 rounded-full skeleton-shimmer" />
+        <div className="h-5 w-2/3 rounded skeleton-shimmer" />
+        <div className="h-3 w-1/2 rounded skeleton-shimmer" />
+      </div>
     </div>
   )
 }
@@ -245,9 +261,11 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* 公告区 */}
-          {announcements.length > 0 && (
+          {/* 公告区：有公告覆盖，无公告常驻占位卡 */}
+          {announcements.length > 0 ? (
             <AnnounceSwiper announcements={announcements} />
+          ) : (
+            <AnnouncePlaceholder />
           )}
         </div>
 
