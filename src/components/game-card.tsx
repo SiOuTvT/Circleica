@@ -201,6 +201,31 @@ export function GameCardSkeleton() {
   )
 }
 
+/**
+ * 常驻空槽位（网格视图）—— 与 GameCard 盒模型逐像素对齐。
+ *
+ * 语义：「这个位置留好了，还没放东西」，区别于 GameCardSkeleton 的「内容马上到达」。
+ * 因此：无 animation、无假内容条、无 hover、不进 tab 序。
+ *
+ * 注意事项（勿"优化"掉）：
+ * 1. 根节点不带 .game-card 类 —— 否则会继承 hover:translateY 和 shadow-card，空槽会浮起来。
+ * 2. 根节点不带 bg-card/ring —— 配色统一由 .game-slot 接管，.light 只需覆盖 CSS 变量。
+ * 3. .game-slot 用 border 而非 ring：真卡 .game-card 的 border 影响布局，不带会差 2px。
+ * 4. 直接复用 .game-card-spacer，不新建 —— 保证真卡与空槽的弹性行为永不分叉。
+ */
+export function GameCardSlot() {
+  return (
+    <div aria-hidden="true" className="game-slot flex flex-col overflow-hidden rounded-2xl">
+      <div className="game-slot-cover w-full aspect-[3/4] sm:aspect-[4/5]" />
+      <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
+        <div className="game-slot-title" />
+        <div className="game-card-spacer" />
+        <div className="game-slot-tagline" />
+      </div>
+    </div>
+  )
+}
+
 /** 列表视图的行布局（配合 ResultToolbar 的视图切换使用） */
 export const GameListRow = memo(function GameListRow({ game }: { game: GameCardData }) {
   const [imgError, setImgError] = useState(false)
@@ -340,6 +365,28 @@ export function GameListRowSkeleton() {
           <div className="h-3.5 w-11 rounded skeleton-shimmer" />
           <div className="h-3.5 w-11 rounded skeleton-shimmer" />
         </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 常驻空槽位（列表视图）—— 与 GameListRow 盒模型逐像素对齐，行高恒为 104px。
+ *
+ * ⚠️ 关键差异：GameListRow 没有 .game-card 类，只有 ring-1（纯 box-shadow，不占布局）。
+ * 所以 .game-list-slot 必须用 box-shadow: 0 0 0 1px 而非 border，否则 104px → 106px。
+ *
+ * 高度验算：信息列 = 20(标题) + 6(mt-1.5) + 16(计数) + 8(mt-2) + 18(标签) = 68px
+ * < 缩略图 80px，故整行恒由缩略图决定 = p-3(12) + 80 + p-3(12) = 104px。
+ */
+export function GameListRowSlot() {
+  return (
+    <div aria-hidden="true" className="game-list-slot flex items-center gap-4 rounded-xl p-3">
+      <div className="game-list-slot-thumb h-20 w-14 shrink-0 rounded-lg" />
+      <div className="min-w-0 flex-1">
+        <div className="game-list-slot-title" />
+        <div className="mt-1.5 game-list-slot-meta" />
+        <div className="mt-2 game-slot-tagline" />
       </div>
     </div>
   )

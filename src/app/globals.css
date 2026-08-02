@@ -1758,3 +1758,101 @@ body[data-has-bottom-nav="true"] {
   border-color: color-mix(in srgb, var(--gal-accent) 45%, transparent);
 }
 
+/* ═══════════════════════════════════════════════════════
+   常驻空槽位 (Persistent Empty Slots)
+   ───────────────────────────────────────────────────────
+   语义：该位置未来会有内容，但当前确实没有数据。
+   与 .skeleton-shimmer（loading 骨架 = 内容马上到达）严格区分：
+     · 空槽位永不含 animation —— 常驻元素上的循环动画 = 永不兑现的时间承诺
+     · 空槽位不含任何假内容条 —— 那是骨架语言，会谎报「有内容正在来」
+   盒模型与 GameCard / GameListRow 逐像素对齐，混排时零高度差。
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 空槽色板 ── */
+/* 设计意图：真卡「浮起」（--card 高于底色 + shadow），空槽「凹陷」（低于 --card、无阴影、描边更弱）。 */
+:root {
+  --slot-surface:   var(--muted);                                                 /* 卡面 → #111114 */
+  --slot-panel:     #0e0e11;                                                      /* 封面/缩略区，比卡面低 3 点 */
+  --slot-border:    color-mix(in srgb, var(--border) 60%, transparent);           /* ≈ rgba(255,255,255,.048) */
+  --slot-mark:      color-mix(in srgb, var(--muted-foreground) 20%, transparent); /* 对齐 EmptyState 的 /20 */
+  --slot-mark-text: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
+}
+
+/* 仅 --slot-panel 需要显式覆盖：其余三个挂在 --muted / --border / --muted-foreground 上，
+   .light 已翻转过这些 token，自动跟随。 */
+.light {
+  --slot-panel:     #eeeef1;                                                      /* 卡面解析为 #f5f5f7，低 7 点 */
+}
+
+/* ── 游戏卡常驻空槽（网格视图，对应 GameCard）── */
+/* 必须带 border：.game-card 有 border: 1px（影响布局），空槽不带会导致封面与整卡高度偏差 2px。
+   真卡另有 ring-1（box-shadow，不影响布局）；空槽刻意不加 ring，让外缘更轻，属设计意图，勿"修复"。 */
+.game-slot {
+  background: var(--slot-surface);
+  border: 1px solid var(--slot-border);
+  box-shadow: none;
+  cursor: default;
+  transition: background-color var(--duration-normal) ease,
+              border-color     var(--duration-normal) ease;
+}
+
+.game-slot-cover {
+  background: var(--slot-panel);
+}
+
+/* 标题预留行 —— 与真实 h3(text-[15px] + leading-snug) 的单行行盒等高：15 × 1.375 = 20.625px。
+   用 em 表达以便标题字号变更时自动跟随。刻意只留 1 行：
+   槽位靠 .game-card-spacer 吸收行高差额可以变高，但预留 2 行会反向撑高整个网格。 */
+.game-slot-title {
+  font-size: 15px;
+  line-height: 1.375;
+  height: 1.375em;
+}
+
+/* 标签预留行 —— 与真实 Tag(variant="content") 单行等高：
+   移动端 text-xs 行盒 16px + 纵向 padding 0 + border 2px = 18px
+   桌面端 text-xs 行盒 16px + sm:py-1 (4+4)     + border 2px = 26px
+   （Tag 的 border 由 tagColorStyle 内联注入，resourceTags 恒带 color，故恒存在） */
+.game-slot-tagline { height: 18px; }
+@media (min-width: 640px) {
+  .game-slot-tagline { height: 26px; }
+}
+
+/* ── 游戏行常驻空槽（列表视图，对应 GameListRow）── */
+/* 关键：GameListRow 没有 .game-card 类，只有 ring-1（纯 box-shadow，不占布局）。
+   这里必须用 box-shadow 而非 border，否则行高 104px → 106px。 */
+.game-list-slot {
+  background: var(--slot-surface);
+  box-shadow: 0 0 0 1px var(--slot-border);
+  cursor: default;
+  transition: background-color var(--duration-normal) ease,
+              box-shadow       var(--duration-normal) ease;
+}
+
+.game-list-slot-thumb {
+  background: var(--slot-panel);
+}
+
+.game-list-slot-title { height: 20px; }  /* text-sm 行盒 = 20px */
+.game-list-slot-meta  { height: 16px; }  /* text-xs 行盒 = 16px（图标 h-3.5=14px，items-center 取行盒） */
+/* 标签行复用 .game-slot-tagline */
+
+/* ── 公告常驻空槽（对应 AnnounceSwiper）── */
+/* 高度由 Tailwind 类固定（h-[200px] sm:h-[220px] lg:h-[310px]），此处只管表面。
+   真实组件的 ring-white/[0.06] 是硬编码白色（靠照片遮掩），空槽必须换成 --slot-border，
+   否则亮色模式下这块 310px 区域没有任何边界。 */
+.announce-slot {
+  background: var(--slot-surface);
+  box-shadow: 0 0 0 1px var(--slot-border);
+  cursor: default;
+  transition: background-color var(--duration-normal) ease,
+              box-shadow       var(--duration-normal) ease;
+}
+
+.announce-slot-mark { color: var(--slot-mark); }
+.announce-slot-text { color: var(--slot-mark-text); }
+
+/* prefers-reduced-motion：本节所有 class 均不含 animation，PRM 天然满足，
+    无需在 PRM 块中新增任何规则。上面唯一的 transition（仅用于亮/暗主题切换时的平滑过渡）
+   已被全局 PRM 块降到 0.01ms。 */
+

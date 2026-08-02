@@ -1,4 +1,4 @@
-import { GameCardSkeleton } from "@/components/game-card"
+import { GameCardSlot } from "@/components/game-card"
 
 // ─────────────────────────────────────────────────────────────
 // 首页专属骨架。必须放在 (home) 路由组内，不能放回 src/app/loading.tsx。
@@ -73,9 +73,12 @@ export default function HomeLoading() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+        {/* 网格用常驻空槽而非 shimmer 骨架：网格结构恒定 12 格，加载前后不变，
+            用空槽可让整块区域从第一帧起完全静止，只有内容就地填入。
+            上方标题/筛选区的 shimmer 保留——那些区块加载完形态会变，骨架语义正确。 */}
+        <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
           {Array.from({ length: 12 }).map((_, i) => (
-            <GameCardSkeleton key={i} />
+            <GameCardSlot key={i} />
           ))}
         </div>
       </section>
