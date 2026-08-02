@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { MessageSquare, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "../ui/confirm-dialog"
+import { EmptyState } from "../ui/empty-state"
 import { ForumFilters } from "./forum-filters"
 import { ForumPostItem } from "./forum-post-item"
 import { LoadMoreButton } from "./load-more-button"
@@ -173,26 +174,31 @@ export function ForumClient({
 
   return (
     <div>
-      {/* 页头 */}
-      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
-        <header className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-            <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
+      {/* 页头（ArchiveHero 设计语言：主题色图标无灰底 + 英文 eyebrow + 大字标题） */}
+      <header className="mb-4 sm:mb-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+              <MessageSquare className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">FORUM</p>
+              <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">求档区</h1>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">求档 · 论坛</h1>
-            <p className="text-sm text-muted-foreground">找不到资源？发帖求档，社区互助</p>
-          </div>
-        </header>
-        {isLoggedIn && (
-          <button
-            onClick={() => setShowNewPost(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
-          </button>
-        )}
-      </div>
+          {isLoggedIn && (
+            <button
+              onClick={() => setShowNewPost(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
+            </button>
+          )}
+        </div>
+        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+          找不到资源？发帖求档，社区互助
+        </p>
+      </header>
 
       {/* 搜索 + 分类筛选 */}
       <ForumFilters
@@ -205,12 +211,10 @@ export function ForumClient({
       {/* 帖子列表 */}
       <div className="space-y-3">
         {posts.length === 0 && !loadingMore && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <MessageSquare className="h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {activeCategory ? "该分类下暂无帖子" : "暂无帖子，来发布第一篇吧"}
-            </p>
-          </div>
+          <EmptyState
+            icon={MessageSquare}
+            message={activeCategory ? "该分类下暂无帖子" : "暂无帖子，来发布第一篇吧"}
+          />
         )}
         {posts.map(post => (
           <ForumPostItem key={post.id} post={post} />

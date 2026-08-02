@@ -1023,12 +1023,16 @@ span.bg-primary {
   border: 1px solid var(--primary-border) !important;
 }
 
-/* ── 输入框聚焦 - 克制聚焦环（使用 outline 防止被 overflow-x: hidden 裁剪） ── */
-input:focus, textarea:focus, select:focus {
-  outline: 2px solid rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.3);
-  outline-offset: 0;
-  box-shadow: 0 0 0 3px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
-  border-color: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.4);
+/* ── 输入框聚焦 - 聚焦环由设计系统组件自理，移除全局叠加规则 ──
+ * 原全局 input:focus 规则会给所有输入框叠加 outline(2px) + box-shadow(3px) + border-color，
+ * 与组件自带的焦点样式（ui/Input 的 focus-visible:ring、表单 wrapper 的 focus-within:ring、
+ * setup 向导 inputBase 的 focus:shadow）叠成多层同心圈——即用户反馈的"框套框"观感。
+ * 各表单组件均已自带焦点反馈，故移除；未自理的裸 input 回落到浏览器默认单线 outline（可接受）。
+ * 同时隐藏浏览器原生密码可见按钮（Edge ::-ms-reveal）与自动填充图标，避免与自定义眼睛按钮重复。 */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-credentials-auto-fill-button {
+  display: none;
 }
 
 /* ── Chrome Autofill 覆盖 — 消除浏览器强制注入的白色/黄色背景 ── */

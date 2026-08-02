@@ -92,7 +92,7 @@ export function ArchiveHero({
         {/* 图标为纯矢量、无容器装饰：早期的 rounded-none / bg-transparent / shadow-none / ring-0
             与 sm:h-12（同值重复）均为去掉灰底框后残留的空声明，已清理 */}
         <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
-          <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
+          <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0">
           {eyebrow && (

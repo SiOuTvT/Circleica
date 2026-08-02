@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { LayoutGrid, User, BookOpen, Inbox, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EmptyState } from "@/components/ui/empty-state"
 import { SkeletonGrid } from "./skeleton-grid"
 import type { ArchiveDensity } from "./density"
 
@@ -64,10 +65,11 @@ export function ArchivePlaceholder({
   if (state === "empty") {
     const Icon = entity === "creator" ? User : entity === "collection" ? BookOpen : entity === "game" ? Inbox : LayoutGrid
     return (
-      <div className={cn("flex flex-col items-center gap-3 py-20 text-center", className)}>
-        <Icon className="h-12 w-12 text-muted-foreground/20" strokeWidth={1} aria-hidden />
-        <p className="text-sm text-muted-foreground">{message ?? `暂无收录的${label}`}</p>
-      </div>
+      <EmptyState
+        icon={Icon}
+        message={message ?? `暂无收录的${label}`}
+        className={className}
+      />
     )
   }
 

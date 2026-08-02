@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import { timeAgo } from "@/lib/time-ago"
 import { logger } from "@/lib/logger"
 import { Bell, CheckCheck, Trash2 } from "lucide-react"
@@ -152,16 +153,21 @@ export default function NotificationsClient({
 
   return (
     <div>
-      {/* 标题 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <Bell className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">消息通知</h1>
+      {/* 标题（ArchiveHero 设计语言：主题色图标无灰底 + 英文 eyebrow + 大字标题） */}
+      <header className="mb-6 flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+            <Bell className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
+          </div>
+          <div className="min-w-0">
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">NOTIFICATIONS</p>
+            <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">消息通知</h1>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
           {unreadCount > 0 ? `${unreadCount} 条未读消息` : "暂无未读消息"}
         </p>
-      </div>
+      </header>
 
       {/* 操作栏 */}
       {notifications.length > 0 && (
@@ -192,10 +198,7 @@ export default function NotificationsClient({
       {/* 通知列表 */}
       <div className="space-y-1">
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Bell className="h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-3 text-sm text-muted-foreground">暂无新通知</p>
-          </div>
+          <EmptyState icon={Bell} message="暂无新通知" />
         ) : (
           notifications.map((n) => {
             const config = TYPE_CONFIG[n.type]
