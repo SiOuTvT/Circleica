@@ -82,6 +82,17 @@ export default async function CuratedCollectionsPage({
             eyebrow="collections"
             title="精选合集"
             lede="编辑挑选的同人游戏合集"
+            meta={
+              query ? (
+                <span>
+                  匹配 <span className="tabular-nums text-foreground">{total}</span> 个合集
+                </span>
+              ) : (
+                <span>
+                  共 <span className="tabular-nums text-foreground">{total}</span> 个合集
+                </span>
+              )
+            }
             search={<HeaderSearch q={q} placeholder="搜索合集名称..." />}
           />
         }

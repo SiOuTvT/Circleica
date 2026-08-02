@@ -99,7 +99,7 @@ function LoginContent() {
   const inputInnerCls = "flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]"
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-flex items-center gap-2 px-2 py-2 -ml-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />

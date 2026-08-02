@@ -59,6 +59,17 @@ const VIRTUAL_PREFIXES = new Set([
   "user",
 ])
 
+/**
+ * Archive 四类实体的中文名（用于 /credits/{studio,creator,collection,tag} 子页）
+ * /credits 本身是聚合页，下面子页才是真正的列表页，所以面包屑里 "credits" 段会被替换成对应实体名
+ */
+const ARCHIVE_ENTITY_NAMES: Record<string, string> = {
+  studio: "制作组图鉴",
+  creator: "创作者图鉴",
+  collection: "精选合集",
+  tag: "标签图鉴",
+}
+
 /** 清洗标签：去掉书名号、括号等修饰符号 */
 function cleanLabel(label: string): string {
   return label
@@ -190,7 +201,7 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
+      <nav className="my-3 sm:my-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
           className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
@@ -232,6 +243,15 @@ export function Breadcrumb() {
     const seg = segments[i]
     currentPath += `/${seg}`
 
+    // /credits/{studio,creator,collection,tag}：跳过 "credits" 段，把子段替换为 Archive 实体名
+    if (seg === "credits" && !isAdmin) {
+      const next = segments[i + 1]
+      if (next && ARCHIVE_ENTITY_NAMES[next]) {
+        // 子段将在下一轮循环用 ARCHIVE_ENTITY_NAMES 替换（见下）
+        continue
+      }
+    }
+
     // 跳过虚拟前缀段（没有独立页面的路由），但在 admin 上下文中不跳过（admin 下都有独立页面）
     if (VIRTUAL_PREFIXES.has(seg) && i < segments.length - 1 && !isAdmin) {
       continue
@@ -244,6 +264,12 @@ export function Breadcrumb() {
         crumbs.push({ label: cleanLabel(dynamicLabel), href: currentPath })
       }
       // 没有标签则跳过（不暴露 ID）
+      continue
+    }
+
+    // Archive 实体子段（在 /credits/* 路径下）：用 ARCHIVE_ENTITY_NAMES 替换
+    if (!isAdmin && segments[i - 1] === "credits" && ARCHIVE_ENTITY_NAMES[seg]) {
+      crumbs.push({ label: ARCHIVE_ENTITY_NAMES[seg], href: currentPath })
       continue
     }
 
@@ -265,7 +291,7 @@ export function Breadcrumb() {
   if (allCrumbs.length === 0) return null
 
   return (
-    <nav className="my-8 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
+    <nav className="my-3 sm:my-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
         className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
