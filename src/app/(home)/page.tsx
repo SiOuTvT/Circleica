@@ -265,17 +265,17 @@ export default async function HomePage({
               </div>
               {/* 统计行 */}
               <div className="grid grid-cols-3 divide-x divide-border">
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5" title="已发布的游戏总数">
                   <Gamepad2 className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
-                  <p className="text-sm text-muted-foreground">个游戏</p>
+                  <p className="text-sm text-muted-foreground">游戏总数</p>
                 </div>
-                <div className="flex flex-col gap-2.5 pl-6">
+                <div className="flex flex-col gap-2.5 pl-6" title="近 7 天新上架的游戏">
                   <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
-                  <p className="text-sm text-muted-foreground">本周新增</p>
+                  <p className="text-sm text-muted-foreground">本周新发布</p>
                 </div>
-                <div className="flex flex-col gap-2.5 pl-6">
+                <div className="flex flex-col gap-2.5 pl-6" title="今日新增的签到次数">
                   <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
                   <p className="text-sm text-muted-foreground">今日签到</p>
