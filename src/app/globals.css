@@ -1769,23 +1769,20 @@ body[data-has-bottom-nav="true"] {
    ═══════════════════════════════════════════════════════ */
 
 /* ── 空槽色板 ── */
-/* 修订意图：对齐真卡视觉权重——卡面用 --card（与真卡同色，明确浮起）、
-   描边用满血 --border（不再砍 60%）、叠加 1 层极淡阴影强化层级。
-   仍保留「无 ring」设计（空槽外缘比真卡少一圈 box-shadow 描边，属刻意区分）。 */
+/* 修订意图：对齐真卡视觉权重——卡面/描边/阴影三件套全部对齐 .game-card，
+   使空槽在深浅两套主题下都「浮起来」，不再融背景。 */
 :root {
-  --slot-surface:   var(--card);                                                   /* 卡面 → #151518：与真卡同色，明确浮起，不再融背景 */
+  --slot-surface:   var(--card);                                                   /* 卡面 → 与真卡同色 */
   --slot-panel:     #0e0e11;                                                       /* 封面/缩略预留块（保留不动） */
-  --slot-border:    var(--border);                                                 /* 满血描边 rgba(255,255,255,.08)：对齐真卡 border 权重（原 60% 过弱） */
-  --slot-shadow:    0 1px 2px rgba(0,0,0,0.12);                                    /* 极淡 1 层 elevation（可选，删去 box-shadow 行即回退纯描边） */
+  --slot-border:    var(--border);                                                 /* 描边 → 与真卡 border 同权 */
+  --slot-shadow:    var(--shadow-card);                                             /* 阴影 → 与真卡 shadow-card 完全一致（原自定义值过弱导致融背景） */
   --slot-mark:      color-mix(in srgb, var(--muted-foreground) 20%, transparent);  /* 对齐 EmptyState /20（保留） */
   --slot-mark-text: color-mix(in srgb, var(--muted-foreground) 65%, transparent);  /* 保留 */
 }
 
-/* --slot-surface 挂在 --card、--slot-border 挂在 --border，.light 已翻转，自动跟随；
-   仅 --slot-panel（保留）与 --slot-shadow（阴影 alpha 不同）需显式覆盖。 */
+/* 仅 --slot-panel 需显式覆盖；其余全挂在跟随令牌上，.light 自动翻转。 */
 .light {
-  --slot-panel:     #eeeef1;                                                       /* 保留 */
-  --slot-shadow:    0 1px 2px rgba(0,0,0,0.04);                                    /* 浅色极淡阴影 */
+  --slot-panel:     #eeeef1;
 }
 
 /* ── 游戏卡常驻空槽（网格视图，对应 GameCard）── */
@@ -1866,5 +1863,64 @@ body[data-has-bottom-nav="true"] {
 
 /* prefers-reduced-motion：本节所有 class 均不含 animation，PRM 天然满足，
     无需在 PRM 块中新增任何规则。上面唯一的 transition（仅用于亮/暗主题切换时的平滑过渡）
-   已被全局 PRM 块降到 0.01ms。 */
+    已被全局 PRM 块降到 0.01ms。 */
+
+
+/* ═══════════════════════════════════════════════════════
+   品牌卡背景 — 有序颜色层次（仅背景层，内部文字/图标/按钮一律不动）
+   结构：右上主色光晕(~22%) + 左下呼应光(~13%) + 顶部中性微高光 + 底部中性压暗
+   去网格；主色走 var(--primary) + color-mix 随主题翻转；
+   无 dark: 前缀（深色为基础 token，亮色由下方 .light 覆盖）。
+   ═══════════════════════════════════════════════════════ */
+
+.brand-card-bg {
+  position: relative;
+  isolation: isolate;                 /* 隔离堆叠上下文，确保 ::before 呼吸光不压住内部文字 */
+  background-color: var(--card);
+  background-image:
+    /* 顶部极淡中性高光 — 拉开顶部明度，形成纵深 */
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 18%),
+    /* 底部中性压暗 — 拉开底部明度，避免同色糊一团 */
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.30) 100%),
+    /* 右上主色光晕 ~22%（主光源） */
+    radial-gradient(130% 100% at 88% 8%, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 58%),
+    /* 左下呼应光 ~13%（单一呼应，不引入杂色） */
+    radial-gradient(100% 90% at 8% 98%, color-mix(in srgb, var(--primary) 13%, transparent) 0%, transparent 52%);
+  background-repeat: no-repeat;
+}
+
+/* 极慢呼吸光（层次仍靠上方静态叠加；尊重 prefers-reduced-motion 由全局 PRM 块冻结） */
+.brand-card-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;                        /* 位于静态背景之上、内部文字之下 */
+  pointer-events: none;
+  background: radial-gradient(120% 95% at 86% 6%, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 52%);
+  opacity: 0.5;
+  animation: brand-breath 9s ease-in-out infinite;
+}
+
+@keyframes brand-breath {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.72; }
+}
+
+/* ── 亮色模式覆盖（深色为基础，此处仅微调中性高光/压暗，主色跟随主题翻转） ── */
+.light .brand-card-bg {
+  background-image:
+    /* 顶部中性高光（白卡上极淡） */
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 14%),
+    /* 底部中性压暗（白卡上仅极轻，避免脏） */
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 58%, rgba(0, 0, 0, 0.06) 100%),
+    /* 右上主色光晕 */
+    radial-gradient(130% 100% at 88% 8%, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 58%),
+    /* 左下呼应光 */
+    radial-gradient(100% 90% at 8% 98%, color-mix(in srgb, var(--primary) 11%, transparent) 0%, transparent 52%);
+}
+
+.light .brand-card-bg::before {
+  background: radial-gradient(120% 95% at 86% 6%, color-mix(in srgb, var(--primary) 14%, transparent) 0%, transparent 52%);
+  opacity: 0.4;
+}
 

@@ -245,7 +245,7 @@ export default async function HomePage({
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
           {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
-          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col">
+          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
                 <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">视觉小说资源站</p>

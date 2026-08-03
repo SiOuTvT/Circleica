@@ -13,6 +13,8 @@
 - 实测图源：19 张真实封面 **100% 横图**（4:3~16:9，中位数 1.6），旧竖框裁掉横向内容 **40–58%**，正是「假、显高」的来源。
 - 采用设计师方案 C（3:2 桌面 / 1:1 移动 + 标题固定 2 行盒）：桌面卡高 442→**286px（-35%）**，封面比例 0.8→**1.5（3:2）**，最坏裁切 55%→**15.6%**。
 - 阻塞项：0。但 3000 仍被管理员提权僵尸 PID 27188 占着（返回 500），已用 3100 实例绕开。
+- 颜色/层次修复：占位槽 surface 升 `--card`、描边改满血 `--border`、阴影对齐真卡 `--shadow-card`，深/浅双主题实测通过（深色卡面 rgb(21,21,24) vs 背景 rgb(8,8,10)，亮度差 13）。
+- 剩余 3:4 统一：`admin-page-skeleton` / `user/[id]/loading` / `profile-content-tabs` 三处同源封面已同步 3:2。
 
 ---
 
@@ -46,12 +48,24 @@
 | 1 | 🟠 | 设计/比例 | game-card.tsx:102 / 219, globals.css, related-games.tsx:27 | 封面竖框(4:5)裁掉横图 40–58% 横向内容；卡高 442/4:1 偏海报感 | 改 3:2(桌面)/1:1(移动) + 标题固定 2 行盒 | 设计师 |
 | 2 | 🟡 | 一致性 | game-card.tsx:191/194 | 骨架封面/标题未同步，loading→content 会跳高度 | 同步改 3:2 + 标题 2 行 | 设计师 |
 | 3 | 🟡 | 一致性 | related-games.tsx:27 | 同源封面仍用 3:4，与列表页裁切不同 | 改 3:2 | 主理人 |
+| 4 | 🟡 | 视觉/层次 | globals.css「常驻空槽位」 | 空槽 surface 用 `--muted`、描边 60% 透明、阴影自定义极淡 → 比真卡弱，糊进背景 | surface→`--card`、border→`--border`、shadow→`--shadow-card` | 主理人/设计师 |
+| 5 | 🟢 | 一致性 | admin-page-skeleton.tsx:33, user/[id]/loading.tsx:69, profile-content-tabs.tsx:319-320 | 同源封面仍用 3:4 | 同步改 3:2 | 主理人 |
 
-### 设计实现稿（3:2 规格落实）
+### 设计实现稿（3:2 规格 + 层次修复落实）
+**比例部分**
 - 桌面真卡封面 `aspect-[1/1] sm:aspect-[3/2]`，内容区 padding 不动（守留白）。
 - 标题 `min-h-[2.75em]`（2 行 = 41.25px）→ 内容区成常数，spacer 恒 12px，`auto-rows-fr` 无差可拉。
 - 占位 `.game-slot-title` 由 1 行改 2 行（20.625→41.25px），与真卡完全等高。
-- 实测（Playwright，3100 实例）：桌面卡 270×**286**、封面 268×179（**1.5**）、标题 41px、12 槽；移动卡 172×**265**、封面 170×170（**1.0**）。全部命中规格。
+- 同源封面统一：`related-games.tsx` / `admin-page-skeleton.tsx` / `user/[id]/loading.tsx` / `profile-content-tabs.tsx` 全部改为 `aspect-[1/1] sm:aspect-[3/2]`。
+
+**层次/颜色部分**
+- 空槽 surface 从 `--muted` 升 `--card`，与真卡同 surface；描边从 60% 透明 mix 改满血 `--border`；阴影从自定义极淡值改 `var(--shadow-card)`（真卡同款 elevation）。
+- `.light` 下仅保留 `--slot-panel` 覆盖，其余 token 自动跟随主题，无 `dark:` 前缀。
+
+**实测（Playwright，3100 实例）**
+- 比例：桌面卡 270×**286**、封面 268×179（**1.5**）、标题 41px、12 槽；移动卡 172×**265**、封面 170×170（**1.0**）。全部命中规格。
+- 层次：深色卡面 `rgb(21,21,24)` vs 背景 `rgb(8,8,10)`，亮度差 **13**，描边 `rgba(255,255,255,0.08)`，阴影 = 真卡同款 `--shadow-card`；浅色卡面 `rgb(255,255,255)` vs 背景 `rgb(250,250,250)`，亮度差 **5**，描边 `rgba(0,0,0,0.08)`。
+- curl：`/` 200（55168B，game-slot 144 处），`/games` 200。
 
 ---
 
@@ -69,14 +83,16 @@
 
 - 主站 DB 当前无发布游戏，首页全为占位槽；真实卡片渲染比例以「占位 1:1 复刻真卡」间接验证，待你发布游戏后做真卡实拍复核。
 - Galvelica 独立卡系统（work-card / home-features / editor-pick）未动，图源可能不同，不属本次范围。
-- 后台骨架（admin-page-skeleton / 各 loading.tsx / profile-content-tabs）仍用 3:4，设计师标记「本次范围外」，如需统一可单开任务。
+- 后台骨架/loading/profile-content-tabs 已同步 3:2，不再作为遗留项。
 
 ---
 
 ## 📚 成员产出索引
 
-- gstack-designer（设计师）原始产出：比例修正方案（方案 C 推荐，含 P0 前置、7 处逐行 diff、图源验证规则、一致性提醒）—— 已回传主理人，未落项目目录。
-- 主理人验证脚本与结果：`C:\Users\Dell\AppData\Local\Temp\circ_measure2.js`（桌面/移动实测）+ 构建日志 `C:/Users/Dell/AppData/Local/Temp/circ_build_3100.log`（BUILD_ID=Bc93Y861PKupKf8ZBnrIC，exit 0）。
+- gstack-designer（设计师）原始产出：比例修正方案（方案 C 推荐，含 P0 前置、7 处逐行 diff、图源验证规则、一致性提醒）+ 层次修复规格（surface/border/shadow 对齐真卡）—— 已回传主理人，未落项目目录。
+- 主理人验证脚本与结果：
+  - 比例：`C:\Users\Dell\AppData\Local\Temp\circ_measure2.js` + 构建日志 `circ_build_3100.log`（BUILD_ID=`Bc93Y861PKupKf8ZBnrIC`）。
+  - 层次：`C:\Users\Dell\AppData\Local\Temp\circ_slot_verify3.js` + 截图 `circ_slot_{dark,light}.png` / `circ_slot_{dark,light}_grid.png` + 构建日志 `circ_build_shadow2.log`（BUILD_ID=`rnZZkeFHmcIZIKrVzHKgw`）。
 
 ---
 
