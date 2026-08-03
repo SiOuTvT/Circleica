@@ -1,10 +1,10 @@
 "use client"
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
-import { useEmotionalMessage, useEmotionalMessages } from "@/hooks/use-emotional-messages"
+import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
-import { Calendar, Eye, FolderHeart, Gamepad2, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
+import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Trash2, Users, X } from "lucide-react"
 import { EmotionalIcon } from "@/components/emotional-icon"
 import Image from "next/image"
 import Link from "next/link"
@@ -22,9 +22,8 @@ interface CommentLite {
   // game 可能为 null（游戏被删除后外键未级联清理），渲染时必须判空，否则 c.game.serialId 抛错
   game: { id: string; serialId?: number; title: string } | null
 }
-interface PlayStatusLite {
-  game: GameLite | null
-  status: string
+interface FollowingLite {
+  id: string; serialId?: number; username: string; avatar: string; composedAvatarUrl?: string | null; bio: string
 }
 interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
@@ -32,17 +31,16 @@ interface CollectionData {
 interface Props {
   userId: string
 }
-type TabKey = "favorites" | "comments" | "play"
+type TabKey = "favorites" | "comments" | "following"
 
 const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: "favorites", label: "收藏", icon: FolderHeart },
   { key: "comments", label: "评论", icon: MessageSquare },
-  { key: "play", label: "足迹", icon: Gamepad2 },
+  { key: "following", label: "关注", icon: Users },
 ]
 
 // 情感消息 key 常量，避免每次渲染传入新数组
-const FAV_MSG_KEYS: string[] = ["empty_favorites", "empty_play_status"]
-const PLAY_MSG_KEY = "empty_play_status"
+const FAV_MSG_KEYS: string[] = ["empty_favorites"]
 
 export function ProfileContentTabs({ userId }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
@@ -56,10 +54,10 @@ export function ProfileContentTabs({ userId }: Props) {
 
   // 客户端按需加载数据 - 初始为空
   const [loadedFav, setLoadedFav] = useState(false)
-  const [loadedPlay, setLoadedPlay] = useState(false)
+  const [loadedFollowing, setLoadedFollowing] = useState(false)
   const [loadedComments, setLoadedComments] = useState(false)
   const [localFav, setLocalFav] = useState<GameLite[]>([])
-  const [localPlay, setLocalPlay] = useState<PlayStatusLite[]>([])
+  const [localFollowing, setLocalFollowing] = useState<FollowingLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
 
   const loadFavorites = useCallback(async () => {
@@ -75,14 +73,18 @@ export function ProfileContentTabs({ userId }: Props) {
     } catch { setLoadError(true) }
   }, [userId, loadedFav])
 
-  const loadPlayStatus = useCallback(async () => {
-    if (loadedPlay) return
+  const loadFollowing = useCallback(async () => {
+    if (loadedFollowing) return
     try {
-      const data = await apiGet<{ success: boolean; data: PlayStatusLite[] }>(`/api/profile/${userId}/play-status`)
-      setLocalPlay(Array.isArray(data.data) ? data.data : [])
-      setLoadedPlay(true)
+      // API 返回 Follow[]（每项含嵌套 following 用户），需提取 following 并过滤掉孤儿记录（用户被删）
+      const data = await apiGet<{ success: boolean; data: { following: FollowingLite | null }[] }>(`/api/profile/${userId}/follows`)
+      const users = Array.isArray(data.data)
+        ? data.data.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
+        : []
+      setLocalFollowing(users)
+      setLoadedFollowing(true)
     } catch { setLoadError(true) }
-  }, [userId, loadedPlay])
+  }, [userId, loadedFollowing])
 
   const loadComments = useCallback(async () => {
     if (loadedComments) return
@@ -96,9 +98,9 @@ export function ProfileContentTabs({ userId }: Props) {
   // 切换 tab 时加载对应数据
   useEffect(() => {
     if (active === "favorites") loadFavorites()
-    else if (active === "play") loadPlayStatus()
+    else if (active === "following") loadFollowing()
     else if (active === "comments") loadComments()
-  }, [active, loadFavorites, loadPlayStatus, loadComments])
+  }, [active, loadFavorites, loadFollowing, loadComments])
 
   const loadCollections = useCallback(async () => {
     setLoadError(false)
@@ -184,8 +186,8 @@ export function ProfileContentTabs({ userId }: Props) {
         {active === "comments" && (
           loadedComments ? <CommentsTab comments={localComments} /> : <TabLoadingSkeleton />
         )}
-        {active === "play" && (
-          loadedPlay ? <PlayTab playStatusGames={localPlay} /> : <TabLoadingSkeleton />
+        {active === "following" && (
+          loadedFollowing ? <FollowingTab users={localFollowing} /> : <TabLoadingSkeleton />
         )}
       </div>
 
@@ -371,25 +373,28 @@ function TabLoadingSkeleton() {
   )
 }
 
-function PlayTab({ playStatusGames }: { playStatusGames: PlayStatusLite[] }) {
-  const { message: playMsg } = useEmotionalMessage(PLAY_MSG_KEY)
-  if (playStatusGames.length === 0) return (
+function FollowingTab({ users }: { users: FollowingLite[] }) {
+  if (users.length === 0) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <Eye className="h-10 w-10 text-muted-foreground/30 mb-3" />
-      <p className="text-sm text-muted-foreground">{playMsg ? <><EmotionalIcon emoji={playMsg.emoji} className="h-4 w-4" /> {playMsg.title}，{playMsg.subtitle}</> : "还没有游玩记录"}</p>
+      <Users className="h-10 w-10 text-muted-foreground/30 mb-3" />
+      <p className="text-sm text-muted-foreground">还没有关注任何人</p>
     </div>
   )
-  const colors: Record<string, string> = { "想玩": "bg-sky-500/10 text-sky-400", "在玩": "bg-amber-500/10 text-amber-400", "玩过": "bg-emerald-500/10 text-emerald-400", "搁置": "bg-muted-foreground/10 text-muted-foreground", "弃坑": "bg-rose-500/10 text-rose-400" }
   return (
     <div className="flex flex-col gap-2">
-      {playStatusGames.map(({ game, status }) => {
-        // 游戏已被删除（game 为 null）时不渲染跳转链接
-        if (!game) return null
+      {users.map((u) => {
+        const avatar = u.composedAvatarUrl || u.avatar
         return (
-          <Link key={game.id} href={`/games/${game.serialId ?? game.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
-            {game.coverImage ? <Image src={game.coverImage} alt={game.title} width={36} height={48} className="h-12 w-9 rounded-md object-cover" unoptimized /> : <div className="flex h-12 w-9 items-center justify-center rounded-md bg-muted"><Gamepad2 className="h-4 w-4" /></div>}
-            <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{game.title}</p></div>
-            <Tag variant="badge" className={colors[status] || "bg-muted text-muted-foreground"}>{status}</Tag>
+          <Link key={u.id} href={`/user/${u.serialId ?? u.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
+            {avatar ? (
+              <Image src={avatar} alt={u.username} width={40} height={40} className="h-10 w-10 rounded-full object-cover" unoptimized />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">{u.username.slice(0, 1)}</div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{u.username}</p>
+              {u.bio && <p className="text-xs text-muted-foreground truncate">{u.bio}</p>}
+            </div>
           </Link>
         )
       })}

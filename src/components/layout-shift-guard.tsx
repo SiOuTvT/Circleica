@@ -19,6 +19,14 @@ export function LayoutShiftGuard() {
         if (document.body.style.paddingRight !== "0px") {
           document.body.style.setProperty("padding-right", "0px", "important")
         }
+        // react-remove-scroll 少数版本把补偿写到 <html> 而非 <body>，同样清零，消除顶部导航偏移
+        const de = document.documentElement
+        if (de.style.marginRight !== "0px") {
+          de.style.setProperty("margin-right", "0px", "important")
+        }
+        if (de.style.paddingRight !== "0px") {
+          de.style.setProperty("padding-right", "0px", "important")
+        }
       }
     }
 

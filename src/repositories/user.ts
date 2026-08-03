@@ -306,4 +306,24 @@ export const profileRepo = {
       include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
     })
   },
+
+  findFollowing(userId: string) {
+    return prisma.follow.findMany({
+      where: { followerId: userId },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      include: {
+        following: {
+          select: {
+            id: true,
+            serialId: true,
+            username: true,
+            avatar: true,
+            composedAvatarUrl: true,
+            bio: true,
+          },
+        },
+      },
+    })
+  },
 }

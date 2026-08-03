@@ -24,8 +24,11 @@ body {
   overscroll-behavior-y: contain;
   touch-action: manipulation;
 }
-/* Radix react-remove-scroll 打开弹窗时给 body 加 margin-right 补偿滚动条 → 抵消 */
-body[data-scroll-locked] {
+/* Radix react-remove-scroll 打开弹窗时给 body/html 加 margin/padding-right 补偿滚动条 → 抵消。
+ * scrollbar-gutter: stable 已全局预留滚动条空间，react-remove-scroll 的补偿属于双重补偿，必须清零。
+ * 同时覆盖 html（少数版本把补偿写到 html 而非 body），彻底消除弹窗打开时的背景偏移。 */
+body[data-scroll-locked],
+html[data-scroll-locked] {
   margin-right: 0 !important;
   padding-right: 0 !important;
 }
