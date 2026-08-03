@@ -316,8 +316,8 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
             {games.map((g) => (
               <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group" onClick={onClose}>
-                {g.coverImage ? <Image src={g.coverImage} alt={g.title} width={120} height={160} className="aspect-[3/4] w-full rounded-lg object-cover" unoptimized />
-                  : <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg bg-muted"><FolderHeart className="h-6 w-6" /></div>}
+                {g.coverImage ? <Image src={g.coverImage} alt={g.title} width={120} height={160} className="aspect-[1/1] sm:aspect-[3/2] w-full rounded-lg object-cover" unoptimized />
+                  : <div className="flex aspect-[1/1] sm:aspect-[3/2] w-full items-center justify-center rounded-lg bg-muted"><FolderHeart className="h-6 w-6" /></div>}
                 <p className="mt-1.5 text-xs font-medium text-foreground truncate">{g.title}</p>
               </Link>
             ))}

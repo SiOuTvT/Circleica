@@ -66,7 +66,7 @@ export default function UserProfileLoading() {
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-2">
-                  <div className="w-full aspect-[3/4] rounded-xl animate-pulse bg-muted" />
+                  <div className="w-full aspect-[1/1] sm:aspect-[3/2] rounded-xl animate-pulse bg-muted" />
                   <div className="h-3 w-3/4 rounded animate-pulse bg-muted" />
                 </div>
               ))}

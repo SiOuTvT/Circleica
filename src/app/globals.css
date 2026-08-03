@@ -1769,19 +1769,23 @@ body[data-has-bottom-nav="true"] {
    ═══════════════════════════════════════════════════════ */
 
 /* ── 空槽色板 ── */
-/* 设计意图：真卡「浮起」（--card 高于底色 + shadow），空槽「凹陷」（低于 --card、无阴影、描边更弱）。 */
+/* 修订意图：对齐真卡视觉权重——卡面用 --card（与真卡同色，明确浮起）、
+   描边用满血 --border（不再砍 60%）、叠加 1 层极淡阴影强化层级。
+   仍保留「无 ring」设计（空槽外缘比真卡少一圈 box-shadow 描边，属刻意区分）。 */
 :root {
-  --slot-surface:   var(--muted);                                                 /* 卡面 → #111114 */
-  --slot-panel:     #0e0e11;                                                      /* 封面/缩略区，比卡面低 3 点 */
-  --slot-border:    color-mix(in srgb, var(--border) 60%, transparent);           /* ≈ rgba(255,255,255,.048) */
-  --slot-mark:      color-mix(in srgb, var(--muted-foreground) 20%, transparent); /* 对齐 EmptyState 的 /20 */
-  --slot-mark-text: color-mix(in srgb, var(--muted-foreground) 65%, transparent);
+  --slot-surface:   var(--card);                                                   /* 卡面 → #151518：与真卡同色，明确浮起，不再融背景 */
+  --slot-panel:     #0e0e11;                                                       /* 封面/缩略预留块（保留不动） */
+  --slot-border:    var(--border);                                                 /* 满血描边 rgba(255,255,255,.08)：对齐真卡 border 权重（原 60% 过弱） */
+  --slot-shadow:    0 1px 2px rgba(0,0,0,0.12);                                    /* 极淡 1 层 elevation（可选，删去 box-shadow 行即回退纯描边） */
+  --slot-mark:      color-mix(in srgb, var(--muted-foreground) 20%, transparent);  /* 对齐 EmptyState /20（保留） */
+  --slot-mark-text: color-mix(in srgb, var(--muted-foreground) 65%, transparent);  /* 保留 */
 }
 
-/* 仅 --slot-panel 需要显式覆盖：其余三个挂在 --muted / --border / --muted-foreground 上，
-   .light 已翻转过这些 token，自动跟随。 */
+/* --slot-surface 挂在 --card、--slot-border 挂在 --border，.light 已翻转，自动跟随；
+   仅 --slot-panel（保留）与 --slot-shadow（阴影 alpha 不同）需显式覆盖。 */
 .light {
-  --slot-panel:     #eeeef1;                                                      /* 卡面解析为 #f5f5f7，低 7 点 */
+  --slot-panel:     #eeeef1;                                                       /* 保留 */
+  --slot-shadow:    0 1px 2px rgba(0,0,0,0.04);                                    /* 浅色极淡阴影 */
 }
 
 /* ── 游戏卡常驻空槽（网格视图，对应 GameCard）── */
@@ -1789,11 +1793,12 @@ body[data-has-bottom-nav="true"] {
    真卡另有 ring-1（box-shadow，不影响布局）；空槽刻意不加 ring，让外缘更轻，属设计意图，勿"修复"。 */
 .game-slot {
   background: var(--slot-surface);
-  border: 1px solid var(--slot-border);
-  box-shadow: none;
+  border: 1px solid var(--slot-border);   /* 满血 --border，对齐真卡 border 权重 */
+  box-shadow: var(--slot-shadow);          /* 新增：极淡 elevation（可选） */
   cursor: default;
   transition: background-color var(--duration-normal) ease,
-              border-color     var(--duration-normal) ease;
+              border-color     var(--duration-normal) ease,
+              box-shadow       var(--duration-normal) ease;
 }
 
 .game-slot-cover {
@@ -1823,7 +1828,7 @@ body[data-has-bottom-nav="true"] {
    这里必须用 box-shadow 而非 border，否则行高 104px → 106px。 */
 .game-list-slot {
   background: var(--slot-surface);
-  box-shadow: 0 0 0 1px var(--slot-border);
+  box-shadow: 0 0 0 1px var(--slot-border), var(--slot-shadow);
   cursor: default;
   transition: background-color var(--duration-normal) ease,
               box-shadow       var(--duration-normal) ease;
@@ -1843,7 +1848,7 @@ body[data-has-bottom-nav="true"] {
    否则亮色模式下这块 310px 区域没有任何边界。 */
 .announce-slot {
   background: var(--slot-surface);
-  box-shadow: 0 0 0 1px var(--slot-border);
+  box-shadow: 0 0 0 1px var(--slot-border), var(--slot-shadow);
   cursor: default;
   transition: background-color var(--duration-normal) ease,
               box-shadow       var(--duration-normal) ease;
