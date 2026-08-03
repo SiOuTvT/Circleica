@@ -1876,6 +1876,12 @@ body[data-has-bottom-nav="true"] {
    无 dark: 前缀（深色为基础 token，亮色由下方 .light 覆盖）。
    ═══════════════════════════════════════════════════════ */
 
+/* 品牌卡背景：所有有色层（光晕 / 呼吸光）均使用 var(--primary) + color-mix。
+   ⚠️ 关键点：--primary 不是写死的颜色。它由 ThemeScript 在运行时从数据库
+   Settings.themeColor 注入覆盖（默认 #5FA8A0 仅是 DB 缺值时的兜底）。
+   → 后台「主题设置 / 初始化向导」改主题色（10 预设 + 自定义取色器）后，
+      本卡的光晕与呼吸光会【自动跟随】刷新，无需改任何代码。
+   另：深/浅模式是另一条线（靠 .light 切，不碰色相）；换主题色=换 hue，切明暗=换亮度，二者独立。 */
 .brand-card-bg {
   position: relative;
   isolation: isolate;                 /* 隔离堆叠上下文，确保 ::before 呼吸光不压住内部文字 */

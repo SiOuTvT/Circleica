@@ -203,10 +203,18 @@ export default async function HomePage({
       let pending = pendingMap.get(statsCacheKey)
       if (!pending) {
         // 发起新请求
+        // 首页品牌卡「三统计」口径（非显而易见，集中说明以免误读）：
+        //   ① total        = 已发布游戏【总数】  （isPublished=true；非 NSFW 模式下再排除 isNsfw）
+        //   ② weekNewGames = 「本周新增」= 已发布 且 createdAt 在最近 7 天内(now-7d) 的游戏数。
+        //                    数的是「新上架/新发布的游戏」，不是新用户、新标签、也不是更新动作。
+        //   ③ todayCheckins= 「今日签到」= 今天 checkIn 表新增的签到记录数。
+        //   三者均带 5 分钟缓存（见下方 cache.set(…, 300)）；DB 不可达时走空数据兜底，绝不注入假数据。
+        //   ⚠️ 当前主站 DB 无已发布游戏，线上三数均为 0（真数据，非 bug），发布后会自动增长。
         pending = Promise.all([
-          prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }),
-          prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
-          prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),
+          prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }), // ① total：已发布游戏总数
+          prisma.checkIn.count({ where: { createdAt: { gte: today } } }),                          // ③ todayCheckins：今日签到数
+          prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),        // ② weekNewGames：本周新增（近 7 天新发布）
+
           prisma.announcement.findMany({
             where: {
               status: "published",
