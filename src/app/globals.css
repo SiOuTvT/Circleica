@@ -1800,13 +1800,13 @@ body[data-has-bottom-nav="true"] {
   background: var(--slot-panel);
 }
 
-/* 标题预留行 —— 与真实 h3(text-[15px] + leading-snug) 的单行行盒等高：15 × 1.375 = 20.625px。
-   用 em 表达以便标题字号变更时自动跟随。刻意只留 1 行：
-   槽位靠 .game-card-spacer 吸收行高差额可以变高，但预留 2 行会反向撑高整个网格。 */
+/* 标题预留行 —— 与真实 h3(text-[15px] + leading-snug + min-h-[2.75em]) 的 2 行行盒等高：15 × 1.375 × 2 = 41.25px。
+   用 em 表达以便标题字号变更时自动跟随。P0 之后真卡恒 2 行盒，槽位也留 2 行才是 1:1；
+   留 1 行反而比真卡矮 20.6px，靠 auto-rows-fr 硬拉平 = spacer 撑成死白。 */
 .game-slot-title {
   font-size: 15px;
   line-height: 1.375;
-  height: 1.375em;
+  height: 2.75em;
 }
 
 /* 标签预留行 —— 与真实 Tag(variant="content") 单行等高：

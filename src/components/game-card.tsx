@@ -99,7 +99,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
       }}
     >
       {/* ─── 封面：竖图比例更舒展（3:4 倾向） ─── */}
-      <div className="relative w-full aspect-[3/4] overflow-hidden bg-muted sm:aspect-[4/5]">
+      <div className="relative w-full aspect-[1/1] overflow-hidden bg-muted sm:aspect-[3/2]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -164,7 +164,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
       {/* ─── 内容区：标题 + 资源标签（信息收敛） ─── */}
       <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
-        <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 text-foreground">
+        <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
           {game.title}
         </h3>
 
@@ -188,10 +188,10 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border">
       {/* 封面 */}
-      <div className="w-full aspect-[3/4] skeleton-shimmer sm:aspect-[4/5]" />
+      <div className="w-full aspect-[1/1] skeleton-shimmer sm:aspect-[3/2]" />
       {/* 内容 */}
       <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
-        <div className="h-4 w-full rounded skeleton-shimmer" />
+        <div className="h-[2.75em] w-full rounded skeleton-shimmer" />
         <div className="flex flex-wrap gap-2 mt-2.5">
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
           <div className="h-5 w-12 rounded-full skeleton-shimmer" />
@@ -216,7 +216,7 @@ export function GameCardSkeleton() {
 export function GameCardSlot() {
   return (
     <div aria-hidden="true" className="game-slot flex flex-col overflow-hidden rounded-2xl">
-      <div className="game-slot-cover w-full aspect-[3/4] sm:aspect-[4/5]" />
+      <div className="game-slot-cover w-full aspect-[1/1] sm:aspect-[3/2]" />
       <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         <div className="game-slot-title" />
         <div className="game-card-spacer" />
