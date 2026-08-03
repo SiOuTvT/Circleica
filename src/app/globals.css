@@ -24,17 +24,20 @@ body {
   overscroll-behavior-y: contain;
   touch-action: manipulation;
 }
-/* Radix react-remove-scroll 打开弹窗时给 body/html 加 margin/padding-right 补偿滚动条 → 抵消。
- * scrollbar-gutter: stable 已全局预留滚动条空间，react-remove-scroll 的补偿属于双重补偿，必须清零。
- * 同时覆盖 html（少数版本把补偿写到 html 而非 body），彻底消除弹窗打开时的背景偏移。 */
-body[data-scroll-locked],
-html[data-scroll-locked] {
+/* Radix Dialog 经 react-remove-scroll 给 <body> 加 data-scroll-locked 属性（库源码
+ * react-remove-scroll-bar: lockAttribute = 'data-scroll-locked'），并运行时注入带 !important
+ * 的补偿样式：margin-right/padding = 滚动条宽、position:relative。这与
+ * html{scrollbar-gutter:stable} 已预留的滚动条空间叠加 → 弹窗打开时整页左移
+ * （收藏夹等 Radix 弹窗"背景偏移"的真正根源）。
+ * 库注入的样式也是 !important 且出现在运行时 <style>（晚于本文件），
+ * 故必须用更高优先级选择器（加 html 前缀 (0,1,2) > 库 (0,1,1)）才能压过它。
+ * 保留 overflow:hidden 的滚动锁定，仅中和补偿造成的位移。 */
+html body[data-scroll-locked] {
   margin-right: 0 !important;
   padding-right: 0 !important;
-}
-html:has(body[data-scroll-locked]) > body {
-  margin-right: 0 !important;
-  padding-right: 0 !important;
+  padding-left: 0 !important;
+  padding-top: 0 !important;
+  position: static !important;
 }
 
 /* 富文本内容中的图片防溢出（仅用户/管理员生成的 HTML 内容） */

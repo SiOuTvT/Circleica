@@ -3,34 +3,33 @@
 import { useEffect } from "react"
 
 /**
- * 防止 Radix Dialog 打开时页面偏移
- * react-remove-scroll 通过 <style> 标签给 body 加 margin-right，
- * CSS !important 打不过动态注入的样式。用 JS 强制清除。
+ * 兜底：防止 Radix Dialog 打开时整页偏移。
+ * react-remove-scroll 给 <body> 加 data-scroll-locked 属性并注入带 !important 的补偿样式
+ * （margin-right/padding = 滚动条宽、position:relative）。globals.css 已用更高优先级的
+ * `html body[data-scroll-locked]` 选择器中和；此处用 inline !important 再做一层兜底，
+ * 确保覆盖库动态注入的样式（inline !important 高于任何样式表规则）。
  */
 export function LayoutShiftGuard() {
   useEffect(() => {
     let raf: number | null = null
 
     const fix = () => {
-      if (document.body.hasAttribute("data-scroll-locked")) {
-        if (document.body.style.marginRight !== "0px") {
-          document.body.style.setProperty("margin-right", "0px", "important")
-        }
-        if (document.body.style.paddingRight !== "0px") {
-          document.body.style.setProperty("padding-right", "0px", "important")
-        }
-        // react-remove-scroll 少数版本把补偿写到 <html> 而非 <body>，同样清零，消除顶部导航偏移
+      // 真实信号是 data-scroll-locked 属性（非 .body-scroll-locked 类）
+      const locked = document.body.hasAttribute("data-scroll-locked")
+      if (locked) {
+        const b = document.body
+        b.style.setProperty("margin-right", "0px", "important")
+        b.style.setProperty("padding-right", "0px", "important")
+        b.style.setProperty("padding-left", "0px", "important")
+        b.style.setProperty("padding-top", "0px", "important")
+        b.style.setProperty("position", "static", "important")
         const de = document.documentElement
-        if (de.style.marginRight !== "0px") {
-          de.style.setProperty("margin-right", "0px", "important")
-        }
-        if (de.style.paddingRight !== "0px") {
-          de.style.setProperty("padding-right", "0px", "important")
-        }
+        de.style.setProperty("margin-right", "0px", "important")
+        de.style.setProperty("padding-right", "0px", "important")
       }
     }
 
-    // 监听属性变化
+    // 监听属性（data-scroll-locked 是属性）+ style 变化
     const observer = new MutationObserver(() => {
       if (raf) cancelAnimationFrame(raf)
       raf = requestAnimationFrame(fix)
@@ -38,7 +37,7 @@ export function LayoutShiftGuard() {
     observer.observe(document.body, { attributes: true, attributeFilter: ["data-scroll-locked", "style"] })
 
     // 兜底：定期检查（防止 MutationObserver 漏掉）
-    const interval = setInterval(fix, 100)
+    const interval = setInterval(fix, 200)
 
     return () => {
       observer.disconnect()
