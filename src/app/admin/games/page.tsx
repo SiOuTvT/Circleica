@@ -1,6 +1,8 @@
 import { Pagination } from "@/components/ui/pagination"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 import { Download, Plus, Search } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -28,22 +30,45 @@ export default async function AdminGamesPage({
     ]
   } : {}
 
-  const [games, total, published, draft] = await Promise.all([
-    // 使用 take 限制 tags 返回数量（表格只显示前 3 个标签）
-    prisma.game.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      select: {
-        id: true, title: true, status: true, isNsfw: true,
-        isPublished: true, viewCount: true, favoriteCount: true, createdAt: true,
-        tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
-      },
-    }),
-    prisma.game.count({ where }),
-    prisma.game.count({ where: { ...where, isPublished: true } }),
-    prisma.game.count({ where: { ...where, isPublished: false } }),
-  ])
+  // 缓存列表 + 计数，避免每次导航都打 4 次 prisma（含 3 次全表 count）
+  const cacheKeyGames = cacheKey("admin:games", String(page), q, String(limit))
+  let cachedGames: { games: any[]; total: number; published: number; draft: number } | null = null
+  try {
+    cachedGames = await cache.get<typeof cachedGames>(cacheKeyGames)
+  } catch (e) {
+    logger.db.error("[AdminGames] Cache get failed", e)
+  }
+
+  let games: any[]
+  let total: number
+  let published: number
+  let draft: number
+
+  if (cachedGames) {
+    ({ games, total, published, draft } = cachedGames)
+  } else {
+    [games, total, published, draft] = await Promise.all([
+      // 使用 take 限制 tags 返回数量（表格只显示前 3 个标签）
+      prisma.game.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        select: {
+          id: true, title: true, status: true, isNsfw: true,
+          isPublished: true, viewCount: true, favoriteCount: true, createdAt: true,
+          tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
+        },
+      }),
+      prisma.game.count({ where }),
+      prisma.game.count({ where: { ...where, isPublished: true } }),
+      prisma.game.count({ where: { ...where, isPublished: false } }),
+    ])
+    try {
+      await cache.set(cacheKeyGames, { games, total, published, draft }, 120)
+    } catch (e) {
+      logger.db.error("[AdminGames] Cache set failed", e)
+    }
+  }
 
   const totalPages = Math.ceil(total / limit)
 

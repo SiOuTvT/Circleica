@@ -1,6 +1,8 @@
 import { Pagination } from "@/components/ui/pagination"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { cache, cacheKey } from "@/lib/redis"
+import { logger } from "@/lib/logger"
 import { PenTool, Search } from "lucide-react"
 import { CreatorsList } from "./creators-list"
 
@@ -26,31 +28,52 @@ export default async function AdminCreatorsPage({
     ]
   } : {}
 
-  const [creators, total] = await Promise.all([
-    prisma.creator.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      select: {
-        id: true, name: true, nameJa: true, avatar: true,
-        gender: true, vndbId: true,
-        games: { select: { gameId: true } },
-      },
-    }),
-    prisma.creator.count({ where }),
-  ])
+  // 缓存列表 + 计数，避免每次导航都打 2 次 prisma
+  const cacheKeyCreators = cacheKey("admin:creators", String(page), q, String(limit))
+  let cachedCreators: { creators: any[]; total: number } | null = null
+  try {
+    cachedCreators = await cache.get<typeof cachedCreators>(cacheKeyCreators)
+  } catch (e) {
+    logger.db.error("[AdminCreators] Cache get failed", e)
+  }
+
+  let mappedCreators: any[]
+  let total: number
+
+  if (cachedCreators) {
+    ({ creators: mappedCreators, total } = cachedCreators)
+  } else {
+    const [creators, totalResult] = await Promise.all([
+      prisma.creator.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        select: {
+          id: true, name: true, nameJa: true, avatar: true,
+          gender: true, vndbId: true,
+          games: { select: { gameId: true } },
+        },
+      }),
+      prisma.creator.count({ where }),
+    ])
+    total = totalResult
+    mappedCreators = creators.map(c => ({
+      id: c.id,
+      name: c.name,
+      nameJa: c.nameJa,
+      avatar: c.avatar,
+      gender: c.gender,
+      vndbId: c.vndbId,
+      gameCount: new Set(c.games.map(g => g.gameId)).size,
+    }))
+    try {
+      await cache.set(cacheKeyCreators, { creators: mappedCreators, total }, 120)
+    } catch (e) {
+      logger.db.error("[AdminCreators] Cache set failed", e)
+    }
+  }
 
   const totalPages = Math.ceil(total / limit)
-
-  const mappedCreators = creators.map(c => ({
-    id: c.id,
-    name: c.name,
-    nameJa: c.nameJa,
-    avatar: c.avatar,
-    gender: c.gender,
-    vndbId: c.vndbId,
-    gameCount: new Set(c.games.map(g => g.gameId)).size,
-  }))
 
   return (
     <div className="space-y-6">

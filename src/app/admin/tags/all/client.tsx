@@ -1,11 +1,12 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { Pagination } from "@/components/ui/pagination"
 import { ArrowLeft, Layers, Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -26,25 +27,45 @@ interface GroupOption {
   color: string
 }
 
-export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: GroupOption[] }) {
+interface AllTagsClientProps {
+  tags: TagItem[]
+  groups: GroupOption[]
+  currentPage: number
+  totalPages: number
+  q: string
+  total: number
+}
+
+export function AllTagsClient({ tags, groups, currentPage, totalPages, q, total }: AllTagsClientProps) {
   const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(q)
   const [sortBy, setSortBy] = useState<"name" | "count">("name")
   const [editingTagId, setEditingTagId] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 服务端搜索：输入防抖后改写 URL 的 q 参数并回到第 1 页
+  useEffect(() => {
+    if (searchQuery === q) return
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      const params = new URLSearchParams()
+      if (searchQuery.trim()) params.set("q", searchQuery.trim())
+      params.set("page", "1")
+      router.push(`/admin/tags/all?${params.toString()}`, { scroll: false })
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [searchQuery, q, router])
 
   const filtered = useMemo(() => {
-    let list = tags
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      list = list.filter((t) => t.name.toLowerCase().includes(q))
-    }
     if (sortBy === "count") {
-      list = [...list].sort((a, b) => b.gameCount - a.gameCount)
+      return [...tags].sort((a, b) => b.gameCount - a.gameCount)
     }
-    return list
-  }, [tags, searchQuery, sortBy])
+    return tags
+  }, [tags, sortBy])
 
-  // 按标签组分组统计
+  // 按标签组分组统计（当前页）
   const groupStats = useMemo(() => {
     const map = new Map<string, { name: string; color: string; count: number }>()
     for (const t of tags) {
@@ -74,13 +95,13 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
         <div className="flex items-center gap-2">
           <Layers className="h-5 w-5 text-primary" />
           <h1 className="text-xl font-bold text-foreground">全部标签</h1>
-          <span className="text-sm text-muted-foreground">{tags.length} 个</span>
+          <span className="text-sm text-muted-foreground">{total} 个</span>
         </div>
       </div>
 
       {/* ── 标签组分布 ── */}
       <Card size="default" radius="xl">
-        <p className="text-xs text-muted-foreground mb-3">标签组分布</p>
+        <p className="text-xs text-muted-foreground mb-3">标签组分布（当前页）</p>
         <div className="flex flex-wrap gap-2">
           {groupStats.map((g) => (
             <span
@@ -178,6 +199,14 @@ export function AllTagsClient({ tags, groups }: { tags: TagItem[]; groups: Group
           </div>
         </div>
       )}
+
+      {/* ── 分页 ── */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl="/admin/tags/all"
+        extraParams={q ? { q } : undefined}
+      />
     </div>
   )
 }

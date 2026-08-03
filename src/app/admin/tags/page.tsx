@@ -4,15 +4,27 @@ import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { logger } from "@/lib/logger"
 import { prisma, Prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
-
-export const dynamic = "force-dynamic"
+import { cache, cacheKey, cached } from "@/lib/redis"
 
 export default async function TagsOverviewPage() {
   await requireAdmin()
 
-  // 确保预设标签组和资源标签存在（并行）
+  // 确保预设标签组和资源标签存在（并行，幂等，首次后近乎无成本）
   await Promise.all([ensurePresetTagGroups(), ensureResourceTags()])
 
+  // 只读查询较重（全量标签 + 全表 GameTag 计数），缓存 60s 避免每次导航全打库
+  const { mappedGroups, mappedUngrouped, allGroups } = await cached(
+    cacheKey("admin:tags:overview"),
+    loadTagsOverview,
+    60,
+  )
+
+  return (
+    <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={allGroups} />
+  )
+}
+
+async function loadTagsOverview() {
   // 获取标签计数、资源标签设置、标签组和未分组标签（全部并行）
   const [totalTagCount, allResourceSettings, groups, ungroupedTags] = await Promise.all([
     prisma.tag.count(),
@@ -84,7 +96,9 @@ export default async function TagsOverviewPage() {
     isVisible: t.isVisible,
   }))
 
-  return (
-    <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={mappedGroups.map(g => ({ id: g.id, name: g.name, color: g.color }))} />
-  )
+  return {
+    mappedGroups,
+    mappedUngrouped,
+    allGroups: mappedGroups.map(g => ({ id: g.id, name: g.name, color: g.color })),
+  }
 }

@@ -90,25 +90,40 @@ export const getSiteSettings = cache(async (): Promise<Record<string, string>> =
 export async function updateSiteSettings(data: Record<string, unknown>): Promise<Record<string, string>> {
   const entries = Object.entries(data).filter(([k]) => typeof k === "string")
 
-  // 批量 upsert（事务内执行）
-  // 防御：entries 为空时跳过事务——prisma.$transaction([]) 会抛错导致整次保存 500，
-  // 例如 pages-manager 保存空值、settings 全字段被过滤时。
+  // 顺序 upsert（避开 $transaction 数组式对「元素须为 PrismaPromise」的校验——
+  // 该运行时下传入 upsert 数组会被误判为非 PrismaPromise 而抛 500，直接 500 导致前端「保存失败」）。
+  // 主题设置条目极少（通常 4 条），无需事务隔离，逐条 await 即可。
   if (entries.length > 0) {
-    await prisma.$transaction(
-      entries.map(([key, value]) =>
-        prisma.siteSetting.upsert({
-          where: { key },
-          update: { value: String(value ?? "") },
-          create: { key, value: String(value ?? "") },
-        })
-      )
-    )
+    for (const [key, value] of entries) {
+      await prisma.siteSetting.upsert({
+        where: { key },
+        update: { value: String(value ?? "") },
+        create: { key, value: String(value ?? "") },
+      })
+    }
   }
 
-  revalidateTag("site-settings", { expire: 0 })
-  logger.cache.info("SiteSettings 缓存已清除", { keys: entries.map(([k]) => k).join(",") })
+  // profile={ expire: 0 } 让该 tag 缓存立即过期（强制下次读取重新回源），Next16 要求必传第二参。
+  // 缓存失效属于「尽力而为」：即便失败也必须让保存返回成功，否则前端会误判「保存失败」。
+  try {
+    revalidateTag("site-settings", { expire: 0 })
+  } catch (e) {
+    logger.cache.warn("SiteSettings 缓存失效失败（已忽略，下次读取将回源）", {
+      error: e instanceof Error ? e.message : String(e),
+    })
+  }
+  logger.cache.info("SiteSettings 已更新", { keys: entries.map(([k]) => k).join(",") })
 
-  return getSiteSettings()
+  // 回读同样「尽力而为」：DB 写入已成功即视为保存成功，
+  // 回读（unstable_cache）失败绝不能让接口 500，否则前端仍会弹「保存失败」。
+  try {
+    return await getSiteSettings()
+  } catch (e) {
+    logger.cache.warn("SiteSettings 回读失败，降级返回写入值", {
+      error: e instanceof Error ? e.message : String(e),
+    })
+    return Object.fromEntries(entries.map(([k, v]) => [k, String(v ?? "")]))
+  }
 }
 
 // ── 初始化检测 ──────────────────────

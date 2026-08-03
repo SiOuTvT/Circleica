@@ -70,6 +70,21 @@ const ARCHIVE_ENTITY_NAMES: Record<string, string> = {
   tag: "标签图鉴",
 }
 
+/**
+ * 动态段缺标签时的兜底名（防止面包屑因客户端上下文为空而整体消失）。
+ * 正常流程下页面会用 BreadcrumbSetter 提供真实名称；此处仅在 dynamicLabels[seg] 缺失时启用，
+ * 作为安全网保证「面包屑导航」永远不会从页面上凭空消失。
+ */
+const DYNAMIC_FALLBACK: Record<string, string> = {
+  user: "用户主页",
+  profile: "个人中心",
+  games: "游戏",
+  characters: "角色",
+  creators: "创作者",
+  announcements: "公告",
+  collections: "合集",
+}
+
 /** 清洗标签：去掉书名号、括号等修饰符号 */
 function cleanLabel(label: string): string {
   return label
@@ -108,21 +123,24 @@ function buildSpecialCrumbs(
   pathname: string,
   dynamicLabels: Record<string, string>
 ): CrumbResult[] | null {
-  // /profile/[id] → 首页 › [username] 的主页
+  // /profile/[id] → 首页 › [username] 的主页（/profile/[id] 现已 308 跳转 /user/[serialId]，此处仅兜底）
   if (segments[0] === "profile" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const real = dynamicLabels[segments[1]]
+    const label = real ?? DYNAMIC_FALLBACK.profile
     if (label) {
-      return [{ label: `${cleanLabel(label)} 的主页`, href: pathname, isCurrent: true }]
+      const text = real ? `${cleanLabel(real)} 的主页` : label
+      return [{ label: text, href: pathname, isCurrent: true }]
     }
-    // 没有动态标签时不显示面包屑（避免暴露 ID）
     return []
   }
 
-  // /user/[id] → 首页 › [username] 的主页
+  // /user/[id] → 首页 › [username] 的主页（无标签时用兜底名，避免重复"的主页"）
   if (segments[0] === "user" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const real = dynamicLabels[segments[1]]
+    const label = real ?? DYNAMIC_FALLBACK.user
     if (label) {
-      return [{ label: `${cleanLabel(label)} 的主页`, href: pathname, isCurrent: true }]
+      const text = real ? `${cleanLabel(real)} 的主页` : label
+      return [{ label: text, href: pathname, isCurrent: true }]
     }
     return []
   }
@@ -134,7 +152,7 @@ function buildSpecialCrumbs(
 
   // /games/[id] → 首页 › [game title]
   if (segments[0] === "games" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const label = dynamicLabels[segments[1]] ?? DYNAMIC_FALLBACK[segments[0]]
     if (label) {
       return [{ label: cleanLabel(label), href: pathname, isCurrent: true }]
     }
@@ -143,7 +161,7 @@ function buildSpecialCrumbs(
 
   // /creators/[id] → 首页 › [creator name]
   if (segments[0] === "creators" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const label = dynamicLabels[segments[1]] ?? DYNAMIC_FALLBACK[segments[0]]
     if (label) {
       return [{ label: cleanLabel(label), href: pathname, isCurrent: true }]
     }
@@ -152,7 +170,7 @@ function buildSpecialCrumbs(
 
   // /announcements/[id] → 首页 › [title]
   if (segments[0] === "announcements" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const label = dynamicLabels[segments[1]] ?? DYNAMIC_FALLBACK[segments[0]]
     if (label) {
       return [{ label: cleanLabel(label), href: pathname, isCurrent: true }]
     }
@@ -161,7 +179,7 @@ function buildSpecialCrumbs(
 
   // /characters/[id] → 首页 › [name]
   if (segments[0] === "characters" && segments.length === 2 && isDynamicSegment(segments[1])) {
-    const label = dynamicLabels[segments[1]]
+    const label = dynamicLabels[segments[1]] ?? DYNAMIC_FALLBACK[segments[0]]
     if (label) {
       return [{ label: cleanLabel(label), href: pathname, isCurrent: true }]
     }
@@ -201,7 +219,7 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="my-3 sm:my-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
+      <nav className="my-3 sm:my-6 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm sm:text-[15px] text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
           className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
@@ -257,9 +275,9 @@ export function Breadcrumb() {
       continue
     }
 
-    // 动态参数段：从上下文获取标签
+    // 动态参数段：从上下文获取标签；缺标签时用兜底名，保证面包屑不整体消失
     if (isDynamicSegment(seg)) {
-      const dynamicLabel = dynamicLabels[seg]
+      const dynamicLabel = dynamicLabels[seg] ?? DYNAMIC_FALLBACK[segments[0]]
       if (dynamicLabel) {
         crumbs.push({ label: cleanLabel(dynamicLabel), href: currentPath })
       }

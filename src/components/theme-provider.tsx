@@ -67,18 +67,23 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const controller = new AbortController()
     apiFetchSafe<{
-      themeColor?: string
-      themeRadius?: number
-      themeShadowIntensity?: number
-      themeAlpha?: number
+      data?: {
+        themeColor?: string
+        themeRadius?: number
+        themeShadowIntensity?: number
+        themeAlpha?: number
+      }
     }>("/api/site-settings", { signal: controller.signal })
       .then(({ ok, data }) => {
-        if (ok && data?.themeColor) {
+        // 注意：apiFetchSafe 返回的是完整响应体 { success, data }，
+        // 真实字段在 data.data 里，少解一层会让初始主题色永远是默认值。
+        const inner = data?.data
+        if (ok && inner?.themeColor) {
           const s: FullThemeSettings = {
-            themeColor: data.themeColor,
-            themeRadius: data.themeRadius ?? 12,
-            themeShadowIntensity: data.themeShadowIntensity ?? 50,
-            themeAlpha: data.themeAlpha ?? 15,
+            themeColor: inner.themeColor,
+            themeRadius: inner.themeRadius ?? 12,
+            themeShadowIntensity: inner.themeShadowIntensity ?? 50,
+            themeAlpha: inner.themeAlpha ?? 15,
           }
           setSettings(s)
           doApply(s)

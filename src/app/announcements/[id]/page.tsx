@@ -1,4 +1,5 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
+import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { prisma } from "@/lib/prisma"
 import { formatZhDate } from "@/lib/date"
 import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react"
@@ -54,6 +55,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-2xl">
+      <BreadcrumbSetter segment={id} label={ann.title} />
       {/* 返回 */}
       <Link
         href="/"

@@ -273,7 +273,7 @@ export default async function HomePage({
                 <div className="flex flex-col gap-2.5 pl-6" title="近 7 天新上架的游戏">
                   <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
-                  <p className="text-sm text-muted-foreground">本周新发布</p>
+                  <p className="text-sm text-muted-foreground">本周新增游戏</p>
                 </div>
                 <div className="flex flex-col gap-2.5 pl-6" title="今日新增的签到次数">
                   <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />

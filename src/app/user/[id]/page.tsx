@@ -100,7 +100,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
 
   return (
     <div className="flex flex-col">
-      <BreadcrumbSetter segment={String(user.serialId)} label={user.username} />
+      <BreadcrumbSetter segment={id} label={user.username} />
       <div className="flex lg:flex-row flex-col items-stretch min-w-0 gap-0 flex-1">
         <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none">
           <div className="flex flex-col gap-4">
