@@ -1,6 +1,6 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSlot } from "@/components/game-card"
-import { Megaphone } from "lucide-react"
+import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
@@ -248,23 +248,29 @@ export default async function HomePage({
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
-                <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">视觉小说资源站</p>
-                <h2 className="mt-3 text-4xl font-bold text-foreground tracking-tight leading-tight">{siteName}</h2>
-                <p className="mt-2 text-base text-muted-foreground">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
+                <div className="flex items-center gap-2">
+                  <span className="brand-eyebrow-dot" aria-hidden="true" />
+                  <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">视觉小说资源站</p>
+                </div>
+                <h2 className="mt-3 text-[32px] font-semibold tracking-tight leading-tight text-foreground">{siteName}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-[30ch]">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
               </div>
               {/* 统计行 */}
-              <div className="flex gap-6">
-                <div>
+              <div className="grid grid-cols-3 divide-x divide-border">
+                <div className="flex flex-col gap-2.5">
+                  <Gamepad2 className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
-                  <p className="mt-1.5 text-sm text-muted-foreground">个游戏</p>
+                  <p className="text-sm text-muted-foreground">个游戏</p>
                 </div>
-                <div>
+                <div className="flex flex-col gap-2.5 pl-6">
+                  <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
-                  <p className="mt-1.5 text-sm text-muted-foreground">本周新增</p>
+                  <p className="text-sm text-muted-foreground">本周新增</p>
                 </div>
-                <div>
+                <div className="flex flex-col gap-2.5 pl-6">
+                  <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
-                  <p className="mt-1.5 text-sm text-muted-foreground">今日签到</p>
+                  <p className="text-sm text-muted-foreground">今日签到</p>
                 </div>
               </div>
               {/* 按钮行 */}

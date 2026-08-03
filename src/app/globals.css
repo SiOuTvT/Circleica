@@ -1772,16 +1772,19 @@ body[data-has-bottom-nav="true"] {
 /* 修订意图：对齐真卡视觉权重——卡面/描边/阴影三件套全部对齐 .game-card，
    使空槽在深浅两套主题下都「浮起来」，不再融背景。 */
 :root {
-  --slot-surface:   var(--card);                                                   /* 卡面 → 与真卡同色 */
+  --slot-surface:   color-mix(in srgb, var(--primary) 4%, color-mix(in srgb, var(--card) 94%, white 6%));                                                   /* 卡面 → 与真卡同色 */
   --slot-panel:     #0e0e11;                                                       /* 封面/缩略预留块（保留不动） */
-  --slot-border:    var(--border);                                                 /* 描边 → 与真卡 border 同权 */
-  --slot-shadow:    var(--shadow-card);                                             /* 阴影 → 与真卡 shadow-card 完全一致（原自定义值过弱导致融背景） */
+  --slot-border:    rgba(255, 255, 255, 0.14);                                                 /* 描边 → 与真卡 border 同权 */
+  --slot-shadow:    var(--shadow-2);                                             /* 阴影 → 与真卡 shadow-card 完全一致（原自定义值过弱导致融背景） */
   --slot-mark:      color-mix(in srgb, var(--muted-foreground) 20%, transparent);  /* 对齐 EmptyState /20（保留） */
   --slot-mark-text: color-mix(in srgb, var(--muted-foreground) 65%, transparent);  /* 保留 */
 }
 
-/* 仅 --slot-panel 需显式覆盖；其余全挂在跟随令牌上，.light 自动翻转。 */
+/* 浅色模式：表面仅染 4% 主色 + 黑色描边 0.12 + 同等阴影，边界清晰。 */
 .light {
+  --slot-surface:   color-mix(in srgb, var(--primary) 4%, var(--card));
+  --slot-border:    rgba(0, 0, 0, 0.12);
+  --slot-shadow:    var(--shadow-2);
   --slot-panel:     #eeeef1;
 }
 
@@ -1922,5 +1925,20 @@ body[data-has-bottom-nav="true"] {
 .light .brand-card-bg::before {
   background: radial-gradient(120% 95% at 86% 6%, color-mix(in srgb, var(--primary) 14%, transparent) 0%, transparent 52%);
   opacity: 0.4;
+}
+
+/* ── 品牌卡文字层精修（仅装饰类；所有可见文字仍是项目原始字符串） ── */
+/* 眉标锚点：主色小圆点 + 辉光（装饰，非文字） */
+.brand-eyebrow-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+/* 统计图标：低饱和主色（随主题翻转） */
+.brand-stat-icon {
+  color: color-mix(in srgb, var(--primary) 55%, var(--muted-foreground));
 }
 
