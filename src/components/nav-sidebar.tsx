@@ -111,13 +111,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             <Image
               src={BRANDING.circleica.emblem}
               alt=""
-              width={28}
-              height={28}
+              width={36}
+              height={36}
               unoptimized
-              className="h-7 w-7 shrink-0"
+              className="h-9 w-9 shrink-0"
             />
             {!collapsed && (
-              <span className="text-[17px] font-bold tracking-tight text-primary font-heading">Circleica</span>
+              <span className="text-[20px] font-bold tracking-tight text-primary font-heading">Circleica</span>
             )}
           </Link>
 

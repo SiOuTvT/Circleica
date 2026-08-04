@@ -22,12 +22,12 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
               <Image
                 src={BRANDING.circleica.emblem}
                 alt=""
-                width={24}
-                height={24}
+                width={32}
+                height={32}
                 unoptimized
-                className="h-6 w-6 shrink-0"
+                className="h-8 w-8 shrink-0"
               />
-              <span className="font-heading text-base font-bold text-primary">{siteName}</span>
+              <span className="font-heading text-lg font-bold text-primary">{siteName}</span>
             </span>
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">

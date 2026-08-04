@@ -268,12 +268,12 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             <Image
               src={BRANDING.circleica.emblem}
               alt=""
-              width={30}
-              height={30}
+              width={40}
+              height={40}
               unoptimized
-              className="h-[30px] w-[30px] shrink-0"
+              className="h-[40px] w-[40px] shrink-0"
             />
-            <span className="hidden text-[17px] font-bold tracking-tight text-primary font-heading sm:inline">
+            <span className="hidden text-[20px] font-bold tracking-tight text-primary font-heading sm:inline">
               Circleica
             </span>
           </Link>

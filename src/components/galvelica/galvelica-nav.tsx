@@ -29,12 +29,12 @@ export function GalvelicaNav({ className }: { className?: string }) {
         <Image
           src={BRANDING.galvelica.emblem}
           alt=""
-          width={24}
-          height={24}
+          width={32}
+          height={32}
           unoptimized
-          className="h-6 w-6 shrink-0"
+          className="h-8 w-8 shrink-0"
         />
-        <span className="text-base font-bold tracking-tight font-heading text-[var(--gal-accent)]">Galvelica</span>
+        <span className="text-lg font-bold tracking-tight font-heading text-[var(--gal-accent)]">Galvelica</span>
       </Link>
       {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
         const active =
