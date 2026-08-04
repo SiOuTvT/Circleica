@@ -956,8 +956,8 @@ main > * {
  * 不采用「把亮色的 --theme-r/g/b 调深」：该变量为 ::selection 等共用，
  * 且会被 theme-colors.ts 按用户设置动态覆盖，硬编码深色值只在默认主题下有效。
  */
-/* 表单控件（input/textarea/select）自身已有焦点反馈（ui/Input 的 focus-visible:border-ring、
-   表单 wrapper 的 focus-within:border-ring、ui/Textarea 的 focus:border-ring），
+/* 表单控件（input/textarea/select）自身已有焦点反馈（ui/Input 的 focus-visible:border-primary、
+   表单 wrapper 的 focus-within:border-primary、ui/Textarea 的 focus:border-primary），
    若再叠全局焦点环会在输入框内生成一圈深色 box-shadow（"框里框"观感）。
    故从全局焦点环中排除表单控件，仅保留给按钮/链接等交互元素。 */
 *:focus-visible:not(input):not(textarea):not(select) {

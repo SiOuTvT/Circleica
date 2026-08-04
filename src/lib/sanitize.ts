@@ -80,8 +80,11 @@ export function sanitizeFilename(filename: string): string {
  * 验证并清理 URL
  */
 export function sanitizeUrl(url: string): string | null {
+  const trimmed = url.trim()
+  // 同源相对路径（本地/对象存储上传返回，如 /uploads/xxx.png）直接放行，避免被当作非法 URL 清空
+  if (trimmed.startsWith("/")) return trimmed
   try {
-    const parsed = new URL(url)
+    const parsed = new URL(trimmed)
     // 只允许 http 和 https 协议
     if (!["http:", "https:"].includes(parsed.protocol)) {
       return null

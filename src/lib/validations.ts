@@ -6,6 +6,14 @@ import { EMAIL } from "@/lib/config"
  * 用于 API 路由的请求体验证，确保数据一致性
  */
 
+// 同源相对路径（如 /uploads/xxx.png，本地/对象存储上传返回）或标准 http(s) 绝对 URL 均合法。
+// 注意：下载类外链（gameResource entries.url）等必须是绝对 URL，不要用此校验器。
+const uploadUrl = (msg: string) =>
+  z
+    .string()
+    .max(2000, msg)
+    .refine((v) => /^https?:\/\//i.test(v) || v.startsWith("/"), { message: msg })
+
 // ============ 用户相关 ============
 
 export const registerSchema = z.object({
@@ -37,8 +45,8 @@ export const updateProfileSchema = z.object({
     .regex(/^[a-zA-Z0-9_]+$/, "用户名只能包含字母、数字和下划线")
     .optional(),
   bio: z.string().max(500, "简介最多 500 个字符").optional(),
-  avatar: z.string().url("头像必须是有效的 URL").optional(),
-  banner: z.string().url("封面必须是有效的 URL").optional(),
+  avatar: uploadUrl("头像必须是有效的 URL").optional(),
+  banner: uploadUrl("封面必须是有效的 URL").optional(),
   faveGameId: z.string().optional(),
 })
 
@@ -105,8 +113,8 @@ export const announcementCreateSchema = z.object({
   title: z.string().min(1, "公告标题不能为空").max(200, "标题最多 200 个字符"),
   summary: z.string().max(500, "摘要最多 500 个字符").optional().default(""),
   content: z.string().min(1, "公告内容不能为空").max(5000, "内容最多 5000 个字符"),
-  imageUrl: z.string().url("图片链接格式不正确").max(500).optional().or(z.literal("")),
-  link: z.string().url("外部链接格式不正确").max(500).optional().or(z.literal("")),
+  imageUrl: uploadUrl("图片链接格式不正确").max(500).optional().or(z.literal("")),
+  link: uploadUrl("外部链接格式不正确").max(500).optional().or(z.literal("")),
   status: z.enum(["draft", "published", "hidden"]).optional().default("draft"),
   isPinned: z.boolean().optional().default(false),
   startAt: z.string().optional(),
@@ -117,8 +125,8 @@ export const announcementUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   summary: z.string().max(500).optional(),
   content: z.string().min(1).max(5000).optional(),
-  imageUrl: z.string().url().max(500).optional().or(z.literal("")),
-  link: z.string().url().max(500).optional().or(z.literal("")),
+  imageUrl: uploadUrl("图片链接格式不正确").max(500).optional().or(z.literal("")),
+  link: uploadUrl("外部链接格式不正确").max(500).optional().or(z.literal("")),
   status: z.enum(["draft", "published", "hidden"]).optional(),
   isPinned: z.boolean().optional(),
   isActive: z.boolean().optional(),
@@ -130,7 +138,7 @@ export const announcementUpdateSchema = z.object({
 export const gameCreateSchema = z.object({
   title: z.string().min(1, "游戏标题不能为空").max(200),
   description: z.string().max(5000).optional(),
-  coverImage: z.string().url().optional(),
+  coverImage: uploadUrl("封面图必须是有效的 URL").optional(),
   originalWork: z.string().max(200).optional(),
   englishName: z.string().max(200).optional(),
   studios: z.array(z.string().max(200)).max(20).optional(),

@@ -162,7 +162,7 @@ export default function ResourceTagsPage() {
                 onChange={e => setNewValues(prev => ({ ...prev, [g.group]: e.target.value }))}
                 onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAdd(g.group) } }}
                 placeholder="输入新标签…"
-                className="flex-1 rounded-lg border border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                className="flex-1 rounded-lg border-2 border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
               />
               <Button onClick={() => handleAdd(g.group)} disabled={!newValues[g.group]?.trim()}>
                 <Plus className="h-4 w-4 mr-1.5" /> 添加

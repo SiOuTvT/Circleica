@@ -125,7 +125,7 @@ export function AllTagsClient({ tags, groups, currentPage, totalPages, q, total 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…" aria-label="搜索标签"
-            className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring transition-all w-full"
+            className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary transition-all w-full"
           />
         </div>
         <div className="flex rounded-lg bg-secondary ring-1 ring-border overflow-hidden">
@@ -268,7 +268,7 @@ function InlineTagEdit({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="block w-40 rounded-lg border border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+            className="block w-40 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
           />
         </div>
 
@@ -302,7 +302,7 @@ function InlineTagEdit({
           <select
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}
-            className="block w-36 rounded-lg border border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+            className="block w-36 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
           >
             <option value="">未分组</option>
             {groups.map((g) => (
