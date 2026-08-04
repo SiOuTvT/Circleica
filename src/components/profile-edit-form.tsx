@@ -4,9 +4,8 @@ import { ImageUpload } from "@/components/image-upload"
 import { Textarea } from "@/components/ui/textarea"
 import { AvatarFrameSelector } from "@/components/avatar-frame-selector"
 import { useEmotionalMessage } from "@/hooks/use-emotional-messages"
-import { ArrowLeft, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
+import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useId } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -121,15 +120,6 @@ export function ProfileEditForm({ user }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      {/* 返回按钮 */}
-      <Link
-        href={`/user/${user.id}`}
-        className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
-        返回主页
-      </Link>
-
       {/* 全局提示 */}
       {error && (
         <div className="mb-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20">
@@ -144,9 +134,9 @@ export function ProfileEditForm({ user }: Props) {
 
       <div className="flex flex-col lg:flex-row items-stretch min-w-0 gap-0">
         {/* 左栏：形象 */}
-        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-4">
+        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-5">
           {/* 个人形象 */}
-          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <h2 className="mb-4 text-sm font-semibold text-foreground">个人形象</h2>
             <div className="flex flex-col items-center">
               <div className="h-[150px] w-[150px] sm:h-[160px] sm:w-[160px]">
@@ -168,7 +158,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 个人封面 */}
-          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <h2 className="mb-4 text-sm font-semibold text-foreground">个人封面</h2>
             <ImageUpload
               value={bannerData}
@@ -185,7 +175,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 头像框 */}
-          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <h2 className="mb-4 text-sm font-semibold text-foreground">头像框</h2>
             <AvatarFrameSelector
               currentFrameId={user.avatarFrameId}
@@ -197,16 +187,16 @@ export function ProfileEditForm({ user }: Props) {
         </aside>
 
         {/* 右栏：信息 + 安全 */}
-        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none gap-4">
+        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none gap-5">
           {/* 基本信息 */}
-          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6 space-y-5">
+          <section className="rounded-2xl bg-card border border-border p-6 sm:p-8 space-y-6">
             <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
 
             <div>
               <label htmlFor={usernameId} className="block mb-2 text-xs font-semibold text-muted-foreground">
                 用户名
               </label>
-              <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
+              <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
                 <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   id={usernameId}
@@ -222,7 +212,7 @@ export function ProfileEditForm({ user }: Props) {
 
             <div>
               <label className="block mb-2 text-xs font-semibold text-muted-foreground">邮箱</label>
-              <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3 ring-1 ring-border">
+              <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3">
                 <Mail className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <span className="flex-1 truncate text-sm text-foreground">{user.email}</span>
                 <span className="shrink-0 text-micro text-muted-foreground">登录与通知</span>
@@ -233,7 +223,7 @@ export function ProfileEditForm({ user }: Props) {
               <label htmlFor={bioId} className="block mb-2 text-xs font-semibold text-muted-foreground">
                 个人简介
               </label>
-              <div className="rounded-xl bg-secondary px-4 py-3 ring-1 ring-border focus-within:ring-primary/30 transition-all">
+              <div className="rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
                 <Textarea
                   id={bioId}
                   variant="ghost"
@@ -250,7 +240,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 账号安全 */}
-          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <div className="flex items-center gap-2 mb-4">
               <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               <h2 className="text-sm font-semibold text-foreground">账号安全</h2>
@@ -259,7 +249,7 @@ export function ProfileEditForm({ user }: Props) {
             <div className="space-y-4">
               <div>
                 <label htmlFor={oldPwId} className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
-                <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
+                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
                   <input
                     id={oldPwId}
                     type={showOld ? "text" : "password"}
@@ -280,7 +270,7 @@ export function ProfileEditForm({ user }: Props) {
               </div>
               <div>
                 <label htmlFor={newPwId} className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
-                <div className="flex items-center gap-3 rounded-xl bg-secondary/60 px-4 py-3 ring-1 ring-border/50 focus-within:ring-primary/30 transition-all">
+                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
                   <input
                     id={newPwId}
                     type={showNew ? "text" : "password"}
@@ -303,7 +293,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 保存 */}
-          <div className="rounded-2xl bg-card border border-border p-5 sm:p-6">
+          <div className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <button
               type="submit"
               disabled={saving}
