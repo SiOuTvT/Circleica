@@ -42,7 +42,7 @@ export default function GlobalError({
                 fontSize: "3rem",
                 fontWeight: "bold",
                 marginBottom: "0.5rem",
-                color: "var(--primary, #5FA8A0)",
+                color: "var(--primary, #4C7E96)",
               }}
             >
               出错了
@@ -64,7 +64,7 @@ export default function GlobalError({
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",
                   border: "none",
-                  background: "var(--primary, #5FA8A0)",
+                  background: "var(--primary, #4C7E96)",
                   color: "var(--primary-foreground, #ffffff)",
                   fontSize: "1rem",
                   cursor: "pointer",

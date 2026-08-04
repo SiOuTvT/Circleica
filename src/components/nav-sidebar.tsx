@@ -13,6 +13,8 @@ import {
   Users,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { BRANDING } from "@/lib/branding"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -96,6 +98,29 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
         }}
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
+          {/* ── 主站品牌区：站点身份；折叠态仅显示 emblem ── */}
+          <Link
+            href="/"
+            aria-label="Circleica 首页"
+            className={cn(
+              "flex items-center rounded-xl transition-all overflow-hidden whitespace-nowrap",
+              collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
+            )}
+            title={collapsed ? "Circleica" : undefined}
+          >
+            <Image
+              src={BRANDING.circleica.emblem}
+              alt=""
+              width={28}
+              height={28}
+              unoptimized
+              className="h-7 w-7 shrink-0"
+            />
+            {!collapsed && (
+              <span className="text-[17px] font-bold tracking-tight text-primary font-heading">Circleica</span>
+            )}
+          </Link>
+
           {/* ── Galvelica 特色入口：视觉权重高于普通菜单 ── */}
           <Link
             href="/galvelica"

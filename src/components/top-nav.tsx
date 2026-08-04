@@ -9,6 +9,7 @@ import { logger } from "@/lib/logger"
 import { api, apiFetchSafe, ApiError } from "@/lib/api-client"
 import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
+import { BRANDING } from "@/lib/branding"
 import {
   CalendarCheck,
   Loader2,
@@ -257,6 +258,25 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
           >
             <Menu className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
           </button>
+
+          {/* 站点品牌标识：点击返回首页。emblem 主题安全，字标随主题变色，避免深色顶栏下 lockup 深色文字不可见 */}
+          <Link
+            href="/"
+            aria-label="Circleica 首页"
+            className="flex h-11 items-center gap-2 rounded-full pl-1 pr-2 transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Image
+              src={BRANDING.circleica.emblem}
+              alt=""
+              width={30}
+              height={30}
+              unoptimized
+              className="h-[30px] w-[30px] shrink-0"
+            />
+            <span className="hidden text-[17px] font-bold tracking-tight text-primary font-heading sm:inline">
+              Circleica
+            </span>
+          </Link>
 
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">

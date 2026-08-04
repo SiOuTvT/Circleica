@@ -1,4 +1,6 @@
 import Link from "next/link"
+import Image from "next/image"
+import { BRANDING } from "@/lib/branding"
 
 const ABOUT_LINKS: { label: string; href: string }[] = [
   { label: "关于我们", href: "/about" },
@@ -16,7 +18,17 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string }) {
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           {/* 左：品牌介绍 */}
           <div className="max-w-sm text-left">
-            <span className="font-heading text-base font-bold text-primary">{siteName}</span>
+            <span className="flex items-center gap-2">
+              <Image
+                src={BRANDING.circleica.emblem}
+                alt=""
+                width={24}
+                height={24}
+                unoptimized
+                className="h-6 w-6 shrink-0"
+              />
+              <span className="font-heading text-base font-bold text-primary">{siteName}</span>
+            </span>
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">
               <p className="text-sm text-muted-foreground">

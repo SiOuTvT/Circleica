@@ -8,6 +8,7 @@ import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { apiFetchSafe } from "@/lib/api-client"
+import { BRANDING } from "@/lib/branding"
 
 /* ── 复用常量 ── */
 
@@ -46,7 +47,7 @@ const INITIAL: FormData = {
   siteLogo: "",
   placeholderImage: "",
   registrationEnabled: true,
-  themeColor: "#5FA8A0",
+  themeColor: "#4C7E96",
   tagGroupColors: Object.fromEntries(PRESET_TAG_GROUPS.map(g => [g.id, g.color])),
   username: "",
   email: "",
@@ -376,7 +377,8 @@ export function SetupWizard() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={logoPreview || form.siteLogo} alt="Logo" className="h-11 w-11 rounded-lg object-contain bg-white/10 border border-white/10" />
                         ) : (
-                          <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center text-lg border border-dashed", "bg-muted border-border text-muted-foreground")}>🎮</div>
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={BRANDING.circleica.emblem} alt="Circleica" className="h-11 w-11 rounded-lg object-contain bg-white/10 border border-white/10" />
                         )}
                         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                         <button type="button" disabled={uploading} className={cn("h-9 px-4 rounded-lg text-xs font-medium transition-all active:scale-95", "bg-muted text-foreground border border-border", "disabled:opacity-40")} onClick={() => fileRef.current?.click()}>
@@ -615,7 +617,8 @@ function PreviewPanel({ form, logoPreview }: {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" />
         ) : (
-          <span className="text-xs">🎮</span>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={BRANDING.circleica.emblem} alt="" className="w-4 h-4 rounded object-contain" />
         )}
         <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
       </div>
