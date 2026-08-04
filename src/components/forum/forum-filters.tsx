@@ -35,7 +35,7 @@ export function ForumFilters({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="搜索帖子标题或内容…"
-          className="w-full rounded-xl bg-card pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border/50 outline-none focus:ring-primary/40 transition-all"
+          className="w-full rounded-xl border border-input bg-transparent pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring"
         />
       </div>
 

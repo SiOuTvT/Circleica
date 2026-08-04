@@ -198,8 +198,8 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              "rounded-2xl bg-card/80 ring-1 transition-all overflow-hidden",
-              isDragging ? "ring-primary/50 bg-primary/5 bg-primary/5" : "ring-border focus-within:ring-primary/30"
+              "rounded-2xl bg-card/80 border border-border transition-all overflow-hidden",
+              isDragging ? "border-primary bg-primary/5" : "border-border focus-within:border-ring"
             )}
           >
             {/* 图片预览 */}

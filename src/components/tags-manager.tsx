@@ -103,7 +103,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     setEditIsVisible(tag.isVisible !== false)
   }
 
-  const inputCls = "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+  const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
   return (
     <div className="space-y-4">
@@ -121,12 +121,12 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
         <div className="flex gap-2">
           <input value={name} onChange={e => setName(e.target.value)} placeholder="新标签名称" className={inputCls} />
           <select value={groupId} onChange={e => { const g = e.target.value; setGroupId(g); const gr = initialGroups.find(x => x.id === g); if (gr) { setColor(gr.color); setColorLocked(true) } else { setColorLocked(false) } }}
-            className="w-36 shrink-0 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring">
+            className="w-36 shrink-0 rounded-xl border border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-colors focus:border-ring">
             <option value="">未分组</option>
             {initialGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
           <input type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} placeholder="排序" title="排序值（小的在前）"
-            className="w-20 shrink-0 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+            className="w-20 shrink-0 rounded-xl border border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-colors focus:border-ring" />
           <button type="button" onClick={() => setIsVisible(!isVisible)} title={isVisible ? "可见" : "隐藏"}
             className={`shrink-0 rounded-xl p-2.5 ring-1 ring-border transition-colors ${isVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
             {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -162,21 +162,21 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                 <div className="flex-1 space-y-2">
                   <div className="flex gap-2">
                     <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="标签名称"
-                      className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+                      className="flex-1 rounded-lg border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-colors focus:border-ring" />
                     <select value={editGroupId} onChange={e => setEditGroupId(e.target.value)}
-                      className="w-28 shrink-0 rounded-lg bg-secondary px-2 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring">
+                      className="w-28 shrink-0 rounded-lg border border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-colors focus:border-ring">
                       <option value="">未分组</option>
                       {initialGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select>
                     <input type="number" value={editSortOrder} onChange={e => setEditSortOrder(Number(e.target.value))} placeholder="排序" title="排序值"
-                      className="w-16 shrink-0 rounded-lg bg-secondary px-2 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+                      className="w-16 shrink-0 rounded-lg border border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-colors focus:border-ring" />
                     <button type="button" onClick={() => setEditIsVisible(!editIsVisible)} title={editIsVisible ? "可见" : "隐藏"}
                       className={`shrink-0 rounded-lg p-1.5 ring-1 ring-border transition-colors ${editIsVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
                       {editIsVisible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                     </button>
                   </div>
                   <input value={editDescription} onChange={e => setEditDescription(e.target.value)} placeholder="标签描述（可选）"
-                    className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+                    className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring" />
                   <div className="flex flex-wrap gap-1.5">
                     {PRESET_COLORS.map(c => (
                       <button key={c} type="button" onClick={() => setEditColor(c)}

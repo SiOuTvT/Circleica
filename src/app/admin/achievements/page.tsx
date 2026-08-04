@@ -47,7 +47,7 @@ const CATEGORIES = [
   { value: "special", label: "特殊" },
 ]
 
-const inputCls = "w-full rounded-xl bg-muted px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
+const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
 export default function AdminAchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([])

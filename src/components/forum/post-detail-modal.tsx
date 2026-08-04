@@ -342,7 +342,7 @@ function PostDetailModalInner({
                     {editingComment === c.id ? (
                       <div className="space-y-2">
                         <input value={editCommentText} onChange={(e) => setEditCommentText(e.target.value)}
-                          className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-primary/30" />
+                          className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring" />
                         <div className="flex gap-2">
                           <button onClick={() => submitEditComment(c.id)}
                             className="rounded-lg bg-primary px-2.5 py-1 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
@@ -447,7 +447,7 @@ function PostDetailModalInner({
                     </div>
                   </div>
                   <input ref={commentInputRef} value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="写下评论…"
-                    className="flex-1 rounded-xl bg-secondary px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-primary/30 transition-all min-h-[44px]" />
+                    className="flex-1 rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring min-h-[48px]" />
                   <button type="submit" disabled={commentSubmitting || (!commentText.trim() && !commentImagePreview)}
                     aria-label="发送评论"
                     className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-xl bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground disabled:opacity-40">

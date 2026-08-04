@@ -32,13 +32,13 @@ export function TagInlineEditor({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="标签名称"
-          className="flex-1 rounded-lg bg-background px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+          className="flex-1 rounded-lg border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-colors focus:border-ring"
           autoFocus
         />
         <select
           value={groupId}
           onChange={(e) => setGroupId(e.target.value)}
-          className="w-32 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+          className="w-32 shrink-0 rounded-lg border border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
         >
           <option value="">未分组</option>
           {groups.map((g) => (
@@ -50,7 +50,7 @@ export function TagInlineEditor({
           value={sortOrder}
           onChange={(e) => setSortOrder(Number(e.target.value))}
           title="排序值（小的在前）"
-          className="w-16 shrink-0 rounded-lg bg-background px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+          className="w-16 shrink-0 rounded-lg border border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
         />
         <button
           type="button"
@@ -67,7 +67,7 @@ export function TagInlineEditor({
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
         placeholder="标签描述（可选）"
-        className="w-full rounded-lg bg-background px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+        className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
       />
       <ColorPicker value={color} onChange={setColor} />
       <div className="flex items-center gap-2">

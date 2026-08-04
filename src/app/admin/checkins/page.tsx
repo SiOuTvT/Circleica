@@ -109,13 +109,13 @@ export default async function AdminCheckInsPage({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
-              className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-48" />
+              className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring w-full sm:w-48" />
           </div>
           <input type="date" name="from" defaultValue={from} aria-label="开始日期"
-            className="rounded-xl bg-muted px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+            className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring" />
           <span className="text-xs text-muted-foreground">至</span>
           <input type="date" name="to" defaultValue={to} aria-label="结束日期"
-            className="rounded-xl bg-muted px-3 py-2.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring" />
+            className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring" />
           <button type="submit"
             className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90">
             筛选

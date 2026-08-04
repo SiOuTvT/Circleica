@@ -1041,34 +1041,33 @@ input::-webkit-credentials-auto-fill-button {
   display: none;
 }
 
-/* ── Chrome Autofill 覆盖 — 消除浏览器强制注入的白色/黄色背景 ── */
+/* ── Chrome Autofill 覆盖 — 消除浏览器强制注入的白色/黄色背景与持久高亮 ──
+ * 账号/密码被自动填充后，Chrome 会强制套一层底色并让字段"保持高亮"，
+ * 且深色模式下文字常看不清。这里强制：透明背景 + 主题自适应文字色 + 取消过渡闪烁，
+ * 字段与未填充时观感一致（聚焦才出现主题色外边框）。 */
 input:autofill,
 input:-webkit-autofill,
 input:autofill:hover,
 input:-webkit-autofill:hover,
 input:autofill:focus,
 input:-webkit-autofill:focus,
+input:autofill:active,
+input:-webkit-autofill:active,
 textarea:autofill,
 textarea:-webkit-autofill,
+textarea:autofill:hover,
+textarea:-webkit-autofill:hover,
+textarea:autofill:focus,
+textarea:-webkit-autofill:focus,
 select:autofill,
 select:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
   box-shadow: 0 0 0 1000px transparent inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
-}
-.dark input:autofill,
-.dark input:-webkit-autofill,
-.dark input:autofill:hover,
-.dark input:-webkit-autofill:hover,
-.dark input:autofill:focus,
-.dark input:-webkit-autofill:focus,
-.dark textarea:autofill,
-.dark textarea:-webkit-autofill,
-.dark select:autofill,
-.dark select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
-  box-shadow: 0 0 0 1000px transparent inset !important;
-  -webkit-text-fill-color: var(--foreground) !important;
+  caret-color: var(--foreground) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  transition: background-color 9999s ease-in-out 0s !important;
 }
 
 /* ── 全局按钮按压反馈 — 下压 1px ── */

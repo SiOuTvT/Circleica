@@ -86,7 +86,7 @@ export default async function AdminGamesPage({
           <form method="get" className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索游戏…" aria-label="搜索游戏"
-              className="rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring w-full sm:w-56" />
+              className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring w-full sm:w-56" />
           </form>
           <Link
             href="/admin/games/import"

@@ -65,7 +65,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
       </div>
       <div className="flex items-center gap-3">
         <input type="color" value={value} onChange={(e) => { setHexInput(e.target.value); onChange(e.target.value) }} className="h-8 w-8 rounded-lg cursor-pointer border-0 bg-transparent" />
-        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className="w-28 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground font-mono ring-1 ring-border outline-none focus:ring-ring" />
+        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className="w-28 rounded-lg border border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-colors focus:border-ring" />
         <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} />
       </div>
     </div>
@@ -194,7 +194,7 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
-  const inputCls = "w-full rounded-lg bg-muted px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+  const inputCls = "w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
   return (
     <div className="space-y-5">
@@ -232,7 +232,7 @@ export function TagGroupDetailClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…" aria-label="搜索标签"
-            className="rounded-lg bg-muted pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full"
+            className="rounded-lg border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring w-full"
           />
         </div>
       </Card>
@@ -330,13 +330,13 @@ export function TagGroupDetailClient({
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="标签名称"
-                      className="flex-1 rounded-lg bg-muted px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="flex-1 rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                       autoFocus
                     />
                     <select
                       value={editGroupId}
                       onChange={(e) => setEditGroupId(e.target.value)}
-                      className="w-32 shrink-0 rounded-lg bg-muted px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="w-32 shrink-0 rounded-lg border border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                     >
                       {allGroups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -347,7 +347,7 @@ export function TagGroupDetailClient({
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     placeholder="标签描述（可选）"
-                    className="w-full rounded-lg bg-muted px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                    className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                   />
                   <div className="flex items-center gap-2">
                     <input
@@ -355,7 +355,7 @@ export function TagGroupDetailClient({
                       value={editSortOrder}
                       onChange={(e) => setEditSortOrder(Number(e.target.value))}
                       title="排序值"
-                      className="w-16 rounded-lg bg-muted px-2 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="w-16 rounded-lg border border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                     />
                     <button
                       type="button"

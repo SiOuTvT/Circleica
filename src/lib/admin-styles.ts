@@ -5,11 +5,11 @@
 
 /** 输入框 — 统一为 rounded-xl + bg-muted + ring 边框 */
 export const adminInput =
-  "w-full rounded-xl bg-muted px-3 py-2 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring transition-all"
+  "w-full rounded-xl border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
 /** 搜索框 — 左侧留白给图标 */
 export const adminSearchInput =
-  "rounded-xl bg-muted pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground ring-1 ring-border outline-none focus:ring-ring transition-all w-full sm:w-48"
+  "rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring transition-all w-full sm:w-48"
 
 /** 按钮 — 主要操作 */
 export const adminBtnPrimary =

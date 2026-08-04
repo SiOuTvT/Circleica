@@ -354,7 +354,7 @@ function UngroupedTagsSection({
                 <select
                   value={assignTarget}
                   onChange={(e) => setAssignTarget(e.target.value)}
-                  className="w-full rounded-lg bg-secondary px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none"
+                  className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                 >
                   <option value="">-- 选择标签组 --</option>
                   {groups.map((g) => (

@@ -24,6 +24,8 @@ interface ImageUploadProps {
   placeholder?: string
   shape?: "rounded" | "circle"
   uploadFunction?: (file: File) => Promise<string>
+  /** 让预览图铺满父容器（去掉自身描边与圆角，由父级控制），用于个人封面等需要出血到卡片边缘的场景 */
+  flush?: boolean
 }
 
 export function ImageUpload({
@@ -36,6 +38,7 @@ export function ImageUpload({
   placeholder = "拖拽图片到此处或点击上传",
   shape = "rounded",
   uploadFunction,
+  flush = false,
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null)
   const [isDragging, setIsDragging] = useState(false)
@@ -169,11 +172,12 @@ export function ImageUpload({
   // 有预览图时
   if (preview) {
     return (
-      <div className={cn("group relative", className)}>
+      <div className={cn("group relative w-full", className)}>
         <div
           className={cn(
-            "relative overflow-hidden bg-secondary ring-1 ring-border",
-            shape === "circle" ? "rounded-full" : "rounded-xl"
+            "relative w-full overflow-hidden bg-secondary",
+            shape === "circle" ? "rounded-full" : flush ? "" : "rounded-xl",
+            flush ? "" : "ring-1 ring-border"
           )}
           style={{ aspectRatio }}
         >
@@ -214,7 +218,7 @@ export function ImageUpload({
 
   // 空状态 - 拖拽上传区域
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full", className)}>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

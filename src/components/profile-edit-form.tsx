@@ -134,10 +134,10 @@ export function ProfileEditForm({ user }: Props) {
 
       <div className="flex flex-col lg:flex-row items-stretch min-w-0 gap-0">
         {/* 左栏：形象 */}
-        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-5">
+        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-6">
           {/* 个人形象 */}
           <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">个人形象</h2>
+            <h2 className="mb-4 text-base font-semibold text-foreground">个人形象</h2>
             <div className="flex flex-col items-center">
               <div className="h-[150px] w-[150px] sm:h-[160px] sm:w-[160px]">
                 <ImageUpload
@@ -159,16 +159,19 @@ export function ProfileEditForm({ user }: Props) {
 
           {/* 个人封面 */}
           <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">个人封面</h2>
-            <ImageUpload
-              value={bannerData}
-              onChange={setBannerData}
-              uploadFunction={handleBannerUpload}
-              aspectRatio={3}
-              maxSizeMB={10}
-              shape="rounded"
-              placeholder="上传封面图"
-            />
+            <h2 className="mb-4 text-base font-semibold text-foreground">个人封面</h2>
+            <div className="relative w-full overflow-hidden rounded-xl">
+              <ImageUpload
+                value={bannerData}
+                onChange={setBannerData}
+                uploadFunction={handleBannerUpload}
+                aspectRatio={3}
+                maxSizeMB={10}
+                shape="rounded"
+                flush
+                placeholder="上传封面图"
+              />
+            </div>
             <p className="mt-2 text-micro text-muted-foreground">
               推荐尺寸 900×300 · JPG/PNG/WebP · 最大 10MB · 不填就用默认背景
             </p>
@@ -176,7 +179,7 @@ export function ProfileEditForm({ user }: Props) {
 
           {/* 头像框 */}
           <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">头像框</h2>
+            <h2 className="mb-4 text-base font-semibold text-foreground">头像框</h2>
             <AvatarFrameSelector
               currentFrameId={user.avatarFrameId}
               userImage={avatarData || user.avatar}
@@ -187,16 +190,16 @@ export function ProfileEditForm({ user }: Props) {
         </aside>
 
         {/* 右栏：信息 + 安全 */}
-        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none gap-5">
+        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none gap-6">
           {/* 基本信息 */}
           <section className="rounded-2xl bg-card border border-border p-6 sm:p-8 space-y-6">
-            <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
+            <h2 className="text-base font-semibold text-foreground">基本信息</h2>
 
             <div>
               <label htmlFor={usernameId} className="block mb-2 text-xs font-semibold text-muted-foreground">
                 用户名
               </label>
-              <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
+              <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3.5 transition-colors focus-within:border-ring">
                 <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   id={usernameId}
@@ -205,7 +208,7 @@ export function ProfileEditForm({ user }: Props) {
                   placeholder="用户名"
                   maxLength={20}
                   required
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                  className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
                 />
               </div>
             </div>
@@ -223,7 +226,7 @@ export function ProfileEditForm({ user }: Props) {
               <label htmlFor={bioId} className="block mb-2 text-xs font-semibold text-muted-foreground">
                 个人简介
               </label>
-              <div className="rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
+              <div className="rounded-xl border border-input bg-transparent px-4 py-3.5 transition-colors focus-within:border-ring">
                 <Textarea
                   id={bioId}
                   variant="ghost"
@@ -232,7 +235,7 @@ export function ProfileEditForm({ user }: Props) {
                   placeholder="介绍一下自己吧…（选填）"
                   maxLength={200}
                   rows={4}
-                  className="resize-none px-0 py-0 text-sm"
+                  className="resize-none px-0 py-0 text-[15px]"
                 />
                 <p className="mt-1 text-right text-micro text-muted-foreground">{bio.length}/200</p>
               </div>
@@ -243,13 +246,13 @@ export function ProfileEditForm({ user }: Props) {
           <section className="rounded-2xl bg-card border border-border p-6 sm:p-8">
             <div className="flex items-center gap-2 mb-4">
               <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-              <h2 className="text-sm font-semibold text-foreground">账号安全</h2>
+              <h2 className="text-base font-semibold text-foreground">账号安全</h2>
               <span className="text-micro text-muted-foreground">不想改的话留空就好~</span>
             </div>
             <div className="space-y-4">
               <div>
-                <label htmlFor={oldPwId} className="block mb-2 text-xs font-medium text-muted-foreground">当前密码</label>
-                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
+                <label htmlFor={oldPwId} className="block mb-2 text-sm font-medium text-muted-foreground">当前密码</label>
+                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3.5 transition-colors focus-within:border-ring">
                   <input
                     id={oldPwId}
                     type={showOld ? "text" : "password"}
@@ -257,7 +260,7 @@ export function ProfileEditForm({ user }: Props) {
                     onChange={e => setOldPassword(e.target.value)}
                     placeholder="输入当前密码"
                     autoComplete="current-password"
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                    className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
                   />
                   <button
                     type="button"
@@ -269,8 +272,8 @@ export function ProfileEditForm({ user }: Props) {
                 </div>
               </div>
               <div>
-                <label htmlFor={newPwId} className="block mb-2 text-xs font-medium text-muted-foreground">新密码</label>
-                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 transition-all">
+                <label htmlFor={newPwId} className="block mb-2 text-sm font-medium text-muted-foreground">新密码</label>
+                <div className="flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3.5 transition-colors focus-within:border-ring">
                   <input
                     id={newPwId}
                     type={showNew ? "text" : "password"}
@@ -278,7 +281,7 @@ export function ProfileEditForm({ user }: Props) {
                     onChange={e => setNewPassword(e.target.value)}
                     placeholder="设置新密码（至少6位）"
                     autoComplete="new-password"
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                    className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
                   />
                   <button
                     type="button"

@@ -36,7 +36,7 @@ export function HeaderSearch({ q, placeholder }: { q?: string; placeholder: stri
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl bg-muted/50 py-2.5 pl-10 pr-4 text-sm text-foreground outline-none ring-1 ring-border transition-all placeholder:text-muted-foreground/60 focus:bg-card focus:ring-primary/30"
+        className="w-full rounded-xl border border-input bg-transparent py-2.5 pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-ring"
       />
     </div>
   )

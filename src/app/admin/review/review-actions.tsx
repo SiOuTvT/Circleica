@@ -48,7 +48,7 @@ export function ReviewActions({ gameId }: { gameId: string }) {
             autoFocus
             value={rejectReason}
             onChange={e => setRejectReason(e.target.value)}
-            placeholder="拒回原因…" className="w-32 rounded-lg bg-muted px-2 py-1.5 text-xs text-foreground ring-1 ring-border outline-none"
+            placeholder="拒回原因…" className="w-32 rounded-lg border border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-colors focus:border-ring"
             onKeyDown={e => { if (e.key === "Escape") setShowReject(false) }}
           />
           <button onClick={reject} disabled={rejecting}

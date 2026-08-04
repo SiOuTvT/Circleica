@@ -124,7 +124,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
   return (
     <div ref={wrapperRef} className="relative">
       <form onSubmit={handleSubmit}>
-        <div className="flex items-center gap-3 rounded-2xl bg-card px-5 py-4 ring-1 ring-border transition-all focus-within:ring-primary/40">
+        <div className="flex items-center gap-3 rounded-2xl border border-input bg-transparent px-5 py-4 transition-colors focus-within:border-ring">
           <Search className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
           <input
             ref={inputRef}

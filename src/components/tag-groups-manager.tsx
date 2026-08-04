@@ -377,7 +377,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
   const totalGames = groups.reduce((sum, g) => sum + g.tags.reduce((s, t) => s + t.gameCount, 0), 0)
 
   const inputCls =
-    "w-full rounded-xl bg-secondary px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border outline-none focus:ring-ring transition-all"
+    "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
   return (
     <div className="space-y-4">
@@ -398,7 +398,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜索标签…"
-              className="rounded-lg bg-secondary pl-8 pr-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring w-36 transition-all"
+              className="rounded-lg border border-input bg-transparent pl-8 pr-3 py-2 text-xs text-foreground outline-none transition-colors focus:border-ring w-36"
             />
           </div>
           <button
@@ -490,7 +490,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       value={editGroupName}
                       onChange={(e) => setEditGroupName(e.target.value)}
                       placeholder="标签组名称"
-                      className="flex-1 rounded-lg bg-secondary px-3 py-1.5 text-sm text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                      className="flex-1 rounded-lg border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-colors focus:border-ring"
                       autoFocus
                     />
                     {group.isPreset && (
@@ -503,7 +503,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                     value={editGroupDesc}
                     onChange={(e) => setEditGroupDesc(e.target.value)}
                     placeholder="描述（可选）"
-                    className="w-full rounded-lg bg-secondary px-3 py-1.5 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                    className="w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                   />
                   <div>
                     <p className="text-xs font-medium text-muted-foreground mb-1.5">颜色</p>
@@ -686,7 +686,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         value={newTagName}
                         onChange={(e) => setNewTagName(e.target.value)}
                         placeholder="新标签名称"
-                        className="flex-1 rounded-lg bg-secondary px-3 py-2 text-xs text-foreground ring-1 ring-border outline-none focus:ring-ring"
+                        className="flex-1 rounded-lg border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleCreateTag(group.id)

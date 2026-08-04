@@ -392,7 +392,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 /* ── 子组件 ── */
 
 const inputCls =
-  "w-full rounded-xl bg-muted/60 px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 ring-1 ring-border/80 outline-none transition-all focus:bg-muted focus:ring-2 focus:ring-ring/40"
+  "w-full rounded-xl border border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
 
 function Field({ label, required, hint, children }: {
   label: string; required?: boolean; hint?: string; children: React.ReactNode
