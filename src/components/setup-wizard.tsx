@@ -8,7 +8,7 @@ import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { apiFetchSafe } from "@/lib/api-client"
-import { BRANDING } from "@/lib/branding"
+import { BRANDING, resolveLogo } from "@/lib/branding"
 
 /* ── 复用常量 ── */
 
@@ -34,6 +34,7 @@ interface FormData {
   placeholderImage: string
   registrationEnabled: boolean
   themeColor: string
+  logoMode: "full" | "icon"
   tagGroupColors: Record<string, string>
   username: string
   email: string
@@ -48,6 +49,7 @@ const INITIAL: FormData = {
   placeholderImage: "",
   registrationEnabled: true,
   themeColor: "#4C7E96",
+  logoMode: "full",
   tagGroupColors: Object.fromEntries(PRESET_TAG_GROUPS.map(g => [g.id, g.color])),
   username: "",
   email: "",
@@ -217,6 +219,7 @@ export function SetupWizard() {
           placeholderImage: form.placeholderImage.trim(),
           registrationEnabled: form.registrationEnabled,
           themeColor: form.themeColor,
+          logoMode: form.logoMode,
           tagGroupColors: form.tagGroupColors,
           admin: { username: form.username.trim(), email: form.email.trim(), password: form.password },
         },
@@ -386,6 +389,19 @@ export function SetupWizard() {
                         </button>
                         {form.siteLogo && <button type="button" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { update("siteLogo", ""); setLogoPreview("") }}>移除</button>}
                       </div>
+                      {/* 显示模式 */}
+                      <div className="mt-3">
+                        <p className={cn("text-[11px] mb-1.5", "text-muted-foreground")}>显示模式</p>
+                        <div className="inline-flex rounded-xl border p-1" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
+                          <button type="button" onClick={() => update("logoMode", "full")} className={cn("rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "full" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "full" ? { backgroundColor: "var(--theme-color)" } : undefined}>
+                            完整 Logo（图形 + 站名）
+                          </button>
+                          <button type="button" onClick={() => update("logoMode", "icon")} className={cn("rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "icon" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "icon" ? { backgroundColor: "var(--theme-color)" } : undefined}>
+                            仅图标（emblem）
+                          </button>
+                        </div>
+                        <p className={cn("text-[11px] mt-1.5", "text-muted-foreground")}>「仅图标」模式三处统一只显示 emblem 符号，不显示站名与自定义图。</p>
+                      </div>
                     </Field>
                     <Field label="注册策略">
                       <select value={form.registrationEnabled ? "1" : "0"} onChange={e => update("registrationEnabled", e.target.value === "1")} className={cn(inputBase, "appearance-none cursor-pointer", "bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23ffffff60%22%20d%3D%22M6%208L1%203h10z%22%2F%3E%3C%2Fsvg%3E')]", "bg-no-repeat bg-[position:right_14px_center]", "[&>option]:bg-[#1a1a24] [&>option]:text-white/80")}>
@@ -513,12 +529,13 @@ export function SetupWizard() {
                       <SummaryRow label="站点名称" value={form.siteName} />
                       {form.siteDescription && <SummaryRow label="站点描述" value={form.siteDescription} />}
                       <SummaryRow label="Logo">
-                        {form.siteLogo ? <span className="flex items-center gap-2">
-                          {// eslint-disable-next-line @next/next/no-img-element
-                          }<img src={logoPreview || form.siteLogo} alt="" className="w-6 h-6 rounded object-contain" />
-                          <span className={cn("text-sm", "text-muted-foreground")}>已上传</span>
-                        </span> : <span className={cn("text-sm", "text-muted-foreground")}>使用默认</span>}
+                        <span className="flex items-center gap-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={logoPreview || form.siteLogo || BRANDING.circleica.emblem} alt="" className="w-6 h-6 rounded object-contain bg-white/10 border border-white/10" />
+                          <span className={cn("text-sm", "text-muted-foreground")}>{form.siteLogo ? "已上传自定义 Logo" : "使用默认 Circleica Logo"}</span>
+                        </span>
                       </SummaryRow>
+                      <SummaryRow label="显示模式" value={form.logoMode === "icon" ? "仅图标（emblem）" : "完整 Logo（图形 + 站名）"} />
                       <SummaryRow label="主题色">
                         <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full" style={{ backgroundColor: form.themeColor }} /><span className={cn("text-sm font-medium", "text-foreground")}>{THEME_PRESETS.find(p => p.color === form.themeColor)?.label || form.themeColor}</span></span>
                       </SummaryRow>
@@ -613,14 +630,18 @@ function PreviewPanel({ form, logoPreview }: {
   return (
     <div className={cn("rounded-xl overflow-clip border transition-colors", "bg-card border border-border")}>
       <div className="flex items-center gap-2 px-3 h-9 border-b border-border">
-        {form.siteLogo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoPreview || form.siteLogo} alt="" className="w-4 h-4 rounded object-contain" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={BRANDING.circleica.emblem} alt="" className="w-4 h-4 rounded object-contain" />
-        )}
-        <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
+        {(() => {
+          const brand = resolveLogo(form.logoMode, { emblem: BRANDING.circleica.emblem, siteLogo: form.siteLogo || logoPreview })
+          return (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={brand.imageSrc} alt="" className="w-4 h-4 rounded object-contain" />
+              {brand.showName && (
+                <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
+              )}
+            </>
+          )
+        })()}
       </div>
       <div className="p-3 space-y-3">
         {/* 主题色预览：真实 Button / Input / 链接 */}

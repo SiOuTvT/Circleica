@@ -10,6 +10,7 @@ interface SetupBody {
   siteName: string
   siteDescription?: string
   siteLogo?: string
+  logoMode?: string
   placeholderImage?: string
   registrationEnabled: boolean
   themeColor?: string
@@ -69,6 +70,7 @@ export const POST = withHandler(async (req) => {
       { key: "site_name", value: siteName.trim() },
       { key: "site_description", value: (body.siteDescription || "").trim() },
       { key: "site_logo", value: body.siteLogo || "" },
+      { key: "logo_mode", value: body.logoMode === "icon" ? "icon" : "full" },
       { key: "default_placeholder_image", value: body.placeholderImage || "" },
       { key: "registration_enabled", value: String(body.registrationEnabled ?? true) },
       { key: "themeColor", value: body.themeColor || "#4C7E96" },

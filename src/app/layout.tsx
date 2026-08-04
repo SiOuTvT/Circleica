@@ -2,7 +2,7 @@ import { LayoutShiftGuard } from "@/components/layout-shift-guard"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
-import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSiteSetting } from "@/lib/site-settings"
+import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSiteSetting, getLogoMode } from "@/lib/site-settings"
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
@@ -100,6 +100,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   }
 
   const siteName = await getSiteName()
+  const [logoMode, siteLogo] = await Promise.all([getLogoMode(), getSiteLogo()])
 
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
@@ -121,7 +122,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           zIndex={9999}
         />
         <Providers>
-          <LayoutWrapper siteName={siteName}>
+          <LayoutWrapper siteName={siteName} logoMode={logoMode} siteLogo={siteLogo}>
             {children}
           </LayoutWrapper>
         </Providers>

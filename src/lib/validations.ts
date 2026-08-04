@@ -190,6 +190,12 @@ export const paginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 })
 
+// ============ 站点 Logo 显示模式 ============
+
+/** 站点 Logo 显示模式：full=完整Logo(图形+站名)，icon=仅图标(emblem) */
+export const logoModeSchema = z.enum(["full", "icon"])
+export type LogoModeValue = z.infer<typeof logoModeSchema>
+
 /**
  * ID 参数验证
  */

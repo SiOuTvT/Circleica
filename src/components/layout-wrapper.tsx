@@ -4,6 +4,7 @@ import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
 import { SiteFooter } from "@/components/site-footer"
 import { TopNav } from "@/components/top-nav"
+import { type LogoMode } from "@/lib/branding"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useOnlineStatus } from "@/hooks/use-online-status"
 import { ChevronUp } from "lucide-react"
@@ -25,7 +26,12 @@ const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
 const RIGHT_W = 260         // 右侧栏正常宽度
 const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
 
-export function LayoutWrapper({ children, siteName = "Circleica" }: { children: React.ReactNode; siteName?: string }) {
+export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
+  children: React.ReactNode
+  siteName?: string
+  logoMode?: LogoMode
+  siteLogo?: string | null
+}) {
   const pathname = usePathname()
   useOnlineStatus()
   useKeyboardShortcuts()
@@ -125,6 +131,8 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
           onToggle={toggleNav}
           mobileOpen={navMobileOpen}
           onMobileToggle={() => setNavMobileOpen(v => !v)}
+          logoMode={logoMode}
+          siteLogo={siteLogo}
         />
       )}
 
@@ -139,7 +147,7 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
             <div className="flex-1 px-3 sm:px-4 pb-8">
               <div className="mx-auto max-w-[1140px]">
                 <div className="sticky top-0 z-30">
-                  <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} />
+                  <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>
                 <EmailVerificationBanner />
                 <div className="space-y-2 sm:space-y-3">
@@ -148,7 +156,7 @@ export function LayoutWrapper({ children, siteName = "Circleica" }: { children: 
                 </div>
               </div>
             </div>
-            <SiteFooter siteName={siteName} />
+            <SiteFooter siteName={siteName} logoMode={logoMode} siteLogo={siteLogo} />
           </div>
         )}
       </main>

@@ -9,7 +9,7 @@ import { logger } from "@/lib/logger"
 import { api, apiFetchSafe, ApiError } from "@/lib/api-client"
 import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
-import { BRANDING } from "@/lib/branding"
+import { BRANDING, resolveLogo, type LogoMode } from "@/lib/branding"
 import {
   CalendarCheck,
   Loader2,
@@ -44,9 +44,12 @@ interface TopNavProps {
   navCollapsed?: boolean
   onToggleNav?: () => void
   onToggleForum?: () => void
+  logoMode?: LogoMode
+  siteLogo?: string | null
 }
 
-export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
+export function TopNav({ onToggleNav, onToggleForum, logoMode = "full", siteLogo = null }: TopNavProps) {
+  const brand = resolveLogo(logoMode, { emblem: BRANDING.circleica.emblem, siteLogo })
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
@@ -266,16 +269,18 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             className="flex h-11 items-center gap-2 rounded-full pl-1 pr-2 transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Image
-              src={BRANDING.circleica.emblem}
+              src={brand.imageSrc}
               alt=""
               width={40}
               height={40}
               unoptimized
               className="h-[40px] w-[40px] shrink-0"
             />
-            <span className="hidden text-[20px] font-bold tracking-tight text-primary font-heading sm:inline">
-              Circleica
-            </span>
+            {brand.showName && (
+              <span className="hidden text-[20px] font-bold tracking-tight text-primary font-heading sm:inline">
+                Circleica
+              </span>
+            )}
           </Link>
 
           <div className="ml-auto flex items-center gap-2">

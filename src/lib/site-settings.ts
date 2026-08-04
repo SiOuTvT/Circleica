@@ -3,6 +3,7 @@ import { CACHE_TTL } from "@/lib/config"
 import { logger } from "@/lib/logger"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { cache } from "react"
+import { DEFAULT_LOGO_MODE, type LogoMode } from "@/lib/branding"
 
 /**
  * 站点配置服务
@@ -171,6 +172,11 @@ export async function getSiteLogo(): Promise<string | null> {
   return url || null
 }
 
+export async function getLogoMode(): Promise<LogoMode> {
+  const mode = await getSiteSetting("logo_mode", DEFAULT_LOGO_MODE)
+  return mode === "icon" ? "icon" : "full"
+}
+
 export async function getThemeColor(): Promise<string> {
   return getSiteSetting("themeColor", "#4C7E96")
 }
@@ -181,6 +187,7 @@ const PUBLIC_SETTING_KEYS = [
   "site_name",
   "site_description",
   "site_logo",
+  "logo_mode",
   "default_placeholder_image",
   "registration_enabled",
   "themeColor",

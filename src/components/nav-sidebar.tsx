@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { BRANDING } from "@/lib/branding"
+import { BRANDING, resolveLogo, type LogoMode } from "@/lib/branding"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -40,9 +40,12 @@ interface NavSidebarProps {
   onToggle: () => void
   mobileOpen?: boolean
   onMobileToggle?: () => void
+  logoMode?: LogoMode
+  siteLogo?: string | null
 }
 
-export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
+export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle, logoMode = "full", siteLogo = null }: NavSidebarProps) {
+  const brand = resolveLogo(logoMode, { emblem: BRANDING.circleica.emblem, siteLogo })
   const pathname = usePathname()
   const router = useRouter()
   const [randomLoading, setRandomLoading] = useState(false)
@@ -109,14 +112,14 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             title={collapsed ? "Circleica" : undefined}
           >
             <Image
-              src={BRANDING.circleica.emblem}
+              src={brand.imageSrc}
               alt=""
               width={36}
               height={36}
               unoptimized
               className="h-9 w-9 shrink-0"
             />
-            {!collapsed && (
+            {!collapsed && brand.showName && (
               <span className="text-[20px] font-bold tracking-tight text-primary font-heading">Circleica</span>
             )}
           </Link>

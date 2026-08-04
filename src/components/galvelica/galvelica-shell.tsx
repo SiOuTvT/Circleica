@@ -2,6 +2,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 import { Search } from "lucide-react"
 import { GalvelicaNav } from "./galvelica-nav"
+import { getLogoMode } from "@/lib/site-settings"
 
 /**
  * Galvelica 子站外壳：独立的页面框架。
@@ -9,7 +10,9 @@ import { GalvelicaNav } from "./galvelica-nav"
  * 这里承载子站自己的品牌头、内部导航、页面主体与极简页脚，
  * 让用户明显感到进入了另一个产品（仍属 Circleica）。
  */
-export function GalvelicaShell({ children }: { children: ReactNode }) {
+export async function GalvelicaShell({ children }: { children: ReactNode }) {
+  // 副站 Logo 显示模式与主站共享同一数据源（站点设置 logo_mode），保证整体同步
+  const logoMode = await getLogoMode()
   return (
     <div className="galvelica-root flex min-h-screen flex-col bg-[color-mix(in_srgb,var(--gal-paper,#0c1413)_98%,transparent)]">
       <a
@@ -69,7 +72,7 @@ export function GalvelicaShell({ children }: { children: ReactNode }) {
         {/* 内部导航：桌面端内联在 header 下沿，移动端单独成行 */}
         <div className="border-t border-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)]">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <GalvelicaNav className="flex-wrap py-2" />
+            <GalvelicaNav className="flex-wrap py-2" logoMode={logoMode} />
           </div>
         </div>
       </header>

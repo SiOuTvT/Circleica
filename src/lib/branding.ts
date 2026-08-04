@@ -35,3 +35,43 @@ export const BRANDING = {
 
 export const CIRCLEICA_EMBLEM = BRANDING.circleica.emblem
 export const GALVELICA_EMBLEM = BRANDING.galvelica.emblem
+
+/**
+ * Logo 显示模式（单一数据源：站点设置 `logo_mode`）
+ * - "full"：完整 Logo = 图形 + 站名文字（默认）
+ * - "icon"：仅图标 = 只显示 emblem 符号，不显示文字、也不显示自定义图
+ */
+export type LogoMode = "full" | "icon"
+export const DEFAULT_LOGO_MODE: LogoMode = "full"
+
+export interface ResolvedLogo {
+  /** 规范化后的模式（非法值回退 full） */
+  mode: LogoMode
+  /** 是否显示站名文字 */
+  showName: boolean
+  /** 实际显示的图形源：icon 模式恒为 emblem；full 模式优先自定义 siteLogo，回退 emblem */
+  imageSrc: string
+}
+
+/**
+ * 根据显示模式解析应渲染的 Logo 图形与文字。
+ *
+ * 规则（与需求一致）：
+ * - icon 模式：统一只显示 emblem 符号（保持品牌统一），忽略自定义 siteLogo、不显示文字。
+ * - full 模式：显示「图形 + 站名文字」；图形优先用自定义 siteLogo，无则回退 emblem。
+ *
+ * @param mode      原始 logo_mode（可能为空或非法）
+ * @param opts.emblem   该站点专属 emblem 路径（主站 circleica / 副站 galvelica）
+ * @param opts.siteLogo 自定义 Logo URL（仅主站使用，副站传空）
+ */
+export function resolveLogo(
+  mode: LogoMode | string | undefined | null,
+  opts: { emblem: string; siteLogo?: string | null },
+): ResolvedLogo {
+  const resolved: LogoMode = mode === "icon" ? "icon" : "full"
+  return {
+    mode: resolved,
+    showName: resolved === "full",
+    imageSrc: resolved === "icon" ? opts.emblem : (opts.siteLogo || opts.emblem),
+  }
+}

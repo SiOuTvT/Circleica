@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
 import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
+import { BRANDING } from "@/lib/branding"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -13,6 +14,8 @@ export default function SiteSettingsPage() {
   const [placeholderUrl, setPlaceholderUrl] = useState("")
   const [siteName, setSiteName] = useState("")
   const [siteDescription, setSiteDescription] = useState("")
+  const [logoUrl, setLogoUrl] = useState("")
+  const [logoMode, setLogoMode] = useState<"full" | "icon">("full")
   const [registrationEnabled, setRegistrationEnabled] = useState(true)
   const [emailVerificationEnabled, setEmailVerificationEnabled] = useState(false)
   const [emailVerificationRequiredForLogin, setEmailVerificationRequiredForLogin] = useState(false)
@@ -20,13 +23,17 @@ export default function SiteSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [logoUploading, setLogoUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const logoFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     apiFetchSafe<{
       default_placeholder_image?: string
       site_name?: string
       site_description?: string
+      site_logo?: string
+      logo_mode?: string
       registration_enabled?: string
       email_verification_enabled?: string
       email_verification_required_for_login?: string
@@ -37,6 +44,8 @@ export default function SiteSettingsPage() {
           setPlaceholderUrl(data.default_placeholder_image || "")
           setSiteName(data.site_name || "")
           setSiteDescription(data.site_description || "")
+          setLogoUrl(data.site_logo || "")
+          setLogoMode(data.logo_mode === "icon" ? "icon" : "full")
           setRegistrationEnabled(data.registration_enabled !== "false")
           setEmailVerificationEnabled(data.email_verification_enabled === "true")
           setEmailVerificationRequiredForLogin(data.email_verification_required_for_login === "true")
@@ -56,6 +65,8 @@ export default function SiteSettingsPage() {
           default_placeholder_image: placeholderUrl,
           site_name: siteName,
           site_description: siteDescription,
+          site_logo: logoUrl,
+          logo_mode: logoMode,
           registration_enabled: String(registrationEnabled),
           email_verification_enabled: String(emailVerificationEnabled),
           email_verification_required_for_login: String(emailVerificationRequiredForLogin),
@@ -72,7 +83,7 @@ export default function SiteSettingsPage() {
     } finally {
       setSaving(false)
     }
-  }, [placeholderUrl, siteName, siteDescription, registrationEnabled, emailVerificationEnabled, emailVerificationRequiredForLogin, sendWelcomeEmail])
+  }, [placeholderUrl, siteName, siteDescription, logoUrl, logoMode, registrationEnabled, emailVerificationEnabled, emailVerificationRequiredForLogin, sendWelcomeEmail])
 
   const handleUpload = useCallback(async (file: File) => {
     setUploading(true)
@@ -90,6 +101,27 @@ export default function SiteSettingsPage() {
       toast.error("上传失败")
     } finally {
       setUploading(false)
+    }
+  }, [])
+
+  const handleLogoUpload = useCallback(async (file: File) => {
+    setLogoUploading(true)
+    try {
+      const form = new FormData()
+      form.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body: form })
+      const data = await res.json()
+      if (data.url) {
+        setLogoUrl(data.url)
+        // 上传自定义图后自动切到「完整 Logo」以便即时看到效果
+        setLogoMode("full")
+      } else {
+        toast.error("上传失败: " + (data.error || "未知错误"))
+      }
+    } catch {
+      toast.error("上传失败")
+    } finally {
+      setLogoUploading(false)
     }
   }, [])
 
@@ -160,6 +192,108 @@ export default function SiteSettingsPage() {
               className={adminInput}
             />
           </div>
+        </div>
+        </Card>
+
+      {/* 品牌 Logo */}
+      <Card size="comfortable" radius="xl" className="space-y-4">
+        <div className="flex items-center gap-2">
+          <ImageIcon className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-lg font-semibold text-foreground">品牌 Logo</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          自定义站点 Logo 与显示模式。设置即时同步到顶部导航、侧边栏和页脚。
+        </p>
+
+        {/* 自定义 Logo 上传 */}
+        <div className="space-y-3">
+          <label className="block text-sm font-medium">自定义 Logo 图</label>
+          <div className="flex items-center gap-4">
+            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
+              {logoUrl ? (
+                <Image src={logoUrl} alt="自定义 Logo 预览" fill className="object-contain p-1" unoptimized />
+              ) : (
+                <Image src={BRANDING.circleica.emblem} alt="默认 emblem" fill className="object-contain p-1.5" unoptimized />
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <input
+                ref={logoFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => {
+                  const f = e.target.files?.[0]
+                  if (f) handleLogoUpload(f)
+                }}
+              />
+              <button
+                onClick={() => logoFileRef.current?.click()}
+                disabled={logoUploading}
+                className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+              >
+                <Upload className="h-4 w-4" />
+                {logoUploading ? "上传中…" : "上传图片"}
+              </button>
+              {logoUrl && (
+                <button
+                  onClick={() => setLogoUrl("")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  清除（恢复默认 emblem）
+                </button>
+              )}
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">或手动输入图片 URL</label>
+            <input
+              value={logoUrl}
+              onChange={e => setLogoUrl(e.target.value)}
+              placeholder="https://example.com/logo.png"
+              className={adminInput}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            建议透明底 PNG（约 2048×2048）。留空则使用默认品牌 emblem。仅在「完整 Logo」模式下显示。
+          </p>
+        </div>
+
+        {/* 显示模式 */}
+        <div className="space-y-2 border-t border-border pt-4">
+          <label className="block text-sm font-medium">显示模式</label>
+          <div
+            role="radiogroup"
+            aria-label="Logo 显示模式"
+            className="inline-flex rounded-xl border border-border bg-muted p-1"
+          >
+            <button
+              type="button"
+              role="radio"
+              aria-checked={logoMode === "full"}
+              onClick={() => setLogoMode("full")}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                logoMode === "full" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              完整 Logo（图形 + 站名）
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={logoMode === "icon"}
+              onClick={() => setLogoMode("icon")}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                logoMode === "icon" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              仅图标（emblem）
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            「仅图标」模式三处统一只显示 emblem 符号，不显示站名与自定义图；Galvelica 副站同步此模式。
+          </p>
         </div>
         </Card>
 
