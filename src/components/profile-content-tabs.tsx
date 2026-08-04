@@ -9,6 +9,7 @@ import { EmotionalIcon } from "@/components/emotional-icon"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import { Tag } from "@/components/ui/tag"
 import { Badge } from "@/components/ui/badge"
@@ -59,6 +60,8 @@ export function ProfileContentTabs({ userId }: Props) {
   const [localFav, setLocalFav] = useState<GameLite[]>([])
   const [localFollowing, setLocalFollowing] = useState<FollowingLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
@@ -191,28 +194,25 @@ export function ProfileContentTabs({ userId }: Props) {
         )}
       </div>
 
-      {/* 收藏夹弹窗 - 预渲染 DOM，使用 inert 和 CSS 控制显示/隐藏 */}
-      <div
-        inert={!modalCollection}
-        aria-hidden={!modalCollection}
-        className={`fixed inset-0 z-50 ${modalCollection ? "" : "pointer-events-none"}`}
-      >
-        <div
-          className={`absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300 cursor-pointer ${modalCollection ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setModalCollection(null)}
-        />
-        <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
-          <div className={`relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-clip rounded-2xl bg-card border border-border shadow-4 transition-all duration-300 ${modalCollection ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}>
-            {modalCollection && (
-              <FolderModalContent
-                name={modalCollection.name}
-                games={modalCollection.favorites?.map(f => f.game) ?? []}
-                onClose={() => setModalCollection(null)}
-              />
-            )}
+      {/* 收藏夹弹窗 - 用 portal 渲染到 body，脱离 layout-wrapper 的 translateX 容器，
+          否则 fixed 会被 transform 捕获定位、z-50 困在内部 stacking context 盖不住侧栏 */}
+      {mounted && createPortal(
+        <div inert={!modalCollection} aria-hidden={!modalCollection} className={`fixed inset-0 z-[100] ${modalCollection ? "" : "pointer-events-none"}`}>
+          <div className={`absolute inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300 cursor-pointer ${modalCollection ? "opacity-100" : "opacity-0"}`} onClick={() => setModalCollection(null)} />
+          <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+            <div className={`relative flex max-h-[80vh] w-full max-w-3xl flex-col overflow-clip rounded-2xl bg-card border border-border shadow-4 transition-all duration-300 ${modalCollection ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}>
+              {modalCollection && (
+                <FolderModalContent
+                  name={modalCollection.name}
+                  games={modalCollection.favorites?.map(f => f.game) ?? []}
+                  onClose={() => setModalCollection(null)}
+                />
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
