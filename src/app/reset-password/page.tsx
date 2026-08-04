@@ -43,7 +43,7 @@ function ResetForm() {
     setTimeout(() => router.push("/login"), 2000)
   }
 
-  const fieldCls = "flex items-center gap-3 rounded-xl border border-input bg-transparent px-4 py-3.5 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-ring"
+  const fieldCls = "flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary"
 
   return (
     <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">

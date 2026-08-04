@@ -226,7 +226,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     placeholder="一句话概括公告内容…" rows={3} className={inputCls + " resize-none"} />
                 </Field>
                 <Field label="封面">
-                  <div className="relative w-full overflow-hidden rounded-xl border border-input transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-ring bg-muted/40">
+                  <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary bg-muted/40">
                     <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传" flush />
                   </div>
                 </Field>
@@ -392,7 +392,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 /* ── 子组件 ── */
 
 const inputCls =
-  "w-full rounded-xl border border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+  "w-full rounded-xl border-2 border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
 
 function Field({ label, required, hint, children }: {
   label: string; required?: boolean; hint?: string; children: React.ReactNode
