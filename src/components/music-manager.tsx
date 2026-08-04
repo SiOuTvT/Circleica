@@ -72,7 +72,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     audio.onerror = () => setPlayingId(null)
   }, [playingId])
 
-  const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring"
+  const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
 
   // 文件上传
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -278,9 +278,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 {editingId === m.id ? (
                   <div className="flex flex-col gap-1">
                     <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
-                      className="rounded-lg border border-input bg-transparent px-2 py-1.5 text-sm text-foreground outline-none transition-colors focus:border-ring" />
+                      className="rounded-lg border border-input bg-transparent px-2 py-1.5 text-sm text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring" />
                     <input value={editUrl} onChange={e => setEditUrl(e.target.value)}
-                      className="rounded-lg border border-input bg-transparent px-2 py-1.5 text-micro text-muted-foreground outline-none transition-colors focus:border-ring" />
+                      className="rounded-lg border border-input bg-transparent px-2 py-1.5 text-micro text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring" />
                     <div className="flex gap-1.5 mt-0.5">
                       <button onClick={() => saveEdit(m.id)}
                         className="rounded-md bg-primary px-2 py-0.5 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
@@ -342,7 +342,7 @@ function SelectPlaylist({ playlists, value, onChange }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)}
-      className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-colors focus:border-ring">
+      className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring">
       <option value="">未分类</option>
       {playlists.map(pl => (
         <option key={pl.id} value={pl.id}>{pl.name}</option>

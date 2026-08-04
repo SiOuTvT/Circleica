@@ -434,7 +434,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
   }
 
-  const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
+  const inputCls = "w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
   const idTitle = useId()
@@ -841,7 +841,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             value={tagSearch}
             onChange={(e) => setTagSearch(e.target.value)}
             placeholder="搜索标签…"
-            className="w-full rounded-lg border border-input bg-transparent px-3 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-ring"
+            className="w-full rounded-lg border border-input bg-transparent px-3 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
           />
         </div>
         {/* 已选标签展示 */}

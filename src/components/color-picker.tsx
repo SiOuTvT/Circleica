@@ -61,7 +61,7 @@ export function ColorPicker({
           value={hexInput}
           onChange={(e) => handleHexChange(e.target.value)}
           placeholder="#000000"
-          className="w-24 rounded-lg border border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-colors focus:border-ring"
+          className="w-24 rounded-lg border border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
         />
         <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} title="当前颜色预览" />
       </div>

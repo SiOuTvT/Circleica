@@ -57,7 +57,7 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
               placeholder="标题"
               maxLength={100}
               required
-              className="w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring"
+              className="w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
             />
             <RichTextEditor content={content} onChange={setContent} placeholder="内容" />
             <div className="flex gap-3">

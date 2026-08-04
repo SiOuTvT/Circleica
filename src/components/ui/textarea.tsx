@@ -4,14 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const textareaVariants = cva(
-  "flex min-h-[80px] w-full min-w-0 rounded-xl px-3 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40",
+  "flex min-h-[80px] w-full min-w-0 rounded-xl px-3 py-2 text-base transition-[border-radius,border-color] duration-300 ease-out outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40",
   {
     variants: {
       variant: {
         default:
-          "border border-input bg-transparent focus-visible:border-ring disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "border border-input bg-transparent focus-visible:border-ring focus-visible:rounded-none disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         filled:
-          "bg-muted border border-input focus:border-ring aria-invalid:border-destructive dark:aria-invalid:border-destructive/50",
+          "bg-muted border border-input focus:border-ring focus:rounded-none aria-invalid:border-destructive dark:aria-invalid:border-destructive/50",
         ghost:
           "bg-transparent border-0 ring-0 focus-visible:ring-0 focus-visible:border-0",
       },

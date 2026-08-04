@@ -48,7 +48,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
       <form onSubmit={add} className="flex gap-2">
         <input value={content} onChange={e => setContent(e.target.value)}
           placeholder="如：修复百度网盘链接、新增汉化版…"
-          className="flex-1 rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring" />
+          className="flex-1 rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring" />
         <button type="submit" disabled={adding || !content.trim()}
           className="flex items-center gap-1.5 rounded-xl bg-secondary px-4 py-2 text-sm text-foreground transition-all hover:bg-secondary disabled:opacity-50">
           {adding ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} /> : <Plus className="h-4 w-4" strokeWidth={1.5} />}

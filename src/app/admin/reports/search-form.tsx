@@ -24,7 +24,7 @@ export function ReportSearchForm({ initialQ }: { initialQ: string }) {
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="搜索游戏名称…"
-          className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring transition-all w-full sm:w-56"
+          className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring transition-all w-full sm:w-56"
         />
       </div>
       <button
