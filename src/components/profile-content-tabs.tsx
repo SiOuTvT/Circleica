@@ -228,7 +228,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
       {showCreateFolder ? (
         <div className="rounded-xl bg-secondary/50 p-4 ring-1 ring-border">
           <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
-            placeholder="收藏夹名称" className="mb-3 w-full rounded-lg border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+            placeholder="收藏夹名称" className="mb-3 w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
             autoFocus onKeyDown={(e) => { if (e.key === "Enter") onCreateFolder() }} />
           <div className="flex gap-2">
             <button onClick={() => { setShowCreateFolder(false); setNewFolderName("") }} className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary">取消</button>

@@ -225,11 +225,12 @@ export function ImageUpload({
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-3 border-2 border-dashed transition-all",
+          "flex cursor-pointer flex-col items-center justify-center gap-3 border-2 transition-all",
+          flush ? "border-transparent rounded-none" : "border-dashed",
           shape === "circle" ? "rounded-full" : "rounded-xl",
           isDragging
             ? "border-primary bg-primary/10"
-            : "border-border bg-card hover:border-muted-foreground hover:bg-secondary"
+            : (flush ? "bg-card" : "border-border bg-card hover:border-muted-foreground hover:bg-secondary")
         )}
         style={{ aspectRatio, minHeight: "120px" }}
       >

@@ -221,7 +221,7 @@ export function RichTextEditor({
   }
 
   return (
-    <div className={cn("rounded-xl border border-border bg-card overflow-hidden transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-ring", className)}>
+    <div className={cn("rounded-xl border-2 border-border bg-card overflow-hidden transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary", className)}>
       {/* 工具栏 */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/50">
         {/* 文本格式 */}
