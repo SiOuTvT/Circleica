@@ -74,6 +74,7 @@ export function AvatarFrameSelector({
     <>
       {compact ? (
         <button
+          type="button"
           onClick={() => setOpen(v => !v)}
           className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
         >
@@ -87,6 +88,7 @@ export function AvatarFrameSelector({
         </button>
       ) : (
         <button
+          type="button"
           onClick={() => setOpen(v => !v)}
           className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground"
         >

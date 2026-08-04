@@ -75,9 +75,11 @@ export function ProfileEditForm({ user }: Props) {
     setError("")
     setSuccess("")
 
-    if (newPassword && newPassword.length < 6) {
-      setError("新密码至少6位")
-      return
+    if (newPassword) {
+      if (newPassword.length < 8 || !/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+        setError("新密码至少8位，且需同时包含字母和数字")
+        return
+      }
     }
 
     setSaving(true)
@@ -140,11 +142,11 @@ export function ProfileEditForm({ user }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="flex flex-col lg:flex-row items-stretch min-w-0 gap-0">
         {/* 左栏：形象 */}
-        <div className="flex flex-col gap-4">
+        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-4">
           {/* 个人形象 */}
-          <section className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
             <h2 className="mb-4 text-sm font-semibold text-foreground">个人形象</h2>
             <div className="flex flex-col items-center">
               <div className="h-[150px] w-[150px] sm:h-[160px] sm:w-[160px]">
@@ -166,7 +168,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 个人封面 */}
-          <section className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
             <h2 className="mb-4 text-sm font-semibold text-foreground">个人封面</h2>
             <ImageUpload
               value={bannerData}
@@ -183,7 +185,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 头像框 */}
-          <section className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
             <h2 className="mb-4 text-sm font-semibold text-foreground">头像框</h2>
             <AvatarFrameSelector
               currentFrameId={user.avatarFrameId}
@@ -192,12 +194,12 @@ export function ProfileEditForm({ user }: Props) {
               compact
             />
           </section>
-        </div>
+        </aside>
 
         {/* 右栏：信息 + 安全 */}
-        <div className="flex flex-col gap-4">
+        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-4 min-w-0 order-2 lg:order-none gap-4">
           {/* 基本信息 */}
-          <section className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6 space-y-5">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6 space-y-5">
             <h2 className="text-sm font-semibold text-foreground">基本信息</h2>
 
             <div>
@@ -248,7 +250,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 账号安全 */}
-          <section className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               <h2 className="text-sm font-semibold text-foreground">账号安全</h2>
@@ -301,7 +303,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 保存 */}
-          <div className="rounded-2xl bg-card ring-1 ring-foreground/10 p-5 sm:p-6">
+          <div className="rounded-2xl bg-card border border-border p-5 sm:p-6">
             <button
               type="submit"
               disabled={saving}
@@ -311,7 +313,7 @@ export function ProfileEditForm({ user }: Props) {
               {saving ? "保存中…" : "保存修改"}
             </button>
           </div>
-        </div>
+        </main>
       </div>
     </form>
   )

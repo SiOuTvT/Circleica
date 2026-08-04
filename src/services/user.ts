@@ -290,11 +290,23 @@ export const userService = {
       data.faveGameId = typeof raw.faveGameId === "string" && raw.faveGameId.trim() ? raw.faveGameId : null
     }
 
-    // 取旧头像/封面 URL，替换成功后清理旧文件，避免孤儿文件持续堆积（L10）
+    // 取旧头像/封面/密码，替换成功后清理旧文件，避免孤儿文件持续堆积（L10）
     const current = await prisma.user.findUnique({
       where: { id: userId },
-      select: { avatar: true, banner: true },
+      select: { avatar: true, banner: true, password: true },
     })
+
+    // 修改密码：校验当前密码（已设密码时）+ 新密码强度，再写入（M6）
+    if (raw.newPassword !== undefined && raw.newPassword) {
+      if (current?.password) {
+        if (!raw.oldPassword) throw new ValidationError("请输入当前密码")
+        const oldOk = await bcrypt.compare(String(raw.oldPassword), current.password)
+        if (!oldOk) throw new ValidationError("当前密码不正确")
+      }
+      const pwErr = validatePassword(String(raw.newPassword))
+      if (pwErr) throw new ValidationError(pwErr)
+      data.password = await bcrypt.hash(String(raw.newPassword), 12)
+    }
 
     const result = await userRepo.updateProfile(userId, data)
 
