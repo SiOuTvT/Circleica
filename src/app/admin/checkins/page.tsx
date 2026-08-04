@@ -109,13 +109,13 @@ export default async function AdminCheckInsPage({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
             <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
-              className="rounded-xl border border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring w-full sm:w-48" />
+              className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-48" />
           </div>
           <input type="date" name="from" defaultValue={from} aria-label="开始日期"
-            className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring" />
+            className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
           <span className="text-xs text-muted-foreground">至</span>
           <input type="date" name="to" defaultValue={to} aria-label="结束日期"
-            className="rounded-xl border border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring" />
+            className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
           <button type="submit"
             className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90">
             筛选
