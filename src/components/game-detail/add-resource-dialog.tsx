@@ -445,7 +445,7 @@ export function AddResourceDialog({
                     value={entry.url}
                     onChange={(e) => updateEntry(entry.id, "url", e.target.value)}
                     className={cn(
-                      "w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring",
+                      "w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary",
                       submitAttempted && !entry.url.trim() ? "border-red-400" : "border-foreground/15"
                     )}
                   />
@@ -461,7 +461,7 @@ export function AddResourceDialog({
                       placeholder="输入资源链接提取码，没有可留空"
                       value={entry.extractCode}
                       onChange={(e) => updateEntry(entry.id, "extractCode", e.target.value)}
-                      className="w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
                     />
                   </div>
                   <div>
@@ -473,7 +473,7 @@ export function AddResourceDialog({
                       placeholder="请填写压缩包解压码，没有可留空"
                       value={entry.decompressCode}
                       onChange={(e) => updateEntry(entry.id, "decompressCode", e.target.value)}
-                      className="w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
                     />
                   </div>
                 </div>
@@ -487,7 +487,7 @@ export function AddResourceDialog({
                     placeholder="请填写资源大小，如 2.5GB"
                     value={entry.fileSize}
                     onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
-                    className="w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                    className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -577,7 +577,7 @@ export function AddResourceDialog({
                 placeholder="请填写您的资源名称"
                 value={resourceName}
                 onChange={(e) => setResourceName(e.target.value)}
-                className="w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
               />
             </div>
             <div>
@@ -589,7 +589,7 @@ export function AddResourceDialog({
                 placeholder="请按需填写备注信息，如用途、来源等"
                 value={resourceNote}
                 onChange={(e) => setResourceNote(e.target.value)}
-                className="w-full rounded-lg border border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
               />
             </div>
           </div>

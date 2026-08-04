@@ -88,7 +88,7 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
               placeholder="标题（如：求《xxx》下载地址）"
               maxLength={100}
               required
-              className="w-full rounded-xl border border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-ring"
+              className="w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
             />
             <RichTextEditor content={content} onChange={setContent} placeholder="详细描述你的需求… 支持富文本格式和图片上传" />
             <button
