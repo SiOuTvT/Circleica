@@ -1,6 +1,6 @@
 export default function ProfileEditLoading() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6 py-8 px-4">
+    <div className="mx-auto max-w-[1140px] space-y-6 py-8 px-4">
       {/* Title */}
       <div className="h-7 w-24 animate-pulse rounded bg-muted" />
 
