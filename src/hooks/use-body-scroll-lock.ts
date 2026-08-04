@@ -18,14 +18,12 @@ export function useBodyScrollLock(active: boolean) {
 
     lockCount++
     body.classList.add("body-scroll-locked")
-    body.style.scrollbarGutter = "stable"
 
     return () => {
       lockCount--
       if (lockCount <= 0) {
         lockCount = 0
         body.classList.remove("body-scroll-locked")
-        body.style.scrollbarGutter = ""
       }
     }
   }, [active])

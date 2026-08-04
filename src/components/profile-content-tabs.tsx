@@ -5,7 +5,6 @@ import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
 import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Trash2, Users, X } from "lucide-react"
-import { EmotionalIcon } from "@/components/emotional-icon"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -255,7 +254,7 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FolderHeart className="h-10 w-10 text-muted-foreground/30 mb-3" />
           <p className="text-sm text-muted-foreground">
-            {favMsgs.empty_favorites ? <><EmotionalIcon emoji={favMsgs.empty_favorites.emoji} className="h-4 w-4" /> {favMsgs.empty_favorites.title}，{favMsgs.empty_favorites.subtitle}</> : "还没有收藏夹"}
+            {favMsgs.empty_favorites ? <>{favMsgs.empty_favorites.title}，{favMsgs.empty_favorites.subtitle}</> : "还没有收藏夹"}
           </p>
         </div>
       )}
