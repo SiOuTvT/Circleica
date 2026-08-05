@@ -34,17 +34,9 @@ export function LoadMoreButton({
   }, [onLoadMore])
 
   if (currentPage >= totalPages) {
-    return (
-      <div
-        role="status"
-        aria-label="已加载全部帖子"
-        className="flex w-full items-center gap-3 py-5"
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-border" aria-hidden="true" />
-        <span className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-muted-foreground/40" aria-hidden="true" />
-        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-border" aria-hidden="true" />
-      </div>
-    )
+    // 全部加载完毕：不渲染可见元素（用户确认无需 end-cap 视觉表达）；
+    // 仅保留屏幕阅读器提示，保证可访问性。
+    return <div role="status" aria-label="已加载全部帖子" className="sr-only" />
   }
 
   const remaining = totalPages - currentPage
