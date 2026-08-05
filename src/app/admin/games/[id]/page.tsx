@@ -27,7 +27,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
         creators: { select: { creatorId: true, role: true, creator: { select: { vndbId: true, name: true, nameJa: true } } } },
       },
     }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ where: { source: "circleica" }, orderBy: { name: "asc" } }),
     prisma.tagGroup.findMany({
       orderBy: { name: "asc" },
       include: { tags: { orderBy: { name: "asc" } } },

@@ -105,6 +105,7 @@ export default async function TagGroupDetailPage({
   } else if (group.isPreset && group.tags.length === 0) {
     // 没有标签的预设组（如发现页标签组）→ 显示所有游戏标签
     const allTags = await prisma.tag.findMany({
+      where: { source: "circleica" },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: {
         id: true,

@@ -267,6 +267,7 @@ model Tag {
   sortOrder   Int       @default(0)
   isVisible   Boolean   @default(true)
   groupId     String?
+  source      String    @default("circleica") // 数据来源：circleica=主站 / galvelica=副站；主站读取恒过滤此值，确保副站摄入数据不窜入主站
   createdAt   DateTime  @default(now())
   group       TagGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   games       GameTag[]
@@ -274,6 +275,7 @@ model Tag {
 
   @@index([groupId])
   @@index([sortOrder])
+  @@index([source])
 }
 
 model GameTag {
@@ -497,12 +499,14 @@ model Creator {
   twitterUrl   String        @default("")
   wikipediaUrl String        @default("")
   createdAt    DateTime      @default(now())
+  source       String        @default("circleica") // 数据来源：circleica=主站 / galvelica=副站；主站读取恒过滤此值，确保副站摄入数据不窜入主站
   games        GameCreator[]
   works        WorkCreator[]
 
   @@index([vndbId])
   @@index([name])
   @@index([createdAt])
+  @@index([source])
 }
 
 model GameCreator {

@@ -12,7 +12,7 @@ export const metadata = { title: "新增游戏 · 管理后台" }
 export default async function NewGamePage() {
   await requireAdmin()
   const [tags, tagGroups] = await Promise.all([
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ where: { source: "circleica" }, orderBy: { name: "asc" } }),
     prisma.tagGroup.findMany({
       orderBy: { name: "asc" },
       include: { tags: { orderBy: { name: "asc" } } },

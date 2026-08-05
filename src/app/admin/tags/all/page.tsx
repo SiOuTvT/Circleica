@@ -21,7 +21,7 @@ export default async function AllTagsPage({
   const skip = (page - 1) * limit
 
   // 主站隔离：仅列出关联「主站已发布游戏」的标签，杜绝串入副站(VNDB 摄入)数据
-  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
   const where = q ? {
     AND: [
       { name: { contains: q, mode: "insensitive" as const } },

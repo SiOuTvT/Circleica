@@ -67,6 +67,7 @@ export const avatarFrameRepo = {
 export const creatorRepo = {
   findAll() {
     return prisma.creator.findMany({
+      where: { source: "circleica" },
       orderBy: { createdAt: "desc" },
       take: 200,
       include: { _count: { select: { games: true } } },
@@ -153,6 +154,7 @@ export const tagGroupRepo = {
 export const tagRepo = {
   findAll() {
     return prisma.tag.findMany({
+      where: { source: "circleica" },
       orderBy: { sortOrder: "asc" },
       include: { group: { select: { id: true, name: true, color: true } }, _count: { select: { games: true } } },
     })

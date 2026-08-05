@@ -45,14 +45,14 @@ export default async function TagsOverviewPage() {
 async function loadTagsOverview() {
   // 获取标签计数、资源标签设置、标签组和未分组标签（全部并行）
   const [totalTagCount, allResourceSettings, groups] = await Promise.all([
-    prisma.tag.count(),
+    prisma.tag.count({ where: { source: "circleica" } }),
     prisma.siteSetting.findMany({ where: { key: { in: ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"] } } }),
     prisma.tagGroup.findMany({
       orderBy: [{ isPreset: "desc" }, { name: "asc" }],
       // 主站隔离：组内标签只保留「关联主站已发布游戏」的，杜绝串入副站(VNDB 摄入)数据
       include: {
         tags: {
-          where: { games: { some: { game: { isPublished: true } } } },
+          where: { games: { some: { game: { isPublished: true } } }, source: "circleica" },
           orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
           select: { id: true, name: true, color: true },
         },

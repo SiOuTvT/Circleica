@@ -24,7 +24,7 @@ export default async function AdminCreatorsPage({
   const skip = (page - 1) * limit
 
   // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
-  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
   const where = q ? {
     AND: [
       {

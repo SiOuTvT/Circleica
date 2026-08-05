@@ -65,7 +65,7 @@ export default async function AdminDashboard() {
       prisma.user.count(),
       prisma.game.aggregate({ _sum: { viewCount: true } }).then(r => r._sum.viewCount ?? 0),
       prisma.game.aggregate({ _sum: { downloadCount: true } }).then(r => r._sum.downloadCount ?? 0),
-      prisma.tag.count(),
+      prisma.tag.count({ where: { source: "circleica" } }),
       prisma.siteSetting.findMany({ where: { key: { in: RESOURCE_TAG_KEYS } }, select: { value: true } }),
       prisma.user.count({ where: { createdAt: { gte: todayStart, lte: todayEnd } } }),
     ])

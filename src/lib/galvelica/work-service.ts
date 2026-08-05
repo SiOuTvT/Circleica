@@ -152,7 +152,7 @@ async function resolveTagByName(name: string): Promise<string> {
   const existing = await prisma.tag.findFirst({ where: { name: clean }, select: { id: true } })
   if (existing) return existing.id
   const created = await prisma.tag.create({
-    data: { name: clean, color: "#a78bfa", isVisible: true },
+    data: { name: clean, color: "#a78bfa", isVisible: true, source: "galvelica" },
   })
   return created.id
 }
@@ -169,7 +169,7 @@ async function resolveCreatorByName(name: string, nameJa?: string): Promise<stri
     return existing.id
   }
   const created = await prisma.creator.create({
-    data: { name: clean, nameJa: nameJa ?? "" },
+    data: { name: clean, nameJa: nameJa ?? "", source: "galvelica" },
   })
   return created.id
 }

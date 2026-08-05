@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache"
 
 const getCachedTags = unstable_cache(
   () => prisma.tag.findMany({
+    where: { source: "circleica" },
     orderBy: { name: "asc" },
     select: { id: true, name: true, color: true, groupId: true, sortOrder: true, isVisible: true },
   }),

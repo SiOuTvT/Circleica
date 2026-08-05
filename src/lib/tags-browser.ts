@@ -69,6 +69,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
     },
     include: {
       tags: {
+        where: { source: "circleica" },
         orderBy: { name: "asc" },
       },
     },
@@ -124,7 +125,7 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
 
   const tagIds = tagStats.map(ts => ts.tagId)
   const tags = await prisma.tag.findMany({
-    where: { id: { in: tagIds } },
+    where: { id: { in: tagIds }, source: "circleica" },
     select: { id: true, name: true, slug: true, color: true },
   })
 
@@ -150,7 +151,7 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
  */
 async function getStats(): Promise<{ totalTags: number; totalGames: number }> {
   const [totalTags, totalGames] = await Promise.all([
-    prisma.tag.count(),
+    prisma.tag.count({ where: { source: "circleica" } }),
     prisma.game.count({ where: { isPublished: true } }),
   ])
 
@@ -209,7 +210,7 @@ const TAG_GAME_LIMIT = 60
 export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null> {
   try {
     const tag = await prisma.tag.findUnique({
-      where: { slug },
+      where: { slug, source: "circleica" },
       include: { group: { select: { id: true, name: true, color: true } } },
     })
     if (!tag) return null
