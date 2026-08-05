@@ -4,6 +4,9 @@ import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { logger } from "@/lib/logger"
 import { prisma, Prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import Link from "next/link"
+import { List } from "lucide-react"
 import { cache, cacheKey, cached } from "@/lib/redis"
 
 export default async function TagsOverviewPage() {
@@ -20,7 +23,22 @@ export default async function TagsOverviewPage() {
   )
 
   return (
-    <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={allGroups} />
+    <AdminPageContainer
+      eyebrow="TAGS"
+      title="标签管理"
+      description="管理各页面的标签分组、颜色与归属"
+      actions={
+        <Link
+          href="/admin/tags/all"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary ring-1 ring-primary/20 transition-all hover:bg-primary/20 cursor-pointer"
+        >
+          <List className="h-4 w-4" />
+          查看全部标签
+        </Link>
+      }
+    >
+      <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={allGroups} />
+    </AdminPageContainer>
   )
 }
 

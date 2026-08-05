@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { ChevronDown, ExternalLink, FolderInput, List, Loader2 } from "lucide-react"
+import { ChevronDown, ExternalLink, FolderInput, Loader2 } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { Badge } from "@/components/ui/badge"
@@ -161,21 +161,6 @@ export function TagsOverviewClient({
 
   return (
     <div className="space-y-6">
-      {/* ── 页面标题区 ── */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">标签管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">管理各页面的标签分组和颜色</p>
-        </div>
-        <button
-          onClick={() => router.push("/admin/tags/all")}
-          className="flex items-center gap-2 rounded-xl bg-primary/10 text-primary px-4 py-2.5 text-sm font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all cursor-pointer"
-        >
-          <List className="h-4 w-4" />
-          查看全部标签
-        </button>
-      </div>
-
       {/* ── 标签组列表 ── */}
       <div className="space-y-3">
         {groups.map((g, index) => (

@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Pagination } from "@/components/ui/pagination"
-import { ArrowLeft, Layers, Search, X } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
@@ -83,22 +83,6 @@ export function AllTagsClient({ tags, groups, currentPage, totalPages, q, total 
 
   return (
     <div className="space-y-6">
-      {/* ── 顶部 ── */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.push("/admin/tags")}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border hover:ring-foreground/10 hover:bg-muted transition-all cursor-pointer"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          返回
-        </button>
-        <div className="flex items-center gap-2">
-          <Layers className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">全部标签</h1>
-          <span className="text-sm text-muted-foreground">{total} 个</span>
-        </div>
-      </div>
-
       {/* ── 标签组分布 ── */}
       <Card size="default" radius="xl">
         <p className="text-xs text-muted-foreground mb-3">标签组分布（当前页）</p>

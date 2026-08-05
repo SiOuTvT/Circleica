@@ -4,6 +4,9 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { TagGroupDetailClient } from "./detail-client"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -139,17 +142,32 @@ export default async function TagGroupDetailPage({
   }
 
   return (
-    <TagGroupDetailClient
-      group={{
-        id: group.id,
-        name: group.name,
-        description: group.description,
-        color: group.color,
-        positions: Array.isArray(group.positions) ? group.positions as string[] : [],
-        isPreset: group.isPreset,
-      }}
-      tags={tags}
-      allGroups={allGroups}
-    />
+    <AdminPageContainer
+      eyebrow="TAG"
+      title={group.name}
+      description={`共 ${tags.length} 个标签`}
+      actions={
+        <Link
+          href="/admin/tags"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10 hover:bg-muted cursor-pointer"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          返回
+        </Link>
+      }
+    >
+      <TagGroupDetailClient
+        group={{
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          color: group.color,
+          positions: Array.isArray(group.positions) ? group.positions as string[] : [],
+          isPreset: group.isPreset,
+        }}
+        tags={tags}
+        allGroups={allGroups}
+      />
+    </AdminPageContainer>
   )
 }

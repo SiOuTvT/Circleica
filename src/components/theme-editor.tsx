@@ -81,7 +81,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
       {/* 标题栏 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">主题</p>
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">THEME</p>
           <h1 className="flex items-center gap-3 font-heading text-xl font-bold">
             <Palette className="h-7 w-7" style={{ color: draft.themeColor }} />
             主题设置

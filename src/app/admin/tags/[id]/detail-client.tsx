@@ -1,9 +1,8 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { ArrowLeft, Loader2, Pencil, Plus, Search, X } from "lucide-react"
+import { Loader2, Pencil, Plus, Search, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
-import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -83,7 +82,6 @@ export function TagGroupDetailClient({
   tags: TagItem[]
   allGroups: AllGroup[]
 }) {
-  const router = useRouter()
   const [tags, setTags] = useState(initialTags)
   const [searchQuery, setSearchQuery] = useState("")
   const [saving, setSaving] = useState(false)
@@ -200,21 +198,8 @@ export function TagGroupDetailClient({
     <div className="space-y-5">
       {/* ── 顶部卡片 ── */}
       <Card size="comfortable" radius="xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push("/admin/tags")}
-              className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <div className="flex items-center gap-2.5">
-              <div className="h-4 w-4 rounded-full" style={{ background: group.color }} />
-              <h1 className="text-lg font-bold text-foreground">{group.name}</h1>
-            </div>
-            <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2 py-0.5">{tags.length} 个标签</span>
-          </div>
-          {!group.isPreset && (
+        {!group.isPreset && (
+          <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setShowCreate(!showCreate)}
               className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all cursor-pointer"
@@ -222,8 +207,8 @@ export function TagGroupDetailClient({
               {showCreate ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
               {showCreate ? "收起" : "新建标签"}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 搜索 */}
         <div className="relative max-w-xs">
