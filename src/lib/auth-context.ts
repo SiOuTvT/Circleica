@@ -83,5 +83,11 @@ export async function requireSiteAdmin(
   if (!hasRole(ctx.role, minimumRole)) {
     throw new ForbiddenError(`需要 ${minimumRole} 权限才能管理 ${site}`)
   }
+  // 站点维度校验：显式确认 site 合法，杜绝此前 site 参数被静默忽略的问题。
+  // 真正的「某管理员仅能管理指定站点」需待 User.sitePermissions 字段落地后在此比较；
+  // 跨站数据泄漏的兜底由 services/admin.ts 按 source 过滤保证。
+  if (site !== "circleica" && site !== "galvelica") {
+    throw new ForbiddenError(`非法的站点域: ${String(site)}`)
+  }
   return ctx
 }

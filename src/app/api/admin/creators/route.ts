@@ -1,15 +1,15 @@
 import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
-import { requireAdminRole } from "@/lib/auth-context"
+import { requireSiteAdmin } from "@/lib/auth-context"
 import { creatorService } from "@/services/admin"
 import type { NextRequest } from "next/server"
 
 export const GET = withHandler(async () => {
-  await requireAdminRole()
+  await requireSiteAdmin("circleica")
   return json(await creatorService.getAll())
 })
 
 export const POST = withHandler(async (req: NextRequest) => {
-  await requireAdminRole()
+  await requireSiteAdmin("circleica")
   const body = await safeParseJson(req)
   return created(await creatorService.create(body))
 })

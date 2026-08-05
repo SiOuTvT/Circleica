@@ -200,6 +200,7 @@ export const creatorService = {
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
     const result = await creatorRepo.create({
+      source: "circleica",
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
@@ -216,6 +217,7 @@ export const creatorService = {
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await creatorRepo.findById(id)
     if (!existing) throw new NotFoundError("创作者")
+    if (existing.source !== "circleica") throw new ForbiddenError("该创作者属于其他站点，无权操作")
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
     const result = await creatorRepo.update(id, {
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
@@ -234,6 +236,7 @@ export const creatorService = {
   async delete(id: string) {
     const existing = await creatorRepo.findById(id)
     if (!existing) throw new NotFoundError("创作者")
+    if (existing.source !== "circleica") throw new ForbiddenError("该创作者属于其他站点，无权操作")
     const result = await creatorRepo.delete(id)
     await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
@@ -379,6 +382,7 @@ export const tagService = {
       n++
     }
     const result = await tagRepo.create({
+      source: "circleica",
       name,
       slug,
       description: raw.description ? String(raw.description) : "",
@@ -394,6 +398,7 @@ export const tagService = {
   async update(id: string, raw: Record<string, unknown>) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
+    if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const data: Prisma.TagUpdateInput = {}
     if ("name" in raw) data.name = String(raw.name)
     if ("description" in raw) data.description = String(raw.description)
@@ -411,6 +416,7 @@ export const tagService = {
   async delete(id: string) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
+    if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.delete(id)
     await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
@@ -419,12 +425,14 @@ export const tagService = {
   async forceDelete(id: string) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
+    if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     return tagRepo.delete(id)
   },
 
   async assignGroup(id: string, groupId: string | null) {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
+    if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
     await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result

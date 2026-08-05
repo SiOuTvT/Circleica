@@ -1,17 +1,17 @@
 import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
-import { requireAdminRole } from "@/lib/auth-context"
+import { requireSiteAdmin } from "@/lib/auth-context"
 import { tagService } from "@/services/admin"
 import { ValidationError } from "@/lib/errors"
 
 export const PUT = withHandler(async (req, ctx) => {
-  await requireAdminRole()
+  await requireSiteAdmin("circleica")
   const { id } = await ctx!.params
   const body = await safeParseJson(req)
   return json(await tagService.update(id, body))
 })
 
 export const DELETE = withHandler(async (_req, ctx) => {
-  await requireAdminRole()
+  await requireSiteAdmin("circleica")
   const { id } = await ctx!.params
   await tagService.delete(id)
   return noContent()
@@ -19,7 +19,7 @@ export const DELETE = withHandler(async (_req, ctx) => {
 
 // Force-delete / assign-group
 export const PATCH = withHandler(async (req, ctx) => {
-  await requireAdminRole()
+  await requireSiteAdmin("circleica")
   const { id } = await ctx!.params
   const body = await safeParseJson(req)
 
