@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
+import { cache, cacheKey } from "@/lib/redis"
 import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
 
 /**
@@ -12,6 +13,19 @@ import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  // 频限：单 IP 10 分钟内最多 10 次收录申请，防刷（redis 不可用时放行）
+  const ip = (req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()) || "anonymous"
+  const rlKey = cacheKey("rl:inclusion", ip)
+  try {
+    const count = (await cache.get<number>(rlKey)) || 0
+    if (count >= 10) {
+      return NextResponse.json({ error: "操作过于频繁，请稍后再试" }, { status: 429 })
+    }
+    await cache.set(rlKey, count + 1, 600)
+  } catch {
+    // 缓存故障不影响主流程
+  }
 
   const work = await prisma.work.findUnique({
     where: { id },

@@ -7,6 +7,7 @@ import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { PenTool, Search } from "lucide-react"
+import { CreatorRowActions } from "./creator-actions"
 
 export const metadata = { title: "Galvelica 创作者管理 · 管理后台" }
 
@@ -108,6 +109,7 @@ export default async function GalvelicaCreatorsPage({
                 <th className="px-4 py-3 text-left font-medium">名称</th>
                 <th className="px-4 py-3 text-left font-medium">日文名</th>
                 <th className="px-4 py-3 text-right font-medium">关联作品</th>
+                <th className="px-4 py-3 text-right font-medium">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -128,6 +130,9 @@ export default async function GalvelicaCreatorsPage({
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{c.nameJa || "—"}</td>
                   <td className="px-4 py-3 text-right text-muted-foreground">{c.workCount}</td>
+                  <td className="px-4 py-3 text-right">
+                    <CreatorRowActions creator={c} />
+                  </td>
                 </tr>
               ))}
             </tbody>

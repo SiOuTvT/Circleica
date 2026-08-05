@@ -8,6 +8,7 @@ import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Layers, Search } from "lucide-react"
+import { WorkRowActions } from "./work-actions"
 
 export const metadata = { title: "Galvelica 作品管理 · 管理后台" }
 
@@ -96,6 +97,7 @@ export default async function GalvelicaWorksPage({
                 <th className="px-4 py-3 text-left font-medium">状态</th>
                 <th className="px-4 py-3 text-right font-medium">浏览</th>
                 <th className="px-4 py-3 text-center font-medium">收录</th>
+                <th className="px-4 py-3 text-right font-medium">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -121,6 +123,9 @@ export default async function GalvelicaWorksPage({
                     ) : (
                       <span className="text-muted-foreground/60">—</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <WorkRowActions work={w} />
                   </td>
                 </tr>
               ))}

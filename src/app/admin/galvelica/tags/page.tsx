@@ -7,6 +7,7 @@ import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tag, Search } from "lucide-react"
+import { TagCreateForm, TagRowActions } from "./tag-actions"
 
 export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
 
@@ -84,10 +85,13 @@ export default async function GalvelicaTagsPage({
       title="标签管理"
       description={`Galvelica 副站共 ${total} 个标签（source=galvelica）`}
       actions={
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索标签…" aria-label="搜索标签" className={adminSearchInput} />
-        </form>
+        <div className="flex items-center gap-2">
+          <TagCreateForm />
+          <form method="get" className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+            <input name="q" defaultValue={q} placeholder="搜索标签…" aria-label="搜索标签" className={adminSearchInput} />
+          </form>
+        </div>
       }
     >
       {mappedTags.length === 0 ? (
@@ -100,6 +104,7 @@ export default async function GalvelicaTagsPage({
                 <th className="px-4 py-3 text-left font-medium">名称</th>
                 <th className="px-4 py-3 text-left font-medium">颜色</th>
                 <th className="px-4 py-3 text-right font-medium">关联作品</th>
+                <th className="px-4 py-3 text-right font-medium">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -114,6 +119,9 @@ export default async function GalvelicaTagsPage({
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{t.color}</td>
                   <td className="px-4 py-3 text-right text-muted-foreground">{t.workCount}</td>
+                  <td className="px-4 py-3 text-right">
+                    <TagRowActions tag={t} />
+                  </td>
                 </tr>
               ))}
             </tbody>
