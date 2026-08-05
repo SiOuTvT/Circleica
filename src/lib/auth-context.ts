@@ -11,6 +11,8 @@ import { prisma } from "@/lib/prisma"
 import { hasRole } from "@/lib/permissions"
 import type { UserRole } from "@prisma/client"
 
+export type SiteId = "circleica" | "galvelica"
+
 export interface AuthContext {
   userId: string
   username: string
@@ -64,4 +66,22 @@ export async function getOptionalAuth(): Promise<AuthContext | null> {
     if (error instanceof UnauthorizedError) return null
     throw error
   }
+}
+
+/**
+ * 要求站点管理员权限（site × role 二元鉴权）
+ *
+ * SUPER_ADMIN 可访问任意站点；ADMIN 暂同权（后续 User 扩展 sitePermissions 字段后可细分）。
+ */
+export async function requireSiteAdmin(
+  site: SiteId,
+  minimumRole: UserRole = "ADMIN",
+): Promise<AuthContext> {
+  const ctx = await requireAuth()
+  // SUPER_ADMIN 通行所有站点
+  if (hasRole(ctx.role, "SUPER_ADMIN")) return ctx
+  if (!hasRole(ctx.role, minimumRole)) {
+    throw new ForbiddenError(`需要 ${minimumRole} 权限才能管理 ${site}`)
+  }
+  return ctx
 }

@@ -1,5 +1,5 @@
 import { Pagination } from "@/components/ui/pagination"
-import { requireAdmin } from "@/lib/admin"
+import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma, Prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -15,7 +15,7 @@ export default async function GalvelicaCreatorsPage({
 }: {
   searchParams: Promise<{ page?: string; q?: string }>
 }) {
-  await requireAdmin()
+  await requireSiteAdmin("galvelica")
   const sp = await searchParams
   const page = Math.max(1, parseInt(sp.page || "1"))
   const q = sp.q?.trim() ?? ""

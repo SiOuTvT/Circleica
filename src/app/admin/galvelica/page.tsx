@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { requireAdmin } from "@/lib/admin"
+import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
@@ -9,7 +9,7 @@ import { BookOpen, Inbox, Layers, CheckCircle2 } from "lucide-react"
 export const metadata = { title: "副站 Galvelica 概览 · 管理后台" }
 
 export default async function GalvelicaAdminDashboard() {
-  await requireAdmin()
+  await requireSiteAdmin("galvelica")
 
   let workCount = 0
   let pendingInclusion = 0
