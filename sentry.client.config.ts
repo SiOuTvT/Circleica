@@ -1,0 +1,36 @@
+import * as Sentry from "@sentry/nextjs"
+
+Sentry.init({
+  // 必须用 NEXT_PUBLIC_ 前缀：Next 只把 NEXT_PUBLIC_* 内联进浏览器 bundle，
+  // 服务端变量（SENTRY_DSN）在客户端求值恒为 undefined，会让 SDK 静默禁用。
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  
+  // 仅在生产环境启用
+  enabled: process.env.NODE_ENV === "production",
+  
+  // 性能监控采样率（100% = 全部采集）
+  tracesSampleRate: 0.1,
+  
+  // 会话回放采样率
+  replaysSessionSampleRate: 0,
+  replaysOnErrorSampleRate: 1.0,
+  
+  // 调试模式
+  debug: false,
+  
+  // 集成 - 不加载 replay 以减少 bundle 体积
+  integrations: [],
+  
+  // 忽略常见非错误
+  ignoreErrors: [
+    "ResizeObserver loop limit exceeded",
+    "ResizeObserver loop completed with undelivered notifications",
+    "Non-Error promise rejection captured",
+    "Network request failed",
+    "NetworkError",
+    "Failed to fetch",
+  ],
+  
+  // 环境
+  environment: process.env.NODE_ENV,
+})
