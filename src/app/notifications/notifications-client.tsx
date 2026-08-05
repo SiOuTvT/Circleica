@@ -156,18 +156,19 @@ export default function NotificationsClient({
     <div>
       {/* 标题（ArchiveHero 设计语言：主题色图标无灰底 + 英文 eyebrow + 大字标题） */}
       <header className="mb-6 flex flex-col gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
           <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
             <Bell className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
           </div>
-          <div className="min-w-0">
+          {/* 文字列：eyebrow + 标题 + 描述共用图标右侧这一条左基准线（与 ArchiveHero 同源） */}
+          <div className="min-w-0 flex-1">
             <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">NOTIFICATIONS</p>
             <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">消息通知</h1>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+              {unreadCount > 0 ? `${unreadCount} 条未读消息` : "暂无未读消息"}
+            </p>
           </div>
         </div>
-        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-          {unreadCount > 0 ? `${unreadCount} 条未读消息` : "暂无未读消息"}
-        </p>
       </header>
 
       {/* 操作栏 */}

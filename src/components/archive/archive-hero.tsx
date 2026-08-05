@@ -88,28 +88,31 @@ export function ArchiveHero({
   // 浏览页：放大图标 + 两层文字 + 搜索（统一视觉基因，纯 Server 渲染）
   return (
     <header className={cn("flex flex-col gap-4", className)}>
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         {/* 图标为纯矢量、无容器装饰：早期的 rounded-none / bg-transparent / shadow-none / ring-0
             与 sm:h-12（同值重复）均为去掉灰底框后残留的空声明，已清理 */}
         <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
           <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
         </div>
-        <div className="min-w-0">
+        {/* 文字列：eyebrow + title + lede + meta 共用图标右侧这一条左基准线，
+            左边缘一致；flex-1 让文字列吃掉剩余宽度，lede/meta 不再掉到 header 最左 */}
+        <div className="min-w-0 flex-1">
           {eyebrow && (
             <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
           )}
           <h1 className="break-words font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">
             {title}
           </h1>
+          {lede && (
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{lede}</p>
+          )}
+          {meta && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">{meta}</div>
+          )}
         </div>
       </div>
-      {lede && (
-        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">{lede}</p>
-      )}
+      {/* search 是控件区（搜索/筛选），不属于标题文字，保持为 header 直接子节点、全宽 */}
       {search && <div className="mt-1">{search}</div>}
-      {meta && (
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">{meta}</div>
-      )}
     </header>
   )
 }

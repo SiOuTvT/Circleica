@@ -176,28 +176,29 @@ export function ForumClient({
     <div>
       {/* 页头（ArchiveHero 设计语言：主题色图标无灰底 + 英文 eyebrow + 大字标题） */}
       <header className="mb-4 sm:mb-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
             <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
               <MessageSquare className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
             </div>
+            {/* 文字列：eyebrow + 标题 + 描述共用图标右侧这一条左基准线（与 ArchiveHero 同源） */}
             <div className="min-w-0">
               <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">FORUM</p>
               <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">求档区</h1>
+              <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                找不到资源？发帖求档，社区互助
+              </p>
             </div>
           </div>
           {isLoggedIn && (
             <button
               onClick={() => setShowNewPost(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
             </button>
           )}
         </div>
-        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-          找不到资源？发帖求档，社区互助
-        </p>
       </header>
 
       {/* 搜索 + 分类筛选 */}
