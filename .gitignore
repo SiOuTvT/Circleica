@@ -61,11 +61,19 @@ next-env.d.ts
 # agent 临时产物（截图/日志/一次性脚本，禁止提交进仓库；物理文件一律放系统 TEMP，不放项目内）
 .dev_webpack*.log
 kill_dev*.cmd
-# 调试时改名的 .next 残留（.next_bak / .next_bak_perf / .next_bak_pre_final 等），禁止提交；应移出项目或清理
+# 调试/验证时改名的 .next 残留（.next_bak / .next_bak_perf / .next_bak_pre_final / .next_verify_bak 等），禁止提交；应移出项目或清理
 .next_turbobak
 .next_bak
 .next_bak/
 .next_bak*
+.next_verify_bak
+.next_verify_bak/
+.next_*bak*
+.next_*bak*/
+.next-verify
+.next-verify/
+.next-verify.bak
+.next-verify.bak/
 .probe*/
 .tmpshots/
 .shot*

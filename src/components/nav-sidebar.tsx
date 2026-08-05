@@ -13,8 +13,7 @@ import {
   Users,
 } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
-import { BRANDING, resolveLogo, type LogoMode } from "@/lib/branding"
+import { type LogoMode } from "@/lib/branding"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -44,8 +43,7 @@ interface NavSidebarProps {
   siteLogo?: string | null
 }
 
-export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle, logoMode = "full", siteLogo = null }: NavSidebarProps) {
-  const brand = resolveLogo(logoMode, { emblem: BRANDING.circleica.emblem, siteLogo })
+export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [randomLoading, setRandomLoading] = useState(false)
@@ -111,16 +109,10 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             )}
             title={collapsed ? "Circleica" : undefined}
           >
-            <Image
-              src={brand.imageSrc}
-              alt=""
-              width={36}
-              height={36}
-              unoptimized
-              className="h-9 w-9 shrink-0"
-            />
-            {!collapsed && brand.showName && (
-              <span className="text-[20px] font-bold tracking-tight text-primary font-heading">Circleica</span>
+            {collapsed ? (
+              <span className="font-heading text-xl font-bold leading-none text-foreground">C</span>
+            ) : (
+              <span className="font-heading text-lg font-bold tracking-tight text-foreground leading-none">Circleica</span>
             )}
           </Link>
 
@@ -141,7 +133,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]"
               aria-hidden
             />
-            <Library className="h-5 w-5 shrink-0" strokeWidth={2.2} />
+            <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
             {!collapsed && (
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-[15px] tracking-wide">Galvelica</span>
@@ -170,7 +162,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     )}
                     title={collapsed ? label : undefined}
                   >
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
+                    <Icon className="h-6 w-6 shrink-0" strokeWidth={2} />
                     {!collapsed && <span>{label}</span>}
                   </Link>
                 )
@@ -190,7 +182,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               )}
               title={collapsed ? "随机发现" : undefined}
             >
-              <Compass className={cn("h-5 w-5 shrink-0", randomLoading && "animate-spin")} strokeWidth={2} />
+              <Compass className={cn("h-6 w-6 shrink-0", randomLoading && "animate-spin")} strokeWidth={2} />
               {!collapsed && <span>{randomLoading ? "发现中..." : "随机发现"}</span>}
             </button>
           </div>

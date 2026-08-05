@@ -1,17 +1,8 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { HelpCircle, MessageCircle, Package, Coffee, Search } from "lucide-react"
-import type { ComponentType, SVGProps } from "react"
-
-type IconType = ComponentType<SVGProps<SVGSVGElement>>
-
-const CATEGORIES: { value: string; label: string; icon: IconType }[] = [
-  { value: "discussion", label: "讨论", icon: MessageCircle },
-  { value: "question", label: "求档", icon: HelpCircle },
-  { value: "showcase", label: "资源", icon: Package },
-  { value: "feedback", label: "杂谈", icon: Coffee },
-]
+import { Search } from "lucide-react"
+import { FORUM_CATEGORIES } from "@/lib/forum-categories"
 
 interface ForumFiltersProps {
   searchQuery: string
@@ -52,7 +43,7 @@ export function ForumFilters({
         >
           全部
         </button>
-        {CATEGORIES.map(cat => {
+        {FORUM_CATEGORIES.map(cat => {
           const Icon = cat.icon
           return (
           <button

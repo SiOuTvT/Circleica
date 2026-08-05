@@ -35,9 +35,15 @@ export function LoadMoreButton({
 
   if (currentPage >= totalPages) {
     return (
-      <p className="w-full py-3 text-center text-xs text-muted-foreground ring-1 ring-border rounded-xl bg-card/30">
-        已加载全部帖子
-      </p>
+      <div
+        role="status"
+        aria-label="已加载全部帖子"
+        className="flex w-full items-center gap-3 py-5"
+      >
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-border" aria-hidden="true" />
+        <span className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-muted-foreground/40" aria-hidden="true" />
+        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-border" aria-hidden="true" />
+      </div>
     )
   }
 

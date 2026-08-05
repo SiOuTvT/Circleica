@@ -9,7 +9,7 @@ import { logger } from "@/lib/logger"
 import { api, apiFetchSafe, ApiError } from "@/lib/api-client"
 import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
-import { BRANDING, resolveLogo, type LogoMode } from "@/lib/branding"
+import { type LogoMode } from "@/lib/branding"
 import {
   CalendarCheck,
   Loader2,
@@ -48,8 +48,7 @@ interface TopNavProps {
   siteLogo?: string | null
 }
 
-export function TopNav({ onToggleNav, onToggleForum, logoMode = "full", siteLogo = null }: TopNavProps) {
-  const brand = resolveLogo(logoMode, { emblem: BRANDING.circleica.emblem, siteLogo })
+export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
@@ -259,33 +258,21 @@ export function TopNav({ onToggleNav, onToggleForum, logoMode = "full", siteLogo
             className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
             aria-label="切换侧边栏"
           >
-            <Menu className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+            <Menu className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
           </button>
 
-          {/* 站点品牌标识：点击返回首页。emblem 主题安全，字标随主题变色，避免深色顶栏下 lockup 深色文字不可见 */}
+          {/* 站点品牌标识：点击返回首页。full 模式用 baked lockup，icon 模式用 emblem，深浅背景自动切换反白 */}
           <Link
             href="/"
             aria-label="Circleica 首页"
-            className="flex h-11 items-center gap-2 rounded-full pl-1 pr-2 transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex h-12 items-center rounded-full pl-1.5 pr-2.5 transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Image
-              src={brand.imageSrc}
-              alt=""
-              width={40}
-              height={40}
-              unoptimized
-              className="h-[40px] w-[40px] shrink-0"
-            />
-            {brand.showName && (
-              <span className="hidden text-[20px] font-bold tracking-tight text-primary font-heading sm:inline">
-                Circleica
-              </span>
-            )}
+            <span className="font-heading text-[19px] font-bold tracking-tight text-foreground leading-none">Circleica</span>
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+              <Search className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </Link>
 
             {user && <NotificationBell />}
@@ -295,13 +282,13 @@ export function TopNav({ onToggleNav, onToggleForum, logoMode = "full", siteLogo
               className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
               title="论坛"
             >
-              <MessageSquare className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+              <MessageSquare className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </button>
 
             <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
-                : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
-                : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />}
+              {theme === "light" ? <Sun className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
+                : theme === "dark" ? <Moon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
+                : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
             </button>
 
             {user ? (

@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
 import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
-import { BRANDING } from "@/lib/branding"
+import { BrandLogo } from "@/components/brand-logo"
+import { BRANDING, resolveLogo } from "@/lib/branding"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -124,6 +125,19 @@ export default function SiteSettingsPage() {
       setLogoUploading(false)
     }
   }, [])
+
+  // 品牌 Logo 预览：根据当前「显示模式」与「自定义图」解析应渲染的图
+  const brandOpts = {
+    emblem: BRANDING.circleica.emblem,
+    emblemWhite: BRANDING.circleica.emblemWhite,
+    lockup: BRANDING.circleica.lockup,
+    lockupWhite: BRANDING.circleica.lockupWhite,
+    siteLogo: logoUrl,
+  }
+  const previewBrand = resolveLogo(logoMode, brandOpts)
+  const fullThumb = resolveLogo("full", brandOpts)
+  const iconThumb = resolveLogo("icon", brandOpts)
+  const previewLogoClass = logoMode === "icon" ? "h-10 w-10" : "h-9 w-auto max-w-[200px]"
 
   if (loading) {
     return (
@@ -260,6 +274,22 @@ export default function SiteSettingsPage() {
           </p>
         </div>
 
+        {/* 实时预览：浅色 / 深色导航栏对比，切换显示模式或上传自定义图后即时更新 */}
+        <div className="space-y-2 border-t border-border pt-4">
+          <label className="block text-sm font-medium">实时预览</label>
+          <div className="flex flex-wrap gap-3">
+            <div className="flex h-20 w-[240px] items-center justify-center rounded-xl border border-border bg-[#f4f4f5] px-4">
+              <BrandLogo brand={previewBrand} forceVariant="light" alt="" className={previewLogoClass} />
+            </div>
+            <div className="flex h-20 w-[240px] items-center justify-center rounded-xl border border-border bg-[#15151b] px-4">
+              <BrandLogo brand={previewBrand} forceVariant="dark" alt="" className={previewLogoClass} />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            左：浅色导航栏预览　右：深色导航栏预览。切换下方「显示模式」或上传自定义图后即时更新。
+          </p>
+        </div>
+
         {/* 显示模式 */}
         <div className="space-y-2 border-t border-border pt-4">
           <label className="block text-sm font-medium">显示模式</label>
@@ -273,22 +303,24 @@ export default function SiteSettingsPage() {
               role="radio"
               aria-checked={logoMode === "full"}
               onClick={() => setLogoMode("full")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 logoMode === "full" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              完整 Logo（图形 + 站名）
+              <BrandLogo brand={fullThumb} forceVariant="light" alt="" className="h-5 w-auto max-w-[88px]" />
+              完整 Logo
             </button>
             <button
               type="button"
               role="radio"
               aria-checked={logoMode === "icon"}
               onClick={() => setLogoMode("icon")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 logoMode === "icon" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              仅图标（emblem）
+              <BrandLogo brand={iconThumb} forceVariant="light" alt="" className="h-5 w-5" />
+              仅图标
             </button>
           </div>
           <p className="text-xs text-muted-foreground">

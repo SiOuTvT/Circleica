@@ -8,14 +8,12 @@ import { Tag } from "@/components/ui/tag"
 import type { Post } from "./forum-client-root"
 import { timeAgo } from "@/lib/time-ago"
 import { UserAvatar } from "@/components/user-avatar"
+import { FORUM_CATEGORIES } from "@/lib/forum-categories"
 
-const CATEGORY_LABELS: Record<string, string> = {
-  discussion: "讨论",
-  question: "求档",
-  showcase: "资源",
-  feedback: "杂谈",
-  guide: "教程",
-}
+// 标签文案以共享分类常量为单一来源，确保与筛选器 / 侧栏 / 发帖弹窗完全一致（guide → 攻略）
+const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  FORUM_CATEGORIES.map((c) => [c.value, c.label])
+)
 
 interface ForumPostItemProps {
   post: Omit<Post, "comments">

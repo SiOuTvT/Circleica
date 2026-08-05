@@ -1,21 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, X, MessageCircle, HelpCircle, Package, Coffee } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { RichTextEditor } from "../rich-text-editor-wrapper"
-import type { ComponentType, SVGProps } from "react"
-
-type IconType = ComponentType<SVGProps<SVGSVGElement>>
-
-const CATEGORIES: { value: string; label: string; icon: IconType }[] = [
-  { value: "discussion", label: "讨论", icon: MessageCircle },
-  { value: "question", label: "求档", icon: HelpCircle },
-  { value: "showcase", label: "资源", icon: Package },
-  { value: "feedback", label: "杂谈", icon: Coffee },
-]
+import { FORUM_CATEGORIES } from "@/lib/forum-categories"
 
 interface NewPostModalProps {
   isOpen: boolean
@@ -65,7 +56,7 @@ export function NewPostModal({ isOpen, onClose, onSubmit }: NewPostModalProps) {
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(cat => {
+              {FORUM_CATEGORIES.map(cat => {
                 const Icon = cat.icon
                 return (
                 <button

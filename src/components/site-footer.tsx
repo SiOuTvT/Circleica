@@ -1,6 +1,5 @@
 import Link from "next/link"
-import Image from "next/image"
-import { BRANDING, resolveLogo, type LogoMode } from "@/lib/branding"
+import { type LogoMode } from "@/lib/branding"
 
 const ABOUT_LINKS: { label: string; href: string }[] = [
   { label: "关于我们", href: "/about" },
@@ -10,8 +9,7 @@ const ABOUT_LINKS: { label: string; href: string }[] = [
 
 const GITHUB_URL = "https://github.com/SiOuTvT/Circleica"
 
-export function SiteFooter({ siteName = "Circleica", logoMode = "full", siteLogo = null }: { siteName?: string; logoMode?: LogoMode; siteLogo?: string | null }) {
-  const brand = resolveLogo(logoMode, { emblem: BRANDING.circleica.emblem, siteLogo })
+export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logoMode?: LogoMode; siteLogo?: string | null }) {
   return (
     <footer role="contentinfo" className="border-t border-border bg-muted/30">
       <div className="mx-auto max-w-[1140px] px-4 py-1 sm:py-6">
@@ -19,18 +17,8 @@ export function SiteFooter({ siteName = "Circleica", logoMode = "full", siteLogo
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           {/* 左：品牌介绍 */}
           <div className="max-w-sm text-left">
-            <span className="flex items-center gap-2">
-              <Image
-                src={brand.imageSrc}
-                alt=""
-                width={32}
-                height={32}
-                unoptimized
-                className="h-8 w-8 shrink-0"
-              />
-              {brand.showName && (
-                <span className="font-heading text-lg font-bold text-primary">{siteName}</span>
-              )}
+            <span className="flex items-center">
+              <span className="font-heading text-base font-bold tracking-tight text-foreground leading-none">{siteName}</span>
             </span>
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">

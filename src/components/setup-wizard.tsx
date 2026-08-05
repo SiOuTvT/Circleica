@@ -8,6 +8,7 @@ import { THEME_PRESETS } from "@/lib/theme-presets"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { apiFetchSafe } from "@/lib/api-client"
+import { BrandLogo } from "@/components/brand-logo"
 import { BRANDING, resolveLogo } from "@/lib/branding"
 
 /* ── 复用常量 ── */
@@ -123,6 +124,18 @@ export function SetupWizard() {
 
   const isDark = mode === "dark"
   const pwStrength = getPasswordStrength(form.password)
+
+  // 品牌 Logo 解析：full=lockup，icon=emblem，自定义图（form.siteLogo 或本地预览）仅在 full 模式显示
+  const wizardOpts = {
+    emblem: BRANDING.circleica.emblem,
+    emblemWhite: BRANDING.circleica.emblemWhite,
+    lockup: BRANDING.circleica.lockup,
+    lockupWhite: BRANDING.circleica.lockupWhite,
+    siteLogo: form.siteLogo || logoPreview,
+  }
+  const wizardBrand = resolveLogo(form.logoMode, wizardOpts)
+  const wizardFullThumb = resolveLogo("full", wizardOpts)
+  const wizardIconThumb = resolveLogo("icon", wizardOpts)
 
   useEffect(() => {
     origClassesRef.current = document.documentElement.className
@@ -376,13 +389,11 @@ export function SetupWizard() {
                     </Field>
                     <Field label="站点 Logo" hint="建议 120×120 透明底 PNG，最大 2MB">
                       <div className="flex items-center gap-3 flex-wrap">
-                        {logoPreview || form.siteLogo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={logoPreview || form.siteLogo} alt="Logo" className="h-11 w-11 rounded-lg object-contain bg-white/10 border border-white/10" />
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={BRANDING.circleica.emblem} alt="Circleica" className="h-11 w-11 rounded-lg object-contain bg-white/10 border border-white/10" />
-                        )}
+                        <BrandLogo
+                          brand={wizardBrand}
+                          alt="Logo"
+                          className={form.logoMode === "icon" ? "h-11 w-11" : "h-11 w-auto max-w-[200px]"}
+                        />
                         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                         <button type="button" disabled={uploading} className={cn("h-9 px-4 rounded-lg text-xs font-medium transition-all active:scale-95", "bg-muted text-foreground border border-border", "disabled:opacity-40")} onClick={() => fileRef.current?.click()}>
                           {uploading ? "上传中..." : "选择图片"}
@@ -393,11 +404,13 @@ export function SetupWizard() {
                       <div className="mt-3">
                         <p className={cn("text-[11px] mb-1.5", "text-muted-foreground")}>显示模式</p>
                         <div className="inline-flex rounded-xl border p-1" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
-                          <button type="button" onClick={() => update("logoMode", "full")} className={cn("rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "full" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "full" ? { backgroundColor: "var(--theme-color)" } : undefined}>
-                            完整 Logo（图形 + 站名）
+                          <button type="button" onClick={() => update("logoMode", "full")} className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "full" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "full" ? { backgroundColor: "var(--theme-color)" } : undefined}>
+                            <BrandLogo brand={wizardFullThumb} className="h-5 w-auto max-w-[88px]" alt="" />
+                            完整 Logo
                           </button>
-                          <button type="button" onClick={() => update("logoMode", "icon")} className={cn("rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "icon" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "icon" ? { backgroundColor: "var(--theme-color)" } : undefined}>
-                            仅图标（emblem）
+                          <button type="button" onClick={() => update("logoMode", "icon")} className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "icon" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "icon" ? { backgroundColor: "var(--theme-color)" } : undefined}>
+                            <BrandLogo brand={wizardIconThumb} className="h-5 w-5" alt="" />
+                            仅图标
                           </button>
                         </div>
                         <p className={cn("text-[11px] mt-1.5", "text-muted-foreground")}>「仅图标」模式三处统一只显示 emblem 符号，不显示站名与自定义图。</p>
@@ -530,8 +543,11 @@ export function SetupWizard() {
                       {form.siteDescription && <SummaryRow label="站点描述" value={form.siteDescription} />}
                       <SummaryRow label="Logo">
                         <span className="flex items-center gap-2">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={logoPreview || form.siteLogo || BRANDING.circleica.emblem} alt="" className="w-6 h-6 rounded object-contain bg-white/10 border border-white/10" />
+                          <BrandLogo
+                            brand={wizardBrand}
+                            alt=""
+                            className={form.logoMode === "icon" ? "h-6 w-6" : "h-6 w-auto max-w-[140px]"}
+                          />
                           <span className={cn("text-sm", "text-muted-foreground")}>{form.siteLogo ? "已上传自定义 Logo" : "使用默认 Circleica Logo"}</span>
                         </span>
                       </SummaryRow>
@@ -630,18 +646,17 @@ function PreviewPanel({ form, logoPreview }: {
   return (
     <div className={cn("rounded-xl overflow-clip border transition-colors", "bg-card border border-border")}>
       <div className="flex items-center gap-2 px-3 h-9 border-b border-border">
-        {(() => {
-          const brand = resolveLogo(form.logoMode, { emblem: BRANDING.circleica.emblem, siteLogo: form.siteLogo || logoPreview })
-          return (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={brand.imageSrc} alt="" className="w-4 h-4 rounded object-contain" />
-              {brand.showName && (
-                <span className={cn("text-[11px] font-semibold truncate", "text-foreground")}>{form.siteName || "Circleica"}</span>
-              )}
-            </>
-          )
-        })()}
+        <BrandLogo
+          brand={resolveLogo(form.logoMode, {
+            emblem: BRANDING.circleica.emblem,
+            emblemWhite: BRANDING.circleica.emblemWhite,
+            lockup: BRANDING.circleica.lockup,
+            lockupWhite: BRANDING.circleica.lockupWhite,
+            siteLogo: form.siteLogo || logoPreview,
+          })}
+          alt=""
+          className={form.logoMode === "icon" ? "h-5 w-5" : "h-5 w-auto max-w-[120px]"}
+        />
       </div>
       <div className="p-3 space-y-3">
         {/* 主题色预览：真实 Button / Input / 链接 */}
