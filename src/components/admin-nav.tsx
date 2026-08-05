@@ -62,6 +62,8 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN" },
       { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN" },
+      { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN" },
+      { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN" },
     ],
   },
   {
@@ -242,6 +244,36 @@ export function AdminNav() {
           </button>
         </div>
 
+        {/* 站点切换器 */}
+        {!collapsed && (
+          <div className="px-3 pt-2">
+            <div className="flex rounded-lg bg-muted/50 p-0.5 text-xs font-medium">
+              <Link
+                href="/admin"
+                className={cn(
+                  "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
+                  !pathname.startsWith("/admin/galvelica")
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Circleica
+              </Link>
+              <Link
+                href="/admin/galvelica"
+                className={cn(
+                  "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
+                  pathname.startsWith("/admin/galvelica")
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Galvelica
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* 返回前台 + 搜索 */}
         <div className="px-3 pt-2 flex flex-col gap-1">
           <Link
@@ -408,6 +440,36 @@ export function AdminNav() {
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
+        </div>
+
+        {/* 站点切换器（手机端） */}
+        <div className="px-3 pt-2">
+          <div className="flex rounded-lg bg-muted/50 p-0.5 text-xs font-medium">
+            <Link
+              href="/admin"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
+                !pathname.startsWith("/admin/galvelica")
+                  ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Circleica
+            </Link>
+            <Link
+              href="/admin/galvelica"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
+                pathname.startsWith("/admin/galvelica")
+                  ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Galvelica
+            </Link>
+          </div>
         </div>
 
         {/* 返回前台 */}

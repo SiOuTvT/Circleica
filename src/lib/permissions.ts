@@ -22,6 +22,18 @@ export const SUPER_ADMIN_ROUTES: readonly string[] = [
   "/admin/achievements",
 ]
 
+/** Galvelica 副站管理路由前缀 — 独立权限域，防止主站 ADMIN 误操作副站 */
+export const GALVELICA_ROUTES: readonly string[] = [
+  "/admin/galvelica",
+]
+
+/** 判断某路径是否为 Galvelica 副站路由 */
+export function isGalvelicaRoute(pathname: string): boolean {
+  return GALVELICA_ROUTES.some(
+    (r) => pathname === r || pathname.startsWith(r + "/"),
+  )
+}
+
 /** 判断某路径是否为超级管理员专属路由（按路径段精确匹配，避免 /admin/users-export 误命中） */
 export function isSuperAdminRoute(pathname: string): boolean {
   return SUPER_ADMIN_ROUTES.some(
