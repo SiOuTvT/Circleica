@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import dynamic from "next/dynamic"
 
 const GameForm = dynamic(() => import("@/components/game-form").then(m => ({ default: m.GameForm })), {
@@ -18,8 +19,8 @@ export default async function NewGamePage() {
     }),
   ])
   return (
-    <div className="w-full">
-      <h1 className="mb-6 text-xl font-bold text-foreground">新增游戏</h1>
+    <div className="w-full space-y-6">
+      <AdminPageHeader eyebrow="NEW GAME" title="新增游戏" />
       <GameForm tags={tags} tagGroups={tagGroups} />
     </div>
   )

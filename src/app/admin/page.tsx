@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -153,13 +154,11 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-foreground">仪表盘</h1>
+      <AdminPageHeader eyebrow="DASHBOARD" title="仪表盘" />
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {stats.map(({ icon: Icon, label, value, sub, href }) => {
-          const baseCls = "rounded-xl bg-card p-5 ring-1 ring-border transition-all"
-          const cls = href ? `${baseCls} hover:ring-foreground/10 hover:shadow-2` : baseCls
           const inner = (
             <>
               <Icon className="mb-3 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
@@ -169,9 +168,11 @@ export default async function AdminDashboard() {
             </>
           )
           return href ? (
-            <Link key={label} href={href} className={cls}>{inner}</Link>
+            <Link key={label} href={href} className="block rounded-xl">
+              <Card size="comfortable" radius="xl" className="!gap-0 transition-all hover:ring-foreground/10 hover:shadow-2">{inner}</Card>
+            </Link>
           ) : (
-            <div key={label} className={cls}>{inner}</div>
+            <Card key={label} size="comfortable" radius="xl" className="!gap-0">{inner}</Card>
           )
         })}
       </div>

@@ -74,6 +74,10 @@ kill_dev*.cmd
 .next-verify/
 .next-verify.bak
 .next-verify.bak/
+.next-pv
+.next-pv/
+.next-pv.bak
+.next-pv.bak/
 .probe*/
 .tmpshots/
 .shot*

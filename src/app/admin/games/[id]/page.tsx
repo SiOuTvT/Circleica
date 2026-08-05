@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { toShanghaiDate } from "@/lib/date"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import dynamic from "next/dynamic"
 import { notFound } from "next/navigation"
 
@@ -57,7 +58,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="w-full space-y-6">
-      <h1 className="text-xl font-bold text-foreground">编辑游戏</h1>
+      <AdminPageHeader eyebrow="EDIT GAME" title="编辑游戏" />
       <GameForm tags={tags} tagGroups={tagGroups} initialData={gameData} gameId={id} />
       <GameLogManager gameId={id} />
     </div>

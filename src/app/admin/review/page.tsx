@@ -4,6 +4,8 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -71,12 +73,15 @@ export default async function AdminReviewPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-bold text-foreground">审核队列</h1>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {total} 个待审核
-        </span>
-      </div>
+      <AdminPageHeader
+        eyebrow="REVIEW QUEUE"
+        title="审核队列"
+        description={
+          <span className="mt-0 inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            {total} 个待审核
+          </span>
+        }
+      />
 
       {games.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
@@ -86,7 +91,7 @@ export default async function AdminReviewPage({
       ) : (
         <div className="space-y-2">
           {games.map(game => (
-            <div key={game.id} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+            <Card key={game.id} size="default" radius="xl" className="flex-row items-center gap-4">
               <Link href={`/admin/games/${game.serialId}`} className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {game.coverImage ? (
                   <Image src={game.coverImage} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
@@ -109,7 +114,7 @@ export default async function AdminReviewPage({
               <div className="flex items-center gap-2 shrink-0">
                 <ReviewActions gameId={game.id} />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

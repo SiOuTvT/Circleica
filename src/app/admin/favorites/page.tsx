@@ -1,6 +1,9 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { Heart, Search } from "lucide-react"
 import Image from "next/image"
@@ -49,20 +52,19 @@ export default async function AdminFavoritesPage({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Heart className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">收藏记录</h1>
-          <Badge variant="secondary" size="lg">
-            {total} 条记录
-          </Badge>
-        </div>
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索用户或游戏…" aria-label="搜索用户或游戏"
-            className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-48" />
-        </form>
-      </div>
+      <AdminPageHeader
+        eyebrow="FAVORITES"
+        title="收藏记录"
+        description={
+          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+        }
+        action={
+          <form method="get" className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+            <input name="q" defaultValue={q} placeholder="搜索用户或游戏…" aria-label="搜索用户或游戏" className={adminSearchInput} />
+          </form>
+        }
+      />
 
       {favorites.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
@@ -72,9 +74,10 @@ export default async function AdminFavoritesPage({
       ) : (
         <div className="space-y-2">
           {favorites.map((fav) => (
-            <div
+            <Card
               key={fav.id}
-              className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              size="default" radius="xl"
+              className="group flex-row items-center gap-4 hover:ring-primary/30"
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {fav.game.coverImage ? (
@@ -94,7 +97,7 @@ export default async function AdminFavoritesPage({
                 </p>
               </div>
               <FavoriteDeleteBtn id={fav.id} />
-            </div>
+            </Card>
           ))}
         </div>
       )}

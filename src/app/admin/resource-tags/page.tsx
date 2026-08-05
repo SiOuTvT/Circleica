@@ -2,10 +2,12 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { ChevronUp, Loader2, Plus, Save, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminInput } from "@/lib/admin-styles"
 
 interface TagGroup {
   group: string
@@ -89,7 +91,7 @@ export default function ResourceTagsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-bold text-foreground">资源标签管理</h1>
+        <AdminPageHeader eyebrow="RESOURCE TAGS" title="资源标签管理" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
@@ -101,26 +103,25 @@ export default function ResourceTagsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">资源标签管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            管理发布资源时可选的平台、语言、运行方式等标签
-          </p>
-        </div>
-        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-          ) : (
-            <Save className="h-4 w-4 mr-1.5" />
-          )}
-          保存修改
-        </Button>
-      </div>
+      <AdminPageHeader
+        eyebrow="RESOURCE TAGS"
+        title="资源标签管理"
+        description="管理发布资源时可选的平台、语言、运行方式等标签"
+        action={
+          <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+            ) : (
+              <Save className="h-4 w-4 mr-1.5" />
+            )}
+            保存修改
+          </Button>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {groups.map(g => (
-          <Card key={g.group} size="comfortable" radius="xl" className="space-y-5">
+          <Card key={g.group} size="comfortable" radius="xl">
             <h2 className="text-base font-semibold text-foreground">{g.label}</h2>
 
             {/* 标签列表 */}
@@ -162,7 +163,7 @@ export default function ResourceTagsPage() {
                 onChange={e => setNewValues(prev => ({ ...prev, [g.group]: e.target.value }))}
                 onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAdd(g.group) } }}
                 placeholder="输入新标签…"
-                className="flex-1 rounded-lg border-2 border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                className={`flex-1 ${adminInput}`}
               />
               <Button onClick={() => handleAdd(g.group)} disabled={!newValues[g.group]?.trim()}>
                 <Plus className="h-4 w-4 mr-1.5" /> 添加

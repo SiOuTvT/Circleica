@@ -172,7 +172,7 @@ export default function ServicesPage() {
 
   if (loading) {
     return (
-      <AdminPageContainer title="服务配置">
+      <AdminPageContainer title="服务配置" eyebrow="SERVICES">
         {[1, 2, 3].map(i => <div key={i} className="h-64 bg-muted animate-pulse rounded-2xl" />)}
       </AdminPageContainer>
     )
@@ -181,6 +181,7 @@ export default function ServicesPage() {
   return (
     <AdminPageContainer
       title="服务配置"
+      eyebrow="SERVICES"
       description="配置可选的外部服务，未配置时使用默认行为"
       actions={
         <button onClick={handleSave} disabled={saving} className={adminBtnPrimary}>
@@ -198,7 +199,7 @@ export default function ServicesPage() {
       <div key={String(ready)} className="space-y-6">
 
       {/* ── R2 对象存储 ── */}
-      <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
+      <Card radius="xl" className="p-6 space-y-4">
         <SectionHeader icon={HardDrive} title="Cloudflare R2 存储" desc="S3 兼容对象存储，用于游戏截图、用户头像等文件上传" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" required />
@@ -218,7 +219,7 @@ export default function ServicesPage() {
       </Card>
 
       {/* ── Redis 缓存 ── */}
-      <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
+      <Card radius="xl" className="p-6 space-y-4">
         <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="REST URL" value={config.redis_url} onChange={v => updateService("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" required />
@@ -235,7 +236,7 @@ export default function ServicesPage() {
       </Card>
 
       {/* ── 邮件服务 ── */}
-      <Card className="p-6 space-y-4" style={{ borderRadius: "var(--radius-lg)" }}>
+      <Card radius="xl" className="p-6 space-y-4">
         <SectionHeader icon={Mail} title="邮件服务" desc="支持多服务商，按优先级自动切换" />
 
         {/* Provider 优先级 */}

@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Inbox, Upload, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
 
 /** 采纳模型 A 后台操作：发布草稿 / 删除草稿（删后作品重新变为未收录，可再次申请）。 */
@@ -69,21 +71,20 @@ export default async function InclusionRequestsAdmin() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">收录申请 · 待发布草稿</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          用户提交收录申请后，系统已自动用融合字段建好未发布资源草稿。你在这里批量发布或删除即可——无需逐条调研。
-        </p>
-      </div>
+      <AdminPageHeader
+        eyebrow="INCLUSION REQUESTS"
+        title="收录申请 · 待发布草稿"
+        description="用户提交收录申请后，系统已自动用融合字段建好未发布资源草稿。你在这里批量发布或删除即可——无需逐条调研。"
+      />
 
       <section>
         <h2 className="mb-3 text-sm font-semibold text-foreground">待发布草稿（{pendingDrafts.length}）</h2>
         {pendingDrafts.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">暂无待发布的草稿。</p>
         ) : (
-          <div className="divide-y divide-border rounded-xl border border-border bg-card">
+          <div className="space-y-3">
             {pendingDrafts.map((r) => (
-              <div key={r.id} className="flex flex-wrap items-center gap-4 p-4">
+              <Card key={r.id} size="default" radius="xl" className="flex-row flex-wrap items-center gap-4">
                 <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
                   {r.work.coverImage && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -126,7 +127,7 @@ export default async function InclusionRequestsAdmin() {
                     </button>
                   </form>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}
@@ -135,9 +136,9 @@ export default async function InclusionRequestsAdmin() {
       {history.length > 0 && (
         <section>
           <h2 className="mb-3 text-sm font-semibold text-foreground">已删除草稿（历史）</h2>
-          <div className="divide-y divide-border rounded-xl border border-border bg-card">
+          <div className="space-y-3">
             {history.map((r) => (
-              <div key={r.id} className="flex items-center gap-4 p-4">
+              <Card key={r.id} size="default" radius="xl" className="flex-row items-center gap-4">
                 <Inbox className="h-4 w-4 shrink-0 text-muted-foreground/60" />
                 <div className="min-w-0 flex-1">
                   <span className="font-medium text-foreground">{r.work.title}</span>
@@ -148,7 +149,7 @@ export default async function InclusionRequestsAdmin() {
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {r.decidedAt ? toShanghaiDate(r.decidedAt) : ""}
                 </span>
-              </div>
+              </Card>
             ))}
           </div>
         </section>

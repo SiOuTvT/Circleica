@@ -1,5 +1,6 @@
 ﻿import { requireAdmin } from "@/lib/admin"
 import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { ArrowLeft } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -15,22 +16,19 @@ export default async function VNDBImportPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/admin/games"
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-          返回游戏管理
-        </Link>
-      </div>
+      <Link
+        href="/admin/games"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+        返回游戏管理
+      </Link>
 
-      <div>
-        <h1 className="text-xl font-bold text-foreground">VNDB 批量导入</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          从 VNDB 自动导入同人视觉小说数据，系统会验证作品信息并创建草稿。
-        </p>
-      </div>
+      <AdminPageHeader
+        eyebrow="VNDB IMPORT"
+        title="VNDB 批量导入"
+        description="从 VNDB 自动导入同人视觉小说数据，系统会验证作品信息并创建草稿。"
+      />
 
       <VNDBImportManager />
 

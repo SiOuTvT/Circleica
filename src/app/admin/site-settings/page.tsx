@@ -3,7 +3,7 @@
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
-import { Globe, Image as ImageIcon, Loader2, Save, Settings, Shield, Trash2, Upload } from "lucide-react"
+import { Globe, Image as ImageIcon, Loader2, Save, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { BrandLogo } from "@/components/brand-logo"
 import { BRANDING, resolveLogo } from "@/lib/branding"
@@ -146,16 +146,16 @@ export default function SiteSettingsPage() {
           <div className="h-6 w-6 animate-pulse rounded bg-muted" />
           <div className="h-7 w-24 animate-pulse rounded bg-muted" />
         </div>
-        <Card size="comfortable" radius="xl" className="space-y-4">
+        <Card size="comfortable" radius="xl">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
         </Card>
-        <Card size="comfortable" radius="xl" className="space-y-4">
+        <Card size="comfortable" radius="xl">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
         </Card>
-        <Card size="comfortable" radius="xl" className="space-y-4">
+        <Card size="comfortable" radius="xl">
           <div className="h-6 w-32 animate-pulse rounded bg-muted" />
           <div className="flex items-center gap-4">
             <div className="h-40 w-28 animate-pulse rounded-lg bg-muted" />
@@ -171,14 +171,13 @@ export default function SiteSettingsPage() {
   }
 
   return (
-    <AdminPageContainer>
-      <div className="flex items-center gap-3">
-        <Settings className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">站点设置</h1>
-      </div>
-
+    <AdminPageContainer
+      title="站点设置"
+      eyebrow="SETTINGS"
+      description="管理站点名称、品牌 Logo、注册开关与邮件验证等基础设置。"
+    >
       {/* 站点信息 */}
-      <Card size="comfortable" radius="xl" className="space-y-4">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
           <Globe className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">站点信息</h2>
@@ -210,7 +209,7 @@ export default function SiteSettingsPage() {
         </Card>
 
       {/* 品牌 Logo */}
-      <Card size="comfortable" radius="xl" className="space-y-4">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">品牌 Logo</h2>
@@ -330,7 +329,7 @@ export default function SiteSettingsPage() {
         </Card>
 
       {/* 注册设置 */}
-      <Card size="comfortable" radius="xl" className="space-y-4">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">注册设置</h2>
@@ -363,7 +362,7 @@ export default function SiteSettingsPage() {
         </Card>
 
       {/* 邮件验证设置 */}
-      <Card size="comfortable" radius="xl" className="space-y-4">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">邮件验证</h2>
@@ -399,7 +398,7 @@ export default function SiteSettingsPage() {
         </Card>
 
       {/* 默认占位图 */}
-      <Card size="comfortable" radius="xl" className="space-y-4">
+      <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">默认占位图</h2>

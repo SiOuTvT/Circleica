@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { adminSearchInput } from "@/lib/admin-styles"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { PenTool, Search } from "lucide-react"
 import { CreatorsList } from "./creators-list"
 
@@ -78,21 +80,17 @@ export default async function AdminCreatorsPage({
   return (
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">创作者管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            共 {total} 位创作者，通过导入游戏自动收集
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      <AdminPageHeader
+        eyebrow="CREATORS"
+        title="创作者管理"
+        description={`共 ${total} 位创作者，通过导入游戏自动收集`}
+        action={
           <form method="get" className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者"
-              className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-56" />
+            <input name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" className={adminSearchInput} />
           </form>
-        </div>
-      </div>
+        }
+      />
 
       {/* ── 创作者列表 ── */}
       {mappedCreators.length === 0 ? (

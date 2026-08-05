@@ -2,6 +2,9 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Search } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -61,20 +64,19 @@ export default async function AdminForumPage({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <MessageSquare className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">论坛管理</h1>
-          <Badge variant="secondary" size="lg">
-            {total} 个帖子
-          </Badge>
-        </div>
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索帖子…" aria-label="搜索帖子"
-            className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-48" />
-        </form>
-      </div>
+      <AdminPageHeader
+        eyebrow="FORUM"
+        title="论坛管理"
+        description={
+          <Badge variant="secondary" size="lg">{total} 个帖子</Badge>
+        }
+        action={
+          <form method="get" className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+            <input name="q" defaultValue={q} placeholder="搜索帖子…" aria-label="搜索帖子" className={adminSearchInput} />
+          </form>
+        }
+      />
 
       {/* Status filter tabs */}
       <div className="flex items-center gap-1">
@@ -112,9 +114,10 @@ export default async function AdminForumPage({
       ) : (
         <div className="space-y-2">
           {posts.map((post) => (
-            <div
+            <Card
               key={post.id}
-              className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              size="default" radius="xl"
+              className="group flex-row items-start gap-4 hover:ring-primary/30"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/80 text-sm font-bold text-primary-foreground">
                 {post.user.username.charAt(0).toUpperCase()}
@@ -148,7 +151,7 @@ export default async function AdminForumPage({
                   <span>❤ {post.likeCount}</span>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

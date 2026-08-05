@@ -2,6 +2,8 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { Badge } from "@/components/ui/badge"
 import { Flag } from "lucide-react"
 import Image from "next/image"
@@ -82,20 +84,18 @@ export default async function AdminReportsPage({
   return (
     <div className="space-y-6">
       {/* 标题 + 搜索 */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Flag className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">举报管理</h1>
-          <Badge variant="secondary" size="lg">
-            {total} 条举报
-          </Badge>
-        </div>
-        <ReportSearchForm initialQ={q} />
-      </div>
+      <AdminPageHeader
+        eyebrow="REPORTS"
+        title="举报管理"
+        description={
+          <Badge variant="secondary" size="lg">{total} 条举报</Badge>
+        }
+        action={<ReportSearchForm initialQ={q} />}
+      />
 
       {/* 举报最多的游戏概览 */}
       {topGames.length > 0 && !q && (
-        <div className="rounded-xl border border-border bg-card p-4">
+        <Card size="default" radius="xl">
           <h2 className="mb-3 text-sm font-semibold text-foreground">举报最多的游戏</h2>
           <div className="flex flex-wrap gap-2">
             {topReportedGames.map((item) => {
@@ -118,7 +118,7 @@ export default async function AdminReportsPage({
               )
             })}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* 举报列表 */}
@@ -130,9 +130,10 @@ export default async function AdminReportsPage({
       ) : (
         <div className="space-y-2">
           {reports.map((report) => (
-            <div
+            <Card
               key={report.id}
-              className="group flex items-start sm:items-center gap-3 sm:gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              size="default" radius="xl"
+              className="group flex-row items-start sm:items-center gap-3 sm:gap-4 hover:ring-primary/30"
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {report.game.coverImage ? (
@@ -168,7 +169,7 @@ export default async function AdminReportsPage({
                 <ReportResolveBtn id={report.id} gameId={report.game.id} />
                 <ReportDeleteBtn id={report.id} />
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

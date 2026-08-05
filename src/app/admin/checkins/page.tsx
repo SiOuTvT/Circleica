@@ -4,6 +4,10 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { formatDate, formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { CalendarCheck, Search } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -97,31 +101,27 @@ export default async function AdminCheckInsPage({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <CalendarCheck className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">签到记录</h1>
-          <Badge variant="secondary" size="lg">
-            {total} 条记录
-          </Badge>
-        </div>
-        <form method="get" className="flex flex-wrap items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名"
-              className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-48" />
-          </div>
-          <input type="date" name="from" defaultValue={from} aria-label="开始日期"
-            className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
-          <span className="text-xs text-muted-foreground">至</span>
-          <input type="date" name="to" defaultValue={to} aria-label="结束日期"
-            className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
-          <button type="submit"
-            className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90">
-            筛选
-          </button>
-        </form>
-      </div>
+      <AdminPageHeader
+        eyebrow="CHECK-INS"
+        title="签到记录"
+        description={
+          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+        }
+        action={
+          <form method="get" className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+              <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名" className={adminSearchInput} />
+            </div>
+            <input type="date" name="from" defaultValue={from} aria-label="开始日期"
+              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+            <span className="text-xs text-muted-foreground">至</span>
+            <input type="date" name="to" defaultValue={to} aria-label="结束日期"
+              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+            <Button type="submit">筛选</Button>
+          </form>
+        }
+      />
 
       {/* 签到配置编辑器 */}
       <CheckInConfigEditor />
@@ -134,9 +134,10 @@ export default async function AdminCheckInsPage({
       ) : (
         <div className="space-y-2">
           {checkIns.map((ci) => (
-            <div
+            <Card
               key={ci.id}
-              className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              size="default" radius="xl"
+              className="group flex-row items-center gap-4 hover:ring-primary/30"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-bold text-white">
                 {ci.user.username.charAt(0).toUpperCase()}
@@ -155,7 +156,7 @@ export default async function AdminCheckInsPage({
                 </Badge>
               </div>
               <CheckinDeleteBtn id={ci.id} />
-            </div>
+            </Card>
           ))}
         </div>
       )}

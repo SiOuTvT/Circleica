@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -95,7 +96,7 @@ export function CheckInConfigEditor() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-5">
+    <Card size="comfortable" radius="xl">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-foreground">签到卡片配置</h2>
       </div>
@@ -213,6 +214,6 @@ export function CheckInConfigEditor() {
           {loading ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中...</span> : "保存配置"}
         </Button>
       </div>
-    </div>
+    </Card>
   )
 }

@@ -1,9 +1,11 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
@@ -121,17 +123,17 @@ export default function AdminAchievementsPage() {
 
   return (
     <div className="space-y-6">
-      {/* 标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">成就管理</h1>
-          <p className="mt-1 text-sm text-muted-foreground">管理用户可解锁的成就</p>
-        </div>
-        <button onClick={startCreate} className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90">
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          新建成就
-        </button>
-      </div>
+      <AdminPageHeader
+        eyebrow="ACHIEVEMENTS"
+        title="成就管理"
+        description="管理用户可解锁的成就"
+        action={
+          <Button onClick={startCreate}>
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            新建成就
+          </Button>
+        }
+      />
 
       {/* 编辑表单 */}
       {editing && (

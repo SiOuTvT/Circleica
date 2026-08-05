@@ -1,9 +1,12 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { adminBtnPrimary, adminBtnDanger, adminInput } from "@/lib/admin-styles"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { adminBtnDanger, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, X, ArrowUp, ArrowDown } from "lucide-react"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -97,24 +100,25 @@ export default function CuratedCollectionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">精选合集</h1>
-          <p className="text-sm text-muted-foreground mt-1">管理前台展示的精选游戏合集</p>
-        </div>
-        <button onClick={handleCreate} className={adminBtnPrimary}>
-          <Plus className="h-4 w-4" /> 新建合集
-        </button>
-      </div>
+      <AdminPageHeader
+        eyebrow="COLLECTIONS"
+        title="精选合集"
+        description="管理前台展示的精选游戏合集"
+        action={
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4" /> 新建合集
+          </Button>
+        }
+      />
 
       {collections.length === 0 ? (
-        <Card className="p-12 text-center" style={{ borderRadius: "var(--radius-lg)" }}>
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
           <p className="text-muted-foreground">暂无合集，点击上方按钮创建第一个精选合集</p>
-        </Card>
+        </div>
       ) : (
         <div className="space-y-3">
           {collections.map(c => (
-            <Card key={c.id} className="p-4 flex items-center gap-4" style={{ borderRadius: "var(--radius-lg)" }}>
+            <Card key={c.id} size="default" radius="xl" className="flex-row items-center gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-foreground truncate">{c.name}</h3>
@@ -126,7 +130,7 @@ export default function CuratedCollectionsPage() {
                 <p className="text-xs text-muted-foreground mt-1">{c._count.games} 部游戏</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => handleEdit(c.id)} className={adminBtnPrimary.replace("px-4", "px-3")}>
+                <button onClick={() => handleEdit(c.id)} className={adminBtnSecondary}>
                   <Pencil className="h-3.5 w-3.5" /> 编辑
                 </button>
                 <button onClick={() => setDeleteId(c.id)} className={adminBtnDanger}>
@@ -238,18 +242,13 @@ function CollectionDialog({ collection, onClose, onSaved }: {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto p-4 pt-16">
-      <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-3" style={{ borderRadius: "var(--radius-lg)" }}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">
-            {collection ? "编辑合集" : "新建合集"}
-          </h2>
-          <button onClick={onClose} className="p-1 rounded hover:bg-muted transition-colors">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
+    <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent size="lg">
+        <DialogHeader>
+          <DialogTitle>{collection ? "编辑合集" : "新建合集"}</DialogTitle>
+        </DialogHeader>
 
-        <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+        <div className="space-y-5 max-h-[70vh] overflow-y-auto">
           {/* 合集名称 */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">合集名称 *</label>
@@ -347,17 +346,14 @@ function CollectionDialog({ collection, onClose, onSaved }: {
           )}
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-border">
-          <button onClick={onClose}
-            className="h-10 px-4 rounded-xl text-sm font-medium bg-muted text-foreground ring-1 ring-border hover:ring-foreground/10 transition-all">
-            取消
-          </button>
-          <button onClick={handleSave} disabled={saving} className={adminBtnPrimary}>
+        <DialogFooter>
+          <Button variant="outline" size="sm" onClick={onClose}>取消</Button>
+          <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {saving ? "保存中..." : "保存"}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

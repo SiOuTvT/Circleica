@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { getSiteSettings } from "@/lib/site-settings"
 import { PagesManager } from "./pages-manager"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { FileText } from "lucide-react"
 
 export const metadata = { title: "页面管理 · 管理后台" }
@@ -149,11 +150,11 @@ export default async function AdminPagesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <FileText className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">页面管理</h1>
-      </div>
-      <p className="text-xs text-muted-foreground">编辑页脚链接指向的静态页面内容。修改后会覆盖默认内容。</p>
+      <AdminPageHeader
+        eyebrow="PAGES"
+        title="页面管理"
+        description="编辑页脚链接指向的静态页面内容。修改后会覆盖默认内容。"
+      />
       <PagesManager initial={contents} />
     </div>
   )

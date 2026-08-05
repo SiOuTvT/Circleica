@@ -2,6 +2,8 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
+import { Card } from "@/components/ui/card"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { Badge } from "@/components/ui/badge"
 import { FileText } from "lucide-react"
 
@@ -49,13 +51,13 @@ export default async function AdminAuditLogsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <FileText className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold text-foreground">审计日志</h1>
-        <Badge variant="secondary" size="lg">
-          {total} 条记录
-        </Badge>
-      </div>
+      <AdminPageHeader
+        eyebrow="AUDIT LOGS"
+        title="审计日志"
+        description={
+          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+        }
+      />
 
       {/* Filter tabs */}
       {distinctActions.length > 0 && (
@@ -81,7 +83,7 @@ export default async function AdminAuditLogsPage({
       ) : (
         <div className="space-y-1">
           {logs.map(log => (
-            <div key={log.id} className="flex items-center gap-4 rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/20 transition-colors">
+            <Card key={log.id} size="default" radius="xl" className="flex-row items-center gap-4 hover:ring-primary/20">
               <div className="h-8 w-8 shrink-0 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-muted-foreground">
                 {log.user.username?.[0]?.toUpperCase() ?? "?"}
               </div>
@@ -102,7 +104,7 @@ export default async function AdminAuditLogsPage({
               <span className="text-micro text-muted-foreground shrink-0 whitespace-nowrap">
                 {formatDateTime(log.createdAt)}
               </span>
-            </div>
+            </Card>
           ))}
         </div>
       )}

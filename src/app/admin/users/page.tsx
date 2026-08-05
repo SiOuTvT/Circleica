@@ -3,6 +3,8 @@ import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { adminSearchInput } from "@/lib/admin-styles"
+import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { Search } from "lucide-react"
 import dynamic from "next/dynamic"
 
@@ -76,17 +78,17 @@ export default async function AdminUsersPage({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">用户管理</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">共 {total} 个用户</p>
-        </div>
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索用户…" aria-label="搜索用户"
-            className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full sm:w-48" />
-        </form>
-      </div>
+      <AdminPageHeader
+        eyebrow="USERS"
+        title="用户管理"
+        description={`共 ${total} 个用户`}
+        action={
+          <form method="get" className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
+            <input name="q" defaultValue={q} placeholder="搜索用户…" aria-label="搜索用户" className={adminSearchInput} />
+          </form>
+        }
+      />
       <UsersManager initialUsers={users} />
       <Pagination
         currentPage={page}
