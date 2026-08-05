@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { applyThemeTokens, resolveTokens } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
-import { Check, Database, FileText, Loader2, Palette, RotateCcw, Save } from "lucide-react"
+import { Check, Database, FileText, Loader2, RotateCcw, Save } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -82,10 +82,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">THEME</p>
-          <h1 className="flex items-center gap-3 font-heading text-xl font-bold">
-            <Palette className="h-7 w-7" style={{ color: draft.themeColor }} />
-            主题设置
-          </h1>
+          <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">主题设置</h1>
           <p className="mt-1 text-sm text-muted-foreground">自定义网站的颜色、圆角、阴影和透明度，所有修改都会实时预览</p>
         </div>
         <div className="flex gap-2">

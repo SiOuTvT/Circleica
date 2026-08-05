@@ -76,6 +76,7 @@ kill_dev*.cmd
 .next-verify.bak/
 .next-pv
 .next-pv/
+.next-pv*
 .next-pv.bak
 .next-pv.bak/
 .probe*/
