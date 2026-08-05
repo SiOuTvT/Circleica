@@ -24,11 +24,11 @@ export async function register() {
   }
 
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    try { await import(/* webpackIgnore: true */ "../sentry.server.config") } catch { /* sentry.server.config.ts 已从仓库移除，跳过 */ }
+    await import("../sentry.server.config")
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {
-    try { await import(/* webpackIgnore: true */ "../sentry.edge.config") } catch { /* sentry.edge.config.ts 已从仓库移除，跳过 */ }
+    await import("../sentry.edge.config")
   }
 }
 
