@@ -78,8 +78,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const initialized = await isSiteInitialized()
 
   // 权威主题色：走 unstable_cache（TTL 60s），后台改主题色时 updateSiteSettings 已 revalidateTag
-  // 即时失效 → 写后立即生效，且不再每个请求直查 DB（移动端慢的根因之一）。
-  // 旧实现 getSiteSettingFresh 每请求直查库换 FOUC 零风险；写侧失效后此风险已消除。
+  // 即时失效 → 写后立即生效，且不再每个请求直查 DB。
   const themeColor = await getSiteSetting("themeColor", "#4C7E96")
 
   // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard

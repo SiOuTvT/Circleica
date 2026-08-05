@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
-  LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
+  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
+  Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -55,6 +55,13 @@ const navGroups: NavGroup[] = [
       { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN" },
       { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN" },
       { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN" },
+    ],
+  },
+  {
+    label: "副站 Galvelica",
+    items: [
+      { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN" },
+      { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN" },
     ],
   },
   {

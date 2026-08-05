@@ -1,1 +1,0 @@
-SELECT count(*) as cnt FROM "EmotionalMessage";
