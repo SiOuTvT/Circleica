@@ -2,9 +2,9 @@
 
 import { Card } from "@/components/ui/card"
 import { Pagination } from "@/components/ui/pagination"
-import { Search, X } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Search, Tags, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
-import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -136,52 +136,36 @@ export function AllTagsClient({ tags, groups, currentPage, totalPages, q, total 
         </div>
       </div>
 
-      {/* ── 标签列表 ── */}
+      {/* ── 标签列表（紧凑芯片） ── */}
       {filtered.length === 0 ? (
-        <Card size="default" radius="xl" className="p-8 text-center">
-          <p className="text-sm text-muted-foreground">没有找到匹配的标签</p>
-        </Card>
+        <EmptyState icon={Tags} title="没有找到匹配的标签" bordered />
       ) : (
-        <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
-          <div className="divide-y divide-border">
-            {filtered.map((tag) => (
-              <div key={tag.id}>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setEditingTagId(editingTagId === tag.id ? null : tag.id)}
-                  onKeyDown={(e) => e.key === "Enter" && setEditingTagId(editingTagId === tag.id ? null : tag.id)}
-                  className={`flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors cursor-pointer ${tag.isVisible ? "" : "opacity-50"}`}
-                >
-                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: tag.color }} />
-                  <span className="flex-1 text-sm text-foreground truncate">{tag.name}</span>
-                  {!tag.isVisible && (
-                    <Badge variant="secondary" size="sm">隐藏</Badge>
-                  )}
-                  {tag.groupName && (
-                    <Badge variant="default" size="sm">
-                      {tag.groupName}
-                    </Badge>
-                  )}
-                  <span className="shrink-0 text-xs tabular-nums font-medium text-muted-foreground min-w-[2rem] text-right">
-                    {tag.gameCount}
-                  </span>
-                </div>
-                {editingTagId === tag.id && (
-                  <InlineTagEdit
-                    tag={tag}
-                    groups={groups}
-                    onClose={() => setEditingTagId(null)}
-                    onSaved={() => {
-                      setEditingTagId(null)
-                      router.refresh()
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {filtered.map((tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() => setEditingTagId(editingTagId === tag.id ? null : tag.id)}
+              className={`inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:border-primary/40 transition-colors cursor-pointer ${tag.isVisible ? "" : "opacity-50"}`}
+            >
+              <span className="h-2 w-2 rounded-full shrink-0" style={{ background: tag.color }} />
+              {tag.name}
+              <span className="text-muted-foreground">{tag.gameCount}</span>
+            </button>
+          ))}
         </div>
+      )}
+
+      {editingTagId && (
+        <InlineTagEdit
+          tag={tags.find((t) => t.id === editingTagId) ?? filtered.find((t) => t.id === editingTagId)!}
+          groups={groups}
+          onClose={() => setEditingTagId(null)}
+          onSaved={() => {
+            setEditingTagId(null)
+            router.refresh()
+          }}
+        />
       )}
 
       {/* ── 分页 ── */}

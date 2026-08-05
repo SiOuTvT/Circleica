@@ -1,7 +1,8 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Loader2, Pencil, Plus, Search, X } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Loader2, Pencil, Plus, Search, Tag, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -260,11 +261,11 @@ export function TagGroupDetailClient({
 
       {/* ── 标签列表 ── */}
       {filteredTags.length === 0 ? (
-        <Card size="comfortable" radius="xl" className="p-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            {searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签"}
-          </p>
-        </Card>
+        <EmptyState
+          icon={Tag}
+          title={searchQuery ? "没有找到匹配的标签" : "该标签组暂无标签"}
+          bordered
+        />
       ) : (
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filteredTags.map((tag) => (

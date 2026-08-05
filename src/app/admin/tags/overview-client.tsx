@@ -1,7 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card"
-import { ChevronDown, ExternalLink, FolderInput, Loader2 } from "lucide-react"
+import { ExternalLink, Loader2 } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { TAG_POSITIONS } from "@/lib/tag-positions"
 import { Badge } from "@/components/ui/badge"
@@ -21,22 +20,6 @@ interface GroupCard {
   isPreset: boolean
   tagCount: number
   totalGames: number
-}
-
-interface UngroupedTag {
-  id: string
-  name: string
-  color: string
-  gameCount: number
-  description: string | null
-  sortOrder: number
-  isVisible: boolean
-}
-
-interface GroupOption {
-  id: string
-  name: string
-  color: string
 }
 
 /* ──────────────────── 颜色编辑弹窗 ──────────────────── */
@@ -141,12 +124,8 @@ function ColorEditPopover({
 
 export function TagsOverviewClient({
   groups,
-  ungroupedTags,
-  allGroups,
 }: {
   groups: GroupCard[]
-  ungroupedTags: UngroupedTag[]
-  allGroups: GroupOption[]
 }) {
   const router = useRouter()
   const [editingColorId, setEditingColorId] = useState<string | null>(null)
@@ -236,138 +215,6 @@ export function TagsOverviewClient({
           </div>
         ))}
       </div>
-
-      {/* ── 未分组标签区域 ── */}
-      {ungroupedTags.length > 0 && (
-        <UngroupedTagsSection
-          tags={ungroupedTags}
-          groups={allGroups}
-          onAssigned={() => router.refresh()}
-        />
-      )}
     </div>
-  )
-}
-
-/* ──────────────────── 未分组标签组件 ──────────────────── */
-
-function UngroupedTagsSection({
-  tags,
-  groups,
-  onAssigned,
-}: {
-  tags: UngroupedTag[]
-  groups: GroupOption[]
-  onAssigned: () => void
-}) {
-  const [expanded, setExpanded] = useState(false)
-  const [assigningId, setAssigningId] = useState<string | null>(null)
-  const [assignTarget, setAssignTarget] = useState("")
-  const [assignLoading, setAssignLoading] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const VISIBLE = 12
-  const visible = expanded ? tags : tags.slice(0, VISIBLE)
-
-  useEffect(() => {
-    if (!assigningId) return
-    function handleClick(e: PointerEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setAssigningId(null)
-      }
-    }
-    document.addEventListener("pointerdown", handleClick)
-    return () => document.removeEventListener("pointerdown", handleClick)
-  }, [assigningId])
-
-  async function handleAssign(tagId: string) {
-    if (!assignTarget) return
-    setAssignLoading(true)
-    try {
-      const { ok, error } = await apiFetchSafe(`/api/admin/tags/${tagId}`, {
-        method: "PATCH",
-        body: { groupId: assignTarget },
-      })
-      if (!ok) {
-        toast.error(error || "分配失败")
-      } else {
-        toast.success("已分配到标签组")
-        setAssigningId(null)
-        setAssignTarget("")
-        onAssigned()
-      }
-    } catch { toast.error("网络错误") }
-    setAssignLoading(false)
-  }
-
-  return (
-    <Card size="comfortable" radius="xl" className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="h-2 w-2 rounded-full bg-amber-400" />
-          <h2 className="text-sm font-semibold text-foreground">未分组标签</h2>
-          <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2 py-0.5">{tags.length} 个</span>
-        </div>
-        {tags.length > VISIBLE && (
-          <button
-            type="button"
-            onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          >
-            {expanded ? "收起" : `展开全部`}
-            <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: expanded ? "rotate(180deg)" : "none" }} />
-          </button>
-        )}
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {visible.map((t) => (
-          <div key={t.id} ref={assigningId === t.id ? dropdownRef : undefined} className="relative group/tag">
-            <button
-              type="button"
-              onClick={() => {
-                setAssigningId(assigningId === t.id ? null : t.id)
-                setAssignTarget("")
-              }}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-all hover:ring-foreground/15 cursor-pointer"
-              style={{ color: t.color, background: `${t.color}15`, borderColor: `${t.color}30` }}
-            >
-              {t.name}
-              <span className="text-micro opacity-60">({t.gameCount})</span>
-              <FolderInput className="h-3 w-3 opacity-40 group-hover/tag:opacity-100 transition-opacity" />
-            </button>
-            {assigningId === t.id && (
-              <div className="absolute top-full left-0 mt-1 z-20 bg-popover rounded-xl p-3 ring-1 ring-border shadow-3 min-w-[200px] space-y-2">
-                <select
-                  value={assignTarget}
-                  onChange={(e) => setAssignTarget(e.target.value)}
-                  className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
-                >
-                  <option value="">-- 选择标签组 --</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>{g.name}</option>
-                  ))}
-                </select>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleAssign(t.id)}
-                    disabled={!assignTarget || assignLoading}
-                    className="flex-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50 cursor-pointer"
-                  >
-                    {assignLoading ? "分配中…" : "确认分配"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAssigningId(null)}
-                    className="rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </Card>
   )
 }

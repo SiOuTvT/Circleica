@@ -16,7 +16,7 @@ export default async function TagsOverviewPage() {
   await Promise.all([ensurePresetTagGroups(), ensureResourceTags()])
 
   // 只读查询较重（全量标签 + 全表 GameTag 计数），缓存 60s 避免每次导航全打库
-  const { mappedGroups, mappedUngrouped, allGroups } = await cached(
+  const { mappedGroups } = await cached(
     cacheKey("admin:tags:overview"),
     loadTagsOverview,
     60,
@@ -37,24 +37,26 @@ export default async function TagsOverviewPage() {
         </Link>
       }
     >
-      <TagsOverviewClient groups={mappedGroups} ungroupedTags={mappedUngrouped} allGroups={allGroups} />
+      <TagsOverviewClient groups={mappedGroups} />
     </AdminPageContainer>
   )
 }
 
 async function loadTagsOverview() {
   // 获取标签计数、资源标签设置、标签组和未分组标签（全部并行）
-  const [totalTagCount, allResourceSettings, groups, ungroupedTags] = await Promise.all([
+  const [totalTagCount, allResourceSettings, groups] = await Promise.all([
     prisma.tag.count(),
     prisma.siteSetting.findMany({ where: { key: { in: ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"] } } }),
     prisma.tagGroup.findMany({
       orderBy: [{ isPreset: "desc" }, { name: "asc" }],
-      include: { tags: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true, color: true } } },
-    }),
-    prisma.tag.findMany({
-      where: { groupId: null },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, color: true, description: true, sortOrder: true, isVisible: true },
+      // 主站隔离：组内标签只保留「关联主站已发布游戏」的，杜绝串入副站(VNDB 摄入)数据
+      include: {
+        tags: {
+          where: { games: { some: { game: { isPublished: true } } } },
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          select: { id: true, name: true, color: true },
+        },
+      },
     }),
   ])
 
@@ -73,7 +75,7 @@ async function loadTagsOverview() {
 
   // 一次性获取所有标签的游戏计数
   const groupedTags = groups.flatMap(g => g.tags)
-  const allTagIds = [...groupedTags.map(t => t.id), ...ungroupedTags.map(t => t.id)]
+  const allTagIds = groupedTags.map(t => t.id)
 
   // 使用 Prisma 的参数化查询防止 SQL 注入
   const gameTagCounts = allTagIds.length > 0
@@ -104,19 +106,7 @@ async function loadTagsOverview() {
     totalGames: g.tags.reduce((s, t) => s + getGameCount(t.id), 0),
   }))
 
-  const mappedUngrouped = ungroupedTags.map((t) => ({
-    id: t.id,
-    name: t.name,
-    color: t.color,
-    gameCount: getGameCount(t.id),
-    description: t.description,
-    sortOrder: t.sortOrder,
-    isVisible: t.isVisible,
-  }))
-
   return {
     mappedGroups,
-    mappedUngrouped,
-    allGroups: mappedGroups.map(g => ({ id: g.id, name: g.name, color: g.color })),
   }
 }
