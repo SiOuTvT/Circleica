@@ -188,7 +188,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground truncate">{s.title}</p>
                 {s.originalWork && (
-                  <p className="text-xs text-muted-foreground truncate">{s.originalWork}</p>
+                  <p className="text-xs text-foreground truncate">{s.originalWork}</p>
                 )}
               </div>
             </Link>

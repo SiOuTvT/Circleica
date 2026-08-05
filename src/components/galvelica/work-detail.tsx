@@ -74,10 +74,10 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             {work.title}
           </h1>
           {work.originalWork && (
-            <p className="mt-1 text-sm text-muted-foreground">原作：{work.originalWork}</p>
+            <p className="mt-1 text-sm text-foreground">原作：{work.originalWork}</p>
           )}
           {work.englishName && (
-            <p className="mt-0.5 text-xs text-muted-foreground/70">{work.englishName}</p>
+            <p className="mt-0.5 text-xs text-foreground">{work.englishName}</p>
           )}
           {work.doujinCategory && (
             <span
@@ -196,7 +196,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
                       className="text-foreground transition-colors hover:text-[var(--gal-accent)]"
                     >
                       {s.name}
-                      {s.nameJa && <span className="text-muted-foreground/60">（{s.nameJa}）</span>}
+                      {s.nameJa && <span className="text-muted-foreground">（{s.nameJa}）</span>}
                     </Link>
                   ))}
                 </div>

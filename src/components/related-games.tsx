@@ -43,7 +43,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
               {g.title}
             </p>
             {g.originalWork && (
-              <p className="text-micro text-muted-foreground line-clamp-1">{g.originalWork}</p>
+              <p className="text-micro text-foreground line-clamp-1">{g.originalWork}</p>
             )}
           </Link>
         ))}
