@@ -256,10 +256,7 @@ export default async function HomePage({
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="brand-eyebrow-dot" aria-hidden="true" />
-                  <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">视觉小说资源站</p>
-                </div>
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">视觉小说资源站</p>
                 <h2 className="mt-3 text-[32px] font-semibold tracking-tight leading-tight text-foreground">{siteName}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-[30ch]">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
               </div>
@@ -309,7 +306,7 @@ export default async function HomePage({
           <div className="mb-4 sm:mb-5">
             <div className="flex items-end justify-between border-b border-border pb-3">
               <div>
-                <p className="mb-1 text-xs font-medium tracking-[0.18em] text-[var(--clr-blue)] uppercase">资源大厅</p>
+                <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">资源大厅</p>
                 <h2 className="text-lg font-semibold tracking-wide text-foreground">
                   {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
                 </h2>

@@ -5,6 +5,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
 import { FileText } from "lucide-react"
 
 export const metadata = { title: "审计日志 · 管理后台" }
@@ -61,14 +62,14 @@ export default async function AdminAuditLogsPage({
 
       {/* Filter tabs */}
       {distinctActions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-end gap-4">
           <a href="/admin/audit-logs"
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-colors ${!action ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"}`}>
+            className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition-all ${!action ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"}`}>
             全部
           </a>
           {distinctActions.map(({ action: a }) => (
             <a key={a} href={`/admin/audit-logs?action=${a}`}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-colors ${action === a ? "bg-primary text-primary-foreground ring-primary" : "bg-card text-muted-foreground ring-border hover:text-foreground"}`}>
+              className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition-all ${action === a ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"}`}>
               {ACTION_LABELS[a] ?? a}
             </a>
           ))}
@@ -76,10 +77,7 @@ export default async function AdminAuditLogsPage({
       )}
 
       {logs.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <FileText className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">暂无日志记录</p>
-        </div>
+        <EmptyState icon={FileText} title="暂无日志记录" bordered />
       ) : (
         <div className="space-y-1">
           {logs.map(log => (

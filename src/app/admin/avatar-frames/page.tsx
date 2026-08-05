@@ -3,6 +3,8 @@
 import { ImageUpload } from "@/components/image-upload"
 import { Button } from "@/components/ui/button"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Frame } from "lucide-react"
 import Image from "next/image"
 import {
   Dialog,
@@ -146,9 +148,7 @@ export default function AdminAvatarFramesPage() {
           ))}
         </div>
       ) : frames.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          暂无头像框，点击上方按钮创建
-        </div>
+        <EmptyState icon={Frame} title="暂无头像框" description="点击上方按钮创建" bordered />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {frames.map((frame) => (

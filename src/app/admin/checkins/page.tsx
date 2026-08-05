@@ -7,6 +7,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { CalendarCheck, Search } from "lucide-react"
@@ -127,10 +128,7 @@ export default async function AdminCheckInsPage({
       <CheckInConfigEditor />
 
       {checkIns.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <CalendarCheck className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">暂无签到记录</p>
-        </div>
+        <EmptyState icon={CalendarCheck} title="暂无签到记录" bordered />
       ) : (
         <div className="space-y-2">
           {checkIns.map((ci) => (

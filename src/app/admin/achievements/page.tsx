@@ -6,6 +6,7 @@ import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
@@ -238,7 +239,9 @@ export default function AdminAchievementsPage() {
               </tr>
             ))}
             {achievements.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">暂无成就，点击上方「新建成就」创建第一个</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center">
+                <EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />
+              </td></tr>
             )}
           </tbody>
         </table>

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { adminBtnDanger, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
@@ -112,9 +113,7 @@ export default function CuratedCollectionsPage() {
       />
 
       {collections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
-          <p className="text-muted-foreground">暂无合集，点击上方按钮创建第一个精选合集</p>
-        </div>
+        <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
       ) : (
         <div className="space-y-3">
           {collections.map(c => (
