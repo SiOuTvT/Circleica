@@ -1,7 +1,8 @@
 "use client"
 
-import { KeyRound, Link2, Loader2, Shield, ShieldOff, Copy } from "lucide-react"
+import { KeyRound, Link2, Loader2, Shield, ShieldOff, Copy, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
 import { ROLE_META, type UserRole } from "@/lib/permissions"
 import Image from "next/image"
 import React, { useState } from "react"
@@ -132,8 +133,8 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
           <tbody className="divide-y divide-border">
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                  暂无用户数据
+                <td colSpan={5} className="px-4 py-8 text-center">
+                  <EmptyState icon={Users} title="暂无用户数据" />
                 </td>
               </tr>
             ) : users.map(u => {

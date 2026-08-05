@@ -81,7 +81,7 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
       {/* 标题栏 */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">THEME</p>
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">THEME</p>
           <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">主题设置</h1>
           <p className="mt-1 text-sm text-muted-foreground">自定义网站的颜色、圆角、阴影和透明度，所有修改都会实时预览</p>
         </div>

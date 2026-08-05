@@ -28,3 +28,7 @@ export const adminBtnSecondary =
 /** 按钮 — 危险操作（与 ui/button destructive 同源） */
 export const adminBtnDanger =
   "flex items-center gap-1.5 rounded-xl bg-destructive/10 text-destructive px-3 py-1.5 text-xs font-medium ring-1 ring-destructive/20 hover:bg-destructive/20 transition-all cursor-pointer disabled:opacity-50"
+
+/** 按钮 — 轻量操作（低强调，用于内联/次要新增等场景） */
+export const adminBtnSubtle =
+  "inline-flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-3 py-1.5 text-xs font-medium hover:bg-primary/20 transition-all cursor-pointer"

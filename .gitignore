@@ -87,3 +87,50 @@ kill_dev*.cmd
 check.cjs
 dump*.cjs
 verify*.cjs
+
+# ============================================================
+# 仓库展示文档（例外：刻意纳入版本控制）
+# README.md / LICENSE 是仓库对外展示文档，保留提交。
+# ============================================================
+
+# ============================================================
+# 其他文档 / 过程产物（排除：不纳入提交）
+# 除 README.md / LICENSE 外的所有 .md（AGENTS / CLAUDE / DEPLOYMENT /
+# HANDOVER / 各类评审报告）、docs/、deliverables/（agent 报告）、
+# screenshots/、responsive-audit/（测试截图）、preview-layouts/（预览 HTML）
+# 等内部 / 临时文档与产物一律排除。
+# ============================================================
+*.md
+!README.md
+!LICENSE.md
+docs/
+deliverables/
+screenshots/
+responsive-audit/
+preview-layouts/
+
+# ---------- 额外通用排除（补充）----------
+# 缓存 / 构建中间产物
+.cache/
+.eslintcache
+.turbo/
+*.tsbuildinfo
+
+# 测试 / e2e 产物
+/test-results
+/playwright-report
+/coverage
+
+# 临时 / 系统文件
+tmp/
+temp/
+*.tmp
+.idea/
+.vscode/
+Thumbs.db
+
+# 数据库 / 本地数据文件（非项目代码）
+*.db
+*.sqlite
+*.sqlite3
+/pgdata
