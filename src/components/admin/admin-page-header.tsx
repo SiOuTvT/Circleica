@@ -18,7 +18,7 @@ interface AdminPageHeaderProps {
  * AdminPageHeader — 后台统一页头。
  *
  * 与全站 ArchiveHero（浏览页分支）同源：
- *  - eyebrow：text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70
+ *  - eyebrow：text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground
  *  - H1：font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl
  *  - 标题下方留白，整体与前台 Archive 系统一致，让整站像一个产品。
  *
@@ -35,7 +35,7 @@ export function AdminPageHeader({
     <header className={cn("flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", className)}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {eyebrow}
           </p>
         )}

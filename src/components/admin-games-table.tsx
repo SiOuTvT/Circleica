@@ -1,12 +1,13 @@
 "use client"
 
-import { Pencil, Trash2 } from "lucide-react"
+import { Gamepad2, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { AdminDeleteButton } from "./admin-delete-button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { api } from "@/lib/api-client"
 
 type Game = {
@@ -83,6 +84,9 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
         </div>
       )}
 
+      {games.length === 0 ? (
+        <EmptyState icon={Gamepad2} title="暂无游戏" description="点击右上角「新增游戏」开始添加" bordered />
+      ) : (
       <div className="overflow-hidden rounded-xl bg-card ring-1 ring-border">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -153,6 +157,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
           </table>
         </div>
       </div>
+      )}
 
       <ConfirmDialog
         open={showDeleteConfirm}

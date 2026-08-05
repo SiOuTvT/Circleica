@@ -67,7 +67,7 @@ export function ArchivePlaceholder({
     return (
       <EmptyState
         icon={Icon}
-        message={message ?? `暂无收录的${label}`}
+        title={message ?? `暂无收录的${label}`}
         className={className}
       />
     )

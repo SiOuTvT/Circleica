@@ -69,7 +69,7 @@ export function ArchiveHero({
         <HeroCover cover={cover} initial={initial} shape={shape} />
         <div className="min-w-0 flex-1">
           {eyebrow && (
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               {eyebrow}
             </p>
           )}
@@ -98,7 +98,7 @@ export function ArchiveHero({
             左边缘一致；flex-1 让文字列吃掉剩余宽度，lede/meta 不再掉到 header 最左 */}
         <div className="min-w-0 flex-1">
           {eyebrow && (
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">{eyebrow}</p>
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
           )}
           <h1 className="break-words font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">
             {title}

@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { EmptyState } from "@/components/ui/empty-state"
 import Image from "next/image"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
-import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
+import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Megaphone, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useRef, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -295,10 +296,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           </div>
 
           {anns.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <div className="text-3xl mb-2 opacity-30">📢</div>
-              <p className="text-sm">暂无公告</p>
-            </div>
+            <EmptyState icon={Megaphone} title="暂无公告" description="在左侧表单创建第一条公告" />
           )}
 
           <div className="divide-y divide-border/60">
