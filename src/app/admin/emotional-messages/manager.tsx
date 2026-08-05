@@ -12,7 +12,9 @@ import {
   Trash2, X,
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 import { EmotionalIcon } from "@/components/emotional-icon";
+import { adminBtnSubtle } from "@/lib/admin-styles";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -158,7 +160,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
             </button>
           )}
           <button onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-all hover:bg-primary/20">
+            className={adminBtnSubtle}>
             <Plus className="h-3.5 w-3.5" /> 新增
           </button>
         </div>
@@ -202,12 +204,11 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
 
       {/* 列表 */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <Sparkles className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">
-            {items.length === 0 ? "暂无消息，点击上方「初始化预设」快速添加" : "该分类暂无消息"}
-          </p>
-        </div>
+        <EmptyState
+          icon={Sparkles}
+          title={items.length === 0 ? "暂无消息，点击上方「初始化预设」快速添加" : "该分类暂无消息"}
+          bordered
+        />
       ) : (
         <div className="space-y-2">
           {filtered.map(item => {

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { Inbox, Upload, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
 
@@ -80,7 +81,7 @@ export default async function InclusionRequestsAdmin() {
       <section>
         <h2 className="mb-3 text-sm font-semibold text-foreground">待发布草稿（{pendingDrafts.length}）</h2>
         {pendingDrafts.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">暂无待发布的草稿。</p>
+          <EmptyState icon={Inbox} title="暂无待发布的草稿" description="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。" />
         ) : (
           <div className="space-y-3">
             {pendingDrafts.map((r) => (

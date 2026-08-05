@@ -3,6 +3,8 @@
 import { useState } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
+import { Users } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { CreatorDetailDialog } from "./creator-detail-dialog"
 
 const CreatorDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.CreatorDeleteBtn })), {
@@ -23,7 +25,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null)
 
   if (creators.length === 0) {
-    return null
+    return <EmptyState icon={Users} title="暂无创作者" />
   }
 
   return (

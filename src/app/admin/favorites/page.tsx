@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { Heart, Search } from "lucide-react"
@@ -67,10 +68,7 @@ export default async function AdminFavoritesPage({
       />
 
       {favorites.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <Heart className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">暂无收藏记录</p>
-        </div>
+        <EmptyState icon={Heart} title="暂无收藏记录" bordered />
       ) : (
         <div className="space-y-2">
           {favorites.map((fav) => (

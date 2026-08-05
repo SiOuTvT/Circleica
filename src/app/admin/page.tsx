@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -196,7 +197,7 @@ export default async function AdminDashboard() {
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近添加</h2>
           <div className="divide-y divide-border">
             {recentGames.length === 0 ? (
-              <p className="py-4 text-center text-sm text-muted-foreground">暂无游戏</p>
+              <EmptyState icon={Gamepad2} title="暂无游戏" className="!py-8" />
             ) : recentGames.map(g => (
               <div key={g.id} className="flex items-center justify-between py-2.5">
                 <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
@@ -213,7 +214,7 @@ export default async function AdminDashboard() {
           <h2 className="mb-3 text-sm font-semibold text-foreground">浏览最多</h2>
           <div className="divide-y divide-border">
             {topGames.length === 0 ? (
-              <p className="py-4 text-center text-sm text-muted-foreground">暂无数据</p>
+              <EmptyState icon={Eye} title="暂无数据" className="!py-8" />
             ) : topGames.map((g, i) => (
               <div key={g.id} className="flex items-center gap-3 py-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>
@@ -229,7 +230,7 @@ export default async function AdminDashboard() {
           <h2 className="mb-3 text-sm font-semibold text-foreground">最近注册</h2>
           <div className="divide-y divide-border">
             {recentUsers.length === 0 ? (
-              <p className="py-4 text-center text-sm text-muted-foreground">暂无用户</p>
+              <EmptyState icon={Users} title="暂无用户" className="!py-8" />
             ) : recentUsers.map(u => (
               <div key={u.id} className="flex items-center gap-3 py-2.5">
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">

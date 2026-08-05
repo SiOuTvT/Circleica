@@ -4,6 +4,7 @@ import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Search } from "lucide-react"
@@ -79,7 +80,7 @@ export default async function AdminForumPage({
       />
 
       {/* Status filter tabs */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-end gap-4">
         {[
           { key: "", label: "全部" },
           { key: "unsolved", label: "未解决" },
@@ -94,10 +95,10 @@ export default async function AdminForumPage({
             <a
               key={key}
               href={href}
-              className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all min-h-[36px] ${
+              className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition-all ${
                 isActive
-                  ? "bg-primary text-primary-foreground ring-1 ring-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted ring-1 ring-border"
+                  ? "text-foreground border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"
               }`}
             >
               {label}
@@ -107,10 +108,7 @@ export default async function AdminForumPage({
       </div>
 
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <MessageSquare className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">暂无论坛帖子</p>
-        </div>
+        <EmptyState icon={MessageSquare} title="暂无论坛帖子" bordered />
       ) : (
         <div className="space-y-2">
           {posts.map((post) => (

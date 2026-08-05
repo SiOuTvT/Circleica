@@ -5,6 +5,7 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { PenTool, Search } from "lucide-react"
 import { CreatorsList } from "./creators-list"
 
@@ -22,13 +23,20 @@ export default async function AdminCreatorsPage({
   const limit = 20
   const skip = (page - 1) * limit
 
+  // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
   const where = q ? {
-    OR: [
-      { name: { contains: q, mode: "insensitive" as const } },
-      { nameJa: { contains: q, mode: "insensitive" as const } },
-      { vndbId: { contains: q, mode: "insensitive" as const } },
+    AND: [
+      {
+        OR: [
+          { name: { contains: q, mode: "insensitive" as const } },
+          { nameJa: { contains: q, mode: "insensitive" as const } },
+          { vndbId: { contains: q, mode: "insensitive" as const } },
+        ],
+      },
+      publishedGameFilter,
     ]
-  } : {}
+  } : publishedGameFilter
 
   // 缓存列表 + 计数，避免每次导航都打 2 次 prisma
   const cacheKeyCreators = cacheKey("admin:creators", String(page), q, String(limit))
@@ -94,11 +102,7 @@ export default async function AdminCreatorsPage({
 
       {/* ── 创作者列表 ── */}
       {mappedCreators.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <PenTool className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">暂无创作者</p>
-          <p className="text-xs text-muted-foreground/60">通过 VNDB 导入游戏时会自动收集创作者</p>
-        </div>
+        <EmptyState icon={PenTool} title="暂无创作者" description="通过 VNDB 导入游戏时会自动收集创作者" bordered />
       ) : (
         <CreatorsList creators={mappedCreators} />
       )}
