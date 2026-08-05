@@ -3,7 +3,8 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { ChevronUp, Loader2, Plus, Save, X } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
+import { ChevronUp, Loader2, Plus, Save, Tags, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -151,7 +152,7 @@ export default function ResourceTagsPage() {
                 </div>
               ))}
               {(g.options ?? []).length === 0 && (
-                <p className="text-sm text-muted-foreground">暂无选项，添加一个吧</p>
+                <EmptyState icon={Tags} title="暂无选项" description="添加一个吧" />
               )}
             </div>
 

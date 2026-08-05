@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -84,10 +85,7 @@ export default async function AdminReviewPage({
       />
 
       {games.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <CheckCircle className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">没有待审核的游戏</p>
-        </div>
+        <EmptyState icon={CheckCircle} title="没有待审核的游戏" bordered />
       ) : (
         <div className="space-y-2">
           {games.map(game => (

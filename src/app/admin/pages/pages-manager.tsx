@@ -1,7 +1,8 @@
 "use client"
 
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { Loader2, Pencil, Save, X } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
+import { FileText, Loader2, Pencil, Save, X } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -93,7 +94,7 @@ export function PagesManager({ initial }: Props) {
                 {contents[page.key] ? (
                   <RichTextContent html={contents[page.key]} />
                 ) : (
-                  <p className="text-xs text-muted-foreground italic">暂无自定义内容，页面将显示默认内容</p>
+                  <EmptyState icon={FileText} title="暂无自定义内容" description="页面将显示默认内容" />
                 )}
               </div>
             )}

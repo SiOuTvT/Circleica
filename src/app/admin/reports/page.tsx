@@ -5,6 +5,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Flag } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -123,10 +124,11 @@ export default async function AdminReportsPage({
 
       {/* 举报列表 */}
       {reports.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-16">
-          <Flag className="h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">{q ? `没有找到与"${q}"相关的举报` : "暂无举报记录"}</p>
-        </div>
+        <EmptyState
+          icon={Flag}
+          title={q ? `没有找到与"${q}"相关的举报` : "暂无举报记录"}
+          bordered
+        />
       ) : (
         <div className="space-y-2">
           {reports.map((report) => (

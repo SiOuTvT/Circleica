@@ -1,7 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/ui/empty-state"
+import { adminBtnSubtle } from "@/lib/admin-styles"
 
 import dynamic from "next/dynamic"
 import { useRef } from "react"
@@ -558,9 +559,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
   return (
     <div className="space-y-4">
       {blocks.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-xl">
-          <p className="text-sm">暂无内容，点击下方按钮添加</p>
-        </div>
+        <EmptyState icon={Plus} title="暂无内容" description="点击下方按钮添加" bordered />
       ) : (
         <div className="space-y-3">
           {blocks.map((block, i) => {
@@ -703,27 +702,27 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
 
       {/* 添加按钮 */}
       <div className="flex flex-wrap gap-2 pt-3 border-t border-border">
-        <Button variant="ghost" size="sm" onClick={() => addBlock("heading")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-primary/10 hover:text-primary">
+        <button onClick={() => addBlock("heading")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <Type className="h-3.5 w-3.5 mr-1.5" /> 标题
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("paragraph")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-blue-500/10 hover:text-blue-500">
+        </button>
+        <button onClick={() => addBlock("paragraph")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <Pilcrow className="h-3.5 w-3.5 mr-1.5" /> 段落
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("list")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-green-500/10 hover:text-green-500">
+        </button>
+        <button onClick={() => addBlock("list")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <List className="h-3.5 w-3.5 mr-1.5" /> 列表
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-purple-500/10 hover:text-purple-500">
+        </button>
+        <button onClick={() => addBlock("card")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <LayoutTemplate className="h-3.5 w-3.5 mr-1.5" /> 大卡片
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("small-card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-pink-500/10 hover:text-pink-500">
+        </button>
+        <button onClick={() => addBlock("small-card")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <LayoutTemplate className="h-3 w-3 mr-1.5" /> 小卡片
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("qa")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-amber-500/10 hover:text-amber-400">
+        </button>
+        <button onClick={() => addBlock("qa")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           Q&A
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => addBlock("link-card")} className="flex-1 min-w-[80px] h-9 text-xs hover:bg-orange-500/10 hover:text-orange-500">
+        </button>
+        <button onClick={() => addBlock("link-card")} className={`${adminBtnSubtle} flex-1 min-w-[80px] h-9`}>
           <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> 链接
-        </Button>
+        </button>
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
