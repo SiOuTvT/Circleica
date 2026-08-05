@@ -17,8 +17,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // 跳过静态资源与图片优化，避免无谓开销
+  // 跳过 API 路由（含 /api/auth/* 认证接口，避免干扰 auth.js 的 JSON 响应）与静态资源
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|opengraph-image|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|opengraph-image|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)",
   ],
 }
