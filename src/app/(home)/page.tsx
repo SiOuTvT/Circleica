@@ -1,4 +1,5 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
+import { ContributorsCard } from "@/components/contributors-card"
 import { GameCardSlot } from "@/components/game-card"
 import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
@@ -317,6 +318,8 @@ export default async function HomePage({
           <GameGridServer tag={activeTag} q={q} nsfw={nsfw} sort={sort} view={view} page={page} />
         </Suspense>
       </section>
+
+      <ContributorsCard />
 
     </div>
   )
