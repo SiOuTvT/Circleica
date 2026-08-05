@@ -1,4 +1,3 @@
-import { headers } from "next/headers"
 import { resolveThemeTokens } from "@/lib/theme-colors-shared"
 
 /**
@@ -6,9 +5,11 @@ import { resolveThemeTokens } from "@/lib/theme-colors-shared"
  * Applies --primary (and aliases) directly from resolved tokens.
  * hover / active / soft tokens are owned by globals.css via color-mix,
  * so any theme color (incl. custom) stays coherent and never mechanically darkened.
+ *
+ * nonce 由调用方从 proxy 中间件读取后以 prop 传入，
+ * 组件内部不再调用 headers()，避免强制根布局 dynamic。
  */
-export async function ThemeScript({ themeColor }: { themeColor?: string }) {
-  const nonce = (await headers()).get("x-nonce") || undefined
+export function ThemeScript({ themeColor, nonce }: { themeColor?: string; nonce?: string }) {
   const t = resolveThemeTokens(themeColor)
   const script = `
     (function(){

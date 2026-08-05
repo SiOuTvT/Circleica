@@ -5,6 +5,7 @@ import { ThemeScript } from "@/components/theme-script"
 import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSiteSetting, getLogoMode } from "@/lib/site-settings"
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
+import { headers } from "next/headers"
 import type { Metadata, Viewport } from "next"
 import NextTopLoader from "nextjs-toploader"
 import { SetupWizard } from "@/components/setup-wizard"
@@ -77,6 +78,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   const initialized = await isSiteInitialized()
 
+  // nonce 由 proxy 中间件注入请求头，这里读取后传给 ThemeScript（避免 ThemeScript 自己调 headers()）
+  const nonce = (await headers()).get("x-nonce") || undefined
+
   // 权威主题色：走 unstable_cache（TTL 60s），后台改主题色时 updateSiteSettings 已 revalidateTag
   // 即时失效 → 写后立即生效，且不再每个请求直查 DB。
   const themeColor = await getSiteSetting("themeColor", "#4C7E96")
@@ -86,7 +90,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   if (!initialized) {
     return (
       <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
-        <head><ThemeScript themeColor={themeColor} /></head>
+        <head><ThemeScript themeColor={themeColor} nonce={nonce} /></head>
         <body className="min-h-screen bg-background text-foreground">
           <Providers>
             <div className="min-h-screen flex items-center justify-center p-4">
@@ -104,7 +108,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <ThemeScript themeColor={themeColor} />
+        <ThemeScript themeColor={themeColor} nonce={nonce} />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
         <LayoutShiftGuard />
