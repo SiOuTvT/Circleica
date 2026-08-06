@@ -1,10 +1,21 @@
 import { Search } from "lucide-react"
 
+interface GalvelicaSearchProps {
+  className?: string
+  /** 初始检索词（列表页回填） */
+  defaultValue?: string
+  /** 随表单提交的隐藏字段（如 tags / year / studio 筛选） */
+  hiddenFields?: Record<string, string | undefined>
+  /** 提供时渲染实色「检索」按钮（首页 Hero / 列表页）；不提供则仅搜索框（导航栏） */
+  submitLabel?: string
+  placeholder?: string
+}
+
 /**
- * 副站检索框：统一导航栏与列表页的搜索样式（原为三套内联实现）。
+ * 副站检索框：统一导航栏、列表页与首页 Hero 的搜索样式（原为三套内联实现）。
  * 基于 URL 查询参数（search），与列表页过滤模式一致；移动端常显。
  */
-export function GalvelicaSearch({ className }: { className?: string }) {
+export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitLabel, placeholder = "检索作品、社团…" }: GalvelicaSearchProps) {
   return (
     <form action="/galvelica/works" method="get" className={className}>
       <div className="relative">
@@ -15,11 +26,24 @@ export function GalvelicaSearch({ className }: { className?: string }) {
         <input
           type="search"
           name="search"
-          placeholder="检索作品、社团…"
+          defaultValue={defaultValue}
+          placeholder={placeholder}
           className="w-32 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none sm:w-44 lg:w-52"
           aria-label="检索"
         />
       </div>
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([k, v]) =>
+          v ? <input key={k} type="hidden" name={k} value={v} /> : null,
+        )}
+      {submitLabel && (
+        <button
+          type="submit"
+          className="rounded-xl bg-[var(--gal-accent)] px-4 py-2 text-sm font-medium text-[var(--theme-fg)] transition-opacity hover:opacity-90"
+        >
+          {submitLabel}
+        </button>
+      )}
     </form>
   )
 }

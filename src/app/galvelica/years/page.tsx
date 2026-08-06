@@ -14,9 +14,9 @@ export default async function GalvelicaYears() {
   const years = await getYears()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="galvelica-serif text-2xl font-semibold text-foreground">年份索引</h1>
+        <h1 className="galvelica-h1">年份索引</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           沿时间轴回看同人视觉小说的创作脉络，共 {years.length} 个年份。
         </p>

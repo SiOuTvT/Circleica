@@ -48,7 +48,7 @@ export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
           <span
             className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
               work.doujinCategory === "PURE"
-                ? "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--primary)]"
+                ? "bg-[color-mix(in_srgb,var(--gal-accent)_14%,transparent)] text-[var(--gal-accent)]"
                 : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
             }`}
             title={

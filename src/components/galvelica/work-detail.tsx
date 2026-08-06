@@ -5,6 +5,8 @@ import { ViewCounter } from "@/components/view-counter"
 import { RichTextContent } from "@/components/rich-text-content"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
+import { GalvelicaBackLink } from "@/components/galvelica/back-link"
+import { SectionTitle } from "@/components/galvelica/section-title"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
@@ -40,12 +42,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
       <ViewCounter gameId={work.gameId ?? work.id} />
 
-      <Link
-        href="/galvelica"
-        className="galvelica-navlink mb-4 inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium"
-      >
-        ← 返回 Galvelica
-      </Link>
+      <GalvelicaBackLink href="/galvelica" label="Galvelica" className="mb-4" />
 
       {/* ── 头部：封面 + 摘要 ── */}
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
@@ -70,7 +67,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         </div>
 
         <div className="min-w-0">
-          <h1 className="galvelica-serif text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+          <h1 className="galvelica-h1 sm:text-3xl">
             {work.title}
           </h1>
           {work.originalWork && (
@@ -83,7 +80,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             <span
               className={`mt-2 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${
                 work.doujinCategory === "PURE"
-                  ? "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--primary)]"
+                  ? "bg-[color-mix(in_srgb,var(--gal-accent)_14%,transparent)] text-[var(--gal-accent)]"
                   : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
               }`}
               title={
@@ -127,12 +124,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             ) : (
               <RequestInclusionButton workId={work.id} title={work.title} />
             )}
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              返回主站首页
-            </Link>
+            <GalvelicaBackLink site className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" />
           </div>
 
           {/* 标签 */}
@@ -180,8 +172,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
       {/* ── 制作人员 ── */}
       {roles.length > 0 && (
         <section className="mt-8">
-          <h2 className="galvelica-serif text-xl font-semibold text-foreground">制作人员</h2>
-          <div className="galvelica-rule mb-4 mt-2" />
+          <SectionTitle>制作人员</SectionTitle>
           <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
             {roles.map((role) => (
               <div key={role} className="flex gap-3">
@@ -209,8 +200,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
       {/* ── 简介 ── */}
       {work.description && (
         <section className="mt-8">
-          <h2 className="galvelica-serif text-xl font-semibold text-foreground">简介</h2>
-          <div className="galvelica-rule mb-4 mt-2" />
+          <SectionTitle>简介</SectionTitle>
           <RichTextContent html={work.description} className="max-w-3xl text-[15px] leading-relaxed text-foreground/90" />
         </section>
       )}
@@ -218,11 +208,10 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
       {/* ── 系列 / 相似作品 ── */}
       {work.siblings.length > 0 && (
         <section className="mt-8">
-          <h2 className="galvelica-serif text-xl font-semibold text-foreground">同系列 / 相似作品</h2>
-          <div className="galvelica-rule mb-4 mt-2" />
+          <SectionTitle>同系列 / 相似作品</SectionTitle>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-6">
             {work.siblings.map((s) => (
-              <Link key={s.id} href={s.href} className="galvelica-card group block overflow-hidden rounded-xl">
+              <Link key={s.id} href={s.href} className="galvelica-card group block overflow-hidden rounded-2xl">
                 <div className="relative aspect-[3/4] w-full bg-muted">
                   {s.coverImage ? (
                     <SafeImage

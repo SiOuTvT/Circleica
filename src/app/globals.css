@@ -1683,6 +1683,11 @@ body[data-has-bottom-nav="true"] {
 }
 .light {
   --gal-paper: color-mix(in srgb, var(--background) 97%, #e9f1ef);
+  /* A1 补丁：浅色下 --gal-accent 同步下沉对比度，避免统一令牌后绿字退化 */
+  --gal-accent: #3f8e86;
+  --gal-accent-strong: var(--gal-accent);
+  --gal-accent-soft: rgba(63, 142, 134, 0.12);
+  --gal-accent-softer: rgba(63, 142, 134, 0.06);
 }
 
 /* ── 子站作用域：继承全站 token，仅替换主色系与排版气质 ── */
@@ -1757,16 +1762,52 @@ body[data-has-bottom-nav="true"] {
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Galvelica 标签云：跟随铜绿主色 */
+/* Galvelica 标签云：默认跟随铜绿主色；若设置了 --gal-tag-color（真实标签的 Tag.color）则沿用其色，自动适配明暗 */
 .galvelica-tag {
-  background-color: var(--gal-accent-soft);
-  color: var(--gal-accent);
-  border: 1px solid color-mix(in srgb, var(--gal-accent) 28%, transparent);
+  --gal-tag-color: var(--gal-accent);
+  background-color: color-mix(in srgb, var(--gal-tag-color) 12%, transparent);
+  color: var(--gal-tag-color);
+  border: 1px solid color-mix(in srgb, var(--gal-tag-color) 28%, transparent);
   transition: background-color var(--duration-normal) ease, border-color var(--duration-normal) ease;
 }
 .galvelica-tag:hover {
-  background-color: color-mix(in srgb, var(--gal-accent) 22%, transparent);
-  border-color: color-mix(in srgb, var(--gal-accent) 45%, transparent);
+  background-color: color-mix(in srgb, var(--gal-tag-color) 22%, transparent);
+  border-color: color-mix(in srgb, var(--gal-tag-color) 45%, transparent);
+}
+
+/* Galvelica 标题字号阶梯（统一 H1/H2/H3，m1 根治）：衬线 + 明确尺寸 */
+.galvelica-h1 {
+  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-size: 1.5rem;        /* text-2xl, 24px */
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+}
+.galvelica-h1--hero {
+  font-size: 1.875rem;      /* text-3xl */
+  line-height: 1.15;
+}
+@media (min-width: 640px) {
+  .galvelica-h1--hero {
+    font-size: 2.6rem;
+  }
+}
+.galvelica-h2 {
+  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-size: 1.25rem;       /* text-xl, 20px */
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+}
+.galvelica-h3 {
+  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-size: 1.125rem;      /* text-lg, 18px */
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
 }
 
 /* ═══════════════════════════════════════════════════════
