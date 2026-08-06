@@ -51,31 +51,29 @@ export interface FusedSource {
  *
  * 各源权威面（决定其在对应字段的排位）：
  *   - VNDB      ：全球 VN 资料库，canonical 元数据最权威（标题/原名/发售日/简介/社团/标签/Staff）
- *   - BANGUMI   ：中文社区，中文译名/别名/简介质量最高
  *   - STEAM     ：商店，提供高质量封面(header_image)与可靠发售日；仅放行 VN genre
  *   - DLSITE    ：商业购买源，官方购买链接/商业封面最权威（暂未实现，预留位）
  *   - MANUAL    ：站长人工条目/锁定字段；作兜底，外部权威源存在时让位（已锁定字段不受影响）
  *
- * 月幕(YmGal) / CnGal / KunMoe 已从下方优先级表移除；已入库的旧数据由 purge 脚本清掉。
- * next.config 图床白名单也已移除其域名。
+ * 国内源（Bangumi / CnGal / 月幕）已按计划彻底移除调用逻辑，不再参与字段融合；存量数据由 purge 脚本清掉。
  */
 export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
-  // canonical 标题：VNDB 权威；中文源按序补位（中文译名进 aliases/originalWork）
-  title: ["VNDB", "BANGUMI", "MANUAL"],
+  // canonical 标题：VNDB 权威；MANUAL 兜底
+  title: ["VNDB", "MANUAL"],
   // 原名（日文/官方）：VNDB 最权威
   originalWork: ["VNDB", "MANUAL"],
   // 英文名：VNDB 权威
   englishName: ["VNDB", "MANUAL"],
   // 别名：多源 union，VNDB 起头
-  aliases: ["VNDB", "BANGUMI"],
-  // 简介：取最长非空（信息最完整）；VNDB 长简介优先，中文源补位，Steam 短描述兜底
-  description: ["VNDB", "BANGUMI", "STEAM", "MANUAL"],
-  // 封面：权威+高质量排序 —— VNDB(canonical) → STEAM(高分辨率商店图) → BANGUMI → 人工 → DLSITE(商业预留)
-  coverImage: ["VNDB", "STEAM", "BANGUMI", "MANUAL", "DLSITE"],
-  // 发售日：VNDB 权威 → 中文源(ISO) → STEAM(格式偶不规整，仅作最后兜底)
-  releaseDate: ["VNDB", "BANGUMI", "STEAM", "MANUAL"],
-  // 社团：VNDB(含 developers) → Bangumi；月幕/Steam 无稳定社团名不纳入
-  studioName: ["VNDB", "BANGUMI", "MANUAL"],
+  aliases: ["VNDB"],
+  // 简介：取最长非空（信息最完整）；VNDB 长简介优先，Steam 短描述兜底
+  description: ["VNDB", "STEAM", "MANUAL"],
+  // 封面：权威+高质量排序 —— VNDB(canonical) → STEAM(高分辨率商店图) → 人工 → DLSITE(商业预留)
+  coverImage: ["VNDB", "STEAM", "MANUAL", "DLSITE"],
+  // 发售日：VNDB 权威 → STEAM(格式偶不规整，仅作最后兜底)
+  releaseDate: ["VNDB", "STEAM", "MANUAL"],
+  // 社团：VNDB(含 developers)
+  studioName: ["VNDB", "MANUAL"],
   // 官方购买链接：DLsite 权威（暂未实现，预留）
   officialUrl: ["DLSITE", "MANUAL"],
   // Steam appid：Steam 权威

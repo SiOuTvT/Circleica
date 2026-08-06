@@ -17,6 +17,9 @@ export type SourceKey =
   | "YMGAL"
   | "EROGESCAPE"
   | "DLSITE"
+  | "GETCHU"
+  | "FUWANOVEL"
+  | "BOOTH"
   | "STEAM"
   | "MANUAL"
 
