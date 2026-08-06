@@ -186,8 +186,9 @@ function delay(ms: number): Promise<void> {
  * 便捷方法
  */
 export const api = {
+  // GET 列表/档案类读取：默认 2 次重试（指数退避），一次性超时/网络抖动不再直接"加载失败"。
   get: <T>(url: string, opts?: ApiClientOptions) =>
-    apiClient<T>(url, { ...opts, method: "GET" }),
+    apiClient<T>(url, { ...opts, method: "GET", retries: opts?.retries ?? 2 }),
 
   post: <T>(url: string, body?: unknown, opts?: ApiClientOptions) =>
     apiClient<T>(url, { ...opts, method: "POST", body }),

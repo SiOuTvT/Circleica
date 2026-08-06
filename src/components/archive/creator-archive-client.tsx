@@ -50,7 +50,7 @@ export function CreatorArchiveClient({
   const fetchPage = useCallback(async (page: number): Promise<CreatorListResult> => {
     const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE), page: String(page) })
     if (q) params.set("search", q)
-    const res = await api.get<{ data: CreatorListResult }>(`/api/creators?${params}`)
+    const res = await api.get<{ data: CreatorListResult }>(`/api/creators?${params}`, { timeout: 30000 })
     return parseApiResponse<CreatorListResult>(res)
   }, [sort, q])
 

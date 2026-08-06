@@ -50,7 +50,7 @@ export function StudioArchiveClient({
   const fetchPage = useCallback(async (page: number): Promise<MakerListResult> => {
     const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE), page: String(page) })
     if (q) params.set("search", q)
-    const res = await api.get<{ data: MakerListResult }>(`/api/credits/studios?${params}`)
+    const res = await api.get<{ data: MakerListResult }>(`/api/credits/studios?${params}`, { timeout: 30000 })
     return parseApiResponse<MakerListResult>(res)
   }, [sort, q])
 

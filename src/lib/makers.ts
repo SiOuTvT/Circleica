@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
+import { cached, cacheKey } from "@/lib/redis"
 
 /**
  * 制作组/社团档案数据层（Circleica 资源站专用）
@@ -161,21 +162,30 @@ export async function getMakers(opts: {
     return { makers: [], total: 0, totalPages: 1, page: pageNum }
   }
 
-  // 关联创作者数（一次聚合，避免 N+1）
-  const creatorCountByStudio = new Map<string, number>()
-  try {
-    const rows = await prisma.$queryRaw<{ studioId: string; cnt: number }[]>`
-      SELECT gs."studioId" AS "studioId", COUNT(DISTINCT gc."creatorId")::int AS cnt
-      FROM "GameStudio" gs
-      JOIN "Game" g ON g.id = gs."gameId"
-      JOIN "GameCreator" gc ON gc."gameId" = g.id
-      WHERE g."isPublished" = true
-      GROUP BY gs."studioId"
-    `
-    for (const r of rows) creatorCountByStudio.set(r.studioId, r.cnt)
-  } catch (e) {
-    logger.db.error("[getMakers] 统计关联创作者失败", e)
-  }
+  // 关联创作者数（一次聚合，避免 N+1）。
+  // 该全表 GROUP BY 在大库下偶发慢查询，且每次翻页都重跑 → 放大连接池压力、偶发触发客户端 15s 超时（"加载失败"主因之一）。
+  // 缓存 60s：数据实时性要求低（制作组关联创作者数），且创作者数随发布变化频率远低于请求频率。
+  const creatorCountByStudio = await cached(
+    cacheKey("makers", "creatorCountByStudio"),
+    async () => {
+      const map = new Map<string, number>()
+      try {
+        const rows = await prisma.$queryRaw<{ studioId: string; cnt: number }[]>`
+          SELECT gs."studioId" AS "studioId", COUNT(DISTINCT gc."creatorId")::int AS cnt
+          FROM "GameStudio" gs
+          JOIN "Game" g ON g.id = gs."gameId"
+          JOIN "GameCreator" gc ON gc."gameId" = g.id
+          WHERE g."isPublished" = true
+          GROUP BY gs."studioId"
+        `
+        for (const r of rows) map.set(r.studioId, r.cnt)
+      } catch (e) {
+        logger.db.error("[getMakers] 统计关联创作者失败", e)
+      }
+      return map
+    },
+    60,
+  )
 
   const makers: MakerSummary[] = studios.map((s) => ({
     name: s.displayName,
