@@ -3,6 +3,42 @@
 import Image, { type ImageProps } from "next/image"
 import { useCallback, useState } from "react"
 
+// 已知托管在 CDN 上的远程图域名（与 next.config.ts remotePatterns 对齐）。
+// 这些 CDN 本身已做图片优化，Next 在应用服务器上二次编码 AVIF 是弱机上最贵开销，
+// 故对它们直出（unoptimized）跳过应用服务器编码；仅本地 /uploads 走 Next 优化。
+const REMOTE_CDN_HOSTS = new Set([
+  "utfs.io",
+  "uploadthing.com",
+  "static.vndb.org",
+  "t.vndb.org",
+  "s.vndb.org",
+  "shared.cdn.queniuqe.com",
+  "media.st.dl.eccdnx.com",
+  "shared.cloudflare.steamstatic.com",
+  "cdn.cloudflare.steamstatic.com",
+  "shared.akamai.steamstatic.com",
+  "store.steampowered.com",
+  "bgm.tv",
+  "lain.bgm.tv",
+])
+
+function isRemoteCdn(src: string): boolean {
+  try {
+    const u = new URL(src)
+    if (u.protocol !== "https:") return false
+    const h = u.hostname
+    return (
+      h === "r2.dev" ||
+      h.endsWith(".r2.dev") ||
+      h === "r2.cloudflarestorage.com" ||
+      h.endsWith(".r2.cloudflarestorage.com") ||
+      REMOTE_CDN_HOSTS.has(h)
+    )
+  } catch {
+    return false
+  }
+}
+
 /**
  * Next.js Image 的客户端包装
  * 加载失败时自动重试 → 降级为原生 <img> → 最终显示占位图
@@ -90,6 +126,7 @@ export function SafeImage(props: ImageProps) {
     <Image
       {...props}
       alt={props.alt ?? ""}
+      unoptimized={props.unoptimized ?? isRemoteCdn(src)}
       onError={handleNextImageError}
       onLoad={resetState}
     />

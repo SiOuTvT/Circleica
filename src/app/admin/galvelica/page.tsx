@@ -4,13 +4,14 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
+import { cached, cacheKey } from "@/lib/redis"
 import { BookOpen, Inbox, Layers, CopyCheck, ShieldAlert, CheckCircle2 } from "lucide-react"
 
 export const metadata = { title: "副站 Galvelica 概览 · 管理后台" }
 
-export default async function GalvelicaAdminDashboard() {
-  await requireSiteAdmin("galvelica")
-
+// 概览统计较重（含创作者重复的 GROUP BY 全表扫描），缓存 60s 避免每次导航打库。
+// 计数类指标对 60s 延迟不敏感；管理后台操作后会自然在 TTL 内刷新。
+async function loadGalvelicaOverview() {
   let workCount = 0
   let pendingInclusion = 0
   let pendingDrafts = 0
@@ -40,6 +41,18 @@ export default async function GalvelicaAdminDashboard() {
   } catch (e) {
     logger.db.error("[GalvelicaAdmin] 概览统计失败", e)
   }
+
+  return { workCount, pendingInclusion, pendingDrafts, dupGroups }
+}
+
+export default async function GalvelicaAdminDashboard() {
+  await requireSiteAdmin("galvelica")
+
+  const { workCount, pendingInclusion, pendingDrafts, dupGroups } = await cached(
+    cacheKey("admin:galvelica:overview"),
+    loadGalvelicaOverview,
+    60,
+  )
 
   const entries = [
     {

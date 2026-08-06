@@ -4,6 +4,7 @@ import { Section } from "@/components/galvelica/section"
 import { EditorPicks } from "@/components/galvelica/editor-pick"
 import { CuratorNote, DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
 import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
+import { cached, cacheKey } from "@/lib/redis"
 
 export const dynamic = "force-dynamic"
 
@@ -15,10 +16,16 @@ export const metadata: Metadata = {
 }
 
 export default async function GalvelicaHome() {
+  // 首页三大区块走缓存，避免每次导航回源打库。
+  // 今日缘分按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
   const [editorPicks, daily, themes] = await Promise.all([
-    getEditorPicks(5),
-    getDailyPick(),
-    getFeaturedThemes(),
+    cached(cacheKey("galvelica:home:editorPicks", 5), () => getEditorPicks(5), 300),
+    cached(
+      cacheKey("galvelica:home:daily", new Date().toISOString().slice(0, 10)),
+      () => getDailyPick(),
+      300,
+    ),
+    cached(cacheKey("galvelica:home:themes"), () => getFeaturedThemes(), 300),
   ])
 
   return (

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { listWorks, getPopularTags, type GalvelicaSort } from "@/lib/galvelica"
+import { cached, cacheKey } from "@/lib/redis"
 
 export const dynamic = "force-dynamic"
 
@@ -39,9 +40,18 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
     .map((s) => s.trim())
     .filter(Boolean)
 
+  // 列表与热门标签走缓存（force-dynamic 下避免每次导航全打库）。
+  // 列表按完整筛选条件做 key；热门标签较静态，TTL 更长。
   const [result, popularTags] = await Promise.all([
-    listWorks({ tags, year, studio, search, sort, page }),
-    getPopularTags(24),
+    cached(
+      cacheKey(
+        "galvelica:works",
+        JSON.stringify({ tags, year, studio, search, sort, page }),
+      ),
+      () => listWorks({ tags, year, studio, search, sort, page }),
+      60,
+    ),
+    cached(cacheKey("galvelica:popularTags", 24), () => getPopularTags(24), 300),
   ])
 
   // 当前筛选状态（用于构造链接）

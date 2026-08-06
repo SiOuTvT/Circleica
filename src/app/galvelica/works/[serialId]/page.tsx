@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { cache as reactCache } from "react"
 import { getWorkBySerialId, getWorkBySlug } from "@/lib/galvelica"
 import { WorkDetailView } from "@/components/galvelica/work-detail"
 
@@ -12,10 +13,12 @@ export const dynamic = "force-dynamic"
  *   - slug          → 未收录作品（直接按 slug 解析 Work）
  * 两者都渲染同一份 WorkDetailView。
  */
-async function resolveWork(segment: string) {
+// React cache：在同一请求的 generateMetadata 与页面渲染间去重，
+// 避免详情页对 resolveWork 的重复 DB 查询（保留 Date 等对象类型，不序列化）。
+const resolveWork = reactCache(async (segment: string) => {
   if (/^\d+$/.test(segment)) return getWorkBySerialId(parseInt(segment, 10))
   return getWorkBySlug(segment)
-}
+})
 
 export async function generateMetadata({
   params,
