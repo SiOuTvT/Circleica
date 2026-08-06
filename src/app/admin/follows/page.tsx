@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
-import { Search, UserPlus } from "lucide-react"
+import { UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
@@ -54,20 +54,14 @@ export default async function AdminFollowsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="FOLLOWS"
-        title="关注记录"
-        description={
-          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
-        }
-        action={
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名" className={adminSearchInput} />
-          </form>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="FOLLOWS"
+      title="关注记录"
+      description={
+        <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+      }
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索用户名…" />}
+    >
 
       {follows.length === 0 ? (
         <EmptyState icon={UserPlus} title="暂无关注记录" bordered />
@@ -107,6 +101,6 @@ export default async function AdminFollowsPage({
         baseUrl="/admin/follows"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

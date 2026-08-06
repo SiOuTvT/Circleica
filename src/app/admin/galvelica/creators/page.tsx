@@ -3,10 +3,11 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma, Prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
+import { AdminTable } from "@/components/admin/admin-table"
 import { EmptyState } from "@/components/ui/empty-state"
-import { PenTool, Search } from "lucide-react"
+import { PenTool } from "lucide-react"
 import Link from "next/link"
 import { CreatorRowActions } from "./creator-actions"
 
@@ -90,55 +91,41 @@ export default async function GalvelicaCreatorsPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · CREATORS"
       title="创作者管理"
       description={`Galvelica 副站共 ${total} 位创作者（source=galvelica）`}
-      actions={
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" className={adminSearchInput} />
-        </form>
-      }
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" />}
     >
       {mappedCreators.length === 0 ? (
         <EmptyState icon={PenTool} title="暂无创作者" description="Galvelica 副站尚无创作者数据" bordered />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">名称</th>
-                <th className="px-4 py-3 text-left font-medium">日文名</th>
-                <th className="px-4 py-3 text-right font-medium">关联作品</th>
-                <th className="px-4 py-3 text-right font-medium">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {mappedCreators.map((c) => (
-                <tr key={c.id} className="transition-colors hover:bg-accent/30">
-                  <td className="px-4 py-3">
-                    <Link href={`/admin/galvelica/creators/${c.id}`} className="group flex items-center gap-2.5">
-                      {c.avatar ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={c.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-border" />
-                      ) : (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                          {c.name.charAt(0)}
-                        </div>
-                      )}
-                      <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{c.name}</span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{c.nameJa || "—"}</td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{c.workCount}</td>
-                  <td className="px-4 py-3 text-right">
-                    <CreatorRowActions creator={c} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          rows={mappedCreators}
+          getRowKey={(c) => c.id}
+          columns={[
+            {
+              key: "name",
+              header: "名称",
+              cell: (c) => (
+                <Link href={`/admin/galvelica/creators/${c.id}`} className="group flex items-center gap-2.5">
+                  {c.avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-border" />
+                  ) : (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                      {c.name.charAt(0)}
+                    </div>
+                  )}
+                  <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{c.name}</span>
+                </Link>
+              ),
+            },
+            { key: "nameJa", header: "日文名", cell: (c) => <span className="text-muted-foreground">{c.nameJa || "—"}</span> },
+            { key: "workCount", header: "关联作品", align: "right", cell: (c) => <span className="text-muted-foreground">{c.workCount}</span> },
+            { key: "actions", header: "操作", align: "right", cell: (c) => <CreatorRowActions creator={c} /> },
+          ]}
+        />
       )}
 
       <Pagination

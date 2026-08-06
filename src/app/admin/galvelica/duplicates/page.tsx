@@ -3,6 +3,8 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminCard } from "@/components/admin/admin-card"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { EmptyState } from "@/components/ui/empty-state"
 import { CopyCheck, Users, Layers, ArrowRight } from "lucide-react"
 import Link from "next/link"
@@ -15,12 +17,14 @@ const PAGE_SIZE = 20
 export default async function GalvelicaDuplicatesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ cpage?: string; wpage?: string }>
 }) {
   await requireSiteAdmin("galvelica")
   const sp = await searchParams
-  const page = Math.max(1, parseInt(sp.page || "1"))
-  const skip = (page - 1) * PAGE_SIZE
+  const cpage = Math.max(1, parseInt(sp.cpage || "1"))
+  const wpage = Math.max(1, parseInt(sp.wpage || "1"))
+  const creatorSkip = (cpage - 1) * PAGE_SIZE
+  const workSkip = (wpage - 1) * PAGE_SIZE
 
   type DupGroup = { key: string; items: { id: string; label: string; href: string }[] }
 
@@ -38,7 +42,7 @@ export default async function GalvelicaDuplicatesPage({
       GROUP BY LOWER("name")
       HAVING COUNT(*) > 1
       ORDER BY LOWER("name")
-      LIMIT ${PAGE_SIZE}::int OFFSET ${skip}::int
+      LIMIT ${PAGE_SIZE}::int OFFSET ${creatorSkip}::int
     `
     const creatorCountRows = await prisma.$queryRaw<Array<{ cnt: number }>>`
       SELECT COUNT(*)::int as cnt FROM (
@@ -80,7 +84,7 @@ export default async function GalvelicaDuplicatesPage({
       GROUP BY k
       HAVING COUNT(*) > 1
       ORDER BY k
-      LIMIT ${PAGE_SIZE}::int OFFSET ${skip}::int
+      LIMIT ${PAGE_SIZE}::int OFFSET ${workSkip}::int
     `
     const workCountRows = await prisma.$queryRaw<Array<{ cnt: number }>>`
       WITH norm AS (
@@ -127,14 +131,13 @@ export default async function GalvelicaDuplicatesPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · DEDUPE"
       title="重复检测"
       description="按名称 / 归一化标题找出副站内的重复创作者与作品，便于合并治理。已分页，避免一次性加载全量数据。"
     >
-      <section>
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Users className="h-4 w-4 text-primary" /> 重复创作者（{creatorTotal} 组）
-        </h2>
+      <AdminCard galvelica>
+        <AdminSectionHeading galvelica icon={Users}>重复创作者（{creatorTotal} 组）</AdminSectionHeading>
         {creatorDups.length === 0 ? (
           <EmptyState icon={CopyCheck} title="未发现重复创作者" description="副站创作者暂无同名重复。" bordered />
         ) : (
@@ -159,14 +162,18 @@ export default async function GalvelicaDuplicatesPage({
           </div>
         )}
         <div className="mt-4">
-          <Pagination currentPage={page} totalPages={creatorPages} baseUrl="/admin/galvelica/duplicates" />
+          <Pagination
+            currentPage={cpage}
+            totalPages={creatorPages}
+            baseUrl="/admin/galvelica/duplicates"
+            pageParam="cpage"
+            extraParams={{ wpage: String(wpage) }}
+          />
         </div>
-      </section>
+      </AdminCard>
 
-      <section className="mt-6">
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Layers className="h-4 w-4 text-primary" /> 重复作品（{workTotal} 组）
-        </h2>
+      <AdminCard galvelica>
+        <AdminSectionHeading galvelica icon={Layers}>重复作品（{workTotal} 组）</AdminSectionHeading>
         {workDups.length === 0 ? (
           <EmptyState icon={CopyCheck} title="未发现重复作品" description="副站作品暂无归一化标题重复。" bordered />
         ) : (
@@ -191,9 +198,15 @@ export default async function GalvelicaDuplicatesPage({
           </div>
         )}
         <div className="mt-4">
-          <Pagination currentPage={page} totalPages={workPages} baseUrl="/admin/galvelica/duplicates" />
+          <Pagination
+            currentPage={wpage}
+            totalPages={workPages}
+            baseUrl="/admin/galvelica/duplicates"
+            pageParam="wpage"
+            extraParams={{ cpage: String(cpage) }}
+          />
         </div>
-      </section>
+      </AdminCard>
     </AdminPageContainer>
   )
 }

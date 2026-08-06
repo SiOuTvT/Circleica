@@ -2,11 +2,11 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
-import { Heart, Search } from "lucide-react"
+import { Heart } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 
@@ -52,20 +52,14 @@ export default async function AdminFavoritesPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="FAVORITES"
-        title="收藏记录"
-        description={
-          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
-        }
-        action={
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索用户或游戏…" aria-label="搜索用户或游戏" className={adminSearchInput} />
-          </form>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="FAVORITES"
+      title="收藏记录"
+      description={
+        <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+      }
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索用户或游戏…" />}
+    >
 
       {favorites.length === 0 ? (
         <EmptyState icon={Heart} title="暂无收藏记录" bordered />
@@ -106,6 +100,6 @@ export default async function AdminFavoritesPage({
         baseUrl="/admin/favorites"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

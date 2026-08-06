@@ -3,7 +3,9 @@ import { notFound } from "next/navigation"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { PenTool, ArrowLeft, Layers, ExternalLink } from "lucide-react"
+import { AdminBackLink } from "@/components/admin/admin-back-link"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
+import { PenTool, Layers, ExternalLink } from "lucide-react"
 import { CreatorDetailClient } from "./creator-detail-client"
 
 export const metadata = { title: "Galvelica 创作者详情 · 管理后台" }
@@ -48,18 +50,13 @@ export default async function GalvelicaCreatorDetailPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · CREATOR"
       title={creator.name}
       description={creator.nameJa || "Galvelica 副站创作者"}
       actions={
         <div className="flex items-center gap-2">
-          <Link
-            href="/admin/galvelica/creators"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10 hover:bg-muted"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            返回
-          </Link>
+          <AdminBackLink href="/admin/galvelica/creators" label="返回" />
           <CreatorDetailClient
             creator={{
               id: creator.id,
@@ -111,9 +108,7 @@ export default async function GalvelicaCreatorDetailPage({
 
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Layers className="h-4 w-4 text-primary" /> 关联作品（{works.length}）
-            </h3>
+            <AdminSectionHeading galvelica icon={Layers}>关联作品（{works.length}）</AdminSectionHeading>
             {works.length === 0 ? (
               <p className="text-sm text-muted-foreground">该创作者暂无关联作品。</p>
             ) : (

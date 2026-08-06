@@ -3,11 +3,12 @@ import { prisma } from "@/lib/prisma"
 import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Search } from "lucide-react"
+import { MessageSquare } from "lucide-react"
 import dynamic from "next/dynamic"
 
 const ForumDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.ForumDeleteBtn })), {
@@ -64,20 +65,14 @@ export default async function AdminForumPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="FORUM"
-        title="论坛管理"
-        description={
-          <Badge variant="secondary" size="lg">{total} 个帖子</Badge>
-        }
-        action={
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索帖子…" aria-label="搜索帖子" className={adminSearchInput} />
-          </form>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="FORUM"
+      title="论坛管理"
+      description={
+        <Badge variant="secondary" size="lg">{total} 个帖子</Badge>
+      }
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索帖子…" />}
+    >
 
       {/* Status filter tabs */}
       <div className="flex items-end gap-4">
@@ -125,9 +120,7 @@ export default async function AdminForumPage({
                   <div className="min-w-0">
                     <h3 className="truncate text-sm font-semibold text-foreground">
                       {post.isSolved && (
-                        <span className="mr-1 inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-micro font-bold text-emerald-400 ring-1 ring-emerald-500/20">
-                          已解决
-                        </span>
+                        <AdminStatusBadge tone="success">已解决</AdminStatusBadge>
                       )}
                       {post.title}
                     </h3>
@@ -163,6 +156,6 @@ export default async function AdminForumPage({
           ...(status && { status }),
         }}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

@@ -2,6 +2,8 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminCard } from "@/components/admin/admin-card"
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ShieldAlert, Users, Tag as TagIcon, CheckCircle2 } from "lucide-react"
 import { fixSourceMismatch } from "./actions"
@@ -44,6 +46,7 @@ export default async function GalvelicaGovernancePage() {
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · GOVERNANCE"
       title="数据治理"
       description="检测「本属副站、却被误标为 circleica」的创作者 / 标签。仅当该记录无主站游戏关联时才可安全纠正为 galvelica，避免破坏主站数据。"
@@ -53,7 +56,7 @@ export default async function GalvelicaGovernancePage() {
       ) : (
         <div className="space-y-3">
           {suspicious.map((s) => (
-            <div key={`${s.type}-${s.id}`} className="flex flex-row flex-wrap items-center gap-4 rounded-xl border border-border bg-card p-4">
+            <AdminCard galvelica key={`${s.type}-${s.id}`} className="flex flex-row flex-wrap items-center gap-4">
               {s.type === "creator" ? (
                 <Users className="h-4 w-4 shrink-0 text-muted-foreground" />
               ) : (
@@ -61,12 +64,14 @@ export default async function GalvelicaGovernancePage() {
               )}
               <div className="min-w-0 flex-1">
                 <span className="font-medium text-foreground">{s.name}</span>
-                <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                  {s.type === "creator" ? "创作者" : "标签"} · source=circleica
+                <span className="ml-2">
+                  <AdminStatusBadge>
+                    {s.type === "creator" ? "创作者" : "标签"} · source=circleica
+                  </AdminStatusBadge>
                 </span>
                 {s.hasGameLink && (
-                  <span className="ml-2 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-500 ring-1 ring-amber-500/20">
-                    已关联主站，不可改
+                  <span className="ml-2">
+                    <AdminStatusBadge tone="warning">已关联主站，不可改</AdminStatusBadge>
                   </span>
                 )}
               </div>
@@ -82,7 +87,7 @@ export default async function GalvelicaGovernancePage() {
                   </button>
                 </form>
               )}
-            </div>
+            </AdminCard>
           ))}
         </div>
       )}
