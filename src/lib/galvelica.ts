@@ -3,6 +3,20 @@ import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { PAGINATION } from "@/lib/config"
+import { cookies } from "next/headers"
+
+/**
+ * 副站 R18/NSFW 内容偏好：读取 cookie `gal_nsfw`（1=显示 / 缺省或0=隐藏）。
+ * 公开档案馆的安全默认是隐藏（不要求登录即可看到成人内容）。
+ */
+async function showNsfwEnabled(): Promise<boolean> {
+  try {
+    const store = await cookies()
+    return store.get("gal_nsfw")?.value === "1"
+  } catch {
+    return false
+  }
+}
 
 /**
  * Galvelica 数据层 — 同人视觉小说资料库（Stage F：改为读取独立 Work 档案）
@@ -216,8 +230,11 @@ function mapWorkCard(w: WorkCardSource): GalvelicaWorkCard {
   }
 }
 
-function workWhere(q: GalvelicaListQuery): Prisma.WorkWhereInput {
+async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> {
   const and: Prisma.WorkWhereInput[] = []
+  if (!(await showNsfwEnabled())) {
+    and.push({ isNsfw: false })
+  }
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
   }
@@ -261,7 +278,7 @@ export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaLis
   if (!(await archiveReady())) return listWorksFromGame(query)
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
   const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
-  const where = workWhere(query)
+  const where = await workWhere(query)
 
   const [total, rows] = await Promise.all([
     prisma.work.count({ where }),
@@ -654,8 +671,11 @@ function mapCardGame(g: GalvelicaCardSource): GalvelicaWorkCard {
   }
 }
 
-function publishedWhere(q: GalvelicaListQuery): Prisma.GameWhereInput {
+async function publishedWhere(q: GalvelicaListQuery): Promise<Prisma.GameWhereInput> {
   const and: Prisma.GameWhereInput[] = [{ isPublished: true }]
+  if (!(await showNsfwEnabled())) {
+    and.push({ isNsfw: false })
+  }
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
   }
@@ -703,7 +723,7 @@ function sortToOrderByGame(sort: GalvelicaSort): Prisma.GameOrderByWithRelationI
 async function listWorksFromGame(query: GalvelicaListQuery): Promise<GalvelicaListResult> {
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
   const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
-  const where = publishedWhere(query)
+  const where = await publishedWhere(query)
   const [total, rows] = await Promise.all([
     prisma.game.count({ where }),
     prisma.game.findMany({

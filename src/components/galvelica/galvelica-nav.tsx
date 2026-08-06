@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { type LogoMode } from "@/lib/branding"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Compass, Layers, Library, Tags, CalendarRange, Users } from "lucide-react"
@@ -15,18 +14,10 @@ const NAV_ITEMS = [
   { icon: Compass, label: "随机", href: "/galvelica/random" },
 ]
 
-export function GalvelicaNav({ className }: { className?: string; logoMode?: LogoMode }) {
+export function GalvelicaNav({ className }: { className?: string }) {
   const pathname = usePathname()
   return (
     <nav className={cn("flex flex-wrap items-center gap-1", className)}>
-      {/* 副站品牌标识：点击返回 Galvelica 首页 */}
-      <Link
-        href="/galvelica"
-        aria-label="Galvelica 首页"
-        className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-accent/60"
-      >
-        <span className="font-heading text-[17px] font-bold tracking-tight text-[var(--gal-accent)] leading-none">Galvelica</span>
-      </Link>
       {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
         const active =
           href === "/galvelica"
