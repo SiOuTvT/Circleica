@@ -6,7 +6,7 @@ import { formatDate, formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { adminSearchInput } from "@/lib/admin-styles"
 import { Badge } from "@/components/ui/badge"
@@ -101,15 +101,14 @@ export default async function AdminCheckInsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="CHECK-INS"
-        title="签到记录"
-        description={
-          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
-        }
-        action={
-          <form method="get" className="flex flex-wrap items-center gap-2">
+    <AdminPageContainer
+      eyebrow="CHECK-INS"
+      title="签到记录"
+      description={
+        <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+      }
+      actions={
+        <form method="get" className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
               <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名" className={adminSearchInput} />
@@ -122,7 +121,7 @@ export default async function AdminCheckInsPage({
             <Button type="submit">筛选</Button>
           </form>
         }
-      />
+      >
 
       {/* 签到配置编辑器 */}
       <CheckInConfigEditor />
@@ -169,6 +168,6 @@ export default async function AdminCheckInsPage({
           ...(to && { to }),
         }}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

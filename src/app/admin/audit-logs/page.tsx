@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { FileText } from "lucide-react"
@@ -51,14 +51,13 @@ export default async function AdminAuditLogsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="AUDIT LOGS"
-        title="审计日志"
-        description={
-          <Badge variant="secondary" size="lg">{total} 条记录</Badge>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="AUDIT LOGS"
+      title="审计日志"
+      description={
+        <Badge variant="secondary" size="lg">{total} 条记录</Badge>
+      }
+    >
 
       {/* Filter tabs */}
       {distinctActions.length > 0 && (
@@ -108,6 +107,6 @@ export default async function AdminAuditLogsPage({
       )}
 
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/audit-logs" extraParams={action ? { action } : undefined} />
-    </div>
+    </AdminPageContainer>
   )
 }

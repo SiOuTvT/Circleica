@@ -3,10 +3,10 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
-import { PenTool, Search } from "lucide-react"
+import { PenTool } from "lucide-react"
 import { CreatorsList } from "./creators-list"
 
 export const metadata = { title: "创作者管理 · 管理后台" }
@@ -86,19 +86,12 @@ export default async function AdminCreatorsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      {/* ── 页面标题 ── */}
-      <AdminPageHeader
-        eyebrow="CREATORS"
-        title="创作者管理"
-        description={`共 ${total} 位创作者，通过导入游戏自动收集`}
-        action={
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" className={adminSearchInput} />
-          </form>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="CREATORS"
+      title="创作者管理"
+      description={`共 ${total} 位创作者，通过导入游戏自动收集`}
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索创作者…" />}
+    >
 
       {/* ── 创作者列表 ── */}
       {mappedCreators.length === 0 ? (
@@ -113,6 +106,6 @@ export default async function AdminCreatorsPage({
         baseUrl="/admin/creators"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

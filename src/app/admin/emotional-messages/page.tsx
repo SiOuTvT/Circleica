@@ -1,7 +1,7 @@
 import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Badge } from "@/components/ui/badge"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { SmilePlus } from "lucide-react"
 import dynamic from "next/dynamic"
 
@@ -17,17 +17,16 @@ export default async function EmotionalMessagesPage() {
     orderBy: [{ category: "asc" }, { key: "asc" }],
   })
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="EMOTIONAL MESSAGES"
-        title="情感消息管理"
-        description={
-          <span className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" size="lg">{items.length} 条消息</Badge>
-            <span>管理各场景的提示文案、插图和 Emoji</span>
-          </span>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="EMOTIONAL MESSAGES"
+      title="情感消息管理"
+      description={
+        <span className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary" size="lg">{items.length} 条消息</Badge>
+          <span>管理各场景的提示文案、插图和 Emoji</span>
+        </span>
+      }
+    >
       <EmotionalMessagesManager initialItems={items.map(item => ({
         id: item.id,
         key: item.key,
@@ -38,6 +37,6 @@ export default async function EmotionalMessagesPage() {
         emoji: item.emoji,
         enabled: item.enabled,
       }))} />
-    </div>
+    </AdminPageContainer>
   )
 }

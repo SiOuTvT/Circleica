@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { announcementService } from "@/services/announcement"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import dynamic from "next/dynamic"
 
 const AnnouncementsManager = dynamic(() => import("@/components/announcements-manager").then(m => ({ default: m.AnnouncementsManager })), {
@@ -31,9 +31,8 @@ export default async function AdminAnnouncementsPage() {
   }))
 
   return (
-    <div className="w-full space-y-6">
-      <AdminPageHeader eyebrow="ANNOUNCEMENTS" title="公告管理" />
+    <AdminPageContainer eyebrow="ANNOUNCEMENTS" title="公告管理" className="w-full">
       <AnnouncementsManager initialAnns={initial} />
-    </div>
+    </AdminPageContainer>
   )
 }

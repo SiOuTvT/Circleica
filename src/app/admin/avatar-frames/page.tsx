@@ -2,7 +2,7 @@
 
 import { ImageUpload } from "@/components/image-upload"
 import { Button } from "@/components/ui/button"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Frame } from "lucide-react"
 import Image from "next/image"
@@ -123,13 +123,12 @@ export default function AdminAvatarFramesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="AVATAR FRAMES"
-        title="头像框管理"
-        description="管理用户可选择的头像框，图片应为透明背景的 PNG"
-        action={<Button onClick={openCreate}>+ 新建头像框</Button>}
-      />
+    <AdminPageContainer
+      eyebrow="AVATAR FRAMES"
+      title="头像框管理"
+      description="管理用户可选择的头像框，图片应为透明背景的 PNG"
+      actions={<Button onClick={openCreate}>+ 新建头像框</Button>}
+    >
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -351,6 +350,6 @@ export default function AdminAvatarFramesPage() {
         confirmText="删除"
         onConfirm={() => { if (deleteTargetId) handleDelete(deleteTargetId) }}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

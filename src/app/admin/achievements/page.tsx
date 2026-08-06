@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { ImageUpload } from "@/components/image-upload"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
+import { AdminTable, type AdminTableColumn } from "@/components/admin/admin-table"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
 import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
@@ -101,16 +102,88 @@ export default function AdminAchievementsPage() {
     })
   }
 
+  const achievementColumns: AdminTableColumn<Achievement>[] = [
+    {
+      key: "name",
+      header: "成就",
+      cell: (ach) => (
+        <div className="flex items-center gap-2.5">
+          {ach.icon ? (
+            <Image src={ach.icon} alt="" width={32} height={32} className="h-8 w-8 rounded-lg" unoptimized />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
+              <Award className="h-4 w-4 text-amber-400" />
+            </div>
+          )}
+          <div>
+            <p className="font-medium text-foreground">{ach.name}</p>
+            <p className="text-xs text-muted-foreground truncate max-w-[200px]">{ach.description}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "condition",
+      header: "条件",
+      cell: (ach) => (
+        <span className="text-muted-foreground">
+          {CONDITION_TYPES.find((c) => c.value === ach.conditionType)?.label ?? ach.conditionType}
+          {" ≥ "}
+          {ach.conditionTarget}
+        </span>
+      ),
+    },
+    {
+      key: "points",
+      header: "积分",
+      cell: (ach) => <span className="text-amber-400 font-medium">{ach.points}</span>,
+    },
+    {
+      key: "unlockCount",
+      header: "解锁数",
+      cell: (ach) => <span className="text-muted-foreground">{ach.unlockCount}</span>,
+    },
+    {
+      key: "status",
+      header: "状态",
+      cell: (ach) => (
+        <div className="flex items-center gap-2">
+          <span className={cn("inline-block h-2 w-2 rounded-full", ach.isActive ? "bg-emerald-400" : "bg-muted-foreground")} />
+          <span className="text-xs text-muted-foreground">{ach.isActive ? "启用" : "禁用"}</span>
+          {ach.hidden && <span className="rounded bg-muted-foreground/20 px-1.5 py-0.5 text-micro text-muted-foreground">隐藏</span>}
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "操作",
+      align: "right",
+      cell: (ach) => (
+        <div className="flex items-center justify-end gap-1">
+          <button
+            onClick={() => setEditing(ach)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setDeleteTarget(ach.id)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <div className="h-7 w-32 animate-pulse rounded bg-muted" />
-            <div className="h-4 w-48 animate-pulse rounded bg-muted" />
-          </div>
-          <div className="h-10 w-28 animate-pulse rounded-xl bg-muted" />
-        </div>
+      <AdminPageContainer
+        eyebrow="ACHIEVEMENTS"
+        title="成就管理"
+        description="管理用户可解锁的成就"
+      >
         <Card size="compact" radius="xl" className="overflow-hidden">
           <div className="p-4 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -118,24 +191,22 @@ export default function AdminAchievementsPage() {
             ))}
           </div>
         </Card>
-      </div>
+      </AdminPageContainer>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="ACHIEVEMENTS"
-        title="成就管理"
-        description="管理用户可解锁的成就"
-        action={
-          <Button onClick={startCreate}>
-            <Plus className="h-4 w-4" strokeWidth={2} />
-            新建成就
-          </Button>
-        }
-      />
-
+    <AdminPageContainer
+      eyebrow="ACHIEVEMENTS"
+      title="成就管理"
+      description="管理用户可解锁的成就"
+      actions={
+        <Button onClick={startCreate}>
+          <Plus className="h-4 w-4" strokeWidth={2} />
+          新建成就
+        </Button>
+      }
+    >
       {/* 编辑表单 */}
       {editing && (
         <Card size="comfortable" radius="xl">
@@ -198,55 +269,14 @@ export default function AdminAchievementsPage() {
       )}
 
       {/* 列表 */}
-      <Card size="compact" radius="xl" className="overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">成就</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">条件</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">积分</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">解锁数</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">状态</th>
-              <th className="px-4 py-3 text-right font-medium text-muted-foreground">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {achievements.map((ach) => (
-              <tr key={ach.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    {ach.icon ? <Image src={ach.icon} alt="" width={32} height={32} className="h-8 w-8 rounded-lg" unoptimized /> : <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10"><Award className="h-4 w-4 text-amber-400" /></div>}
-                    <div><p className="font-medium text-foreground">{ach.name}</p><p className="text-xs text-muted-foreground truncate max-w-[200px]">{ach.description}</p></div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-muted-foreground">{CONDITION_TYPES.find((c) => c.value === ach.conditionType)?.label ?? ach.conditionType}{" ≥ "}{ach.conditionTarget}</td>
-                <td className="px-4 py-3 text-amber-400 font-medium">{ach.points}</td>
-                <td className="px-4 py-3 text-muted-foreground">{ach.unlockCount}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className={cn("inline-block h-2 w-2 rounded-full", ach.isActive ? "bg-emerald-400" : "bg-muted-foreground")} />
-                    <span className="text-xs text-muted-foreground">{ach.isActive ? "启用" : "禁用"}</span>
-                    {ach.hidden && <span className="rounded bg-muted-foreground/20 px-1.5 py-0.5 text-micro text-muted-foreground">隐藏</span>}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => setEditing(ach)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"><Edit2 className="h-4 w-4" /></button>
-                    <button onClick={() => setDeleteTarget(ach.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"><Trash2 className="h-4 w-4" /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {achievements.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center">
-                <EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />
-              </td></tr>
-            )}
-          </tbody>
-        </table>
-        </div>
-      </Card>
+      <div className="overflow-x-auto">
+        <AdminTable
+          columns={achievementColumns}
+          rows={achievements}
+          getRowKey={(ach) => ach.id}
+          empty={<EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />}
+        />
+      </div>
 
       <ConfirmDialog
         open={!!deleteTarget}
@@ -257,7 +287,7 @@ export default function AdminAchievementsPage() {
         confirmText="删除"
         onConfirm={() => { if (deleteTarget) handleDelete(deleteTarget) }}
       />
-    </div>
+    </AdminPageContainer>
   )
 }
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { adminBtnDanger, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
@@ -100,17 +100,16 @@ export default function CuratedCollectionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="COLLECTIONS"
-        title="精选合集"
-        description="管理前台展示的精选游戏合集"
-        action={
-          <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4" /> 新建合集
-          </Button>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="COLLECTIONS"
+      title="精选合集"
+      description="管理前台展示的精选游戏合集"
+      actions={
+        <Button onClick={handleCreate}>
+          <Plus className="h-4 w-4" /> 新建合集
+        </Button>
+      }
+    >
 
       {collections.length === 0 ? (
         <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
@@ -157,7 +156,7 @@ export default function CuratedCollectionsPage() {
         variant="destructive"
         onConfirm={handleDelete}
       />
-    </div>
+    </AdminPageContainer>
   )
 }
 
