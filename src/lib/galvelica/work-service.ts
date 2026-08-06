@@ -145,29 +145,58 @@ async function ensureUniqueSlug(base: string): Promise<string> {
 
 /* ── 标签 / 创作者解析（按名复用，缺失则建） ────── */
 
-/** 按名复用或新建 Tag；返回 Tag id。 */
-async function resolveTagByName(name: string): Promise<string> {
+/**
+ * 按名复用或新建 Tag；返回 Tag id。
+ * 防串站：Tag.name 是全局 @unique，绝不允许 Galvelica 摄入时因"同名主站标签"而复用或新建冲突。
+ * - 若同名 galvelica 标签已存在 → 复用（正确归属）。
+ * - 若同名 circleica 标签已存在 → 跳过复用（返回 null），交由调用方决定，绝不污染主站标签的 WorkTag 计数。
+ * - 否则新建 galvelica 标签。
+ */
+async function resolveTagByName(name: string): Promise<string | null> {
   const clean = name.trim()
   if (!clean) throw new Error("empty tag name")
-  const existing = await prisma.tag.findFirst({ where: { name: clean }, select: { id: true } })
-  if (existing) return existing.id
+  const galvelicaExisting = await prisma.tag.findFirst({
+    where: { name: clean, source: "galvelica" },
+    select: { id: true },
+  })
+  if (galvelicaExisting) return galvelicaExisting.id
+  const circleicaExisting = await prisma.tag.findFirst({
+    where: { name: clean, source: "circleica" },
+    select: { id: true },
+  })
+  if (circleicaExisting) {
+    // 同名主站标签存在：不复用、不新建（会违反 name 唯一约束）。返回 null，调用方跳过该标签关联。
+    return null
+  }
   const created = await prisma.tag.create({
     data: { name: clean, color: "#a78bfa", isVisible: true, source: "galvelica" },
   })
   return created.id
 }
 
-/** 按名复用或新建 Creator；返回 Creator id（若有原名则补全）。 */
-async function resolveCreatorByName(name: string, nameJa?: string): Promise<string> {
+/**
+ * 按名复用或新建 Creator；返回 Creator id（若有原名则补全）。
+ * 防串站：Creator.name 非唯一，故明确按 source:"galvelica" 复用同名副站创作者；
+ * 若存在同名 circleica 创作者则跳过复用（返回 null），避免副站作品 WorkCreator 关联污染主站创作者。
+ */
+async function resolveCreatorByName(name: string, nameJa?: string): Promise<string | null> {
   const clean = name.trim()
   if (!clean) throw new Error("empty creator name")
-  const existing = await prisma.creator.findFirst({ where: { name: clean }, select: { id: true } })
-  if (existing) {
-    if (nameJa && !existing) {
-      // 仅当确实需要补全原名时更新（findFirst 已返回 id，这里不额外查询，交由调用方决定）
+  const galvelicaExisting = await prisma.creator.findFirst({
+    where: { name: clean, source: "galvelica" },
+    select: { id: true },
+  })
+  if (galvelicaExisting) {
+    if (nameJa) {
+      await prisma.creator.update({ where: { id: galvelicaExisting.id }, data: { nameJa } }).catch(() => {})
     }
-    return existing.id
+    return galvelicaExisting.id
   }
+  const circleicaExisting = await prisma.creator.findFirst({
+    where: { name: clean, source: "circleica" },
+    select: { id: true },
+  })
+  if (circleicaExisting) return null
   const created = await prisma.creator.create({
     data: { name: clean, nameJa: nameJa ?? "", source: "galvelica" },
   })
@@ -181,7 +210,13 @@ async function applyTagsToWork(workId: string, tagNames: string[]): Promise<void
     await prisma.workTag.deleteMany({ where: { workId } })
     return
   }
-  const ids = await Promise.all(clean.map(resolveTagByName))
+  const ids = (await Promise.all(clean.map(resolveTagByName))).filter(
+    (id): id is string => id !== null,
+  )
+  if (ids.length === 0) {
+    await prisma.workTag.deleteMany({ where: { workId } })
+    return
+  }
   await prisma.workTag.deleteMany({ where: { workId, NOT: { tagId: { in: ids } } } })
   await prisma.workTag.createMany({
     data: ids.map((tagId) => ({ workId, tagId })),
@@ -197,6 +232,7 @@ async function applyCreatorsToWork(
   const wanted: { creatorId: string; role: string; nameJa?: string }[] = []
   for (const c of creators) {
     const creatorId = await resolveCreatorByName(c.name, c.nameJa)
+    if (!creatorId) continue // 同名主站创作者存在：跳过，避免污染主站创作者
     wanted.push({ creatorId, role: (c.role || "other").trim(), nameJa: c.nameJa })
   }
   // 删除不再出现的创作者

@@ -103,9 +103,12 @@ export default async function TagGroupDetailPage({
       }
     }
   } else if (group.isPreset && group.tags.length === 0) {
-    // 没有标签的预设组（如发现页标签组）→ 显示所有游戏标签
+    // 没有标签的预设组（如发现页标签组）→ 显示所有"已关联已发布游戏"的主站标签
     const allTags = await prisma.tag.findMany({
-      where: { source: "circleica" },
+      where: {
+        source: "circleica",
+        games: { some: { game: { isPublished: true } } },
+      },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: {
         id: true,
@@ -129,17 +132,19 @@ export default async function TagGroupDetailPage({
       isVisible: t.isVisible,
     }))
   } else {
-    // 普通标签组或有标签的预设组
-    tags = group.tags.map((t) => ({
-      id: t.id,
-      name: t.name,
-      color: group.isPreset ? group.color : t.color, // 预设组用组的颜色，普通组用标签自己的颜色
-      gameCount: t._count.games,
-      description: t.description,
-      groupId: t.groupId,
-      sortOrder: t.sortOrder,
-      isVisible: t.isVisible,
-    }))
+    // 普通标签组或有标签的预设组：仅显示"已关联已发布游戏"的成员，避免未发布/无游戏关联的标签串入
+    tags = group.tags
+      .filter((t) => (t._count?.games ?? 0) > 0)
+      .map((t) => ({
+        id: t.id,
+        name: t.name,
+        color: group.isPreset ? group.color : t.color, // 预设组用组的颜色，普通组用标签自己的颜色
+        gameCount: t._count.games,
+        description: t.description,
+        groupId: t.groupId,
+        sortOrder: t.sortOrder,
+        isVisible: t.isVisible,
+      }))
   }
 
   return (

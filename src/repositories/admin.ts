@@ -129,7 +129,9 @@ export const tagGroupRepo = {
   findAll() {
     return prisma.tagGroup.findMany({
       orderBy: { name: "asc" },
-      include: { tags: { select: { id: true, name: true, color: true } } },
+      include: {
+        tags: { where: { source: "circleica" }, select: { id: true, name: true, color: true } },
+      },
     })
   },
   findById(id: string) {

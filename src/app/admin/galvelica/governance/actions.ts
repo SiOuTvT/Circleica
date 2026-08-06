@@ -27,7 +27,11 @@ export async function fixSourceMismatch(formData: FormData) {
     if (!t) throw new NotFoundError("标签")
     const linkedGame = await prisma.gameTag.findFirst({ where: { tagId: id } })
     if (linkedGame) throw new ForbiddenError("该标签已关联主站游戏，不能改为副站来源")
-    await prisma.tag.update({ where: { id }, data: { source: "galvelica" } })
+    // 若该标签仍挂在某个主站标签组（groupId），改 source 前必须清空，否则会以副站来源泄漏进主站分组展示
+    await prisma.tag.update({
+      where: { id },
+      data: { source: "galvelica", groupId: null },
+    })
   }
   revalidatePath("/admin/galvelica/governance")
 }

@@ -209,8 +209,8 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     }>
   } | null
   try {
-    creator = await prisma.creator.findUnique({
-      where: { slug: key },
+    creator = await prisma.creator.findFirst({
+      where: { slug: key, source: "circleica" },
       include: {
         games: {
           where: { game: { isPublished: true } },
