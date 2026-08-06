@@ -40,13 +40,13 @@ export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
           </div>
         )}
         {work.isNsfw && (
-          <span className="absolute right-2 top-2 rounded-md bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span className="absolute right-2 top-2 rounded-md bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1.5 py-0.5 text-micro font-bold text-white">
             NSFW
           </span>
         )}
         {work.doujinCategory && (
           <span
-            className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
+            className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-micro font-bold ${
               work.doujinCategory === "PURE"
                 ? "bg-[color-mix(in_srgb,var(--gal-accent)_14%,transparent)] text-[var(--gal-accent)]"
                 : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"

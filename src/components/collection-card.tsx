@@ -49,7 +49,7 @@ export function CollectionCard({
         {/* 渐变遮罩 */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          <span className="inline-block rounded-full bg-primary/80 px-3 py-0.5 text-[11px] font-medium uppercase tracking-wider text-primary-foreground mb-2">
+          <span className="inline-block rounded-full bg-primary/80 px-3 py-0.5 text-caption font-medium uppercase tracking-wider text-primary-foreground mb-2">
             编辑精选
           </span>
           <h2 className="text-xl font-heading font-semibold text-white sm:text-2xl">
@@ -100,7 +100,7 @@ export function CollectionCard({
             {description}
           </p>
         )}
-        <p className="mt-2 text-[11px] tabular-nums text-muted-foreground/50">
+        <p className="mt-2 text-caption tabular-nums text-muted-foreground/50">
           {count} 部精选
         </p>
       </div>

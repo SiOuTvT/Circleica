@@ -154,7 +154,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
               {data.roles.slice(0, 3).map((r) => (
                 <span
                   key={r}
-                  className="rounded bg-primary/10 px-1.5 py-0 text-[10px] leading-4 text-primary/80"
+                  className="rounded bg-primary/10 px-1.5 py-0 text-micro leading-4 text-primary/80"
                 >
                   {roleLabel(r)}
                 </span>

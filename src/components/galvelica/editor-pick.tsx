@@ -61,14 +61,14 @@ function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-muted sm:aspect-auto">
         <Cover work={work} />
         {work.isNsfw && (
-          <span className="absolute right-2 top-2 rounded-md bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span className="absolute right-2 top-2 rounded-md bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1.5 py-0.5 text-micro font-bold text-white">
             NSFW
           </span>
         )}
       </div>
 
       <div className="flex min-w-0 flex-col justify-center gap-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
+        <p className="text-caption font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
           编辑精选 · Editor&rsquo;s Pick
         </p>
         <h3 className="galvelica-serif text-2xl font-semibold leading-tight text-foreground transition-colors group-hover:text-[var(--gal-accent)] sm:text-3xl">
@@ -106,7 +106,7 @@ function EditorCompact({ work }: { work: GalvelicaWorkCard }) {
       <div className="relative aspect-[3/4] w-16 shrink-0 overflow-hidden rounded-lg bg-muted sm:w-20">
         <Cover work={work} />
         {work.isNsfw && (
-          <span className="absolute right-1 top-1 rounded bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1 py-0.5 text-[9px] font-bold text-white">
+          <span className="absolute right-1 top-1 rounded bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1 py-0.5 text-micro font-bold text-white">
             NSFW
           </span>
         )}

@@ -182,7 +182,7 @@ export default async function MakerDetailPage({
                   </p>
                   <div className="mt-1 flex flex-wrap items-center gap-1">
                     {c.roles.slice(0, 3).map((r) => (
-                      <Tag key={r} className="px-1.5 py-0 text-[10px] leading-4">
+                      <Tag key={r} className="px-1.5 py-0 text-micro leading-4">
                         {ROLE_LABELS[r] || r}
                       </Tag>
                     ))}

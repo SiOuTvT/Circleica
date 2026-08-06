@@ -352,7 +352,7 @@ export function SetupWizard() {
                       <div className={cn("relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all duration-500 shrink-0", done && "bg-[var(--theme-color)] text-[var(--theme-fg)]", active && "border-2 border-[var(--theme-color)]/60 text-[var(--theme-color)]", !done && !active && ("bg-muted border border-border"))} style={active ? { animation: "wiz-glow 2.5s ease-in-out infinite" } : undefined}>
                         {done ? "✓" : s.icon}
                       </div>
-                      <span className={cn("absolute -bottom-5 text-[9px] sm:text-xs whitespace-nowrap transition-colors", active ? "text-[var(--theme-color)] font-medium" : "text-muted-foreground")}>{s.label}</span>
+                      <span className={cn("absolute -bottom-5 text-micro sm:text-xs whitespace-nowrap transition-colors", active ? "text-[var(--theme-color)] font-medium" : "text-muted-foreground")}>{s.label}</span>
                     </div>
                     {i < STEPS.length - 1 && (
                       <div className={cn("flex-1 mx-1 sm:mx-3 h-0.5 rounded-full overflow-clip relative", "bg-muted")}>
@@ -402,7 +402,7 @@ export function SetupWizard() {
                       </div>
                       {/* 显示模式 */}
                       <div className="mt-3">
-                        <p className={cn("text-[11px] mb-1.5", "text-muted-foreground")}>显示模式</p>
+                        <p className={cn("text-caption mb-1.5", "text-muted-foreground")}>显示模式</p>
                         <div className="inline-flex rounded-xl border p-1" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
                           <button type="button" onClick={() => update("logoMode", "full")} className={cn("flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors", form.logoMode === "full" ? "text-[var(--theme-fg)] shadow-sm" : "text-muted-foreground hover:text-foreground")} style={form.logoMode === "full" ? { backgroundColor: "var(--theme-color)" } : undefined}>
                             <BrandLogo brand={wizardFullThumb} className="h-5 w-auto max-w-[88px]" alt="" />
@@ -413,7 +413,7 @@ export function SetupWizard() {
                             仅图标
                           </button>
                         </div>
-                        <p className={cn("text-[11px] mt-1.5", "text-muted-foreground")}>「仅图标」模式三处统一只显示 emblem 符号，不显示站名与自定义图。</p>
+                        <p className={cn("text-caption mt-1.5", "text-muted-foreground")}>「仅图标」模式三处统一只显示 emblem 符号，不显示站名与自定义图。</p>
                       </div>
                     </Field>
                     <Field label="注册策略">
@@ -439,7 +439,7 @@ export function SetupWizard() {
                                 <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all", selected && "ring-2 ring-white/30 scale-110")} style={{ backgroundColor: p.color }}>
                                   {selected && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold drop-shadow">✓</span>}
                                 </div>
-                                <span className={cn("text-[9px] sm:text-[10px] leading-tight text-center", selected ? "text-[var(--theme-color)] font-medium" : "text-muted-foreground")}>{p.label}</span>
+                                <span className={cn("text-micro leading-tight text-center", selected ? "text-[var(--theme-color)] font-medium" : "text-muted-foreground")}>{p.label}</span>
                               </button>
                             )
                           })}
@@ -464,7 +464,7 @@ export function SetupWizard() {
                                   <span className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
                                   <div className="flex-1 min-w-0">
                                     <p className={cn("text-sm font-medium", "text-foreground")}>{g.name}</p>
-                                    <p className={cn("text-[11px]", "text-muted-foreground")}>{g.desc}</p>
+                                    <p className={cn("text-caption", "text-muted-foreground")}>{g.desc}</p>
                                   </div>
                                   <button type="button" className={cn("text-xs px-2.5 py-1 rounded-md transition-all", "bg-muted text-muted-foreground")} onClick={() => setEditingTagGroup(editing ? null : g.id)}>
                                     {editing ? "收起" : "调整"}
@@ -516,7 +516,7 @@ export function SetupWizard() {
                       {form.password.length > 0 && (
                         <div className="flex items-center gap-2 mt-1.5">
                           <div className="flex-1 flex gap-1">{[1, 2, 3, 4].map(i => <div key={i} className={cn("h-1 flex-1 rounded-full transition-all", i <= pwStrength.level ? pwStrength.color : ("bg-muted"))} />)}</div>
-                          <span className={cn("text-[11px] tabular-nums", pwStrength.level <= 1 ? "text-red-400" : pwStrength.level <= 2 ? "text-amber-400" : "text-emerald-400")}>{pwStrength.label}</span>
+                          <span className={cn("text-caption tabular-nums", pwStrength.level <= 1 ? "text-red-400" : pwStrength.level <= 2 ? "text-amber-400" : "text-emerald-400")}>{pwStrength.label}</span>
                         </div>
                       )}
                     </Field>
@@ -525,7 +525,7 @@ export function SetupWizard() {
                         <input className={cn(inputBase, "pr-10")} type={showPw2 ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword", e.target.value)} placeholder="再次输入密码" autoComplete="new-password" />
                         <button type="button" className={cn("absolute right-3 top-1/2 -translate-y-1/2 text-sm", "text-muted-foreground")} onClick={() => setShowPw2(v => !v)} tabIndex={-1}>{showPw2 ? "🙈" : "👁️"}</button>
                       </div>
-                      {form.confirmPassword && form.password !== form.confirmPassword && <p className="text-[11px] text-red-400 mt-1">两次密码不一致</p>}
+                      {form.confirmPassword && form.password !== form.confirmPassword && <p className="text-caption text-red-400 mt-1">两次密码不一致</p>}
                     </Field>
                     <div className={cn("flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-xs", "bg-muted text-muted-foreground border border-border")}>
                       <span className="mt-px shrink-0">🔐</span>
@@ -625,7 +625,7 @@ function Field({ label, required, hint, children }: { label: string; required?: 
         {label}{required && <span className="text-[var(--theme-color)] text-xs">*</span>}
       </label>
       {withLabelableId(children, id)}
-      {hint && <p className={cn("text-[11px]", "text-muted-foreground")}>{hint}</p>}
+      {hint && <p className={cn("text-caption", "text-muted-foreground")}>{hint}</p>}
     </div>
   )
 }
@@ -661,7 +661,7 @@ function PreviewPanel({ form, logoPreview }: {
       <div className="p-3 space-y-3">
         {/* 主题色预览：真实 Button / Input / 链接 */}
         <div className="space-y-2.5">
-          <p className={cn("text-[10px] uppercase tracking-wider", "text-muted-foreground")}>主题色效果</p>
+          <p className={cn("text-micro uppercase tracking-wider", "text-muted-foreground")}>主题色效果</p>
           <div className="flex flex-wrap gap-2">
             <Button variant="default" size="sm">主要按钮</Button>
             <Button variant="outline" size="sm">次要按钮</Button>
@@ -680,7 +680,7 @@ function PreviewPanel({ form, logoPreview }: {
 
         {/* 标签色预览：与后台 admin/tags 相同样式 */}
         <div className="space-y-2">
-          <p className={cn("text-[10px] uppercase tracking-wider", "text-muted-foreground")}>标签分类效果</p>
+          <p className={cn("text-micro uppercase tracking-wider", "text-muted-foreground")}>标签分类效果</p>
           <div className="flex flex-wrap gap-1.5">
             {PRESET_TAG_GROUPS.map(g => {
               const c = form.tagGroupColors[g.id] || g.color
@@ -691,10 +691,10 @@ function PreviewPanel({ form, logoPreview }: {
               )
             })}
           </div>
-          <p className={cn("text-[9px]", "text-muted-foreground")}>首页卡片 · 详情页 · 发现页 · 资源</p>
+          <p className={cn("text-micro", "text-muted-foreground")}>首页卡片 · 详情页 · 发现页 · 资源</p>
         </div>
       </div>
-      <div className={cn("flex items-center justify-center h-6 border-t text-[9px]", "text-muted-foreground border border-border")}>
+      <div className={cn("flex items-center justify-center h-6 border-t text-micro", "text-muted-foreground border border-border")}>
         {form.siteName || "Circleica"} · 资源大厅
       </div>
     </div>

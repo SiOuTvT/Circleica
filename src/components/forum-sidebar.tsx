@@ -80,7 +80,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
 
         {/* 分类快捷导航 */}
         <div className="border-b border-border px-3 py-3 lg:px-4">
-          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/70">分类</p>
+          <p className="mb-2 text-caption font-medium uppercase tracking-[0.15em] text-muted-foreground/70">分类</p>
           <div className="flex flex-wrap gap-1.5">
             {FORUM_CATEGORIES.map((cat) => (
               <Link
@@ -99,7 +99,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         {/* 最新动态 */}
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex items-center px-3 pt-3 lg:px-4">
-            <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/70">最新</p>
+            <p className="text-caption font-medium uppercase tracking-[0.15em] text-muted-foreground/70">最新</p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 lg:px-3 lg:py-2">
             {open && <ForumSidebarPosts />}

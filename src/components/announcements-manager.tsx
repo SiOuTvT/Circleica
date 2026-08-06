@@ -292,7 +292,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             <p className="text-xs text-muted-foreground font-medium">
               共 {anns.length} 条公告
             </p>
-            <p className="text-[11px] text-muted-foreground/60">拖拽排序</p>
+            <p className="text-caption text-muted-foreground/60">拖拽排序</p>
           </div>
 
           {anns.length === 0 && (
@@ -319,7 +319,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                   <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border/50">
                     {ann.imageUrl
                       ? <Image src={ann.imageUrl} alt="" width={56} height={32} className="w-full h-full object-cover" unoptimized />
-                      : <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground/40">🎮</div>}
+                      : <div className="w-full h-full flex items-center justify-center text-micro text-muted-foreground/40">🎮</div>}
                   </div>
 
                   {/* 信息 */}
@@ -336,7 +336,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     ) : (
                       <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{ann.summary || stripHtml(ann.content)}</p>
                     )}
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground/60">
+                    <div className="flex items-center gap-2 mt-1 text-caption text-muted-foreground/60">
                       <span>{formatMonthDay(ann.createdAt)}</span>
                       {ann.content.length > 100 && (
                         <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
@@ -402,7 +402,7 @@ function Field({ label, required, hint, children }: {
         {label}{required && <span className="text-primary">*</span>}
       </label>
       {withLabelableId(children, id)}
-      {hint && <p className="text-[11px] text-muted-foreground/50">{hint}</p>}
+      {hint && <p className="text-caption text-muted-foreground/50">{hint}</p>}
     </div>
   )
 }
@@ -443,7 +443,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
         <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {ann.isPinned && (
           <div className="absolute top-2.5 left-2.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-foreground shadow-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-micro font-medium text-primary-foreground shadow-1">
               <Pin className="h-2.5 w-2.5" /> 置顶
             </span>
           </div>
@@ -454,8 +454,8 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
         <div className="backdrop-blur-md bg-black/35 rounded-lg ring-1 ring-white/[0.08] px-3 py-2.5 space-y-1.5">
           {/* 作者行 */}
           <div className="flex items-center gap-1.5">
-            <div className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center text-[9px] font-bold text-white/70">F</div>
-            <span className="text-[11px] font-medium text-white/80">Circleica</span>
+            <div className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center text-micro font-bold text-white/70">F</div>
+            <span className="text-caption font-medium text-white/80">Circleica</span>
           </div>
           {/* 标题 */}
           <h3 className="font-bold text-white text-sm leading-snug line-clamp-1">
@@ -463,10 +463,10 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
           </h3>
           {/* 摘要 */}
           {summary && (
-            <p className="text-[11px] text-white/60 line-clamp-1 leading-relaxed">{summary}</p>
+            <p className="text-caption text-white/60 line-clamp-1 leading-relaxed">{summary}</p>
           )}
           {/* 查看详情 */}
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-white/70">
+          <span className="inline-flex items-center gap-0.5 text-micro font-medium text-white/70">
             查看详情 <span>→</span>
           </span>
         </div>

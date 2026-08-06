@@ -137,7 +137,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             {!collapsed && (
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-[15px] tracking-wide">Galvelica</span>
-                <span className="truncate text-[10px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
+                <span className="truncate text-micro font-normal text-muted-foreground/70">同人视觉小说资料库</span>
               </span>
             )}
           </Link>

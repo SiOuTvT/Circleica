@@ -1537,6 +1537,10 @@ svg {
 /* ═══ DS v2 Typography Token ═══ */
 /* 微型文字：badge 计数、caption、元数据标签 */
 .text-micro { font-size: 10px; line-height: 1.4; }
+/* 小标签 / kicker / 辅助说明 / 元信息：11px / 1.4（.text-micro 的上一档）
+   仅定尺寸与行高；字重 / 字距 / 颜色由各处 inline 工具类组合，保持原观感。
+   Phase 8 收口 text-[11px] 散点魔法字号用。 */
+.text-caption { font-size: 11px; line-height: 1.4; }
 
 /* ═══ 审计修复：tabular-nums 数字统一 ═══ */
 .num-tab {

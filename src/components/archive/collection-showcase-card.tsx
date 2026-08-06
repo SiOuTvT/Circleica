@@ -64,7 +64,7 @@ export function CollectionShowcaseCard({
 
       {/* 右：信息 */}
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-5 pl-4 pr-5">
-        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-primary/70">
+        <span className="text-caption font-medium uppercase tracking-[0.14em] text-primary/70">
           精选合集
         </span>
         <h3 className="truncate font-heading text-base font-semibold text-foreground transition-colors group-hover:text-primary">

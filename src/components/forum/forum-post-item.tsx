@@ -38,7 +38,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
         <span className="text-xs text-muted-foreground/60 shrink-0">·</span>
         <span className="text-xs text-muted-foreground/60 shrink-0">{timeAgo(post.createdAt)}</span>
         {post.updatedAt !== post.createdAt && (
-          <span className="text-[11px] text-muted-foreground/50 shrink-0">(已编辑)</span>
+          <span className="text-caption text-muted-foreground/50 shrink-0">(已编辑)</span>
         )}
         <Tag variant="badge" className={cn(
           "ml-auto shrink-0",

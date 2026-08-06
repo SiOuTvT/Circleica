@@ -41,7 +41,7 @@ export default async function GalvelicaHome() {
           style={{ background: "linear-gradient(90deg, transparent, var(--gal-accent), transparent)" }}
           aria-hidden
         />
-        <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
           Archive · 资料库
         </p>
         <h1 className="galvelica-h1--hero mt-3">

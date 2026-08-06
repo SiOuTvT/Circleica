@@ -12,7 +12,7 @@ import type { FeaturedTheme, GalvelicaWorkCard } from "@/lib/galvelica"
 export function CuratorNote() {
   return (
     <section className="mx-auto max-w-2xl text-center">
-      <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
+      <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
         本馆札记 · Curator&rsquo;s Note
       </p>
       <p className="galvelica-serif mt-4 text-lg leading-loose text-foreground/90 sm:text-xl">
@@ -55,14 +55,14 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
           </div>
         )}
         {work.isNsfw && (
-          <span className="absolute right-1 top-1 rounded bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1 py-0.5 text-[9px] font-bold text-white">
+          <span className="absolute right-1 top-1 rounded bg-[color-mix(in_srgb,var(--clr-rose)_85%,transparent)] px-1 py-0.5 text-micro font-bold text-white">
             NSFW
           </span>
         )}
       </div>
 
       <div className="flex min-w-0 flex-col justify-center gap-1.5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
+        <p className="text-caption font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
           今日宜读 · {today}
         </p>
         <h3 className="galvelica-serif text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-[var(--gal-accent)] sm:text-xl">
@@ -99,7 +99,7 @@ export function FeaturedThemes({ themes }: { themes: FeaturedTheme[] }) {
           href={t.href}
           className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)]"
         >
-          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground/70">{t.kicker}</p>
+          <p className="text-caption font-medium uppercase tracking-[0.24em] text-muted-foreground/70">{t.kicker}</p>
           <h3 className="galvelica-serif text-lg font-semibold text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
             {t.title}
           </h3>

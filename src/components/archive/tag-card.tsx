@@ -37,11 +37,11 @@ export function TagCard({ tag, className }: TagCardProps) {
           <span className="truncate text-sm font-medium text-foreground transition-colors group-hover:text-primary">
             {tag.name}
           </span>
-          <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground/70">
+          <span className="shrink-0 text-caption tabular-nums text-muted-foreground/70">
             {tag.gameCount}
           </span>
         </div>
-        <p className="truncate text-[11px] text-muted-foreground/60">{tag.group.name}</p>
+        <p className="truncate text-caption text-muted-foreground/60">{tag.group.name}</p>
       </div>
     </Link>
   )
