@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
@@ -73,16 +73,15 @@ export default async function AdminReviewPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="REVIEW QUEUE"
-        title="审核队列"
-        description={
-          <span className="mt-0 inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {total} 个待审核
-          </span>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="REVIEW QUEUE"
+      title="审核队列"
+      description={
+        <span className="mt-0 inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+          {total} 个待审核
+        </span>
+      }
+    >
 
       {games.length === 0 ? (
         <EmptyState icon={CheckCircle} title="没有待审核的游戏" bordered />
@@ -118,6 +117,6 @@ export default async function AdminReviewPage({
       )}
 
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/review" />
-    </div>
+    </AdminPageContainer>
   )
 }

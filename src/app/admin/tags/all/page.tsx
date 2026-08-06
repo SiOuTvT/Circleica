@@ -5,8 +5,7 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AllTagsClient } from "./client"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { AdminBackLink } from "@/components/admin/admin-back-link"
 
 export default async function AllTagsPage({
   searchParams,
@@ -92,15 +91,7 @@ export default async function AllTagsPage({
       eyebrow="TAGS"
       title="全部标签"
       description={`共 ${total} 个标签`}
-      actions={
-        <Link
-          href="/admin/tags"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10 hover:bg-muted cursor-pointer"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          返回
-        </Link>
-      }
+      actions={<AdminBackLink href="/admin/tags" label="返回" />}
     >
       <AllTagsClient
         tags={tags}

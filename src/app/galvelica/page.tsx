@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Section } from "@/components/galvelica/section"
 import { EditorPicks } from "@/components/galvelica/editor-pick"
 import { CuratorNote, DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
+import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 
@@ -29,7 +30,7 @@ export default async function GalvelicaHome() {
   ])
 
   return (
-    <div className="space-y-10 sm:space-y-14">
+    <div className="space-y-10 sm:space-y-12">
       {/* ── Hero：档案馆沉浸式入口（保留）── */}
       <section
         className="relative overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] p-7 sm:p-11"
@@ -43,7 +44,7 @@ export default async function GalvelicaHome() {
         <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
           Archive · 资料库
         </p>
-        <h1 className="galvelica-serif mt-3 text-3xl font-semibold leading-tight text-foreground sm:text-[2.6rem]">
+        <h1 className="galvelica-h1--hero mt-3">
           同人视觉小说档案馆
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
@@ -51,21 +52,7 @@ export default async function GalvelicaHome() {
           供你沉浸地浏览与发现——而非下载。每一次打开，都是一次归档式的漫游。
         </p>
 
-        <form action="/galvelica/works" method="get" className="mt-6 flex max-w-md gap-2">
-          <input
-            type="search"
-            name="search"
-            placeholder="搜索作品、社团或原作…"
-            className="min-w-0 flex-1 rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
-            aria-label="搜索作品"
-          />
-          <button
-            type="submit"
-            className="shrink-0 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90"
-          >
-            检索
-          </button>
-        </form>
+        <GalvelicaSearch className="mt-6 flex max-w-md gap-2" submitLabel="检索" />
 
         <Link
           href="/galvelica/random"

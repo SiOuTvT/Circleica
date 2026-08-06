@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
+import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { getTagById, listWorks } from "@/lib/galvelica"
 
 export const dynamic = "force-dynamic"
@@ -35,12 +35,10 @@ export default async function GalvelicaTagDetail({
   if (!tag) notFound()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <Link href="/galvelica/tags" className="galvelica-navlink inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium">
-          ← 全部标签
-        </Link>
-        <h1 className="galvelica-serif mt-3 text-2xl font-semibold text-foreground">
+        <GalvelicaBackLink href="/galvelica/tags" label="标签索引" />
+        <h1 className="galvelica-h1 mt-3">
           标签：{tag.name}
           {tag.groupName && <span className="ml-2 text-base font-normal text-muted-foreground">（{tag.groupName}）</span>}
         </h1>

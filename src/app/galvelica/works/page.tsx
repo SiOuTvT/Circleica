@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
+import type { CSSProperties } from "react"
 import Link from "next/link"
 import { WorkGrid } from "@/components/galvelica/work-card"
+import { Pager } from "@/components/galvelica/pager"
+import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { listWorks, getPopularTags, type GalvelicaSort } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 
@@ -81,9 +84,9 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
   const hasFilters = !!(search || year || studio || tags.length)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="galvelica-serif text-2xl font-semibold text-foreground">作品档案</h1>
+        <h1 className="galvelica-h1">作品档案</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           共收录 {result.total} 部作品
           {hasFilters && (
@@ -95,25 +98,12 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
       </div>
 
       {/* 搜索 */}
-      <form action="/galvelica/works" method="get" className="flex gap-2">
-        <input type="hidden" name="tags" value={tags.join(",")} />
-        {year && <input type="hidden" name="year" value={String(year)} />}
-        {studio && <input type="hidden" name="studio" value={encodeURIComponent(studio)} />}
-        <input
-          type="search"
-          name="search"
-          defaultValue={search ?? ""}
-          placeholder="搜索作品、社团或原作…"
-          className="min-w-0 flex-1 rounded-xl border border-input bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
-          aria-label="搜索作品"
-        />
-        <button
-          type="submit"
-          className="shrink-0 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90"
-        >
-          检索
-        </button>
-      </form>
+      <GalvelicaSearch
+        className="flex gap-2"
+        defaultValue={search ?? ""}
+        hiddenFields={{ tags: tags.join(",") || undefined, year: year ? String(year) : undefined, studio: studio ? encodeURIComponent(studio) : undefined }}
+        submitLabel="检索"
+      />
 
       {/* 排序 */}
       <div className="flex flex-wrap gap-1.5">
@@ -140,6 +130,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
                 key={t.id}
                 href={toggleTag(t.id)}
                 data-active={active}
+                style={{ "--gal-tag-color": t.color } as CSSProperties}
                 className={
                   active
                     ? "inline-flex items-center gap-1 rounded-md border border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] bg-[var(--gal-accent-soft)] px-2.5 py-1.5 text-xs font-medium text-[var(--gal-accent)]"
@@ -176,7 +167,12 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
           {tags.map((id) => {
             const t = popularTags.find((p) => p.id === id)
             return (
-              <Link key={id} href={toggleTag(id)} className="galvelica-tag rounded-md px-2 py-1">
+              <Link
+                key={id}
+                href={toggleTag(id)}
+                className="galvelica-tag rounded-md px-2 py-1"
+                style={t?.color ? ({ "--gal-tag-color": t.color } as CSSProperties) : undefined}
+              >
                 #{t?.name ?? id} ✕
               </Link>
             )
@@ -188,27 +184,12 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
       <WorkGrid works={result.items} priorityCount={5} />
 
       {/* 分页 */}
-      {result.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          {result.page > 1 ? (
-            <Link href={makeHref({ page: String(result.page - 1) })} className="galvelica-navlink rounded-lg px-4 py-2 text-sm font-medium">
-              ← 上一页
-            </Link>
-          ) : (
-            <span className="rounded-lg px-4 py-2 text-sm text-muted-foreground/40">← 上一页</span>
-          )}
-          <span className="text-sm tabular-nums text-muted-foreground">
-            {result.page} / {result.totalPages}
-          </span>
-          {result.page < result.totalPages ? (
-            <Link href={makeHref({ page: String(result.page + 1) })} className="galvelica-navlink rounded-lg px-4 py-2 text-sm font-medium">
-              下一页 →
-            </Link>
-          ) : (
-            <span className="rounded-lg px-4 py-2 text-sm text-muted-foreground/40">下一页 →</span>
-          )}
-        </div>
-      )}
+      <Pager
+        basePath="/galvelica/works"
+        query={{ search, year: year ? String(year) : undefined, studio: studio ? encodeURIComponent(studio) : undefined, sort, tags: tags.join(",") || undefined }}
+        page={result.page}
+        totalPages={result.totalPages}
+      />
     </div>
   )
 }

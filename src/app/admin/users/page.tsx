@@ -3,9 +3,8 @@ import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { Search } from "lucide-react"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
 import dynamic from "next/dynamic"
 
 const UsersManager = dynamic(() => import("@/components/users-manager").then(m => ({ default: m.UsersManager })), {
@@ -77,18 +76,12 @@ export default async function AdminUsersPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="USERS"
-        title="用户管理"
-        description={`共 ${total} 个用户`}
-        action={
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索用户…" aria-label="搜索用户" className={adminSearchInput} />
-          </form>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="USERS"
+      title="用户管理"
+      description={`共 ${total} 个用户`}
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索用户…" />}
+    >
       <UsersManager initialUsers={users} />
       <Pagination
         currentPage={page}
@@ -96,6 +89,6 @@ export default async function AdminUsersPage({
         baseUrl="/admin/users"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

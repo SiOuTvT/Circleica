@@ -14,16 +14,16 @@ export default async function GalvelicaStudios() {
   const studios = await getStudios()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="galvelica-serif text-2xl font-semibold text-foreground">社团索引</h1>
+        <h1 className="galvelica-h1">社团索引</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {studios.length} 个社团。</p>
       </div>
 
       {studios.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的社团。</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {studios.map(({ name, count }) => (
             <Link
               key={name}

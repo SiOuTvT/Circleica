@@ -25,7 +25,7 @@ export default async function GalvelicaTags() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="galvelica-serif text-2xl font-semibold text-foreground">标签浏览</h1>
+        <h1 className="galvelica-h1">标签浏览</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           共 {tags.length} 个标签。沿题材、世界观、社团、作者、角色属性、CP、年份与平台自由探索。
         </p>
@@ -33,7 +33,7 @@ export default async function GalvelicaTags() {
 
       {ordered.map(([group, list]) => (
         <section key={group}>
-          <h2 className="galvelica-serif mb-3 text-lg font-semibold text-foreground">{group}</h2>
+          <h2 className="galvelica-h3 mb-3">{group}</h2>
           <TagCloud tags={list} />
         </section>
       ))}

@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
+import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { listWorks } from "@/lib/galvelica"
 
 export const dynamic = "force-dynamic"
@@ -36,12 +36,10 @@ export default async function GalvelicaYearDetail({
   const result = await listWorks({ year: y, page })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <Link href="/galvelica/years" className="galvelica-navlink inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium">
-          ← 年份索引
-        </Link>
-        <h1 className="galvelica-serif mt-3 text-2xl font-semibold text-foreground">{y} 年</h1>
+        <GalvelicaBackLink href="/galvelica/years" label="年份索引" />
+        <h1 className="galvelica-h1 mt-3">{y} 年</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {result.total} 部作品</p>
       </div>
 
