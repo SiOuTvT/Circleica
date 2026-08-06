@@ -4,7 +4,8 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Inbox, Upload, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
@@ -71,21 +72,20 @@ export default async function InclusionRequestsAdmin() {
   const pendingDrafts = drafts.filter((r) => r.work.gameId && !r.work.game?.isPublished)
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="INCLUSION REQUESTS"
-        title="收录申请 · 待发布草稿"
-        description="用户提交收录申请后，系统已自动用融合字段建好未发布资源草稿。你在这里批量发布或删除即可——无需逐条调研。"
-        action={
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 ring-1 ring-violet-500/20">
-            <Inbox className="h-3.5 w-3.5" strokeWidth={2} />
-            Galvelica → Circleica
-          </span>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="INCLUSION REQUESTS"
+      title="收录申请 · 待发布草稿"
+      description="用户提交收录申请后，系统已自动用融合字段建好未发布资源草稿。你在这里批量发布或删除即可——无需逐条调研。"
+      actions={
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 ring-1 ring-violet-500/20">
+          <Inbox className="h-3.5 w-3.5" strokeWidth={2} />
+          Galvelica → Circleica
+        </span>
+      }
+    >
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground">待发布草稿（{pendingDrafts.length}）</h2>
+        <AdminSectionHeading>待发布草稿（{pendingDrafts.length}）</AdminSectionHeading>
         {pendingDrafts.length === 0 ? (
           <EmptyState icon={Inbox} title="暂无待发布的草稿" description="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。" />
         ) : (
@@ -142,7 +142,7 @@ export default async function InclusionRequestsAdmin() {
 
       {history.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-foreground">已删除草稿（历史）</h2>
+          <AdminSectionHeading>已删除草稿（历史）</AdminSectionHeading>
           <div className="space-y-3">
             {history.map((r) => (
               <Card key={r.id} size="default" radius="xl" className="flex-row items-center gap-4">
@@ -161,6 +161,6 @@ export default async function InclusionRequestsAdmin() {
           </div>
         </section>
       )}
-    </div>
+    </AdminPageContainer>
   )
 }

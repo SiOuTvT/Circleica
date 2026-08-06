@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Flag } from "lucide-react"
@@ -83,21 +85,19 @@ export default async function AdminReportsPage({
     : reports.map(r => r.game) // 直接使用举报列表中的游戏信息
 
   return (
-    <div className="space-y-6">
-      {/* 标题 + 搜索 */}
-      <AdminPageHeader
-        eyebrow="REPORTS"
-        title="举报管理"
-        description={
-          <Badge variant="secondary" size="lg">{total} 条举报</Badge>
-        }
-        action={<ReportSearchForm initialQ={q} />}
-      />
+    <AdminPageContainer
+      eyebrow="REPORTS"
+      title="举报管理"
+      description={
+        <Badge variant="secondary" size="lg">{total} 条举报</Badge>
+      }
+      actions={<ReportSearchForm initialQ={q} />}
+    >
 
       {/* 举报最多的游戏概览 */}
       {topGames.length > 0 && !q && (
         <Card size="default" radius="xl">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">举报最多的游戏</h2>
+          <AdminSectionHeading>举报最多的游戏</AdminSectionHeading>
           <div className="flex flex-wrap gap-2">
             {topReportedGames.map((item) => {
               // 优先从举报列表中获取游戏信息，否则从补充查询中获取
@@ -155,9 +155,7 @@ export default async function AdminReportsPage({
                     {report.game.title}
                   </Link>
                   {!report.game.isPublished && (
-                    <span className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-micro font-medium text-amber-400">
-                      未发布
-                    </span>
+                    <AdminStatusBadge tone="warning">未发布</AdminStatusBadge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground break-all">
@@ -182,6 +180,6 @@ export default async function AdminReportsPage({
         baseUrl="/admin/reports"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

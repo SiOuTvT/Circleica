@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ChevronUp, Loader2, Plus, Save, Tags, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
@@ -91,34 +91,32 @@ export default function ResourceTagsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <AdminPageHeader eyebrow="RESOURCE TAGS" title="资源标签管理" />
+      <AdminPageContainer eyebrow="RESOURCE TAGS" title="资源标签管理">
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
-      </div>
+      </AdminPageContainer>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        eyebrow="RESOURCE TAGS"
-        title="资源标签管理"
-        description="管理发布资源时可选的平台、语言、运行方式等标签"
-        action={
-          <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-            ) : (
-              <Save className="h-4 w-4 mr-1.5" />
-            )}
-            保存修改
-          </Button>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="RESOURCE TAGS"
+      title="资源标签管理"
+      description="管理发布资源时可选的平台、语言、运行方式等标签"
+      actions={
+        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+          ) : (
+            <Save className="h-4 w-4 mr-1.5" />
+          )}
+          保存修改
+        </Button>
+      }
+    >
 
       <div className="grid gap-6 lg:grid-cols-2">
         {groups.map(g => (
@@ -173,6 +171,6 @@ export default function ResourceTagsPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </AdminPageContainer>
   )
 }

@@ -4,9 +4,9 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { Download, Plus, Search } from "lucide-react"
+import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
+import { Download, Plus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
@@ -76,33 +76,28 @@ export default async function AdminGamesPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="space-y-6">
-      {/* ── 页面标题 ── */}
-      <AdminPageHeader
-        eyebrow="GAMES"
-        title="游戏管理"
-        description={`共 ${total} 个游戏，${published} 已发布，${draft} 草稿`}
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            <form method="get" className="relative w-full sm:w-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-              <input name="q" defaultValue={q} placeholder="搜索游戏…" aria-label="搜索游戏" className={adminSearchInput} />
-            </form>
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/admin/games/import">
-                <Download className="h-4 w-4 shrink-0" strokeWidth={2} />
-                VNDB 导入
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/admin/games/new">
-                <Plus className="h-4 w-4 shrink-0" strokeWidth={2} />
-                新增游戏
-              </Link>
-            </Button>
-          </div>
-        }
-      />
+    <AdminPageContainer
+      eyebrow="GAMES"
+      title="游戏管理"
+      description={`共 ${total} 个游戏，${published} 已发布，${draft} 草稿`}
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <AdminSearch name="q" defaultValue={q} placeholder="搜索游戏…" />
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/admin/games/import">
+              <Download className="h-4 w-4 shrink-0" strokeWidth={2} />
+              VNDB 导入
+            </Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/admin/games/new">
+              <Plus className="h-4 w-4 shrink-0" strokeWidth={2} />
+              新增游戏
+            </Link>
+          </Button>
+        </div>
+      }
+    >
 
       <AdminGamesTable games={games} />
 
@@ -112,6 +107,6 @@ export default async function AdminGamesPage({
         baseUrl="/admin/games"
         extraParams={q ? { q } : undefined}
       />
-    </div>
+    </AdminPageContainer>
   )
 }

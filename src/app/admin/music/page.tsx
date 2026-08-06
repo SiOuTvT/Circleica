@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin"
 import { Pagination } from "@/components/ui/pagination"
-import { AdminPageHeader } from "@/components/admin/admin-page-header"
+import { AdminPageContainer } from "@/components/admin-page-container"
 import { prisma } from "@/lib/prisma"
 import dynamic from "next/dynamic"
 
@@ -29,10 +29,9 @@ export default async function AdminMusicPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div className="w-full space-y-6">
-      <AdminPageHeader eyebrow="MUSIC" title="音乐管理" />
+    <AdminPageContainer eyebrow="MUSIC" title="音乐管理" className="w-full">
       <MusicManager initialMusic={music} />
       <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/music" />
-    </div>
+    </AdminPageContainer>
   )
 }
