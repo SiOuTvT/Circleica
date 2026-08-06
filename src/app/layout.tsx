@@ -86,18 +86,30 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const themeColor = await getSiteSetting("themeColor", "#4C7E96")
   const t = resolveThemeTokens(themeColor)
   const themeStyle = `:root{--primary:${t.primary};--theme-color:${t.primary};--theme-color-hover:${t.primary};--theme-color-active:${t.primary};--clr-blue:${t.primary};--clr-sky:${t.accent};--ring:${t.ring};--clr-glow:${t.glow};}`
+  // 内联 <html> style：元素内联样式优先级高于任何 :root 规则（含 globals.css 默认薄荷绿），
+  // 首帧即正确主题色，彻底摆脱 <head> 级联顺序依赖，消除主题闪烁（FOUC）。
+  const themeVars = {
+    "--primary": t.primary,
+    "--theme-color": t.primary,
+    "--theme-color-hover": t.primary,
+    "--theme-color-active": t.primary,
+    "--clr-blue": t.primary,
+    "--clr-sky": t.accent,
+    "--ring": t.ring,
+    "--clr-glow": t.glow,
+  } as React.CSSProperties
 
   // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard
   // 这样 Setup 中的 signIn() 可以正常工作
   if (!initialized) {
     return (
-    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="zh-CN" className="h-full antialiased" style={themeVars} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
         <ThemeScript />
       </head>
         <body className="min-h-screen bg-background text-foreground">
-          <Providers>
+          <Providers themeColor={themeColor}>
             <div className="min-h-screen flex items-center justify-center p-4">
               <SetupWizard />
             </div>
@@ -111,7 +123,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const [logoMode, siteLogo] = await Promise.all([getLogoMode(), getSiteLogo()])
 
   return (
-    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="zh-CN" className="h-full antialiased" style={themeVars} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
         <ThemeScript />
@@ -130,7 +142,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           shadow="0 0 10px var(--primary),0 0 5px var(--primary)"
           zIndex={9999}
         />
-        <Providers>
+        <Providers themeColor={themeColor}>
           <LayoutWrapper siteName={siteName} logoMode={logoMode} siteLogo={siteLogo}>
             {children}
           </LayoutWrapper>

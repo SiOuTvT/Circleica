@@ -59,8 +59,13 @@ function doApply(s: FullThemeSettings) {
   document.documentElement.style.setProperty("--theme-alpha", `${(s.themeAlpha ?? 15)}%`)
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<FullThemeSettings>(DEFAULT_SETTINGS)
+export function ThemeProvider({ children, initialThemeColor }: { children: ReactNode; initialThemeColor?: string }) {
+  // 初值对齐服务端下发的主题色（layout.tsx 已通过 <html> 内联 style 直出），
+  // 避免水合前用 DEFAULT_SETTINGS 错值经 MutationObserver 重画一帧导致闪烁。
+  const [settings, setSettings] = useState<FullThemeSettings>({
+    ...DEFAULT_SETTINGS,
+    themeColor: initialThemeColor ?? DEFAULT_SETTINGS.themeColor,
+  })
   const [, setLoaded] = useState(false)
 
   // Fetch from server on mount；API 为权威来源，localStorage 仅作 API 不可达时的回退

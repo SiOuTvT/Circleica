@@ -3,10 +3,10 @@ import { SessionProvider } from "next-auth/react"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "./theme-provider"
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children, themeColor }: { children: React.ReactNode; themeColor?: string }) {
   return (
     <SessionProvider>
-      <ThemeProvider>
+      <ThemeProvider initialThemeColor={themeColor}>
         {children}
         <Toaster
           position="top-center"
