@@ -779,6 +779,9 @@ enum WorkSourceType {
   YMGAL
   EROGESCAPE
   DLSITE
+  GETCHU
+  FUWANOVEL
+  BOOTH
   STEAM
   MANUAL
 }

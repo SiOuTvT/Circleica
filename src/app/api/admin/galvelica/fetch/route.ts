@@ -11,9 +11,6 @@ import { logger } from "@/lib/logger"
 export const runtime = "nodejs"
 export const maxDuration = 300
 
-/** 国内源：按用户策略默认锁定，不可通过手动拉取页触发 */
-const DOMESTIC_SOURCES: SourceKey[] = ["CNGL", "YMGAL", "BANGUMI"]
-
 export const POST = withHandler(async (req) => {
   await requireAdminRole()
 
@@ -34,14 +31,11 @@ export const POST = withHandler(async (req) => {
     throw new AppError("请提供作品 ID 列表", "VALIDATION_ERROR", 422)
   }
 
-  // 校验源合法且非国内锁定
+  // 校验源合法：未注册（含已移除的国内源）一律拒绝
   const requested = sources as SourceKey[]
   for (const s of requested) {
     if (!getAdapter(s)) {
       throw new AppError(`未知或不支持的源：${String(s)}`, "VALIDATION_ERROR", 422)
-    }
-    if (DOMESTIC_SOURCES.includes(s)) {
-      throw new AppError(`国内源 ${String(s)} 已按策略锁定，不可手动拉取`, "VALIDATION_ERROR", 422)
     }
   }
 

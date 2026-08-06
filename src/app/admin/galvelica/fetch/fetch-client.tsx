@@ -1,22 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Download, ShieldAlert, Loader2, CheckCircle2, XCircle } from "lucide-react"
+import { Download, Loader2, CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-/** 源分类：与后端 routes/api/admin/galvelica/fetch 保持一致 */
-type SourceKey = "VNDB" | "EROGESCAPE" | "STEAM" | "CNGL" | "YMGAL" | "BANGUMI"
+/** 源分类：与后端 routes/api/admin/galvelica/fetch 保持一致（仅海外源） */
+type SourceKey = "VNDB" | "EROGESCAPE" | "STEAM" | "DLSITE" | "GETCHU" | "FUWANOVEL" | "BOOTH"
 
-const FOREIGN_SOURCES: { key: SourceKey; label: string; note: string }[] = [
-  { key: "VNDB", label: "VNDB", note: "国际视觉小说库（主源）" },
-  { key: "EROGESCAPE", label: "ErogameScape", note: "日本 galge 库，需服务器出口代理" },
+const SOURCES: { key: SourceKey; label: string; note: string }[] = [
+  { key: "VNDB", label: "VNDB", note: "国际视觉小说库（主源·自动增量）" },
   { key: "STEAM", label: "Steam", note: "商店源（发现层）" },
-]
-
-const DOMESTIC_SOURCES: { key: SourceKey; label: string; note: string }[] = [
-  { key: "CNGL", label: "CnGal", note: "国内源 · 已锁定" },
-  { key: "YMGAL", label: "月幕 Galgame", note: "国内源 · 已锁定" },
-  { key: "BANGUMI", label: "Bangumi", note: "国内源 · 已锁定" },
+  { key: "EROGESCAPE", label: "ErogameScape", note: "日本 galge 库，需服务器出口代理" },
+  { key: "DLSITE", label: "DLsite", note: "抓取型·手动补查（R-18 注意）" },
+  { key: "GETCHU", label: "Getchu", note: "抓取型·手动补查" },
+  { key: "FUWANOVEL", label: "Fuwanovel", note: "抓取型·手动补查" },
+  { key: "BOOTH", label: "Pixiv BOOTH", note: "抓取型·需 Pixiv token" },
 ]
 
 interface FetchResult {
@@ -97,9 +95,9 @@ export function GalvelicaFetchClient() {
       {/* 源选择 */}
       <section className="rounded-xl border border-border bg-card p-5">
         <h3 className="text-sm font-semibold text-foreground">拉取源</h3>
-        <p className="mt-1 text-xs text-muted-foreground">国外源默认可用；国内源按策略锁定，不可手动触发。</p>
+        <p className="mt-1 text-xs text-muted-foreground">以下为已接入的海外数据源；国内源已按计划彻底移除，不再提供任何入口。</p>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {FOREIGN_SOURCES.map((s) => {
+          {SOURCES.map((s) => {
             const on = selected.includes(s.key)
             return (
               <button
@@ -121,20 +119,6 @@ export function GalvelicaFetchClient() {
               </button>
             )
           })}
-        </div>
-        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {DOMESTIC_SOURCES.map((s) => (
-            <div
-              key={s.key}
-              className="flex cursor-not-allowed items-start gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-3 opacity-60"
-            >
-              <ShieldAlert className="mt-0.5 h-4 w-4 text-muted-foreground" />
-              <span>
-                <span className="block text-sm font-medium text-foreground">{s.label}</span>
-                <span className="block text-xs text-muted-foreground">{s.note}</span>
-              </span>
-            </div>
-          ))}
         </div>
       </section>
 
