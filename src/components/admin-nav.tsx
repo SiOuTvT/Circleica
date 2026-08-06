@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
+  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
   Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
@@ -21,6 +21,8 @@ interface NavItem {
   label: string
   href: string
   minRole: UserRole
+  /** 栏目归属：circleica=主站 / galvelica=副站；省略=主副站都显示（全局配置类） */
+  site?: "circleica" | "galvelica"
 }
 
 interface NavGroup {
@@ -31,57 +33,61 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     items: [
-      { icon: LayoutDashboard, label: "仪表盘", href: "/admin", minRole: "ADMIN" },
-      { icon: ClipboardCheck, label: "审核队列", href: "/admin/review", minRole: "ADMIN" },
-      { icon: Inbox, label: "收录申请", href: "/admin/inclusion-requests", minRole: "ADMIN" },
+      { icon: LayoutDashboard, label: "概览", href: "/admin/overview", minRole: "ADMIN", site: "circleica" },
+      { icon: ClipboardCheck, label: "仪表盘", href: "/admin", minRole: "ADMIN", site: "circleica" },
+      { icon: ClipboardCheck, label: "审核队列", href: "/admin/review", minRole: "ADMIN", site: "circleica" },
+      { icon: Inbox, label: "收录申请", href: "/admin/inclusion-requests", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {
     label: "内容管理",
     items: [
-      { icon: Gamepad2, label: "游戏", href: "/admin/games", minRole: "ADMIN" },
-      { icon: List, label: "精选合集", href: "/admin/collections", minRole: "ADMIN" },
-      { icon: Tag, label: "标签管理", href: "/admin/tags", minRole: "ADMIN" },
-      { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN" },
-      { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN" },
-      { icon: Music, label: "音乐", href: "/admin/music", minRole: "ADMIN" },
+      { icon: Gamepad2, label: "游戏", href: "/admin/games", minRole: "ADMIN", site: "circleica" },
+      { icon: List, label: "精选合集", href: "/admin/collections", minRole: "ADMIN", site: "circleica" },
+      { icon: Tag, label: "标签管理", href: "/admin/tags", minRole: "ADMIN", site: "circleica" },
+      { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN", site: "circleica" },
+      { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN", site: "circleica" },
+      { icon: Music, label: "音乐", href: "/admin/music", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {
     label: "社区",
     items: [
-      { icon: MessageSquare, label: "论坛", href: "/admin/forum", minRole: "ADMIN" },
-      { icon: Flag, label: "举报", href: "/admin/reports", minRole: "ADMIN" },
-      { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN" },
-      { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN" },
-      { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN" },
+      { icon: MessageSquare, label: "论坛", href: "/admin/forum", minRole: "ADMIN", site: "circleica" },
+      { icon: Flag, label: "举报", href: "/admin/reports", minRole: "ADMIN", site: "circleica" },
+      { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN", site: "circleica" },
+      { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN", site: "circleica" },
+      { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {
     label: "副站 Galvelica",
     items: [
-      { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN" },
-      { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN" },
-      { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN" },
-      { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN" },
-      { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN" },
-      { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN" },
-      { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN" },
+      { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN", site: "galvelica" },
+      { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN", site: "galvelica" },
+      { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN", site: "galvelica" },
+      { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN", site: "galvelica" },
+      { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN", site: "galvelica" },
+      { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN", site: "galvelica" },
+      { icon: Download, label: "手动拉取", href: "/admin/galvelica/fetch", minRole: "ADMIN", site: "galvelica" },
+      { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN", site: "galvelica" },
     ],
   },
   {
     label: "系统",
+    // 系统分组为平台级配置（用户/站点设置/审计日志等），非站点专属，归主站。
+    // 副站侧边栏只显示 Galvelica 对应栏目；需系统设置时切到 Circleica 标签。
     items: [
-      { icon: SmilePlus, label: "情感消息", href: "/admin/emotional-messages", minRole: "SUPER_ADMIN" },
-      { icon: FolderTree, label: "资源标签", href: "/admin/resource-tags", minRole: "SUPER_ADMIN" },
-      { icon: Users, label: "用户", href: "/admin/users", minRole: "SUPER_ADMIN" },
-      { icon: Frame, label: "头像框", href: "/admin/avatar-frames", minRole: "SUPER_ADMIN" },
-      { icon: Settings, label: "站点设置", href: "/admin/site-settings", minRole: "SUPER_ADMIN" },
-      { icon: FileCode, label: "页面管理", href: "/admin/pages", minRole: "SUPER_ADMIN" },
-      { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN" },
-      { icon: Palette, label: "主题设置", href: "/admin/theme", minRole: "SUPER_ADMIN" },
-      { icon: Server, label: "服务配置", href: "/admin/services", minRole: "SUPER_ADMIN" },
-      { icon: FileText, label: "审计日志", href: "/admin/audit-logs", minRole: "ADMIN" },
+      { icon: SmilePlus, label: "情感消息", href: "/admin/emotional-messages", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: FolderTree, label: "资源标签", href: "/admin/resource-tags", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Users, label: "用户", href: "/admin/users", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Frame, label: "头像框", href: "/admin/avatar-frames", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Settings, label: "站点设置", href: "/admin/site-settings", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: FileCode, label: "页面管理", href: "/admin/pages", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Palette, label: "主题设置", href: "/admin/theme", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Server, label: "服务配置", href: "/admin/services", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: FileText, label: "审计日志", href: "/admin/audit-logs", minRole: "ADMIN", site: "circleica" },
     ],
   },
 ]
@@ -137,12 +143,19 @@ export function AdminNav() {
     return 0
   }
 
+  // 当前所处站点：用于侧边栏按主/副站只显示对应栏目
+  const currentSite: "circleica" | "galvelica" =
+    pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica"
+
   const visibleGroups = useMemo(
     () => navGroups.map(g => ({
       ...g,
-      items: g.items.filter(item => (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0)),
+      items: g.items.filter(item =>
+        (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0) &&
+        (item.site === undefined || item.site === currentSite)
+      ),
     })).filter(g => g.items.length > 0),
-    [userRole]
+    [userRole, currentSite]
   )
 
   // 初始化：读取 localStorage

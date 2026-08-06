@@ -152,7 +152,9 @@ main > * {
   --color-foreground: var(--foreground);
   /* --font-sans 通过 CSS 变量定义，Tailwind font-sans 使用此变量。
      中文字体回退写死在主题中，确保始终有合理显示。 */
-  --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
+  /* 拉丁字形前置：英文/数字优先落到系统拉丁字体（Mac San Francisco / Win Segoe UI / Roboto / Arial），
+     字重正确且前后台一致；CJK 仅作中文回退，避免英文被中文字体细拉丁字形拖累而过淡。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
   /* 编辑式衬线标题字族（对齐 Galvelica）；font-heading 工具类由此生效 */
   --font-heading: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;

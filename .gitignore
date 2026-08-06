@@ -70,6 +70,13 @@ kill_dev*.cmd
 .next_verify_bak/
 .next_*bak*
 .next_*bak*/
+# 构建绕行产生的改名 .next（横杠时间戳版 .next-bak-<ts> / .next-partial-<ts>），禁止提交；应移出项目或清理
+.next-bak*
+.next-bak*/
+.next-partial*
+.next-partial*/
+# Windows 保留名误生成文件（重定向 > nul 偶发），禁止提交
+/nul
 .next-verify
 .next-verify/
 .next-verify.bak
