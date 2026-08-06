@@ -1,55 +1,20 @@
-import { resolveThemeTokens } from "@/lib/theme-colors-shared"
-
 /**
- * Inline script to prevent flash of wrong theme.
- * Applies --primary (and aliases) directly from resolved tokens.
- * hover / active / soft tokens are owned by globals.css via color-mix,
- * so any theme color (incl. custom) stays coherent and never mechanically darkened.
+ * Inline script to prevent flash of wrong theme (dark/light toggle only).
  *
- * nonce 由调用方从 proxy 中间件读取后以 prop 传入，
- * 组件内部不再调用 headers()，避免强制根布局 dynamic。
+ * 设计要点（性能优化 P2）：
+ * - 不再依赖服务端 nonce / themeColor：根 layout 已移除 headers() 调用，
+ *   全站从「强制 dynamic」变为「各页按需 static」。
+ * - themeColor 的 CSS 变量改由 layout 通过内联 <style> 注入（style-src 允许 'unsafe-inline'）。
+ * - 本脚本只做 light/dark 切换（纯客户端、内容完全固定），由 proxy.ts 的 CSP
+ *   用 'sha256-<hash>' 放行，无需 nonce，从而彻底免除对 headers() 的依赖。
+ * - 脚本内容必须保持单行固定，否则 CSP hash 失配会被浏览器拦截。
  */
-export function ThemeScript({ themeColor, nonce }: { themeColor?: string; nonce?: string }) {
-  const t = resolveThemeTokens(themeColor)
-  const script = `
-    (function(){
-      try{
-        var r=document.documentElement;
-        var m=r.classList;
-        // Dark/Light mode
-        var s=localStorage.getItem('theme');
-        var isLight=false;
-        if(s==='light') isLight=true;
-        else if(s!=='dark') isLight=window.matchMedia('(prefers-color-scheme:light)').matches;
-        m.toggle('light',isLight);
-        m.toggle('dark',!isLight);
-        // Listen for OS changes
-        if(!s||s==='system'){
-          window.matchMedia('(prefers-color-scheme:light)').addEventListener('change',function(){
-            if(!localStorage.getItem('theme')||localStorage.getItem('theme')==='system'){
-              var l=window.matchMedia('(prefers-color-scheme:light)').matches;
-              r.classList.toggle('light',l);
-              r.classList.toggle('dark',!l);
-            }
-          });
-        }
-        // Apply tokens — primary + aliases only; hover/active/soft derived in CSS
-        r.style.setProperty('--primary','${t.primary}');
-        r.style.setProperty('--theme-color','${t.primary}');
-        r.style.setProperty('--theme-color-hover','${t.primary}');
-        r.style.setProperty('--theme-color-active','${t.primary}');
-        r.style.setProperty('--clr-blue','${t.primary}');
-        r.style.setProperty('--clr-sky','${t.accent}');
-        r.style.setProperty('--ring','${t.ring}');
-        r.style.setProperty('--clr-glow','${t.glow}');
-      }catch(e){}
-    })();
-  `
+const THEME_SCRIPT = "(function(){try{var r=document.documentElement,m=r.classList,s=localStorage.getItem('theme'),isLight=false;if(s==='light')isLight=true;else if(s!=='dark')isLight=window.matchMedia('(prefers-color-scheme:light)').matches;m.toggle('light',isLight);m.toggle('dark',!isLight);if(!s||s==='system'){window.matchMedia('(prefers-color-scheme:light)').addEventListener('change',function(){if(!localStorage.getItem('theme')||localStorage.getItem('theme')==='system'){var l=window.matchMedia('(prefers-color-scheme:light)').matches;r.classList.toggle('light',l);r.classList.toggle('dark',!l);}});}}catch(e){}})();"
 
+export function ThemeScript() {
   return (
     <script
-      nonce={nonce}
-      dangerouslySetInnerHTML={{ __html: script }}
+      dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }}
       suppressHydrationWarning
     />
   )

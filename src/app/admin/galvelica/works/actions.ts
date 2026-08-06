@@ -70,3 +70,51 @@ export async function toggleInclusion(formData: FormData) {
   }
   revalidatePath("/admin/galvelica/works")
 }
+
+/** 批量删除作品（仅 galvelica 范围）。 */
+export async function batchDeleteWorks(formData: FormData) {
+  await requireSiteAdmin("galvelica")
+  const ids = parseIdList(formData)
+  if (ids.length === 0) throw new ValidationError("未选择任何作品")
+
+  // 子表 onDelete: Cascade 会一并清理；关联 Game 不受影响（SetNull）。
+  await prisma.work.deleteMany({ where: { id: { in: ids } } })
+  revalidatePath("/admin/galvelica/works")
+}
+
+/** 批量收录 / 取消收录。include=true 时为未收录作品建草稿；false 时解除已收录锚点。 */
+export async function batchToggleInclusion(formData: FormData) {
+  await requireSiteAdmin("galvelica")
+  const ids = parseIdList(formData)
+  if (ids.length === 0) throw new ValidationError("未选择任何作品")
+  const include = formData.get("include") === "true"
+
+  const works = await prisma.work.findMany({ where: { id: { in: ids } }, select: { id: true, gameId: true } })
+  for (const w of works) {
+    if (include && !w.gameId) {
+      await createDraftGameFromWork(w.id)
+    } else if (!include && w.gameId) {
+      const game = await prisma.game.findUnique({ where: { id: w.gameId }, select: { id: true, isPublished: true } })
+      await prisma.work.update({ where: { id: w.id }, data: { gameId: null } })
+      if (game && !game.isPublished) await prisma.game.delete({ where: { id: game.id } }).catch(() => {})
+    }
+  }
+  revalidatePath("/admin/galvelica/works")
+}
+
+/** 批量设置 NSFW 标记。 */
+export async function batchSetNsfw(formData: FormData) {
+  await requireSiteAdmin("galvelica")
+  const ids = parseIdList(formData)
+  if (ids.length === 0) throw new ValidationError("未选择任何作品")
+  const nsfw = formData.get("nsfw") === "true"
+
+  await prisma.work.updateMany({ where: { id: { in: ids } }, data: { isNsfw: nsfw } })
+  revalidatePath("/admin/galvelica/works")
+}
+
+/** 从 formData 的 ids 字段（逗号分隔）解析 id 列表，去空去重。 */
+function parseIdList(formData: FormData): string[] {
+  const raw = String(formData.get("ids") || "")
+  return Array.from(new Set(raw.split(",").map((s) => s.trim()).filter(Boolean)))
+}

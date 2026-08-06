@@ -51,7 +51,7 @@ function buildCSP(nonce: string): string {
   }
   const scriptSrc = process.env.NODE_ENV === "development"
     ? _cspTemplate.scriptPrefix
-    : `${_cspTemplate.scriptPrefix}${nonce}' 'strict-dynamic'`
+    : `${_cspTemplate.scriptPrefix}${nonce}' 'strict-dynamic' 'sha256-yLU+eI5IDx1/yCBtVKgvm/yjxWqfqVBUW+a1CNbGu3k='`
   return `default-src 'self'; ${scriptSrc}; ${_cspTemplate.rest}`
 }
 

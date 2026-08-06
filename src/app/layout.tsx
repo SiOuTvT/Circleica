@@ -2,10 +2,10 @@ import { LayoutShiftGuard } from "@/components/layout-shift-guard"
 import { LayoutWrapper } from "@/components/layout-wrapper"
 import { Providers } from "@/components/providers"
 import { ThemeScript } from "@/components/theme-script"
+import { resolveThemeTokens } from "@/lib/theme-colors-shared"
 import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSiteSetting, getLogoMode } from "@/lib/site-settings"
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
-import { headers } from "next/headers"
 import type { Metadata, Viewport } from "next"
 import NextTopLoader from "nextjs-toploader"
 import { SetupWizard } from "@/components/setup-wizard"
@@ -78,19 +78,24 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   const initialized = await isSiteInitialized()
 
-  // nonce 由 proxy 中间件注入请求头，这里读取后传给 ThemeScript（避免 ThemeScript 自己调 headers()）
-  const nonce = (await headers()).get("x-nonce") || undefined
-
   // 权威主题色：走 unstable_cache（TTL 60s），后台改主题色时 updateSiteSettings 已 revalidateTag
   // 即时失效 → 写后立即生效，且不再每个请求直查 DB。
+  // 注意：这里不再调用 headers() 读取 nonce —— 那一处动态 API 曾把全站钉死成 dynamic。
+  // nonce 改由 proxy.ts 的 CSP 'sha256-...' 放行 ThemeScript（内容固定，无需 nonce），
+  // 主题色 CSS 变量改由下方内联 <style> 注入（style-src 允许 'unsafe-inline'）。
   const themeColor = await getSiteSetting("themeColor", "#4C7E96")
+  const t = resolveThemeTokens(themeColor)
+  const themeStyle = `:root{--primary:${t.primary};--theme-color:${t.primary};--theme-color-hover:${t.primary};--theme-color-active:${t.primary};--clr-blue:${t.primary};--clr-sky:${t.accent};--ring:${t.ring};--clr-glow:${t.glow};}`
 
   // 未初始化时：仍渲染完整 HTML + SessionProvider，但显示 Setup Wizard
   // 这样 Setup 中的 signIn() 可以正常工作
   if (!initialized) {
     return (
-      <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
-        <head><ThemeScript themeColor={themeColor} nonce={nonce} /></head>
+    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+        <ThemeScript />
+      </head>
         <body className="min-h-screen bg-background text-foreground">
           <Providers>
             <div className="min-h-screen flex items-center justify-center p-4">
@@ -108,7 +113,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <ThemeScript themeColor={themeColor} nonce={nonce} />
+        <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+        <ThemeScript />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
         <LayoutShiftGuard />

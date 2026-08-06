@@ -7,6 +7,7 @@ import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tag, Search } from "lucide-react"
+import Link from "next/link"
 import { TagCreateForm, TagRowActions } from "./tag-actions"
 
 export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
@@ -111,11 +112,13 @@ export default async function GalvelicaTagsPage({
               {mappedTags.map((t) => (
                 <tr key={t.id} className="transition-colors hover:bg-accent/30">
                   <td className="px-4 py-3 font-medium text-foreground">
-                    <span
-                      className="inline-block h-2.5 w-2.5 rounded-full mr-2 ring-1 ring-border"
-                      style={{ background: t.color }}
-                    />
-                    {t.name}
+                    <Link href={`/admin/galvelica/tags/${t.id}`} className="group flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border"
+                        style={{ background: t.color }}
+                      />
+                      <span className="group-hover:text-primary group-hover:underline">{t.name}</span>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{t.color}</td>
                   <td className="px-4 py-3 text-right text-muted-foreground">{t.workCount}</td>

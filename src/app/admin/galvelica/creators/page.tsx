@@ -7,6 +7,7 @@ import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { PenTool, Search } from "lucide-react"
+import Link from "next/link"
 import { CreatorRowActions } from "./creator-actions"
 
 export const metadata = { title: "Galvelica 创作者管理 · 管理后台" }
@@ -116,7 +117,7 @@ export default async function GalvelicaCreatorsPage({
               {mappedCreators.map((c) => (
                 <tr key={c.id} className="transition-colors hover:bg-accent/30">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
+                    <Link href={`/admin/galvelica/creators/${c.id}`} className="group flex items-center gap-2.5">
                       {c.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={c.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-border" />
@@ -125,8 +126,8 @@ export default async function GalvelicaCreatorsPage({
                           {c.name.charAt(0)}
                         </div>
                       )}
-                      <span className="font-medium text-foreground">{c.name}</span>
-                    </div>
+                      <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{c.name}</span>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{c.nameJa || "—"}</td>
                   <td className="px-4 py-3 text-right text-muted-foreground">{c.workCount}</td>

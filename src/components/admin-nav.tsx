@@ -9,7 +9,7 @@ import Image from "next/image"
 import {
   ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
   Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Search, Server, Settings, SmilePlus, Sun, Tag, UserPlus, Users, X,
+  PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -64,6 +64,9 @@ const navGroups: NavGroup[] = [
       { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN" },
       { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN" },
       { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN" },
+      { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN" },
+      { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN" },
+      { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN" },
     ],
   },
   {

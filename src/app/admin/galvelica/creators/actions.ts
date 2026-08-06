@@ -11,6 +11,28 @@ async function requireGalvelicaCreator(id: string) {
   return c
 }
 
+export async function editGalvelicaCreator(formData: FormData) {
+  await requireSiteAdmin("galvelica")
+  const id = String(formData.get("id") || "")
+  const name = String(formData.get("name") || "").trim()
+  const nameJa = String(formData.get("nameJa") || "").trim()
+  const bio = String(formData.get("bio") || "").trim()
+  const gender = String(formData.get("gender") || "").trim()
+  const twitterUrl = String(formData.get("twitterUrl") || "").trim()
+  const wikipediaUrl = String(formData.get("wikipediaUrl") || "").trim()
+
+  if (!id) throw new ValidationError("缺少创作者 id")
+  if (!name) throw new ValidationError("名字不能为空")
+  await requireGalvelicaCreator(id)
+
+  await prisma.creator.update({
+    where: { id },
+    data: { name, nameJa, bio, gender, twitterUrl, wikipediaUrl },
+  })
+  revalidatePath("/admin/galvelica/creators")
+  revalidatePath(`/admin/galvelica/creators/${id}`)
+}
+
 export async function deleteGalvelicaCreator(formData: FormData) {
   await requireSiteAdmin("galvelica")
   const id = String(formData.get("id") || "")
