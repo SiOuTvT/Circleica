@@ -259,7 +259,7 @@ export default async function HomePage({
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">视觉小说资源站</p>
                 <h2 className="mt-3 text-[32px] font-semibold tracking-tight leading-tight text-foreground">{siteName}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-[30ch]">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-prose">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
               </div>
               {/* 统计行 */}
               <div className="grid grid-cols-3 divide-x divide-border">

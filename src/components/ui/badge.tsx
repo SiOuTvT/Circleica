@@ -27,7 +27,7 @@ const badgeVariants = cva(
             "bg-success-soft text-success hover:bg-success-soft",
         },
       size: {
-        sm: "h-4 min-w-4 px-1.5 py-px text-micro font-bold [&>svg]:size-2.5!",
+        sm: "h-4 min-w-4 px-1.5 py-px text-xs font-medium [&>svg]:size-2.5!",
         default: "h-5 px-2 py-0.5 text-xs font-medium [&>svg]:size-3!",
         lg: "h-6 px-3 py-1 text-sm font-medium [&>svg]:size-3.5!",
       },

@@ -48,18 +48,20 @@ interface TagProps extends TagBaseProps {
 const variantStyles: Record<TagVariant, string> = {
   content: cn(
     // 手机端: px-2 无垂直padding, 桌面端: px-2.5 py-1
-    "inline-flex items-center shrink-0",
+    "inline-flex items-center",
     "rounded-md",
     "px-2 sm:px-2.5 sm:py-1",
     "text-xs font-semibold",
+    "truncate",
     "transition-colors",
   ),
   cloud: cn(
     // 手机端: px-2.5 py-0.5, 桌面端: px-3 py-1
-    "inline-flex items-center shrink-0",
+    "inline-flex items-center",
     "rounded-md",
     "px-2.5 py-1.5 sm:px-3 sm:py-2 min-h-[36px]",
     "text-xs font-medium",
+    "text-break",
     "transition-all hover:scale-[1.03]",
   ),
   badge: cn(
@@ -67,6 +69,7 @@ const variantStyles: Record<TagVariant, string> = {
     "rounded-full",
     "px-1.5 py-px",
     "text-micro font-bold leading-none",
+    "truncate",
   ),
 }
 
@@ -114,7 +117,7 @@ export function Tag({
   children,
 }: TagProps) {
   const style = tagColorStyle(color, variant)
-  const classes = cn(variantStyles[variant], className)
+  const classes = cn(variantStyles[variant], "min-w-0 max-w-full", className)
 
   if (href) {
     return (

@@ -73,7 +73,7 @@ export function ArchiveHero({
               {eyebrow}
             </p>
           )}
-          <h1 className="break-words font-heading text-2xl font-semibold text-foreground sm:text-3xl">{title}</h1>
+          <h1 className="break-words font-heading text-2xl font-bold text-foreground sm:text-3xl">{title}</h1>
           {lede && <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">{lede}</p>}
           {meta && (
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">

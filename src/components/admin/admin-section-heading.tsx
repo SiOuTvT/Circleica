@@ -21,7 +21,7 @@ export function AdminSectionHeading({
       {galvelica ? (
         <h3 className="galvelica-h3">{children}</h3>
       ) : (
-        <h2 className="text-sm font-semibold">{children}</h2>
+        <h2 className="font-heading text-base font-semibold">{children}</h2>
       )}
     </div>
   )

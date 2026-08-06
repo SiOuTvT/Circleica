@@ -85,7 +85,7 @@ export default async function InclusionRequestsAdmin() {
     >
 
       <section>
-        <AdminSectionHeading>待发布草稿（{pendingDrafts.length}）</AdminSectionHeading>
+        <AdminSectionHeading>待发布草稿（<span className="num-tab">{pendingDrafts.length}</span>）</AdminSectionHeading>
         {pendingDrafts.length === 0 ? (
           <EmptyState icon={Inbox} title="暂无待发布的草稿" description="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。" />
         ) : (

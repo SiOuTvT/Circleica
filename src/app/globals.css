@@ -157,7 +157,9 @@ main > * {
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
   /* 编辑式衬线标题字族（对齐 Galvelica）；font-heading 工具类由此生效 */
-  --font-heading: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  /* 统一展示（衬线）字族：含 CJK 衬线回退 Source Han Serif SC；主站标题经 --font-heading 复用 */
+  --font-display: 'Songti SC', 'Source Han Serif SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-heading: var(--font-display);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -1549,6 +1551,46 @@ svg {
   hyphens: auto;
 }
 
+/* ═══ Phase 5：统一字体规范工具类（主站 + 子站 + 后台同一套 spec） ═══ */
+/* 页面标题：衬线 700 / line-height 1.2（与 h1 主标题同源） */
+.text-page-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+/* 页面说明文案：14px / 1.625 /  muted；65ch 防过早换行 */
+.text-page-desc {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--muted-foreground);
+  max-width: 65ch;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+/* 徽章文字：12px / 500 */
+.text-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+/* Tab / 按钮文字：14px / 500 */
+.text-tab {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.text-btn {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+/* 强制硬断开（标签云显示全名，不省略号）：任意位置换行 + 最小宽 0 */
+.text-break {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
 /* ═══ 审计修复：加粗文字统一 ═══ */
 /* 避免某些中文字体在 font-weight:700 时过粗 */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -1720,13 +1762,13 @@ body[data-has-bottom-nav="true"] {
 
 /* Galvelica 衬线标题：营造文献 / 档案气质 */
 .galvelica-serif {
-  font-family: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-display);
   letter-spacing: 0.01em;
 }
 
 /* Galvelica 品牌字标 */
 .galvelica-wordmark {
-  font-family: 'Songti SC', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-display);
   letter-spacing: 0.06em;
 }
 
@@ -1777,7 +1819,7 @@ body[data-has-bottom-nav="true"] {
 
 /* Galvelica 标题字号阶梯（统一 H1/H2/H3，m1 根治）：衬线 + 明确尺寸 */
 .galvelica-h1 {
-  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 1.5rem;        /* text-2xl, 24px */
   font-weight: 600;
   line-height: 1.2;
@@ -1794,7 +1836,7 @@ body[data-has-bottom-nav="true"] {
   }
 }
 .galvelica-h2 {
-  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 1.25rem;       /* text-xl, 20px */
   font-weight: 600;
   line-height: 1.3;
@@ -1802,7 +1844,7 @@ body[data-has-bottom-nav="true"] {
   color: var(--foreground);
 }
 .galvelica-h3 {
-  font-family: 'Songti SC', 'Noto Serif SC', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 1.125rem;      /* text-lg, 18px */
   font-weight: 600;
   line-height: 1.35;

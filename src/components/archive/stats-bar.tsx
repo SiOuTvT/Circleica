@@ -32,7 +32,7 @@ export function StatsBar({ items, density: _density = "standard", className }: S
           <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
             {it.label}
           </span>
-          <span className="mt-0.5 font-heading text-lg font-semibold text-foreground tabular-nums sm:text-xl">
+          <span className="mt-0.5 text-lg font-semibold text-foreground tabular-nums sm:text-xl">
             {it.value}
           </span>
           {it.hint && <span className="text-[11px] text-muted-foreground/60">{it.hint}</span>}
