@@ -4,8 +4,9 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Link2, Unlink, Trash2, Flag } from "lucide-react"
 import { batchDeleteWorks, batchToggleInclusion, batchSetNsfw } from "./actions"
+import { AdminBatchActions } from "@/components/admin/admin-batch-actions"
 
-export function WorkBatchActions({ selected }: { selected: Set<string> }) {
+export function WorkBatchActions({ selected, onClear }: { selected: Set<string>; onClear?: () => void }) {
   const [busy, setBusy] = useState(false)
   const ids = Array.from(selected)
 
@@ -29,8 +30,7 @@ export function WorkBatchActions({ selected }: { selected: Set<string> }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs text-muted-foreground">已选 {ids.length}</span>
+    <AdminBatchActions count={ids.length} onClear={onClear}>
       <button
         type="button"
         disabled={busy || ids.length === 0}
@@ -67,6 +67,6 @@ export function WorkBatchActions({ selected }: { selected: Set<string> }) {
       >
         <Trash2 className="h-3.5 w-3.5" /> 批量删除
       </button>
-    </div>
+    </AdminBatchActions>
   )
 }

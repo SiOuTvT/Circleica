@@ -3,7 +3,9 @@ import { notFound } from "next/navigation"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma, Prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { Tag as TagIcon, ArrowLeft } from "lucide-react"
+import { AdminBackLink } from "@/components/admin/admin-back-link"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
+import { Tag as TagIcon } from "lucide-react"
 import { TagDetailClient } from "./tag-detail-client"
 
 export const metadata = { title: "Galvelica 标签详情 · 管理后台" }
@@ -51,18 +53,13 @@ export default async function GalvelicaTagDetailPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · TAG"
       title={tag.name}
       description={tag.description || "Galvelica 副站标签"}
       actions={
         <div className="flex items-center gap-2">
-          <Link
-            href="/admin/galvelica/tags"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10 hover:bg-muted"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            返回
-          </Link>
+          <AdminBackLink href="/admin/galvelica/tags" label="返回" />
           <TagDetailClient
             tag={{ id: tag.id, name: tag.name, color: tag.color, description: tag.description }}
             candidates={candidates}
@@ -87,9 +84,7 @@ export default async function GalvelicaTagDetailPage({
 
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-              <TagIcon className="h-4 w-4 text-primary" /> 关联作品（{workCount}）
-            </h3>
+            <AdminSectionHeading galvelica icon={TagIcon}>关联作品（{workCount}）</AdminSectionHeading>
             {related.length === 0 ? (
               <p className="text-sm text-muted-foreground">该标签暂无关联作品。</p>
             ) : (

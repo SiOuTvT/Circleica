@@ -4,10 +4,10 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Layers, Search } from "lucide-react"
+import { Layers } from "lucide-react"
+import { AdminSearch } from "@/components/admin/admin-search"
 import { WorksTableClient } from "./works-table-client"
 
 export const metadata = { title: "Galvelica 作品管理 · 管理后台" }
@@ -74,15 +74,11 @@ export default async function GalvelicaWorksPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · WORKS"
       title="作品管理"
       description={`共 ${total} 部同人作品（Galvelica 资料馆）`}
-      actions={
-        <form method="get" className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-          <input name="q" defaultValue={q} placeholder="搜索作品标题…" aria-label="搜索作品" className={adminSearchInput} />
-        </form>
-      }
+      actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索作品标题…" aria-label="搜索作品" />}
     >
       {works.length === 0 ? (
         <EmptyState icon={Layers} title="暂无作品" description="Galvelica 资料馆还没有作品数据" bordered />

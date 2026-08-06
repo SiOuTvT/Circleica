@@ -2,6 +2,9 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminCard } from "@/components/admin/admin-card"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { toShanghaiDate } from "@/lib/date"
 import { Inbox, Upload, Trash2 } from "lucide-react"
@@ -59,6 +62,7 @@ export default async function GalvelicaInclusionPage() {
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · INCLUSION"
       title="收录审核"
       description="用户提交收录申请后，系统已自动用融合字段建好未发布草稿。在此批量发布或删除——仅操作 Galvelica 自身数据。"
@@ -70,13 +74,13 @@ export default async function GalvelicaInclusionPage() {
       }
     >
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground">待发布草稿（{pendingDrafts.length}）</h2>
+        <AdminSectionHeading galvelica>待发布草稿（{pendingDrafts.length}）</AdminSectionHeading>
         {pendingDrafts.length === 0 ? (
           <EmptyState icon={Inbox} title="暂无待发布的草稿" description="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。" />
         ) : (
           <div className="space-y-3">
             {pendingDrafts.map((r) => (
-              <div key={r.id} className="flex flex-row flex-wrap items-center gap-4 rounded-xl border border-border bg-card p-4">
+              <AdminCard galvelica key={r.id} className="flex flex-row flex-wrap items-center gap-4">
                 <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
                   {r.coverImage && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -112,7 +116,7 @@ export default async function GalvelicaInclusionPage() {
                     </button>
                   </form>
                 </div>
-              </div>
+              </AdminCard>
             ))}
           </div>
         )}
@@ -120,17 +124,19 @@ export default async function GalvelicaInclusionPage() {
 
       {history.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">已删除草稿（历史）</h2>
+          <AdminSectionHeading galvelica>已删除草稿（历史）</AdminSectionHeading>
           <div className="space-y-3">
             {history.map((r) => (
-              <div key={r.id} className="flex flex-row items-center gap-4 rounded-xl border border-border bg-card p-4">
+              <AdminCard galvelica key={r.id} className="flex flex-row items-center gap-4">
                 <Inbox className="h-4 w-4 shrink-0 text-muted-foreground/60" />
                 <div className="min-w-0 flex-1">
                   <span className="font-medium text-foreground">{r.title}</span>
-                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">已删除草稿</span>
+                  <span className="ml-2">
+                    <AdminStatusBadge>已删除草稿</AdminStatusBadge>
+                  </span>
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground">{r.decidedAt ? toShanghaiDate(r.decidedAt) : ""}</span>
-              </div>
+              </AdminCard>
             ))}
           </div>
         </section>

@@ -99,6 +99,7 @@ export default async function GalvelicaAdminDashboard() {
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA"
       title="副站管理 · Galvelica"
       description="Galvelica 是同人向资料馆，与主站 Circleica 共享后台但数据独立隔离。以下入口仅操作 Galvelica 自身数据。"

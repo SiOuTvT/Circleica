@@ -3,12 +3,13 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma, Prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
-import { adminSearchInput } from "@/lib/admin-styles"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSearch } from "@/components/admin/admin-search"
+import { AdminTable } from "@/components/admin/admin-table"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Tag, Search } from "lucide-react"
+import { Tag } from "lucide-react"
 import Link from "next/link"
-import { TagCreateForm, TagRowActions } from "./tag-actions"
+import { TagCreateForm, TagRowActions, TagResetColorsButton } from "./tag-actions"
 
 export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
 
@@ -82,54 +83,43 @@ export default async function GalvelicaTagsPage({
 
   return (
     <AdminPageContainer
+      galvelica
       eyebrow="GALVELICA · TAGS"
       title="标签管理"
       description={`Galvelica 副站共 ${total} 个标签（source=galvelica）`}
       actions={
         <div className="flex items-center gap-2">
           <TagCreateForm />
-          <form method="get" className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={2} />
-            <input name="q" defaultValue={q} placeholder="搜索标签…" aria-label="搜索标签" className={adminSearchInput} />
-          </form>
+          <TagResetColorsButton />
+          <AdminSearch name="q" defaultValue={q} placeholder="搜索标签…" aria-label="搜索标签" />
         </div>
       }
     >
       {mappedTags.length === 0 ? (
         <EmptyState icon={Tag} title="暂无标签" description="Galvelica 副站尚无标签数据" bordered />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">名称</th>
-                <th className="px-4 py-3 text-left font-medium">颜色</th>
-                <th className="px-4 py-3 text-right font-medium">关联作品</th>
-                <th className="px-4 py-3 text-right font-medium">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {mappedTags.map((t) => (
-                <tr key={t.id} className="transition-colors hover:bg-accent/30">
-                  <td className="px-4 py-3 font-medium text-foreground">
-                    <Link href={`/admin/galvelica/tags/${t.id}`} className="group flex items-center gap-2">
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border"
-                        style={{ background: t.color }}
-                      />
-                      <span className="group-hover:text-primary group-hover:underline">{t.name}</span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{t.color}</td>
-                  <td className="px-4 py-3 text-right text-muted-foreground">{t.workCount}</td>
-                  <td className="px-4 py-3 text-right">
-                    <TagRowActions tag={t} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminTable
+          rows={mappedTags}
+          getRowKey={(t) => t.id}
+          columns={[
+            {
+              key: "name",
+              header: "名称",
+              cell: (t) => (
+                <Link href={`/admin/galvelica/tags/${t.id}`} className="group flex items-center gap-2">
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border"
+                    style={{ background: t.color }}
+                  />
+                  <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{t.name}</span>
+                </Link>
+              ),
+            },
+            { key: "color", header: "颜色", cell: (t) => <span className="font-mono text-xs text-muted-foreground">{t.color}</span> },
+            { key: "workCount", header: "关联作品", align: "right", cell: (t) => <span className="text-muted-foreground">{t.workCount}</span> },
+            { key: "actions", header: "操作", align: "right", cell: (t) => <TagRowActions tag={t} /> },
+          ]}
+        />
       )}
 
       <Pagination
