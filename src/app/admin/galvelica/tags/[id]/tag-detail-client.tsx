@@ -5,8 +5,45 @@ import { Pencil, Merge } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Tag } from "@/components/ui/tag"
 import { adminInput, adminBtnPrimary } from "@/lib/admin-styles"
+import { GAL_PRESET_TAG_COLORS } from "@/lib/galvelica-palette"
 import { editGalvelicaTag, mergeGalvelicaTag } from "../actions"
+
+/** 副站标签取色：预设色板 + 取色器 + 实时预览 pill */
+function TagColorField({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {GAL_PRESET_TAG_COLORS.map((c) => (
+          <button
+            type="button"
+            key={c}
+            onClick={() => onChange(c)}
+            aria-label={`设为 ${c}`}
+            title={c}
+            className="h-6 w-6 rounded-md ring-1 ring-border transition-transform hover:scale-110"
+            style={{
+              backgroundColor: c,
+              outline: c.toLowerCase() === value.toLowerCase() ? "2px solid var(--foreground)" : "none",
+              outlineOffset: "1px",
+            }}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          name="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-12 cursor-pointer rounded-lg border-2 border-input bg-transparent"
+        />
+        <Tag color={value || undefined} className="px-2.5 py-1">预览</Tag>
+      </div>
+    </div>
+  )
+}
 
 interface TagDetail {
   id: string
@@ -19,6 +56,7 @@ export function TagDetailClient({ tag, candidates }: { tag: TagDetail; candidate
   const [editing, setEditing] = useState(false)
   const [merging, setMerging] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [color, setColor] = useState(tag.color)
 
   async function submitEdit(form: HTMLFormElement) {
     setBusy(true)
@@ -80,7 +118,7 @@ export function TagDetailClient({ tag, candidates }: { tag: TagDetail; candidate
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">颜色</label>
-              <input name="color" type="color" defaultValue={tag.color} className={adminInput} />
+              <TagColorField value={color} onChange={setColor} />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">描述</label>

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { Tag } from "@/components/ui/tag"
 import type { GalvelicaTag } from "@/lib/galvelica"
 
 interface TagPillProps {
@@ -8,16 +8,17 @@ interface TagPillProps {
 
 export function TagPill({ tag, showCount }: TagPillProps) {
   return (
-    <Link
+    <Tag
+      variant="cloud"
+      color={tag.color}
       href={`/galvelica/tags/${tag.id}`}
-      className="galvelica-tag inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-transform hover:scale-[1.03]"
       title={tag.groupName ? `${tag.groupName} · ${tag.name}` : tag.name}
     >
       {tag.name}
       {showCount && typeof tag.count === "number" && (
         <span className="opacity-60 tabular-nums">{tag.count}</span>
       )}
-    </Link>
+    </Tag>
   )
 }
 

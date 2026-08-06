@@ -4,24 +4,31 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
+import { GAL_PRESET_TAG_COLORS, GAL_DEFAULT_TAG_COLOR } from "@/lib/galvelica-palette"
 
 export async function createGalvelicaTag(formData: FormData) {
   await requireSiteAdmin("galvelica")
   const name = String(formData.get("name") || "").trim()
-  const color = String(formData.get("color") || "").trim() || "#a78bfa"
+  const color = String(formData.get("color") || "").trim() || GAL_DEFAULT_TAG_COLOR
   const slugRaw = String(formData.get("slug") || "").trim()
 
   if (!name) throw new ValidationError("标签名不能为空")
 
+  let createdId: string | undefined
   try {
-    await prisma.tag.create({
+    const created = await prisma.tag.create({
       data: { name, color, source: "galvelica", slug: slugRaw || null },
+      select: { id: true },
     })
+    createdId = created.id
   } catch (e) {
     if ((e as { code?: string })?.code === "P2002") throw new ConflictError("标签名或 slug 已存在")
     throw e
   }
   revalidatePath("/admin/galvelica/tags")
+  revalidatePath("/galvelica/tags")
+  revalidatePath("/galvelica")
+  if (createdId) revalidatePath(`/galvelica/tags/${createdId}`)
 }
 
 export async function editGalvelicaTag(formData: FormData) {
@@ -43,6 +50,36 @@ export async function editGalvelicaTag(formData: FormData) {
     throw e
   }
   revalidatePath("/admin/galvelica/tags")
+  revalidatePath("/galvelica/tags")
+  revalidatePath("/galvelica")
+  revalidatePath(`/galvelica/tags/${id}`)
+}
+
+/**
+ * 「重置为调色板」：仅把仍停留在数据库默认色（GAL_DEFAULT_TAG_COLOR）的副站标签，
+ * 按 round-robin 重新赋予副站专属低饱和调色板色。已手动设置颜色的标签不动。
+ */
+export async function resetGalvelicaTagColors() {
+  await requireSiteAdmin("galvelica")
+
+  const targets = await prisma.tag.findMany({
+    where: { source: "galvelica", color: GAL_DEFAULT_TAG_COLOR },
+    select: { id: true },
+    orderBy: { name: "asc" },
+  })
+
+  await Promise.all(
+    targets.map((t, i) => {
+      const color = GAL_PRESET_TAG_COLORS[i % GAL_PRESET_TAG_COLORS.length]
+      return prisma.tag.update({ where: { id: t.id }, data: { color } })
+    }),
+  )
+
+  revalidatePath("/admin/galvelica/tags")
+  revalidatePath("/galvelica/tags")
+  revalidatePath("/galvelica")
+  targets.forEach((t) => revalidatePath(`/galvelica/tags/${t.id}`))
+  return { updated: targets.length }
 }
 
 export async function deleteGalvelicaTag(formData: FormData) {

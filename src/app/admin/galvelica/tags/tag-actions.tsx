@@ -1,17 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Button } from "@/components/ui/button"
+import { Tag } from "@/components/ui/tag"
 import { adminInput, adminBtnPrimary, adminBtnSubtle, adminBtnDanger } from "@/lib/admin-styles"
-import { createGalvelicaTag, editGalvelicaTag, deleteGalvelicaTag } from "./actions"
+import { GAL_PRESET_TAG_COLORS } from "@/lib/galvelica-palette"
+import { createGalvelicaTag, editGalvelicaTag, deleteGalvelicaTag, resetGalvelicaTagColors } from "./actions"
+
+/** 副站标签取色：预设色板 + 取色器 + 实时预览 pill（统一复用站点 Tag 组件做对比度安全渲染） */
+function TagColorField({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {GAL_PRESET_TAG_COLORS.map((c) => (
+          <button
+            type="button"
+            key={c}
+            onClick={() => onChange(c)}
+            aria-label={`设为 ${c}`}
+            title={c}
+            className="h-6 w-6 rounded-md ring-1 ring-border transition-transform hover:scale-110"
+            style={{
+              backgroundColor: c,
+              outline: c.toLowerCase() === value.toLowerCase() ? "2px solid var(--foreground)" : "none",
+              outlineOffset: "1px",
+            }}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          name="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-12 cursor-pointer rounded-lg border-2 border-input bg-transparent"
+        />
+        <Tag color={value || undefined} className="px-2.5 py-1">预览</Tag>
+      </div>
+    </div>
+  )
+}
 
 export function TagCreateForm() {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [color, setColor] = useState("#a78bfa")
 
   async function submit(form: HTMLFormElement) {
     setBusy(true)
@@ -52,7 +90,7 @@ export function TagCreateForm() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">颜色</label>
-              <input name="color" type="color" defaultValue="#a78bfa" className="h-10 w-full rounded-xl border-2 border-input bg-transparent" />
+              <TagColorField value={color} onChange={setColor} />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Slug（可选）</label>
@@ -77,6 +115,7 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [color, setColor] = useState(tag.color)
 
   async function submitEdit(form: HTMLFormElement) {
     setBusy(true)
@@ -135,7 +174,7 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">颜色</label>
-              <input name="color" type="color" defaultValue={tag.color} className="h-10 w-full rounded-xl border-2 border-input bg-transparent" />
+              <TagColorField value={color} onChange={setColor} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)} disabled={busy}>
@@ -159,5 +198,29 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
         onConfirm={doDelete}
       />
     </div>
+  )
+}
+
+/**
+ * 「重置为调色板」：把仍为默认紫色（#a78bfa）的副站标签按 round-robin 重新赋予
+ * 副站专属低饱和调色板色。已手动设置颜色的标签不受影响。仅作用 source=galvelica。
+ */
+export function TagResetColorsButton() {
+  const [pending, startTransition] = useTransition()
+  return (
+    <form
+      action={() => {
+        if (typeof window !== "undefined" && !window.confirm("将仍为默认紫色（#a78bfa）的副站标签重置为铜绿调色板？已手动设置颜色的标签不受影响。")) {
+          return
+        }
+        startTransition(async () => {
+          await resetGalvelicaTagColors()
+        })
+      }}
+    >
+      <button type="submit" className={adminBtnSubtle} disabled={pending}>
+        {pending ? "重置中…" : "重置为调色板"}
+      </button>
+    </form>
   )
 }

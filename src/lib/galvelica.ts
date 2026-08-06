@@ -109,6 +109,8 @@ export interface FeaturedTheme {
   blurb: string
   tagId: string
   tagName: string
+  /** 主题所对应标签的颜色（用于首页专题策划 chip 与副站统一的取色渲染） */
+  tagColor?: string | null
   href: string
 }
 
@@ -593,6 +595,7 @@ export async function getFeaturedThemes(): Promise<FeaturedTheme[]> {
       ...def,
       tagId: tag.id,
       tagName: tag.name,
+      tagColor: tag.color,
       href: `/galvelica/works?tags=${encodeURIComponent(tag.id)}`,
     })
   }
@@ -928,3 +931,5 @@ async function getTagByNameFromGame(name: string): Promise<GalvelicaTag | null> 
   if (!t) return null
   return { id: t.id, name: t.name, color: t.color, groupName: t.group?.name ?? null, groupColor: t.group?.color ?? null, count: t._count.games }
 }
+
+// 副站标签预设色板已迁至 @/lib/galvelica-palette（客户端安全模块，避免引入 next/headers 破坏后台编辑组件构建）。

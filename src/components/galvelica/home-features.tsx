@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
+import { Tag } from "@/components/ui/tag"
 import type { FeaturedTheme, GalvelicaWorkCard } from "@/lib/galvelica"
 
 /**
@@ -104,7 +105,7 @@ export function FeaturedThemes({ themes }: { themes: FeaturedTheme[] }) {
           </h3>
           <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{t.blurb}</p>
           <div className="mt-auto flex items-center justify-between pt-2">
-            <span className="galvelica-tag rounded-md px-2 py-1 text-xs">#{t.tagName}</span>
+            <Tag color={t.tagColor ?? undefined} className="px-2 py-1">#{t.tagName}</Tag>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--gal-accent)]">
               进入专题
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
