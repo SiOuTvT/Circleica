@@ -72,7 +72,7 @@ export default async function GalvelicaNsfwReviewPage({
       galvelica
       eyebrow="GALVELICA · NSFW REVIEW"
       title="封面 NSFW 审核"
-      description="人工标定作品封面的露骨度（安全 / 暗示 / 露骨）。安全模式下 coverSexual>=2 的露骨封面不渲染，防平台检测。VNDB 自动分级未覆盖的作品会留在此待审（体验档）。"
+      description="人工裁决作品封面的成人内容分级（SFW 安全 / NSFW 露骨）。NSFW（封面含成人内容）在安全模式下不渲染 URL，防平台检测。VNDB 未评级且自动识别低置信的封面留在此待审。"
       actions={<NsfwReviewFilter filter={filter} />}
     >
       <NsfwReviewClient items={items} filter={filter} />
@@ -97,7 +97,7 @@ export default async function GalvelicaNsfwReviewPage({
 
       <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
         <ImageOff className="h-3.5 w-3.5" />
-        标定为「露骨」后，安全模式下该作品封面将以占位显示；「暗示」与「安全」正常显示。内容是否 R18 与此无关（排序信号另行处理）。
+        标为「NSFW」后，安全模式下该封面将以占位显示（防平台检测）；「SFW 安全 / 温和」正常显示。封面分级与内容是否 R18 无关（内容 R18 只影响排序）。
       </p>
     </AdminPageContainer>
   )

@@ -21,16 +21,16 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 
-/** 副站默认铜绿（独立于主站预设，作为副站专属第一项） */
-const GAL_DEFAULT_PRESET = { name: "gal-mint", label: "铜绿", color: "#34C3AE" }
-const GAL_PRESETS = [GAL_DEFAULT_PRESET, ...THEME_PRESETS]
-
+/** 副站主题默认 = 主站旗舰「薄荷」（用户拍板：删铜绿，直接用薄荷） */
 const DEFAULT_SETTINGS: GalvelicaThemeSettings = {
-  themeColor: "#34C3AE",
+  themeColor: "#5FA8A0",
   themeRadius: 16,
   themeShadowIntensity: 50,
   themeAlpha: 15,
 }
+
+/** 副站色板 = 主站 10 套预设（沿用；默认薄荷在预设内） */
+const GAL_PRESETS = THEME_PRESETS
 
 interface Props {
   initialSettings: GalvelicaThemeSettings

@@ -1721,44 +1721,44 @@ body[data-has-bottom-nav="true"] {
 
 /* 全局可见的 Galvelica 主色（侧边栏入口位于 .galvelica-root 之外也可用） */
 :root {
-  --gal-accent: #34C3AE;        /* 鲜活信号绿 */
+  --gal-accent: #5FA8A0;        /* 薄荷（主站旗舰默认色，副站默认同源） */
   --gal-accent-strong: var(--gal-accent);
-  --gal-accent-soft: rgba(52, 195, 174, 0.14);
-  --gal-accent-softer: rgba(52, 195, 174, 0.07);
+  --gal-accent-soft: rgba(95, 168, 160, 0.14);
+  --gal-accent-softer: rgba(95, 168, 160, 0.07);
   --gal-paper: color-mix(in srgb, var(--background) 86%, #2c3f3a);
 }
 .light {
   --gal-paper: color-mix(in srgb, var(--background) 95%, #e3eeec);
   /* 浅色下 --gal-accent 同步提亮，保持信号感 */
-  --gal-accent: #1fae9c;
+  --gal-accent: #6fb4ac;
   --gal-accent-strong: var(--gal-accent);
-  --gal-accent-soft: rgba(31, 174, 156, 0.14);
-  --gal-accent-softer: rgba(31, 174, 156, 0.07);
+  --gal-accent-soft: rgba(111, 180, 172, 0.14);
+  --gal-accent-softer: rgba(111, 180, 172, 0.07);
 }
 
 /* ── 子站作用域：继承全站 token，仅替换主色系与排版气质 ── */
 .galvelica-root {
-  --primary: #34C3AE;
+  --primary: #5FA8A0;
   --primary-foreground: #06201d;
-  --clr-blue: #34C3AE;
-  --clr-sky: #8fe6da;
-  --theme-r: 52;
-  --theme-g: 195;
-  --theme-b: 174;
-  --theme-color: #34C3AE;
+  --clr-blue: #5FA8A0;
+  --clr-sky: #9fd8d0;
+  --theme-r: 95;
+  --theme-g: 168;
+  --theme-b: 160;
+  --theme-color: #5FA8A0;
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #06201d;
 }
 .light .galvelica-root {
-  --primary: #1fae9c;
+  --primary: #6fb4ac;
   --primary-foreground: #ffffff;
-  --clr-blue: #1fae9c;
-  --clr-sky: #6fe6d6;
-  --theme-r: 31;
-  --theme-g: 174;
-  --theme-b: 156;
-  --theme-color: #1fae9c;
+  --clr-blue: #6fb4ac;
+  --clr-sky: #9fd8d0;
+  --theme-r: 111;
+  --theme-g: 180;
+  --theme-b: 172;
+  --theme-color: #6fb4ac;
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #ffffff;

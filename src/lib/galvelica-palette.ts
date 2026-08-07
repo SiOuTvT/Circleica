@@ -24,11 +24,12 @@ export const GAL_TAG_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR
 
 /**
  * 副站主题主色（--gal-accent）的 SiteSetting key 与默认色。
+ * 默认取主站旗舰「薄荷」#5FA8A0（用户拍板：删铜绿，直接用薄荷），
  * 独立命名空间（galvelica: 前缀），主站永不读取；保存后由 GalvelicaShell 以
  * inline style 注入 .galvelica-root，仅作用副站作用域 → 与主站主题完全隔离。
  */
 export const GAL_THEME_COLOR_KEY = "galvelica:themeColor"
-export const GAL_THEME_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR
+export const GAL_THEME_COLOR_DEFAULT = "#5FA8A0" // 薄荷（主站旗舰默认色）
 
 /**
  * 副站主题的圆角 / 阴影强度 / 背景着色透明度（完整版主题编辑器四维，全部独立命名空间）。
