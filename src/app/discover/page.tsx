@@ -66,6 +66,8 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         take: 8,
         include: {
           games: {
+            // 发现页为 SFW-only 入口：合集封面条同样排除 NSFW 游戏
+            where: { game: { isPublished: true, isNsfw: false } },
             orderBy: { sortOrder: "asc" },
             take: 4,
             include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },

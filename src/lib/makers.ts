@@ -1,6 +1,15 @@
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { cached, cacheKey } from "@/lib/redis"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+
+/** Game 体系 NSFW 模式过滤片段（归档页封面用）：sfw 排除 isNsfw / nsfw 只留 isNsfw / all 不过滤 */
+async function makersNsfwWhere(): Promise<Record<string, boolean>> {
+  const mode: MainNsfwMode = await getMainNsfwMode()
+  if (mode === "sfw") return { isNsfw: false }
+  if (mode === "nsfw") return { isNsfw: true }
+  return {}
+}
 
 /**
  * 制作组/社团档案数据层（Circleica 资源站专用）
@@ -139,6 +148,8 @@ export async function getMakers(opts: {
   }> = []
   let total = 0
   try {
+    // ⚠️ 代表封面（最热游戏封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwWhere = await makersNsfwWhere()
     ;[studios, total] = await Promise.all([
       prisma.studio.findMany({
         where,
@@ -148,7 +159,7 @@ export async function getMakers(opts: {
         include: {
           _count: { select: { games: { where: { game: { isPublished: true } } } } },
           games: {
-            where: { game: { isPublished: true } },
+            where: { game: { isPublished: true, ...nsfwWhere } },
             select: { game: { select: { coverImage: true, favoriteCount: true } } },
             orderBy: { game: { favoriteCount: "desc" } },
             take: 1,
@@ -227,11 +238,13 @@ export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetai
     }[]
   } | null
   try {
+    // ⚠️ 作品列表（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwWhere = await makersNsfwWhere()
     studio = await prisma.studio.findUnique({
       where: { slug: key },
       include: {
         games: {
-          where: { game: { isPublished: true } },
+          where: { game: { isPublished: true, ...nsfwWhere } },
           include: {
             game: {
               select: {

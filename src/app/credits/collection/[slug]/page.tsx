@@ -2,11 +2,10 @@ import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { notFound } from "next/navigation"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
+import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import Image from "next/image"
 import Link from "next/link"
 import { Eye, Heart } from "lucide-react"
-
-export const revalidate = 300
 
 type CollectionDetail = Prisma.CuratedCollectionGetPayload<{
   include: {
@@ -43,12 +42,18 @@ export default async function CuratedCollectionDetailPage({
 }) {
   const { slug } = await params
 
+  // NSFW 过滤模式：服务端按 cookie 解析（未登录强制 sfw）
+  const nsfwMode = await getMainNsfwMode()
+
   let collection: CollectionDetail | null = null
   try {
+    // ⚠️ 合集内游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
     collection = await prisma.curatedCollection.findUnique({
       where: { slug, published: true },
       include: {
         games: {
+          where: { game: { isPublished: true, ...nsfwWhere } },
           orderBy: { sortOrder: "asc" },
           include: { game: { select: GAME_CARD_SELECT } },
         },

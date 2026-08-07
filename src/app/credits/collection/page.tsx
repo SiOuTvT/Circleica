@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
+import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import type { Metadata } from "next"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
@@ -19,8 +20,6 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
 }
-
-export const revalidate = 300
 
 type CollectionSummary = Prisma.CuratedCollectionGetPayload<{
   include: {
@@ -43,11 +42,15 @@ export default async function CuratedCollectionsPage({
 
   let all: CollectionSummary[] = []
   try {
+    // ⚠️ 合集封面条（前 4 部游戏封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwMode = await getMainNsfwMode()
+    const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
     all = await prisma.curatedCollection.findMany({
       where: { published: true },
       orderBy: { sortOrder: "asc" },
       include: {
         games: {
+          where: { game: { isPublished: true, ...nsfwWhere } },
           orderBy: { sortOrder: "asc" },
           take: 4,
           include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },

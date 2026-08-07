@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
+  ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
   Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
@@ -65,6 +65,7 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN", site: "galvelica" },
       { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN", site: "galvelica" },
+      { icon: Building2, label: "商业作品归档", href: "/admin/galvelica/commercial", minRole: "ADMIN", site: "galvelica" },
       { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN", site: "galvelica" },
       { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN", site: "galvelica" },
       { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN", site: "galvelica" },

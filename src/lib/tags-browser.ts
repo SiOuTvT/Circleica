@@ -6,6 +6,7 @@
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import type { TagBrowserData, TagDetail, TagGameItem, TagInfo, TagGroupWithTags, TagWithGroup } from "@/types/tags-browser"
 
 /**
@@ -209,6 +210,9 @@ const TAG_GAME_LIMIT = 60
  */
 export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null> {
   try {
+    // ⚠️ 标签下游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwMode = await getMainNsfwMode()
+    const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
     const tag = await prisma.tag.findUnique({
       where: { slug, source: "circleica" },
       include: { group: { select: { id: true, name: true, color: true } } },
@@ -216,11 +220,11 @@ export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null
     if (!tag) return null
 
     const total = await prisma.gameTag.count({
-      where: { tagId: tag.id, game: { isPublished: true } },
+      where: { tagId: tag.id, game: { isPublished: true, ...nsfwWhere } },
     })
 
     const rows = await prisma.gameTag.findMany({
-      where: { tagId: tag.id, game: { isPublished: true } },
+      where: { tagId: tag.id, game: { isPublished: true, ...nsfwWhere } },
       include: {
         game: {
           select: {

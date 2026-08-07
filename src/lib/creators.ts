@@ -1,5 +1,14 @@
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+
+/** Game 体系 NSFW 模式过滤片段（归档页封面用）：sfw 排除 isNsfw / nsfw 只留 isNsfw / all 不过滤 */
+async function creatorsNsfwWhere(): Promise<Record<string, boolean>> {
+  const mode: MainNsfwMode = await getMainNsfwMode()
+  if (mode === "sfw") return { isNsfw: false }
+  if (mode === "nsfw") return { isNsfw: true }
+  return {}
+}
 
 /**
  * 创作者档案数据层（Circleica 资源站专用）
@@ -209,11 +218,13 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     }>
   } | null
   try {
+    // ⚠️ 作品列表（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
+    const nsfwWhere = await creatorsNsfwWhere()
     creator = await prisma.creator.findFirst({
       where: { slug: key, source: "circleica" },
       include: {
         games: {
-          where: { game: { isPublished: true } },
+          where: { game: { isPublished: true, ...nsfwWhere } },
           select: {
             role: true,
             game: {

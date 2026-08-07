@@ -271,9 +271,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                 : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
             </button>
 
-            {/* NSFW 三段式过滤（SFW / NSFW / 全部，切换需登录） */}
-            <NsfwModeToggle />
-
             {user ? (
               <div ref={userRef} className="relative ml-1">
                 <button
@@ -292,7 +289,8 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                 </button>
 
                 {userOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 overflow-clip rounded-xl bg-popover ring-1 ring-border shadow-3">
+                  // overflow-visible：允许「NSFW 过滤」的三段展台向左溢出菜单卡片展开
+                  <div className="absolute right-0 top-full mt-2 w-52 overflow-visible rounded-xl bg-popover ring-1 ring-border shadow-3">
                     {/* 用户信息区 */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/80 text-xs font-bold text-white ring-1 ring-border">
@@ -330,6 +328,10 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                       )}
                       {checkinLoading ? "签到中…" : checkedIn ? "今日已签到 ✓" : "每日签到"}
                     </button>
+
+                    {/* NSFW 三段式过滤（SFW / NSFW / 全部，切换需登录；展台向左展开） */}
+                    <div className="border-t border-border" />
+                    <NsfwModeToggle />
 
                     <div className="border-t border-border" />
 
