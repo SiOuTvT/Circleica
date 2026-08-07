@@ -16,6 +16,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/galvelica" },
 }
 
+/* 资料库索引快捷入口：指向各检索维度，强化「进入资料库」的入口感 */
+const INDEX_LINKS = [
+  { href: "/galvelica/works", label: "作品库" },
+  { href: "/galvelica/tags", label: "标签索引" },
+  { href: "/galvelica/studios", label: "社团" },
+  { href: "/galvelica/years", label: "年份" },
+  { href: "/galvelica/random", label: "随机翻开" },
+]
+
 export default async function GalvelicaHome() {
   // 首页三大区块走缓存，避免每次导航回源打库。
   // 今日缘分按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
@@ -30,8 +39,8 @@ export default async function GalvelicaHome() {
   ])
 
   return (
-    <div className="space-y-10 sm:space-y-12">
-      {/* ── Hero：档案馆沉浸式入口（保留）── */}
+    <div className="space-y-10 sm:space-y-14">
+      {/* ── 刊头 Hero：档案馆沉浸入口 + 更突出的检索 + 资料库索引带 ── */}
       <section
         className="relative overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] p-7 sm:p-11"
         style={{ background: "var(--gal-paper)" }}
@@ -44,48 +53,66 @@ export default async function GalvelicaHome() {
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
           Archive · 资料库
         </p>
-        <h1 className="galvelica-h1--hero mt-3">
-          同人视觉小说档案馆
-        </h1>
+        <h1 className="galvelica-h1--hero mt-3">同人视觉小说档案馆</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
           Galvelica 是一个安静的收藏空间。这里整理同人视觉小说的资料、制作人员与脉络，
           供你沉浸地浏览与发现——而非下载。每一次打开，都是一次归档式的漫游。
         </p>
 
-        <GalvelicaSearch className="mt-6 flex max-w-md gap-2" submitLabel="检索" />
+        {/* 检索：更突出的检索条（拉伸填满） */}
+        <GalvelicaSearch
+          className="mt-7 flex w-full max-w-xl gap-2"
+          submitLabel="检索"
+          fullWidth
+        />
 
-        <Link
-          href="/galvelica/random"
-          className="galvelica-navlink mt-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium"
-        >
-          随便看看：随机发现一部作品 →
-        </Link>
+        {/* 资料库索引带：指向 works / tags / studios / years / random */}
+        <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2">
+          <span className="text-caption font-medium uppercase tracking-[0.24em] text-muted-foreground/70">
+            资料库索引
+          </span>
+          {INDEX_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="galvelica-navlink rounded-full px-3.5 py-1.5 text-sm font-medium"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
       </section>
 
-      {/* ── 编辑精选（杂志式，首页主角）── */}
-      <Section
-        title="编辑精选"
-        subtitle="由策展人精心挑选，值得放慢脚步品读的作品"
-        href="/galvelica/works?sort=popular"
-        hrefLabel="按热度浏览"
-      >
-        <EditorPicks works={editorPicks} />
-      </Section>
-
-      {/* ── 本馆札记（编辑声，给档案馆人格）── */}
+      {/* ── 本馆札记：引言式小栏（给档案馆人格，置于刊头之后作引子）── */}
       <CuratorNote />
 
-      {/* ── 今日缘分（按日期确定的一部，偶遇感）── */}
-      <Section
-        title="今日缘分"
-        subtitle="每一天，馆方为你留下一部值得读的作品"
-        href="/galvelica/random"
-        hrefLabel="随机一部"
-      >
-        <DailyPick work={daily} />
-      </Section>
+      {/* ── 编辑式双栏：编辑精选（主角，2/3）+ 今日缘分（侧栏，1/3）──
+          打破"Hero + 几个横排卡片"的通用模板，形成错落编排的阅览节奏 */}
+      <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
+        <div className="min-w-0 lg:col-span-2">
+          <Section
+            title="编辑精选"
+            subtitle="由策展人精心挑选，值得放慢脚步品读的作品"
+            href="/galvelica/works?sort=popular"
+            hrefLabel="按热度浏览"
+          >
+            <EditorPicks works={editorPicks} />
+          </Section>
+        </div>
 
-      {/* ── 专题策划（编辑视角的策展入口，非机械标签云）── */}
+        <div className="min-w-0">
+          <Section
+            title="今日缘分"
+            subtitle="每一天，馆方为你留下一部值得读的作品"
+            href="/galvelica/random"
+            hrefLabel="随机一部"
+          >
+            <DailyPick work={daily} />
+          </Section>
+        </div>
+      </div>
+
+      {/* ── 专题策划（编辑视角的策展入口，非机械标签云，全宽收束）── */}
       {themes.length > 0 && (
         <Section
           title="专题策划"

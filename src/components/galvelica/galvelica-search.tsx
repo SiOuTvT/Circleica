@@ -9,16 +9,18 @@ interface GalvelicaSearchProps {
   /** 提供时渲染实色「检索」按钮（首页 Hero / 列表页）；不提供则仅搜索框（导航栏） */
   submitLabel?: string
   placeholder?: string
+  /** 首页 Hero 用：输入框拉伸填满整行，作成更突出的检索条 */
+  fullWidth?: boolean
 }
 
 /**
  * 副站检索框：统一导航栏、列表页与首页 Hero 的搜索样式（原为三套内联实现）。
  * 基于 URL 查询参数（search），与列表页过滤模式一致；移动端常显。
  */
-export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitLabel, placeholder = "检索作品、社团…" }: GalvelicaSearchProps) {
+export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitLabel, placeholder = "检索作品、社团…", fullWidth }: GalvelicaSearchProps) {
   return (
     <form action="/galvelica/works" method="get" className={className}>
-      <div className="relative">
+      <div className={fullWidth ? "relative flex-1" : "relative"}>
         <Search
           className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           strokeWidth={2}
@@ -28,7 +30,11 @@ export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitL
           name="search"
           defaultValue={defaultValue}
           placeholder={placeholder}
-          className="w-32 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none sm:w-44 lg:w-52"
+          className={
+            fullWidth
+              ? "w-full min-w-0 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
+              : "w-32 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none sm:w-44 lg:w-52"
+          }
           aria-label="检索"
         />
       </div>

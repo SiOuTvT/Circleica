@@ -5,7 +5,6 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { AdminTable } from "@/components/admin/admin-table"
 import { EmptyState } from "@/components/ui/empty-state"
 import { PenTool } from "lucide-react"
 import Link from "next/link"
@@ -100,32 +99,39 @@ export default async function GalvelicaCreatorsPage({
       {mappedCreators.length === 0 ? (
         <EmptyState icon={PenTool} title="暂无创作者" description="Galvelica 副站尚无创作者数据" bordered />
       ) : (
-        <AdminTable
-          rows={mappedCreators}
-          getRowKey={(c) => c.id}
-          columns={[
-            {
-              key: "name",
-              header: "名称",
-              cell: (c) => (
-                <Link href={`/admin/galvelica/creators/${c.id}`} className="group flex items-center gap-2.5">
-                  {c.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.avatar} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-border" />
-                  ) : (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                      {c.name.charAt(0)}
-                    </div>
-                  )}
-                  <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{c.name}</span>
-                </Link>
-              ),
-            },
-            { key: "nameJa", header: "日文名", cell: (c) => <span className="text-muted-foreground">{c.nameJa || "—"}</span> },
-            { key: "workCount", header: "关联作品", align: "right", cell: (c) => <span className="text-muted-foreground">{c.workCount}</span> },
-            { key: "actions", header: "操作", align: "right", cell: (c) => <CreatorRowActions creator={c} /> },
-          ]}
-        />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {mappedCreators.map((c) => (
+            <div
+              key={c.id}
+              className="flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-[color:var(--admin-accent,var(--primary))]"
+            >
+              <div className="flex items-center gap-2.5">
+                {c.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.avatar} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-border" />
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                    {c.name.charAt(0)}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/galvelica/creators/${c.id}`}
+                    className="block truncate font-medium text-foreground hover:text-primary hover:underline"
+                    title={c.name}
+                  >
+                    {c.name}
+                  </Link>
+                  <p className="truncate text-xs text-muted-foreground">{c.nameJa || "—"}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+                <span className="text-xs text-muted-foreground">关联作品 {c.workCount}</span>
+                <CreatorRowActions creator={c} />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <Pagination

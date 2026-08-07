@@ -141,16 +141,18 @@ export default async function GalvelicaDuplicatesPage({
         {creatorDups.length === 0 ? (
           <EmptyState icon={CopyCheck} title="未发现重复创作者" description="副站创作者暂无同名重复。" bordered />
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {creatorDups.map((g) => (
-              <div key={g.key} className="rounded-xl border border-border bg-card p-4">
-                <p className="mb-2 text-sm font-medium text-foreground">{g.key}</p>
-                <div className="flex flex-wrap gap-2">
+              <div key={g.key} className="rounded-lg border border-border bg-card p-3">
+                <p className="mb-2 truncate text-sm font-medium text-foreground" title={g.key}>
+                  {g.key}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
                   {g.items.map((it) => (
                     <Link
                       key={it.id}
                       href={it.href}
-                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
                     >
                       {it.label}
                       <ArrowRight className="h-3 w-3 text-muted-foreground" />
@@ -177,16 +179,18 @@ export default async function GalvelicaDuplicatesPage({
         {workDups.length === 0 ? (
           <EmptyState icon={CopyCheck} title="未发现重复作品" description="副站作品暂无归一化标题重复。" bordered />
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {workDups.map((g) => (
-              <div key={g.key} className="rounded-xl border border-border bg-card p-4">
-                <p className="mb-2 text-sm font-medium text-foreground">匹配键：{g.key}</p>
-                <div className="flex flex-wrap gap-2">
+              <div key={g.key} className="rounded-lg border border-border bg-card p-3">
+                <p className="mb-2 truncate text-sm font-medium text-foreground" title={g.key}>
+                  匹配键：{g.key}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
                   {g.items.map((it) => (
                     <Link
                       key={it.id}
                       href={it.href}
-                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
                     >
                       {it.label}
                       <ArrowRight className="h-3 w-3 text-muted-foreground" />

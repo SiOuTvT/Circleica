@@ -5,7 +5,6 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { AdminTable } from "@/components/admin/admin-table"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tag } from "lucide-react"
 import Link from "next/link"
@@ -98,28 +97,32 @@ export default async function GalvelicaTagsPage({
       {mappedTags.length === 0 ? (
         <EmptyState icon={Tag} title="暂无标签" description="Galvelica 副站尚无标签数据" bordered />
       ) : (
-        <AdminTable
-          rows={mappedTags}
-          getRowKey={(t) => t.id}
-          columns={[
-            {
-              key: "name",
-              header: "名称",
-              cell: (t) => (
-                <Link href={`/admin/galvelica/tags/${t.id}`} className="group flex items-center gap-2">
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border"
-                    style={{ background: t.color }}
-                  />
-                  <span className="font-medium text-foreground group-hover:text-primary group-hover:underline">{t.name}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+          {mappedTags.map((t) => (
+            <div
+              key={t.id}
+              className="flex flex-col rounded-xl border border-border bg-card p-3 transition-colors hover:border-[color:var(--admin-accent,var(--primary))]"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
+                  style={{ background: t.color }}
+                />
+                <Link
+                  href={`/admin/galvelica/tags/${t.id}`}
+                  className="block min-w-0 flex-1 truncate font-medium text-foreground hover:text-primary hover:underline"
+                  title={t.name}
+                >
+                  {t.name}
                 </Link>
-              ),
-            },
-            { key: "color", header: "颜色", cell: (t) => <span className="font-mono text-xs text-muted-foreground">{t.color}</span> },
-            { key: "workCount", header: "关联作品", align: "right", cell: (t) => <span className="text-muted-foreground">{t.workCount}</span> },
-            { key: "actions", header: "操作", align: "right", cell: (t) => <TagRowActions tag={t} /> },
-          ]}
-        />
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+                <span className="text-xs text-muted-foreground">关联作品 {t.workCount}</span>
+                <TagRowActions tag={t} />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <Pagination
