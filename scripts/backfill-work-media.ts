@@ -29,8 +29,13 @@ import { fuseWork } from "@/lib/galvelica/work-service"
 
 const LIMIT = parseInt(process.env.BACKFILL_LIMIT || "0", 10) || 0
 const DELAY_MS = parseInt(process.env.BACKFILL_DELAY_MS || "400", 10) || 0
+// 分级模式：候选 = 未补评分/封面分级/截图分级 的作品（阶段0：NSFW 合规 + 质量分数据源）
+const GRADE_MODE = process.env.BACKFILL_GRADE === "1"
 // 断点文件放系统临时目录：项目根的文件在沙箱/异常退出后可能被 Windows 句柄锁死（EPERM）。
-const STATE_FILE = path.join(os.tmpdir(), "circleica-backfill-media-state.json")
+// 分级模式用独立断点，避免与媒体回填断点（offset 语义不同）错位。
+const STATE_FILE = GRADE_MODE
+  ? path.join(os.tmpdir(), "circleica-backfill-grade-state.json")
+  : path.join(os.tmpdir(), "circleica-backfill-media-state.json")
 // 失败 id 记录文件：每次失败（批量拉取失败/单个融合失败）追加 workId，供 BACKFILL_IDS_FILE 精确重试。
 const FAIL_LOG = process.env.BACKFILL_FAIL_LOG || path.join(os.tmpdir(), "circleica-backfill-failed.json")
 // 可选：只处理此文件（每行一个 workId）列出的作品（忽略 offset 续跑语义，用于精确补齐失败项）。
@@ -48,9 +53,9 @@ async function appendFail(ids: string[]) {
   }
 }
 
-/** 与 fetchVisualNovelRaw 完全一致的字段清单（保证 normalize 行为一致） */
+/** 与 fetchVisualNovelRaw 完全一致的字段清单（保证 normalize 行为一致；阶段0 起含 rating/sexual 分级） */
 const VNDB_FIELDS =
-  "id,title,alttitle,aliases,released,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,image.url,length,screenshots{id,url},platforms,languages,olang"
+  "id,title,alttitle,aliases,released,rating,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,image{url,sexual,violence,dims},length,screenshots{id,url,sexual,violence},platforms,languages,olang"
 
 /** 标准化 VNDB ID：纯数字自动加 "v" 前缀（与适配器 normalizeVndbId 一致） */
 function normalizeVndbId(raw: string): string {
@@ -136,7 +141,9 @@ async function main() {
   const rows = await prisma.$queryRaw<Array<{ id: string; vndbId: string }>>`
     SELECT w.id, ws."externalId" AS "vndbId" FROM "Work" w
     JOIN "WorkSource" ws ON ws."workId" = w.id AND ws.source = 'VNDB'
-    WHERE (w.screenshots = '[]'::jsonb OR w.platforms = '[]'::jsonb OR w.languages = '[]'::jsonb)
+    WHERE ${GRADE_MODE
+      ? Prisma.sql`(w."coverSexual" = -1 OR w.rating IS NULL)`
+      : Prisma.sql`(w.screenshots = '[]'::jsonb OR w.platforms = '[]'::jsonb OR w.languages = '[]'::jsonb)`}
     ORDER BY w."viewCount" DESC, w.id ASC
   `
 

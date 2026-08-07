@@ -824,6 +824,14 @@ model Work {
   originalLanguage String @default("") // 原始语言代码（ja/en/zh/…）
   officialWebsite  String @default("") // 官方网站
 
+  // ── 阶段0：评分/封面分级/截图分级（NSFW 合规 + 质量分数据源） ──
+  rating            Float?            // VNDB 综合评分 0-10（融合来源）；与 ratingAvg 区分：这是源评分原值
+  coverSexual       Int      @default(-1) // 封面露骨度：0=安全 1=暗示 2=露骨 -1=未定（VNDB image.sexual / 图像审核 / 人工）
+  coverViolence     Int      @default(-1) // 封面暴力分级（VNDB image.violence）
+  coverDims         Json?              // 封面尺寸 {width,height}（VNDB image.dims）
+  coverSexualSource String   @default("") // 封面分级来源：vndb | auto | manual
+  screenshotsSexual Json     @default("[]") // 截图露骨度分级数组，与 screenshots 一一对应（-1=未定）
+
   isNsfw       Boolean   @default(false)
 
   // 同人分类（对外展示）：PURE=纯正同人，DERIVATIVE=同人系公司商业作；null=未定（人工/旧数据）
@@ -844,6 +852,11 @@ model Work {
   viewCount     Int    @default(0)
   favoriteCount Int    @default(0)
 
+  // ── 阶段2：质量分（排序）与内容旗标（真人3D等） ──
+  qualityScore  Int      @default(0)
+  qualitySignal Json     @default("{}") // 质量分子分（cover/screenshot/desc/meta/rating/heat/penalty），后台诊断用
+  contentFlags  String[] @default([]) // 内容旗标：LIVE_ACTION / REALISTIC_3D（真人实拍/写实3D，供过滤与质量分扣分）
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   lastFusedAt DateTime?
@@ -856,6 +869,8 @@ model Work {
   @@index([title])
   @@index([releaseDate])
   @@index([isNsfw])
+  @@index([qualityScore])
+  @@index([coverSexual])
 }
 
 // ── 每源原始载荷 + 关联（provenance 的底层） ──
