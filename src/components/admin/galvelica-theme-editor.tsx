@@ -83,30 +83,21 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* 标题栏 */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">GALVELICA · THEME</p>
-          <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">副站主题设置</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            自定义副站的颜色、圆角、阴影和着色——<strong>只作用于 Galvelica</strong>（galvelica: 独立命名空间），主站主题完全不受影响
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={handleReset}>
-            <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-            ) : saved ? (
-              <Check className="h-4 w-4 mr-1.5" />
-            ) : (
-              <Save className="h-4 w-4 mr-1.5" />
-            )}
-            {saved ? "已保存" : "确认保存"}
-          </Button>
-        </div>
+      {/* 操作栏（页面头已有标题与说明，这里只保留操作按钮，避免重复大标题） */}
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={handleReset}>
+          <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
+        </Button>
+        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+          ) : saved ? (
+            <Check className="h-4 w-4 mr-1.5" />
+          ) : (
+            <Save className="h-4 w-4 mr-1.5" />
+          )}
+          {saved ? "已保存" : "确认保存"}
+        </Button>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">

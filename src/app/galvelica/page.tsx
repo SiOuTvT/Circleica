@@ -53,9 +53,13 @@ export default async function GalvelicaHome() {
           style={{ background: "linear-gradient(90deg, transparent, var(--gal-accent), transparent)" }}
           aria-hidden
         />
-        {/* 定位句（Header 已有品牌标题，这里不再重复大标题） */}
-        <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          安静的收藏空间：整理同人视觉小说的资料、制作人员与脉络，供你随手浏览与发现。
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
+          ARCHIVE · 可以随手逛
+        </p>
+        <h1 className="galvelica-h1--hero mt-3">同人视觉小说资料库</h1>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+          Galvelica 是一个安静的收藏空间。这里整理同人视觉小说的资料、制作人员与脉络，
+          供你随手浏览与发现——而非下载。每一次打开，都是一次新鲜的偶遇。
         </p>
 
         {/* 检索：更突出的检索条（拉伸填满） */}

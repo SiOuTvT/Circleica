@@ -23,14 +23,14 @@ export async function setWorkCoverSexual(formData: FormData): Promise<void> {
   const workId = String(formData.get("workId") ?? "").trim()
   const levelRaw = Number(formData.get("level"))
   if (!workId) throw new ValidationError("缺少 workId")
-  if (![0, 1, 2].includes(levelRaw)) throw new ValidationError("分级必须是 0/1/2")
+  if (![0, 2].includes(levelRaw)) throw new ValidationError("分级只能是 SFW(0) 或 NSFW(2)")
 
   const work = await prisma.work.findUnique({ where: { id: workId }, select: { id: true } })
   if (!work) throw new NotFoundError("作品")
 
   await prisma.work.update({
     where: { id: workId },
-    data: { coverSexual: levelRaw },
+    data: { coverSexual: levelRaw, coverSexualSource: "manual" },
   })
 
   // 封面分级影响前台展示 → 清副站前台缓存 + 刷新列表/审核页

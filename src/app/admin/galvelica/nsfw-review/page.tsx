@@ -20,13 +20,13 @@ export default async function GalvelicaNsfwReviewPage({
   const filter = sp.filter === "all" || sp.filter === "explicit" ? sp.filter : "ungraded"
   const page = Math.max(1, Number(sp.page) || 1)
 
-  // 封面露骨度分级：-1=未知（待审核）0=安全 1=暗示 2=露骨
+  // 封面露骨度分级：-1=未知（待审核）0=SFW 安全 1=SFW 温和（已并入 NSFW，不再使用） 2=NSFW 露骨
   const where =
     filter === "explicit"
       ? { coverSexual: 2 }
       : filter === "all"
         ? {}
-        : { coverSexual: { lt: 0 } }
+        : { coverSexual: { lt: 0 }, coverImage: { not: "" } } // 待审核：只审有封面的（无封面无法裁决）
 
   let items: ReviewItem[] = []
   let total = 0
