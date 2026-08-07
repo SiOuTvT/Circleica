@@ -108,7 +108,7 @@ export default async function GalvelicaTagsPage({
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
-                  style={{ background: tagColor }}
+                  style={{ background: t.color || tagColor }}
                 />
                 <Link
                   href={`/admin/galvelica/tags/${t.id}`}

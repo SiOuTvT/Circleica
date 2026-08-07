@@ -12,7 +12,7 @@ export function TagPill({ tag, showCount, color }: TagPillProps) {
   return (
     <Tag
       variant="cloud"
-      color={color ?? tag.color}
+      color={tag.color || color}
       href={`/galvelica/tags/${tag.id}`}
       title={tag.groupName ? `${tag.groupName} · ${tag.name}` : tag.name}
     >

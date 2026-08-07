@@ -22,7 +22,7 @@ const statusLabel: Record<string, string> = {
 }
 
 /**
- * Galvelica 作品档案详情视图（Stage E）。
+ * Galvelica 作品详情视图（Stage E）。
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
  * 已收录 → 显示「前往下载页」；未收录 → 显示「申请收录到 Circleica」。
  */
@@ -132,7 +132,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
             <div className="mt-5">
               <TagGroup>
                 {work.tags.map((t) => (
-                  <Tag key={t.id} color={tagColor ?? t.color} href={`/galvelica/tags/${t.id}`} title={t.name}>
+                  <Tag key={t.id} color={t.color || tagColor} href={`/galvelica/tags/${t.id}`} title={t.name}>
                     {t.name}
                   </Tag>
                 ))}
@@ -228,7 +228,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                     </div>
                   )}
                 </div>
-                <p className="galvelica-serif line-clamp-2 p-2 text-xs font-medium leading-snug text-foreground group-hover:text-[var(--gal-accent)]">
+                <p className="line-clamp-2 p-2 text-xs font-medium leading-snug text-foreground group-hover:text-[var(--gal-accent)]">
                   {s.title}
                 </p>
               </Link>

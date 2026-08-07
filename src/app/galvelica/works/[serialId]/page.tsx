@@ -8,7 +8,7 @@ import { WorkDetailView } from "@/components/galvelica/work-detail"
 export const dynamic = "force-dynamic"
 
 /**
- * 作品档案详情路由（Stage E / F 统一入口）。
+ * 作品详情路由（Stage E / F 统一入口）。
  * URL 段可能是：
  *   - 数字 serialId → 已收录作品（解析 Game → Work）
  *   - slug          → 未收录作品（直接按 slug 解析 Work）
@@ -28,7 +28,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { serialId } = await params
   const work = await resolveWork(serialId)
-  if (!work) return { title: "作品档案 · Galvelica" }
+  if (!work) return { title: "作品 · Galvelica" }
   return {
     title: `${work.title} · Galvelica 资料库`,
     description: work.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${work.originalWork ? work.originalWork + " · " : ""}${work.title} 的同人视觉小说资料`,

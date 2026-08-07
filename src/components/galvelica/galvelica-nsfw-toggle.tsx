@@ -6,7 +6,7 @@ import { Eye, EyeOff } from "lucide-react"
 
 /**
  * 副站 R18 / NSFW 内容开关（不登录）。
- * 偏好写入 cookie `gal_nsfw`（1=显示 / 0=隐藏），默认隐藏（公开档案馆的安全默认）。
+ * 偏好写入 cookie `gal_nsfw`（1=显示 / 0=隐藏），默认隐藏（公开资料库的安全默认）。
  * router.refresh() 触发服务端重渲染，galvelica.ts 的 workWhere/publishedWhere 读取该 cookie 过滤。
  */
 export function GalvelicaNsfwToggle({ className }: { className?: string }) {

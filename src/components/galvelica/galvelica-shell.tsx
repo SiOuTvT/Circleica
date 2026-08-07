@@ -32,11 +32,11 @@ export async function GalvelicaShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
             <span className="galvelica-wordmark text-base font-semibold text-foreground">Galvelica</span>
-            <span className="ml-2">· Circleica 旗下同人视觉小说档案馆</span>
+            <span className="ml-2">· Circleica 旗下同人视觉小说资料库</span>
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/" className="transition-colors hover:text-foreground">返回 Circleica</Link>
-            <Link href="/galvelica/works" className="transition-colors hover:text-foreground">浏览全部档案</Link>
+            <Link href="/galvelica/works" className="transition-colors hover:text-foreground">浏览全部作品</Link>
             <Link href="/galvelica/tags" className="transition-colors hover:text-foreground">标签索引</Link>
             <Link href="/galvelica/years" className="transition-colors hover:text-foreground">年份索引</Link>
           </div>

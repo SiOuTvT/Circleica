@@ -1721,44 +1721,44 @@ body[data-has-bottom-nav="true"] {
 
 /* 全局可见的 Galvelica 主色（侧边栏入口位于 .galvelica-root 之外也可用） */
 :root {
-  --gal-accent: #5FA8A0;        /* 铜绿 / 安静的档案馆绿 */
+  --gal-accent: #34C3AE;        /* 鲜活信号绿 */
   --gal-accent-strong: var(--gal-accent);
-  --gal-accent-soft: rgba(95, 168, 160, 0.12);
-  --gal-accent-softer: rgba(95, 168, 160, 0.06);
-  --gal-paper: color-mix(in srgb, var(--background) 96%, #0c1413);
+  --gal-accent-soft: rgba(52, 195, 174, 0.14);
+  --gal-accent-softer: rgba(52, 195, 174, 0.07);
+  --gal-paper: color-mix(in srgb, var(--background) 86%, #2c3f3a);
 }
 .light {
-  --gal-paper: color-mix(in srgb, var(--background) 97%, #e9f1ef);
-  /* A1 补丁：浅色下 --gal-accent 同步下沉对比度，避免统一令牌后绿字退化 */
-  --gal-accent: #3f8e86;
+  --gal-paper: color-mix(in srgb, var(--background) 95%, #e3eeec);
+  /* 浅色下 --gal-accent 同步提亮，保持信号感 */
+  --gal-accent: #1fae9c;
   --gal-accent-strong: var(--gal-accent);
-  --gal-accent-soft: rgba(63, 142, 134, 0.12);
-  --gal-accent-softer: rgba(63, 142, 134, 0.06);
+  --gal-accent-soft: rgba(31, 174, 156, 0.14);
+  --gal-accent-softer: rgba(31, 174, 156, 0.07);
 }
 
 /* ── 子站作用域：继承全站 token，仅替换主色系与排版气质 ── */
 .galvelica-root {
-  --primary: #5FA8A0;
+  --primary: #34C3AE;
   --primary-foreground: #06201d;
-  --clr-blue: #5FA8A0;
-  --clr-sky: #8fc7bf;
-  --theme-r: 95;
-  --theme-g: 168;
-  --theme-b: 160;
-  --theme-color: #5FA8A0;
+  --clr-blue: #34C3AE;
+  --clr-sky: #8fe6da;
+  --theme-r: 52;
+  --theme-g: 195;
+  --theme-b: 174;
+  --theme-color: #34C3AE;
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #06201d;
 }
 .light .galvelica-root {
-  --primary: #3f8e86;
+  --primary: #1fae9c;
   --primary-foreground: #ffffff;
-  --clr-blue: #3f8e86;
-  --clr-sky: #6fb3aa;
-  --theme-r: 63;
-  --theme-g: 142;
-  --theme-b: 134;
-  --theme-color: #3f8e86;
+  --clr-blue: #1fae9c;
+  --clr-sky: #6fe6d6;
+  --theme-r: 31;
+  --theme-g: 174;
+  --theme-b: 156;
+  --theme-color: #1fae9c;
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #ffffff;
@@ -1801,11 +1801,12 @@ body[data-has-bottom-nav="true"] {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
-  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease;
+  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease, transform var(--duration-slow) ease;
 }
 .galvelica-card:hover {
   border-color: color-mix(in srgb, var(--gal-accent) 45%, var(--border));
   box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
 }
 
 /* Galvelica 标签云：默认跟随铜绿主色；若设置了 --gal-tag-color（真实标签的 Tag.color）则沿用其色，自动适配明暗 */
@@ -1840,7 +1841,6 @@ body[data-has-bottom-nav="true"] {
   }
 }
 .galvelica-h2 {
-  font-family: var(--font-display);
   font-size: 1.25rem;       /* text-xl, 20px */
   font-weight: 600;
   line-height: 1.3;
@@ -1848,7 +1848,6 @@ body[data-has-bottom-nav="true"] {
   color: var(--foreground);
 }
 .galvelica-h3 {
-  font-family: var(--font-display);
   font-size: 1.125rem;      /* text-lg, 18px */
   font-weight: 600;
   line-height: 1.35;

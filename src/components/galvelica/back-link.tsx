@@ -2,7 +2,7 @@ import Link from "next/link"
 
 /**
  * 副站统一「返回」链接：左侧箭头 + 文案，样式对齐导航项。
- * - 站内返回：<GalvelicaBackLink href="/galvelica/works" label="作品档案" />
+ * - 站内返回：<GalvelicaBackLink href="/galvelica/works" label="作品库" />
  * - 返回主站：<GalvelicaBackLink site />（文案固定「返回 Circleica」，对齐 Header/Footer）
  */
 export function GalvelicaBackLink({ href, label, site, className }: { href?: string; label?: string; site?: boolean; className?: string }) {

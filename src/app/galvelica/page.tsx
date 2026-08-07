@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Section } from "@/components/galvelica/section"
 import { EditorPicks } from "@/components/galvelica/editor-pick"
-import { CuratorNote, DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
+import { DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Galvelica · 同人视觉小说资料库",
   description:
-    "Galvelica 是 Circleica 旗下的同人视觉小说资料库与档案馆。安静地浏览、收藏与发现作品，而非下载。",
+    "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
   alternates: { canonical: "/galvelica" },
 }
 
@@ -28,7 +28,7 @@ const INDEX_LINKS = [
 
 export default async function GalvelicaHome() {
   // 首页三大区块走缓存，避免每次导航回源打库。
-  // 今日缘分按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
+  // 今日偶遇按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
   const [editorPicks, daily, themes, tagColor] = await Promise.all([
     cached(cacheKey("galvelica:home:editorPicks", 5), () => getEditorPicks(5), 300),
     cached(
@@ -42,7 +42,7 @@ export default async function GalvelicaHome() {
 
   return (
     <div className="space-y-10 sm:space-y-14">
-      {/* ── 刊头 Hero：档案馆沉浸入口 + 更突出的检索 + 资料库索引带 ── */}
+      {/* ── 刊头 Hero：资料库沉浸入口 + 更突出的检索 + 资料库索引带 ── */}
       <section
         className="relative overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] p-7 sm:p-11"
         style={{ background: "var(--gal-paper)" }}
@@ -53,12 +53,12 @@ export default async function GalvelicaHome() {
           aria-hidden
         />
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
-          Archive · 资料库
+          资料库 · 可以随手逛
         </p>
-        <h1 className="galvelica-h1--hero mt-3">同人视觉小说档案馆</h1>
+        <h1 className="galvelica-h1--hero mt-3">同人视觉小说资料库</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
           Galvelica 是一个安静的收藏空间。这里整理同人视觉小说的资料、制作人员与脉络，
-          供你沉浸地浏览与发现——而非下载。每一次打开，都是一次归档式的漫游。
+          供你随手浏览与发现——而非下载。每一次打开，都是一次新鲜的偶遇。
         </p>
 
         {/* 检索：更突出的检索条（拉伸填满） */}
@@ -85,16 +85,13 @@ export default async function GalvelicaHome() {
         </div>
       </section>
 
-      {/* ── 本馆札记：引言式小栏（给档案馆人格，置于刊头之后作引子）── */}
-      <CuratorNote />
-
-      {/* ── 编辑式双栏：编辑精选（主角，2/3）+ 今日缘分（侧栏，1/3）──
+      {/* ── 编辑式双栏：编辑精选（主角，2/3）+ 今日偶遇（侧栏，1/3）──
           打破"Hero + 几个横排卡片"的通用模板，形成错落编排的阅览节奏 */}
       <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
         <div className="min-w-0 lg:col-span-2">
           <Section
             title="编辑精选"
-            subtitle="由策展人精心挑选，值得放慢脚步品读的作品"
+            subtitle="由编辑精心挑选，值得放慢脚步品读的作品"
             href="/galvelica/works?sort=popular"
             hrefLabel="按热度浏览"
           >
@@ -104,8 +101,8 @@ export default async function GalvelicaHome() {
 
         <div className="min-w-0">
           <Section
-            title="今日缘分"
-            subtitle="每一天，馆方为你留下一部值得读的作品"
+            title="今日偶遇"
+            subtitle="每一天，为你留下一部值得读的作品"
             href="/galvelica/random"
             hrefLabel="随机一部"
           >
@@ -114,11 +111,11 @@ export default async function GalvelicaHome() {
         </div>
       </div>
 
-      {/* ── 专题策划（编辑视角的策展入口，非机械标签云，全宽收束）── */}
+      {/* ── 专题（编辑视角的专题入口，非机械标签云，全宽收束）── */}
       {themes.length > 0 && (
         <Section
-          title="专题策划"
-          subtitle="编辑视角的策展专栏，而非导航栏里已有的标签筛选"
+          title="专题"
+          subtitle="编辑视角的专题专栏，而非导航栏里已有的标签筛选"
           href="/galvelica/works"
           hrefLabel="浏览全部"
         >

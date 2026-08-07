@@ -38,9 +38,9 @@ export function TagColorPalette({ initialColor }: { initialColor: string }) {
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <h3 className="text-sm font-semibold text-foreground">副站标签统一配色</h3>
+      <h3 className="text-sm font-semibold text-foreground">副站标签统一配色（兜底）</h3>
       <p className="mb-3 mt-1 text-xs text-muted-foreground">
-        此颜色将统一应用于副站后台与前台的所有标签，不区分分类、不与主站共享。保存后立即在前台生效。
+        作为副站标签的默认/兜底色，不区分分类、不与主站共享。保存后立即在前台生效，并级联到仍用上一版统一色的标签；已单独自定义的标签不受影响。
       </p>
       <div className="flex flex-wrap items-center gap-1.5">
         {GAL_PRESET_TAG_COLORS.map((c) => (

@@ -76,7 +76,7 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
         {showTags && work.tags.length > 0 && (
           <TagGroup className="mt-0.5">
             {work.tags.slice(0, GAME.VISIBLE_TAGS).map((t: GalvelicaTag) => (
-              <Tag key={t.id} color={tagColor ?? t.color} className="max-w-[88px] truncate" title={t.name}>
+              <Tag key={t.id} color={t.color || tagColor} className="max-w-[88px] truncate" title={t.name}>
                 {t.name}
               </Tag>
             ))}

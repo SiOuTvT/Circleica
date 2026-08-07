@@ -6,6 +6,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Tag as TagIcon } from "lucide-react"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 import { TagDetailClient } from "./tag-detail-client"
 
 export const metadata = { title: "Galvelica 标签详情 · 管理后台" }
@@ -24,6 +25,7 @@ export default async function GalvelicaTagDetailPage({
     select: { id: true, name: true, color: true, description: true, slug: true },
   })
   if (!tag) notFound()
+  const unifiedColor = await getGalvelicaTagColor()
 
   // 关联作品数（用原始 SQL 与列表页一致）
   let workCount = 0
@@ -63,6 +65,7 @@ export default async function GalvelicaTagDetailPage({
           <TagDetailClient
             tag={{ id: tag.id, name: tag.name, color: tag.color, description: tag.description }}
             candidates={candidates}
+            unifiedColor={unifiedColor}
           />
         </div>
       }

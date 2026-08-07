@@ -7,7 +7,7 @@ import { cookies } from "next/headers"
 
 /**
  * 副站 R18/NSFW 内容偏好：读取 cookie `gal_nsfw`（1=显示 / 缺省或0=隐藏）。
- * 公开档案馆的安全默认是隐藏（不要求登录即可看到成人内容）。
+ * 公开资料库的安全默认是隐藏（不要求登录即可看到成人内容）。
  */
 async function showNsfwEnabled(): Promise<boolean> {
   try {

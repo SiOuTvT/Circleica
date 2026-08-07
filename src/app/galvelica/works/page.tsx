@@ -11,7 +11,7 @@ import { getGalvelicaTagColor } from "@/lib/site-settings"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "作品档案 · Galvelica",
+  title: "作品库 · Galvelica",
   description: "浏览 Galvelica 资料库中的同人视觉小说作品，支持按标签、年份、社团与关键词筛选。",
   alternates: { canonical: "/galvelica/works" },
 }
@@ -90,7 +90,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="galvelica-h1">作品档案</h1>
+        <h1 className="galvelica-h1">作品库</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           共收录 {result.total} 部作品
           {hasFilters && (

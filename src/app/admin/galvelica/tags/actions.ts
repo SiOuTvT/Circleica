@@ -3,14 +3,16 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
+import { logger } from "@/lib/logger"
 import { NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import { GAL_DEFAULT_TAG_COLOR } from "@/lib/galvelica-palette"
-import { updateSiteSettings } from "@/lib/site-settings"
+import { getGalvelicaTagColor, updateSiteSettings } from "@/lib/site-settings"
 
 export async function createGalvelicaTag(formData: FormData) {
   await requireSiteAdmin("galvelica")
   const name = String(formData.get("name") || "").trim()
-  const color = String(formData.get("color") || "").trim() || GAL_DEFAULT_TAG_COLOR
+  // 新建标签继承当前副站统一色（兜底基准），而非固定的写死紫色；如需差异再单独自定义。
+  const color = String(formData.get("color") || "").trim() || (await getGalvelicaTagColor()) || GAL_DEFAULT_TAG_COLOR
   const slugRaw = String(formData.get("slug") || "").trim()
 
   if (!name) throw new ValidationError("标签名不能为空")
@@ -61,8 +63,9 @@ export async function editGalvelicaTag(formData: FormData) {
 }
 
 /**
- * 副站标签统一配色：写入 SiteSetting[galvelica:tagColor]（经 updateSiteSettings 清 Data Cache），
+ * 副站标签统一配色（兜底/默认色）：写入 SiteSetting[galvelica:tagColor]（经 updateSiteSettings 清 Data Cache），
  * 并 revalidate 公开/后台路由，使前台标签颜色随后台保存立即生效。
+ * 级联语义：把「仍停留在上一版统一色」的标签一并改写为新版统一色；已单独自定义（≠ 旧统一色）的标签保持不变。
  * 仅作用 Galvelica 界面，不与主站共享或关联（key 含 galvelica 前缀，主站永不读取）。
  */
 export async function setGalvelicaTagColor(formData: FormData) {
@@ -70,7 +73,20 @@ export async function setGalvelicaTagColor(formData: FormData) {
   const color = String(formData.get("color") || "").trim()
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new ValidationError("颜色格式须为 #RRGGBB")
 
+  const oldColor = (await getGalvelicaTagColor()) || ""
   await updateSiteSettings({ "galvelica:tagColor": color })
+
+  // 兜底级联：仅改写仍等于「旧统一色」的标签；单独自定义的标签（已偏离旧统一色）不动。
+  if (oldColor && oldColor.toLowerCase() !== color.toLowerCase()) {
+    try {
+      await prisma.tag.updateMany({
+        where: { source: "galvelica", color: oldColor },
+        data: { color },
+      })
+    } catch (e) {
+      logger.db.error("[GalvelicaTags] cascade unified tag color failed", e)
+    }
+  }
 
   revalidatePath("/admin/galvelica/tags")
   revalidatePath("/galvelica")
