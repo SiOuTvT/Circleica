@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Plus, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -8,39 +9,67 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Button } from "@/components/ui/button"
 import { Tag } from "@/components/ui/tag"
 import { adminInput, adminBtnPrimary, adminBtnSubtle, adminBtnDanger } from "@/lib/admin-styles"
-import { GAL_PRESET_TAG_COLORS } from "@/lib/galvelica-palette"
-import { createGalvelicaTag, editGalvelicaTag, deleteGalvelicaTag, resetGalvelicaTagColors } from "./actions"
+import { GAL_PRESET_TAG_COLORS, GAL_TAG_COLOR_DEFAULT } from "@/lib/galvelica-palette"
+import { createGalvelicaTag, editGalvelicaTag, deleteGalvelicaTag, setGalvelicaTagColor } from "./actions"
 
-/** 副站标签取色：预设色板 + 取色器 + 实时预览 pill（统一复用站点 Tag 组件做对比度安全渲染） */
-function TagColorField({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+/**
+ * 副站标签统一配色面板：单一站点级颜色，统一控制副站后台与前台所有标签，
+ * 不区分标签分类，不与主站共享或关联。保存后写入 SiteSetting[galvelica:tagColor]，
+ * 并由 actions 端 revalidatePath + revalidateTag 实现前台实时同步。
+ */
+export function TagColorPalette({ initialColor }: { initialColor: string }) {
+  const router = useRouter()
+  const [color, setColor] = useState(initialColor || GAL_TAG_COLOR_DEFAULT)
+  const [pending, startTransition] = useTransition()
+
+  function save() {
+    startTransition(async () => {
+      try {
+        const fd = new FormData()
+        fd.set("color", color)
+        await setGalvelicaTagColor(fd)
+        toast.success("已保存副站标签统一配色")
+        router.refresh()
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "保存失败")
+      }
+    })
+  }
+
   return (
-    <div className="space-y-2">
+    <div className="rounded-xl border border-border bg-card p-4">
+      <h3 className="text-sm font-semibold text-foreground">副站标签统一配色</h3>
+      <p className="mb-3 mt-1 text-xs text-muted-foreground">
+        此颜色将统一应用于副站后台与前台的所有标签，不区分分类、不与主站共享。保存后立即在前台生效。
+      </p>
       <div className="flex flex-wrap items-center gap-1.5">
         {GAL_PRESET_TAG_COLORS.map((c) => (
           <button
             type="button"
             key={c}
-            onClick={() => onChange(c)}
+            onClick={() => setColor(c)}
             aria-label={`设为 ${c}`}
             title={c}
             className="h-6 w-6 rounded-md ring-1 ring-border transition-transform hover:scale-110"
             style={{
               backgroundColor: c,
-              outline: c.toLowerCase() === value.toLowerCase() ? "2px solid var(--foreground)" : "none",
+              outline: c.toLowerCase() === color.toLowerCase() ? "2px solid var(--foreground)" : "none",
               outlineOffset: "1px",
             }}
           />
         ))}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="mt-3 flex items-center gap-3">
         <input
           type="color"
-          name="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
           className="h-9 w-12 cursor-pointer rounded-lg border-2 border-input bg-transparent"
         />
-        <Tag color={value || undefined} className="px-2.5 py-1">预览</Tag>
+        <Tag color={color} className="px-2.5 py-1">预览</Tag>
+        <Button type="button" size="sm" disabled={pending} onClick={save} className="ml-auto">
+          {pending ? "保存中…" : "保存配色"}
+        </Button>
       </div>
     </div>
   )
@@ -49,7 +78,6 @@ function TagColorField({ value, onChange }: { value: string; onChange: (c: strin
 export function TagCreateForm() {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [color, setColor] = useState("#a78bfa")
 
   async function submit(form: HTMLFormElement) {
     setBusy(true)
@@ -75,7 +103,9 @@ export function TagCreateForm() {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>新建 Galvelica 标签</DialogTitle>
-            <DialogDescription>标签仅存在于副站（source=galvelica），不会进入主站。</DialogDescription>
+            <DialogDescription>
+              标签仅存在于副站（source=galvelica），不会进入主站。标签颜色由「副站标签统一配色」统一控制，此处无需设置。
+            </DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -87,10 +117,6 @@ export function TagCreateForm() {
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">名称</label>
               <input name="name" className={adminInput} required placeholder="如：东方Project" />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">颜色</label>
-              <TagColorField value={color} onChange={setColor} />
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Slug（可选）</label>
@@ -111,11 +137,10 @@ export function TagCreateForm() {
   )
 }
 
-export function TagRowActions({ tag }: { tag: { id: string; name: string; color: string } }) {
+export function TagRowActions({ tag }: { tag: { id: string; name: string } }) {
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [color, setColor] = useState(tag.color)
 
   async function submitEdit(form: HTMLFormElement) {
     setBusy(true)
@@ -159,7 +184,7 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>编辑标签</DialogTitle>
-            <DialogDescription>修改副站标签的名称与颜色。</DialogDescription>
+            <DialogDescription>修改副站标签名称。颜色由「副站标签统一配色」统一控制，此处无需设置。</DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -171,10 +196,6 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">名称</label>
               <input name="name" defaultValue={tag.name} className={adminInput} required />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">颜色</label>
-              <TagColorField value={color} onChange={setColor} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)} disabled={busy}>
@@ -198,29 +219,5 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string; color:
         onConfirm={doDelete}
       />
     </div>
-  )
-}
-
-/**
- * 「重置为调色板」：把仍为默认紫色（#a78bfa）的副站标签按 round-robin 重新赋予
- * 副站专属低饱和调色板色。已手动设置颜色的标签不受影响。仅作用 source=galvelica。
- */
-export function TagResetColorsButton() {
-  const [pending, startTransition] = useTransition()
-  return (
-    <form
-      action={() => {
-        if (typeof window !== "undefined" && !window.confirm("将仍为默认紫色（#a78bfa）的副站标签重置为铜绿调色板？已手动设置颜色的标签不受影响。")) {
-          return
-        }
-        startTransition(async () => {
-          await resetGalvelicaTagColors()
-        })
-      }}
-    >
-      <button type="submit" className={adminBtnSubtle} disabled={pending}>
-        {pending ? "重置中…" : "重置为调色板"}
-      </button>
-    </form>
   )
 }

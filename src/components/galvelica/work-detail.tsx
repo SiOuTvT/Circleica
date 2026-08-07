@@ -26,7 +26,7 @@ const statusLabel: Record<string, string> = {
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
  * 已收录 → 显示「前往下载页」；未收录 → 显示「申请收录到 Circleica」。
  */
-export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
+export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; tagColor?: string }) {
   const byRole = new Map<string, typeof work.staff>()
   for (const s of work.staff) {
     if (!byRole.has(s.role)) byRole.set(s.role, [])
@@ -132,7 +132,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             <div className="mt-5">
               <TagGroup>
                 {work.tags.map((t) => (
-                  <Tag key={t.id} color={t.color} href={`/galvelica/tags/${t.id}`} title={t.name}>
+                  <Tag key={t.id} color={tagColor ?? t.color} href={`/galvelica/tags/${t.id}`} title={t.name}>
                     {t.name}
                   </Tag>
                 ))}

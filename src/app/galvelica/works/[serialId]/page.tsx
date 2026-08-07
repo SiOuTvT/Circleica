@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cache as reactCache } from "react"
 import { getWorkBySerialId, getWorkBySlug } from "@/lib/galvelica"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 import { WorkDetailView } from "@/components/galvelica/work-detail"
 
 export const dynamic = "force-dynamic"
@@ -41,8 +42,8 @@ export default async function GalvelicaWorkDetail({
   params: Promise<{ serialId: string }>
 }) {
   const { serialId } = await params
-  const work = await resolveWork(serialId)
+  const [work, tagColor] = await Promise.all([resolveWork(serialId), getGalvelicaTagColor()])
   if (!work) notFound()
 
-  return <WorkDetailView work={work} />
+  return <WorkDetailView work={work} tagColor={tagColor} />
 }

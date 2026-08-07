@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { TagCloud } from "@/components/galvelica/tag-pill"
 import { getPopularTags } from "@/lib/galvelica"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 
 export default async function GalvelicaTags() {
   const tags = await getPopularTags(80)
+  // 副站统一标签色：直查（实时），保证后台保存后此处立即生效。
+  const tagColor = await getGalvelicaTagColor()
 
   // 按分组归类（无分组的归入「其他」）
   const groups = new Map<string, typeof tags>()
@@ -34,7 +37,7 @@ export default async function GalvelicaTags() {
       {ordered.map(([group, list]) => (
         <section key={group}>
           <h2 className="galvelica-h3 mb-3">{group}</h2>
-          <TagCloud tags={list} />
+          <TagCloud tags={list} color={tagColor} />
         </section>
       ))}
     </div>

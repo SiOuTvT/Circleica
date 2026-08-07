@@ -8,7 +8,8 @@ import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tag } from "lucide-react"
 import Link from "next/link"
-import { TagCreateForm, TagRowActions, TagResetColorsButton } from "./tag-actions"
+import { TagCreateForm, TagRowActions, TagColorPalette } from "./tag-actions"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
 
@@ -79,6 +80,7 @@ export default async function GalvelicaTagsPage({
   }
 
   const totalPages = Math.ceil(total / limit)
+  const tagColor = await getGalvelicaTagColor()
 
   return (
     <AdminPageContainer
@@ -89,11 +91,11 @@ export default async function GalvelicaTagsPage({
       actions={
         <div className="flex items-center gap-2">
           <TagCreateForm />
-          <TagResetColorsButton />
           <AdminSearch name="q" defaultValue={q} placeholder="搜索标签…" aria-label="搜索标签" />
         </div>
       }
     >
+      <TagColorPalette initialColor={tagColor} />
       {mappedTags.length === 0 ? (
         <EmptyState icon={Tag} title="暂无标签" description="Galvelica 副站尚无标签数据" bordered />
       ) : (
@@ -106,7 +108,7 @@ export default async function GalvelicaTagsPage({
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
-                  style={{ background: t.color }}
+                  style={{ background: tagColor }}
                 />
                 <Link
                   href={`/admin/galvelica/tags/${t.id}`}

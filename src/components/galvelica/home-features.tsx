@@ -89,7 +89,7 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
 }
 
 /* ── 专题策划：编辑视角的策展专栏（文字卡，不重复封面）── */
-export function FeaturedThemes({ themes }: { themes: FeaturedTheme[] }) {
+export function FeaturedThemes({ themes, tagColor }: { themes: FeaturedTheme[]; tagColor?: string }) {
   if (!themes.length) return null
   return (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -105,7 +105,7 @@ export function FeaturedThemes({ themes }: { themes: FeaturedTheme[] }) {
           </h3>
           <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{t.blurb}</p>
           <div className="mt-auto flex items-center justify-between pt-2">
-            <Tag color={t.tagColor ?? undefined} className="px-2 py-1">#{t.tagName}</Tag>
+            <Tag color={tagColor ?? t.tagColor ?? undefined} className="px-2 py-1">#{t.tagName}</Tag>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-[var(--gal-accent)]">
               进入专题
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

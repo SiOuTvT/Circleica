@@ -9,9 +9,11 @@ interface WorkCardProps {
   priority?: boolean
   /** 是否在卡片底部展示标签（首页展览网格可关闭以保持克制） */
   showTags?: boolean
+  /** 副站统一标签色。传入时覆盖 per-tag color，实现「所有标签同色」。 */
+  tagColor?: string
 }
 
-export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
+export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCardProps) {
   return (
     <Link
       href={work.href}
@@ -74,7 +76,7 @@ export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
         {showTags && work.tags.length > 0 && (
           <TagGroup className="mt-0.5">
             {work.tags.slice(0, GAME.VISIBLE_TAGS).map((t: GalvelicaTag) => (
-              <Tag key={t.id} color={t.color} className="max-w-[88px] truncate" title={t.name}>
+              <Tag key={t.id} color={tagColor ?? t.color} className="max-w-[88px] truncate" title={t.name}>
                 {t.name}
               </Tag>
             ))}
@@ -85,14 +87,14 @@ export function WorkCard({ work, priority, showTags = true }: WorkCardProps) {
   )
 }
 
-export function WorkGrid({ works, priorityCount = 0, showTags = true }: { works: GalvelicaWorkCard[]; priorityCount?: number; showTags?: boolean }) {
+export function WorkGrid({ works, priorityCount = 0, showTags = true, tagColor }: { works: GalvelicaWorkCard[]; priorityCount?: number; showTags?: boolean; tagColor?: string }) {
   if (!works.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的作品。</p>
   }
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
       {works.map((w, i) => (
-        <WorkCard key={w.id} work={w} priority={i < priorityCount} showTags={showTags} />
+        <WorkCard key={w.id} work={w} priority={i < priorityCount} showTags={showTags} tagColor={tagColor} />
       ))}
     </div>
   )

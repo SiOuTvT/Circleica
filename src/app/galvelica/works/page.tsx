@@ -6,6 +6,7 @@ import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { listWorks, getPopularTags, type GalvelicaSort } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -56,6 +57,9 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
     ),
     cached(cacheKey("galvelica:popularTags", 24), () => getPopularTags(24), 300),
   ])
+
+  // 副站统一标签色：直查（实时，不经 300s 长缓存），后台保存后立即在前台生效。
+  const tagColor = await getGalvelicaTagColor()
 
   // 当前筛选状态（用于构造链接）
   const state: Record<string, string | undefined> = {
@@ -130,7 +134,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
                 key={t.id}
                 href={toggleTag(t.id)}
                 data-active={active}
-                style={{ "--gal-tag-color": t.color } as CSSProperties}
+                style={{ "--gal-tag-color": tagColor } as CSSProperties}
                 className={
                   active
                     ? "inline-flex items-center gap-1 rounded-md border border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] bg-[var(--gal-accent-soft)] px-2.5 py-1.5 text-xs font-medium text-[var(--gal-accent)]"
@@ -171,7 +175,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
                 key={id}
                 href={toggleTag(id)}
                 className="galvelica-tag rounded-md px-2 py-1"
-                style={t?.color ? ({ "--gal-tag-color": t.color } as CSSProperties) : undefined}
+                style={{ "--gal-tag-color": tagColor } as CSSProperties}
               >
                 #{t?.name ?? id} ✕
               </Link>
@@ -181,7 +185,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
       )}
 
       {/* 结果 */}
-      <WorkGrid works={result.items} priorityCount={5} />
+      <WorkGrid works={result.items} priorityCount={5} tagColor={tagColor} />
 
       {/* 分页 */}
       <Pager

@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { cache } from "react"
 import { DEFAULT_LOGO_MODE, type LogoMode } from "@/lib/branding"
+import { GAL_TAG_COLOR_KEY, GAL_TAG_COLOR_DEFAULT } from "@/lib/galvelica-palette"
 
 /**
  * 站点配置服务
@@ -163,6 +164,26 @@ export async function getLogoMode(): Promise<LogoMode> {
 
 export async function getThemeColor(): Promise<string> {
   return getSiteSetting("themeColor", "#4C7E96")
+}
+
+// ── 副站标签统一配色（Galvelica 专属，不与主站共享或关联）──
+
+/**
+ * 读取副站标签统一配色。走直查（不走长缓存），保证后台保存后前台立即可见。
+ * 作用仅限 Galvelica（key 含 galvelica 前缀），主站永不读取 → 站点间天然隔离。
+ */
+export async function getGalvelicaTagColor(): Promise<string> {
+  try {
+    const s = await prisma.siteSetting.findUnique({ where: { key: GAL_TAG_COLOR_KEY } })
+    return s?.value || GAL_TAG_COLOR_DEFAULT
+  } catch {
+    return GAL_TAG_COLOR_DEFAULT
+  }
+}
+
+/** 写入副站标签统一配色（经 updateSiteSettings：upsert + revalidateTag 清 Data Cache）。 */
+export async function setGalvelicaTagColor(color: string): Promise<void> {
+  await updateSiteSettings({ [GAL_TAG_COLOR_KEY]: color })
 }
 
 // ── 公开配置（供 /api/site-settings 使用，不含敏感信息）──

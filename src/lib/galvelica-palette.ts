@@ -14,3 +14,10 @@ export const GAL_PRESET_TAG_COLORS = [
 
 /** 副站标签的数据库默认色（新建时未改色即落库此值），用于「重置为调色板」批量识别。 */
 export const GAL_DEFAULT_TAG_COLOR = "#a78bfa"
+
+/**
+ * 副站标签「统一配色」的 SiteSetting key 与默认色。
+ * 单个站点级配置，控制副站后台与前台所有标签的颜色（不区分分类、不与主站共享或关联）。
+ */
+export const GAL_TAG_COLOR_KEY = "galvelica:tagColor"
+export const GAL_TAG_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR

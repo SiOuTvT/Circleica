@@ -6,6 +6,7 @@ import { CuratorNote, DailyPick, FeaturedThemes } from "@/components/galvelica/h
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
+import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -28,7 +29,7 @@ const INDEX_LINKS = [
 export default async function GalvelicaHome() {
   // 首页三大区块走缓存，避免每次导航回源打库。
   // 今日缘分按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
-  const [editorPicks, daily, themes] = await Promise.all([
+  const [editorPicks, daily, themes, tagColor] = await Promise.all([
     cached(cacheKey("galvelica:home:editorPicks", 5), () => getEditorPicks(5), 300),
     cached(
       cacheKey("galvelica:home:daily", new Date().toISOString().slice(0, 10)),
@@ -36,6 +37,7 @@ export default async function GalvelicaHome() {
       300,
     ),
     cached(cacheKey("galvelica:home:themes"), () => getFeaturedThemes(), 300),
+    getGalvelicaTagColor(),
   ])
 
   return (
@@ -120,7 +122,7 @@ export default async function GalvelicaHome() {
           href="/galvelica/works"
           hrefLabel="浏览全部"
         >
-          <FeaturedThemes themes={themes} />
+          <FeaturedThemes themes={themes} tagColor={tagColor} />
         </Section>
       )}
     </div>
