@@ -152,6 +152,8 @@ export const rateLimits = {
   like: { windowMs: 60_000, maxRequests: 30, message: "操作过于频繁，请稍后再试" },
   /** 关注限制：每分钟 20 次（登录用户，防关注通知骚扰） */
   follow: { windowMs: 60_000, maxRequests: 20, message: "关注操作过于频繁，请稍后再试" },
+  /** 交互类写操作限制：每分钟 30 次（收藏切换/评分/播放状态/签到/收藏夹等登录用户中频写操作） */
+  interact: { windowMs: 60_000, maxRequests: 30, message: "操作过于频繁，请稍后再试" },
   /** 举报限制：每分钟 10 次（登录用户，防灌水管理员队列） */
   report: { windowMs: 60_000, maxRequests: 10, message: "举报过于频繁，请稍后再试" },
 } as const
