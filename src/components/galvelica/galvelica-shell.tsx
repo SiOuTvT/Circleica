@@ -2,16 +2,43 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { GalvelicaNav } from "./galvelica-nav"
 import { GalvelicaHeader } from "./galvelica-header"
+import { getGalvelicaThemeColor } from "@/lib/site-settings"
+import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
 
 /**
  * Galvelica 子站外壳：独立的页面框架。
  * 主站 LayoutWrapper 已对 /galvelica 短路掉主站框架（侧边栏 / 顶栏 / 面包屑），
  * 这里承载子站自己的品牌头、内部导航、页面主体与极简页脚，
  * 让用户明显感到进入了另一个产品（仍属 Circleica）。
+ *
+ * 主题色隔离：读取 SiteSetting[galvelica:themeColor]，以 inline style 注入
+ * .galvelica-root 作用域（--gal-accent / --primary / --theme-* 等），
+ * 只影响副站页面；主站 :root 的 themeColor 不受任何影响。
  */
 export async function GalvelicaShell({ children }: { children: ReactNode }) {
+  const themeColor = await getGalvelicaThemeColor()
+  const [tr, tg, tb] = hexToRgb(themeColor)
+  const fg = computeContrastFg(themeColor)
+  const accentStyle = {
+    "--gal-accent": themeColor,
+    "--gal-accent-strong": themeColor,
+    "--gal-accent-soft": `rgba(${tr}, ${tg}, ${tb}, 0.14)`,
+    "--gal-accent-softer": `rgba(${tr}, ${tg}, ${tb}, 0.07)`,
+    "--primary": themeColor,
+    "--primary-foreground": fg,
+    "--clr-blue": themeColor,
+    "--theme-r": String(tr),
+    "--theme-g": String(tg),
+    "--theme-b": String(tb),
+    "--theme-color": themeColor,
+    "--theme-fg": fg,
+  } as React.CSSProperties
+
   return (
-    <div className="galvelica-root flex min-h-screen flex-col bg-[color-mix(in_srgb,var(--gal-paper,#0c1413)_98%,transparent)]">
+    <div
+      className="galvelica-root flex min-h-screen flex-col bg-[color-mix(in_srgb,var(--gal-paper,#0c1413)_98%,transparent)]"
+      style={accentStyle}
+    >
       <a
         href="#galvelica-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[10000] focus:rounded-lg focus:bg-[var(--gal-accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-[var(--theme-fg)] focus:outline-none"

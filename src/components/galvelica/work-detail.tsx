@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
 import { Tag, TagGroup } from "@/components/ui/tag"
-import { ViewCounter } from "@/components/view-counter"
+import { WorkViewCounter } from "@/components/view-counter"
 import { RichTextContent } from "@/components/rich-text-content"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
@@ -10,7 +10,7 @@ import { SectionTitle } from "@/components/galvelica/section-title"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
-import { Eye, Heart, Star, ArrowUpRight } from "lucide-react"
+import { Eye, Star, ArrowUpRight } from "lucide-react"
 
 const ROLE_ORDER = ["director", "scenario", "art", "chardesign", "music", "songs"]
 
@@ -40,7 +40,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
   return (
     <div className="galvelica-root">
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
-      <ViewCounter gameId={work.gameId ?? work.id} />
+      <WorkViewCounter workId={work.id} />
 
       <GalvelicaBackLink href="/galvelica" label="Galvelica" className="mb-4" />
 
@@ -104,10 +104,6 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
             <span className="inline-flex items-center gap-1.5">
               <Eye className="h-4 w-4" />
               <span className="tabular-nums">{work.viewCount}</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Heart className="h-4 w-4" />
-              <span className="tabular-nums">{work.favoriteCount}</span>
             </span>
           </div>
 

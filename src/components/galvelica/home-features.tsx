@@ -8,24 +8,24 @@ import type { FeaturedTheme, GalvelicaWorkCard } from "@/lib/galvelica"
  * 与 nav 的机械筛选（标签/年份/社团）互补，提供偶遇感与编辑视角。
  */
 
-/* ── 今日偶遇：按日期确定的一部，紧凑横向卡（与编辑精选的大卡区分层级）── */
+/* ── 今日偶遇：按日期确定的一部，纵向卡（桌面端撑满侧栏高度，消除留白）── */
 export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
   if (!work) return null
   const today = new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric" })
   return (
     <Link
       href={work.href}
-      className="group flex gap-4 rounded-2xl border border-border bg-card p-4 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:gap-5 sm:p-5"
+      className="group flex flex-1 flex-col gap-4 rounded-2xl border border-border bg-card p-4 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:p-5"
       title={work.title}
     >
-      <div className="relative aspect-[3/4] w-16 shrink-0 overflow-hidden rounded-lg bg-muted sm:w-20">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-muted">
         {work.coverImage ? (
           <SafeImage
             src={work.coverImage}
             alt={work.title}
             fill
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            sizes="(max-width: 640px) 25vw, 80px"
+            sizes="(max-width: 640px) 100vw, 33vw"
             quality={80}
           />
         ) : (
@@ -44,7 +44,7 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
         )}
       </div>
 
-      <div className="flex min-w-0 flex-col justify-center gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <p className="text-caption font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
           今日偶遇 · {today}
         </p>
@@ -59,14 +59,14 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
           {work.releaseYear ? ` · ${work.releaseYear}` : ""}
           {work.originalWork ? ` · 原作 ${work.originalWork}` : ""}
         </p>
-        <span className="mt-0.5 inline-flex items-center gap-1 text-sm font-medium text-[var(--gal-accent)]">
-          翻开看看
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg>
-        </span>
       </div>
+      <span className="mt-auto inline-flex items-center gap-1 pt-1 text-sm font-medium text-[var(--gal-accent)]">
+        翻开看看
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M5 12h14" />
+          <path d="M12 5l7 7-7 7" />
+        </svg>
+      </span>
     </Link>
   )
 }

@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
 import { Tag, TagGroup } from "@/components/ui/tag"
@@ -17,6 +19,10 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
   return (
     <Link
       href={work.href}
+      onClick={() => {
+        // 标记「从卡片点击进入」，由详情页 WorkViewCounter 上报一次浏览（防刷新重复计数）
+        try { sessionStorage.setItem(`pending_work_view_${work.id}`, "1") } catch { /* 忽略 */ }
+      }}
       className="galvelica-card group block overflow-hidden rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gal-accent)]"
       title={work.title}
     >

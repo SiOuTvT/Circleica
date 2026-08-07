@@ -231,6 +231,8 @@ export const creatorService = {
       twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
       wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
     })
+    await cache.delByPrefix("circleica:admin:creators:")
+    revalidatePath("/admin/creators")
     await logAudit({ userId: "ADMIN", action: "creator.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -350,6 +352,11 @@ export const tagGroupService = {
       if (f in raw) data[f] = raw[f]
     }
     const result = await tagGroupRepo.update(id, data)
+    // 标签组（含颜色）改了要清后台标签缓存 + 前台标签组颜色缓存（3600s 隐藏炸弹）
+    await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/games")
     await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -395,6 +402,9 @@ export const tagService = {
       isVisible: raw.isVisible !== false,
       ...(raw.groupId ? { group: { connect: { id: String(raw.groupId) } } } : {}),
     })
+    await cache.delByPrefix("circleica:admin:tags:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/admin/tags/all")
     await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -413,6 +423,9 @@ export const tagService = {
       data.group = raw.groupId ? { connect: { id: String(raw.groupId) } } : { disconnect: true }
     }
     const result = await tagRepo.update(id, data)
+    await cache.delByPrefix("circleica:admin:tags:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/admin/tags/all")
     await logAudit({ userId: "ADMIN", action: "tag.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -440,6 +453,9 @@ export const tagService = {
     if (!existing) throw new NotFoundError("标签")
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
+    await cache.delByPrefix("circleica:admin:tags:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/admin/tags/all")
     await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -620,6 +636,10 @@ export const adminGameService = {
       return updated
     })
 
+    // 编辑后清后台列表缓存 + 前台列表/详情，确保改完立即生效
+    await cache.delByPrefix("circleica:admin:games:")
+    revalidatePath("/admin/games")
+    revalidatePath("/games")
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

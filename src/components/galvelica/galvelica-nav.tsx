@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Compass, Layers, Library, Tags, CalendarRange, Users } from "lucide-react"
+import { Layers, Library, Tags, CalendarRange, Users } from "lucide-react"
+import { GalvelicaRandomLink } from "./galvelica-random-link"
 
 const NAV_ITEMS = [
   { icon: Library, label: "首页", href: "/galvelica" },
@@ -11,7 +12,6 @@ const NAV_ITEMS = [
   { icon: Tags, label: "标签", href: "/galvelica/tags" },
   { icon: CalendarRange, label: "年份", href: "/galvelica/years" },
   { icon: Users, label: "社团", href: "/galvelica/studios" },
-  { icon: Compass, label: "随机", href: "/galvelica/random" },
 ]
 
 export function GalvelicaNav({ className }: { className?: string }) {
@@ -35,6 +35,11 @@ export function GalvelicaNav({ className }: { className?: string }) {
           </Link>
         )
       })}
+      {/* 随机：客户端按钮 + 时间戳 query 破 Router Cache，避免"点随机=刷新" */}
+      <GalvelicaRandomLink
+        active={pathname.startsWith("/galvelica/random")}
+        className="galvelica-navlink flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap"
+      />
     </nav>
   )
 }

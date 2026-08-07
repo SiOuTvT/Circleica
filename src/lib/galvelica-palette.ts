@@ -21,3 +21,11 @@ export const GAL_DEFAULT_TAG_COLOR = "#34C3AE"
  */
 export const GAL_TAG_COLOR_KEY = "galvelica:tagColor"
 export const GAL_TAG_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR
+
+/**
+ * 副站主题主色（--gal-accent）的 SiteSetting key 与默认色。
+ * 独立命名空间（galvelica: 前缀），主站永不读取；保存后由 GalvelicaShell 以
+ * inline style 注入 .galvelica-root，仅作用副站作用域 → 与主站主题完全隔离。
+ */
+export const GAL_THEME_COLOR_KEY = "galvelica:themeColor"
+export const GAL_THEME_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR

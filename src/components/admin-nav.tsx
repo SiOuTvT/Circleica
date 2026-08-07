@@ -71,6 +71,7 @@ const navGroups: NavGroup[] = [
       { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN", site: "galvelica" },
       { icon: Download, label: "手动拉取", href: "/admin/galvelica/fetch", minRole: "ADMIN", site: "galvelica" },
       { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN", site: "galvelica" },
+      { icon: Palette, label: "副站主题", href: "/admin/galvelica/theme", minRole: "ADMIN", site: "galvelica" },
     ],
   },
   {

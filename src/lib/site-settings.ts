@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { cache } from "react"
 import { DEFAULT_LOGO_MODE, type LogoMode } from "@/lib/branding"
-import { GAL_TAG_COLOR_KEY, GAL_TAG_COLOR_DEFAULT } from "@/lib/galvelica-palette"
+import { GAL_TAG_COLOR_KEY, GAL_TAG_COLOR_DEFAULT, GAL_THEME_COLOR_KEY, GAL_THEME_COLOR_DEFAULT } from "@/lib/galvelica-palette"
 
 /**
  * 站点配置服务
@@ -184,6 +184,26 @@ export async function getGalvelicaTagColor(): Promise<string> {
 /** 写入副站标签统一配色（经 updateSiteSettings：upsert + revalidateTag 清 Data Cache）。 */
 export async function setGalvelicaTagColor(color: string): Promise<void> {
   await updateSiteSettings({ [GAL_TAG_COLOR_KEY]: color })
+}
+
+// ── 副站主题主色（Galvelica 专属，独立命名空间，与主站 themeColor 完全隔离）──
+
+/**
+ * 读取副站主题主色。走直查（不走长缓存），保证后台保存后前台立即可见。
+ * key 为 galvelica:themeColor，主站只读裸 themeColor → 两站互不覆盖。
+ */
+export async function getGalvelicaThemeColor(): Promise<string> {
+  try {
+    const s = await prisma.siteSetting.findUnique({ where: { key: GAL_THEME_COLOR_KEY } })
+    return s?.value || GAL_THEME_COLOR_DEFAULT
+  } catch {
+    return GAL_THEME_COLOR_DEFAULT
+  }
+}
+
+/** 写入副站主题主色（经 updateSiteSettings：upsert + revalidateTag 清 Data Cache）。 */
+export async function setGalvelicaThemeColor(color: string): Promise<void> {
+  await updateSiteSettings({ [GAL_THEME_COLOR_KEY]: color })
 }
 
 // ── 公开配置（供 /api/site-settings 使用，不含敏感信息）──

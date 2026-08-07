@@ -86,3 +86,13 @@ export function resolveThemeTokens(hex?: string): ThemeTokens {
   return DEFAULT_TOKENS
 }
 
+/** 主题色上的前景文字色（WCAG 对比度，纯函数，服务端/客户端通用） */
+export function computeContrastFg(hex: string): string {
+  const [r, g, b] = hexToRgb(hex)
+  const R = r / 255, G = g / 255, B = b / 255
+  const lum = 0.2126 * (R <= 0.04045 ? R / 12.92 : Math.pow((R + 0.055) / 1.055, 2.4))
+            + 0.7152 * (G <= 0.04045 ? G / 12.92 : Math.pow((G + 0.055) / 1.055, 2.4))
+            + 0.0722 * (B <= 0.04045 ? B / 12.92 : Math.pow((B + 0.055) / 1.055, 2.4))
+  return (1.05 / (lum + 0.05)) >= 4.5 ? "#ffffff" : "#18181b"
+}
+

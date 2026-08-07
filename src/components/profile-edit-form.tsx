@@ -151,7 +151,7 @@ export function ProfileEditForm({ user }: Props) {
                 />
               </div>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                点击头像就可以换啦 · JPG/PNG/WebP · 最大 5MB
+                支持 JPG/PNG/WebP，最大 5MB；点击头像即可更换
               </p>
               <p className="mt-1 text-center text-xs text-muted-foreground/70">UID: {user.uid}</p>
             </div>
@@ -173,7 +173,7 @@ export function ProfileEditForm({ user }: Props) {
               />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              推荐尺寸 900×300 · JPG/PNG/WebP · 最大 10MB · 不填就用默认背景
+              推荐 900×300；支持 JPG/PNG/WebP，最大 10MB；不填则用默认背景
             </p>
           </section>
 

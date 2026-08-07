@@ -8,9 +8,11 @@ interface SectionProps {
   hrefLabel?: string
   children: ReactNode
   className?: string
+  /** 自定义右侧操作区（优先级高于 href/hrefLabel，用于放客户端交互按钮） */
+  action?: ReactNode
 }
 
-export function Section({ title, subtitle, href, hrefLabel = "查看全部", children, className }: SectionProps) {
+export function Section({ title, subtitle, href, hrefLabel = "查看全部", children, className, action }: SectionProps) {
   return (
     <section className={className}>
       <div className="mb-3 flex items-end justify-between gap-3">
@@ -18,14 +20,15 @@ export function Section({ title, subtitle, href, hrefLabel = "查看全部", chi
           <h2 className="galvelica-serif text-xl font-semibold text-foreground">{title}</h2>
           {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
         </div>
-        {href && (
-          <Link
-            href={href}
-            className="galvelica-navlink shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium"
-          >
-            {hrefLabel} →
-          </Link>
-        )}
+        {action ??
+          (href && (
+            <Link
+              href={href}
+              className="galvelica-navlink shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium"
+            >
+              {hrefLabel} →
+            </Link>
+          ))}
       </div>
       <div className="galvelica-rule mb-4" />
       {children}

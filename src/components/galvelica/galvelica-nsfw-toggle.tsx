@@ -32,15 +32,15 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
   }
 
   const Icon = enabled ? Eye : EyeOff
-  const label = mounted ? (enabled ? "显示 R18" : "隐藏 R18") : "R18"
+  const label = mounted ? (enabled ? "显示 NSFW" : "隐藏 NSFW") : "NSFW"
 
   return (
     <button
       type="button"
       onClick={toggle}
       aria-pressed={enabled}
-      aria-label={`切换 R18 内容显示（当前${label}）`}
-      title={`R18 内容：${label}`}
+      aria-label={`切换 NSFW 内容显示（当前${label}）`}
+      title={`NSFW 内容：${label}`}
       data-active={enabled}
       className={
         className ??

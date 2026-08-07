@@ -54,3 +54,40 @@ export function ViewCounter({ gameId }: { gameId: string }) {
 
   return null
 }
+
+/* ────────────────────────────────────────────────
+ * 副站作品浏览计数（Work.viewCount）
+ * 与主站共用「点击卡片写 sessionStorage 标记 → 详情页上报」机制，
+ * 但独立端点（/api/galvelica/views/batch → Work.viewCount increment），
+ * 与主站 Game 计数完全分离。
+ * ──────────────────────────────────────────────── */
+
+const WORK_VIEW_QUEUE: { workId: string; ts: number }[] = []
+let WORK_FLUSH_TIMER: ReturnType<typeof setTimeout> | null = null
+const WORK_FLUSH_DELAY = 1000
+const WORK_BATCH_SIZE = 5
+
+function flushWorkViews() {
+  if (WORK_VIEW_QUEUE.length === 0) return
+  const views = [...WORK_VIEW_QUEUE]
+  WORK_VIEW_QUEUE.length = 0
+  navigator.sendBeacon("/api/galvelica/views/batch", JSON.stringify({ views, batch: true }))
+}
+
+export function WorkViewCounter({ workId }: { workId: string }) {
+  useEffect(() => {
+    const key = `pending_work_view_${workId}`
+    if (!sessionStorage.getItem(key)) return
+    sessionStorage.removeItem(key)
+
+    WORK_VIEW_QUEUE.push({ workId, ts: Date.now() })
+    if (WORK_VIEW_QUEUE.length >= WORK_BATCH_SIZE) {
+      flushWorkViews()
+      return
+    }
+    if (WORK_FLUSH_TIMER) clearTimeout(WORK_FLUSH_TIMER)
+    WORK_FLUSH_TIMER = setTimeout(flushWorkViews, WORK_FLUSH_DELAY)
+  }, [workId])
+
+  return null
+}
