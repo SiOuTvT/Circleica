@@ -98,9 +98,15 @@ function decodeRgb(buf: Buffer): { data: Uint8Array; width: number; height: numb
   throw new Error("不支持的图片格式")
 }
 
+/**
+ * 映射（两级制，严政策）：
+ *  - Porn/Hentai → 2（NSFW，置信≥阈值才写库）
+ *  - Neutral/Drawing → 0（SFW）
+ *  - Sexy（擦边）→ 返回 -1：不写库，保持待审核由人工裁决（擦边边界模糊，不武断归类）
+ */
 function mapLevel(className: string): number {
   if (className === "Porn" || className === "Hentai") return 2
-  if (className === "Sexy") return 1
+  if (className === "Sexy") return -1
   return 0
 }
 
@@ -142,8 +148,13 @@ async function main() {
       const top = preds[0]
       if (top.probability >= CONFIDENCE) {
         const level = mapLevel(top.className)
-        await prisma.work.update({ where: { id: row.id }, data: { coverSexual: level } })
-        ok++
+        if (level >= 0) {
+          // 高置信 SFW/NSFW → 写库（带来源标记 auto）；Sexy(-1)/低置信 → 保持待审核
+          await prisma.work.update({ where: { id: row.id }, data: { coverSexual: level, coverSexualSource: "auto" } })
+          ok++
+        } else {
+          lowConf++ // 擦边(Sexy) → 待人工裁决
+        }
       } else {
         lowConf++ // 低置信保持 -1，进后台人工审核
       }
