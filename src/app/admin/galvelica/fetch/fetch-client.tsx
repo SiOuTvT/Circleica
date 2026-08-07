@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils"
 type SourceKey = "VNDB" | "EROGESCAPE" | "STEAM" | "DLSITE" | "GETCHU" | "FUWANOVEL" | "BOOTH"
 
 const SOURCES: { key: SourceKey; label: string; note: string }[] = [
-  { key: "VNDB", label: "VNDB", note: "国际视觉小说库（主源·自动增量）" },
+  { key: "VNDB", label: "VNDB", note: "国际视觉小说库（主源，自动增量）" },
   { key: "STEAM", label: "Steam", note: "商店源（发现层）" },
   { key: "EROGESCAPE", label: "ErogameScape", note: "日本 galge 库，需服务器出口代理" },
-  { key: "DLSITE", label: "DLsite", note: "抓取型·手动补查（R-18 注意）" },
-  { key: "GETCHU", label: "Getchu", note: "抓取型·手动补查" },
-  { key: "FUWANOVEL", label: "Fuwanovel", note: "抓取型·手动补查" },
+  { key: "DLSITE", label: "DLsite", note: "抓取型（手动补查，R-18 注意）" },
+  { key: "GETCHU", label: "Getchu", note: "抓取型（手动补查）" },
+  { key: "FUWANOVEL", label: "Fuwanovel", note: "抓取型（手动补查）" },
   { key: "BOOTH", label: "Pixiv BOOTH", note: "抓取型·需 Pixiv token" },
 ]
 

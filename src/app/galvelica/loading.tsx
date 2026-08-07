@@ -2,7 +2,7 @@ export default function GalvelicaLoading() {
   return (
     <div className="galvelica-root mx-auto max-w-6xl space-y-8 px-4 sm:px-6">
       {/* 头部骨架 */}
-      <div className="rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] p-6 sm:p-9" style={{ background: "var(--gal-paper)" }}>
+      <div className="rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_30%,transparent)] border-b-2 border-b-[color-mix(in_srgb,var(--gal-accent)_52%,transparent)] p-6 sm:p-9" style={{ background: "var(--gal-paper)" }}>
         <div className="h-3 w-32 rounded bg-muted animate-pulse" />
         <div className="mt-3 h-8 w-2/3 rounded bg-muted animate-pulse" />
         <div className="mt-3 h-4 w-full max-w-2xl rounded bg-muted animate-pulse" />

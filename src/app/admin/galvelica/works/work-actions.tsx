@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Pencil, Trash2, Link2, Unlink } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -20,6 +21,7 @@ interface WorkRow {
 }
 
 export function WorkRowActions({ work }: { work: WorkRow }) {
+  const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -33,6 +35,7 @@ export function WorkRowActions({ work }: { work: WorkRow }) {
       await editWork(fd)
       toast.success("已保存")
       setEditing(false)
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
@@ -47,6 +50,7 @@ export function WorkRowActions({ work }: { work: WorkRow }) {
       fd.set("id", work.id)
       await deleteWork(fd)
       toast.success("已删除作品")
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "删除失败")
     } finally {
@@ -61,6 +65,7 @@ export function WorkRowActions({ work }: { work: WorkRow }) {
       fd.set("id", work.id)
       await toggleInclusion(fd)
       toast.success(included ? "已取消收录" : "已创建收录草稿")
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "操作失败")
     } finally {

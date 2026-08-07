@@ -4,6 +4,7 @@ import { Section } from "@/components/galvelica/section"
 import { EditorPicks } from "@/components/galvelica/editor-pick"
 import { DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
+import { GalvelicaRandomLink } from "@/components/galvelica/galvelica-random-link"
 import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
@@ -44,7 +45,7 @@ export default async function GalvelicaHome() {
     <div className="space-y-10 sm:space-y-14">
       {/* ── 刊头 Hero：资料库沉浸入口 + 更突出的检索 + 资料库索引带 ── */}
       <section
-        className="relative overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] p-7 sm:p-11"
+        className="relative overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--gal-accent)_30%,transparent)] border-b-2 border-b-[color-mix(in_srgb,var(--gal-accent)_52%,transparent)] p-7 sm:p-11"
         style={{ background: "var(--gal-paper)" }}
       >
         <div
@@ -53,7 +54,7 @@ export default async function GalvelicaHome() {
           aria-hidden
         />
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
-          资料库 · 可以随手逛
+          ARCHIVE · 可以随手逛
         </p>
         <h1 className="galvelica-h1--hero mt-3">同人视觉小说资料库</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
@@ -73,15 +74,24 @@ export default async function GalvelicaHome() {
           <span className="text-caption font-medium uppercase tracking-[0.24em] text-muted-foreground/70">
             资料库索引
           </span>
-          {INDEX_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="galvelica-navlink rounded-full px-3.5 py-1.5 text-sm font-medium"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {INDEX_LINKS.map((l) =>
+            l.href === "/galvelica/random" ? (
+              <GalvelicaRandomLink
+                key={l.href}
+                label={l.label}
+                showIcon={false}
+                className="galvelica-navlink rounded-full px-3.5 py-1.5 text-sm font-medium"
+              />
+            ) : (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="galvelica-navlink rounded-full px-3.5 py-1.5 text-sm font-medium"
+              >
+                {l.label}
+              </Link>
+            )
+          )}
         </div>
       </section>
 
@@ -99,12 +109,18 @@ export default async function GalvelicaHome() {
           </Section>
         </div>
 
-        <div className="min-w-0">
+        <div className="flex min-w-0 flex-col">
           <Section
             title="今日偶遇"
             subtitle="每一天，为你留下一部值得读的作品"
-            href="/galvelica/random"
-            hrefLabel="随机一部"
+            className="flex flex-1 flex-col"
+            action={
+              <GalvelicaRandomLink
+                label="随机一部 →"
+                showIcon={false}
+                className="galvelica-navlink shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium"
+              />
+            }
           >
             <DailyPick work={daily} />
           </Section>

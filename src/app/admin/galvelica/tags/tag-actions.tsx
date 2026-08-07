@@ -138,6 +138,7 @@ export function TagCreateForm() {
 }
 
 export function TagRowActions({ tag }: { tag: { id: string; name: string } }) {
+  const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -150,6 +151,7 @@ export function TagRowActions({ tag }: { tag: { id: string; name: string } }) {
       await editGalvelicaTag(fd)
       toast.success("已保存")
       setEditing(false)
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {

@@ -3,12 +3,18 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
+import { cache, cacheKey } from "@/lib/redis"
 import { NotFoundError, ValidationError } from "@/lib/errors"
 
 async function requireGalvelicaCreator(id: string) {
   const c = await prisma.creator.findFirst({ where: { id, source: "galvelica" }, select: { id: true } })
   if (!c) throw new NotFoundError("创作者（仅副站）")
   return c
+}
+
+/** 清副站创作者后台列表缓存（120s Redis），revalidatePath 清不掉自定义缓存。 */
+async function clearCreatorsCache() {
+  await cache.delByPrefix(cacheKey("admin:galvelica:creators"))
 }
 
 export async function editGalvelicaCreator(formData: FormData) {
@@ -29,6 +35,7 @@ export async function editGalvelicaCreator(formData: FormData) {
     where: { id },
     data: { name, nameJa, bio, gender, twitterUrl, wikipediaUrl },
   })
+  await clearCreatorsCache()
   revalidatePath("/admin/galvelica/creators")
   revalidatePath(`/admin/galvelica/creators/${id}`)
 }
@@ -40,6 +47,7 @@ export async function deleteGalvelicaCreator(formData: FormData) {
   await requireGalvelicaCreator(id)
   // 级联清 WorkCreator（及可能的 GameCreator）
   await prisma.creator.delete({ where: { id } })
+  await clearCreatorsCache()
   revalidatePath("/admin/galvelica/creators")
 }
 
@@ -80,5 +88,6 @@ export async function mergeGalvelicaCreator(formData: FormData) {
   }
 
   await prisma.creator.delete({ where: { id: fromId } })
+  await clearCreatorsCache()
   revalidatePath("/admin/galvelica/creators")
 }

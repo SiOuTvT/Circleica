@@ -3,8 +3,15 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
+import { cache, cacheKey } from "@/lib/redis"
 import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
 import { NotFoundError, ValidationError } from "@/lib/errors"
+
+/** 清副站作品后台列表缓存 + 收录审核列表缓存（120s Redis），revalidatePath 清不掉自定义缓存。 */
+async function clearWorksCache() {
+  await cache.delByPrefix(cacheKey("admin:galvelica:works"))
+  await cache.delByPrefix(cacheKey("admin:galvelica:inclusion"))
+}
 
 function parseReleaseDate(raw: string): Date | null {
   if (!raw) return null
@@ -32,6 +39,7 @@ export async function editWork(formData: FormData) {
     where: { id },
     data: { title, studioName, status, releaseDate: parseReleaseDate(releaseDateRaw), isNsfw },
   })
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
 
@@ -46,6 +54,7 @@ export async function deleteWork(formData: FormData) {
   // Work 子表（sources/tags/creators/requests）均为 onDelete: Cascade，会一并清理。
   // 关联的 Circleica Game 不受影响（关系 onDelete: SetNull）。
   await prisma.work.delete({ where: { id } })
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
 
@@ -74,6 +83,7 @@ export async function toggleInclusion(formData: FormData) {
       data: { workId: id, status: "APPROVED", decidedAt: new Date(), reviewedBy: null },
     }).catch(() => {})
   }
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
   revalidatePath("/admin/galvelica/inclusion")
 }
@@ -86,6 +96,7 @@ export async function batchDeleteWorks(formData: FormData) {
 
   // 子表 onDelete: Cascade 会一并清理；关联 Game 不受影响（SetNull）。
   await prisma.work.deleteMany({ where: { id: { in: ids } } })
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
 
@@ -110,6 +121,7 @@ export async function batchToggleInclusion(formData: FormData) {
       await prisma.inclusionRequest.deleteMany({ where: { workId: w.id, status: "APPROVED" } }).catch(() => {})
     }
   }
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
   revalidatePath("/admin/galvelica/inclusion")
 }
@@ -122,6 +134,7 @@ export async function batchSetNsfw(formData: FormData) {
   const nsfw = formData.get("nsfw") === "true"
 
   await prisma.work.updateMany({ where: { id: { in: ids } }, data: { isNsfw: nsfw } })
+  await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
 

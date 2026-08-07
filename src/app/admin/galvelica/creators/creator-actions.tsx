@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Trash2, Merge } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -10,6 +11,7 @@ import { adminInput, adminBtnSubtle, adminBtnDanger } from "@/lib/admin-styles"
 import { deleteGalvelicaCreator, mergeGalvelicaCreator } from "./actions"
 
 export function CreatorRowActions({ creator }: { creator: { id: string; name: string } }) {
+  const router = useRouter()
   const [merging, setMerging] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -21,6 +23,7 @@ export function CreatorRowActions({ creator }: { creator: { id: string; name: st
       fd.set("id", creator.id)
       await deleteGalvelicaCreator(fd)
       toast.success("已删除创作者")
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "删除失败")
     } finally {
@@ -36,6 +39,7 @@ export function CreatorRowActions({ creator }: { creator: { id: string; name: st
       await mergeGalvelicaCreator(fd)
       toast.success("已合并到目标创作者")
       setMerging(false)
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "合并失败")
     } finally {

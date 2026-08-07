@@ -726,7 +726,7 @@ export function StructuredEditor({ html, onChange }: StructuredEditorProps) {
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
-        大卡片有标题和描述 · 小卡片只有标题更紧凑 · 虚线框内为卡片组
+        大卡片：有标题和描述；小卡片：仅标题更紧凑；虚线框内为卡片组
       </p>
     </div>
   )

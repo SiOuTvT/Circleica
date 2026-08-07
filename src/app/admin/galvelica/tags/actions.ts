@@ -4,9 +4,15 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { logger } from "@/lib/logger"
+import { cache, cacheKey } from "@/lib/redis"
 import { NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import { GAL_DEFAULT_TAG_COLOR } from "@/lib/galvelica-palette"
 import { getGalvelicaTagColor, updateSiteSettings } from "@/lib/site-settings"
+
+/** 清副站标签后台列表缓存（120s Redis），revalidatePath 清不掉自定义缓存，必须显式删除。 */
+async function clearTagsCache() {
+  await cache.delByPrefix(cacheKey("admin:galvelica:tags"))
+}
 
 export async function createGalvelicaTag(formData: FormData) {
   await requireSiteAdmin("galvelica")
@@ -28,6 +34,7 @@ export async function createGalvelicaTag(formData: FormData) {
     if ((e as { code?: string })?.code === "P2002") throw new ConflictError("标签名或 slug 已存在")
     throw e
   }
+  await clearTagsCache()
   revalidatePath("/admin/galvelica/tags")
   revalidatePath("/galvelica/tags")
   revalidatePath("/galvelica")
@@ -56,6 +63,7 @@ export async function editGalvelicaTag(formData: FormData) {
     if ((e as { code?: string })?.code === "P2002") throw new ConflictError("标签名或 slug 已存在")
     throw e
   }
+  await clearTagsCache()
   revalidatePath("/admin/galvelica/tags")
   revalidatePath("/galvelica/tags")
   revalidatePath("/galvelica")
@@ -88,6 +96,7 @@ export async function setGalvelicaTagColor(formData: FormData) {
     }
   }
 
+  await clearTagsCache()
   revalidatePath("/admin/galvelica/tags")
   revalidatePath("/galvelica")
   revalidatePath("/galvelica/tags")
@@ -104,6 +113,7 @@ export async function deleteGalvelicaTag(formData: FormData) {
   if (!existing) throw new NotFoundError("标签（仅副站）")
 
   await prisma.tag.delete({ where: { id } }) // 级联清 WorkTag
+  await clearTagsCache()
   revalidatePath("/admin/galvelica/tags")
 }
 
@@ -140,6 +150,7 @@ export async function mergeGalvelicaTag(formData: FormData) {
   }
 
   await prisma.tag.delete({ where: { id: fromId } })
+  await clearTagsCache()
   revalidatePath("/admin/galvelica/tags")
   revalidatePath(`/admin/galvelica/tags/${to.id}`)
 }

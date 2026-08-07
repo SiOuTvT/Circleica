@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Link2, Unlink, Trash2, Flag } from "lucide-react"
 import { batchDeleteWorks, batchToggleInclusion, batchSetNsfw } from "./actions"
 import { AdminBatchActions } from "@/components/admin/admin-batch-actions"
 
 export function WorkBatchActions({ selected, onClear }: { selected: Set<string>; onClear?: () => void }) {
+  const router = useRouter()
   const [busy, setBusy] = useState(false)
   const ids = Array.from(selected)
 
@@ -22,6 +24,7 @@ export function WorkBatchActions({ selected, onClear }: { selected: Set<string>;
       for (const [k, v] of Object.entries(extra)) fd.set(k, v)
       await fn(fd)
       toast.success(msg)
+      router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "操作失败")
     } finally {
