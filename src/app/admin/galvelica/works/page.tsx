@@ -24,7 +24,11 @@ export default async function GalvelicaWorksPage({
   const limit = 20
   const skip = (page - 1) * limit
 
-  const where = q ? { title: { contains: q, mode: "insensitive" as const } } : {}
+  // 同人馆不变式：商业系列（isCommercial）一律不进入作品管理列表
+  const where = {
+    isCommercial: false,
+    ...(q ? { title: { contains: q, mode: "insensitive" as const } } : {}),
+  }
 
   const cacheKeyWorks = cacheKey("admin:galvelica:works", String(page), q, String(limit))
   let cached: { works: any[]; total: number } | null = null
@@ -77,7 +81,7 @@ export default async function GalvelicaWorksPage({
       galvelica
       eyebrow="GALVELICA · WORKS"
       title="作品管理"
-      description={`共 ${total} 部同人作品（Galvelica 资料馆）`}
+      description={`共 ${total} 部同人作品（Galvelica 资料馆，商业系列已排除）`}
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索作品标题…" aria-label="搜索作品" />}
     >
       {works.length === 0 ? (

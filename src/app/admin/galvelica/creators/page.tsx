@@ -64,7 +64,7 @@ export default async function GalvelicaCreatorsPage({
           name: true,
           nameJa: true,
           avatar: true,
-          works: { select: { workId: true } },
+          works: { where: { work: { isCommercial: false } }, select: { workId: true } },
         },
       }),
       prisma.creator.count({ where }),

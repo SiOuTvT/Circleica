@@ -9,7 +9,6 @@ interface Props {
   total: number
   tag: string
   q: string
-  nsfw: boolean
   page: number
   sort?: string
   view?: "grid" | "list"
@@ -22,14 +21,14 @@ const GAMES_PER_PAGE = 24
 // 仅在第 1 页生效；分页（total>24）或内容充足（>=12）时不补占位。
 const PLACEHOLDER_SLOTS = 12
 
-export function GameGridClient({ initialGames, total, tag, q, nsfw, page, sort = "newest", view = "grid" }: Props) {
+export function GameGridClient({ initialGames, total, tag, q, page, sort = "newest", view = "grid" }: Props) {
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
   const isSearch = tag && tag !== "全部"
   const basePath = isSearch ? "/search" : "/"
+  // NSFW 模式由 cookie 决定（服务端解析），不再写入 URL —— 避免 URL 参数绕过登录门槛切换过滤
   const params: Record<string, string> = {
     ...(q && { q }),
     ...(isSearch && { tag }),
-    ...(nsfw && { nsfw: "1" }),
   }
   const resultLabel = q ? "搜索结果" : isSearch ? `# ${tag}` : "最新资源"
 
@@ -86,7 +85,6 @@ export function GameGridClient({ initialGames, total, tag, q, nsfw, page, sort =
             extraParams={{
               ...(q && { q }),
               ...(isSearch && { tag }),
-              ...(nsfw && { nsfw: "1" }),
               ...(sort !== "newest" && { sort }),
               ...(view !== "grid" && { view }),
             }}

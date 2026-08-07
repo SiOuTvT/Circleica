@@ -1,11 +1,23 @@
+/** 主站 NSFW 过滤模式（三段式）：只 SFW / 只 NSFW / 全部 */
+export type NsfwFilterMode = "sfw" | "nsfw" | "all"
 
 /**
- * 根据 NSFW 设置生成游戏查询的 where 条件
- * @param nsfwEnabled 是否启用 NSFW 内容
+ * 根据 NSFW 模式生成游戏查询的 where 条件
+ * @param mode sfw=只显示安全 / nsfw=只显示露骨 / all=全部
  * @returns 过滤条件
  */
+export function getGameNsfwModeFilter(mode: NsfwFilterMode): Record<string, unknown> {
+  if (mode === "nsfw") return { isNsfw: true }
+  if (mode === "all") return {}
+  return { isNsfw: false }
+}
+
+/**
+ * 兼容旧签名：布尔 NSFW 开关（true=显示全部 / false=只 SFW）
+ * @deprecated 请改用 getGameNsfwModeFilter(mode)
+ */
 export function getGameNsfwFilter(nsfwEnabled: boolean): Record<string, unknown> {
-  return nsfwEnabled ? {} : { isNsfw: false }
+  return getGameNsfwModeFilter(nsfwEnabled ? "all" : "sfw")
 }
 
 /**
@@ -46,14 +58,18 @@ export function parseNsfwParam(
 export function buildGameSearchFilter(options: {
   q?: string
   tag?: string
+  /** 三段式 NSFW 模式（优先）；与 nsfw 布尔二选一，mode 优先 */
+  mode?: NsfwFilterMode
+  /** 兼容旧签名：true=显示全部 / false=只 SFW（仅当未传 mode 时生效） */
   nsfw?: boolean
   publishedOnly?: boolean
 }): Record<string, unknown> {
-  const { q = "", tag = "", nsfw = false, publishedOnly = true } = options
+  const { q = "", tag = "", mode, nsfw = false, publishedOnly = true } = options
+  const effectiveMode: NsfwFilterMode = mode ?? (nsfw ? "all" : "sfw")
 
   const where: Record<string, unknown> = {
     ...(publishedOnly && { isPublished: true }),
-    ...getGameNsfwFilter(nsfw),
+    ...getGameNsfwModeFilter(effectiveMode),
   }
 
   // 标签筛选（模糊匹配，作为顶层 AND 条件）

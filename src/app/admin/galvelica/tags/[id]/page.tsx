@@ -27,11 +27,14 @@ export default async function GalvelicaTagDetailPage({
   if (!tag) notFound()
   const unifiedColor = await getGalvelicaTagColor()
 
-  // 关联作品数（用原始 SQL 与列表页一致）
+  // 关联作品数（用原始 SQL 与列表页一致；排除商业系列）
   let workCount = 0
   try {
     const rows = await prisma.$queryRaw<Array<{ _count: number }>>`
-      SELECT COUNT(*)::int as "_count" FROM "WorkTag" WHERE "tagId" = ${id}
+      SELECT COUNT(*)::int as "_count"
+      FROM "WorkTag" wt
+      JOIN "Work" w ON w.id = wt."workId"
+      WHERE wt."tagId" = ${id} AND w."isCommercial" = false
     `
     workCount = rows[0]?._count ?? 0
   } catch {
@@ -39,7 +42,7 @@ export default async function GalvelicaTagDetailPage({
   }
 
   const related = await prisma.workTag.findMany({
-    where: { tagId: id },
+    where: { tagId: id, work: { isCommercial: false } },
     take: 50,
     orderBy: { work: { updatedAt: "desc" } },
     select: { work: { select: { id: true, title: true, slug: true } } },

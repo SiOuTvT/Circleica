@@ -3,6 +3,7 @@
 import { AvatarFrame } from "@/components/avatar-frame"
 import { CheckInToast } from "@/components/checkin-toast"
 import { NotificationBell } from "@/components/notification-bell"
+import { NsfwModeToggle } from "@/components/nsfw-mode-toggle"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
@@ -19,7 +20,6 @@ import {
   SunMoon,
   Moon,
   Search,
-  ShieldAlert,
   Sun,
   User,
 } from "lucide-react"
@@ -28,14 +28,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-
-function getCookie(name: string) {
-  if (typeof document === "undefined") return null
-  return document.cookie.split(";").map(s => s.trim()).find(s => s.startsWith(name + "="))?.split("=")[1] ?? null
-}
-function setCookie(name: string, value: string) {
-  document.cookie = `${name}=${value};path=/;max-age=31536000`
-}
 
 // 签到情感消息 key 常量
 const CHECKIN_MSG_KEYS: string[] = ["checkin_success", "checkin_duplicate"]
@@ -56,7 +48,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   const [userOpen, setUserOpen]   = useState(false)
   const [scrolled, setScrolled]   = useState(false)
   const [theme, setTheme]         = useState<"dark" | "light" | "system">("dark")
-  const [nsfw, setNsfw]           = useState(false)
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkinLoading, setCheckinLoading] = useState(false)
   const [toastMarks, setToastMarks] = useState<number | null>(null)
@@ -97,9 +88,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       }
     }
     mq.addEventListener("change", handler)
-
-    const nsfwVal = getCookie("nsfw_status") === "1"
-    setNsfw(nsfwVal)
 
     return () => mq.removeEventListener("change", handler)
   }, [])
@@ -203,14 +191,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
     document.documentElement.classList.toggle("dark", !isLight)
   }
 
-  function toggleNsfw() {
-    const next = !nsfw
-    setNsfw(next)
-    localStorage.setItem("nsfw_status", next ? "1" : "0")
-    setCookie("nsfw_status", next ? "1" : "0")
-    router.refresh()
-  }
-
   function handleCheckin() {
     if (checkedIn || checkinLoading) return
     setCheckinLoading(true)
@@ -291,6 +271,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                 : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
             </button>
 
+            {/* NSFW 三段式过滤（SFW / NSFW / 全部，切换需登录） */}
+            <NsfwModeToggle />
+
             {user ? (
               <div ref={userRef} className="relative ml-1">
                 <button
@@ -346,17 +329,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                         <CalendarCheck className="h-5 w-5 shrink-0" strokeWidth={2} />
                       )}
                       {checkinLoading ? "签到中…" : checkedIn ? "今日已签到 ✓" : "每日签到"}
-                    </button>
-
-                    <button onClick={toggleNsfw}
-                      className="flex w-full items-center justify-between px-4 py-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-                      <span className="flex items-center gap-3">
-                        <ShieldAlert className="h-5 w-5 shrink-0" strokeWidth={2} />
-                        NSFW 内容
-                      </span>
-                      <div className={cn("relative h-6 w-11 rounded-full transition-colors", nsfw ? "bg-error/60" : "bg-muted")}>
-                        <div className={cn("absolute top-0.5 h-5 w-5 rounded-full shadow transition-transform", nsfw ? "translate-x-5 bg-white" : "translate-x-0.5 bg-muted-foreground")} />
-                      </div>
                     </button>
 
                     <div className="border-t border-border" />

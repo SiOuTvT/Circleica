@@ -9,18 +9,18 @@
 
 import { cache, cacheKey } from "./redis"
 import { toShanghaiDate } from "./date"
+import type { MainNsfwMode } from "./nsfw-mode"
 
-/** 首页统计缓存 key（按 Asia/Shanghai 日期 + nsfw 状态区分，与首页渲染保持一致） */
-export function homeStatsCacheKey(nsfw: boolean, date: Date = new Date()): string {
+/** 首页统计缓存 key（按 Asia/Shanghai 日期 + NSFW 模式区分，与首页渲染保持一致） */
+export function homeStatsCacheKey(mode: MainNsfwMode, date: Date = new Date()): string {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
-  return cacheKey("homepage:stats", toShanghaiDate(d), nsfw ? "1" : "0")
+  return cacheKey("homepage:stats", toShanghaiDate(d), mode)
 }
 
-/** 失效首页统计缓存（两种 nsfw 变体一并清除）。内部吞掉异常，绝不因缓存失败阻断主流程。 */
+/** 失效首页统计缓存（三种 NSFW 模式变体一并清除）。内部吞掉异常，绝不因缓存失败阻断主流程。 */
 export async function invalidateHomeStats(): Promise<void> {
-  await Promise.all([
-    cache.del(homeStatsCacheKey(false)),
-    cache.del(homeStatsCacheKey(true)),
-  ]).catch(() => {})
+  await Promise.all(
+    (["sfw", "nsfw", "all"] as MainNsfwMode[]).map((m) => cache.del(homeStatsCacheKey(m))),
+  ).catch(() => {})
 }

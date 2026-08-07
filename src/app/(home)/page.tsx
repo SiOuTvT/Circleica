@@ -5,6 +5,7 @@ import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
@@ -94,15 +95,16 @@ const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favori
   mostFaved: { favoriteCount: "desc" },
 }
 
-async function GameGridServer({ tag, q, nsfw, sort = "newest", view = "grid", page }: { tag: string; q: string; nsfw: boolean; sort?: SortKey; view?: ViewKey; page: number }) {
-  const where = buildGameSearchFilter({ q, tag, nsfw })
+async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", page }: { tag: string; q: string; mode: MainNsfwMode; sort?: SortKey; view?: ViewKey; page: number }) {
+  const where = buildGameSearchFilter({ q, tag, mode })
   const GAMES_PER_PAGE = 24
   const skip = (page - 1) * GAMES_PER_PAGE
 
   // 游戏网格 60s Redis 短缓存（与品牌区统计同源模式）：
   // 首页每次导航都全量查库（findMany + count + tagGroup + placeholder）是移动端慢的根因之一。
   // 短 TTL：后台发布/编辑游戏后最多 60s 内自动刷新，无需手动硬刷新。
-  const gridCacheKey = cacheKey("homepage:games:grid", tag, q, nsfw ? "1" : "0", sort, String(page))
+  // ⚠️ NSFW 模式必须进 key：否则共享缓存跨用户泄漏（SFW 用户可能命中 all 模式的结果）。
+  const gridCacheKey = cacheKey("homepage:games:grid", tag, q, mode, sort, String(page))
   const pendingMap = GRID_PENDING.map
 
   let gridData: CachedGrid
@@ -156,18 +158,20 @@ async function GameGridServer({ tag, q, nsfw, sort = "newest", view = "grid", pa
     gridData = { games: [], total: 0 }
   }
 
-  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} nsfw={nsfw} page={page} sort={sort} view={view} />
+  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} page={page} sort={sort} view={view} />
 }
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; nsfw?: string; sort?: string; view?: string; page?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string; view?: string; page?: string }>
 }) {
   const sp        = await searchParams
   const q         = sp.q?.trim() || ""
   const activeTag = sp.tag || "全部"
-  const nsfw      = sp.nsfw === "1"
+  // NSFW 过滤模式：服务端按 cookie 解析（nsfw_mode，兼容旧 nsfw_status）。
+  // 不再读 URL 参数 ?nsfw=1 —— 避免 URL 分享绕过登录门槛切换过滤。
+  const nsfwMode  = await getMainNsfwMode()
   const VALID_SORTS = ["newest", "popular", "mostFaved"] as const
   const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
   const VALID_VIEWS = ["grid", "list"] as const
@@ -182,10 +186,10 @@ export default async function HomePage({
   // 获取站点品牌信息
   const [siteName, siteDesc] = await Promise.all([getSiteName(), getSiteDescription()])
 
-  // 统计数据缓存 key（按日期和 nsfw 状态区分，与写操作侧 invalidateHomeStats 同源）
+  // 统计数据缓存 key（按日期和 NSFW 模式区分，与写操作侧 invalidateHomeStats 同源）
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const statsCacheKey = homeStatsCacheKey(nsfw)
+  const statsCacheKey = homeStatsCacheKey(nsfwMode)
 
   // 全局去重 Map（模块级单例，跨 HMR 持久化于 globalThis），防止并发请求同时 miss 缓存
   const pendingMap = PENDING_HOLDER.map
@@ -205,14 +209,19 @@ export default async function HomePage({
       if (!pending) {
         // 发起新请求
         // 首页品牌卡「三统计」口径（非显而易见，集中说明以免误读）：
-        //   ① total        = 已发布游戏【总数】  （isPublished=true；非 NSFW 模式下再排除 isNsfw）
+        //   ① total        = 已发布游戏【总数】  （isPublished=true；SFW 模式再排除 isNsfw，NSFW 模式只统计 isNsfw，全部模式不筛）
         //   ② weekNewGames = 「本周新增」= 已发布 且 createdAt 在最近 7 天内(now-7d) 的游戏数。
         //                    数的是「新上架/新发布的游戏」，不是新用户、新标签、也不是更新动作。
         //   ③ todayCheckins= 「今日签到」= 今天 checkIn 表新增的签到记录数。
         //   三者均带 5 分钟缓存（见下方 cache.set(…, 300)）；DB 不可达时走空数据兜底，绝不注入假数据。
         //   ⚠️ 当前主站 DB 无已发布游戏，线上三数均为 0（真数据，非 bug），发布后会自动增长。
         pending = Promise.all([
-          prisma.game.count({ where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) } }), // ① total：已发布游戏总数
+          prisma.game.count({
+            where: {
+              isPublished: true,
+              ...(nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}),
+            },
+          }),                                                                                    // ① total：已发布游戏总数
           prisma.checkIn.count({ where: { createdAt: { gte: today } } }),                          // ③ todayCheckins：今日签到数
           prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),        // ② weekNewGames：本周新增（近 7 天新发布）
 
@@ -315,7 +324,7 @@ export default async function HomePage({
             </div>
           </div>
         <Suspense fallback={<GameGridSlots />}>
-          <GameGridServer tag={activeTag} q={q} nsfw={nsfw} sort={sort} view={view} page={page} />
+          <GameGridServer tag={activeTag} q={q} mode={nsfwMode} sort={sort} view={view} page={page} />
         </Suspense>
       </section>
 

@@ -12,6 +12,7 @@ import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { formatZhDate } from "@/lib/date"
 import { prisma } from "@/lib/prisma"
+import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { timeAgoPublished } from "@/lib/time-ago"
@@ -166,7 +167,9 @@ export default async function GameDetailPage({
   )]
 
   // 相关游戏推荐：按共同标签匹配 - 使用缓存
-  const relatedCacheKey = cacheKey("related", resolved.id, tagNames.sort().join(","))
+  // ⚠️ NSFW 模式进 key 并按模式过滤：SFW 用户不看到露骨封面进相关推荐；否则共享缓存跨用户泄漏
+  const nsfwMode = await getMainNsfwMode()
+  const relatedCacheKey = cacheKey("related", resolved.id, nsfwMode, tagNames.sort().join(","))
   let relatedGames: { id: string; serialId: number; title: string; coverImage: string; originalWork: string }[]
 
   if (tagNames.length === 0) {
@@ -180,6 +183,7 @@ export default async function GameDetailPage({
         where: {
           id: { not: resolved.id },
           isPublished: true,
+          ...(nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}),
           tags: { some: { tag: { name: { in: tagNames } } } },
         },
         select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true },

@@ -56,12 +56,14 @@ export default async function GalvelicaTagsPage({
     ])
 
     const tagIds = tags.map(t => t.id)
+    // 计数排除商业系列（同人馆不变式）
     const workTagCounts = tagIds.length > 0
       ? await prisma.$queryRaw<Array<{ tagId: string; _count: number }>>`
-          SELECT "tagId", COUNT(*)::int as "_count"
-          FROM "WorkTag"
-          WHERE "tagId" IN (${Prisma.join(tagIds)})
-          GROUP BY "tagId"
+          SELECT wt."tagId", COUNT(*)::int as "_count"
+          FROM "WorkTag" wt
+          JOIN "Work" w ON w.id = wt."workId"
+          WHERE wt."tagId" IN (${Prisma.join(tagIds)}) AND w."isCommercial" = false
+          GROUP BY wt."tagId"
         `
       : []
     const countMap = new Map(workTagCounts.map(r => [r.tagId, r._count]))

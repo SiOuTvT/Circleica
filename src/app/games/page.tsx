@@ -2,10 +2,9 @@ import { GameCard, GameCardSkeleton, GameListRow, GameListRowSkeleton, type Game
 import { Pagination } from "@/components/ui/pagination"
 import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
 import { prisma } from "@/lib/prisma"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import type { Metadata } from "next"
 import { Suspense } from "react"
-
-export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "全部游戏",
@@ -44,11 +43,13 @@ const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favori
   mostFaved: { favoriteCount: "desc" },
 }
 
-async function GamesList({ page, sort = "newest", view = "grid", year }: { page: number; sort?: SortKey; view?: ViewKey; year?: number }) {
+async function GamesList({ page, sort = "newest", view = "grid", year, nsfwMode }: { page: number; sort?: SortKey; view?: ViewKey; year?: number; nsfwMode: MainNsfwMode }) {
   const skip = (page - 1) * GAMES_PER_PAGE
 
+  // ⚠️ NSFW 三段过滤直接作用于列表本体（cookie 模式，未登录强制 sfw）
   const where = {
     isPublished: true,
+    ...(nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}),
     ...(year ? { releaseDate: { gte: new Date(year, 0, 1), lt: new Date(year + 1, 0, 1) } } : {}),
   }
 
@@ -141,6 +142,8 @@ export default async function GamesPage({
   const yearRaw = sp.year
   const yearNum = yearRaw ? parseInt(yearRaw, 10) : NaN
   const year = !Number.isNaN(yearNum) && yearNum > 1900 && yearNum < 2100 ? yearNum : undefined
+  // NSFW 过滤模式：服务端按 cookie 解析（未登录强制 sfw）
+  const nsfwMode = await getMainNsfwMode()
 
   return (
     <div>
@@ -149,7 +152,7 @@ export default async function GamesPage({
         <p className="mt-1 text-sm text-muted-foreground">按最新、最热、收藏数浏览同人游戏作品</p>
       </div>
       <Suspense fallback={<GridSkeleton view={view} />}>
-        <GamesList page={page} sort={sort} view={view} year={year} />
+        <GamesList page={page} sort={sort} view={view} year={year} nsfwMode={nsfwMode} />
       </Suspense>
     </div>
   )

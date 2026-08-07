@@ -19,7 +19,7 @@ async function loadGalvelicaOverview() {
 
   try {
     const [workCountRes, pendingInclusionRes, approved, creatorDupRows] = await Promise.all([
-      prisma.work.count(),
+      prisma.work.count({ where: { isCommercial: false } }),
       prisma.inclusionRequest.count({ where: { status: "PENDING" } }),
       prisma.inclusionRequest.findMany({
         where: { status: "APPROVED" },

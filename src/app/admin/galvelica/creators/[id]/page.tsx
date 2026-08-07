@@ -31,6 +31,7 @@ export default async function GalvelicaCreatorDetailPage({
       twitterUrl: true,
       wikipediaUrl: true,
       works: {
+        where: { work: { isCommercial: false } },
         select: {
           role: true,
           work: { select: { id: true, title: true, slug: true } },

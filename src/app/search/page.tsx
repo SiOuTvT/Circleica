@@ -15,6 +15,8 @@ export const metadata: Metadata = {
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+import { getGameNsfwModeFilter } from "@/lib/filters"
 import { Flame, Search } from "lucide-react"
 import { Suspense } from "react"
 
@@ -46,11 +48,12 @@ function parseDlLinks(raw: unknown): { label?: string; url: string; platform?: s
 }
 
 // 缓存搜索结果查询（2 分钟）- 缩短缓存时间以提高搜索结果新鲜度
+// ⚠️ NSFW 模式进 unstable_cache 参数（自动进 key），否则跨用户泄漏
 const getCachedSearchResults = unstable_cache(
-  async (q: string, tag: string, sort: SortKey, nsfw: boolean, page: number, limit: number) => {
+  async (q: string, tag: string, sort: SortKey, mode: MainNsfwMode, page: number, limit: number) => {
     const where = {
       isPublished: true,
-      ...(nsfw ? {} : { isNsfw: false }),
+      ...getGameNsfwModeFilter(mode),
       ...(q && {
         OR: [
           { searchVector: { search: q } },
@@ -93,9 +96,9 @@ const getCachedSearchResults = unstable_cache(
 
 // 缓存推荐游戏查询（10 分钟）
 const getCachedRecommendedGames = unstable_cache(
-  async (nsfw: boolean) => {
+  async (mode: MainNsfwMode) => {
     const rawRecommended = await prisma.game.findMany({
-      where: { isPublished: true, ...(nsfw ? {} : { isNsfw: false }) },
+      where: { isPublished: true, ...getGameNsfwModeFilter(mode) },
       orderBy: { viewCount: "desc" },
       take: 8,
       select: {
@@ -113,13 +116,13 @@ const getCachedRecommendedGames = unstable_cache(
 )
 
 async function SearchResults({
-  q, tag, sort, nsfw, view, page = 1,
+  q, tag, sort, nsfwMode, view, page = 1,
 }: {
-  q: string; tag: string; sort: SortKey; nsfw: boolean; view?: ViewKey; page?: number
+  q: string; tag: string; sort: SortKey; nsfwMode: MainNsfwMode; view?: ViewKey; page?: number
 }) {
   // 没有搜索词和标签时显示推荐游戏
   if (!q && !tag) {
-    const recommended = await getCachedRecommendedGames(nsfw)
+    const recommended = await getCachedRecommendedGames(nsfwMode)
     if (!recommended.length) return null
     const games = recommended.map((g) => ({
       ...g,
@@ -143,7 +146,7 @@ async function SearchResults({
   let rawGames: GameWithTag[] = []
   let total = 0
   try {
-    const result = await getCachedSearchResults(q, tag, sort, nsfw, page, limit)
+    const result = await getCachedSearchResults(q, tag, sort, nsfwMode, page, limit)
     rawGames = result.games as GameWithTag[]
     total = result.total
   } catch (error) {
@@ -162,7 +165,7 @@ async function SearchResults({
   if (!games.length) {
     let rawRecommended: GameWithTag[] = []
     try {
-      rawRecommended = await getCachedRecommendedGames(nsfw)
+      rawRecommended = await getCachedRecommendedGames(nsfwMode)
     } catch (error) {
       logger.db.error("[SearchResults] Recommended games query failed", error)
     }
@@ -205,15 +208,13 @@ async function SearchResults({
   }
 
   const resultLabel = q ? "搜索结果" : tag ? "标签结果" : "全部游戏"
+  // NSFW 模式由 cookie 决定（服务端解析），不再写入 URL —— 避免 URL 参数绕过登录门槛切换过滤
   const activeFilters = [
     ...(q
-      ? [{ key: "q", label: `"${q}"`, basePath: "/search", clearParams: { ...(tag && { tag }), ...(nsfw && { nsfw: "1" }) } }]
+      ? [{ key: "q", label: `"${q}"`, basePath: "/search", clearParams: { ...(tag && { tag }) } }]
       : []),
     ...(tag
-      ? [{ key: "tag", label: `#${tag}`, basePath: "/search", clearParams: { ...(q && { q }), ...(nsfw && { nsfw: "1" }) } }]
-      : []),
-    ...(nsfw
-      ? [{ key: "nsfw", label: "含 NSFW", basePath: "/search", clearParams: { ...(q && { q }), ...(tag && { tag }) } }]
+      ? [{ key: "tag", label: `#${tag}`, basePath: "/search", clearParams: { ...(q && { q }) } }]
       : []),
   ]
 
@@ -225,7 +226,7 @@ async function SearchResults({
         sort={sort}
         sortOptions={GAME_SORT_OPTIONS}
         basePath="/search"
-        params={{ ...(q && { q }), ...(tag && { tag }), ...(nsfw && { nsfw: "1" }) }}
+        params={{ ...(q && { q }), ...(tag && { tag }) }}
         view={view ?? "grid"}
         activeFilters={activeFilters}
       />
@@ -254,7 +255,6 @@ async function SearchResults({
               ...(q && { q }),
               ...(tag && { tag }),
               ...(sort !== "newest" && { sort }),
-              ...(nsfw && { nsfw: "1" }),
               ...(view && view !== "grid" && { view }),
             }}
           />
@@ -282,7 +282,7 @@ function ResultsSkeleton({ view = "grid" }: { view?: ViewKey }) {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; sort?: string; nsfw?: string; view?: string; page?: string }>
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string; view?: string; page?: string }>
 }) {
   const sp = await searchParams
   const q = sp.q?.trim() ?? ""
@@ -291,7 +291,8 @@ export default async function SearchPage({
   const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
   const VALID_VIEWS: ViewKey[] = ["grid", "list"]
   const view = VALID_VIEWS.includes(sp.view as ViewKey) ? (sp.view as ViewKey) : undefined
-  const nsfw = sp.nsfw === "1"
+  // NSFW 过滤模式：服务端按 cookie 解析（nsfw_mode，兼容旧 nsfw_status），不再读 URL 参数
+  const nsfwMode = await getMainNsfwMode()
   const page = Math.max(1, parseInt(sp.page || "1"))
 
   return (
@@ -301,7 +302,7 @@ export default async function SearchPage({
 
       {/* 结果（工具栏含排序 / 视图 / 计数 / 筛选 chips） */}
       <Suspense fallback={<ResultsSkeleton view={view} />}>
-        <SearchResults q={q} tag={tag} sort={sort} nsfw={nsfw} view={view} page={page} />
+        <SearchResults q={q} tag={tag} sort={sort} nsfwMode={nsfwMode} view={view} page={page} />
       </Suspense>
     </div>
   )

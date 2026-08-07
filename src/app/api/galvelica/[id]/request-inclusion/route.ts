@@ -36,10 +36,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const work = await prisma.work.findUnique({
     where: { id },
-    select: { id: true, gameId: true, title: true },
+    select: { id: true, gameId: true, title: true, isCommercial: true },
   })
   if (!work) {
     return NextResponse.json({ error: "作品不存在" }, { status: 404 })
+  }
+  // 同人馆不变式：商业系列作品不允许收录进主站
+  if (work.isCommercial) {
+    return NextResponse.json({ error: "商业系列作品不在同人收录范围内" }, { status: 403 })
   }
   if (work.gameId) {
     return NextResponse.json(

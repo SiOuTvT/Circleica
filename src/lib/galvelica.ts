@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
+import { auth } from "@/lib/auth"
 import { PAGINATION } from "@/lib/config"
 import { cookies } from "next/headers"
 
@@ -15,6 +16,9 @@ export type GalNsfwMode = "sfw" | "nsfw" | "all"
 
 async function resolveNsfwMode(): Promise<GalNsfwMode> {
   try {
+    // 服务端落地"切换需登录"：未登录一律强制 sfw（防手动改 cookie 绕过登录门槛）
+    const session = await auth()
+    if (!session?.user) return "sfw"
     const store = await cookies()
     const v = store.get("gal_nsfw")?.value
     if (v === "nsfw") return "nsfw"
@@ -274,6 +278,14 @@ function mapWorkCard(w: WorkCardSource): GalvelicaWorkCard {
  * 内容 R18（isNsfw）不参与此过滤（排序信号）。商业系列（isCommercial）一律排除（同人馆不变式）。
  */
 
+/** NSFW 模式过滤条件（三段）：sfw 排除露骨(2) / nsfw 只留露骨(2) / all 不过滤。与 workWhere 同源，供首页各卡片查询复用 */
+async function nsfwModeWhere(): Promise<Prisma.WorkWhereInput> {
+  const mode = await resolveNsfwMode()
+  if (mode === "sfw") return { NOT: { coverSexual: 2 } }
+  if (mode === "nsfw") return { coverSexual: 2 }
+  return {}
+}
+
 async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> {
   const and: Prisma.WorkWhereInput[] = [
     // 同人资料馆不变式：商业系列作品一律不展示
@@ -284,12 +296,7 @@ async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> 
     and.push({ NOT: { contentFlags: { has: "LIVE_ACTION" } } })
   }
   // NSFW 三段过滤（直接过滤游戏本体）
-  const mode = await resolveNsfwMode()
-  if (mode === "sfw") {
-    and.push({ NOT: { coverSexual: 2 } })
-  } else if (mode === "nsfw") {
-    and.push({ coverSexual: 2 })
-  }
+  and.push(await nsfwModeWhere())
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
   }
@@ -400,7 +407,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
   const tagNames = work.tags.map((t) => t.tag.name)
   const siblings = tagNames.length
     ? await prisma.work.findMany({
-        where: { id: { not: work.id }, isCommercial: false, tags: { some: { tag: { name: { in: tagNames } } } } },
+        where: { id: { not: work.id }, isCommercial: false, ...(await nsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
         select: workCardSelect(),
         orderBy: { favoriteCount: "desc" },
         take: 6,
@@ -454,7 +461,7 @@ export async function getRelatedWorks(id: string, tagNames: string[], limit = 8)
   if (!(await archiveReady())) return getRelatedWorksFromGame(id, tagNames, limit)
   if (!tagNames.length) return []
   const rows = await prisma.work.findMany({
-    where: { id: { not: id }, isCommercial: false, tags: { some: { tag: { name: { in: tagNames } } } } },
+    where: { id: { not: id }, isCommercial: false, ...(await nsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
     select: workCardSelect(),
     orderBy: { favoriteCount: "desc" },
     take: limit,
@@ -469,8 +476,9 @@ export async function getPopularTags(limit = 28): Promise<GalvelicaTag[]> {
   if (cached) return cached
 
   const rows = await prisma.tag.findMany({
-    where: { works: { some: {} } },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: true } } },
+    // 只统计仍被「非商业同人作品」使用的标签（商业系列已从 WorkTag 清理，显式过滤双保险）
+    where: { works: { some: { work: { isCommercial: false } } } },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
     orderBy: { sortOrder: "desc" },
     take: 200,
   })
@@ -531,7 +539,7 @@ export async function getRecentWorks(limit = 10): Promise<GalvelicaWorkCard[]> {
   const key = cacheKey("galvelica", "recent", await getNsfwMode(), String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
   if (cached) return cached
-  const rows = await prisma.work.findMany({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
+  const rows = await prisma.work.findMany({ where: { isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
   const items = rows.map(mapWorkCard)
   await cache.set(key, items, GAL_CACHE_TTL)
   return items
@@ -559,7 +567,7 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
     if (collection) {
       const workIds = collection.games.map((cg) => cg.game.galvelicaWork?.id).filter(Boolean) as string[]
       if (workIds.length) {
-        const works = await prisma.work.findMany({ where: { id: { in: workIds }, isCommercial: false }, select: workCardSelect() })
+        const works = await prisma.work.findMany({ where: { id: { in: workIds }, isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect() })
         items = works.map(mapWorkCard)
       }
     }
@@ -568,7 +576,7 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   }
 
   if (!items.length) {
-    const rows = await prisma.work.findMany({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
+    const rows = await prisma.work.findMany({ where: { isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
     items = rows.map(mapWorkCard)
   }
   await cache.set(key, items, GAL_CACHE_TTL)
@@ -577,11 +585,12 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
 
 export async function getRandomWorkSerialId(): Promise<number | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
-  const count = await prisma.work.count({ where: { NOT: { gameId: null }, isCommercial: false } })
+  const modeWhere = await nsfwModeWhere()
+  const count = await prisma.work.count({ where: { NOT: { gameId: null }, isCommercial: false, ...modeWhere } })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
   const w = await prisma.work.findFirst({
-    where: { NOT: { gameId: null }, isCommercial: false },
+    where: { NOT: { gameId: null }, isCommercial: false, ...modeWhere },
     select: { game: { select: { serialId: true } } },
     orderBy: { createdAt: "asc" },
     skip,
@@ -594,7 +603,7 @@ export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
   if (!(await archiveReady())) return getTagByIdFromGame(tagId)
   const t = await prisma.tag.findUnique({
     where: { id: tagId },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: true } } },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
   })
   if (!t) return null
   return {
@@ -613,13 +622,14 @@ export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
   if (cached) return cached
 
-  const count = await prisma.work.count({ where: { isCommercial: false } })
+  const modeWhere = await nsfwModeWhere()
+  const count = await prisma.work.count({ where: { isCommercial: false, ...modeWhere } })
   if (!count) {
     await cache.set(key, null, GAL_CACHE_TTL)
     return null
   }
   const idx = hashString(dateKeyOf(new Date())) % count
-  const w = await prisma.work.findFirst({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
+  const w = await prisma.work.findFirst({ where: { isCommercial: false, ...modeWhere }, select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
   const item = w ? mapWorkCard(w as unknown as WorkCardSource) : null
   await cache.set(key, item, GAL_CACHE_TTL)
   if (!item) return null
@@ -630,7 +640,7 @@ export async function getTagByName(name: string): Promise<GalvelicaTag | null> {
   if (!(await archiveReady())) return getTagByNameFromGame(name)
   const t = await prisma.tag.findFirst({
     where: { name: { equals: name, mode: "insensitive" }, isVisible: true },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: true } } },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
   })
   if (!t) return null
   return {
@@ -742,8 +752,17 @@ function mapCardGame(g: GalvelicaCardSource): GalvelicaWorkCard {
   }
 }
 
+/** Game 体系 NSFW 模式过滤（降级路径用）：sfw 排除 isNsfw / nsfw 只留 isNsfw / all 不过滤 */
+async function gameNsfwModeWhere(): Promise<Prisma.GameWhereInput> {
+  const mode = await resolveNsfwMode()
+  if (mode === "sfw") return { isNsfw: false }
+  if (mode === "nsfw") return { isNsfw: true }
+  return {}
+}
+
 async function publishedWhere(q: GalvelicaListQuery): Promise<Prisma.GameWhereInput> {
   const and: Prisma.GameWhereInput[] = [{ isPublished: true }]
+  and.push(await gameNsfwModeWhere())
   // 同 workWhere：NSFW 开关只管封面/截图露骨度，内容 R18 不在此过滤。
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
@@ -824,7 +843,7 @@ async function getWorkBySerialIdFromGame(serialId: number): Promise<GalvelicaWor
   const year = g.releaseDate ? g.releaseDate.getFullYear() : g.publishedAt ? g.publishedAt.getFullYear() : null
   const siblings = tagNames.length
     ? await prisma.game.findMany({
-        where: { id: { not: g.id }, isPublished: true, tags: { some: { tag: { name: { in: tagNames } } } } },
+        where: { id: { not: g.id }, isPublished: true, ...(await gameNsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
         select: { id: true, serialId: true, title: true, coverImage: true },
         orderBy: { favoriteCount: "desc" },
         take: 6,
@@ -925,26 +944,27 @@ async function getStudiosFromGame(): Promise<{ name: string; count: number }[]> 
 }
 
 async function getRecentWorksFromGame(limit = 10): Promise<GalvelicaWorkCard[]> {
-  const key = cacheKey("galvelica", "recent", String(limit))
+  const key = cacheKey("galvelica", "recent", await getNsfwMode(), String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
   if (cached) return cached
-  const rows = await prisma.game.findMany({ where: { isPublished: true }, select: workCardSelectGame(), orderBy: { createdAt: "desc" }, take: limit })
+  const rows = await prisma.game.findMany({ where: { isPublished: true, ...(await gameNsfwModeWhere()) }, select: workCardSelectGame(), orderBy: { createdAt: "desc" }, take: limit })
   const items = rows.map(mapCardGame)
   await cache.set(key, items, GAL_CACHE_TTL)
   return items
 }
 
 async function getEditorPicksFromGame(limit = 8): Promise<GalvelicaWorkCard[]> {
-  const key = cacheKey("galvelica", "editor-picks", String(limit))
+  const key = cacheKey("galvelica", "editor-picks", await getNsfwMode(), String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
   if (cached) return cached
+  const modeWhere = await gameNsfwModeWhere()
   let items: GalvelicaWorkCard[] = []
   try {
     const collection = await prisma.curatedCollection.findFirst({
       where: { published: true, name: { contains: "Galvelica", mode: "insensitive" } },
       include: {
         games: {
-          where: { game: { isPublished: true } },
+          where: { game: { isPublished: true, ...modeWhere } },
           orderBy: { sortOrder: "asc" },
           take: limit,
           select: { game: { select: workCardSelectGame() } },
@@ -956,7 +976,7 @@ async function getEditorPicksFromGame(limit = 8): Promise<GalvelicaWorkCard[]> {
     logger.api.warn("[galvelica:getEditorPicks] curated collection lookup failed, fallback", { error: String(err) })
   }
   if (!items.length) {
-    const rows = await prisma.game.findMany({ where: { isPublished: true }, select: workCardSelectGame(), orderBy: { favoriteCount: "desc" }, take: limit })
+    const rows = await prisma.game.findMany({ where: { isPublished: true, ...modeWhere }, select: workCardSelectGame(), orderBy: { favoriteCount: "desc" }, take: limit })
     items = rows.map(mapCardGame)
   }
   await cache.set(key, items, GAL_CACHE_TTL)
@@ -964,10 +984,11 @@ async function getEditorPicksFromGame(limit = 8): Promise<GalvelicaWorkCard[]> {
 }
 
 async function getRandomWorkSerialIdFromGame(): Promise<number | null> {
-  const count = await prisma.game.count({ where: { isPublished: true } })
+  const modeWhere = await gameNsfwModeWhere()
+  const count = await prisma.game.count({ where: { isPublished: true, ...modeWhere } })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
-  const g = await prisma.game.findFirst({ where: { isPublished: true }, select: { serialId: true }, skip, take: 1 })
+  const g = await prisma.game.findFirst({ where: { isPublished: true, ...modeWhere }, select: { serialId: true }, skip, take: 1 })
   return g?.serialId ?? null
 }
 
@@ -984,13 +1005,14 @@ async function getDailyPickFromGame(): Promise<GalvelicaWorkCard | null> {
   const key = cacheKey("galvelica", "daily-pick", await getNsfwMode(), dateKeyOf(new Date()))
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
   if (cached) return cached
-  const count = await prisma.game.count({ where: { isPublished: true } })
+  const modeWhere = await gameNsfwModeWhere()
+  const count = await prisma.game.count({ where: { isPublished: true, ...modeWhere } })
   if (!count) {
     await cache.set(key, null, GAL_CACHE_TTL)
     return null
   }
   const idx = hashString(dateKeyOf(new Date())) % count
-  const g = await prisma.game.findFirst({ where: { isPublished: true }, select: workCardSelectGame(), orderBy: { serialId: "asc" }, skip: idx, take: 1 })
+  const g = await prisma.game.findFirst({ where: { isPublished: true, ...modeWhere }, select: workCardSelectGame(), orderBy: { serialId: "asc" }, skip: idx, take: 1 })
   const item = g ? mapCardGame(g) : null
   await cache.set(key, item, GAL_CACHE_TTL)
   return item

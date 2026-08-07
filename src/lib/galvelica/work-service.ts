@@ -388,6 +388,24 @@ export async function fuseWork(workId: string): Promise<void> {
 
 /* ── 按外部 ID 建 / 更新 Work ──────────────────── */
 
+/** 从 VNDB 原始 payload 判定是否商业作品：developers[].type 含 co → true（同人馆不变式，与 scripts/detect-commercial.ts judgeVn 同源） */
+function judgeVndbCommercial(raw: unknown): boolean | null {
+  if (!raw || typeof raw !== "object") return null
+  const obj = raw as { results?: unknown[] }
+  const vn = Array.isArray(obj.results) ? obj.results[0] : obj
+  const devs = (vn as { developers?: unknown[] })?.developers
+  if (!Array.isArray(devs) || devs.length === 0) return null
+  return devs.some((d) => String((d as { type?: unknown })?.type ?? "") === "co")
+}
+
+/** 按源原始载荷重算并写回 isCommercial（仅 VNDB 源可判定，其他源不动） */
+async function markCommercialFromRaw(workId: string, sourceKey: SourceKey, raw: unknown): Promise<void> {
+  if (sourceKey !== "VNDB") return
+  const commercial = judgeVndbCommercial(raw)
+  if (commercial === null) return
+  await prisma.work.updateMany({ where: { id: workId }, data: { isCommercial: commercial } })
+}
+
 export interface GetOrCreateOptions {
   /** 显式 slug（否则由标题生成） */
   slug?: string
@@ -474,6 +492,9 @@ export async function upsertWorkFromRaw(
     })
   }
 
+  // 商业判定：VNDB 源直接按 developers[].type 写 isCommercial（新摄入的商业系列不再漏标）
+  await markCommercialFromRaw(workId, sourceKey, raw)
+
   await fuseWork(workId)
 
   // 省空间模式（GALVELICA_KEEP_RAW=0）：融合完成后丢弃原始 JSON 缓存，
@@ -518,6 +539,7 @@ export async function refetchSource(workId: string, sourceKey: SourceKey): Promi
     where: { id: src.id },
     data: { raw: raw as unknown as Prisma.InputJsonValue, status: "ok", fetchedAt: new Date() },
   })
+  await markCommercialFromRaw(workId, sourceKey, raw)
   await fuseWork(workId)
   return true
 }
@@ -552,6 +574,7 @@ export async function attachSourceToWork(
       fetchedAt: new Date(),
     },
   })
+  await markCommercialFromRaw(workId, sourceKey, raw)
   await fuseWork(workId)
   return true
 }
@@ -575,6 +598,8 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
     },
   })
   if (!work) throw new Error("work not found")
+  // 同人馆不变式：商业系列作品不允许建草稿收录进主站（双保险，API 层已有 403 守卫）
+  if (work.isCommercial) throw new Error("commercial work cannot be included")
 
   if (work.gameId) {
     const existing = await prisma.game.findUnique({ where: { id: work.gameId }, select: { id: true } })

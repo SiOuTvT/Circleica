@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Trophy } from "lucide-react"
 import { prisma } from "@/lib/prisma"
+import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, GameListRow, type GameCardData } from "@/components/game-card"
 import { cn } from "@/lib/utils"
@@ -63,15 +64,17 @@ interface RankedItem {
   unit: string
 }
 
-async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
+async function getRanked(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): Promise<RankedItem[]> {
   const dateWhere = scopeFilter(scope)
+  // ⚠️ NSFW 三段过滤：sfw 排除露骨 / nsfw 只留露骨 / all 不过滤（cookie 模式，未登录强制 sfw）
+  const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
 
   if (dim === "rating") {
     // 评分维度：必须在「时间窗内」重新排名，而非全站排名后再砍老游戏
     const from = scopeFromDate(scope)
     const ratingWhere = from
-      ? { game: { isPublished: true, releaseDate: { gte: from } } }
-      : { game: { isPublished: true } }
+      ? { game: { isPublished: true, ...nsfwWhere, releaseDate: { gte: from } } }
+      : { game: { isPublished: true, ...nsfwWhere } }
     const grouped = await prisma.gameRating.groupBy({
       by: ["gameId"],
       where: ratingWhere,
@@ -86,7 +89,7 @@ async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
       .slice(0, 50)
     const ids = filtered.map((g) => g.gameId)
     const rows = await prisma.game.findMany({
-      where: { id: { in: ids }, isPublished: true, ...dateWhere },
+      where: { id: { in: ids }, isPublished: true, ...nsfwWhere, ...dateWhere },
       select: GAME_CARD_SELECT,
     })
     const byId = new Map(rows.map((r) => [r.id, r]))
@@ -105,7 +108,7 @@ async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
 
   if (dim === "comment") {
     const rows = await prisma.game.findMany({
-      where: { isPublished: true, ...dateWhere },
+      where: { isPublished: true, ...nsfwWhere, ...dateWhere },
       orderBy: { comments: { _count: "desc" } },
       take: 50,
       select: { ...GAME_CARD_SELECT, _count: { select: { comments: true } } },
@@ -122,7 +125,7 @@ async function getRanked(dim: DimKey, scope: ScopeKey): Promise<RankedItem[]> {
       ? { favoriteCount: "desc" as const }
       : { viewCount: "desc" as const }
   const rows = await prisma.game.findMany({
-    where: { isPublished: true, ...dateWhere },
+    where: { isPublished: true, ...nsfwWhere, ...dateWhere },
     orderBy,
     take: 50,
     select: GAME_CARD_SELECT,
@@ -152,10 +155,12 @@ export default async function RankingPage({
   const sp = await searchParams
   const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "rating"
   const scope: ScopeKey = VALID_SCOPES.includes(sp.scope as ScopeKey) ? (sp.scope as ScopeKey) : "6m"
+  // NSFW 过滤模式：服务端按 cookie 解析（未登录强制 sfw）
+  const nsfwMode = await getMainNsfwMode()
 
   let items: RankedItem[] = []
   try {
-    items = await getRanked(dim, scope)
+    items = await getRanked(dim, scope, nsfwMode)
   } catch {
     items = []
   }

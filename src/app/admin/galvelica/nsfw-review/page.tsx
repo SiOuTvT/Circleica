@@ -21,12 +21,13 @@ export default async function GalvelicaNsfwReviewPage({
   const page = Math.max(1, Number(sp.page) || 1)
 
   // 封面露骨度分级：-1=未知（待审核）0=SFW 安全 1=SFW 温和（已并入 NSFW，不再使用） 2=NSFW 露骨
+  // 同人馆不变式：商业系列（isCommercial）不进入审核流
   const where =
     filter === "explicit"
-      ? { coverSexual: 2 }
+      ? { coverSexual: 2, isCommercial: false }
       : filter === "all"
-        ? {}
-        : { coverSexual: { lt: 0 }, coverImage: { not: "" } } // 待审核：只审有封面的（无封面无法裁决）
+        ? { isCommercial: false }
+        : { coverSexual: { lt: 0 }, coverImage: { not: "" }, isCommercial: false } // 待审核：只审有封面的（无封面无法裁决）
 
   let items: ReviewItem[] = []
   let total = 0
@@ -72,7 +73,7 @@ export default async function GalvelicaNsfwReviewPage({
       galvelica
       eyebrow="GALVELICA · NSFW REVIEW"
       title="封面 NSFW 审核"
-      description="人工裁决作品封面的成人内容分级（SFW 安全 / NSFW 露骨）。NSFW（封面含成人内容）在安全模式下不渲染 URL，防平台检测。VNDB 未评级且自动识别低置信的封面留在此待审。"
+      description="人工裁决作品封面的成人内容分级（SFW 安全 / NSFW 露骨）。分级决定该作品在「只显示 SFW / 只显示 NSFW」单显模式下的可见性：标为 NSFW 的作品在 SFW 模式下直接不显示（不再是封面占位）。VNDB 未评级且自动识别低置信的封面留在此待审。"
       actions={<NsfwReviewFilter filter={filter} />}
     >
       <NsfwReviewClient items={items} filter={filter} />
@@ -97,7 +98,7 @@ export default async function GalvelicaNsfwReviewPage({
 
       <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
         <ImageOff className="h-3.5 w-3.5" />
-        标为「NSFW」后，安全模式下该封面将以占位显示（防平台检测）；「SFW 安全 / 温和」正常显示。封面分级与内容是否 R18 无关（内容 R18 只影响排序）。
+        标为「NSFW」后，该作品在「只显示 SFW」模式下将直接不显示；无封面作品统一以「标题首字 + 主题色」占位，不再有「封面已隐藏」逻辑。封面分级与内容是否 R18 无关（内容 R18 只影响排序）。
       </p>
     </AdminPageContainer>
   )
