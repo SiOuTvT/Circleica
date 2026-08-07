@@ -224,6 +224,52 @@ async function applyTagsToWork(workId: string, tagNames: string[]): Promise<void
   })
 }
 
+/**
+ * 为主站 Game 解析「同名主站标签」：给定某 galvelica（副站）标签名，按名查找同名 circleica 标签。
+ * 复用 resolveTagByName 的「按名 + source 查询」思路，但语义相反且仅查不建：
+ * - 同名 circleica 标签存在 → 返回其 id（同源复用，正确归属主站）；
+ * - 不存在 → 返回 null（调用方跳过，绝不把 galvelica 标签写进主站 Game）。
+ * 绝不会新建标签，也绝不返回 galvelica 标签的 id（避免副站标签泄漏进主站）。
+ */
+async function resolveCircleicaTagByName(name: string): Promise<string | null> {
+  const clean = name.trim()
+  if (!clean) return null
+  const circleicaTag = await prisma.tag.findFirst({
+    where: { name: clean, source: "circleica" },
+    select: { id: true },
+  })
+  return circleicaTag?.id ?? null
+}
+
+/**
+ * 把 Work 的标签关系解析为主站 Game 应写入的 Tag id 列表，阻断 galvelica 标签前向串色。
+ * - circleica 标签（及非 galvelica 来源标签）→ 原样保留，正常写入主站 GameTag；
+ * - galvelica 标签 → 按名查找同名 circleica 标签：存在则复用其 id，不存在则跳过（不泄漏）。
+ */
+async function resolveGameTagIds(
+  workTags: { tag: { id: string; name: string; source: string } }[],
+): Promise<string[]> {
+  const result: string[] = []
+  const galvelicaToResolve: { id: string; name: string }[] = []
+  for (const wt of workTags) {
+    const tag = wt.tag
+    if (tag.source === "galvelica") {
+      // 副站标签：需按名找同名主站标签，不能直接写进主站 Game
+      galvelicaToResolve.push({ id: tag.id, name: tag.name })
+    } else {
+      // 主站标签（circleica 等其它来源）→ 原样保留，保持既有写入路径
+      result.push(tag.id)
+    }
+  }
+  const resolved = await Promise.all(
+    galvelicaToResolve.map(async (g) => resolveCircleicaTagByName(g.name)),
+  )
+  for (const id of resolved) {
+    if (id) result.push(id) // 仅当存在同名 circleica 标签时复用，否则跳过
+  }
+  return result
+}
+
 /** 把创作者列表同步到 Work 的 WorkCreator 关系。 */
 async function applyCreatorsToWork(
   workId: string,
@@ -502,7 +548,7 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
     where: { id: workId },
     include: {
       sources: { select: { source: true, externalId: true } },
-      tags: { select: { tagId: true } },
+      tags: { select: { tag: { select: { id: true, name: true, source: true } } } },
       creators: { select: { creatorId: true, role: true } },
     },
   })
@@ -535,7 +581,9 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
     },
   })
 
-  const tagIds = work.tags.map((t) => t.tagId)
+  // 阻断 galvelica 标签前向串色：解析出主站 Game 应写入的 Tag id
+  // （circleica 标签原样保留；galvelica 标签按名复用同名 circleica 标签，无则跳过）
+  const tagIds = await resolveGameTagIds(work.tags)
   if (tagIds.length) {
     await prisma.gameTag.createMany({
       data: tagIds.map((tagId) => ({ gameId: game.id, tagId })),
