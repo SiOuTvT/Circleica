@@ -1,8 +1,9 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Loader2, Pencil, Plus, Search, Tag, X } from "lucide-react"
+import { Loader2, Pencil, Plus, Search, Tag, Trash2, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -103,6 +104,9 @@ export function TagGroupDetailClient({
   const [editVisible, setEditVisible] = useState(true)
   const editPanelRef = useRef<HTMLDivElement>(null)
 
+  // 删除标签
+  const [deletingTag, setDeletingTag] = useState<TagItem | null>(null)
+
   // 点击外部关闭编辑面板
   useEffect(() => {
     if (!editingTag) return
@@ -121,6 +125,14 @@ export function TagGroupDetailClient({
     const q = searchQuery.toLowerCase()
     return tags.filter((t) => t.name.toLowerCase().includes(q))
   }, [tags, searchQuery])
+
+  // 该标签是否可管理（编辑/删除）：
+  // - 首页卡片标签组 / 资源标签组由前台或专用管理页控制，不在此编辑
+  // - resource: 前缀为设置驱动的伪标签，不可单独编辑删除
+  const canManageTag = (tag: TagItem) =>
+    group.id !== "preset_home_card" &&
+    group.id !== "preset_resource_tab" &&
+    !tag.id.startsWith("resource:")
 
   /* ── CRUD ── */
 
@@ -193,6 +205,20 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
+  async function handleDeleteTag() {
+    if (!deletingTag) return
+    setSaving(true)
+    setError("")
+    try {
+      const { ok, error } = await apiFetchSafe(`/api/admin/tags/${deletingTag.id}`, { method: "DELETE" })
+      if (!ok) { setError(error ?? "删除失败"); setSaving(false); return }
+      setTags((prev) => prev.filter((t) => t.id !== deletingTag.id))
+      setDeletingTag(null)
+      toast.success("标签已删除")
+    } catch { setError("网络错误") }
+    setSaving(false)
+  }
+
   const inputCls = "w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
 
   return (
@@ -259,7 +285,7 @@ export function TagGroupDetailClient({
         </Card>
       )}
 
-      {/* ── 标签列表 ── */}
+      {/* ── 标签列表（副站卡片样式） ── */}
       {filteredTags.length === 0 ? (
         <EmptyState
           icon={Tag}
@@ -270,42 +296,44 @@ export function TagGroupDetailClient({
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {filteredTags.map((tag) => (
             <div key={tag.id} className="group relative">
-              {/* 标签卡片 */}
-              <div
-                className="flex items-center gap-3 rounded-xl bg-card p-3.5 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2 cursor-default"
-              >
-                {/* 颜色条 */}
-                <div className="h-10 w-1.5 rounded-full shrink-0" style={{ background: tag.color || group.color }} />
-
-                {/* 信息 */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground truncate">{tag.name}</span>
-                    {tag.isVisible === false && (
-                      <span className="text-micro text-muted-foreground bg-secondary rounded px-1 py-0.5">隐藏</span>
-                    )}
-                  </div>
-                  {tag.description && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{tag.description}</p>
+              {/* 标签卡片：左上颜色点+名字，下方关联作品，右下编辑/删除 */}
+              <div className="flex flex-col rounded-xl border border-border bg-card p-3 transition-colors hover:border-[color:var(--admin-accent,var(--primary))]">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
+                    style={{ background: tag.color || group.color }}
+                  />
+                  <span className="block min-w-0 flex-1 truncate font-medium text-foreground" title={tag.name}>
+                    {tag.name}
+                  </span>
+                  {tag.isVisible === false && (
+                    <span className="shrink-0 rounded bg-secondary px-1 py-0.5 text-micro text-muted-foreground">隐藏</span>
                   )}
                 </div>
-
-                {/* 游戏数 */}
-                <div className="text-right shrink-0">
-                  <span className="text-lg font-bold text-foreground">{tag.gameCount}</span>
-                  <p className="text-micro text-muted-foreground">个游戏</p>
-                </div>
-
-                {/* 编辑按钮 */}
-                {!tag.id.startsWith("resource:") && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
-                    title="编辑"
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer opacity-0 group-hover:opacity-100"
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </button>
+                {tag.description && (
+                  <p className="mt-1 truncate text-xs text-muted-foreground">{tag.description}</p>
                 )}
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+                  <span className="text-xs text-muted-foreground">关联作品 {tag.gameCount}</span>
+                  {canManageTag(tag) && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
+                        title="编辑"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground cursor-pointer"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeletingTag(tag) }}
+                        title="删除"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* 内联编辑面板 */}
@@ -376,6 +404,17 @@ export function TagGroupDetailClient({
           ))}
         </div>
       )}
+
+      {/* 删除确认 */}
+      <ConfirmDialog
+        open={!!deletingTag}
+        onOpenChange={(v) => { if (!v) setDeletingTag(null) }}
+        title="删除标签"
+        description={`确定删除标签「${deletingTag?.name ?? ""}」？关联的标签关系将一并清除。`}
+        confirmText="删除"
+        variant="destructive"
+        onConfirm={handleDeleteTag}
+      />
     </div>
   )
 }
