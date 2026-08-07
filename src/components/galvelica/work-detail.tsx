@@ -75,18 +75,13 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                 priority
                 quality={85}
               />
-            ) : work.coverHidden ? (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-secondary px-4 text-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
-                <span className="text-sm text-muted-foreground">封面已隐藏（露骨内容）</span>
-              </div>
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground/40">
-                <span className="text-sm">暂无封面</span>
+              /* 品牌化占位：标题首字 + 副站主题色渐变（无封面时） */
+              <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)] to-[color-mix(in_srgb,var(--gal-accent)_4%,transparent)]">
+                <span className="galvelica-serif text-5xl font-semibold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">
+                  {(work.title || "?").trim().charAt(0).toUpperCase()}
+                </span>
+                <span className="text-sm text-muted-foreground/60">暂无封面</span>
               </div>
             )}
           </div>

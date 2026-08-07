@@ -28,11 +28,8 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
             sizes="(max-width: 640px) 100vw, 33vw"
             quality={80}
           />
-        ) : work.coverHidden ? (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-secondary to-muted">
-            <span className="text-micro font-medium text-muted-foreground">封面已隐藏（露骨）</span>
-          </div>
         ) : (
+          /* 品牌化占位：标题首字 + 副站主题色渐变（无封面时） */
           <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)] to-[color-mix(in_srgb,var(--gal-accent)_4%,transparent)]">
             <span className="galvelica-serif text-3xl font-semibold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">
               {(work.title || "?").trim().charAt(0).toUpperCase()}

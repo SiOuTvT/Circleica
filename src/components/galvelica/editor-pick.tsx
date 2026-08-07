@@ -40,13 +40,6 @@ function Cover({ work, className }: { work: GalvelicaWorkCard; className?: strin
       />
     )
   }
-  if (work.coverHidden) {
-    return (
-      <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-secondary to-muted ${className ?? ""}`}>
-        <span className="text-micro font-medium text-muted-foreground">封面已隐藏（露骨）</span>
-      </div>
-    )
-  }
   return (
     <div className={`flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)] to-[color-mix(in_srgb,var(--gal-accent)_4%,transparent)] ${className ?? ""}`}>
       <span className="galvelica-serif text-3xl font-semibold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">

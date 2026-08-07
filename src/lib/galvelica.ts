@@ -25,6 +25,11 @@ async function resolveNsfwMode(): Promise<GalNsfwMode> {
   }
 }
 
+/** 导出给页面缓存 key 使用：NSFW 过滤模式必须进缓存 key，否则共享缓存跨用户泄漏 */
+export async function getNsfwMode(): Promise<GalNsfwMode> {
+  return resolveNsfwMode()
+}
+
 /** 真人实拍/写实3D 过滤：cookie `gal_realfilter`（1=显示 / 缺省或0=隐藏）。默认隐藏（用户偏好：不喜欢真人 3D）。 */
 async function showRealisticEnabled(): Promise<boolean> {
   try {
@@ -523,7 +528,7 @@ export async function getStudios(): Promise<{ name: string; count: number }[]> {
 
 export async function getRecentWorks(limit = 10): Promise<GalvelicaWorkCard[]> {
   if (!(await archiveReady())) return getRecentWorksFromGame(limit)
-  const key = cacheKey("galvelica", "recent", String(limit))
+  const key = cacheKey("galvelica", "recent", await getNsfwMode(), String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
   if (cached) return cached
   const rows = await prisma.work.findMany({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
@@ -534,7 +539,7 @@ export async function getRecentWorks(limit = 10): Promise<GalvelicaWorkCard[]> {
 
 export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   if (!(await archiveReady())) return getEditorPicksFromGame(limit)
-  const key = cacheKey("galvelica", "editor-picks", String(limit))
+  const key = cacheKey("galvelica", "editor-picks", await getNsfwMode(), String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
   if (cached) return cached
 
@@ -604,7 +609,7 @@ export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
 
 export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
   if (!(await archiveReady())) return getDailyPickFromGame()
-  const key = cacheKey("galvelica", "daily-pick", dateKeyOf(new Date()))
+  const key = cacheKey("galvelica", "daily-pick", await getNsfwMode(), dateKeyOf(new Date()))
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
   if (cached) return cached
 
@@ -645,7 +650,7 @@ const THEME_DEFS: { key: string; kicker: string; title: string; blurb: string; t
 ]
 
 export async function getFeaturedThemes(): Promise<FeaturedTheme[]> {
-  const key = cacheKey("galvelica", "featured-themes")
+  const key = cacheKey("galvelica", "featured-themes", await getNsfwMode())
   const cached = await cache.get<FeaturedTheme[]>(key)
   if (cached) return cached
 
@@ -976,7 +981,7 @@ async function getTagByIdFromGame(tagId: string): Promise<GalvelicaTag | null> {
 }
 
 async function getDailyPickFromGame(): Promise<GalvelicaWorkCard | null> {
-  const key = cacheKey("galvelica", "daily-pick", dateKeyOf(new Date()))
+  const key = cacheKey("galvelica", "daily-pick", await getNsfwMode(), dateKeyOf(new Date()))
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
   if (cached) return cached
   const count = await prisma.game.count({ where: { isPublished: true } })

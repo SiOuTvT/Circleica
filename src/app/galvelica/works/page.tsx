@@ -4,7 +4,7 @@ import Link from "next/link"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
-import { listWorks, getPopularTags, type GalvelicaSort } from "@/lib/galvelica"
+import { listWorks, getPopularTags, getNsfwMode, type GalvelicaSort } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
@@ -46,12 +46,13 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
     .filter(Boolean)
 
   // 列表与热门标签走缓存（force-dynamic 下避免每次导航全打库）。
-  // 列表按完整筛选条件做 key；热门标签较静态，TTL 更长。
+  // 列表按完整筛选条件做 key；⚠️ NSFW 过滤模式必须进 key（防跨用户缓存泄漏）。
+  const nsfwMode = await getNsfwMode()
   const [result, popularTags] = await Promise.all([
     cached(
       cacheKey(
         "galvelica:works",
-        JSON.stringify({ tags, year, studio, search, sort, page }),
+        JSON.stringify({ tags, year, studio, search, sort, page, mode: nsfwMode }),
       ),
       () => listWorks({ tags, year, studio, search, sort, page }),
       60,

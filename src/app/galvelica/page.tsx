@@ -5,7 +5,7 @@ import { EditorPicks } from "@/components/galvelica/editor-pick"
 import { DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { GalvelicaRandomLink } from "@/components/galvelica/galvelica-random-link"
-import { getEditorPicks, getDailyPick, getFeaturedThemes } from "@/lib/galvelica"
+import { getEditorPicks, getDailyPick, getFeaturedThemes, getNsfwMode } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
@@ -29,15 +29,16 @@ const INDEX_LINKS = [
 
 export default async function GalvelicaHome() {
   // 首页三大区块走缓存，避免每次导航回源打库。
-  // 今日偶遇按"当天日期"做 key，跨天自动刷新；其余按内容缓存。
+  // ⚠️ NSFW 过滤模式必须进缓存 key（防跨用户缓存泄漏）。
+  const nsfwMode = await getNsfwMode()
   const [editorPicks, daily, themes, tagColor] = await Promise.all([
-    cached(cacheKey("galvelica:home:editorPicks", 5), () => getEditorPicks(5), 300),
+    cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 5), () => getEditorPicks(5), 300),
     cached(
-      cacheKey("galvelica:home:daily", new Date().toISOString().slice(0, 10)),
+      cacheKey("galvelica:home:daily", nsfwMode, new Date().toISOString().slice(0, 10)),
       () => getDailyPick(),
       300,
     ),
-    cached(cacheKey("galvelica:home:themes"), () => getFeaturedThemes(), 300),
+    cached(cacheKey("galvelica:home:themes", nsfwMode), () => getFeaturedThemes(), 300),
     getGalvelicaTagColor(),
   ])
 
