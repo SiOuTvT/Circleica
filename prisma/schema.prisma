@@ -837,6 +837,9 @@ model Work {
   // 同人分类（对外展示）：PURE=纯正同人，DERIVATIVE=同人系公司商业作；null=未定（人工/旧数据）
   doujinCategory WorkCategory?
 
+  // 商业系列作品标记（VNDB producers type=co）：副站「同人资料馆」不收录，列表/详情一律排除
+  isCommercial Boolean @default(false)
+
   // 外链（按源选优后归一）
   officialUrl String @default("") // DLsite 优先
   steamAppId  String @default("") // Steam 优先

@@ -6,15 +6,22 @@ import { PAGINATION } from "@/lib/config"
 import { cookies } from "next/headers"
 
 /**
- * 副站 R18/NSFW 内容偏好：读取 cookie `gal_nsfw`（1=显示 / 缺省或0=隐藏）。
- * 公开资料库的安全默认是隐藏（不要求登录即可看到成人内容）。
+ * 副站 NSFW 过滤模式（三段式）：只 SFW / 只 NSFW / 全部。
+ * 读取 cookie `gal_nsfw`：sfw=只显示安全封面（默认） nsfw=只显示露骨封面 all=全部。
+ * 兼容旧值："1"→all（旧"显示露骨"） "0"/缺省→sfw。
+ * ⚠️ 登录要求：切换过滤需要登录（合规考量），未登录一律强制 sfw 模式。
  */
-async function showNsfwEnabled(): Promise<boolean> {
+export type GalNsfwMode = "sfw" | "nsfw" | "all"
+
+async function resolveNsfwMode(): Promise<GalNsfwMode> {
   try {
     const store = await cookies()
-    return store.get("gal_nsfw")?.value === "1"
+    const v = store.get("gal_nsfw")?.value
+    if (v === "nsfw") return "nsfw"
+    if (v === "all" || v === "1") return "all"
+    return "sfw"
   } catch {
-    return false
+    return "sfw"
   }
 }
 
@@ -63,8 +70,6 @@ export interface GalvelicaWorkCard {
   coverImage: string
   /** 封面露骨度分级（VNDB image.sexual：0=安全 1=暗示 2=露骨；-1/undefined=未知）。NSFW 开关只管控这个。 */
   coverSexual: number | null
-  /** 封面是否因露骨（coverSexual>=2）在安全模式下被隐藏（coverImage 已置空，UI 显示占位） */
-  coverHidden?: boolean
   studioName: string
   releaseYear: number | null
   favoriteCount: number
@@ -102,8 +107,6 @@ export interface GalvelicaWorkDetail extends GalvelicaWorkCard {
   languages: string[]
   originalLanguage: string
   officialWebsite: string
-  /** 封面是否因露骨（coverSexual>=2）在安全模式下被隐藏（UI 显示占位提示用） */
-  coverHidden?: boolean
 }
 
 export interface GalvelicaListResult {
@@ -259,37 +262,28 @@ function mapWorkCard(w: WorkCardSource): GalvelicaWorkCard {
   }
 }
 
-/* ── NSFW 封面/截图露骨度策略（阶段1）──────────────────────────────
- * 开关定位从「内容是否 R18」改为「封面/截图是否露骨」：
- *  - coverSexual 分级：0=安全 1=暗示 2=露骨；-1/undefined=未知（体验档：视作安全显示，后台审核兜底）
- *  - 安全模式（默认）：coverSexual>=2 的封面 URL 置空（不渲染，防平台检测），coverHidden 标记供 UI 提示
- *  - 内容 R18（isNsfw）不在此过滤，仅作排序信号
- *  ⚠️ 共享缓存（getRecentWorks/getEditorPicks/getDailyPick 等）必须缓存「原始数据」、
- *     在返回前应用本策略，避免 NSFW 开关状态跨用户泄漏。
+/* ── NSFW 三段过滤（阶段：封面露骨度直接过滤游戏本体，不做"封面隐藏"占位）──────────
+ *  - sfw 模式：只显示 SFW（coverSexual 0/1/未定级 -1），露骨(2)游戏直接不显示
+ *  - nsfw 模式：只显示露骨(2)
+ *  - all 模式：全部显示
+ * 内容 R18（isNsfw）不参与此过滤（排序信号）。商业系列（isCommercial）一律排除（同人馆不变式）。
  */
-export interface NsfwCoverable {
-  coverImage: string
-  coverSexual?: number | null
-  coverHidden?: boolean
-}
-
-async function maskNsfwCovers<T extends NsfwCoverable>(items: T[]): Promise<T[]> {
-  if (await showNsfwEnabled()) return items
-  return items.map((it) => {
-    if ((it.coverSexual ?? -1) >= 2) {
-      return { ...it, coverImage: "", coverHidden: true }
-    }
-    return it
-  })
-}
 
 async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> {
-  const and: Prisma.WorkWhereInput[] = []
-  // 注：NSFW 开关已改为「封面/截图露骨度」维度（见 maskNsfwCovers），
-  // 内容 R18（isNsfw）不再作为列表隐藏条件，而是排序降权信号（质量分阶段处理）。
-  // 真人实拍/写实3D 过滤：默认隐藏（用户偏好），可开关显示。
+  const and: Prisma.WorkWhereInput[] = [
+    // 同人资料馆不变式：商业系列作品一律不展示
+    { isCommercial: false },
+  ]
+  // 真人实拍/写实3D：默认隐藏（可开关显示）
   if (!(await showRealisticEnabled())) {
     and.push({ NOT: { contentFlags: { has: "LIVE_ACTION" } } })
+  }
+  // NSFW 三段过滤（直接过滤游戏本体）
+  const mode = await resolveNsfwMode()
+  if (mode === "sfw") {
+    and.push({ NOT: { coverSexual: 2 } })
+  } else if (mode === "nsfw") {
+    and.push({ coverSexual: 2 })
   }
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
@@ -350,7 +344,7 @@ export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaLis
   ])
 
   return {
-    items: await maskNsfwCovers(rows.map(mapWorkCard)),
+    items: rows.map(mapWorkCard),
     total,
     page,
     pageSize,
@@ -375,14 +369,14 @@ export async function getWorkBySerialId(serialId: number): Promise<GalvelicaWork
 
 export async function getWorkBySlug(slug: string): Promise<GalvelicaWorkDetail | null> {
   if (!(await archiveReady())) return null
-  const work = await prisma.work.findUnique({ where: { slug }, select: { id: true } })
+  const work = await prisma.work.findFirst({ where: { slug, isCommercial: false }, select: { id: true } })
   if (!work) return null
   return buildDetailFromWork(work.id, null)
 }
 
 async function buildDetailFromWork(workId: string, fallbackGameId: string | null): Promise<GalvelicaWorkDetail | null> {
-  const work = await prisma.work.findUnique({
-    where: { id: workId },
+  const work = await prisma.work.findFirst({
+    where: { id: workId, isCommercial: false },
     include: {
       game: { select: { serialId: true } },
       sources: { select: { source: true, externalId: true } },
@@ -401,7 +395,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
   const tagNames = work.tags.map((t) => t.tag.name)
   const siblings = tagNames.length
     ? await prisma.work.findMany({
-        where: { id: { not: work.id }, tags: { some: { tag: { name: { in: tagNames } } } } },
+        where: { id: { not: work.id }, isCommercial: false, tags: { some: { tag: { name: { in: tagNames } } } } },
         select: workCardSelect(),
         orderBy: { favoriteCount: "desc" },
         take: 6,
@@ -409,18 +403,12 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
     : []
 
   const year = work.releaseDate ? work.releaseDate.getFullYear() : null
-  const showNsfw = await showNsfwEnabled()
   const card = mapWorkCard(work as unknown as WorkCardSource)
 
-  // 封面/截图露骨度策略：安全模式下露骨（>=2）的封面不渲染 URL、露骨截图从画廊剔除
+  // 截图露骨度平行数组（保留原始，三段过滤在列表层按 coverSexual 过滤，详情页展示全部）
   const rawShots = Array.isArray(work.screenshots) ? (work.screenshots as string[]) : []
   const rawShotSexual = Array.isArray(work.screenshotsSexual) ? (work.screenshotsSexual as number[]) : []
-  const coverSexualVal = work.coverSexual ?? -1
-  const coverHidden = !showNsfw && coverSexualVal >= 2
-  const screenshots = !showNsfw
-    ? rawShots.filter((_, i) => (rawShotSexual[i] ?? -1) < 2)
-    : rawShots
-
+  const screenshots = rawShots
   return {
     ...card,
     href,
@@ -428,9 +416,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
     gameId: work.gameId,
     included: !!gameId,
     releaseYear: year,
-    coverImage: coverHidden ? "" : card.coverImage,
-    coverHidden,
-    coverSexual: coverSexualVal >= 0 ? coverSexualVal : null,
+    coverSexual: work.coverSexual ?? null,
     englishName: work.englishName,
     aliases: work.aliases,
     description: work.description,
@@ -463,12 +449,12 @@ export async function getRelatedWorks(id: string, tagNames: string[], limit = 8)
   if (!(await archiveReady())) return getRelatedWorksFromGame(id, tagNames, limit)
   if (!tagNames.length) return []
   const rows = await prisma.work.findMany({
-    where: { id: { not: id }, tags: { some: { tag: { name: { in: tagNames } } } } },
+    where: { id: { not: id }, isCommercial: false, tags: { some: { tag: { name: { in: tagNames } } } } },
     select: workCardSelect(),
     orderBy: { favoriteCount: "desc" },
     take: limit,
   })
-  return maskNsfwCovers(rows.map(mapWorkCard))
+  return rows.map(mapWorkCard)
 }
 
 export async function getPopularTags(limit = 28): Promise<GalvelicaTag[]> {
@@ -504,7 +490,7 @@ export async function getYears(): Promise<{ year: number; count: number }[]> {
   const cached = await cache.get<{ year: number; count: number }[]>(key)
   if (cached) return cached
 
-  const rows = await prisma.work.findMany({ where: { NOT: { releaseDate: null } }, select: { releaseDate: true } })
+  const rows = await prisma.work.findMany({ where: { NOT: { releaseDate: null }, isCommercial: false }, select: { releaseDate: true } })
   const map = new Map<number, number>()
   for (const r of rows) {
     if (!r.releaseDate) continue
@@ -522,7 +508,7 @@ export async function getStudios(): Promise<{ name: string; count: number }[]> {
   const cached = await cache.get<{ name: string; count: number }[]>(key)
   if (cached) return cached
 
-  const rows = await prisma.work.findMany({ where: { NOT: { studioName: "" } }, select: { studioName: true } })
+  const rows = await prisma.work.findMany({ where: { NOT: { studioName: "" }, isCommercial: false }, select: { studioName: true } })
   const map = new Map<string, number>()
   for (const r of rows) {
     if (!r.studioName) continue
@@ -539,18 +525,18 @@ export async function getRecentWorks(limit = 10): Promise<GalvelicaWorkCard[]> {
   if (!(await archiveReady())) return getRecentWorksFromGame(limit)
   const key = cacheKey("galvelica", "recent", String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
-  if (cached) return maskNsfwCovers(cached)
-  const rows = await prisma.work.findMany({ select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
+  if (cached) return cached
+  const rows = await prisma.work.findMany({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
   const items = rows.map(mapWorkCard)
   await cache.set(key, items, GAL_CACHE_TTL)
-  return maskNsfwCovers(items)
+  return items
 }
 
 export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   if (!(await archiveReady())) return getEditorPicksFromGame(limit)
   const key = cacheKey("galvelica", "editor-picks", String(limit))
   const cached = await cache.get<GalvelicaWorkCard[]>(key)
-  if (cached) return maskNsfwCovers(cached)
+  if (cached) return cached
 
   let items: GalvelicaWorkCard[] = []
   try {
@@ -568,7 +554,7 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
     if (collection) {
       const workIds = collection.games.map((cg) => cg.game.galvelicaWork?.id).filter(Boolean) as string[]
       if (workIds.length) {
-        const works = await prisma.work.findMany({ where: { id: { in: workIds } }, select: workCardSelect() })
+        const works = await prisma.work.findMany({ where: { id: { in: workIds }, isCommercial: false }, select: workCardSelect() })
         items = works.map(mapWorkCard)
       }
     }
@@ -577,20 +563,20 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   }
 
   if (!items.length) {
-    const rows = await prisma.work.findMany({ select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
+    const rows = await prisma.work.findMany({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
     items = rows.map(mapWorkCard)
   }
   await cache.set(key, items, GAL_CACHE_TTL)
-  return maskNsfwCovers(items)
+  return items
 }
 
 export async function getRandomWorkSerialId(): Promise<number | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
-  const count = await prisma.work.count({ where: { NOT: { gameId: null } } })
+  const count = await prisma.work.count({ where: { NOT: { gameId: null }, isCommercial: false } })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
   const w = await prisma.work.findFirst({
-    where: { NOT: { gameId: null } },
+    where: { NOT: { gameId: null }, isCommercial: false },
     select: { game: { select: { serialId: true } } },
     orderBy: { createdAt: "asc" },
     skip,
@@ -620,19 +606,19 @@ export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
   if (!(await archiveReady())) return getDailyPickFromGame()
   const key = cacheKey("galvelica", "daily-pick", dateKeyOf(new Date()))
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
-  if (cached) return (await maskNsfwCovers([cached]))[0] ?? null
+  if (cached) return cached
 
-  const count = await prisma.work.count()
+  const count = await prisma.work.count({ where: { isCommercial: false } })
   if (!count) {
     await cache.set(key, null, GAL_CACHE_TTL)
     return null
   }
   const idx = hashString(dateKeyOf(new Date())) % count
-  const w = await prisma.work.findFirst({ select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
+  const w = await prisma.work.findFirst({ where: { isCommercial: false }, select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
   const item = w ? mapWorkCard(w as unknown as WorkCardSource) : null
   await cache.set(key, item, GAL_CACHE_TTL)
   if (!item) return null
-  return (await maskNsfwCovers([item]))[0] ?? null
+  return item
 }
 
 export async function getTagByName(name: string): Promise<GalvelicaTag | null> {
