@@ -31,6 +31,22 @@ const LIMIT = parseInt(process.env.BACKFILL_LIMIT || "0", 10) || 0
 const DELAY_MS = parseInt(process.env.BACKFILL_DELAY_MS || "400", 10) || 0
 // 断点文件放系统临时目录：项目根的文件在沙箱/异常退出后可能被 Windows 句柄锁死（EPERM）。
 const STATE_FILE = path.join(os.tmpdir(), "circleica-backfill-media-state.json")
+// 失败 id 记录文件：每次失败（批量拉取失败/单个融合失败）追加 workId，供 BACKFILL_IDS_FILE 精确重试。
+const FAIL_LOG = process.env.BACKFILL_FAIL_LOG || path.join(os.tmpdir(), "circleica-backfill-failed.json")
+// 可选：只处理此文件（每行一个 workId）列出的作品（忽略 offset 续跑语义，用于精确补齐失败项）。
+const IDS_FILE = process.env.BACKFILL_IDS_FILE || ""
+
+async function appendFail(ids: string[]) {
+  if (!ids.length) return
+  try {
+    let set = new Set<string>()
+    try { set = new Set(JSON.parse(readFileSync(FAIL_LOG, "utf8"))) } catch { /* 首次 */ }
+    for (const id of ids) set.add(id)
+    await fs.writeFile(FAIL_LOG, JSON.stringify(Array.from(set)), "utf8")
+  } catch (e) {
+    console.warn("[backfill-media] 写失败记录失败", e instanceof Error ? e.message : String(e))
+  }
+}
 
 /** 与 fetchVisualNovelRaw 完全一致的字段清单（保证 normalize 行为一致） */
 const VNDB_FIELDS =
@@ -133,7 +149,15 @@ async function main() {
   }
 
   const state = loadState()
-  const target = LIMIT > 0 ? rows.slice(state.offset, state.offset + LIMIT) : rows.slice(state.offset)
+  let target: Array<{ id: string; vndbId: string }>
+  if (IDS_FILE) {
+    // IDS_FILE 模式：只处理指定 workId（精确补齐失败项），不推进断点 offset
+    const idSet = new Set(readFileSync(IDS_FILE, "utf8").split("\n").map((s) => s.trim()).filter(Boolean))
+    target = rows.filter((r) => idSet.has(r.id))
+    console.log(`[backfill-media] IDS_FILE 模式：${idSet.size} 个指定 id，命中候选 ${target.length}`)
+  } else {
+    target = LIMIT > 0 ? rows.slice(state.offset, state.offset + LIMIT) : rows.slice(state.offset)
+  }
   if (target.length === 0) {
     console.log(`[backfill-media] 无可处理候选（offset=${state.offset} / 候选 ${rows.length}），已全部回填。`)
     return
@@ -156,8 +180,9 @@ async function main() {
       map = await fetchBatch(vndbIds)
     } catch (e) {
       console.error(`[backfill-media] 第 ${batchCount} 批拉取失败：${e instanceof Error ? e.message : String(e)}`)
+      await appendFail(slice.map((r) => r.id))
       fail += slice.length
-      state.offset += slice.length
+      if (!IDS_FILE) state.offset += slice.length
       continue
     }
 
@@ -167,7 +192,7 @@ async function main() {
       if (vn == null) {
         // VNDB 上已不存在/被删的 id（map 里没有）→ 跳过不报错
         fail++
-        state.offset++
+        if (!IDS_FILE) state.offset++
         continue
       }
       try {
@@ -183,9 +208,10 @@ async function main() {
         ok++
       } catch (e) {
         fail++
+        await appendFail([row.id])
         console.error(`[backfill-media] ${row.id} (${row.vndbId}) 融合失败：${e instanceof Error ? e.message : String(e)}`)
       }
-      state.offset++
+      if (!IDS_FILE) state.offset++
       if (state.offset - lastStateSave >= 20) {
         await saveState(state)
         lastStateSave = state.offset
@@ -194,7 +220,8 @@ async function main() {
 
     if (DELAY_MS > 0) await sleep(DELAY_MS)
     if (batchCount % 10 === 0) {
-      console.log(`[backfill-media] 进度：已处理 ${state.offset - (rows.length - target.length)}/${target.length}（成功 ${ok} / 失败 ${fail}，批 ${batchCount}）`)
+      const progress = IDS_FILE ? ok + fail : state.offset - (rows.length - target.length)
+      console.log(`[backfill-media] 进度：已处理 ${progress}/${target.length}（成功 ${ok} / 失败 ${fail}，批 ${batchCount}）`)
     }
   }
 
