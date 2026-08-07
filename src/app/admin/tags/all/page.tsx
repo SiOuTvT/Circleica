@@ -19,10 +19,14 @@ export default async function AllTagsPage({
   const limit = 50
   const skip = (page - 1) * limit
 
-  // 显示全部主站标签（不再按「已发布游戏」过滤），与标签管理总览保持一致
-  const where = q
-    ? { name: { contains: q, mode: "insensitive" as const }, source: "circleica" as const }
-    : { source: "circleica" as const }
+  // 主站隔离：仅列出关联「主站已发布游戏」的标签，杜绝串入副站(VNDB 摄入)数据
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
+  const where = q ? {
+    AND: [
+      { name: { contains: q, mode: "insensitive" as const } },
+      publishedGameFilter,
+    ]
+  } : publishedGameFilter
 
   // 列表 + 计数走 redis 缓存（key 含 page/q），避免每次导航全表拉取（二期：服务端分页）
   const key = cacheKey("admin:tags:all", String(page), q, String(limit))
