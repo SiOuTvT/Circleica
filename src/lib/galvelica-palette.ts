@@ -29,3 +29,15 @@ export const GAL_TAG_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR
  */
 export const GAL_THEME_COLOR_KEY = "galvelica:themeColor"
 export const GAL_THEME_COLOR_DEFAULT = GAL_DEFAULT_TAG_COLOR
+
+/**
+ * 副站主题的圆角 / 阴影强度 / 背景着色透明度（完整版主题编辑器四维，全部独立命名空间）。
+ * 只注入 .galvelica-root（--gal-radius/--gal-shadow/--gal-alpha），绝不触碰主站全局
+ * --theme-radius/--theme-shadow-intensity/--theme-alpha → 两站连接绝对隔离。
+ */
+export const GAL_THEME_RADIUS_KEY = "galvelica:themeRadius"
+export const GAL_THEME_RADIUS_DEFAULT = 16 // px（副站卡片偏圆润，默认 16 与 rounded-2xl 一致）
+export const GAL_THEME_SHADOW_KEY = "galvelica:themeShadowIntensity"
+export const GAL_THEME_SHADOW_DEFAULT = 50 // %
+export const GAL_THEME_ALPHA_KEY = "galvelica:themeAlpha"
+export const GAL_THEME_ALPHA_DEFAULT = 15 // %

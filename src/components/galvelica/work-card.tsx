@@ -81,18 +81,18 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
       </div>
 
       {/* 信息区 */}
-      <div className="flex min-h-0 flex-col gap-1.5 p-3">
-        <h3 className="galvelica-serif line-clamp-2 text-[15px] font-semibold leading-snug text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
+      <div className="flex min-h-0 flex-col gap-1 p-2.5">
+        <h3 className="galvelica-serif line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
           {work.title}
         </h3>
-        <p className="truncate text-xs text-muted-foreground">
+        <p className="truncate text-[11px] text-muted-foreground">
           {work.studioName || "未知社团"}
           {work.releaseYear ? ` · ${work.releaseYear}` : ""}
         </p>
         {showTags && work.tags.length > 0 && (
           <TagGroup className="mt-0.5">
             {work.tags.slice(0, GAME.VISIBLE_TAGS).map((t: GalvelicaTag) => (
-              <Tag key={t.id} color={t.color || tagColor} className="max-w-[88px] truncate" title={t.name}>
+              <Tag key={t.id} color={t.color || tagColor} className="max-w-[76px] truncate" title={t.name}>
                 {t.name}
               </Tag>
             ))}
@@ -108,7 +108,7 @@ export function WorkGrid({ works, priorityCount = 0, showTags = true, tagColor }
     return <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的作品。</p>
   }
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
       {works.map((w, i) => (
         <WorkCard key={w.id} work={w} priority={i < priorityCount} showTags={showTags} tagColor={tagColor} />
       ))}

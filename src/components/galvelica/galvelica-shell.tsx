@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { GalvelicaNav } from "./galvelica-nav"
 import { GalvelicaHeader } from "./galvelica-header"
-import { getGalvelicaThemeColor } from "@/lib/site-settings"
+import { getGalvelicaThemeSettings } from "@/lib/site-settings"
 import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
 
 /**
@@ -11,27 +11,33 @@ import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
  * 这里承载子站自己的品牌头、内部导航、页面主体与极简页脚，
  * 让用户明显感到进入了另一个产品（仍属 Circleica）。
  *
- * 主题色隔离：读取 SiteSetting[galvelica:themeColor]，以 inline style 注入
- * .galvelica-root 作用域（--gal-accent / --primary / --theme-* 等），
- * 只影响副站页面；主站 :root 的 themeColor 不受任何影响。
+ * 主题隔离（绝对严谨）：读取 SiteSetting[galvelica:themeColor / themeRadius /
+ * themeShadowIntensity / themeAlpha]（全部 galvelica: 独立命名空间），以 inline
+ * style 注入 .galvelica-root 作用域（--gal-accent / --primary / --theme-* /
+ * --gal-radius / --gal-shadow / --gal-alpha），只影响副站页面；
+ * 主站 :root 的 themeColor/themeRadius/themeShadowIntensity/themeAlpha 不受任何影响。
  */
 export async function GalvelicaShell({ children }: { children: ReactNode }) {
-  const themeColor = await getGalvelicaThemeColor()
-  const [tr, tg, tb] = hexToRgb(themeColor)
-  const fg = computeContrastFg(themeColor)
+  const s = await getGalvelicaThemeSettings()
+  const [tr, tg, tb] = hexToRgb(s.themeColor)
+  const fg = computeContrastFg(s.themeColor)
   const accentStyle = {
-    "--gal-accent": themeColor,
-    "--gal-accent-strong": themeColor,
+    "--gal-accent": s.themeColor,
+    "--gal-accent-strong": s.themeColor,
     "--gal-accent-soft": `rgba(${tr}, ${tg}, ${tb}, 0.14)`,
     "--gal-accent-softer": `rgba(${tr}, ${tg}, ${tb}, 0.07)`,
-    "--primary": themeColor,
+    "--primary": s.themeColor,
     "--primary-foreground": fg,
-    "--clr-blue": themeColor,
+    "--clr-blue": s.themeColor,
     "--theme-r": String(tr),
     "--theme-g": String(tg),
     "--theme-b": String(tb),
-    "--theme-color": themeColor,
+    "--theme-color": s.themeColor,
     "--theme-fg": fg,
+    // 副站专属圆角/阴影/着色（只注入本作用域，主站全局 --theme-* 不动）
+    "--gal-radius": `${s.themeRadius}px`,
+    "--gal-shadow-alpha": String(s.themeShadowIntensity / 100),
+    "--gal-alpha": `${s.themeAlpha}%`,
   } as React.CSSProperties
 
   return (

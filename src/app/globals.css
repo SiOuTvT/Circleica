@@ -1796,16 +1796,20 @@ body[data-has-bottom-nav="true"] {
   background-color: var(--gal-accent-soft);
 }
 
-/* Galvelica 卡片：沿用 .game-card 的悬浮手感，但更克制（仅描边 / 光晕，无位移） */
+/* Galvelica 卡片：沿用 .game-card 的悬浮手感，但更克制（仅描边 / 光晕，无位移）。
+   圆角/阴影读副站作用域变量 --gal-radius/--gal-shadow-alpha（由 GalvelicaShell 注入），主站不受影响 */
 .galvelica-card {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-card);
-  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease, transform var(--duration-slow) ease;
+  border-radius: var(--gal-radius, 1rem);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.08)),
+    0 4px 12px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.1));
+  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease, transform var(--duration-slow) ease, border-radius var(--duration-slow) ease;
 }
 .galvelica-card:hover {
   border-color: color-mix(in srgb, var(--gal-accent) 45%, var(--border));
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.1)),
+    0 8px 20px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.14));
   transform: translateY(-2px);
 }
 

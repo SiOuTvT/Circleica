@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger"
 import { revalidateTag, unstable_cache } from "next/cache"
 import { cache } from "react"
 import { DEFAULT_LOGO_MODE, type LogoMode } from "@/lib/branding"
-import { GAL_TAG_COLOR_KEY, GAL_TAG_COLOR_DEFAULT, GAL_THEME_COLOR_KEY, GAL_THEME_COLOR_DEFAULT } from "@/lib/galvelica-palette"
+import { GAL_TAG_COLOR_KEY, GAL_TAG_COLOR_DEFAULT, GAL_THEME_COLOR_KEY, GAL_THEME_COLOR_DEFAULT, GAL_THEME_RADIUS_KEY, GAL_THEME_RADIUS_DEFAULT, GAL_THEME_SHADOW_KEY, GAL_THEME_SHADOW_DEFAULT, GAL_THEME_ALPHA_KEY, GAL_THEME_ALPHA_DEFAULT } from "@/lib/galvelica-palette"
 
 /**
  * 站点配置服务
@@ -204,6 +204,49 @@ export async function getGalvelicaThemeColor(): Promise<string> {
 /** 写入副站主题主色（经 updateSiteSettings：upsert + revalidateTag 清 Data Cache）。 */
 export async function setGalvelicaThemeColor(color: string): Promise<void> {
   await updateSiteSettings({ [GAL_THEME_COLOR_KEY]: color })
+}
+
+/** 副站主题完整设置（四维，全部 galvelica: 独立命名空间，与主站 themeColor/radius/shadow/alpha 绝对隔离）。 */
+export interface GalvelicaThemeSettings {
+  themeColor: string
+  themeRadius: number
+  themeShadowIntensity: number
+  themeAlpha: number
+}
+
+const GAL_THEME_DEFAULTS: GalvelicaThemeSettings = {
+  themeColor: GAL_THEME_COLOR_DEFAULT,
+  themeRadius: GAL_THEME_RADIUS_DEFAULT,
+  themeShadowIntensity: GAL_THEME_SHADOW_DEFAULT,
+  themeAlpha: GAL_THEME_ALPHA_DEFAULT,
+}
+
+/** 读取副站主题完整设置（直查 4 键，不走长缓存，保存即前台可见）。 */
+export async function getGalvelicaThemeSettings(): Promise<GalvelicaThemeSettings> {
+  const out = { ...GAL_THEME_DEFAULTS }
+  try {
+    const keys = [GAL_THEME_COLOR_KEY, GAL_THEME_RADIUS_KEY, GAL_THEME_SHADOW_KEY, GAL_THEME_ALPHA_KEY]
+    const rows = await prisma.siteSetting.findMany({ where: { key: { in: keys } } })
+    for (const r of rows) {
+      if (r.key === GAL_THEME_COLOR_KEY) out.themeColor = r.value || GAL_THEME_COLOR_DEFAULT
+      else if (r.key === GAL_THEME_RADIUS_KEY) out.themeRadius = Number(r.value) || GAL_THEME_RADIUS_DEFAULT
+      else if (r.key === GAL_THEME_SHADOW_KEY) out.themeShadowIntensity = Number(r.value) || GAL_THEME_SHADOW_DEFAULT
+      else if (r.key === GAL_THEME_ALPHA_KEY) out.themeAlpha = Number(r.value) || GAL_THEME_ALPHA_DEFAULT
+    }
+  } catch {
+    // 直查失败回默认
+  }
+  return out
+}
+
+/** 写入副站主题完整设置（一次批量 upsert 4 键，仅 galvelica: 命名空间）。 */
+export async function setGalvelicaThemeSettings(s: GalvelicaThemeSettings): Promise<void> {
+  await updateSiteSettings({
+    [GAL_THEME_COLOR_KEY]: s.themeColor,
+    [GAL_THEME_RADIUS_KEY]: String(s.themeRadius),
+    [GAL_THEME_SHADOW_KEY]: String(s.themeShadowIntensity),
+    [GAL_THEME_ALPHA_KEY]: String(s.themeAlpha),
+  })
 }
 
 // ── 公开配置（供 /api/site-settings 使用，不含敏感信息）──
