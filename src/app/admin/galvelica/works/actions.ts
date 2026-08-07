@@ -64,11 +64,18 @@ export async function toggleInclusion(formData: FormData) {
     if (game && !game.isPublished) {
       await prisma.game.delete({ where: { id: game.id } }).catch(() => {})
     }
+    // 清理关联的收录申请记录，避免审核列表残留孤儿。
+    await prisma.inclusionRequest.deleteMany({ where: { workId: id, status: "APPROVED" } }).catch(() => {})
   } else {
     // 收录：用融合字段建一份未发布 Game 草稿（幂等）。
     await createDraftGameFromWork(id)
+    // 同步创建收录申请记录，使后台手动收录与用户前台申请统一汇入收录审核列表。
+    await prisma.inclusionRequest.create({
+      data: { workId: id, status: "APPROVED", decidedAt: new Date(), reviewedBy: null },
+    }).catch(() => {})
   }
   revalidatePath("/admin/galvelica/works")
+  revalidatePath("/admin/galvelica/inclusion")
 }
 
 /** 批量删除作品（仅 galvelica 范围）。 */
@@ -93,13 +100,18 @@ export async function batchToggleInclusion(formData: FormData) {
   for (const w of works) {
     if (include && !w.gameId) {
       await createDraftGameFromWork(w.id)
+      await prisma.inclusionRequest.create({
+        data: { workId: w.id, status: "APPROVED", decidedAt: new Date(), reviewedBy: null },
+      }).catch(() => {})
     } else if (!include && w.gameId) {
       const game = await prisma.game.findUnique({ where: { id: w.gameId }, select: { id: true, isPublished: true } })
       await prisma.work.update({ where: { id: w.id }, data: { gameId: null } })
       if (game && !game.isPublished) await prisma.game.delete({ where: { id: game.id } }).catch(() => {})
+      await prisma.inclusionRequest.deleteMany({ where: { workId: w.id, status: "APPROVED" } }).catch(() => {})
     }
   }
   revalidatePath("/admin/galvelica/works")
+  revalidatePath("/admin/galvelica/inclusion")
 }
 
 /** 批量设置 NSFW 标记。 */

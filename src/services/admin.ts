@@ -14,6 +14,8 @@ import { sanitizeUrl } from "@/lib/sanitize"
 import { slugify } from "@/lib/slug"
 import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
+import { cache } from "@/lib/redis"
+import { revalidatePath } from "next/cache"
 
 /**
  * 把一组创作者（来自 VNDB 拉取或手动添加）解析并关联到游戏。
@@ -238,6 +240,8 @@ export const creatorService = {
     if (!existing) throw new NotFoundError("创作者")
     if (existing.source !== "circleica") throw new ForbiddenError("该创作者属于其他站点，无权操作")
     const result = await creatorRepo.delete(id)
+    await cache.delByPrefix("circleica:admin:creators:")
+    revalidatePath("/admin/creators")
     await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -418,6 +422,8 @@ export const tagService = {
     if (!existing) throw new NotFoundError("标签")
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.delete(id)
+    await cache.delByPrefix("circleica:admin:tags:")
+    revalidatePath("/admin/tags")
     await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -620,7 +626,13 @@ export const adminGameService = {
 
   async delete(id: string) {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
+    const target = await prisma.game.findUnique({ where: { id }, select: { serialId: true } }).catch(() => null)
     const result = await adminGameRepo.delete(id)
+    // 删除后使管理后台列表缓存立即失效，并刷新前台列表/详情，确保实时刷新。
+    await cache.delByPrefix("circleica:admin:games:")
+    revalidatePath("/admin/games")
+    revalidatePath("/games")
+    if (target?.serialId) revalidatePath(`/games/${target.serialId}`)
     await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -628,6 +640,9 @@ export const adminGameService = {
   async batchDelete(ids: string[]) {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
     const result = await adminGameRepo.batchDelete(ids)
+    await cache.delByPrefix("circleica:admin:games:")
+    revalidatePath("/admin/games")
+    revalidatePath("/games")
     await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

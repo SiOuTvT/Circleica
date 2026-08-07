@@ -7,7 +7,8 @@ import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { toShanghaiDate } from "@/lib/date"
-import { Inbox, Upload, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { Inbox, Upload, Trash2, Pencil } from "lucide-react"
 import { publishInclusionGalvelica, deleteInclusionGalvelica } from "./actions"
 
 export const metadata = { title: "Galvelica 收录审核 · 管理后台" }
@@ -97,6 +98,12 @@ export default async function GalvelicaInclusionPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Link
+                    href={`/admin/galvelica/inclusion/${r.workId}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-sm font-medium text-primary ring-1 ring-primary/20 transition-colors hover:bg-primary/25"
+                  >
+                    <Pencil className="h-4 w-4" /> 编辑
+                  </Link>
                   <form action={publishInclusionGalvelica}>
                     <input type="hidden" name="workId" value={r.workId} />
                     <button

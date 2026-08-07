@@ -13,6 +13,8 @@ interface CacheClient {
   get<T>(key: string): Promise<T | null>
   set(key: string, value: unknown, ttlSeconds?: number): Promise<void>
   del(key: string): Promise<void>
+  /** 按前缀批量删除（用于删除后使相关列表缓存立即失效）。prefix 不含通配符时自动补 `*` */
+  delByPrefix(prefix: string): Promise<void>
   has(key: string): Promise<boolean>
   clear(): Promise<void>
   /** 原子递增并返回新值，key 不存在时从 0 开始 */
@@ -102,6 +104,26 @@ class RedisCache implements CacheClient {
       await this.request(`/del/${encodeURIComponent(key)}`)
     } catch (error) {
       logger.db.error("Redis del error", error)
+    }
+  }
+
+  async delByPrefix(prefix: string): Promise<void> {
+    try {
+      const match = prefix.endsWith("*") ? prefix : `${prefix}*`
+      let cursor = "0"
+      do {
+        const res = await this.request(`/scan/${cursor}?cursor=${cursor}&match=${encodeURIComponent(match)}`)
+        const keys: string[] = Array.isArray(res.result) ? res.result : []
+        if (keys.length > 0) {
+          await this.request("/pipeline", {
+            method: "POST",
+            body: JSON.stringify(keys.map((k) => ["del", k])),
+          })
+        }
+        cursor = String(res.cursor ?? "0")
+      } while (cursor !== "0")
+    } catch (error) {
+      logger.db.error("Redis delByPrefix error", error)
     }
   }
 
@@ -224,6 +246,12 @@ class MemoryCache implements CacheClient {
     this.store.delete(key)
   }
 
+  async delByPrefix(prefix: string): Promise<void> {
+    for (const key of Array.from(this.store.keys())) {
+      if (key.startsWith(prefix)) this.store.delete(key)
+    }
+  }
+
   async has(key: string): Promise<boolean> {
     const entry = this.store.get(key)
     if (!entry) return false
@@ -286,6 +314,7 @@ export const cache: CacheClient = {
   get: (k) => getActiveCache().get(k),
   set: (k, v, t) => getActiveCache().set(k, v, t),
   del: (k) => getActiveCache().del(k),
+  delByPrefix: (p) => getActiveCache().delByPrefix(p),
   has: (k) => getActiveCache().has(k),
   clear: () => getActiveCache().clear(),
   incr: (k, t) => getActiveCache().incr(k, t),

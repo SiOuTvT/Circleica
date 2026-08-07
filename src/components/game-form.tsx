@@ -35,6 +35,8 @@ interface Props {
   tags: Tag[]
   tagGroups?: TagGroup[]
   gameId?: string
+  /** 保存成功后的跳转目标；默认回管理后台游戏列表。收录审核编辑页用它回到审核列表。 */
+  redirectTo?: string
   initialData?: {
     title: string; originalWork: string; description: string
     coverImage: string; screenshots: string[]
@@ -79,7 +81,7 @@ const ScreenshotItem = memo(function ScreenshotItem({
   )
 })
 
-export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, initialData }: Props) {
+export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, redirectTo, initialData }: Props) {
   const router = useRouter()
   const isEdit = !!gameId
 
@@ -426,7 +428,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
       if (!ok) { setError(error ?? "保存失败"); return }
       clearDraft()
-      router.push("/admin/games")
+      router.push(redirectTo ?? "/admin/games")
       router.refresh()
     } catch (err) {
       setSaving(false)
