@@ -26,6 +26,11 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
         toast.success(`已为《${title}》提交收录申请，馆方审核通过后将建立资源页`)
       } else {
         const d = (await res.json().catch(() => ({}))) as { error?: string }
+        if (res.status === 401) {
+          // 提交收录要求登录（2026-08-07 决策）：引导去登录后回到当前页
+          window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+          return
+        }
         if (res.status === 409) {
           setDone(true)
           toast.info(d.error || "该作品已在审核中或已被收录")

@@ -67,8 +67,9 @@ if (process.env.GALVELICA_INGEST_FILTER) {
 }
 
 // 列表直接取融合所需全部字段，避免逐条二次拉取
+// 方案B：补 length/screenshots/platforms/languages/olang，让广收录源头上就拿到媒体/平台/语言资料
 const LIST_FIELDS =
-  "id,title,alttitle,aliases,released,image.url,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role"
+  "id,title,alttitle,aliases,released,image.url,description,tags.id,tags.name,tags.rating,developers.id,developers.name,developers.original,developers.type,staff.id,staff.name,staff.original,staff.role,length,screenshots.url,platforms,languages,olang"
 
 const STATE_FILE = path.join(process.cwd(), ".galvelica-ingest.json")
 

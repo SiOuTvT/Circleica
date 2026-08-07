@@ -80,6 +80,12 @@ export interface GalvelicaWorkDetail extends GalvelicaWorkCard {
   /** 是否已收录进 Circleica（有对应 Game） */
   included: boolean
   gameId: string | null
+  /** 方案B：媒体/平台/语言（融合入库后展示） */
+  screenshots: string[]
+  platforms: string[]
+  languages: string[]
+  originalLanguage: string
+  officialWebsite: string
 }
 
 export interface GalvelicaListResult {
@@ -371,6 +377,11 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
     releaseDate: work.releaseDate ? work.releaseDate.toISOString() : null,
     ratingAvg: work.ratingAvg,
     ratingCount: work.ratingCount,
+    screenshots: Array.isArray(work.screenshots) ? (work.screenshots as string[]) : [],
+    platforms: Array.isArray(work.platforms) ? (work.platforms as string[]) : [],
+    languages: Array.isArray(work.languages) ? (work.languages as string[]) : [],
+    originalLanguage: work.originalLanguage ?? "",
+    officialWebsite: work.officialWebsite ?? "",
     staff: work.creators.map((c) => ({
       id: c.creator.id,
       name: c.creator.name,
@@ -783,6 +794,11 @@ async function getWorkBySerialIdFromGame(serialId: number): Promise<GalvelicaWor
     releaseDate: g.releaseDate ? g.releaseDate.toISOString() : null,
     ratingAvg,
     ratingCount: scores.length,
+    screenshots: Array.isArray(g.screenshots) ? (g.screenshots as string[]) : [],
+    platforms: Array.isArray(g.platforms) ? (g.platforms as string[]) : [],
+    languages: Array.isArray(g.languages) ? (g.languages as string[]) : [],
+    originalLanguage: g.originalLanguage ?? "",
+    officialWebsite: g.officialWebsite ?? "",
     staff: g.creators.map((c) => ({ id: c.creator.id, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
     siblings: siblings.map((s) => ({ id: s.id, serialId: s.serialId, title: s.title, coverImage: s.coverImage, href: `/galvelica/works/${s.serialId}` })),
   }

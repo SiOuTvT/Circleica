@@ -9,10 +9,17 @@ import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
  * POST /api/galvelica/<workId>/request-inclusion
  * 采纳模型 A：提交「收录到 Circleica」申请即自动用融合字段建一份未发布 Game 草稿，
  * 并记一条 APPROVED 请求（供后台追溯）。已存在对应资源（草稿/已发布）则返回 409。
- * 游客也可提交（requestedBy 为空）。
+ * 需登录（用户决策 2026-08-07：提交收录要求登录，便于追溯防刷）。
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+
+  // 鉴权：必须登录后才能提交收录申请（可追溯，防换 IP 刷草稿）
+  const session = await auth()
+  const userId = (session as { user?: { id?: string } } | null)?.user?.id ?? null
+  if (!userId) {
+    return NextResponse.json({ error: "请先登录后再提交收录申请" }, { status: 401 })
+  }
 
   // 频限：单 IP 10 分钟内最多 10 次收录申请，防刷（redis 不可用时放行）
   const ip = (req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()) || "anonymous"
@@ -40,9 +47,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       { status: 409 },
     )
   }
-
-  const session = await auth()
-  const userId = (session as { user?: { id?: string } } | null)?.user?.id ?? null
 
   let note = ""
   try {

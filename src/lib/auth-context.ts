@@ -72,6 +72,8 @@ export async function getOptionalAuth(): Promise<AuthContext | null> {
  * 要求站点管理员权限（site × role 二元鉴权）
  *
  * SUPER_ADMIN 可访问任意站点；ADMIN 暂同权（后续 User 扩展 sitePermissions 字段后可细分）。
+ * TODO(2026-08-07, 用户已拍板「延后但必须做」)：落地 User.sitePermissions 字段，
+ * 实现「仅主站管理员 / 仅副站管理员」细分——当前 ADMIN 双站通权是已知架构债。
  */
 export async function requireSiteAdmin(
   site: SiteId,
@@ -84,7 +86,7 @@ export async function requireSiteAdmin(
     throw new ForbiddenError(`需要 ${minimumRole} 权限才能管理 ${site}`)
   }
   // 站点维度校验：显式确认 site 合法，杜绝此前 site 参数被静默忽略的问题。
-  // 真正的「某管理员仅能管理指定站点」需待 User.sitePermissions 字段落地后在此比较；
+  // 真正的「某管理员仅能管理指定站点」待 sitePermissions 落地后在此比较（见上方 TODO）；
   // 跨站数据泄漏的兜底由 services/admin.ts 按 source 过滤保证。
   if (site !== "circleica" && site !== "galvelica") {
     throw new ForbiddenError(`非法的站点域: ${String(site)}`)

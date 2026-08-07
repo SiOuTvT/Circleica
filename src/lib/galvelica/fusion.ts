@@ -23,6 +23,13 @@ export interface FusedFields {
   studioName: string
   officialUrl: string
   steamAppId: string
+  // ── 方案B 新增：媒体/平台/语言等（与 Work 列一一对应，源字段名不同者走 SOURCE_FIELD_ALIAS） ──
+  duration: string
+  screenshots: string[]
+  platforms: string[]
+  languages: string[]
+  originalLanguage: string
+  officialWebsite: string
 }
 
 /** 单字段的 provenance：来自哪个源、是否人工锁定 */
@@ -78,7 +85,27 @@ export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
   officialUrl: ["DLSITE", "MANUAL"],
   // Steam appid：Steam 权威
   steamAppId: ["STEAM", "MANUAL"],
+  // ── 方案B：媒体/平台/语言（VNDB 权威；官网 VNDB 无干净字段，人工兜底） ──
+  duration: ["VNDB", "MANUAL"],
+  screenshots: ["VNDB", "MANUAL"],
+  platforms: ["VNDB", "MANUAL"],
+  languages: ["VNDB", "MANUAL"],
+  originalLanguage: ["VNDB", "MANUAL"],
+  officialWebsite: ["MANUAL"],
 }
+
+/** FusedFields 键 → NormalizedWork 源字段名的映射（名称不一致者） */
+const SOURCE_FIELD_ALIAS: Partial<Record<keyof FusedFields, keyof NormalizedWork>> = {
+  duration: "gameDuration",
+}
+
+/** 解析某 FusedFields 字段在 NormalizedWork 上的源字段名（除 duration 外同名；断言安全） */
+function sourceField(field: keyof FusedFields): keyof NormalizedWork {
+  return (SOURCE_FIELD_ALIAS[field] ?? field) as keyof NormalizedWork
+}
+
+/** 数组型字段：取首个非空数组，整组写入 JSON 列 */
+const ARRAY_FIELDS = new Set<keyof FusedFields>(["screenshots", "platforms", "languages"])
 
 export interface FusionResult {
   /** 仅含「非人工锁定」字段的融合值，供调用方写入 Work（人工字段由调用方保留原值） */
@@ -162,9 +189,22 @@ export function mergeSources(sources: FusedSource[], manualFields: string[] = []
       continue
     }
 
-    // 其余字段：按优先级取首个非空
+    // 数组型字段（screenshots/platforms/languages）：按优先级取首个非空数组，整组写入 JSON 列
+    if (ARRAY_FIELDS.has(field)) {
+      for (const priorityKey of FUSION_TABLE[field]) {
+        const arr = byKey.get(priorityKey)?.[sourceField(field)]
+        if (Array.isArray(arr) && arr.length > 0) {
+          fields[field] = arr as never
+          provenance[field] = { source: priorityKey, manual: false }
+          break
+        }
+      }
+      continue
+    }
+
+    // 其余字段：按优先级取首个非空（duration 等源字段名不同者走别名映射）
     for (const priorityKey of FUSION_TABLE[field]) {
-      const val = byKey.get(priorityKey)?.[field]
+      const val = byKey.get(priorityKey)?.[sourceField(field)]
       if (isNonEmpty(val)) {
         fields[field] = val as never
         provenance[field] = { source: priorityKey, manual: false }

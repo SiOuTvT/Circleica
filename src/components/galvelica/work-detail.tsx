@@ -21,6 +21,23 @@ const statusLabel: Record<string, string> = {
   CANCELLED: "已取消",
 }
 
+/* 平台/语言代码 → 可读标签（VNDB 代码） */
+const PLATFORM_LABELS: Record<string, string> = {
+  win: "Windows", lin: "Linux", mac: "macOS", ios: "iOS", and: "Android",
+  psp: "PSP", psv: "PS Vita", ps2: "PS2", ps3: "PS3", drc: "Wii U",
+  vnd: "VNDS", web: "Web", mob: "Mobile", oth: "其他",
+}
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: "English", ja: "日本語", zh: "中文", ko: "한국어", ru: "Русский",
+  fr: "Français", de: "Deutsch", es: "Español", it: "Italiano", pt: "Português",
+  ar: "العربية", th: "ไทย", vi: "Tiếng Việt",
+}
+const fmtCodes = (codes: string[], labels: Record<string, string>) =>
+  codes
+    .filter((c): c is string => typeof c === "string") // 防御：Json 列可能混入非字符串元素
+    .map((c) => labels[c] ?? c.toUpperCase())
+    .join(" / ")
+
 /**
  * Galvelica 作品详情视图（Stage E）。
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
@@ -148,6 +165,26 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
         <Meta label="状态" value={statusLabel[work.status] ?? work.status} />
         {work.gameDuration && <Meta label="时长" value={work.gameDuration} />}
         {work.aliases && <Meta label="别名" value={work.aliases} />}
+        {work.platforms.length > 0 && <Meta label="平台" value={fmtCodes(work.platforms, PLATFORM_LABELS)} />}
+        {work.languages.length > 0 && <Meta label="语言" value={fmtCodes(work.languages, LANGUAGE_LABELS)} />}
+        {work.originalLanguage && (
+          <Meta label="原语言" value={LANGUAGE_LABELS[work.originalLanguage] ?? work.originalLanguage.toUpperCase()} />
+        )}
+        {work.officialWebsite && (
+          <Meta
+            label="官网"
+            value={
+              <a
+                href={work.officialWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--gal-accent)] hover:underline"
+              >
+                {work.officialWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")} ↗
+              </a>
+            }
+          />
+        )}
         {work.vndbId && (
           <Meta
             label="VNDB"
@@ -164,6 +201,36 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
           />
         )}
       </div>
+
+      {/* ── 截图画廊（方案B） ── */}
+      {work.screenshots.length > 0 && (
+        <section className="mt-8">
+          <SectionTitle>截图</SectionTitle>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {work.screenshots.slice(0, 8).map((url, i) => (
+              <a
+                key={`${url}-${i}`}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="galvelica-card group block overflow-hidden rounded-xl"
+                title={`查看原图 ${i + 1}`}
+              >
+                <div className="relative aspect-[16/9] w-full bg-muted">
+                  <SafeImage
+                    src={url}
+                    alt={`${work.title} 截图 ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    sizes="(max-width: 640px) 45vw, 280px"
+                    loading="lazy"
+                  />
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── 制作人员 ── */}
       {roles.length > 0 && (

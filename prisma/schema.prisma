@@ -816,6 +816,14 @@ model Work {
   studioName   String    @default("")
   status       String    @default("") // 完结/连载等（自由文本，后续可枚举）
   duration     String    @default("") // 对应 Game.gameDuration
+
+  // 媒体/平台/语言（方案B：由 VNDB 等源融合入库，前端渲染；与 Game 同名列一致）
+  screenshots      Json   @default("[]") // 截图 URL 数组
+  platforms        Json   @default("[]") // 平台代码数组（win/lin/mac/ios/and/…）
+  languages        Json   @default("[]") // 语言代码数组（en/ja/zh/ko/…）
+  originalLanguage String @default("") // 原始语言代码（ja/en/zh/…）
+  officialWebsite  String @default("") // 官方网站
+
   isNsfw       Boolean   @default(false)
 
   // 同人分类（对外展示）：PURE=纯正同人，DERIVATIVE=同人系公司商业作；null=未定（人工/旧数据）

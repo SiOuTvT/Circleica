@@ -578,6 +578,12 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
       isNsfw: work.isNsfw,
       vndbId: vndbSource?.externalId ?? "",
       isPublished: false,
+      // 方案B：把副站融合后的媒体/平台/语言资料一并带入主站 Game 草稿（Array.isArray 防御：Json 列非数组时兜底空数组）
+      screenshots: Array.isArray(work.screenshots) ? (work.screenshots as Prisma.InputJsonValue) : [],
+      platforms: Array.isArray(work.platforms) ? (work.platforms as Prisma.InputJsonValue) : [],
+      languages: Array.isArray(work.languages) ? (work.languages as Prisma.InputJsonValue) : [],
+      originalLanguage: work.originalLanguage ?? "",
+      officialWebsite: work.officialWebsite ?? "",
     },
   })
 
