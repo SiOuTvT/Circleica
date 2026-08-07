@@ -2,12 +2,12 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { toShanghaiDate } from "@/lib/date"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import dynamic from "next/dynamic"
+import NextDynamic from "next/dynamic"
 import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
-const GameForm = dynamic(() => import("@/components/game-form").then(m => ({ default: m.GameForm })), {
+const GameForm = NextDynamic(() => import("@/components/game-form").then(m => ({ default: m.GameForm })), {
   loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted" />,
 })
 
