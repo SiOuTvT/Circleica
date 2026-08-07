@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, Inbox,
+  ArrowLeft, Award, BookOpen, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
   Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
   PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
@@ -71,6 +71,7 @@ const navGroups: NavGroup[] = [
       { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN", site: "galvelica" },
       { icon: Download, label: "手动拉取", href: "/admin/galvelica/fetch", minRole: "ADMIN", site: "galvelica" },
       { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN", site: "galvelica" },
+      { icon: ImageOff, label: "封面 NSFW 审核", href: "/admin/galvelica/nsfw-review", minRole: "ADMIN", site: "galvelica" },
       { icon: Palette, label: "副站主题", href: "/admin/galvelica/theme", minRole: "ADMIN", site: "galvelica" },
     ],
   },

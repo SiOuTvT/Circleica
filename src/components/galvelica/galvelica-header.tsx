@@ -3,10 +3,11 @@ import { GalvelicaNav } from "./galvelica-nav"
 import { GalvelicaSearch } from "./galvelica-search"
 import { ThemeModeToggle } from "./theme-mode-toggle"
 import { GalvelicaNsfwToggle } from "./galvelica-nsfw-toggle"
+import { GalvelicaRealFilterToggle } from "./galvelica-real-filter-toggle"
 
 /**
  * Galvelica 子站 Header · 档案刊头（变体 C）。
- * 大字标(衬线) + 标语 + 铜绿发丝线 + 索引导航行 + 右侧检索/主题/R18/返回主站。
+ * 大字标(衬线) + 标语 + 铜绿发丝线 + 索引导航行 + 右侧检索/主题/NSFW/真人3D/返回主站。
  * 不再重复渲染品牌字标（品牌仅在刊头一次出现）；移动端检索常显。
  */
 export async function GalvelicaHeader() {
@@ -27,6 +28,7 @@ export async function GalvelicaHeader() {
           <GalvelicaSearch className="block" />
           <ThemeModeToggle />
           <GalvelicaNsfwToggle />
+          <GalvelicaRealFilterToggle />
           <Link
             href="/"
             className="galvelica-navlink hidden shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium sm:inline-flex"

@@ -23,6 +23,7 @@ function one(v: string | string[] | undefined): string | undefined {
 }
 
 const SORTS: { key: GalvelicaSort; label: string }[] = [
+  { key: "recommended", label: "推荐" },
   { key: "recent", label: "最近" },
   { key: "popular", label: "热门" },
   { key: "views", label: "浏览" },
@@ -37,7 +38,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
   const yearRaw = one(sp.year)
   const year = yearRaw && /^\d{4}$/.test(yearRaw) ? parseInt(yearRaw, 10) : undefined
   const studio = one(sp.studio) ? decodeURIComponent(one(sp.studio)!) : undefined
-  const sort = (one(sp.sort) as GalvelicaSort) || "recent"
+  const sort = (one(sp.sort) as GalvelicaSort) || "recommended"
   const page = Math.max(1, parseInt(one(sp.page) || "1", 10) || 1)
   const tags = (one(sp.tags) || "")
     .split(",")
