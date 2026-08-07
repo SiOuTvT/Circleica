@@ -16,15 +16,19 @@
 
 services:
   # ── PostgreSQL ──────────────────────────────
+  # ⚠️ 安全警告：默认口令 circleica 仅为本地/测试便捷。
+  #    任何非纯本地的部署必须注入强口令：
+  #    docker compose up -d -e POSTGRES_PASSWORD=<强随机口令> -e DATABASE_URL=postgresql://circleica:<强随机口令>@db:5432/circleica
+  #    （或通过 .env 提供 POSTGRES_PASSWORD / DATABASE_URL）
   db:
     image: postgres:16-alpine
     container_name: circleica-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: circleica
-      POSTGRES_PASSWORD: circleica
-      POSTGRES_DB: circleica
-      PGPASSWORD: circleica
+      POSTGRES_USER: ${POSTGRES_USER:-circleica}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-circleica}
+      POSTGRES_DB: ${POSTGRES_DB:-circleica}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-circleica}
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:

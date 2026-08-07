@@ -2,7 +2,7 @@
 
 > 视觉小说 / Galgame 社区平台——把游戏资料库、论坛讨论、收藏签到、创作者工具与后台管理整合到一个全栈 Web 应用里。
 
-**状态**：v0.1.0 · 预发布（Pre-release）。生产部署前需先补齐安全与数据一致性项（见 `docs/ARCHITECTURE.md` 末尾的「上线前必读」）。
+**状态**：预发布（Pre-release）。生产部署前需先补齐安全与数据一致性项（见 `docs/ARCHITECTURE.md` 末尾的「上线前必读」）。
 
 ## Why This Exists
 

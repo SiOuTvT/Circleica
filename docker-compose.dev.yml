@@ -3,6 +3,7 @@
 # ═══════════════════════════════════════════
 # 使用方式: docker compose -f docker-compose.dev.yml up -d
 # 仅启动 PostgreSQL，应用在本地运行
+# ⚠️ 弱口令 circleica:circleica 仅限本地开发，禁止用于任何共享/生产环境
 
 services:
   db:

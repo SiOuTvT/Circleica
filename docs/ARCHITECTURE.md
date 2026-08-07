@@ -38,7 +38,7 @@ HTTP 请求
 
 ## 数据模型（Prisma）
 
-核心实体（共约 38 个 model / enum）：`User`、`Account`、`Session`、`Game`、`Tag`/`TagGroup`/`GameTag`、`Comment`、`GameResource`/`GameResourceEntry`、`Favorite`、`Collection`、`PlayStatus`、`GameRating`、`Creator`/`GameCreator`、`Music`/`Playlist`、`ForumPost`/`ForumComment`/`*Like`、`Notification`、`Announcement`、`EmotionalMessage`、`CheckIn`、`AuditLog`、`Achievement`/`UserAchievement`、`AvatarFrame`、`SiteSetting`、`CuratedCollection`/`CuratedCollectionGame`、`*Report`、`PasswordResetToken`/`EmailVerificationToken`。
+核心实体（共 47 个 model / 9 个 enum）：`User`、`Account`、`Session`、`Game`、`Tag`/`TagGroup`/`GameTag`、`Comment`、`GameResource`/`GameResourceEntry`、`Favorite`、`Collection`、`PlayStatus`、`GameRating`、`Creator`/`GameCreator`、`Studio`/`GameStudio`、`Music`/`Playlist`、`ForumPost`/`ForumComment`/`*Like`、`Notification`、`Announcement`、`EmotionalMessage`、`CheckIn`、`AuditLog`、`Achievement`/`UserAchievement`、`AvatarFrame`、`SiteSetting`、`CuratedCollection`/`CuratedCollectionGame`、`*Report`、`PasswordResetToken`/`EmailVerificationToken`，以及 Galvelica 副站：`Work`/`WorkSource`/`InclusionRequest`/`WorkTag`/`WorkCreator`。
 
 > 完整字段与关系以 `prisma/schema.prisma` 为准。修改数据模型必须走 Prisma Migration，并提交迁移文件。
 
@@ -70,9 +70,9 @@ HTTP 请求
 以下项已在代码层确认或需专项复核，生产部署前请逐一过关：
 
 1. **环境变量**：`DATABASE_URL` 与 `NEXTAUTH_SECRET`(≥32 字符) 必填；R2 / Redis / Sentry / 邮件为可选。生产务必通过密钥/env 注入，**勿把密钥写死**。
-2. **错误处理**：`withHandler` 仅映射 `AppError` 与 `ZodError`；Prisma 预期内异常（唯一键冲突 `P2002`、外键 `P2003`、记录不存在 `P2025`）当前会落入 500——接入映射可让前端友好提示并暴露真实故障。
+2. **错误处理**：`withHandler` 已统一映射 `AppError`、`ZodError`，以及 Prisma 预期内异常（`P2002`→409 冲突、`P2025`→404、`P2003`→422、`P2014`/`P2016`→404，见 `src/lib/api-handler.ts` 的 `mapPrismaError`）。剩余落入 500 的只有真正未知异常，排查看服务端日志 `[INTERNAL]` 行。
 3. **速率限制**：确认写类接口（发帖、评论、收藏、签到等）是否需统一限流。
-4. **代理安全头**：核对 `next.config.ts` 的 `headers()` 与 `trustProxy`，避免 HSTS 缺失 / SSL 剥离面。
+4. **代理安全头**：部署后验证响应头含 `Strict-Transport-Security`。注意 Next 16 已移除 `trustProxy` 选项，`src/proxy.ts` 直接依赖代理写入的 `x-forwarded-proto` 判定协议——反向代理必须正确覆写该头，否则 HTTPS 站点不会下发 HSTS（存在 SSL 剥离面）。
 5. **Docker 口令**：`docker-compose.yml` 中 `POSTGRES_PASSWORD` 等当前为弱口令占位，**仅限本地**；任何非纯本地部署须改为密钥/env 注入。
 6. **CSP**：`src/proxy.ts`（Next 16 起取代 `middleware.ts` 约定）的 `connect-src` 需覆盖实际上传域名（如 UploadThing `utfs.io`）。
 

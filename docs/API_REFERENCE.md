@@ -29,7 +29,8 @@
 |---|---|---|---|
 | `AppError` 子类（如 `NotFoundError`） | 由子类 `status` 决定（如 404） | 子类 `code` | 业务异常，信息对前端友好 |
 | `ZodError` | `422` | `VALIDATION_ERROR` | 自动展开为 `details` 字段级错误 |
-| 其他（含 Prisma 预期内异常） | `500` | `INTERNAL` | 未知异常，记入日志 |
+| Prisma 预期内异常（`P2002`/`P2003`/`P2025`/`P2014`/`P2016`） | 映射为 409 / 422 / 404 | 对应语义码 | 由 `mapPrismaError()` 集中转换（见 `src/lib/api-handler.ts`） |
+| 其他（未知异常） | `500` | `INTERNAL` | 未知异常，记入日志 |
 
 **速率限制**：被限流的接口返回 `429`，并带 `Retry-After: 60` 头，`code` 为 `RATE_LIMITED`。
 

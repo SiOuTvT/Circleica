@@ -7,7 +7,7 @@ const config: Config = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^isomorphic-dompurify$": "<rootDir>/src/__mocks__/dompurify.ts",
   },
-  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
+  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/", "<rootDir>/e2e/"],
   transformIgnorePatterns: [
     "node_modules/(?!(@exodus|isomorphic-dompurify|dompurify)/)",
   ],
