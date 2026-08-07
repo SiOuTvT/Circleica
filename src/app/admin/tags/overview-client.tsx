@@ -136,7 +136,9 @@ export function TagsOverviewClient({
   const handleColorSaved = useCallback((groupId: string, newColor: string) => {
     setGroupColors((prev) => ({ ...prev, [groupId]: newColor }))
     setEditingColorId(null)
-  }, [])
+    // 同步刷新服务端数据（颜色已本地即时更新，此调用确保跨页/前台缓存同步）
+    router.refresh()
+  }, [router])
 
   return (
     <div className="space-y-6">

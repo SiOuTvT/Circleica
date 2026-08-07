@@ -636,10 +636,13 @@ export const adminGameService = {
       return updated
     })
 
-    // 编辑后清后台列表缓存 + 前台列表/详情，确保改完立即生效
+    // 编辑后清后台列表缓存 + 前台列表/详情/首页网格/相关推荐，确保改完立即生效
     await cache.delByPrefix("circleica:admin:games:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:related:")
     revalidatePath("/admin/games")
     revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -648,10 +651,13 @@ export const adminGameService = {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
     const target = await prisma.game.findUnique({ where: { id }, select: { serialId: true } }).catch(() => null)
     const result = await adminGameRepo.delete(id)
-    // 删除后使管理后台列表缓存立即失效，并刷新前台列表/详情，确保实时刷新。
+    // 删除后使管理后台列表缓存立即失效，并刷新前台列表/详情/首页网格/相关推荐，确保实时刷新。
     await cache.delByPrefix("circleica:admin:games:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:related:")
     revalidatePath("/admin/games")
     revalidatePath("/games")
+    revalidatePath("/")
     if (target?.serialId) revalidatePath(`/games/${target.serialId}`)
     await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
@@ -661,8 +667,11 @@ export const adminGameService = {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
     const result = await adminGameRepo.batchDelete(ids)
     await cache.delByPrefix("circleica:admin:games:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:related:")
     revalidatePath("/admin/games")
     revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
