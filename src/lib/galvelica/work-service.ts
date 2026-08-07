@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma"
 import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"
+import { computeQualitySignal, computeQualityScore } from "./quality"
 import { linkGameStudios } from "@/services/admin"
 
 /* ── 跨源匹配（去重核心） ─────────────────────────── */
@@ -347,12 +348,33 @@ export async function fuseWork(workId: string): Promise<void> {
     nextProvenance[f] = { source: prevProvenance[f]?.source ?? "MANUAL", manual: true }
   }
 
+  // 质量分：融合后即时计算（封面/截图/描述/元数据/评分/热度 − 真人3D惩罚）
+  const qualityInput = {
+    coverImage: ((patch.coverImage as string) ?? work.coverImage ?? "") as string,
+    coverDims: ((patch.coverDims as { width: number; height: number } | null | undefined) ?? (work.coverDims as { width: number; height: number } | null | undefined) ?? null),
+    screenshots: (patch.screenshots as unknown) ?? work.screenshots,
+    description: ((patch.description as string) ?? work.description ?? "") as string,
+    platforms: (patch.platforms as unknown) ?? work.platforms,
+    languages: (patch.languages as unknown) ?? work.languages,
+    duration: ((patch.duration as string) ?? work.duration ?? "") as string,
+    officialWebsite: ((patch.officialWebsite as string) ?? work.officialWebsite ?? "") as string,
+    originalLanguage: ((patch.originalLanguage as string) ?? work.originalLanguage ?? "") as string,
+    rating: (patch.rating as number | null | undefined) ?? work.rating ?? null,
+    viewCount: work.viewCount,
+    favoriteCount: work.favoriteCount,
+    contentFlags: work.contentFlags,
+  }
+  const qualitySignal = computeQualitySignal(qualityInput)
+  const qualityScore = computeQualityScore(qualityInput)
+
   await prisma.work.update({
     where: { id: workId },
     data: {
       ...patch,
       provenance: nextProvenance as unknown as Prisma.InputJsonValue,
       lastFusedAt: new Date(),
+      qualityScore,
+      qualitySignal: qualitySignal as unknown as Prisma.InputJsonValue,
     },
   })
 

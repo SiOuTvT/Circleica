@@ -119,8 +119,11 @@ class VndbAdapter implements SourceAdapter {
     const cleanDesc = stripVndbMarkup((vn.description as string | undefined) ?? "")
 
     /* ── 封面（VNDB 主视觉图 URL；image.url 返回字符串，旧路径可能返回 {url} 对象，兼容两种） ── */
-    const rawImage = vn.image as string | { url?: string } | undefined
+    const rawImage = vn.image as string | { url?: string; sexual?: number; violence?: number; dims?: { width: number; height: number } } | undefined
     const coverImage = typeof rawImage === "string" ? rawImage : rawImage?.url ?? undefined
+    const coverSexual = typeof rawImage === "object" && rawImage != null && typeof rawImage.sexual === "number" ? rawImage.sexual : undefined
+    const coverViolence = typeof rawImage === "object" && rawImage != null && typeof rawImage.violence === "number" ? rawImage.violence : undefined
+    const coverDims = typeof rawImage === "object" && rawImage != null && rawImage.dims ? rawImage.dims : undefined
 
     /* ── 标签（智能清洗：黑名单 + 翻译 + 去重） ── */
     const vnTags = (vn.tags as Array<{ name: string; rating?: number }> | undefined) ?? []
@@ -157,11 +160,14 @@ class VndbAdapter implements SourceAdapter {
     const rawLength = typeof vn.length === "number" ? vn.length : undefined
     const gameDuration = rawLength && LENGTH_LABELS[rawLength] ? LENGTH_LABELS[rawLength] : undefined
 
-    /* ── 截图（VNDB screenshots{id,url}） ── */
-    const scList = (vn.screenshots as Array<{ url?: string }> | undefined) ?? []
+    /* ── 截图（VNDB screenshots{id,url,sexual} → urls + 平行分级数组） ── */
+    const scList = (vn.screenshots as Array<{ url?: string; sexual?: number }> | undefined) ?? []
     const screenshots = scList
       .map((s) => (typeof s?.url === "string" ? s.url : undefined))
       .filter((u): u is string => typeof u === "string" && u.length > 0)
+    const screenshotsSexual = scList
+      .map((s) => (typeof s.sexual === "number" ? s.sexual : -1))
+      .slice(0, screenshots.length)
 
     /* ── 平台（VNDB platforms 字符串数组，如 win/lin/mac/ios/and/psp/ps2/drc/vnd/web/mob…） ── */
     const platforms = (vn.platforms as string[] | undefined) ?? []
@@ -181,6 +187,7 @@ class VndbAdapter implements SourceAdapter {
       coverImage,
       gameDuration,
       screenshots,
+      ...(screenshotsSexual.length > 0 ? { screenshotsSexual } : {}),
       platforms,
       languages,
       originalLanguage,
@@ -189,6 +196,10 @@ class VndbAdapter implements SourceAdapter {
       studios,
       tags: tagNames.map((name) => ({ name })),
       creators,
+      ...(typeof vn.rating === "number" ? { rating: vn.rating } : {}),
+      ...(typeof coverSexual === "number" ? { coverSexual } : {}),
+      ...(typeof coverViolence === "number" ? { coverViolence } : {}),
+      ...(coverDims ? { coverDims } : {}),
     }
   }
 

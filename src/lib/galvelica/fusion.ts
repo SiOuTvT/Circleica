@@ -30,6 +30,12 @@ export interface FusedFields {
   languages: string[]
   originalLanguage: string
   officialWebsite: string
+  // ── 阶段0 新增：评分/封面分级/截图分级（NSFW 合规 + 质量分数据源） ──
+  rating: number
+  coverSexual: number
+  coverViolence: number
+  coverDims: { width: number; height: number } | null
+  screenshotsSexual: number[]
 }
 
 /** 单字段的 provenance：来自哪个源、是否人工锁定 */
@@ -92,6 +98,12 @@ export const FUSION_TABLE: Record<keyof FusedFields, SourceKey[]> = {
   languages: ["VNDB", "MANUAL"],
   originalLanguage: ["VNDB", "MANUAL"],
   officialWebsite: ["MANUAL"],
+  // ── 阶段0：评分/分级（VNDB 权威，人工兜底） ──
+  rating: ["VNDB", "MANUAL"],
+  coverSexual: ["VNDB", "MANUAL"],
+  coverViolence: ["VNDB", "MANUAL"],
+  coverDims: ["VNDB", "MANUAL"],
+  screenshotsSexual: ["VNDB", "MANUAL"],
 }
 
 /** FusedFields 键 → NormalizedWork 源字段名的映射（名称不一致者） */
@@ -105,7 +117,7 @@ function sourceField(field: keyof FusedFields): keyof NormalizedWork {
 }
 
 /** 数组型字段：取首个非空数组，整组写入 JSON 列 */
-const ARRAY_FIELDS = new Set<keyof FusedFields>(["screenshots", "platforms", "languages"])
+const ARRAY_FIELDS = new Set<keyof FusedFields>(["screenshots", "platforms", "languages", "screenshotsSexual"])
 
 export interface FusionResult {
   /** 仅含「非人工锁定」字段的融合值，供调用方写入 Work（人工字段由调用方保留原值） */
@@ -120,6 +132,15 @@ export interface FusionResult {
 
 function isNonEmpty(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0
+}
+
+/** 非空判断（对象/数字/数组也接受，供 coverDims/rating 等非字符串字段用） */
+function isNonEmptyAny(v: unknown): boolean {
+  if (v == null) return false
+  if (typeof v === "string") return v.trim().length > 0
+  if (typeof v === "number") return true
+  if (Array.isArray(v)) return v.length > 0
+  return typeof v === "object" && Object.keys(v).length > 0
 }
 
 /** 把逗号 / 换行分隔的别名串拆成去重数组 */
@@ -202,10 +223,10 @@ export function mergeSources(sources: FusedSource[], manualFields: string[] = []
       continue
     }
 
-    // 其余字段：按优先级取首个非空（duration 等源字段名不同者走别名映射）
+    // 其余字段：按优先级取首个非空（duration 等源字段名不同者走别名映射；对象/数字字段走 isNonEmptyAny）
     for (const priorityKey of FUSION_TABLE[field]) {
       const val = byKey.get(priorityKey)?.[sourceField(field)]
-      if (isNonEmpty(val)) {
+      if (isNonEmptyAny(val)) {
         fields[field] = val as never
         provenance[field] = { source: priorityKey, manual: false }
         break

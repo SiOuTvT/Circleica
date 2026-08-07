@@ -67,6 +67,16 @@ export interface NormalizedWork {
   originalLanguage?: string
   /** 官方网站（VNDB 无干净官网字段，保留接口位，由人工填写） */
   officialWebsite?: string
+  /** VNDB 综合评分 0-10（无则缺省） */
+  rating?: number
+  /** 封面露骨度分级（VNDB image.sexual：0=安全 1=暗示 2=露骨；-1=未知） */
+  coverSexual?: number
+  /** 封面暴力分级（VNDB image.violence） */
+  coverViolence?: number
+  /** 封面图片尺寸 {width,height}（VNDB image.dims） */
+  coverDims?: { width: number; height: number } | null
+  /** 截图露骨度分级数组（与 screenshots 一一对应，缺省 -1=未知） */
+  screenshotsSexual?: number[]
 }
 
 /**
