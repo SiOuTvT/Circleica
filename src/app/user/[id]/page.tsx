@@ -86,6 +86,32 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   } catch (error) { logger.db.error("[UserProfilePage] Database query failed", error) }
   if (!user) notFound()
 
+  // 名片数据：收藏游戏封面（前 6）+ 关注中的人（前 4），供生成精美竖版名片使用
+  let cardData: {
+    favoriteGames: Array<{ id: string; title: string; coverImage: string | null; serialId: number }>
+    followingUsers: Array<{ id: string; username: string; avatar: string | null; composedAvatarUrl: string | null }>
+  } = { favoriteGames: [], followingUsers: [] }
+  try {
+    const [favoriteGames, followingUsers] = await Promise.all([
+      prisma.favorite.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        select: { game: { select: { id: true, title: true, coverImage: true, serialId: true } } },
+      }),
+      prisma.follow.findMany({
+        where: { followerId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+        select: { following: { select: { id: true, username: true, avatar: true, composedAvatarUrl: true } } },
+      }),
+    ])
+    cardData = {
+      favoriteGames: favoriteGames.map((f) => f.game),
+      followingUsers: followingUsers.map((f) => f.following),
+    }
+  } catch (error) { logger.db.error("[UserProfilePage] Card data query failed", error) }
+
   const userRank = user.serialId
   // 关联数据改为客户端按需加载，这里只传递数量统计
   const isSelf = session?.user?.id === user.id
@@ -173,6 +199,8 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                         favCount: user._count.favorites, commentCount: user._count.comments,
                         followerCount: user._count.followers, followingCount: user._count.following,
                         avatarFrameUrl: user.avatarFrame?.imageUrl ?? "",
+                        favoriteGames: cardData.favoriteGames,
+                        followingUsers: cardData.followingUsers,
                       }} />
                     )}
                     {/* AchievementModal 和 AvatarFrameSelector 有闪屏问题，暂时注释 */}
