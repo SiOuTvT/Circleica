@@ -41,6 +41,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.8",
+    "html2canvas": "^1.4.1",
     "isomorphic-dompurify": "^3.13.0",
     "lucide-react": "^1.14.0",
     "next": "^16.2.7",

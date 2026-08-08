@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { logger } from "@/lib/logger"
 import { formatZhDate } from "@/lib/date"
 import { ROLE_META, type UserRole } from "@/lib/permissions"
+import html2canvas from "html2canvas"
 
 interface CardData {
   username: string
@@ -30,242 +31,220 @@ function formatNum(n: number): string {
   return String(n)
 }
 
-function escapeXml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-}
+/** 头像框 PNG 统一按 1:1 等比叠加在头像上方 */
+const AVATAR_SIZE = 132
 
-/** 头像框默认是正方形 PNG，按 1:1 渲染在头像上方，尺寸比头像稍大形成"框"的效果 */
-const AVATAR_CX = 82
-const AVATAR_CY = 112
-const AVATAR_R = 52
-const FRAME_SIZE = 132
-
-export function CardGenerateBtn({ data }: { data: CardData }) {
+export function CardGenerateBtn({ data }: CardData) {
   const [generating, setGenerating] = useState(false)
-  const avatarDataUrlRef = useRef<string>("")
-  const frameDataUrlRef = useRef<string>("")
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [frameReady, setFrameReady] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
+  const [frameError, setFrameError] = useState(false)
 
-  async function preloadAsDataUrl(src: string): Promise<string> {
+  const joinDate = formatZhDate(data.createdAt)
+  const roleMeta = ROLE_META[(data.role as UserRole)]
+  const roleLabel = roleMeta?.label ?? ""
+  const initials = data.username[0]?.toUpperCase() || "?"
+  const bio = data.bio ? data.bio.slice(0, 90) : ""
+
+  const avatarSrc = data.composedAvatarUrl || data.avatar || ""
+  const frameSrc = data.avatarFrameUrl || ""
+
+  const stats = [
+    { label: "收藏", value: data.favCount },
+    { label: "关注者", value: data.followerCount },
+    { label: "关注中", value: data.followingCount },
+    { label: "评论", value: data.commentCount },
+  ]
+
+  async function preloadImage(src: string): Promise<HTMLImageElement | null> {
+    if (!src) return null
     try {
-      const res = await fetch(src)
-      if (!res.ok) return ""
-      const blob = await res.blob()
-      return await new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onloadend = () => resolve(reader.result as string)
-        reader.readAsDataURL(blob)
-      })
+      const img = new Image()
+      // 同源无需 CORS；跨域图（R2 等）走匿名请求，需服务端允许
+      img.crossOrigin = "anonymous"
+      img.referrerPolicy = "no-referrer"
+      img.src = src
+      await img.decode()
+      return img
     } catch {
-      return ""
+      return null
     }
-  }
-
-  async function preloadAvatars(): Promise<{ avatar: string; frame: string }> {
-    const avatar = await preloadAsDataUrl(data.composedAvatarUrl || data.avatar || "")
-    const frame = data.avatarFrameUrl ? await preloadAsDataUrl(data.avatarFrameUrl) : ""
-    return { avatar, frame }
   }
 
   async function generate() {
     if (generating) return
     setGenerating(true)
-
     try {
-      const W = 1000, H = 560
-      const { avatar: avatarDataUrl, frame: frameDataUrl } = await preloadAvatars()
-      const joinDate = formatZhDate(data.createdAt)
-      const roleMeta = ROLE_META[(data.role as UserRole)]
-      const roleLabel = roleMeta?.label ?? ""
-      const initials = data.username[0]?.toUpperCase() || "?"
-      const bio = data.bio ? data.bio.slice(0, 90) : ""
+      // 等待头像与头像框真正加载完成，避免 html2canvas 截到空白
+      const [avatarImg, frameImg] = await Promise.all([preloadImage(avatarSrc), preloadImage(frameSrc)])
+      setAvatarError(!avatarImg)
+      setFrameError(!frameImg)
+      // 让 React 应用兜底状态后再截图
+      await new Promise((r) => setTimeout(r, 50))
 
-      // 统计卡：收藏 / 关注者 / 关注中 / 评论
-      const stats = [
-        { label: "收藏", value: data.favCount },
-        { label: "关注者", value: data.followerCount },
-        { label: "关注中", value: data.followingCount },
-        { label: "评论", value: data.commentCount },
-      ]
-      const statCards = stats.map((s, i) => {
-        const x = 92 + i * 208
-        return `
-  <g>
-    <rect x="${x}" y="392" width="184" height="86" rx="14" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <rect x="${x}" y="392" width="3" height="86" rx="1.5" fill="url(#statAccent)"/>
-    <text x="${x + 92}" y="438" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="bold" font-family="'Segoe UI', sans-serif">${formatNum(s.value)}</text>
-    <text x="${x + 92}" y="462" text-anchor="middle" fill="rgba(255,255,255,0.38)" font-size="12" font-family="'Segoe UI', sans-serif" letter-spacing="2">${s.label}</text>
-  </g>`
-      }).join("")
+      const node = cardRef.current
+      if (!node) throw new Error("card node missing")
 
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="${W}" y2="${H}">
-      <stop offset="0" stop-color="#0b0c11"/>
-      <stop offset="0.5" stop-color="#11131b"/>
-      <stop offset="1" stop-color="#0d0e15"/>
-    </linearGradient>
-    <radialGradient id="glow1" cx="${W * 0.18}" cy="${H * 0.2}" r="320" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="rgba(95,168,160,0.10)"/>
-      <stop offset="1" stop-color="transparent"/>
-    </radialGradient>
-    <radialGradient id="glow2" cx="${W * 0.85}" cy="${H * 0.78}" r="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="rgba(168,85,247,0.08)"/>
-      <stop offset="1" stop-color="transparent"/>
-    </radialGradient>
-    <linearGradient id="accentLine" x1="0" y1="0" x2="${W}" y2="0">
-      <stop offset="0" stop-color="rgba(95,168,160,0)"/>
-      <stop offset="0.3" stop-color="rgba(95,168,160,0.65)"/>
-      <stop offset="0.7" stop-color="rgba(168,85,247,0.65)"/>
-      <stop offset="1" stop-color="rgba(168,85,247,0)"/>
-    </linearGradient>
-    <linearGradient id="avatarRing" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="rgba(95,168,160,0.55)"/>
-      <stop offset="1" stop-color="rgba(168,85,247,0.55)"/>
-    </linearGradient>
-    <linearGradient id="nameGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="rgba(255,255,255,0.82)"/>
-    </linearGradient>
-    <linearGradient id="statAccent" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="rgba(95,168,160,0.9)"/>
-      <stop offset="1" stop-color="rgba(168,85,247,0.9)"/>
-    </linearGradient>
-    <clipPath id="avatarClip">
-      <circle cx="${AVATAR_CX}" cy="${AVATAR_CY}" r="${AVATAR_R}"/>
-    </clipPath>
-    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.5)" flood-opacity="0.6"/>
-    </filter>
-    <filter id="nameGlow">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <!-- 背景 -->
-  <rect x="0" y="0" width="${W}" height="${H}" rx="22" fill="url(#bg)"/>
-  <rect x="0" y="0" width="${W}" height="${H}" rx="22" fill="url(#glow1)"/>
-  <rect x="0" y="0" width="${W}" height="${H}" rx="22" fill="url(#glow2)"/>
-
-  <!-- 顶部渐变色带 -->
-  <rect x="0" y="0" width="${W}" height="4" fill="url(#accentLine)"/>
-
-  <!-- 装饰：右上角同心圆环 -->
-  <g opacity="0.35">
-    <circle cx="${W - 70}" cy="90" r="56" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-    <circle cx="${W - 70}" cy="90" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-    <circle cx="${W - 70}" cy="90" r="24" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-  </g>
-  <!-- 装饰：左下角点阵 -->
-  <g opacity="0.25" fill="rgba(255,255,255,0.10)">
-    <circle cx="50" cy="${H - 60}" r="1.5"/><circle cx="66" cy="${H - 60}" r="1.5"/><circle cx="82" cy="${H - 60}" r="1.5"/>
-    <circle cx="50" cy="${H - 44}" r="1.5"/><circle cx="66" cy="${H - 44}" r="1.5"/><circle cx="82" cy="${H - 44}" r="1.5"/>
-    <circle cx="50" cy="${H - 28}" r="1.5"/><circle cx="66" cy="${H - 28}" r="1.5"/>
-  </g>
-
-  <!-- 外边框 -->
-  <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="21" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-
-  <!-- ═══ 头部区：头像 + 名牌 ═══ -->
-  <g filter="url(#softShadow)">
-    <!-- 头像底 -->
-    <circle cx="${AVATAR_CX}" cy="${AVATAR_CY}" r="${AVATAR_R + 3}" fill="url(#avatarRing)"/>
-    <circle cx="${AVATAR_CX}" cy="${AVATAR_CY}" r="${AVATAR_R}" fill="#15161c"/>
-    ${avatarDataUrl
-      ? `<image href="${avatarDataUrl}" x="${AVATAR_CX - AVATAR_R}" y="${AVATAR_CY - AVATAR_R}" width="${AVATAR_R * 2}" height="${AVATAR_R * 2}" clip-path="url(#avatarClip)" preserveAspectRatio="xMidYMid slice"/>`
-      : `<circle cx="${AVATAR_CX}" cy="${AVATAR_CY}" r="${AVATAR_R}" fill="url(#avatarRing)"/>
-         <text x="${AVATAR_CX}" y="${AVATAR_CY + 12}" text-anchor="middle" fill="#ffffff" font-size="34" font-weight="bold" font-family="'Segoe UI', sans-serif">${initials}</text>`
-    }
-    <!-- 头像框叠加（关键：让头像框价值直接可见） -->
-    ${frameDataUrl
-      ? `<image href="${frameDataUrl}" x="${AVATAR_CX - FRAME_SIZE / 2}" y="${AVATAR_CY - FRAME_SIZE / 2}" width="${FRAME_SIZE}" height="${FRAME_SIZE}" preserveAspectRatio="xMidYMid meet"/>`
-      : `<circle cx="${AVATAR_CX}" cy="${AVATAR_CY}" r="${AVATAR_R + 6}" fill="none" stroke="rgba(95,168,160,0.28)" stroke-width="1.5" stroke-dasharray="3 4"/>`
-    }
-  </g>
-
-  <!-- 名牌区 -->
-  <g>
-    <text x="158" y="98" fill="url(#nameGrad)" font-size="30" font-weight="bold" font-family="'Segoe UI', sans-serif" filter="url(#nameGlow)">${escapeXml(data.username)}</text>
-    <text x="160" y="122" fill="rgba(255,255,255,0.35)" font-size="13" font-family="'Segoe UI', sans-serif" letter-spacing="1">UID ${escapeXml(data.uid)}</text>
-    ${roleLabel
-      ? `<rect x="160" y="136" width="76" height="22" rx="11" fill="rgba(95,168,160,0.14)" stroke="rgba(95,168,160,0.35)" stroke-width="0.8"/>
-         <text x="198" y="151" text-anchor="middle" fill="rgba(95,168,160,0.95)" font-size="12" font-family="'Segoe UI', sans-serif">${escapeXml(roleLabel)}</text>`
-      : ""}
-  </g>
-
-  <!-- 简介 -->
-  ${bio ? `<text x="52" y="196" fill="rgba(255,255,255,0.5)" font-size="14" font-family="'Segoe UI', sans-serif">${escapeXml(bio)}</text>` : ""}
-
-  <!-- 分割线 -->
-  <line x1="52" y1="230" x2="${W - 52}" y2="230" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-
-  <!-- 副站资料馆徽标区（品牌感） -->
-  <text x="52" y="260" fill="rgba(255,255,255,0.22)" font-size="11" font-family="'Segoe UI', sans-serif" letter-spacing="3">CIRCLEICA · GALVELICA</text>
-  <text x="${W - 52}" y="260" text-anchor="end" fill="rgba(255,255,255,0.16)" font-size="11" font-family="'Segoe UI', sans-serif">加入于 ${joinDate}</text>
-
-  <!-- ═══ 统计卡 ═══ -->
-  ${statCards}
-
-  <!-- 底部品牌带 -->
-  <rect x="0" y="${H - 46}" width="${W}" height="46" fill="rgba(0,0,0,0.18)"/>
-  <text x="${W / 2}" y="${H - 20}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="12" font-family="'Segoe UI', sans-serif" letter-spacing="6">C I R C L E I C A</text>
-</svg>`
-
-      // SVG → blob → download (2x 分辨率)
-      const img = new Image()
-      const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" })
-      const url = URL.createObjectURL(svgBlob)
-
-      await new Promise<void>((resolve) => {
-        img.onload = () => {
-          const canvas = document.createElement("canvas")
-          canvas.width = W * 2
-          canvas.height = H * 2
-          const ctx = canvas.getContext("2d")!
-          ctx.scale(2, 2)
-          ctx.drawImage(img, 0, 0)
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const downloadUrl = URL.createObjectURL(blob)
-              const a = document.createElement("a")
-              a.href = downloadUrl
-              a.download = `${data.username}_名片.png`
-              document.body.appendChild(a)
-              a.click()
-              document.body.removeChild(a)
-              URL.revokeObjectURL(downloadUrl)
-            }
-            URL.revokeObjectURL(url)
-            resolve()
-          }, "image/png")
-        }
-        img.src = url
+      const canvas = await html2canvas(node, {
+        scale: 2,
+        backgroundColor: "#0b0c11",
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
       })
-
+      const url = canvas.toDataURL("image/png")
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${data.username}_名片.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
       toast.success("名片已生成")
     } catch (e) {
       logger.user.error("[名片生成]", e)
-      toast.error("生成失败")
+      toast.error("生成失败，请重试")
     } finally {
       setGenerating(false)
     }
   }
 
-  return (
-    <button
-      onClick={generate}
-      type="button"
-      disabled={generating}
-      className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary disabled:opacity-60"
+  // ═══ 名片本体（隐藏渲染，用 html2canvas 截图） ═══
+  const card = (
+    <div
+      ref={cardRef}
+      style={{
+        width: 1000,
+        height: 560,
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(135deg, #0b0c11 0%, #11131b 50%, #0d0e15 100%)",
+        fontFamily: "'Noto Sans SC', 'Segoe UI', 'Microsoft YaHei', sans-serif",
+        borderRadius: 22,
+        color: "#fff",
+      }}
     >
-      {generating ? (
-        <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} />
-      ) : (
-        <Download className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+      {/* 双光晕 */}
+      <div style={{ position: "absolute", left: -140, top: -120, width: 640, height: 640, borderRadius: "50%", background: "radial-gradient(circle, rgba(95,168,160,0.12) 0%, transparent 60%)" }} />
+      <div style={{ position: "absolute", right: -120, bottom: -140, width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.10) 0%, transparent 60%)" }} />
+
+      {/* 顶部渐变带 */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, rgba(95,168,160,0) 0%, rgba(95,168,160,0.65) 30%, rgba(168,85,247,0.65) 70%, rgba(168,85,247,0) 100%)" }} />
+
+      {/* 装饰圆环（右上） */}
+      <div style={{ position: "absolute", right: 40, top: 40, width: 112, height: 112, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.05)" }} />
+      <div style={{ position: "absolute", right: 52, top: 52, width: 88, height: 88, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.04)" }} />
+      <div style={{ position: "absolute", right: 64, top: 64, width: 64, height: 64, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.03)" }} />
+
+      {/* 装饰点阵（左下） */}
+      {[[46, 500], [62, 500], [78, 500], [46, 516], [62, 516], [46, 532]].map(([x, y], i) => (
+        <div key={i} style={{ position: "absolute", left: x, top: y, width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.10)" }} />
+      ))}
+
+      {/* 外描边 */}
+      <div style={{ position: "absolute", inset: 1, borderRadius: 21, border: "1px solid rgba(255,255,255,0.07)", pointerEvents: "none" }} />
+
+      {/* ═══ 头部区：头像 + 名牌 ═══ */}
+      <div style={{ position: "absolute", left: 52, top: 44, width: 148, height: 148 }}>
+        {/* 头像框/头像 */}
+        <div style={{ position: "absolute", left: 8, top: 8, width: AVATAR_SIZE, height: AVATAR_SIZE, borderRadius: "50%", background: "linear-gradient(135deg, rgba(95,168,160,0.55), rgba(168,85,247,0.55))", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
+          <div style={{ position: "absolute", inset: 3, borderRadius: "50%", overflow: "hidden", background: "#15161c" }}>
+            {avatarSrc && !avatarError ? (
+              <img
+                src={avatarSrc}
+                alt=""
+                width={AVATAR_SIZE}
+                height={AVATAR_SIZE}
+                onError={() => setAvatarError(true)}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                crossOrigin="anonymous"
+              />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #3b5a72, #6d3b72)", fontSize: 44, fontWeight: 700 }}>{initials}</div>
+            )}
+          </div>
+        </div>
+        {/* 头像框叠加 */}
+        {frameSrc && !frameError ? (
+          <img
+            src={frameSrc}
+            alt=""
+            width={AVATAR_SIZE + 24}
+            height={AVATAR_SIZE + 24}
+            onError={() => setFrameError(true)}
+            style={{ position: "absolute", left: 0, top: 0, width: AVATAR_SIZE + 24, height: AVATAR_SIZE + 24, objectFit: "contain", pointerEvents: "none" }}
+            crossOrigin="anonymous"
+          />
+        ) : (
+          <div style={{ position: "absolute", left: 2, top: 2, width: AVATAR_SIZE + 20, height: AVATAR_SIZE + 20, borderRadius: "50%", border: "1.5px dashed rgba(95,168,160,0.30)", pointerEvents: "none" }} />
+        )}
+      </div>
+
+      {/* 名牌区 */}
+      <div style={{ position: "absolute", left: 226, top: 58 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 30, fontWeight: 700, color: "#fff", textShadow: "0 0 12px rgba(255,255,255,0.18)", letterSpacing: 1 }}>{data.username}</span>
+          {roleLabel && (
+            <span style={{ padding: "3px 12px", borderRadius: 12, background: "rgba(95,168,160,0.14)", border: "1px solid rgba(95,168,160,0.35)", color: "rgba(95,168,160,0.95)", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>{roleLabel}</span>
+          )}
+        </div>
+        <div style={{ marginTop: 8, color: "rgba(255,255,255,0.35)", fontSize: 13, letterSpacing: 1 }}>UID {data.uid}</div>
+      </div>
+
+      {/* 简介 */}
+      {bio && (
+        <div style={{ position: "absolute", left: 52, top: 216, width: 880, color: "rgba(255,255,255,0.5)", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap", overflow: "hidden", textOverflow: "ellipsis" }}>{bio}</div>
       )}
-      <span className="text-xs font-medium text-foreground">
-        {generating ? "生成中…" : "生成名片"}
-      </span>
-    </button>
+
+      {/* 分割线 */}
+      <div style={{ position: "absolute", left: 52, right: 52, top: 252, height: 1, background: "rgba(255,255,255,0.06)" }} />
+
+      {/* 品牌区 */}
+      <div style={{ position: "absolute", left: 52, top: 272, display: "flex", justifyContent: "space-between", width: 896 }}>
+        <span style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, letterSpacing: 3 }}>CIRCLEICA · GALVELICA</span>
+        <span style={{ color: "rgba(255,255,255,0.16)", fontSize: 11 }}>加入于 {joinDate}</span>
+      </div>
+
+      {/* ═══ 统计卡 ═══ */}
+      <div style={{ position: "absolute", left: 52, top: 312, display: "flex", gap: 24, width: 896 }}>
+        {stats.map((s, i) => (
+          <div key={i} style={{ position: "relative", flex: 1, height: 92, borderRadius: 14, background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, width: 3, height: "100%", background: "linear-gradient(180deg, rgba(95,168,160,0.9), rgba(168,85,247,0.9))" }} />
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: "#fff" }}>{formatNum(s.value)}</div>
+              <div style={{ marginTop: 6, fontSize: 12, color: "rgba(255,255,255,0.38)", letterSpacing: 2 }}>{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 底部品牌带 */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 46, background: "rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, letterSpacing: 8 }}>CIRCLEICA</span>
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      <button
+        onClick={generate}
+        type="button"
+        disabled={generating}
+        className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary disabled:opacity-60"
+      >
+        {generating ? (
+          <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} />
+        ) : (
+          <Download className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
+        )}
+        <span className="text-xs font-medium text-foreground">
+          {generating ? "生成中…" : "生成名片"}
+        </span>
+      </button>
+
+      {/* 名片渲染节点（不可见，仅用于 html2canvas 截图） */}
+      <div style={{ position: "fixed", left: -9999, top: 0, pointerEvents: "none", zIndex: -1 }}>{card}</div>
+    </>
   )
 }
