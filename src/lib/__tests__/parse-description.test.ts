@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { parseDescription, serializeDescription, getDescriptionText, getDescriptionLang, getAllDescriptions } from "../parse-description"
 
 describe("parseDescription", () => {

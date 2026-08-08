@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { parseStringArray, parseFileSizes, safeParse } from "../parse-utils"
 
 describe("parseStringArray", () => {

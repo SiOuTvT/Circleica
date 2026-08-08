@@ -111,6 +111,12 @@ verify*.cjs
 !README.md
 !LICENSE.md
 docs/
+# 例外：docs/ 下与源码直接相关的正式设计文档保留版本控制（其余报告/临时文档仍排除）
+!docs/ARCHITECTURE.md
+!docs/API_REFERENCE.md
+!docs/CONTRIBUTING.md
+!docs/DOC_STANDARDS.md
+!docs/GETTING_STARTED.md
 deliverables/
 screenshots/
 responsive-audit/
@@ -125,8 +131,11 @@ preview-layouts/
 
 # 测试 / e2e 产物
 /test-results
+/test-results-*
 /playwright-report
 /coverage
+# dev server 临时日志
+dev-*.log
 
 # 临时 / 系统文件
 tmp/
@@ -141,3 +150,32 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 /pgdata
+
+# ---------- 通用排除（补充 2）----------
+# 自动生成的文档 / 报告目录
+reports/
+generated/
+
+# 报告文件
+*.pdf
+*.html
+
+# 备份 / 编辑器交换 / 临时日志（通用兜底）
+*.bak
+*~
+*.swp
+*.swo
+*.log
+
+# 构建产物（dist/target 兜底）
+dist/
+target/
+
+# 个人笔记 / 草稿 / 演示文稿（与项目代码无直接关联）
+*.pptx
+*.docx
+*.xlsx
+*.odt
+*.ods
+notes/
+scratch/

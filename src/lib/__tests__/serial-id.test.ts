@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { serialIdToUid, isNumericId } from "../serial-id"
 
 describe("serialIdToUid", () => {

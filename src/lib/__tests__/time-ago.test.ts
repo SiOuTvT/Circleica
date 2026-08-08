@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { timeAgo, timeAgoPublished } from "../time-ago"
 
 describe("timeAgo", () => {

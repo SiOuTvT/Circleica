@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 // Mock isomorphic-dompurify for test environment
 jest.mock("isomorphic-dompurify", () => ({
   sanitize: (input: string) => input.replace(/<[^>]*>/g, ""),

@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test"
 
-const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000"
+// 端口可配置：默认 3000，可用 PLAYWRIGHT_PORT 覆盖（例如 3000 被占用时）
+const PORT = process.env.PLAYWRIGHT_PORT || "3000"
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: "./e2e",
@@ -25,7 +27,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev",
+    command: `node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack -p ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

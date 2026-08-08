@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { cn, getRandomAvatarColor, getAvatarTextColor } from "../utils"
 
 describe("cn", () => {

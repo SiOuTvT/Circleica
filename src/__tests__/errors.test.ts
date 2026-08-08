@@ -1,5 +1,6 @@
 /**
  * AppError 层级测试
+ * @jest-environment node
  */
 import { AppError, NotFoundError, ValidationError, UnauthorizedError, ForbiddenError, ConflictError, RateLimitError } from "@/lib/errors"
 
