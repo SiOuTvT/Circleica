@@ -46,6 +46,7 @@ jest.mock("@/lib/prisma", () => ({
       findUnique: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
+      updateMany: jest.fn(),
     },
     siteSetting: { findUnique: jest.fn() },
     emailVerificationToken: {
@@ -62,6 +63,11 @@ jest.mock("@/lib/prisma", () => ({
       update: jest.fn(),
     },
     avatarFrame: { findUnique: jest.fn() },
+    userAvatarFrame: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+    checkIn: { aggregate: jest.fn() },
     $transaction: jest.fn(),
   },
 }))
@@ -455,5 +461,113 @@ describe("commentService", () => {
     const result = await commentService.toggleLike("user-1", "cmt-1")
     expect(result).toEqual({ liked: true, count: 1 })
     expect(mockCommentRepo.toggleLike).toHaveBeenCalledWith("user-1", "cmt-1")
+  })
+})
+
+// ── purchaseAvatarFrame（印记商店） ───────────────────────────────
+
+describe("userService.purchaseAvatarFrame", () => {
+  const mockFrame = (over: Partial<{ price: number; isPublic: boolean }> = {}) => ({
+    id: "frame-1",
+    name: "测试框",
+    description: "",
+    imageUrl: "x",
+    isPublic: over.isPublic ?? true,
+    sort: 0,
+    price: over.price ?? 0,
+    createdAt: new Date(),
+  })
+
+  it("throws NotFound for missing frame", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(null)
+    await expect(userService.purchaseAvatarFrame("user-1", "ghost")).rejects.toThrow(NotFoundError)
+  })
+
+  it("throws Forbidden for non-public frame", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ isPublic: false }) as never)
+    await expect(userService.purchaseAvatarFrame("user-1", "frame-1")).rejects.toThrow("不可购买")
+  })
+
+  it("sets free frame directly without consuming marks", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ price: 0 }) as never)
+    mockUserRepo.updateAvatarFrame.mockResolvedValue({} as never)
+    await userService.purchaseAvatarFrame("user-1", "frame-1")
+    expect(mockUserRepo.updateAvatarFrame).toHaveBeenCalledWith("user-1", "frame-1")
+    expect(mockPrisma.userAvatarFrame.create).not.toHaveBeenCalled()
+    expect(mockPrisma.user.updateMany).not.toHaveBeenCalled()
+  })
+
+  it("sets already-owned paid frame without double-charging", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ price: 50 }) as never)
+    mockPrisma.userAvatarFrame.findUnique.mockResolvedValue({ id: "own-1" } as never)
+    mockUserRepo.updateAvatarFrame.mockResolvedValue({} as never)
+    await userService.purchaseAvatarFrame("user-1", "frame-1")
+    expect(mockUserRepo.updateAvatarFrame).toHaveBeenCalledWith("user-1", "frame-1")
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled()
+  })
+
+  it("rejects purchase when marks insufficient", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ price: 100 }) as never)
+    mockPrisma.userAvatarFrame.findUnique.mockResolvedValue(null)
+    // 事务内：总印记 50 - 已消费 0 = 可用 50 < 100
+    mockPrisma.$transaction.mockImplementation(async (fn: unknown) => {
+      const tx = {
+        checkIn: { aggregate: jest.fn().mockResolvedValue({ _sum: { marks: 50 } }) },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ marksSpent: 0 }),
+          update: jest.fn().mockResolvedValue({}),
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        userAvatarFrame: { create: jest.fn().mockResolvedValue({}) },
+      }
+      return (fn as (t: typeof tx) => Promise<unknown>)(tx)
+    })
+    await expect(userService.purchaseAvatarFrame("user-1", "frame-1")).rejects.toThrow("印记不足")
+    // 失败时不应设置当前框
+    const txCalls = mockPrisma.$transaction.mock.calls
+    expect(txCalls).toHaveLength(1)
+  })
+
+  it("successfully purchases paid frame in transaction", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ price: 30 }) as never)
+    mockPrisma.userAvatarFrame.findUnique.mockResolvedValue(null)
+    const txUserUpdate = jest.fn().mockResolvedValue({ id: "user-1", avatarFrameId: "frame-1" })
+    mockPrisma.$transaction.mockImplementation(async (fn: unknown) => {
+      const tx = {
+        checkIn: { aggregate: jest.fn().mockResolvedValue({ _sum: { marks: 50 } }) },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ marksSpent: 0 }),
+          update: txUserUpdate,
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        userAvatarFrame: { create: jest.fn().mockResolvedValue({}) },
+      }
+      return (fn as (t: typeof tx) => Promise<unknown>)(tx)
+    })
+    const result = await userService.purchaseAvatarFrame("user-1", "frame-1")
+    expect(result.avatarFrameId).toBe("frame-1")
+    // 扣费：updateMany 条件更新
+    const updateMany = (mockPrisma.$transaction.mock.calls[0] as unknown[])[0]
+    expect(updateMany).toBeDefined()
+    // userAvatarFrame.create 被调用
+    expect(mockPrisma.userAvatarFrame.create).toBeDefined()
+  })
+
+  it("handles concurrent race when updateMany affects 0 rows", async () => {
+    mockPrisma.avatarFrame.findUnique.mockResolvedValue(mockFrame({ price: 30 }) as never)
+    mockPrisma.userAvatarFrame.findUnique.mockResolvedValue(null)
+    mockPrisma.$transaction.mockImplementation(async (fn: unknown) => {
+      const tx = {
+        checkIn: { aggregate: jest.fn().mockResolvedValue({ _sum: { marks: 50 } }) },
+        user: {
+          findUnique: jest.fn().mockResolvedValue({ marksSpent: 0 }),
+          update: jest.fn().mockResolvedValue({}),
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }), // 并发已被他人扣走
+        },
+        userAvatarFrame: { create: jest.fn().mockResolvedValue({}) },
+      }
+      return (fn as (t: typeof tx) => Promise<unknown>)(tx)
+    })
+    await expect(userService.purchaseAvatarFrame("user-1", "frame-1")).rejects.toThrow("印记不足")
   })
 })
