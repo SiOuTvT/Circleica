@@ -231,6 +231,10 @@ export async function apiFetchSafe<T = unknown>(
   options?: ApiClientOptions,
 ): Promise<{ ok: boolean; data?: T; error?: string }> {
   try {
+    // 注意：apiFetchSafe 返回的是「后端完整响应体」{ success, data } 的 data 字段？
+    // 实际返回 raw = 后端 JSON（即 { success, data } 整体）。
+    // 历史调用方各自按约定解包：多数用 data.data，部分直接 data。
+    // 此处保持原行为，调用方负责解包。
     const data = await apiClient<T>(url, options)
     return { ok: true, data }
   } catch (e) {

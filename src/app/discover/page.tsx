@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
+import { cached, cacheKey } from "@/lib/redis"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -59,43 +60,48 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 
   try {
-    const [collectionsR, yearsR, popularR, recentR] = await Promise.allSettled([
-      prisma.curatedCollection.findMany({
-        where: { published: true },
-        orderBy: { sortOrder: "asc" },
-        take: 8,
-        include: {
-          games: {
-            // 发现页为 SFW-only 入口：合集封面条同样排除 NSFW 游戏
-            where: { game: { isPublished: true, isNsfw: false } },
-            orderBy: { sortOrder: "asc" },
-            take: 4,
-            include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+    // 发现页四个板块整体缓存 300s（合集/热门/时间轴数据不常变），single-flight 防并发击穿
+    const [collectionsR, yearsR, popularR, recentR] = await cached(
+      cacheKey("discover:all"),
+      () => Promise.allSettled([
+        prisma.curatedCollection.findMany({
+          where: { published: true },
+          orderBy: { sortOrder: "asc" },
+          take: 8,
+          include: {
+            games: {
+              // 发现页为 SFW-only 入口：合集封面条同样排除 NSFW 游戏
+              where: { game: { isPublished: true, isNsfw: false } },
+              orderBy: { sortOrder: "asc" },
+              take: 4,
+              include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+            },
+            _count: { select: { games: true } },
           },
-          _count: { select: { games: true } },
-        },
-      }),
-      prisma.$queryRaw<{ year: number; count: number }[]>`
-        SELECT EXTRACT(YEAR FROM "releaseDate")::int AS year, COUNT(*)::int AS count
-        FROM "Game"
-        WHERE "isPublished" = true AND "isNsfw" = false AND "releaseDate" IS NOT NULL
-        GROUP BY year
-        ORDER BY year DESC
-        LIMIT 12
-      `,
-      prisma.game.findMany({
-        where: { isPublished: true, isNsfw: false },
-        orderBy: { favoriteCount: "desc" },
-        take: 9,
-        select: GAME_CARD_SELECT,
-      }),
-      prisma.game.findMany({
-        where: { isPublished: true, isNsfw: false, releaseDate: { not: null } },
-        orderBy: { releaseDate: "desc" },
-        take: 8,
-        select: GAME_CARD_SELECT,
-      }),
-    ])
+        }),
+        prisma.$queryRaw<{ year: number; count: number }[]>`
+          SELECT EXTRACT(YEAR FROM "releaseDate")::int AS year, COUNT(*)::int AS count
+          FROM "Game"
+          WHERE "isPublished" = true AND "isNsfw" = false AND "releaseDate" IS NOT NULL
+          GROUP BY year
+          ORDER BY year DESC
+          LIMIT 12
+        `,
+        prisma.game.findMany({
+          where: { isPublished: true, isNsfw: false },
+          orderBy: { favoriteCount: "desc" },
+          take: 9,
+          select: GAME_CARD_SELECT,
+        }),
+        prisma.game.findMany({
+          where: { isPublished: true, isNsfw: false, releaseDate: { not: null } },
+          orderBy: { releaseDate: "desc" },
+          take: 8,
+          select: GAME_CARD_SELECT,
+        }),
+      ]),
+      300,
+    )
 
     const collections = settle(collectionsR, [] as CuratedCollectionData[], "精选合集")
     const years = settle(yearsR, [] as { year: number; count: number }[], "发行年份聚合")

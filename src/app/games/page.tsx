@@ -3,6 +3,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
 import { prisma } from "@/lib/prisma"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+import { cached, cacheKey } from "@/lib/redis"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -53,23 +54,37 @@ async function GamesList({ page, sort = "newest", view = "grid", year, nsfwMode 
     ...(year ? { releaseDate: { gte: new Date(year, 0, 1), lt: new Date(year + 1, 0, 1) } } : {}),
   }
 
-  const [games, total] = await Promise.all([
-    prisma.game.findMany({
-      where,
-      orderBy: ORDER_BY[sort],
-      skip,
-      take: GAMES_PER_PAGE,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true, status: true,
-        isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true, downloadLinks: true,
-        updatedAt: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
-        resources: { select: { language: true, runType: true, resourceContent: true } },
-      },
-    }),
-    prisma.game.count({ where }),
-  ]).catch(() => [[], 0] as [never[], number])
+  type GameListRow = {
+    id: string; serialId: number; title: string; coverImage: string; status: string;
+    isNsfw: boolean; favoriteCount: number; viewCount: number; downloadCount: number;
+    downloadLinks: unknown; updatedAt: Date; createdAt: Date;
+    tags: Array<{ tag: { name: string; color: string } }>;
+    resources: Array<{ language: unknown; runType: unknown; resourceContent: unknown }>;
+  }
+  const [games, total] = await cached(
+    cacheKey("games:list", sort, page, year ?? "all", nsfwMode),
+    async (): Promise<[GameListRow[], number]> => {
+      const [list, count] = await Promise.all([
+        prisma.game.findMany({
+          where,
+          orderBy: ORDER_BY[sort],
+          skip,
+          take: GAMES_PER_PAGE,
+          select: {
+            id: true, serialId: true, title: true, coverImage: true, status: true,
+            isNsfw: true, favoriteCount: true, viewCount: true,
+            downloadCount: true, downloadLinks: true,
+            updatedAt: true, createdAt: true,
+            tags: { select: { tag: { select: { name: true, color: true } } } },
+            resources: { select: { language: true, runType: true, resourceContent: true } },
+          },
+        }),
+        prisma.game.count({ where }),
+      ])
+      return [list, count]
+    },
+    60, // 列表 60s 缓存（收藏/浏览数变化可接受延迟）
+  ).catch(() => [[], 0] as [GameListRow[], number])
 
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
 

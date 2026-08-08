@@ -18,13 +18,16 @@ export function StartConversationButton({ targetUserId, username }: { targetUser
     if (loading) return
     setLoading(true)
     try {
-      const { ok, data } = await apiFetchSafe<{ conversation?: { id: string }, cost?: number, error?: string }>(
-        "/api/messages",
-        { method: "POST", body: { participantId: targetUserId } }
-      )
-      if (ok && data?.conversation) {
-        if (data.cost && data.cost > 0) {
-          toast.success(`已消耗 ${data.cost} 印记发起会话`)
+      // apiFetchSafe 返回完整响应体 { success, data }，此处解包 data.data
+      const { ok, data } = await apiFetchSafe<{
+        success?: boolean
+        data?: { conversation?: { id: string }, cost?: number }
+        error?: string
+      }>("/api/messages", { method: "POST", body: { participantId: targetUserId } })
+      const inner = data?.data
+      if (ok && inner?.conversation) {
+        if (inner.cost && inner.cost > 0) {
+          toast.success(`已消耗 ${inner.cost} 印记发起会话`)
         }
         router.push("/messages")
       } else if (data?.error) {

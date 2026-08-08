@@ -61,8 +61,9 @@ export default function MessagesPage() {
 
   const loadList = useCallback(async () => {
     try {
-      const { ok, data } = await apiFetchSafe<ConversationSummary[]>("/api/messages")
-      if (ok) setConversations(data ?? [])
+      // apiFetchSafe 返回完整响应体 { success, data }，data 字段才是会话数组
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: ConversationSummary[] }>("/api/messages")
+      if (ok) setConversations(data?.data ?? [])
     } catch (e) {
       logger.api.warn("[Messages] load list failed", { error: e instanceof Error ? e.message : String(e) })
     } finally {
@@ -76,8 +77,8 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!activeId) return
     const timer = setInterval(async () => {
-      const { ok, data } = await apiFetchSafe<{ messages: MessageItem[] }>(`/api/messages/${activeId}`)
-      if (ok) setMessages(data?.messages ?? [])
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[] } }>(`/api/messages/${activeId}`)
+      if (ok) setMessages(data?.data?.messages ?? [])
     }, 10_000)
     return () => clearInterval(timer)
   }, [activeId])
@@ -91,8 +92,8 @@ export default function MessagesPage() {
     setActiveId(id)
     setLoadingDetail(true)
     try {
-      const { ok, data } = await apiFetchSafe<{ messages: MessageItem[] }>(`/api/messages/${id}`)
-      if (ok) setMessages(data?.messages ?? [])
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[] } }>(`/api/messages/${id}`)
+      if (ok) setMessages(data?.data?.messages ?? [])
     } catch (e) {
       logger.api.warn("[Messages] load detail failed", { error: e instanceof Error ? e.message : String(e) })
     } finally {
@@ -106,12 +107,12 @@ export default function MessagesPage() {
     if (!text || !activeId || sending) return
     setSending(true)
     try {
-      const { ok, data } = await apiFetchSafe<MessageItem>(`/api/messages/${activeId}`, {
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: MessageItem }>(`/api/messages/${activeId}`, {
         method: "POST",
         body: { content: text },
       })
-      if (ok) {
-        setMessages(prev => [...prev, data!])
+      if (ok && data?.data) {
+        setMessages(prev => [...prev, data.data!])
         setDraft("")
         setRefreshTick(t => t + 1)
       }
