@@ -13,7 +13,6 @@ export type ConditionType =
   | "forum_post_count"   // 论坛发帖数
   | "forum_like_received" // 论坛被点赞数
   | "register_days"      // 注册天数
-  | "total_marks"        // 累计签到印记数
 
 /**
  * 计算连续签到天数
@@ -102,7 +101,6 @@ async function getUserStatsImpl(userId: string) {
     checkin_count: bigint
     forum_post_count: bigint
     forum_like_received: bigint
-    total_marks: bigint
   }>>`
     SELECT
       (SELECT COUNT(*) FROM "Favorite" WHERE "userId" = ${userId}) as favorite_count,
@@ -110,8 +108,7 @@ async function getUserStatsImpl(userId: string) {
       (SELECT COUNT(*) FROM "PlayStatus" WHERE "userId" = ${userId}) as play_count,
       (SELECT COUNT(*) FROM "CheckIn" WHERE "userId" = ${userId}) as checkin_count,
       (SELECT COUNT(*) FROM "ForumPost" WHERE "userId" = ${userId}) as forum_post_count,
-      (SELECT COUNT(*) FROM "ForumPostLike" WHERE "postId" IN (SELECT "id" FROM "ForumPost" WHERE "userId" = ${userId})) as forum_like_received,
-      (SELECT COALESCE(SUM("marks"), 0) FROM "CheckIn" WHERE "userId" = ${userId}) as total_marks
+      (SELECT COUNT(*) FROM "ForumPostLike" WHERE "postId" IN (SELECT "id" FROM "ForumPost" WHERE "userId" = ${userId})) as forum_like_received
   `
 
   const row = counts[0]
@@ -121,7 +118,6 @@ async function getUserStatsImpl(userId: string) {
   const checkinCount = Number(row?.checkin_count ?? 0)
   const forumPostCount = Number(row?.forum_post_count ?? 0)
   const forumLikeReceived = Number(row?.forum_like_received ?? 0)
-  const totalMarks = Number(row?.total_marks ?? 0)
 
   // 连续签到天数（需要单独计算）
   const checkinStreak = await calculateCheckinStreak(userId)
@@ -140,7 +136,6 @@ async function getUserStatsImpl(userId: string) {
     forum_post_count: forumPostCount,
     forum_like_received: forumLikeReceived,
     register_days: registerDays,
-    total_marks: totalMarks,
   }
 }
 

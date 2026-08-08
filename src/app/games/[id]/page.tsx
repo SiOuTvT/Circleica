@@ -18,8 +18,9 @@ import { isNumericId } from "@/lib/serial-id"
 import { timeAgoPublished } from "@/lib/time-ago"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
-import { Download, Eye, Heart } from "lucide-react"
+import { Download, Eye, Heart, Library } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { cache as reactCache } from "react"
 
@@ -101,6 +102,7 @@ export default async function GameDetailPage({
           include: { studio: { select: { displayName: true, normalizedName: true } } },
         },
         publisher: { select: { id: true, username: true, avatar: true } },
+        galvelicaWork: { select: { slug: true } },
       },
     })
   }
@@ -325,6 +327,16 @@ export default async function GameDetailPage({
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
                 </div>
+                {game.galvelicaWork?.slug && (
+                  <Link
+                    href={`/galvelica/works/${game.galvelicaWork.slug}`}
+                    className="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                    title="在 Galvelica 资料库查看本作完整资料"
+                  >
+                    <Library className="h-3.5 w-3.5" />
+                    副站资料
+                  </Link>
+                )}
                 <div className="ml-auto shrink-0">
                   <GameDetailTopClient
                     gameId={resolved.id}

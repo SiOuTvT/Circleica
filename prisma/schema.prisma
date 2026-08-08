@@ -98,6 +98,9 @@ model User {
   resourceReports   ResourceReport[]
   auditLogs         AuditLog[]
   ownedFrames       UserAvatarFrame[]
+  conversationsInitiated Conversation[] @relation("ConversationInitiator")
+  conversationsJoined     Conversation[] @relation("ConversationParticipant")
+  sentMessages            Message[]      @relation("MessageSender")
 
   @@index([role])
   @@index([avatarFrameId])
@@ -714,6 +717,42 @@ model CommentLike {
 
   @@unique([userId, commentId])
   @@index([commentId])
+}
+
+/// 私聊会话 — 发起会话需消耗印记（反滥用，防止陌生人轰炸；回复免费）
+model Conversation {
+  id             String    @id @default(cuid())
+  /// 发起者（扣印记方）
+  initiatorId    String
+  /// 接收者
+  participantId  String
+  /// 发起者本次会话消耗的印记
+  initiatorMarkSpent Int   @default(0)
+  lastMessageAt  DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  initiator      User      @relation("ConversationInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  participant    User      @relation("ConversationParticipant", fields: [participantId], references: [id], onDelete: Cascade)
+  messages       Message[]
+
+  @@unique([initiatorId, participantId]) // 两人之间唯一会话（再次发起不重复扣费）
+  @@index([participantId])
+  @@index([initiatorId])
+  @@index([lastMessageAt])
+}
+
+/// 私聊消息
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
 
 /// 情感化消息管理 — 可在后台自定义各场景的提示文案和插图
