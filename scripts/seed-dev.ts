@@ -106,8 +106,10 @@ async function run() {
           } else throw e
         }
       }
-      const exists = await prisma.gameTag.findUnique({ where: { gameId_tagId: { gameId: game.id, tagId: tag.id } } })
-      if (!exists) await prisma.gameTag.create({ data: { gameId: game.id, tagId: tag.id } })
+      if (tag) {
+        const exists = await prisma.gameTag.findUnique({ where: { gameId_tagId: { gameId: game.id, tagId: tag.id } } })
+        if (!exists) await prisma.gameTag.create({ data: { gameId: game.id, tagId: tag.id } })
+      }
     }
 
     // 记录收藏
