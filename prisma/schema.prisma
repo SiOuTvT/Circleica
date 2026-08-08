@@ -63,6 +63,7 @@ model User {
   avatar            String                   @default("")
   avatarFrameId     String?
   composedAvatarUrl String?                  @default("")
+  marksSpent        Int                      @default(0) // 印记商店累计已消费印记（可用余额 = 总印记 - marksSpent）
   banner            String                   @default("")
   bio               String                   @default("")
   role              UserRole                 @default(USER)
@@ -96,6 +97,7 @@ model User {
   achievements      UserAchievement[]
   resourceReports   ResourceReport[]
   auditLogs         AuditLog[]
+  ownedFrames       UserAvatarFrame[]
 
   @@index([role])
   @@index([avatarFrameId])
@@ -110,10 +112,26 @@ model AvatarFrame {
   imageUrl    String
   isPublic    Boolean  @default(true)
   sort        Int      @default(0)
+  price       Int      @default(0) // 印记商店价格：0=免费直接可选；>0=需消耗印记兑换
   createdAt   DateTime @default(now())
   users       User[]
+  ownedBy     UserAvatarFrame[]
 
   @@index([isPublic, sort])
+  @@index([price])
+}
+
+/// 用户已拥有的头像框（印记商店购买记录，避免重复扣费）
+model UserAvatarFrame {
+  id            String   @id @default(cuid())
+  userId        String
+  avatarFrameId String
+  purchasedAt   DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarFrame   AvatarFrame @relation(fields: [avatarFrameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, avatarFrameId])
+  @@index([userId])
 }
 
 model Follow {
