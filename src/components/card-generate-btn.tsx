@@ -298,7 +298,6 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
    * ═══════════════════════════════════════════════ */
   const card = (
     <div
-      ref={cardRef}
       style={{
         width: CARD_W, height: CARD_H, position: "relative", overflow: "hidden",
         fontFamily: "'Noto Sans SC', 'Segoe UI', 'Microsoft YaHei', sans-serif",
@@ -666,9 +665,9 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         </div>
       )}
 
-      {/* 名片渲染节点（仅客户端） */}
+      {/* 名片渲染节点（仅客户端，供 html2canvas 截图；预览区不挂 ref 避免指向缩放实例） */}
       {mounted && (
-        <div style={{ position: "fixed", left: -9999, top: 0, pointerEvents: "none", zIndex: -1 }}>
+        <div ref={cardRef} style={{ position: "fixed", left: -9999, top: 0, pointerEvents: "none", zIndex: -1 }}>
           {card}
         </div>
       )}
