@@ -10,6 +10,7 @@
  * 用法：npm run seed
  */
 import { PrismaClient } from "@prisma/client"
+import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
@@ -24,14 +25,17 @@ async function run() {
     demo = await prisma.user.create({
       data: {
         username: DEMO_USER.username,
-        password: DEMO_USER.password, // 演示密码，生产环境请勿使用
+        password: await bcrypt.hash(DEMO_USER.password, 12), // 演示密码，生产环境请勿使用
         bio: "Circleica 开发演示账号，欢迎体验",
         email: "demo@circleica.local",
       },
     })
     console.log("[seed] 创建演示用户:", demo.username)
   } else {
-    console.log("[seed] 演示用户已存在:", demo.username)
+    // 已存在用户可能是旧版明文密码，修正为 hash（幂等修复）
+    const hash = await bcrypt.hash(DEMO_USER.password, 12)
+    await prisma.user.update({ where: { id: demo.id }, data: { password: hash } })
+    console.log("[seed] 演示用户已存在（密码已修复为 hash）:", demo.username)
   }
 
   // 2. 从 Work 挑 8 部带封面作品（尽量不同标签簇）
