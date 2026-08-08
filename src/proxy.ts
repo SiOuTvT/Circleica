@@ -10,14 +10,7 @@ import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
 // proxy.js 回写为 middleware.js，运行时（node .next/standalone/server.js）无感。
 // ─────────────────────────────────────────────────────────────
 
-// 生成随机 nonce（16 字节 base64）
-function generateNonce(): string {
-  const array = new Uint8Array(16)
-  crypto.getRandomValues(array)
-  return btoa(String.fromCharCode(...array))
-}
-
-// CSP 策略（模板缓存，仅 nonce 每次重建）
+// CSP 策略（模板缓存）
 let _cspTemplate: { scriptPrefix: string; rest: string } | null = null
 
 function buildCSP(nonce: string): string {
@@ -45,14 +38,16 @@ function buildCSP(nonce: string): string {
     ]
     const isDev = process.env.NODE_ENV === "development"
     _cspTemplate = {
-      scriptPrefix: isDev ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'` : `script-src 'self' 'nonce-`,
+      scriptPrefix: `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
       rest: directives.slice(2).join("; "),
     }
   }
-  const scriptSrc = process.env.NODE_ENV === "development"
-    ? _cspTemplate.scriptPrefix
-    : `${_cspTemplate.scriptPrefix}${nonce}' 'strict-dynamic' 'sha256-yLU+eI5IDx1/yCBtVKgvm/yjxWqfqVBUW+a1CNbGu3k='`
-  return `default-src 'self'; ${scriptSrc}; ${_cspTemplate.rest}`
+  // 说明：Next 16 的 nonce 自动注入机制与官方文档不一致（实测：请求头/响应头 x-nonce
+  // 无法与 body 内 Next 生成的 script nonce 对齐，strict-dynamic 下生产会白屏）。
+  // 为保生产可用，script-src 统一用 'unsafe-inline'（配合其余严格指令：default-src 'self'、
+  // style-src 受限、img/font/connect 白名单、frame-ancestors none、object-src none）。
+  // 未来若 Next 修复 nonce 对齐，可恢复 strict-dynamic。
+  return `default-src 'self'; ${_cspTemplate.scriptPrefix}; ${_cspTemplate.rest}`
 }
 
 // ── 需要登录才能访问的页面（精确匹配，不做前缀通配）──
@@ -149,14 +144,9 @@ export async function proxy(req: NextRequest) {
   let res: NextResponse
 
   if (isPageRoute) {
-    const nonce = generateNonce()
-    const csp = buildCSP(nonce)
-    const requestHeaders = new Headers(req.headers)
-    requestHeaders.set("x-nonce", nonce)
-    requestHeaders.set("Content-Security-Policy", csp)
-    res = NextResponse.next({ request: { headers: requestHeaders } })
+    const csp = buildCSP("")
+    res = NextResponse.next()
     res.headers.set("Content-Security-Policy", csp)
-    res.headers.set("x-nonce", nonce)
   } else {
     res = NextResponse.next()
   }
