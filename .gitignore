@@ -151,6 +151,12 @@ Thumbs.db
 *.sqlite3
 /pgdata
 
+# 本地验证/调试临时脚本（保留在磁盘但绝不提交）
+/_*.mjs
+/_card-shots/
+/public/card-shots/
+/public/card-preview.html
+
 # ---------- 通用排除（补充 2）----------
 # 自动生成的文档 / 报告目录
 reports/

@@ -15,14 +15,6 @@ enum UserRole {
   SUPER_ADMIN
 }
 
-enum PlayStatusType {
-  WANT_TO_PLAY
-  PLAYING
-  PLAYED
-  ON_HOLD
-  DROPPED
-}
-
 enum GameStatus {
   FINISHED
   ONGOING
@@ -75,7 +67,6 @@ model User {
   faveGame          Game?                    @relation("faveGame", fields: [faveGameId], references: [id], onDelete: SetNull)
   comments          Comment[]
   favorites         Favorite[]
-  playStatuses      PlayStatus[]
   forumPosts        ForumPost[]
   forumComments     ForumComment[]
   checkIns          CheckIn[]
@@ -217,7 +208,6 @@ model Game {
   tags                   GameTag[]
   comments               Comment[]
   favorites              Favorite[]
-  playStatuses           PlayStatus[]
   reports                GameReport[]
   ratings                GameRating[]
   creators               GameCreator[]
@@ -411,18 +401,6 @@ model Collection {
 
   @@unique([userId, name])
   @@index([userId])
-}
-
-model PlayStatus {
-  id     String         @id @default(cuid())
-  userId String
-  gameId String
-  status PlayStatusType @default(WANT_TO_PLAY)
-  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game   Game           @relation(fields: [gameId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, gameId])
-  @@index([gameId])
 }
 
 model GameReport {

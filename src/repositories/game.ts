@@ -4,7 +4,6 @@
 
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
-import type { PlayStatusType } from "@prisma/client"
 
 /** findRandom 原生 SQL 返回的精简游戏行（仅随机展示所需字段） */
 interface RandomGameRow {
@@ -130,20 +129,6 @@ export const gameRepo = {
       await tx.favorite.create({ data: { userId, gameId, collectionId } })
       await tx.game.update({ where: { id: gameId }, data: { favoriteCount: { increment: 1 } } })
       return true
-    })
-  },
-
-  // ── 游玩状态 ────────────────────────
-
-  getPlayStatus(userId: string, gameId: string) {
-    return prisma.playStatus.findUnique({ where: { userId_gameId: { userId, gameId } } })
-  },
-
-  setPlayStatus(userId: string, gameId: string, status: PlayStatusType) {
-    return prisma.playStatus.upsert({
-      where: { userId_gameId: { userId, gameId } },
-      update: { status },
-      create: { userId, gameId, status },
     })
   },
 

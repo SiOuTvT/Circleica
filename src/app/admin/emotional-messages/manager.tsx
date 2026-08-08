@@ -50,7 +50,7 @@ const SEED_DATA: Omit<EmMsg, "id">[] = [
   { key: "empty_comments",    category: "empty",   title: "还没有评论",       subtitle: "来抢沙发吧~",             imageUrl: "", emoji: "🛋️",  enabled: true },
   { key: "empty_forum",       category: "empty",   title: "论坛暂时没有帖子", subtitle: "来发第一个帖子吧",         imageUrl: "", emoji: "📝",   enabled: true },
   { key: "empty_notifications", category: "empty", title: "暂无新通知",       subtitle: "有新动态时会通知你",       imageUrl: "", emoji: "🔔",   enabled: true },
-  { key: "empty_play_status", category: "empty",   title: "游戏清单空空的",   subtitle: "添加想玩/在玩/玩过的游戏", imageUrl: "", emoji: "🎮",   enabled: true },
+
   // Error
   { key: "error_404",         category: "error",   title: "页面不存在",       subtitle: "你迷路了吗？",         imageUrl: "", emoji: "🫠",   enabled: true },
   { key: "error_500",         category: "error",   title: "服务器开小差了",   subtitle: "请稍后再试",           imageUrl: "", emoji: "🔧",   enabled: true },

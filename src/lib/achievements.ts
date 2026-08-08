@@ -7,7 +7,6 @@ import { toShanghaiDate, shiftShanghaiDate } from "@/lib/date"
 export type ConditionType =
   | "favorite_count"     // 收藏数
   | "comment_count"      // 评论数
-  | "play_count"         // 玩过数
   | "checkin_count"      // 签到总天数
   | "checkin_streak"     // 连续签到天数
   | "forum_post_count"   // 论坛发帖数
@@ -97,7 +96,6 @@ async function getUserStatsImpl(userId: string) {
   const counts = await prisma.$queryRaw<Array<{
     favorite_count: bigint
     comment_count: bigint
-    play_count: bigint
     checkin_count: bigint
     forum_post_count: bigint
     forum_like_received: bigint
@@ -105,7 +103,6 @@ async function getUserStatsImpl(userId: string) {
     SELECT
       (SELECT COUNT(*) FROM "Favorite" WHERE "userId" = ${userId}) as favorite_count,
       (SELECT COUNT(*) FROM "Comment" WHERE "userId" = ${userId}) as comment_count,
-      (SELECT COUNT(*) FROM "PlayStatus" WHERE "userId" = ${userId}) as play_count,
       (SELECT COUNT(*) FROM "CheckIn" WHERE "userId" = ${userId}) as checkin_count,
       (SELECT COUNT(*) FROM "ForumPost" WHERE "userId" = ${userId}) as forum_post_count,
       (SELECT COUNT(*) FROM "ForumPostLike" WHERE "postId" IN (SELECT "id" FROM "ForumPost" WHERE "userId" = ${userId})) as forum_like_received
@@ -114,7 +111,6 @@ async function getUserStatsImpl(userId: string) {
   const row = counts[0]
   const favoriteCount = Number(row?.favorite_count ?? 0)
   const commentCount = Number(row?.comment_count ?? 0)
-  const playCount = Number(row?.play_count ?? 0)
   const checkinCount = Number(row?.checkin_count ?? 0)
   const forumPostCount = Number(row?.forum_post_count ?? 0)
   const forumLikeReceived = Number(row?.forum_like_received ?? 0)
@@ -130,7 +126,6 @@ async function getUserStatsImpl(userId: string) {
   return {
     favorite_count: favoriteCount,
     comment_count: commentCount,
-    play_count: playCount,
     checkin_count: checkinCount,
     checkin_streak: checkinStreak,
     forum_post_count: forumPostCount,

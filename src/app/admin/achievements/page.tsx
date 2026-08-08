@@ -35,7 +35,6 @@ interface Achievement {
 const CONDITION_TYPES = [
   { value: "favorite_count", label: "收藏数" },
   { value: "comment_count", label: "评论数" },
-  { value: "play_count", label: "玩过数" },
   { value: "checkin_count", label: "签到天数" },
   { value: "checkin_streak", label: "连续签到天数" },
   { value: "forum_post_count", label: "论坛发帖数" },

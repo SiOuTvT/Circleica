@@ -277,7 +277,7 @@ export const checkinRepo = {
 export const profileRepo = {
   findComments(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit
-    // 直接返回评论数组（与 findFavorites / findPlayStatuses 一致），
+    // 直接返回评论数组（与 findFavorites 一致），
     // 由 route 的 json() 包装为 { success, data }，客户端 data.data 即数组。
     // 注意：旧实现返回 [comments, count] 元组，但客户端按数组处理，
     // 导致首页渲染 c.game 为 undefined 而崩溃（评论 tab 偶发报错的根因）。
@@ -294,15 +294,6 @@ export const profileRepo = {
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
-    })
-  },
-
-  findPlayStatuses(userId: string) {
-    return prisma.playStatus.findMany({
-      where: { userId },
-      take: 200,
-      // 补上 serialId，使游玩记录链接正确指向 /games/<serialId>（与收藏夹一致）
       include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
     })
   },

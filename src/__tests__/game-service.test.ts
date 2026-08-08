@@ -12,8 +12,6 @@ jest.mock("@/repositories/game", () => ({
     batchIncrementViewCount: jest.fn(),
     isFavorited: jest.fn(),
     toggleFavorite: jest.fn(),
-    getPlayStatus: jest.fn(),
-    setPlayStatus: jest.fn(),
     getRating: jest.fn(),
     setRating: jest.fn(),
     getRatingStats: jest.fn(),
@@ -44,43 +42,6 @@ const mockGameRepo = jest.mocked(gameRepo)
 const mockPrisma = jest.mocked(prisma)
 
 beforeEach(() => jest.clearAllMocks())
-
-// ── setPlayStatus ───────────────────────────────────────────────
-
-describe("gameService.setPlayStatus", () => {
-  const userId = "user-1"
-  const gameId = "game-1"
-
-  it.each([
-    ["想玩", "WANT_TO_PLAY"],
-    ["在玩", "PLAYING"],
-    ["玩过", "PLAYED"],
-    ["搁置", "ON_HOLD"],
-    ["弃坑", "DROPPED"],
-  ])("accepts Chinese status '%s' and maps to '%s'", async (input, expected) => {
-    mockGameRepo.setPlayStatus.mockResolvedValue({} as never)
-    await gameService.setPlayStatus(userId, gameId, input)
-    expect(mockGameRepo.setPlayStatus).toHaveBeenCalledWith(userId, gameId, expected)
-  })
-
-  it("accepts valid enum values directly", async () => {
-    mockGameRepo.setPlayStatus.mockResolvedValue({} as never)
-    await gameService.setPlayStatus(userId, gameId, "PLAYING")
-    expect(mockGameRepo.setPlayStatus).toHaveBeenCalledWith(userId, gameId, "PLAYING")
-  })
-
-  it("rejects invalid status values", async () => {
-    await expect(gameService.setPlayStatus(userId, gameId, "INVALID"))
-      .rejects.toThrow(ValidationError)
-    await expect(gameService.setPlayStatus(userId, gameId, "INVALID"))
-      .rejects.toThrow("无效的游玩状态")
-  })
-
-  it("rejects empty string", async () => {
-    await expect(gameService.setPlayStatus(userId, gameId, ""))
-      .rejects.toThrow(ValidationError)
-  })
-})
 
 // ── setRating ───────────────────────────────────────────────────
 

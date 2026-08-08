@@ -554,6 +554,5 @@ export const checkinService = {
 export const profileDataService = {
   getComments(userId: string, page: number) { return profileRepo.findComments(userId, page, 20) },
   getFavorites(userId: string) { return profileRepo.findFavorites(userId) },
-  getPlayStatuses(userId: string) { return profileRepo.findPlayStatuses(userId) },
   getFollowing(userId: string) { return profileRepo.findFollowing(userId) },
 }

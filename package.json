@@ -20,7 +20,8 @@
     "galvelica:ingest-vndb": "tsx scripts/ingest-vndb.ts",
     "galvelica:ingest-discovery": "tsx scripts/ingest-discovery.ts",
     "galvelica:ingest-egs": "tsx scripts/ingest-egs.ts",
-    "galvelica:purge-domestic": "tsx scripts/purge-domestic-sources.ts"
+    "galvelica:purge-domestic": "tsx scripts/purge-domestic-sources.ts",
+    "seed": "tsx scripts/seed-dev.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1045.0",
@@ -80,6 +81,7 @@
     "shadcn": "^4.6.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.11",
+    "tsx": "^4.23.11",
     "typescript": "^5"
   },
   "overrides": {

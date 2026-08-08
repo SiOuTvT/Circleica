@@ -7,7 +7,7 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
 import { checkAchievements } from "@/lib/achievements"
-import type { PlayStatusType, Prisma, UserRole } from "@prisma/client"
+import type { Prisma, UserRole } from "@prisma/client"
 import { hasRole } from "@/lib/permissions"
 
 export const gameService = {
@@ -55,24 +55,6 @@ export const gameService = {
       }
       throw e
     }
-  },
-
-  // ── 游玩状态 ────────────────────────
-
-  async setPlayStatus(userId: string, gameId: string, status: string) {
-    // 中文 → 枚举映射（兼容旧前端）
-    const STATUS_MAP: Record<string, PlayStatusType> = {
-      "想玩": "WANT_TO_PLAY", "在玩": "PLAYING", "玩过": "PLAYED",
-      "搁置": "ON_HOLD", "弃坑": "DROPPED",
-    }
-    const enumValue = STATUS_MAP[status] ?? (status as PlayStatusType)
-    const validEnums: PlayStatusType[] = ["WANT_TO_PLAY", "PLAYING", "PLAYED", "ON_HOLD", "DROPPED"]
-    if (!validEnums.includes(enumValue)) throw new ValidationError("无效的游玩状态")
-    return gameRepo.setPlayStatus(userId, gameId, enumValue)
-  },
-
-  getPlayStatus(userId: string, gameId: string) {
-    return gameRepo.getPlayStatus(userId, gameId)
   },
 
   // ── 评分 ────────────────────────────
