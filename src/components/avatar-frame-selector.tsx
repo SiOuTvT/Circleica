@@ -92,7 +92,7 @@ export function AvatarFrameSelector({
         { method: "POST", body: {} },
       )
       if (!ok) {
-        if (data?.error) logger.upload.warn("兑换头像框失败", data.error)
+        if (data?.error) logger.upload.warn("兑换头像框失败", { error: data.error })
         return
       }
       setOwnedFrameIds((prev) => [...prev, frame.id])
