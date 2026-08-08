@@ -4,13 +4,30 @@ import { userService } from "@/services/user"
 import { prisma } from "@/lib/prisma"
 
 export const GET = withHandler(async () => {
-  await requireAuth()
-  const frames = await prisma.avatarFrame.findMany({
-    where: { isPublic: true },
-    orderBy: { sort: "asc" },
-    select: { id: true, name: true, description: true, imageUrl: true },
+  const { userId } = await requireAuth()
+  const [frames, owned, marksSum] = await Promise.all([
+    prisma.avatarFrame.findMany({
+      where: { isPublic: true },
+      orderBy: [{ price: "asc" }, { sort: "asc" }],
+      select: { id: true, name: true, description: true, imageUrl: true, price: true },
+    }),
+    prisma.userAvatarFrame.findMany({
+      where: { userId },
+      select: { avatarFrameId: true },
+    }),
+    prisma.checkIn.aggregate({ where: { userId }, _sum: { marks: true } }),
+  ])
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { marksSpent: true },
   })
-  return json({ frames })
+  const totalMarks = marksSum._sum.marks ?? 0
+  return json({
+    frames,
+    ownedFrameIds: owned.map((o) => o.avatarFrameId),
+    totalMarks,
+    availableMarks: totalMarks - (user?.marksSpent ?? 0),
+  })
 })
 
 export const PUT = withHandler(async (req) => {

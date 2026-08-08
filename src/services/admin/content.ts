@@ -98,6 +98,7 @@ export const avatarFrameService = {
       imageUrl: sanitizeUrl(String(raw.imageUrl)) ?? "",
       isPublic: raw.isPublic !== false,
       sort: Number(raw.sort) || 0,
+      price: Math.max(0, Math.floor(Number(raw.price) || 0)),
     })
     await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
@@ -107,9 +108,10 @@ export const avatarFrameService = {
     const existing = await avatarFrameRepo.findById(id)
     if (!existing) throw new NotFoundError("头像框")
     const data: Record<string, unknown> = {}
-    for (const f of ["name", "description", "imageUrl", "isPublic", "sort"]) {
+    for (const f of ["name", "description", "imageUrl", "isPublic", "sort", "price"]) {
       if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
+    if ("price" in data) data.price = Math.max(0, Math.floor(Number(data.price) || 0))
     const result = await avatarFrameRepo.update(id, data)
     await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result

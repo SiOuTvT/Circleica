@@ -41,6 +41,7 @@ const CONDITION_TYPES = [
   { value: "forum_post_count", label: "论坛发帖数" },
   { value: "forum_like_received", label: "论坛被点赞数" },
   { value: "register_days", label: "注册天数" },
+  { value: "total_marks", label: "累计签到印记" },
 ]
 
 const CATEGORIES = [

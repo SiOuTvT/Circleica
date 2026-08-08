@@ -4,7 +4,7 @@
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
 import { Prisma } from "@prisma/client"
-import { NotFoundError, ValidationError, ConflictError, UnauthorizedError } from "@/lib/errors"
+import { NotFoundError, ValidationError, ConflictError, UnauthorizedError, ForbiddenError } from "@/lib/errors"
 import { collectionCreateSchema } from "@/lib/validations"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"
 import { getEmailConfigured } from "@/lib/service-config"
@@ -326,6 +326,57 @@ export const userService = {
       if (!frame) throw new NotFoundError("头像框")
     }
     return userRepo.updateAvatarFrame(userId, frameId === "none" ? null : frameId)
+  },
+
+  /**
+   * 印记商店：兑换付费头像框（price > 0）。
+   * - 免费框 / 已拥有的付费框：直接设置，不扣印记
+   * - 未拥有的付费框：校验可用印记（总印记 - 已消费）≥ price，事务内原子扣减 + 记录拥有 + 设置当前框
+   * - 并发安全：用 updateMany 条件更新（marksSpent ≤ 可用上限）保证不会超扣
+   */
+  async purchaseAvatarFrame(userId: string, frameId: string) {
+    const frame = await prisma.avatarFrame.findUnique({ where: { id: frameId } })
+    if (!frame) throw new NotFoundError("头像框")
+    if (!frame.isPublic) throw new ForbiddenError("该头像框不可购买")
+
+    // 免费框直接设置
+    if (frame.price <= 0) {
+      return userRepo.updateAvatarFrame(userId, frameId)
+    }
+
+    // 已拥有：直接设置，不重复扣费
+    const owned = await prisma.userAvatarFrame.findUnique({
+      where: { userId_avatarFrameId: { userId, avatarFrameId: frameId } },
+    })
+    if (owned) {
+      return userRepo.updateAvatarFrame(userId, frameId)
+    }
+
+    // 事务内：计算可用印记 → 原子扣减 → 记录拥有 → 设置当前框
+    const result = await prisma.$transaction(async (tx) => {
+      const [marksSum, user] = await Promise.all([
+        tx.checkIn.aggregate({ where: { userId }, _sum: { marks: true } }),
+        tx.user.findUnique({ where: { id: userId }, select: { marksSpent: true } }),
+      ])
+      const totalMarks = marksSum._sum.marks ?? 0
+      const available = totalMarks - (user?.marksSpent ?? 0)
+      if (available < frame.price) {
+        throw new ValidationError(`印记不足：需要 ${frame.price} 印记，当前可用 ${available}`)
+      }
+      // 原子条件更新：仅当已消费印记仍在可用上限内才扣减，防止并发超扣
+      const updated = await tx.user.updateMany({
+        where: { id: userId, marksSpent: { lte: totalMarks - frame.price } },
+        data: { marksSpent: { increment: frame.price } },
+      })
+      if (updated.count === 0) {
+        throw new ValidationError("印记不足，兑换失败")
+      }
+      await tx.userAvatarFrame.create({
+        data: { userId, avatarFrameId: frameId },
+      })
+      return tx.user.update({ where: { id: userId }, data: { avatarFrameId: frameId } })
+    })
+    return result
   },
 
   getStats(userId: string) { return userRepo.getStats(userId) },

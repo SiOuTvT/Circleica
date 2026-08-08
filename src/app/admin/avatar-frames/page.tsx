@@ -25,6 +25,7 @@ interface AvatarFrame {
   imageUrl: string
   isPublic: boolean
   sort: number
+  price: number
   createdAt: string
   _count?: { users: number }
 }
@@ -40,6 +41,7 @@ export default function AdminAvatarFramesPage() {
     imageUrl: "",
     isPublic: true,
     sort: 0,
+    price: 0,
   })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -71,6 +73,7 @@ export default function AdminAvatarFramesPage() {
       imageUrl: "",
       isPublic: true,
       sort: 0,
+      price: 0,
     })
     setShowDialog(true)
   }
@@ -83,6 +86,7 @@ export default function AdminAvatarFramesPage() {
       imageUrl: frame.imageUrl,
       isPublic: frame.isPublic,
       sort: frame.sort,
+      price: frame.price ?? 0,
     })
     setShowDialog(true)
   }
@@ -187,6 +191,15 @@ export default function AdminAvatarFramesPage() {
                   >
                     {frame.isPublic ? "公开" : "隐藏"}
                   </span>
+                  {frame.price > 0 ? (
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
+                      {frame.price} 印记
+                    </span>
+                  ) : (
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400">
+                      免费
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     排序: {frame.sort}
                   </span>
@@ -285,19 +298,37 @@ export default function AdminAvatarFramesPage() {
                   className="w-full bg-muted border ring-1 ring-border rounded-lg px-3 py-2 text-foreground"
                 />
               </div>
-              <div className="flex items-end pb-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.isPublic}
-                    onChange={(e) =>
-                      setForm({ ...form, isPublic: e.target.checked })
-                    }
-                    className="rounded"
-                  />
-                  <span className="text-sm text-foreground">公开可见</span>
+              <div className="flex-1">
+                <label className="text-sm text-foreground mb-1 block">
+                  价格（印记）
                 </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.price}
+                  onChange={(e) =>
+                    setForm({ ...form, price: Math.max(0, parseInt(e.target.value) || 0) })
+                  }
+                  className="w-full bg-muted border ring-1 ring-border rounded-lg px-3 py-2 text-foreground"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  0 表示免费直接可选；大于 0 需消耗印记兑换
+                </p>
               </div>
+            </div>
+
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isPublic}
+                  onChange={(e) =>
+                    setForm({ ...form, isPublic: e.target.checked })
+                  }
+                  className="rounded"
+                />
+                <span className="text-sm text-foreground">公开可见</span>
+              </label>
             </div>
 
             {form.imageUrl && (

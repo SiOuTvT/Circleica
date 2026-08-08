@@ -173,7 +173,7 @@ export const achievementCreateSchema = z.object({
   icon: z.string().max(500).optional(),
   characterImage: z.string().max(500).optional(),
   category: z.string().max(50).optional(),
-  conditionType: z.enum(["favorite_count", "comment_count", "play_count", "checkin_streak", "forum_post_count", "register_days"]),
+  conditionType: z.enum(["favorite_count", "comment_count", "play_count", "checkin_count", "checkin_streak", "forum_post_count", "forum_like_received", "register_days", "total_marks"]),
   conditionTarget: z.number().int().min(1).max(10000),
   points: z.number().int().min(0).max(1000).optional(),
   hidden: z.boolean().optional(),
