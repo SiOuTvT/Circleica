@@ -134,7 +134,7 @@ export const messageService = {
   async getUnreadCount(userId: string) {
     const convs = await prisma.conversation.findMany({
       where: { OR: [{ initiatorId: userId }, { participantId: userId }] },
-      select: { initiatorId: true, participantId: true },
+      select: { id: true },
     })
     if (convs.length === 0) return 0
     // 统计对方发来且未读的消息数

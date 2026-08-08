@@ -2,6 +2,7 @@
 
 import { AvatarFrame } from "@/components/avatar-frame"
 import { CheckInToast } from "@/components/checkin-toast"
+import { MessageBell } from "@/components/message-bell"
 import { NotificationBell } from "@/components/notification-bell"
 import { NsfwModeToggle } from "@/components/nsfw-mode-toggle"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
@@ -256,6 +257,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             </Link>
 
             {user && <NotificationBell />}
+            {user && <MessageBell />}
 
             <button
               onClick={onToggleForum}

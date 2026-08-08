@@ -5,6 +5,7 @@ import { CardGenerateBtn } from "@/components/card-generate-btn"
 import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
 import { SafeAvatar } from "@/components/safe-avatar"
+import { StartConversationButton } from "@/components/start-conversation-button"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
@@ -144,7 +145,10 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Gamepad2 className="h-4 w-4 text-primary" strokeWidth={2} /><span className="text-lg font-bold text-foreground">{user._count.playStatuses}</span></div><span className="text-xs text-muted-foreground">玩过</span></div>
                 </div>
                 {!isSelf && session?.user && (
-                  <div className="mt-6"><FollowButton targetUserId={user.id} initialFollowing={isFollowing} /></div>
+                  <div className="mt-6 flex items-center justify-center gap-2">
+                    <FollowButton targetUserId={user.id} initialFollowing={isFollowing} />
+                    <StartConversationButton targetUserId={user.id} username={user.username} />
+                  </div>
                 )}
               </div>
             </div>

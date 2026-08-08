@@ -65,7 +65,7 @@ function buildCSP(nonce: string): string {
 // （此降级源于流式 RSC 渲染本身，与是否有 loading.tsx / 根级 Suspense 无关，已实测证伪该旧假设。）
 // 在 proxy 层先拦一道拿到的是真正的 307，还省掉一次注定要丢弃的页面渲染。
 // 页面内的 redirect 一律保留，作为纵深防御。
-const AUTH_REQUIRED_PATHS = new Set(["/profile", "/profile/edit", "/notifications"])
+const AUTH_REQUIRED_PATHS = new Set(["/profile", "/profile/edit", "/notifications", "/messages"])
 
 // getToken 的 salt 默认取 cookieName（见 @auth/core/jwt 的 `salt = cookieName`），
 // 而签发侧用的是 auth.ts 里 cookies.sessionToken.name。
