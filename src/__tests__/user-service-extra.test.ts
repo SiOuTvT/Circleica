@@ -157,7 +157,6 @@ describe("authService.verifyEmail", () => {
 
   it("verifies user and marks token used in a transaction", async () => {
     mockPrisma.emailVerificationToken.findUnique.mockResolvedValue(validRecord as never)
-    mockPrisma.$transaction.mockImplementation(async (ops: unknown[]) => Promise.all(ops))
 
     const result = await authService.verifyEmail("raw-token")
     expect(result).toEqual({ success: true, email: "test@example.com" })
@@ -194,7 +193,6 @@ describe("authService.resetPassword", () => {
       usedAt: null,
     }
     mockPrisma.passwordResetToken.findUnique.mockResolvedValue(record as never)
-    mockPrisma.$transaction.mockImplementation(async (ops: unknown[]) => Promise.all(ops))
 
     const result = await authService.resetPassword("raw-token", "newpassword123")
     expect(result).toEqual({ success: true })
@@ -249,7 +247,7 @@ describe("userService.updateProfile", () => {
     mockUserRepo.updateProfile.mockResolvedValue({} as never)
     await userService.updateProfile("user-1", { bio: "x".repeat(600) })
     const call = mockUserRepo.updateProfile.mock.calls[0][1]
-    expect(call.bio.length).toBe(500)
+    expect(String(call.bio).length).toBe(500)
   })
 
   it("requires old password when user already has a password", async () => {
@@ -368,8 +366,8 @@ describe("followService.toggle", () => {
 
   it("unfollows when already following", async () => {
     mockUserRepo.findById.mockResolvedValue({ id: "user-2" } as never)
-    mockFollowRepo.isFollowing.mockResolvedValue(true)
-    mockFollowRepo.unfollow.mockResolvedValue(undefined)
+    mockFollowRepo.isFollowing.mockResolvedValue(true as never)
+    mockFollowRepo.unfollow.mockResolvedValue({} as never)
 
     const result = await followService.toggle("user-1", "user-2")
     expect(result).toEqual({ following: false })
@@ -379,8 +377,8 @@ describe("followService.toggle", () => {
 
   it("follows and creates notification when not following", async () => {
     mockUserRepo.findById.mockResolvedValue({ id: "user-2" } as never)
-    mockFollowRepo.isFollowing.mockResolvedValue(false)
-    mockFollowRepo.follow.mockResolvedValue(undefined)
+    mockFollowRepo.isFollowing.mockResolvedValue(false as never)
+    mockFollowRepo.follow.mockResolvedValue({} as never)
 
     const result = await followService.toggle("user-1", "user-2")
     expect(result).toEqual({ following: true })
