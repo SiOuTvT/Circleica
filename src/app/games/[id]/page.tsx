@@ -327,7 +327,7 @@ export default async function GameDetailPage({
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
                 </div>
-                {game.galvelicaWork?.slug && (
+                {game.galvelicaWork?.slug ? (
                   <Link
                     href={`/galvelica/works/${game.galvelicaWork.slug}`}
                     className="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
@@ -335,6 +335,15 @@ export default async function GameDetailPage({
                   >
                     <Library className="h-3.5 w-3.5" />
                     副站资料
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/galvelica/works?search=${encodeURIComponent(game.title)}`}
+                    className="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                    title="本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
+                  >
+                    <Library className="h-3.5 w-3.5" />
+                    副站查资料
                   </Link>
                 )}
                 <div className="ml-auto shrink-0">

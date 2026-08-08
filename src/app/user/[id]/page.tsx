@@ -60,6 +60,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     id: string; serialId: number; uid: string | null; username: string; avatar: string | null;
     avatarFrameId: string | null; composedAvatarUrl: string | null; banner: string | null;
     bio: string | null; role: string; createdAt: Date;
+    avatarFrame: { imageUrl: string } | null;
     _count: { followers: number; following: number; favorites: number; comments: number; playStatuses: number }
   } | null = null
   try {
@@ -70,6 +71,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
         id: true, serialId: true, uid: true, username: true, avatar: true,
         avatarFrameId: true, composedAvatarUrl: true, banner: true, bio: true,
         role: true, createdAt: true,
+        avatarFrame: { select: { imageUrl: true } },
         _count: {
           select: {
             followers: true,
@@ -170,6 +172,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                         bio: user.bio || "", role: user.role, createdAt: user.createdAt.toISOString(),
                         favCount: user._count.favorites, commentCount: user._count.comments,
                         followerCount: user._count.followers, followingCount: user._count.following,
+                        avatarFrameUrl: user.avatarFrame?.imageUrl ?? "",
                       }} />
                     )}
                     {/* AchievementModal 和 AvatarFrameSelector 有闪屏问题，暂时注释 */}

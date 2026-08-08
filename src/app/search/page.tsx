@@ -17,7 +17,7 @@ import { Prisma } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { getGameNsfwModeFilter } from "@/lib/filters"
-import { Flame, Search } from "lucide-react"
+import { Flame, Library, Search } from "lucide-react"
 import { Suspense } from "react"
 
 interface GameWithTag {
@@ -191,6 +191,16 @@ async function SearchResults({
         {q && (
           <Link href="/search" className="mt-3 inline-flex items-center rounded-lg px-4 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
             清除搜索条件
+          </Link>
+        )}
+        {q && (
+          <Link
+            href={`/galvelica/works?search=${encodeURIComponent(q)}`}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-4 py-2.5 text-sm font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+            title="本站在副站资料库中查找该作品"
+          >
+            <Library className="h-4 w-4" />
+            在副站资料库中查找
           </Link>
         )}
         {recommended.length > 0 && (
