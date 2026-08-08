@@ -606,46 +606,61 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         <span className="text-xs font-medium text-foreground">{generating ? "生成中…" : "生成名片"}</span>
       </button>
 
-      {/* 封面选择弹窗 */}
+      {/* 封面选择弹窗 + 实时预览 */}
       {pickerOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={() => setPickerOpen(false)}>
-          <div style={{ width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", background: "#fff", borderRadius: 16, padding: 20, boxShadow: "0 24px 48px rgba(0,0,0,0.2)" }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#232830", margin: 0 }}>选择代表收藏</h3>
-            <p style={{ fontSize: 12, color: "#9aa3b5", marginTop: 4 }}>
-              选择 3-8 张封面作为名片展示样本（总收藏 {favoriteTotal} 部，展示只是代表品味）
-            </p>
-            {allCovers.length === 0 ? (
-              <div style={{ padding: "24px 0", textAlign: "center", color: "#b3bac9", fontSize: 13 }}>
-                收藏中还没有可展示的封面（NSFW 已自动排除）
+          <div style={{ width: "100%", maxWidth: 900, maxHeight: "90vh", background: "#fff", borderRadius: 16, padding: 20, boxShadow: "0 24px 48px rgba(0,0,0,0.2)", display: "flex", gap: 20, overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+            {/* 左侧：封面选择 */}
+            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#232830", margin: 0 }}>选择代表收藏</h3>
+              <p style={{ fontSize: 12, color: "#9aa3b5", marginTop: 4 }}>
+                选择 3-8 张封面（总收藏 {favoriteTotal} 部，展示只是代表品味）
+              </p>
+              <div style={{ overflowY: "auto", flex: 1, marginTop: 12, paddingRight: 4 }}>
+                {allCovers.length === 0 ? (
+                  <div style={{ padding: "24px 0", textAlign: "center", color: "#b3bac9", fontSize: 13 }}>
+                    收藏中还没有可展示的封面（NSFW 已自动排除）
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                    {allCovers.map((g) => {
+                      const sel = selectedIds.has(g.id)
+                      return (
+                        <button key={g.id} type="button" onClick={() => toggleSelect(g.id)} style={{
+                          position: "relative", padding: 0, border: sel ? "3px solid #5FA8A0" : "3px solid transparent",
+                          borderRadius: 10, overflow: "hidden", cursor: "pointer", opacity: sel ? 1 : 0.75,
+                          aspectRatio: "3 / 4",
+                        }}>
+                          {g.coverImage && <img src={proxyImg(g.coverImage)} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#f0f1f5" }} crossOrigin="anonymous" referrerPolicy="no-referrer" />}
+                          {sel && <span style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: "#5FA8A0", color: "#fff", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</span>}
+                          <span style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.6))", color: "#fff", fontSize: 10, padding: "6px 4px 4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{g.title}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginTop: 16 }}>
-                {allCovers.map((g) => {
-                  const sel = selectedIds.has(g.id)
-                  return (
-                    <button key={g.id} type="button" onClick={() => toggleSelect(g.id)} style={{
-                      position: "relative", padding: 0, border: sel ? "3px solid #5FA8A0" : "3px solid transparent",
-                      borderRadius: 10, overflow: "hidden", cursor: "pointer", opacity: sel ? 1 : 0.75,
-                      aspectRatio: "3 / 4",
-                    }}>
-                      {g.coverImage && <img src={proxyImg(g.coverImage)} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#f0f1f5" }} crossOrigin="anonymous" referrerPolicy="no-referrer" />}
-                      {sel && <span style={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", background: "#5FA8A0", color: "#fff", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</span>}
-                      <span style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.6))", color: "#fff", fontSize: 10, padding: "6px 4px 4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{g.title}</span>
-                    </button>
-                  )
-                })}
+              <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+                <button type="button" onClick={() => setPickerOpen(false)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "1px solid #e2e6ee", background: "#fff", color: "#55627a", fontSize: 14, cursor: "pointer" }}>取消</button>
+                <button type="button"
+                  onClick={() => { setPickerOpen(false); generate() }}
+                  disabled={allCovers.length >= MIN_SELECTABLE && selectedIds.size > 0 && selectedIds.size < MIN_SELECTABLE}
+                  style={{
+                    flex: 1, padding: "10px 0", borderRadius: 10, border: "none",
+                    background: allCovers.length >= MIN_SELECTABLE && selectedIds.size > 0 && selectedIds.size < MIN_SELECTABLE ? "#c9d4d1" : "#5FA8A0",
+                    color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  }}>生成名片</button>
               </div>
-            )}
-            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-              <button type="button" onClick={() => setPickerOpen(false)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "1px solid #e2e6ee", background: "#fff", color: "#55627a", fontSize: 14, cursor: "pointer" }}>取消</button>
-              <button type="button"
-                onClick={() => { setPickerOpen(false); generate() }}
-                disabled={allCovers.length >= MIN_SELECTABLE && selectedIds.size > 0 && selectedIds.size < MIN_SELECTABLE}
-                style={{
-                  flex: 1, padding: "10px 0", borderRadius: 10, border: "none",
-                  background: allCovers.length >= MIN_SELECTABLE && selectedIds.size > 0 && selectedIds.size < MIN_SELECTABLE ? "#c9d4d1" : "#5FA8A0",
-                  color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer",
-                }}>生成名片</button>
+            </div>
+            {/* 右侧：实时预览（缩小显示名片，随选择即时更新） */}
+            <div style={{ width: 300, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "#f0f1f5", borderRadius: 12, padding: "16px 0" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#55627a", marginBottom: 12 }}>实时预览</span>
+              <div style={{ width: 230, height: 409, position: "relative", overflow: "hidden", borderRadius: 10, boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
+                <div style={{ transform: "scale(0.32)", transformOrigin: "top left", width: 720, height: 1280, pointerEvents: "none" }}>
+                  {card}
+                </div>
+              </div>
+              <span style={{ fontSize: 11, color: "#9aa3b5", marginTop: 10 }}>选择封面后此处即时更新</span>
             </div>
           </div>
         </div>

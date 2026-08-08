@@ -36,6 +36,7 @@ enum NotificationTypeEnum {
   forum_comment_new
   follow
   achievement_unlock
+  private_message
 }
 
 enum NotificationTargetTypeEnum {
@@ -43,6 +44,7 @@ enum NotificationTargetTypeEnum {
   forum_comment
   user
   achievement
+  conversation
 }
 
 model User {

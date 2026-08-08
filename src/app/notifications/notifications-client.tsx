@@ -55,6 +55,11 @@ const TYPE_CONFIG: Record<string, {
     text: (actor) => `${actor} 关注了你`,
     href: (_targetType, id) => `/user/${id}`,
   },
+  private_message: {
+    icon: Bell,
+    text: (actor) => `${actor} 给你发来一条私信`,
+    href: (_targetType, _id) => "/messages",
+  },
   resource_reported: {
     icon: Bell,
     text: (actor, gameTitle) =>

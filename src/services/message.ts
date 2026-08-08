@@ -10,6 +10,7 @@
 import { prisma } from "@/lib/prisma"
 import { NotFoundError, ValidationError, ForbiddenError, ConflictError } from "@/lib/errors"
 import { checkAchievements } from "@/lib/achievements"
+import { createNotification } from "@/lib/notifications"
 
 /** 发起一次私聊会话消耗的印记 */
 export const MESSAGE_COST = 5
@@ -83,6 +84,15 @@ export const messageService = {
     })
     // 更新会话的最后消息时间（会话排序用）
     await prisma.conversation.update({ where: { id: conversationId }, data: { lastMessageAt: new Date() } })
+    // 给接收方创建站内通知（异步，静默失败不影响发送主流程）
+    const recipientId = conv.initiatorId === userId ? conv.participantId : conv.initiatorId
+    createNotification({
+      userId: recipientId,
+      actorId: userId,
+      type: "private_message",
+      targetType: "conversation",
+      targetId: conversationId,
+    }).catch(() => {})
     return message
   },
 
