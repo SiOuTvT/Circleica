@@ -86,18 +86,20 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   } catch (error) { logger.db.error("[UserProfilePage] Database query failed", error) }
   if (!user) notFound()
 
-  // 名片数据：收藏游戏封面（前 6）+ 关注中的人（前 4），供生成精美竖版名片使用
+  // 名片数据：收藏游戏封面 + 关注的人 + 收藏偏好标签，供生成精美竖版名片使用
   let cardData: {
-    favoriteGames: Array<{ id: string; title: string; coverImage: string | null; serialId: number }>
+    favoriteGames: Array<{ id: string; title: string; coverImage: string | null; serialId: number; isNsfw: boolean }>
     followingUsers: Array<{ id: string; username: string; avatar: string | null; composedAvatarUrl: string | null }>
-  } = { favoriteGames: [], followingUsers: [] }
+    favoriteTags: Array<{ name: string; color: string; count: number }>
+  } = { favoriteGames: [], followingUsers: [], favoriteTags: [] }
+
   try {
     const [favoriteGames, followingUsers] = await Promise.all([
       prisma.favorite.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: "desc" },
-        take: 6,
-        select: { game: { select: { id: true, title: true, coverImage: true, serialId: true } } },
+        take: 12,
+        select: { game: { select: { id: true, title: true, coverImage: true, serialId: true, isNsfw: true } } },
       }),
       prisma.follow.findMany({
         where: { followerId: user.id },
@@ -109,8 +111,26 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     cardData = {
       favoriteGames: favoriteGames.map((f) => f.game),
       followingUsers: followingUsers.map((f) => f.following),
+      favoriteTags: [],
     }
   } catch (error) { logger.db.error("[UserProfilePage] Card data query failed", error) }
+
+  // 收藏偏好标签：从收藏游戏的 GameTag 聚合，按出现频率取 Top5（真实数据，非算法称号）
+  try {
+    const favGames = await prisma.gameTag.findMany({
+      where: { gameId: { in: cardData.favoriteGames.map((g) => g.id) } },
+      select: { tag: { select: { name: true, color: true } } },
+    })
+    const tagCount = new Map<string, { name: string; color: string; count: number }>()
+    for (const { tag } of favGames) {
+      const cur = tagCount.get(tag.name)
+      if (cur) { cur.count++ }
+      else { tagCount.set(tag.name, { name: tag.name, color: tag.color, count: 1 }) }
+    }
+    cardData.favoriteTags = Array.from(tagCount.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+  } catch (error) { logger.db.error("[UserProfilePage] Card tags query failed", error) }
 
   const userRank = user.serialId
   // 关联数据改为客户端按需加载，这里只传递数量统计
@@ -201,6 +221,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                         avatarFrameUrl: user.avatarFrame?.imageUrl ?? "",
                         favoriteGames: cardData.favoriteGames,
                         followingUsers: cardData.followingUsers,
+                        favoriteTags: cardData.favoriteTags,
                       }} />
                     )}
                     {/* AchievementModal 和 AvatarFrameSelector 有闪屏问题，暂时注释 */}
