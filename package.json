@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack -p 3000",
+    "dev:clean": "node scripts/dev-clean.js && npm run dev",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",

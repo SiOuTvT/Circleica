@@ -44,6 +44,9 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   output: "standalone",
+  // 开发模式产物写到 .next-dev（避开 IDE 工具对 .next 的持续 robocopy 清理锁，
+  // 也避免 .next 无限膨胀拖慢 dev 启动）。生产构建仍用默认 .next。
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
 
   // 客户端 Router Cache 存活期（P0-1 性能：治「切换都要等很长时间」）。
   // 根 layout 读 headers()（theme-script.tsx）使全站 132 个页面全部为 dynamic，
