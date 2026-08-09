@@ -2,6 +2,7 @@ import { getCardData, serverProxyImg } from "@/lib/card-data"
 import { prisma } from "@/lib/prisma"
 import { ROLE_META } from "@/lib/permissions"
 import { notFound } from "next/navigation"
+import Link from "next/link"
 import type { UserRole } from "@prisma/client"
 
 export const dynamic = "force-dynamic"
@@ -285,7 +286,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
       </div>
 
       <div style={{ width: 400, marginTop: 20, textAlign: "center", fontSize: 12, color: "#8a93a5" }}>
-        由 Circleica 生成 · <a href="/" style={{ color: "#5FA8A0" }}>去主站看看</a> · <a href="/galvelica" style={{ color: "#8f6fd8" }}>浏览资料馆</a>
+        由 Circleica 生成 · <Link href="/" style={{ color: "#5FA8A0" }}>去主站看看</Link> · <Link href="/galvelica" style={{ color: "#8f6fd8" }}>浏览资料馆</Link>
       </div>
     </main>
   )

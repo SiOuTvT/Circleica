@@ -37,8 +37,13 @@ function buildCSP(nonce: string): string {
       `object-src 'none'`,
     ]
     const isDev = process.env.NODE_ENV === "development"
+    // 生产环境严禁 eval：eval 是 XSS 利用者执行恶意脚本的主要通道，
+    // 移除后即便有注入点也难以落地。开发环境保留 eval 以兼容 Next 的 HMR/dev overlay。
+    const scriptPrefix = isDev
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
+      : `script-src 'self' 'unsafe-inline'`
     _cspTemplate = {
-      scriptPrefix: `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
+      scriptPrefix,
       rest: directives.slice(2).join("; "),
     }
   }
@@ -171,6 +176,22 @@ export async function proxy(req: NextRequest) {
     // SUPER_ADMIN 专属路由受保护：ADMIN 不可访问（路由清单由 lib/permissions 统一维护）
     if (role === "ADMIN" && isSuperAdminRoute(pathname)) {
       return redirectTo(req, new URL("/admin", req.url))
+    }
+  }
+
+  // 后台 API 网关级兜底闸：上面的 /admin 守卫只覆盖「页面」路径（以 /admin 开头），
+  // 而后台写接口的 URL 是 /api/admin/...（以 /api/ 开头），并不命中，此前完全依赖
+  // 各接口内部各自调用 requireAdminRole。这里补一道强制关卡：未登录或角色 < ADMIN
+  // 一律 401/403，即使某个接口漏写内部校验也不会裸奔。
+  // 具体的 SUPER_ADMIN 专属接口仍由各接口自身的 requireAdminRole("SUPER_ADMIN") 精确把关。
+  if (pathname.startsWith("/api/admin")) {
+    const token = await readToken(req)
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    const role = token.role as string
+    if (!hasRole(role as UserRole, "ADMIN")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
   }
 
