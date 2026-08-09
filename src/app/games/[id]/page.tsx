@@ -87,7 +87,7 @@ export default async function GameDetailPage({
       where: { id: gameId, isPublished: true },
       include: {
         tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { color: true, name: true } } } } } },
-        resources: { select: { language: true, runType: true, resourceContent: true } },
+        resources: { select: { platform: true, language: true, runType: true, resourceContent: true } },
         comments: {
           orderBy: { createdAt: "desc" },
           take: 20,
@@ -154,11 +154,12 @@ export default async function GameDetailPage({
       : Promise.resolve(false),
   ])
 
-  // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）。
+  // 从所有资源中收集去重的 resourceTags（平台、语言、运行方式、资源内容）。
   // 兼容数组与 JSON 字符串（历史存 JSON.stringify 的字段），避免标签丢失。
   const parseTagsArr = (field: unknown): string[] => safeParse<string[]>(field, [])
   const resourceTags: string[] = [...new Set(
     game.resources.flatMap((r) => [
+      ...parseTagsArr(r.platform),
       ...parseTagsArr(r.language),
       ...parseTagsArr(r.runType),
       ...parseTagsArr(r.resourceContent),
