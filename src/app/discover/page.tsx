@@ -113,11 +113,21 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
       return null
     }
 
+    // 发现页卡片标签颜色 = "发现页标签"预设组色（紫 #a78bfa），后台可改
+    let discoverTagColor = "#a78bfa"
+    try {
+      const group = await prisma.tagGroup.findUnique({
+        where: { id: "preset_discover" },
+        select: { color: true },
+      })
+      if (group?.color) discoverTagColor = group.color
+    } catch (err) { logger.db.warn("[discover] discoverTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+
     return {
       collections,
       years: years.map((y) => ({ year: Number(y.year), count: Number(y.count) })),
-      popular: popular.map((g) => mapGameToCard(g)),
-      recent: recent.map((g) => mapGameToCard(g)),
+      popular: popular.map((g) => mapGameToCard(g, { resourceTagColor: discoverTagColor })),
+      recent: recent.map((g) => mapGameToCard(g, { resourceTagColor: discoverTagColor })),
     }
   } catch {
     // 数据库不可用（构建期/沙箱）：返回空，绝不注入假数据

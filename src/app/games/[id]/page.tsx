@@ -113,8 +113,8 @@ export default async function GameDetailPage({
   const tags = game.tags.map((t) => t.tag)
   const tagNames = tags.map((t) => t.name)
 
-  // 获取"资源标签"组颜色 + 收藏状态，并行执行
-  const [resourceTagColor, cardTagColor, isFav] = await Promise.all([
+  // 获取各组颜色（资源标签/详情页信息栏）+ 收藏状态，并行执行
+  const [resourceTagColor, detailHeaderTagColor, isFav] = await Promise.all([
     (async () => {
       try {
         const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
@@ -133,19 +133,19 @@ export default async function GameDetailPage({
     })(),
     (async () => {
       try {
-        const cacheKeyCard = cacheKey("tagGroup", "home_card", "color")
-        const cachedColor = await cache.get<string>(cacheKeyCard)
+        const cacheKeyDetail = cacheKey("tagGroup", "detail_header", "color")
+        const cachedColor = await cache.get<string>(cacheKeyDetail)
         if (cachedColor) return cachedColor
         const group = await prisma.tagGroup.findFirst({
-          where: { id: "preset_home_card" },
+          where: { id: "preset_detail_header" },
           select: { color: true },
         })
         if (group?.color) {
-          await cache.set(cacheKeyCard, group.color, 3600)
+          await cache.set(cacheKeyDetail, group.color, 3600)
           return group.color
         }
-      } catch (err) { logger.game.warn("[GameDetailPage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
-      return "#6b7280"
+      } catch (err) { logger.game.warn("[GameDetailPage] detailHeaderTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+      return "#f472b6"
     })(),
     session?.user?.id
       ? prisma.favorite.findUnique({
@@ -264,9 +264,9 @@ export default async function GameDetailPage({
                 <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
                 </Tag>
-                {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 颜色跟随主题色 */}
+                {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 详情页信息栏组色 */}
                 {resourceTags.map((tag) => (
-                  <Tag key={tag} color={cardTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
+                  <Tag key={tag} color={detailHeaderTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
                     {tag}
                   </Tag>
                 ))}
@@ -375,7 +375,7 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             isFav={isFav}
             favCount={game.favoriteCount}
-            gameTags={tags.map((t) => ({ name: t.name, color: t.group?.color || t.color || "", groupName: t.group?.name }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor, groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}

@@ -63,22 +63,24 @@ export async function getTagBrowserData(): Promise<TagBrowserData> {
  * 获取所有标签组及其标签（带游戏数量）
  */
 async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
-  const groups = await prisma.tagGroup.findMany({
+  // "发现页标签"预设组（id 稳定，不依赖 positions——历史数据 positions 为空）。
+  const group = await prisma.tagGroup.findUnique({
+    where: { id: "preset_discover" },
+  })
+  if (!group) return []
+
+  // 与后台组详情一致：预设组若没有直接挂标签，则取「已关联已发布游戏」的所有主站标签
+  // 作为该组内容（发现页标签墙 = 全站分类标签），颜色统一用组色。
+  const groupTags = await prisma.tag.findMany({
     where: {
-      // 只显示"发现页标签"组的标签（用于搜索筛选和标签云）
-      positions: { array_contains: ["discover"] },
+      source: "circleica",
+      games: { some: { game: { isPublished: true } } },
     },
-    include: {
-      tags: {
-        where: { source: "circleica" },
-        orderBy: { name: "asc" },
-      },
-    },
-    orderBy: { name: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, slug: true, color: true },
   })
 
-  // 批量获取所有标签的游戏数量（单次查询替代 N+1）
-  const allTagIds = groups.flatMap(g => g.tags.map(t => t.id))
+  const allTagIds = groupTags.map(t => t.id)
   const gameCounts = await prisma.gameTag.groupBy({
     by: ["tagId"],
     where: {
@@ -89,23 +91,25 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
   })
   const countMap = new Map(gameCounts.map(r => [r.tagId, r._count.tagId]))
 
-  const tagGroups: TagGroupWithTags[] = groups.map((group) => ({
+  const tags = groupTags
+    .map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+      slug: tag.slug,
+      color: group.color || tag.color || "#a78bfa",
+      gameCount: countMap.get(tag.id) ?? 0,
+    }))
+    .filter(t => t.gameCount > 0)
+
+  if (tags.length === 0) return []
+
+  return [{
     id: group.id,
     name: group.name,
     color: group.color,
     description: group.description,
-    tags: group.tags
-      .map((tag) => ({
-        id: tag.id,
-        name: tag.name,
-        slug: tag.slug,
-        color: tag.color || group.color,
-        gameCount: countMap.get(tag.id) ?? 0,
-      }))
-      .filter(t => t.gameCount > 0),
-  }))
-
-  return tagGroups.filter(g => g.tags.length > 0)
+    tags,
+  }]
 }
 
 /**

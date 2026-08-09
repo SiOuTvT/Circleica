@@ -131,11 +131,11 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
 
           const placeholder = await getSiteSetting("default_placeholder_image")
 
-          // 获取"首页卡片标签"组的颜色（站点可配置，未配置则回退默认灰）
+          // 获取"首页卡片标签"组的颜色（预设组 id 稳定，直接按 id 查；未配置则回退默认灰）
           let cardTagColor = "#6b7280"
           try {
             const homeCardTag = await prisma.tagGroup.findFirst({
-              where: { positions: { array_contains: ["home_card"] } },
+              where: { id: "preset_home_card" },
               select: { color: true },
             })
             if (homeCardTag?.color) cardTagColor = homeCardTag.color

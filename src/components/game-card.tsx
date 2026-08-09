@@ -64,13 +64,16 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
-  // 分类标签（连后台标签管理颜色）：全部显示 + 按名称去重
+  // 资源标签（首页卡片标签组：语言/运行方式/内容类型）：全部显示 + 按名称去重。
+  // 兼容纯字符串数组（历史）与 { name, color } 数组（mapGameToCard 输出，color=首页卡片组色）。
   const seenTag = new Set<string>()
-  const paramTags = (game.tags ?? []).filter((t) => {
-    if (!t.name || seenTag.has(t.name)) return false
-    seenTag.add(t.name)
-    return true
-  })
+  const paramTags = (game.resourceTags ?? [])
+    .map((t) => (typeof t === "string" ? { name: t, color: "" } : t))
+    .filter((t) => {
+      if (!t.name || seenTag.has(t.name)) return false
+      seenTag.add(t.name)
+      return true
+    })
   const statusBadge = useStatusBadge(game.status)
 
   const sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
@@ -270,13 +273,15 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
-  // 分类标签（连后台标签管理颜色）：全部显示 + 按名称去重
+  // 资源标签（首页卡片标签组）：全部显示 + 按名称去重
   const seenTag = new Set<string>()
-  const paramTags = (game.tags ?? []).filter((t) => {
-    if (!t.name || seenTag.has(t.name)) return false
-    seenTag.add(t.name)
-    return true
-  })
+  const paramTags = (game.resourceTags ?? [])
+    .map((t) => (typeof t === "string" ? { name: t, color: "" } : t))
+    .filter((t) => {
+      if (!t.name || seenTag.has(t.name)) return false
+      seenTag.add(t.name)
+      return true
+    })
   const statusBadge = useStatusBadge(game.status)
 
   return (
