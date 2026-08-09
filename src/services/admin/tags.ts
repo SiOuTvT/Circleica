@@ -45,9 +45,12 @@ export const tagGroupService = {
       if (f in raw) data[f] = raw[f]
     }
     const result = await tagGroupRepo.update(id, data)
-    // 标签组（含颜色）改了要清后台标签缓存 + 前台标签组颜色缓存（3600s 隐藏炸弹）
+    // 标签组（含颜色）改了要清：后台标签缓存 + 前台标签组颜色缓存（3600s 隐藏炸弹）
+    // + 首页/发现页网格缓存（其中 mapGameToCard 已把颜色固化进卡片数据，必须一并失效）
     await cache.delByPrefix("circleica:admin:tags:")
     await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid:")
+    await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/games")
     await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
