@@ -28,12 +28,14 @@ export function ForYou({ popular = [] }: { popular?: GameCardData[] }) {
       // 多种子并行拉相似
       const batches = await Promise.all(
         seeds.map(async (s) => {
-          const { ok, data } = await apiFetchSafe<{ games?: GameCardData[] }>(
+          // apiFetchSafe 返回完整响应体 { success, data: { games } }，需解 data.data
+          const { ok, data } = await apiFetchSafe<{ data?: { games?: GameCardData[] }; games?: GameCardData[] }>(
             `/api/games/similar?id=${encodeURIComponent(s.id)}&limit=6`,
             { cache: "no-store" },
           )
-          return (ok && data?.games ? data.games : []).map(
-            (g) => ({ card: g, reason: s.title, kind: "similar" as const }),
+          const games: GameCardData[] = ((data as any)?.data ?? data)?.games ?? []
+          return (ok ? games : []).map(
+            (g: GameCardData) => ({ card: g, reason: s.title, kind: "similar" as const }),
           )
         }),
       )

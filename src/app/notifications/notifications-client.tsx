@@ -113,9 +113,11 @@ export default function NotificationsClient({
     if (!nextCursor || loadingMore) return
     setLoadingMore(true)
     try {
-      const data = await api.get<{ notifications?: NotificationItem[]; nextCursor?: string | null }>(`/api/notifications?cursor=${nextCursor}`)
-      setNotifications((prev) => [...prev, ...(data.notifications ?? [])])
-      setNextCursor(data.nextCursor ?? null)
+      // api.get 返回完整响应体 { success, data: { notifications, nextCursor } }，需解 data.data
+      const data = await api.get<{ data?: { notifications?: NotificationItem[]; nextCursor?: string | null } }>(`/api/notifications?cursor=${nextCursor}`)
+      const inner = data?.data
+      setNotifications((prev) => [...prev, ...(inner?.notifications ?? [])])
+      setNextCursor(inner?.nextCursor ?? null)
     } catch (err) { logger.api.warn("[NotificationsClient] fetchMore failed", { error: err instanceof Error ? err.message : String(err) }) }
     setLoadingMore(false)
   }, [nextCursor, loadingMore])

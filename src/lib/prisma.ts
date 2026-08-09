@@ -163,16 +163,21 @@ function getEmptyResult(modelName: string, method: string): unknown {
   }
 }
 
+/** 挂载在代理 Promise 上的原始 PrismaPromise，供 $transaction 还原使用 */
+const ORIGINAL_PROMISE = Symbol("prismaOriginalPromise")
+
 function buildModelProxy(realModel: unknown, modelName: string, forceMock = false) {
   return new Proxy(realModel as object, {
     get(target, methodName) {
       const fn = (target as Record<string, unknown>)[methodName as string]
       if (typeof fn !== "function") return fn
-      return (...callArgs: unknown[]) =>
-        ensureProbe().then((ok) => {
+      return (...callArgs: unknown[]) => {
+        // 立即发起真实 PrismaPromise（保留其 PrismaPromise 类型与链式能力）
+        const rawPromise = (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs)
+        // 包装：附加离线探测/错误降级，同时把原始 Promise 挂到包装对象上
+        const wrapped = ensureProbe().then((ok) => {
           if (ok && !isOfflineWindowActive() && !forceMock) {
-            return (fn as (...a: unknown[]) => Promise<unknown>)
-              .call(target, ...callArgs)
+            return rawPromise
               .then((result: unknown) => {
                 // 真实查询成功即视为链路健康（覆盖半开探活成功的场景）
                 markOnline()
@@ -192,8 +197,21 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
           }
           return getEmptyResult(modelName, String(methodName))
         })
+        // 挂载原始 Promise：$transaction 数组还原时读取（避免 PrismaPromise 类型校验失败）
+        ;(wrapped as unknown as Record<symbol, unknown>)[ORIGINAL_PROMISE] = rawPromise
+        return wrapped
+      }
     },
   })
+}
+
+/** 从代理 Promise 还原原始 PrismaPromise；非代理 Promise 原样返回 */
+function unwrapPrismaPromise<T>(p: T): T {
+  if (p && typeof p === "object" && typeof (p as { then?: unknown }).then === "function") {
+    const original = (p as unknown as Record<symbol, unknown>)[ORIGINAL_PROMISE] as T | undefined
+    if (original) return original
+  }
+  return p
 }
 
 function buildPrismaProxy(real: unknown, forceMock = false) {
@@ -234,6 +252,12 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
           ensureProbe().then((ok) => {
             if (ok && !isOfflineWindowActive() && !forceMock) {
               try {
+                // 数组形式的交互事务：把代理 Promise 还原为原始 PrismaPromise，
+                // 否则原生 $transaction 会因「非 PrismaPromise 元素」抛错（P0：收藏/签到/发帖全受影响）。
+                if (Array.isArray(arg)) {
+                  const restored = arg.map((el) => unwrapPrismaPromise(el))
+                  return fn.call(target, restored)
+                }
                 return fn.call(target, arg)
               } catch (err) {
                 // 真实事务失败要暴露错误，不要静默返回空（否则上层 result.xxx → TypeError → 500）

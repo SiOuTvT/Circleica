@@ -249,11 +249,13 @@ export function ForumClient({
           const prev = posts.find(p => p.id === id)?.likeCount ?? 0
           setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
           setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
-          apiFetchSafe<{ likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
+          // apiFetchSafe 返回完整响应体 { success, data: { likeCount } }，需解 data.data
+          apiFetchSafe<{ data?: { likeCount?: number }; likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: data?.likeCount ?? x.likeCount } : x))
-                setActivePost(p => p && { ...p, likeCount: data?.likeCount ?? p.likeCount })
+                const inner = (data as any)?.data ?? data
+                setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: inner?.likeCount ?? x.likeCount } : x))
+                setActivePost(p => p && { ...p, likeCount: inner?.likeCount ?? p.likeCount })
               }
             })
             .catch(() => {

@@ -13,7 +13,7 @@ const SEED_DATA = [
   { key: "comment_success",   category: "toast",   title: "评论成功",     subtitle: "你的评论已发布",       imageUrl: "", emoji: "MessageCircle", enabled: true },
   // Empty
   { key: "empty_favorites",   category: "empty",   title: "收藏夹空空如也",   subtitle: "去探索好玩的游戏吧",       imageUrl: "", emoji: "Heart", enabled: true },
-  { key: "empty_comments",    category: "empty",   title: "还没有评论",       subtitle: "来抢沙发吧~",             imageUrl: "", emoji: "MessagesSquare", enabled: true },
+  { key: "empty_comments",    category: "empty",   title: "还没有评论",       subtitle: "来抢沙发吧~",             imageUrl: "", emoji: "MessageSquare", enabled: true },
   { key: "empty_forum",       category: "empty",   title: "论坛暂时没有帖子", subtitle: "来发第一个帖子吧",         imageUrl: "", emoji: "FileText", enabled: true },
   { key: "empty_notifications", category: "empty", title: "暂无新通知",       subtitle: "有新动态时会通知你",       imageUrl: "", emoji: "Bell", enabled: true },
   // Error

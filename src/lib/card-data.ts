@@ -145,7 +145,17 @@ export async function getCardData(userId: string): Promise<CardData | null> {
 
     const platformCount = new Map<string, number>()
     for (const f of favMeta) {
-      const plats = Array.isArray(f.game.platforms) ? f.game.platforms as string[] : []
+      // 兼容数组与 JSON 字符串（历史存 JSON.stringify 的字段），避免平台统计丢失
+      const raw = f.game.platforms as unknown
+      let plats: string[] = []
+      if (Array.isArray(raw)) {
+        plats = (raw as string[]).filter((x): x is string => typeof x === "string")
+      } else if (typeof raw === "string" && raw.trim() !== "") {
+        try {
+          const parsed: unknown = JSON.parse(raw)
+          if (Array.isArray(parsed)) plats = parsed.filter((x): x is string => typeof x === "string")
+        } catch { /* 非法 JSON 忽略 */ }
+      }
       for (const p of plats) platformCount.set(p, (platformCount.get(p) ?? 0) + 1)
     }
     base.favoritePlatforms = Array.from(platformCount.entries())

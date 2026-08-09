@@ -206,14 +206,18 @@ export default function GameDetailClient({
     try {
       const { ok, data } = await apiFetchSafe<{ isFav?: boolean; count?: number }>(`/api/games/${gameId}/favorite`, { method: "POST", signal: controller.signal })
       if (controller.signal.aborted) return
+      // apiFetchSafe 返回完整响应体 { success, data: { isFav, count } }，需再解一层 data.data
+      const inner = (data as unknown as { data?: { isFav?: boolean; count?: number } })?.data
       if (ok) {
-        setFav(data?.isFav ?? prevFav)
-        setFavCnt(data?.count ?? prevCnt)
-        window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: data?.isFav } }))
-        toast.success(data?.isFav
+        const newFav = inner?.isFav ?? prevFav
+        const newCnt = inner?.count ?? prevCnt
+        setFav(newFav)
+        setFavCnt(newCnt)
+        window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: newFav } }))
+        toast.success(newFav
           ? (favMsgs.favorite_added ? favMsgs.favorite_added.title : "已收藏")
           : (favMsgs.favorite_removed ? favMsgs.favorite_removed.title : "已取消收藏"), {
-            icon: <EmotionalIcon emoji={data?.isFav ? favMsgs.favorite_added?.emoji : favMsgs.favorite_removed?.emoji} className="h-4 w-4" />
+            icon: <EmotionalIcon emoji={newFav ? favMsgs.favorite_added?.emoji : favMsgs.favorite_removed?.emoji} className="h-4 w-4" />
           })
       } else {
         setFav(prevFav)

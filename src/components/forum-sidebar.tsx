@@ -116,8 +116,15 @@ function ForumSidebarPosts() {
 
   useEffect(() => {
     const controller = new AbortController()
-    apiFetchSafe<{ posts?: any[] }>("/api/forum/posts", { signal: controller.signal })
-      .then(({ ok, data }) => { if (ok) setPosts(((data?.posts as any[]) || []).slice(0, 20)); setLoading(false) })
+    // apiFetchSafe 返回完整响应体 { success, data: { posts, ... } }，需解 data.data
+    apiFetchSafe<{ posts?: any[]; data?: { posts?: any[] } }>("/api/forum/posts", { signal: controller.signal })
+      .then(({ ok, data }) => {
+        if (ok) {
+          const inner = (data as any)?.data ?? data
+          setPosts(((inner?.posts as any[]) || []).slice(0, 20))
+        }
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
     return () => controller.abort()
   }, [])
