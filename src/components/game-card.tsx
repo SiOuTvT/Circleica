@@ -18,7 +18,7 @@ export interface GameCardData {
   viewCount?: number
   downloadCount?: number
   downloadLinks?: { label?: string; url: string; tags?: string[] }[]
-  resourceTags?: string[] | { name: string; color: string }[]
+  resourceTags?: string[] | { name: string; color: string; kind?: "language" | "runType" | "resourceContent" }[]
   updatedAt?: Date | string
   createdAt?: Date | string
   isNsfw: boolean
@@ -178,8 +178,8 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
         {/* 第3行：标签 */}
         {paramTags.length > 0 && (
-          <TagGroup className="game-card-tags flex-shrink-0">
-            {paramTags.slice(0, 3).map((tag, i) => (
+          <TagGroup className="game-card-tags flex-shrink-0 flex-wrap">
+            {paramTags.map((tag, i) => (
               <Tag key={`p-${i}`} color={tag.color || undefined}>
                 {tag.name}
               </Tag>

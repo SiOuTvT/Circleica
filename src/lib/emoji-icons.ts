@@ -2,7 +2,7 @@ import {
   Heart, HeartOff, CheckCircle, FileText, Bell, Gamepad2, PartyPopper, Sparkles,
   Search, Link as LinkIcon, Folder, Download, AlertTriangle, Clock,
   HelpCircle, Upload, Lightbulb, Flame, Eye, BookmarkPlus, BookmarkMinus,
-  MessageCircle, Pin, Save, ClipboardList, XCircle, Star, ThumbsUp,
+  MessageCircle, MessageSquare, Pin, Save, ClipboardList, XCircle, Star, ThumbsUp,
   ThumbsDown, Music, Zap, Award, Sun, UserPlus, UserMinus, Compass,
   ServerCrash, WifiOff, Lock, Unlock, Key, Package, BookOpen, Inbox,
   Image, Mail, LogIn, Trophy, Map, User, Cloud,
@@ -17,7 +17,7 @@ type IconComponent = ComponentType<SVGProps<SVGSVGElement>>
 export const EMOJI_OPTIONS = [
   "Heart", "HeartOff", "CheckCircle", "FileText", "Bell", "Gamepad2", "PartyPopper", "Sparkles",
   "Search", "Link", "Folder", "Download", "AlertTriangle", "Clock", "HelpCircle", "Upload",
-  "Lightbulb", "Flame", "Eye", "BookmarkPlus", "BookmarkMinus", "MessageCircle", "Pin", "Save",
+  "Lightbulb", "Flame", "Eye", "BookmarkPlus", "BookmarkMinus", "MessageCircle", "MessageSquare", "Pin", "Save",
   "ClipboardList", "XCircle", "Star", "ThumbsUp", "ThumbsDown", "Music", "Zap", "Award", "Sun",
   "UserPlus", "UserMinus", "Compass", "ServerCrash", "WifiOff", "Lock", "Unlock", "Key", "Package",
   "BookOpen", "Inbox", "Image", "Mail", "LogIn", "Trophy", "Map", "User", "Cloud",
@@ -58,6 +58,7 @@ export function getIconForEmoji(emoji: string): IconComponent | null {
     case "BookmarkPlus": return BookmarkPlus
     case "BookmarkMinus": return BookmarkMinus
     case "MessageCircle": return MessageCircle
+    case "MessageSquare": return MessageSquare
     case "Pin": return Pin
     case "Save": return Save
     case "ClipboardList": return ClipboardList
