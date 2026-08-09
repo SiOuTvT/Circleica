@@ -50,11 +50,13 @@ export function AvatarFrameSelector({
   const loadFrames = useCallback(async () => {
     setLoading(true)
     try {
-      const { ok, data } = await apiFetchSafe<FramesResponse>("/api/user/avatar-frame")
+      // apiFetchSafe 返回后端完整响应体 { success, data: { frames, ownedFrameIds, ... } }，需解 data.data
+      const { ok, data } = await apiFetchSafe<{ data?: FramesResponse }>("/api/user/avatar-frame")
       if (ok) {
-        setFrames(data?.frames || [])
-        setOwnedFrameIds(data?.ownedFrameIds || [])
-        setAvailableMarks(data?.availableMarks ?? 0)
+        const inner = (data as { data?: FramesResponse })?.data
+        setFrames(inner?.frames || [])
+        setOwnedFrameIds(inner?.ownedFrameIds || [])
+        setAvailableMarks(inner?.availableMarks ?? 0)
       }
     } catch (e) {
       logger.upload.error("加载头像框列表失败", e)

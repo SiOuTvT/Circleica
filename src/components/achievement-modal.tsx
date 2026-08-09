@@ -35,8 +35,12 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
   useEffect(() => {
     if (!open || achievements.length > 0) return
     setLoading(true)
-    api.get("/api/achievements")
-      .then((data) => { if (Array.isArray(data)) setAchievements(data as Achievement[]) })
+    // api.get 返回后端完整响应体 { success, data: Achievement[] }，需解 data.data
+    api.get<{ data?: Achievement[] } | Achievement[]>("/api/achievements")
+      .then((data) => {
+        const list = Array.isArray(data) ? data : (data as { data?: Achievement[] })?.data
+        if (Array.isArray(list)) setAchievements(list)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [open, achievements.length])
