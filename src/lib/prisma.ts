@@ -163,7 +163,12 @@ function getEmptyResult(modelName: string, method: string): unknown {
   }
 }
 
-/** 挂载在代理 Promise 上的原始 PrismaPromise，供 $transaction 还原使用 */
+/**
+ * 挂载在代理包装上的原始 PrismaPromise（惰性 getter）。
+ * 关键：不在创建代理包装时立即调用 fn.call()——PrismaPromise 一旦被 .then 消费就会
+ * 脱离 $transaction 的原子性控制（提前独立执行）。因此必须延迟到「真正 await」或
+ * 「进入 $transaction」时才创建并消费。
+ */
 const ORIGINAL_PROMISE = Symbol("prismaOriginalPromise")
 
 function buildModelProxy(realModel: unknown, modelName: string, forceMock = false) {
@@ -172,44 +177,67 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
       const fn = (target as Record<string, unknown>)[methodName as string]
       if (typeof fn !== "function") return fn
       return (...callArgs: unknown[]) => {
-        // 立即发起真实 PrismaPromise（保留其 PrismaPromise 类型与链式能力）
-        const rawPromise = (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs)
-        // 包装：附加离线探测/错误降级，同时把原始 Promise 挂到包装对象上
-        const wrapped = ensureProbe().then((ok) => {
-          if (ok && !isOfflineWindowActive() && !forceMock) {
-            return rawPromise
-              .then((result: unknown) => {
-                // 真实查询成功即视为链路健康（覆盖半开探活成功的场景）
-                markOnline()
-                return result
-              })
-              .catch((err: unknown) => {
-                // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
-                const msg = (err as Error)?.message ?? ""
-                const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
-                if (isConnectionError) {
-                  markOffline(`${modelName}.${String(methodName)}`, msg)
-                } else {
-                  logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+        // 延迟创建的原始 PrismaPromise：避免被提前消费而脱离事务
+        let rawPromise: Promise<unknown> | null = null
+        const ensureRaw = () => {
+          if (!rawPromise) {
+            rawPromise = (fn as (...a: unknown[]) => Promise<unknown>).call(target, ...callArgs)
+          }
+          return rawPromise
+        }
+
+        // thenable 包装：await/Promise.all 走这里（此时才真正消费 rawPromise）
+        const wrapped = {
+          then(resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) {
+            return ensureProbe()
+              .then((ok) => {
+                if (ok && !isOfflineWindowActive() && !forceMock) {
+                  return ensureRaw()
+                    .then((result: unknown) => {
+                      // 真实查询成功即视为链路健康（覆盖半开探活成功的场景）
+                      markOnline()
+                      return result
+                    })
+                    .catch((err: unknown) => {
+                      // 只在连接级错误时标记离线，数据约束冲突等不应触发离线回退
+                      const msg = (err as Error)?.message ?? ""
+                      const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
+                      if (isConnectionError) {
+                        markOffline(`${modelName}.${String(methodName)}`, msg)
+                      } else {
+                        logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+                      }
+                      return getEmptyResult(modelName, String(methodName))
+                    })
                 }
                 return getEmptyResult(modelName, String(methodName))
               })
-          }
-          return getEmptyResult(modelName, String(methodName))
+              .then(resolve, reject)
+          },
+          catch(reject: (e: unknown) => unknown) {
+            return this.then(() => undefined, reject)
+          },
+          finally(callback: () => unknown) {
+            return this.then(
+              (v: unknown) => { callback(); return v },
+              (e: unknown) => { callback(); throw e },
+            )
+          },
+        }
+        // 惰性 getter：$transaction 数组还原时读取（此时才创建，未消费）
+        Object.defineProperty(wrapped, ORIGINAL_PROMISE, {
+          get: () => ensureRaw(),
         })
-        // 挂载原始 Promise：$transaction 数组还原时读取（避免 PrismaPromise 类型校验失败）
-        ;(wrapped as unknown as Record<symbol, unknown>)[ORIGINAL_PROMISE] = rawPromise
-        return wrapped
+        return wrapped as unknown as Promise<unknown>
       }
     },
   })
 }
 
-/** 从代理 Promise 还原原始 PrismaPromise；非代理 Promise 原样返回 */
+/** 从代理包装还原原始 PrismaPromise（触发惰性创建，未消费）；非代理值原样返回 */
 function unwrapPrismaPromise<T>(p: T): T {
-  if (p && typeof p === "object" && typeof (p as { then?: unknown }).then === "function") {
-    const original = (p as unknown as Record<symbol, unknown>)[ORIGINAL_PROMISE] as T | undefined
-    if (original) return original
+  if (p && typeof p === "object" && ORIGINAL_PROMISE in (p as object)) {
+    return (p as unknown as Record<symbol, unknown>)[ORIGINAL_PROMISE] as T
   }
   return p
 }

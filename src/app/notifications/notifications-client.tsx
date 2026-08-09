@@ -131,8 +131,12 @@ export default function NotificationsClient({
   }
 
   async function markAllRead() {
-    const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id)
-    if (unreadIds.length > 0) await markRead(unreadIds)
+    try {
+      // 不传 ids → 后端走全量 markAllRead（未加载的页也一并标记，数据闭环）
+      await api.put("/api/notifications", {})
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+      setUnreadCount(0)
+    } catch { toast.error("全部已读失败，请稍后再试") }
   }
 
   async function deleteNotifications(ids: string[]) {

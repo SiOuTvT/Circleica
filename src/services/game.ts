@@ -149,21 +149,26 @@ export const gameService = {
     if (parsed.language !== undefined) updateData.language = JSON.stringify(parsed.language)
     if (parsed.runType !== undefined) updateData.runType = JSON.stringify(parsed.runType)
     if (parsed.resourceContent !== undefined) updateData.resourceContent = JSON.stringify(parsed.resourceContent)
-    if (parsed.entries) {
-      await prisma.gameResourceEntry.deleteMany({ where: { resourceId } })
-      updateData.entries = {
-        create: parsed.entries.map((e) => ({
-          url: e.url,
-          extractCode: e.extractCode ?? "",
-          decompressCode: e.decompressCode ?? "",
-          fileSize: e.fileSize ?? "",
-        })),
+
+    // entries 替换必须原子化：先删后建若 update 中途失败会导致资源条目丢失。
+    // 使用交互式事务（$transaction 回调内 tx 是真实事务 client，非代理，无 PrismaPromise 还原问题）。
+    const updated = await prisma.$transaction(async (tx) => {
+      if (parsed.entries) {
+        await tx.gameResourceEntry.deleteMany({ where: { resourceId } })
+        updateData.entries = {
+          create: parsed.entries.map((e) => ({
+            url: e.url,
+            extractCode: e.extractCode ?? "",
+            decompressCode: e.decompressCode ?? "",
+            fileSize: e.fileSize ?? "",
+          })),
+        }
       }
-    }
-    const updated = await prisma.gameResource.update({
-      where: { id: resourceId },
-      data: updateData as Prisma.GameResourceUpdateInput,
-      include: { entries: true, user: { select: { id: true, username: true } } },
+      return tx.gameResource.update({
+        where: { id: resourceId },
+        data: updateData as Prisma.GameResourceUpdateInput,
+        include: { entries: true, user: { select: { id: true, username: true } } },
+      })
     })
     // 与 findResources/createResource 保持一致：标签字段反序列化为数组
     const parseArr = (v: unknown): string[] => {
