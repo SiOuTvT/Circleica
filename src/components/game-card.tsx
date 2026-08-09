@@ -139,37 +139,44 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
           </span>
         )}
 
-        {/* hover 浮现的元信息（计数）—— 默认不显示，减少堆叠 */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-3 py-2.5 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          {viewStr && (
-            <span className="flex items-center gap-1 text-xs font-medium">
-              <Eye className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
-              {viewStr}
-            </span>
-          )}
-          {dlStr && (
-            <span className="flex items-center gap-1 text-xs font-medium">
-              <Download className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
-              {dlStr}
-            </span>
-          )}
-          {favStr && (
-            <span className="flex items-center gap-1 text-xs font-medium">
-              <Heart className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
-              {favStr}
-            </span>
-          )}
-        </div>
       </div>
 
-      {/* ─── 内容区：标题 + 资源标签（信息收敛） ─── */}
-      <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
+      {/* ─── 内容区：自然撑开 ─── */}
+      <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
+        {/* 第1行：游戏名称 */}
         <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
           {game.title}
         </h3>
 
+        {/* 弹性间距：保证 title 和 stats 之间至少 10px */}
         <div className="game-card-spacer" />
 
+        {/* 第2行：数据（常驻显示，不依赖 hover） */}
+        <div className="game-card-stats flex flex-shrink-0 items-center gap-3">
+          {viewStr && (
+            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+              <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              {viewStr}
+            </span>
+          )}
+          {dlStr && (
+            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+              <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              {dlStr}
+            </span>
+          )}
+          {favStr && (
+            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+              <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+              {favStr}
+            </span>
+          )}
+        </div>
+
+        {/* 弹性间距：保证 stats 和 tags 之间也至少 10px */}
+        <div className="game-card-spacer" />
+
+        {/* 第3行：标签 */}
         {paramTags.length > 0 && (
           <TagGroup className="game-card-tags flex-shrink-0">
             {paramTags.slice(0, 3).map((tag, i) => (
