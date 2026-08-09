@@ -122,7 +122,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     })
     setAdding(false)
     if (!ok) { setError(error ?? ""); return }
-    setList(p => [data, ...p])
+    // 新建音乐实体在 data.data（apiFetchSafe 返回完整响应体）
+    const created = (data as any)?.data ?? data
+    setList(p => [created, ...p])
     setTitle(""); setUrl(""); setFile(null)
   }
 

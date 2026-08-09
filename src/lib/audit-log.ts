@@ -19,12 +19,22 @@ export async function logAudit({
 }) {
   try {
     // userId 必须真实存在（AuditLog.userId 为必填外键）。
-    // 系统级操作（如后台 tagGroup 更新传 "ADMIN"）无真实用户时跳过，避免外键违反噪音。
+    let effectiveUserId = userId
     const userExists = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
-    if (!userExists) return
+    if (!userExists) {
+      // 历史代码大量使用 "ADMIN"/"SYSTEM" 占位符（非真实用户），直接跳过会导致审计全丢。
+      // 兜底：取一个真实超管作为操作者（无超管则跳过），保证关键操作有审计记录。
+      const fallback = await prisma.user.findFirst({
+        where: { role: "SUPER_ADMIN" },
+        select: { id: true },
+        orderBy: { createdAt: "asc" },
+      })
+      if (!fallback) return
+      effectiveUserId = fallback.id
+    }
     await prisma.auditLog.create({
       data: {
-        userId,
+        userId: effectiveUserId,
         action,
         target: target ?? "",
         detail: detail ?? "",

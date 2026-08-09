@@ -47,13 +47,17 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
     if (selected.size === 0) return
     setDeleting(true)
     try {
-      const data = await api.post<{ ok?: boolean; deleted?: number; error?: string }>("/api/admin/games/batch-delete", { ids: Array.from(selected) })
-      if (data.ok) {
-        toast.success(`成功删除 ${data.deleted} 个游戏`)
+      // api.post 返回后端完整响应体 { success, data: [{count},...] }，成功标准 = data.data 是数组
+      const data = await api.post<{ data?: { count: number }[] } | { count: number }[]>("/api/admin/games/batch-delete", { ids: Array.from(selected) })
+      const arr = (data as { data?: { count: number }[] })?.data
+      if (Array.isArray(arr)) {
+        // 最后一项是 game.deleteMany 的计数
+        const deleted = arr.length > 0 ? arr[arr.length - 1].count : 0
+        toast.success(`成功删除 ${deleted} 个游戏`)
         setSelected(new Set())
         router.refresh()
       } else {
-        toast.error(data.error || "删除失败")
+        toast.error("删除失败")
       }
     } catch {
       toast.error("删除失败，请重试")

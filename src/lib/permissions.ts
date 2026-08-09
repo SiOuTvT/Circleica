@@ -20,6 +20,10 @@ export const SUPER_ADMIN_ROUTES: readonly string[] = [
   "/admin/emotional-messages",
   "/admin/resource-tags",
   "/admin/achievements",
+  // 页面内容（page_about/rules/contact）全站渲染，属 SUPER_ADMIN 专属；admin/layout.tsx 已要求，
+  // 此处补充使 proxy 层也拦截，避免 ADMIN 直接访问编辑 UI
+  "/admin/pages",
+  "/admin/services",
 ]
 
 /** Galvelica 副站管理路由前缀 — 独立权限域，防止主站 ADMIN 误操作副站 */

@@ -256,6 +256,13 @@ export const adminGameService = {
 
   async batchDelete(ids: string[]) {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
+    // 校验所有 id 真实存在：避免部分 id 不存在时 deleteMany 静默跳过、前端误以为全部删除成功
+    const existing = await prisma.game.findMany({ where: { id: { in: ids } }, select: { id: true } })
+    const existingIds = new Set(existing.map((g) => g.id))
+    const missing = ids.filter((id) => !existingIds.has(id))
+    if (missing.length > 0) {
+      throw new ValidationError(`有 ${missing.length} 个游戏不存在，已中止删除`)
+    }
     const result = await adminGameRepo.batchDelete(ids)
     await cache.delByPrefix("circleica:admin:games:")
     await cache.delByPrefix("circleica:homepage:games:grid")

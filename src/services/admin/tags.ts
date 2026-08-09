@@ -111,6 +111,18 @@ export const tagService = {
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const data: Prisma.TagUpdateInput = {}
     if ("name" in raw) data.name = String(raw.name)
+    // 改名后重建 slug（与 create 一致），避免 URL 仍指向旧 slug 的陈旧链接；查重追加 -n
+    if ("name" in raw && String(raw.name).trim() !== existing.name) {
+      const name = String(raw.name).trim()
+      const baseSlug = slugify(name)
+      let slug = baseSlug
+      let n = 2
+      while (await prisma.tag.findUnique({ where: { slug } })) {
+        slug = `${baseSlug}-${n}`
+        n++
+      }
+      data.slug = slug
+    }
     if ("description" in raw) data.description = String(raw.description)
     if ("color" in raw) data.color = String(raw.color)
     if ("sortOrder" in raw) data.sortOrder = Number(raw.sortOrder)

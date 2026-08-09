@@ -50,10 +50,11 @@ export default function AdminAvatarFramesPage() {
   const loadFrames = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await api.get<{ frames: AvatarFrame[] }>(
+      // api.get 返回后端完整响应体 { success, data: { frames } }，需解 data.data
+      const data = await api.get<{ data?: { frames: AvatarFrame[] } }>(
         "/api/admin/avatar-frames",
       )
-      setFrames(data.frames || [])
+      setFrames(data?.data?.frames || [])
     } catch (error) {
       logger.upload.error("加载头像框列表失败", error)
     } finally {

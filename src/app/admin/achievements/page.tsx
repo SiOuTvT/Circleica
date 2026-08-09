@@ -85,6 +85,9 @@ export default function AdminAchievementsPage() {
       toast.success(isEdit ? "已更新" : "已创建")
       setEditing(null)
       load()
+    } catch (e) {
+      // api.put/post 抛 ApiError：显示后端返回的具体原因（如校验失败、权限不足）
+      toast.error(e instanceof Error ? e.message : "保存失败，请重试")
     } finally { setSaving(false) }
   }
 

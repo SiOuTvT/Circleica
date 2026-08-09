@@ -54,8 +54,10 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
         body: { name: name.trim(), description, color, groupId: groupId || null, sortOrder, isVisible },
       })
       if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
-      const groupName = initialGroups.find(g => g.id === data.groupId)?.name ?? null
-      setTags(prev => [...prev, { ...data, gameCount: 0, groupName }].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)))
+      // 新建标签实体在 data.data（apiFetchSafe 返回完整响应体）
+      const created = (data as any)?.data ?? data
+      const groupName = initialGroups.find(g => g.id === created.groupId)?.name ?? null
+      setTags(prev => [...prev, { ...created, gameCount: 0, groupName }].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)))
       setName(""); setDescription(""); setSortOrder(0); setIsVisible(true)
     } catch { setError("网络错误") }
     setSaving(false)
@@ -70,8 +72,10 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
         body: { name: editName.trim(), description: editDescription, color: editColor, groupId: editGroupId || null, sortOrder: editSortOrder, isVisible: editIsVisible },
       })
       if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
-      const groupName = initialGroups.find(g => g.id === data.groupId)?.name ?? null
-      setTags(prev => prev.map(t => t.id === id ? { ...t, name: data.name, description: data.description, color: data.color, groupId: data.groupId, groupName, sortOrder: data.sortOrder, isVisible: data.isVisible } : t))
+      // 更新后的标签实体在 data.data
+      const updated = (data as any)?.data ?? data
+      const groupName = initialGroups.find(g => g.id === updated.groupId)?.name ?? null
+      setTags(prev => prev.map(t => t.id === id ? { ...t, name: updated.name, description: updated.description, color: updated.color, groupId: updated.groupId, groupName, sortOrder: updated.sortOrder, isVisible: updated.isVisible } : t))
       setEditing(null)
     } catch { setError("网络错误") }
     setSaving(false)

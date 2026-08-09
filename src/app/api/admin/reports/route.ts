@@ -19,10 +19,17 @@ export const DELETE = withHandler(async (req) => {
     // 解决：删除该游戏的所有举报
     await prisma.gameReport.deleteMany({ where: { gameId: body.gameId } })
   } else if (body.id) {
-    // 删除单条举报
-    await prisma.gameReport.delete({ where: { id: body.id } }).catch(() => {
-      return prisma.resourceReport.delete({ where: { id: body.id } })
-    })
+    // 删除单条举报：先查再删，避免用 catch 兜底另一张表
+    // （gameReport.delete 因网络等非 P2025 原因失败时，会误删同 id 的 resourceReport）
+    const [gameReport, resourceReport] = await Promise.all([
+      prisma.gameReport.findUnique({ where: { id: body.id }, select: { id: true } }),
+      prisma.resourceReport.findUnique({ where: { id: body.id }, select: { id: true } }),
+    ])
+    if (gameReport) {
+      await prisma.gameReport.delete({ where: { id: body.id } })
+    } else if (resourceReport) {
+      await prisma.resourceReport.delete({ where: { id: body.id } })
+    }
   }
   return noContent()
 })

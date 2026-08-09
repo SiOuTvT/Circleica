@@ -7,6 +7,7 @@ import { musicRepo, playlistRepo } from "@/repositories/admin"
 import { NotFoundError, ValidationError } from "@/lib/errors"
 import type { Prisma } from "@prisma/client"
 import { logAudit } from "@/lib/audit-log"
+import { deleteByUrl } from "@/lib/storage"
 import { logger } from "@/lib/logger"
 
 // ── 音乐 ────────────────────────────
@@ -44,8 +45,13 @@ export const adminMusicService = {
   },
 
   async delete(id: string) {
-    await musicRepo.findById(id).then(m => { if (!m) throw new NotFoundError("音乐") })
+    const music = await musicRepo.findById(id)
+    if (!music) throw new NotFoundError("音乐")
     const result = await musicRepo.delete(id)
+    // 清理本站上传的音频文件（外部直链不会命中 /uploads/ 或 R2 前缀，不会误删）
+    if (music.filename || music.url) {
+      await deleteByUrl(music.filename || music.url).catch((e) => logger.system.error("[Media] 删除音频文件失败", e))
+    }
     await logAudit({ userId: "ADMIN", action: "music.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

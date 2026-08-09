@@ -152,7 +152,9 @@ export function TagGroupDetailClient({
         },
       })
       if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
-      setTags((prev) => [...prev, { ...data, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)))
+      // apiFetchSafe 的 data 是完整响应体，新建的标签实体在 data.data
+      const created = (data as any)?.data ?? data
+      setTags((prev) => [...prev, { ...created, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)))
       setNewTagName("")
       setShowCreate(false)
       toast.success("标签创建成功")
@@ -187,14 +189,16 @@ export function TagGroupDetailClient({
         },
       })
       if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
-      if (data.groupId && data.groupId !== group.id) {
+      // 更新后的标签实体在 data.data
+      const updated = (data as any)?.data ?? data
+      if (updated.groupId && updated.groupId !== group.id) {
         setTags((prev) => prev.filter((t) => t.id !== editingTag))
         toast.success("已移动到其他标签组")
       } else {
         setTags((prev) =>
           prev.map((t) =>
             t.id === editingTag
-              ? { ...t, name: data.name, color: data.color, description: data.description, groupId: data.groupId, sortOrder: data.sortOrder, isVisible: data.isVisible }
+              ? { ...t, name: updated.name, color: updated.color, description: updated.description, groupId: updated.groupId, sortOrder: updated.sortOrder, isVisible: updated.isVisible }
               : t
           )
         )

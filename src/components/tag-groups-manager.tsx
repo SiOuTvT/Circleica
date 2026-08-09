@@ -147,10 +147,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         setSaving(false)
         return
       }
+      // 更新后的标签组实体在 data.data
+      const updated = (data as any)?.data ?? data
       setGroups((prev) =>
         prev.map((g) =>
           g.id === id
-            ? { ...g, name: data.name, description: data.description, color: data.color, positions: data.positions }
+            ? { ...g, name: updated.name, description: updated.description, color: updated.color, positions: updated.positions }
             : g
         )
       )
@@ -215,10 +217,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         setSaving(false)
         return
       }
+      // 新建标签实体在 data.data（apiFetchSafe 返回完整响应体）
+      const created = (data as any)?.data ?? data
       setGroups((prev) =>
         prev.map((g) =>
           g.id === groupId
-            ? { ...g, tags: [...g.tags, { ...data, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)) }
+            ? { ...g, tags: [...g.tags, { ...created, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)) }
             : g
         )
       )
@@ -245,13 +249,15 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         setSaving(false)
         return
       }
+      // 更新后的标签实体在 result.data（apiFetchSafe 返回完整响应体）
+      const updated = (result as any)?.data ?? result
       // 更新标签，如果换了组就移动
       setGroups((prev) => {
         const newGroups = prev.map((g) => ({
           ...g,
           tags: g.tags.filter((t) => t.id !== tagId),
         }))
-        const targetGroupId = result.groupId
+        const targetGroupId = updated.groupId
         return newGroups.map((g) =>
           g.id === targetGroupId
             ? {
@@ -259,14 +265,14 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 tags: [
                   ...g.tags,
                   {
-                    id: result.id,
-                    name: result.name,
-                    color: result.color,
-                    gameCount: result.gameCount ?? 0,
-                    description: result.description,
-                    groupId: result.groupId,
-                    sortOrder: result.sortOrder,
-                    isVisible: result.isVisible,
+                    id: updated.id,
+                    name: updated.name,
+                    color: updated.color,
+                    gameCount: updated.gameCount ?? 0,
+                    description: updated.description,
+                    groupId: updated.groupId,
+                    sortOrder: updated.sortOrder,
+                    isVisible: updated.isVisible,
                   },
                 ].sort((a, b) => a.name.localeCompare(b.name)),
               }
@@ -295,26 +301,28 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         setSaving(false)
         return
       }
+      // 更新后的标签实体在 result.data（apiFetchSafe 返回完整响应体）
+      const updated = (result as any)?.data ?? result
       // 从未分组列表中移除
       setUngroupedTags((prev) => prev.filter((t) => t.id !== tagId))
       // 如果分配了组，添加到对应组
-      if (result.groupId) {
+      if (updated.groupId) {
         setGroups((prev) =>
           prev.map((g) =>
-            g.id === result.groupId
+            g.id === updated.groupId
               ? {
                   ...g,
                   tags: [
                     ...g.tags,
                     {
-                      id: result.id,
-                      name: result.name,
-                      color: result.color,
-                      gameCount: result.gameCount ?? 0,
-                      description: result.description,
-                      groupId: result.groupId,
-                      sortOrder: result.sortOrder,
-                      isVisible: result.isVisible,
+                      id: updated.id,
+                      name: updated.name,
+                      color: updated.color,
+                      gameCount: updated.gameCount ?? 0,
+                      description: updated.description,
+                      groupId: updated.groupId,
+                      sortOrder: updated.sortOrder,
+                      isVisible: updated.isVisible,
                     },
                   ].sort((a, b) => a.name.localeCompare(b.name)),
                 }
@@ -327,14 +335,14 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           [
             ...prev,
             {
-              id: result.id,
-              name: result.name,
-              color: result.color,
-              gameCount: result.gameCount ?? 0,
-              description: result.description,
-              groupId: result.groupId,
-              sortOrder: result.sortOrder,
-              isVisible: result.isVisible,
+              id: updated.id,
+              name: updated.name,
+              color: updated.color,
+              gameCount: updated.gameCount ?? 0,
+              description: updated.description,
+              groupId: updated.groupId,
+              sortOrder: updated.sortOrder,
+              isVisible: updated.isVisible,
             },
           ].sort((a, b) => a.name.localeCompare(b.name))
         )
