@@ -20,22 +20,13 @@ export const GAME_CARD_SELECT = {
 } satisfies Prisma.GameSelect
 
 const CARD_TAG_COLOR = "#6b7280"
-/**
- * 资源标签按来源字段分色（语言=蓝、运行方式=橙、资源内容=绿），
- * 让用户一眼区分卡片上的标签类型。颜色取自站点主题语义令牌，未配置时回退默认。
- */
-const RESOURCE_TAG_COLOR: Record<"language" | "runType" | "resourceContent", string> = {
-  language: "#3b82f6",        // 蓝
-  runType: "#f59e0b",         // 橙
-  resourceContent: "#10b981", // 绿
-}
 
 /**
  * 将 Prisma Game（含 tags/resources）映射为 GameCard 所需的 GameCardData。
  * 资源标签来自 resources 的 language / runType / resourceContent 去重合并。
  *
- * opts.resourceTagColor：未提供时按 kind 分色（语言蓝、运行方式橙、资源内容绿），
- * 以让卡片上视觉区分资源标签的来源类别。
+ * opts.resourceTagColor：资源标签统一颜色（默认 CARD_TAG_COLOR 灰；卡片实际以
+ * .game-card-tag 的 CSS 主题色渲染，此字段仅作兼容）。
  * opts.coverFallback：封面为空时的回退图（如站点占位图），默认空串。
  */
 export function mapGameToCard(
@@ -71,21 +62,17 @@ export function mapGameToCard(
       return []
     }
   }
-  // 按字段去重收集标签，每个标签带 kind（来源类别）和 color，便于卡片分组着色展示。
+  // 按字段去重收集资源标签（语言 / 运行方式 / 资源内容）。
+  // color 仅作兼容字段：卡片实际用 CSS 主题色渲染（.game-card-tag）。
   const seen = new Set<string>()
-  const resourceTags: { name: string; color: string; kind: "language" | "runType" | "resourceContent" }[] = []
-  const kindOrder: Array<["language" | "runType" | "resourceContent", "language" | "runType" | "resourceContent"]> = [
-    ["language", "language"],
-    ["runType", "runType"],
-    ["resourceContent", "resourceContent"],
-  ]
+  const resourceTags: { name: string; color: string }[] = []
   for (const r of g.resources ?? []) {
-    for (const [key, kind] of kindOrder) {
+    for (const key of ["language", "runType", "resourceContent"] as const) {
       try {
         for (const name of parseTags(r[key])) {
           if (!seen.has(name)) {
             seen.add(name)
-            resourceTags.push({ name, kind, color: RESOURCE_TAG_COLOR[kind] })
+            resourceTags.push({ name, color: resourceTagColor })
           }
         }
       } catch {

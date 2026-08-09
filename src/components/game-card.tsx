@@ -3,7 +3,6 @@
 import { Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { Tag, TagGroup } from "@/components/ui/tag"
 import { memo, useCallback, useState, useRef, useEffect } from "react"
 import { logger } from "@/lib/logger"
 import { pushRecentlyViewed } from "@/lib/recently-viewed"
@@ -18,7 +17,7 @@ export interface GameCardData {
   viewCount?: number
   downloadCount?: number
   downloadLinks?: { label?: string; url: string; tags?: string[] }[]
-  resourceTags?: string[] | { name: string; color: string; kind?: "language" | "runType" | "resourceContent" }[]
+  resourceTags?: string[] | { name: string; color: string }[]
   updatedAt?: Date | string
   createdAt?: Date | string
   isNsfw: boolean
@@ -65,8 +64,9 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
+  // 兼容两种 resourceTags 结构：纯字符串数组（历史）或 { name, color } 数组（map 输出）
   const rawTags = game.resourceTags ?? []
-  const paramTags = rawTags.map((t) => (typeof t === "string" ? { name: t, color: "" } : t))
+  const paramTags: string[] = rawTags.map((t) => (typeof t === "string" ? t : t.name))
   const statusBadge = useStatusBadge(game.status)
 
   const sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
@@ -178,13 +178,16 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
 
         {/* 第3行：标签 */}
         {paramTags.length > 0 && (
-          <TagGroup className="game-card-tags flex-shrink-0 flex-wrap">
+          <div className="game-card-tags flex flex-wrap items-center gap-2 flex-shrink-0">
             {paramTags.map((tag, i) => (
-              <Tag key={`p-${i}`} color={tag.color || undefined}>
-                {tag.name}
-              </Tag>
+              <span
+                key={`p-${i}`}
+                className="game-card-tag inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
+              >
+                {tag}
+              </span>
             ))}
-          </TagGroup>
+          </div>
         )}
       </div>
     </Link>
@@ -255,7 +258,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
   const rawTags = game.resourceTags ?? []
-  const paramTags = rawTags.map((t) => (typeof t === "string" ? { name: t, color: "" } : t))
+  const paramTags: string[] = rawTags.map((t) => (typeof t === "string" ? t : t.name))
   const statusBadge = useStatusBadge(game.status)
 
   return (
@@ -350,10 +353,13 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
         </div>
         {paramTags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {paramTags.slice(0, 4).map((tag, i) => (
-              <Tag key={`pl-${i}`} color={tag.color || undefined}>
-                {tag.name}
-              </Tag>
+            {paramTags.map((tag, i) => (
+              <span
+                key={`pl-${i}`}
+                className="game-card-tag inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+              >
+                {tag}
+              </span>
             ))}
           </div>
         )}
