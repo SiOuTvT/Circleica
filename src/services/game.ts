@@ -160,10 +160,24 @@ export const gameService = {
         })),
       }
     }
-    return prisma.gameResource.update({
+    const updated = await prisma.gameResource.update({
       where: { id: resourceId },
       data: updateData as Prisma.GameResourceUpdateInput,
       include: { entries: true, user: { select: { id: true, username: true } } },
     })
+    // 与 findResources/createResource 保持一致：标签字段反序列化为数组
+    const parseArr = (v: unknown): string[] => {
+      if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string")
+      if (typeof v !== "string" || v.trim() === "") return []
+      try { const p: unknown = JSON.parse(v); return Array.isArray(p) ? p.filter((x): x is string => typeof x === "string") : [] }
+      catch { return [] }
+    }
+    return {
+      ...updated,
+      platform: parseArr(updated.platform),
+      language: parseArr(updated.language),
+      runType: parseArr(updated.runType),
+      resourceContent: parseArr(updated.resourceContent),
+    }
   },
 }

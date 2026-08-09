@@ -345,12 +345,14 @@ export function ResourceTab({
   const fetchResources = useCallback(async () => {
     try {
       setLoadError(null)
-      const { ok, data } = await apiFetchSafe<{ data?: { resources?: any[] }; resources?: any[] }>(`/api/games/${gameId}/resources`)
+      const { ok, data } = await apiFetchSafe<{ data?: { resources?: any[] } } | { resources?: any[] } | any[]>(`/api/games/${gameId}/resources`)
       if (!ok) {
         throw new Error("加载失败")
       }
-      const d = data?.data ?? data
-      setResources(d?.resources ?? [])
+      // GET /api/games/[id]/resources 返回 { success, data: 资源数组 }，
+      // apiFetchSafe 的 data 是完整响应体，data.data 才是数组本身。
+      const d = (data as any)?.data ?? data
+      setResources(Array.isArray(d) ? d : (d?.resources ?? []))
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "加载资源失败")
     } finally {

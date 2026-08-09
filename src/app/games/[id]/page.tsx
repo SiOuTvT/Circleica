@@ -2,7 +2,6 @@ import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import GameDetailClient from "@/components/game-detail-client"
 import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { GameGallery } from "@/components/game-gallery"
-import { RelatedGames } from "@/components/related-games"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { FeedbackBtn } from "@/components/feedback-btn"
@@ -12,7 +11,6 @@ import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { formatZhDate } from "@/lib/date"
 import { prisma } from "@/lib/prisma"
-import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { timeAgoPublished } from "@/lib/time-ago"
@@ -156,45 +154,17 @@ export default async function GameDetailPage({
       : Promise.resolve(false),
   ])
 
-  // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）
+  // 从所有资源中收集去重的 resourceTags（语言、运行方式、资源内容）。
+  // 兼容数组与 JSON 字符串（历史存 JSON.stringify 的字段），避免标签丢失。
+  const parseTagsArr = (field: unknown): string[] => safeParse<string[]>(field, [])
   const resourceTags: string[] = [...new Set(
-    game.resources.flatMap((r) => {
-      const items: string[] = []
-      const lang = Array.isArray(r.language) ? r.language as string[] : []
-      const run = Array.isArray(r.runType) ? r.runType as string[] : []
-      const content = Array.isArray(r.resourceContent) ? r.resourceContent as string[] : []
-      items.push(...lang, ...run, ...content)
-      return items
-    })
+    game.resources.flatMap((r) => [
+      ...parseTagsArr(r.language),
+      ...parseTagsArr(r.runType),
+      ...parseTagsArr(r.resourceContent),
+    ])
   )]
 
-  // 相关游戏推荐：按共同标签匹配 - 使用缓存
-  // ⚠️ NSFW 模式进 key 并按模式过滤：SFW 用户不看到露骨封面进相关推荐；否则共享缓存跨用户泄漏
-  const nsfwMode = await getMainNsfwMode()
-  const relatedCacheKey = cacheKey("related", resolved.id, nsfwMode, tagNames.sort().join(","))
-  let relatedGames: { id: string; serialId: number; title: string; coverImage: string; originalWork: string }[]
-
-  if (tagNames.length === 0) {
-    relatedGames = []
-  } else {
-    const cachedRelated = await cache.get<typeof relatedGames>(relatedCacheKey)
-    if (cachedRelated) {
-      relatedGames = cachedRelated
-    } else {
-      relatedGames = await prisma.game.findMany({
-        where: {
-          id: { not: resolved.id },
-          isPublished: true,
-          ...(nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}),
-          tags: { some: { tag: { name: { in: tagNames } } } },
-        },
-        select: { id: true, serialId: true, title: true, coverImage: true, originalWork: true },
-        orderBy: { favoriteCount: "desc" },
-        take: 8,
-      })
-      await cache.set(relatedCacheKey, relatedGames, 1800) // 缓存 30 分钟
-    }
-  }
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
   const platforms = safeParse<string[]>(game.platforms, [])
@@ -327,25 +297,6 @@ export default async function GameDetailPage({
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
                 </div>
-                {game.galvelicaWork?.slug ? (
-                  <Link
-                    href={`/galvelica/works/${game.galvelicaWork.slug}`}
-                    className="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
-                    title="在 Galvelica 资料库查看本作完整资料"
-                  >
-                    <Library className="h-3.5 w-3.5" />
-                    副站资料
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/galvelica/works?search=${encodeURIComponent(game.title)}`}
-                    className="ml-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
-                    title="本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
-                  >
-                    <Library className="h-3.5 w-3.5" />
-                    副站查资料
-                  </Link>
-                )}
                 <div className="ml-auto shrink-0">
                   <GameDetailTopClient
                     gameId={resolved.id}
@@ -373,6 +324,25 @@ export default async function GameDetailPage({
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
                 <FeedbackBtn gameId={resolved.id} isLoggedIn={!!session} />
+                {game.galvelicaWork?.slug ? (
+                  <Link
+                    href={`/galvelica/works/${game.galvelicaWork.slug}`}
+                    className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                    title="在 Galvelica 资料库查看本作完整资料"
+                  >
+                    <Library className="h-3.5 w-3.5" />
+                    副站资料
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/galvelica/works?search=${encodeURIComponent(game.title)}`}
+                    className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                    title="本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
+                  >
+                    <Library className="h-3.5 w-3.5" />
+                    副站查资料
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -424,7 +394,6 @@ export default async function GameDetailPage({
           />
       </div>
 
-      <RelatedGames games={relatedGames} />
     </div>
   )
 }

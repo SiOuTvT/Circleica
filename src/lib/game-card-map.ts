@@ -49,13 +49,24 @@ export function mapGameToCard(
 ): GameCardData {
   const resourceTagColor = opts?.resourceTagColor ?? CARD_TAG_COLOR
   const downloadLinks = Array.isArray(g.downloadLinks) ? g.downloadLinks : []
+  // 解析资源标签字段：兼容「数组」与「JSON 字符串」（历史存 JSON.stringify 的字段）。
+  // 注意：此链路不走 repository 层反序列化（GAME_CARD_SELECT 直接查 Prisma），必须在此自行解析。
+  const parseTags = (field: unknown): string[] => {
+    if (Array.isArray(field)) return field.filter((x): x is string => typeof x === "string")
+    if (typeof field !== "string" || field.trim() === "") return []
+    try {
+      const parsed: unknown = JSON.parse(field)
+      return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : []
+    } catch {
+      return []
+    }
+  }
   const seen = new Set<string>()
   const resourceTags: { name: string; color: string }[] = []
   for (const r of g.resources ?? []) {
     for (const field of [r.language, r.runType, r.resourceContent]) {
       try {
-        const arr: string[] = Array.isArray(field) ? (field as string[]) : []
-        for (const name of arr) {
+        for (const name of parseTags(field)) {
           if (!seen.has(name)) {
             seen.add(name)
             resourceTags.push({ name, color: resourceTagColor })

@@ -160,8 +160,11 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
       )}
 
       {vndbId && (() => {
+        // 只接受标准 VNDB ID（v12345 或 12345）；非数字格式（如测试数据的 seed-xxx）不渲染，
+        // 避免出现无意义的字母串。
         const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
         const numericId = rawId.replace(/^v/, "")
+        if (!/^\d+$/.test(numericId)) return null
         return (
           <Row icon={<ExternalLink className="h-4 w-4" strokeWidth={2} />} label="VNDB">
             <Link href={`https://vndb.org/v${numericId}`}>v{numericId}</Link>

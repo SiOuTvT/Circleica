@@ -14,6 +14,31 @@ interface RandomGameRow {
   viewCount: number
 }
 
+/**
+ * 资源记录的标签字段以 JSON 字符串存储（历史实现），读取时统一反序列化为数组，
+ * 保证前端始终拿到 string[]（否则展开字符串会变成单字符乱码）。
+ */
+function parseJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value
+  if (typeof value !== "string" || value.trim() === "") return []
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : []
+  } catch {
+    return []
+  }
+}
+
+function deserializeResourceFields<T extends { platform: unknown; language: unknown; runType: unknown; resourceContent: unknown }>(row: T): T {
+  return {
+    ...row,
+    platform: parseJsonArray(row.platform),
+    language: parseJsonArray(row.language),
+    runType: parseJsonArray(row.runType),
+    resourceContent: parseJsonArray(row.resourceContent),
+  }
+}
+
 export const gameRepo = {
   findPaginated(page: number, limit: number, filters?: {
     q?: string; sort?: string; tag?: string; isNsfw?: boolean
@@ -195,19 +220,21 @@ export const gameRepo = {
   // ── 资源 ────────────────────────────
 
   findResources(gameId: string) {
-    return prisma.gameResource.findMany({
-      where: { gameId },
-      include: { entries: { take: 20 }, user: { select: { id: true, username: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    })
+    return prisma.gameResource
+      .findMany({
+        where: { gameId },
+        include: { entries: { take: 20 }, user: { select: { id: true, username: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      })
+      .then((rows) => rows.map(deserializeResourceFields))
   },
 
   createResource(data: Prisma.GameResourceCreateInput | Prisma.GameResourceUncheckedCreateInput) {
     return prisma.gameResource.create({
       data,
-      include: { entries: true },
-    })
+      include: { entries: true, user: { select: { id: true, username: true } } },
+    }).then(deserializeResourceFields)
   },
 
   deleteResource(resourceId: string) {
