@@ -38,7 +38,7 @@ HTTP 请求
 
 ## 数据模型（Prisma）
 
-核心实体（共 47 个 model / 9 个 enum）：`User`、`Account`、`Session`、`Game`、`Tag`/`TagGroup`/`GameTag`、`Comment`、`GameResource`/`GameResourceEntry`、`Favorite`、`Collection`、`PlayStatus`、`GameRating`、`Creator`/`GameCreator`、`Studio`/`GameStudio`、`Music`/`Playlist`、`ForumPost`/`ForumComment`/`*Like`、`Notification`、`Announcement`、`EmotionalMessage`、`CheckIn`、`AuditLog`、`Achievement`/`UserAchievement`、`AvatarFrame`、`SiteSetting`、`CuratedCollection`/`CuratedCollectionGame`、`*Report`、`PasswordResetToken`/`EmailVerificationToken`，以及 Galvelica 副站：`Work`/`WorkSource`/`InclusionRequest`/`WorkTag`/`WorkCreator`。
+核心实体（共 47 个 model / 9 个 enum）：`User`、`Account`、`Session`、`Game`、`Tag`/`TagGroup`/`GameTag`、`Comment`、`GameResource`/`GameResourceEntry`（含 `downloadCount` 下载计数）/`ResourceDownloadLog`（下载历史）、`Favorite`、`Collection`、`PlayStatus`、`GameRating`、`Creator`/`GameCreator`、`Studio`/`GameStudio`、`Music`/`Playlist`、`ForumPost`/`ForumComment`/`*Like`、`Notification`、`Announcement`、`EmotionalMessage`、`CheckIn`、`AuditLog`、`Achievement`/`UserAchievement`、`AvatarFrame`、`SiteSetting`、`CuratedCollection`/`CuratedCollectionGame`、`*Report`、`PasswordResetToken`/`EmailVerificationToken`，以及 Galvelica 副站：`Work`/`WorkSource`/`InclusionRequest`/`WorkTag`/`WorkCreator`。
 
 > 完整字段与关系以 `prisma/schema.prisma` 为准。修改数据模型必须走 Prisma Migration，并提交迁移文件。
 

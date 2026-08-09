@@ -50,6 +50,7 @@
 |---|---|---|
 | 认证 | `/api/auth/*` | register / login(NextAuth) / forgot-password / reset-password / verify-email / change-email |
 | 游戏资料 | `/api/games/*` | 列表/详情、收藏、评分、播放状态、评论、举报、资源（图/音频）、浏览量 |
+| 资源下载 / 历史 | `/api/games/[id]/resources/[resourceId]/entries/[entryId]/download`（POST）、`/api/user/downloads`（GET） | 记录分流下载次数（内存级 60s 防刷）；登录用户写入「我的下载」历史 |
 | 论坛 | `/api/forum/posts/*` `/api/forum/comments/*` | 帖子 CRUD、评论、点赞、解决态 |
 | 用户 / 资料 | `/api/user/*` `/api/profile/*` | 个人资料、头像框、统计、他人资料页 |
 | 创作者 | `/api/creators/*` | 创作者主页、随机、保存、VNDB 关联 |

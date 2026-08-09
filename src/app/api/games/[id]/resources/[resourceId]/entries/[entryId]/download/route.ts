@@ -53,17 +53,28 @@ export const POST = withHandler(async (req, ctx) => {
     }
   }
 
-  const updated = await prisma.gameResourceEntry.update({
-    where: { id: entryId },
-    data: { downloadCount: { increment: 1 } },
-    select: { downloadCount: true },
+  // 分流级与游戏级计数联动，放在同一事务里保证一致（游戏级计数用于首页卡片 / 详情页头部 / 搜索页展示）
+  const updated = await prisma.$transaction(async (tx) => {
+    const e = await tx.gameResourceEntry.update({
+      where: { id: entryId },
+      data: { downloadCount: { increment: 1 } },
+      select: { downloadCount: true },
+    })
+    await tx.game.update({
+      where: { id: gameId },
+      data: { downloadCount: { increment: 1 } },
+    })
+    return e
   })
 
   // 登录用户写入"我的下载"历史（记录资源与游戏，供个人主页展示）
   if (userId) {
     await prisma.resourceDownloadLog.create({
       data: { userId, resourceId, gameId },
-    }).catch(() => { /* 历史记录失败不影响计数 */ })
+    }).catch((e) => {
+      // 历史记录失败不影响计数，但记录以便排查
+      console.error("[download] 写入下载历史失败", e)
+    })
   }
 
   return json({ downloadCount: updated.downloadCount })
