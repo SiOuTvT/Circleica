@@ -64,9 +64,13 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
-  // 兼容两种 resourceTags 结构：纯字符串数组（历史）或 { name, color } 数组（map 输出）
-  const rawTags = game.resourceTags ?? []
-  const paramTags: string[] = rawTags.map((t) => (typeof t === "string" ? t : t.name))
+  // 分类标签（连后台标签管理颜色）：全部显示 + 按名称去重
+  const seenTag = new Set<string>()
+  const paramTags = (game.tags ?? []).filter((t) => {
+    if (!t.name || seenTag.has(t.name)) return false
+    seenTag.add(t.name)
+    return true
+  })
   const statusBadge = useStatusBadge(game.status)
 
   const sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
@@ -148,11 +152,37 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
           {game.title}
         </h3>
 
-        {/* 弹性间距：保证 title 和 stats 之间至少 10px */}
+        {/* 弹性间距：标题与标签之间 */}
         <div className="game-card-spacer" />
 
-        {/* 第2行：数据（常驻显示，不依赖 hover） */}
-        <div className="game-card-stats flex flex-shrink-0 items-center gap-3">
+        {/* 第2行：标签（全部 + 去重，颜色连后台标签管理） */}
+        {paramTags.length > 0 && (
+          <div className="game-card-tags flex flex-shrink-0 flex-wrap items-center gap-2">
+            {paramTags.map((tag, i) => (
+              <span
+                key={`p-${i}`}
+                className="game-card-tag inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
+                style={
+                  tag.color
+                    ? {
+                        backgroundColor: `${tag.color}1f`,
+                        color: tag.color,
+                        borderColor: `${tag.color}40`,
+                      }
+                    : undefined
+                }
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* 弹性间距：标签与统计之间 */}
+        <div className="game-card-spacer" />
+
+        {/* 第3行：数据（常驻显示，统计在最底部） */}
+        <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
               <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
@@ -172,23 +202,6 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
             </span>
           )}
         </div>
-
-        {/* 弹性间距：保证 stats 和 tags 之间也至少 10px */}
-        <div className="game-card-spacer" />
-
-        {/* 第3行：标签 */}
-        {paramTags.length > 0 && (
-          <div className="game-card-tags flex flex-wrap items-center gap-2 flex-shrink-0">
-            {paramTags.map((tag, i) => (
-              <span
-                key={`p-${i}`}
-                className="game-card-tag inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </Link>
   )
@@ -257,8 +270,13 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
-  const rawTags = game.resourceTags ?? []
-  const paramTags: string[] = rawTags.map((t) => (typeof t === "string" ? t : t.name))
+  // 分类标签（连后台标签管理颜色）：全部显示 + 按名称去重
+  const seenTag = new Set<string>()
+  const paramTags = (game.tags ?? []).filter((t) => {
+    if (!t.name || seenTag.has(t.name)) return false
+    seenTag.add(t.name)
+    return true
+  })
   const statusBadge = useStatusBadge(game.status)
 
   return (
@@ -357,8 +375,17 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
               <span
                 key={`pl-${i}`}
                 className="game-card-tag inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                style={
+                  tag.color
+                    ? {
+                        backgroundColor: `${tag.color}1f`,
+                        color: tag.color,
+                        borderColor: `${tag.color}40`,
+                      }
+                    : undefined
+                }
               >
-                {tag}
+                {tag.name}
               </span>
             ))}
           </div>
