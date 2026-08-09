@@ -18,8 +18,8 @@ export function StartConversationButton({ targetUserId, username }: { targetUser
     if (loading) return
     setLoading(true)
     try {
-      // apiFetchSafe 返回完整响应体 { success, data }，此处解包 data.data
-      const { ok, data } = await apiFetchSafe<{
+      // apiFetchSafe 成功时 data 为完整响应体 { success, data }；失败时 error 为真实错误文案（平级字段）
+      const { ok, data, error } = await apiFetchSafe<{
         success?: boolean
         data?: { conversation?: { id: string }, cost?: number }
         error?: string
@@ -30,8 +30,10 @@ export function StartConversationButton({ targetUserId, username }: { targetUser
           toast.success(`已消耗 ${inner.cost} 印记发起会话`)
         }
         router.push("/messages")
+      } else if (error) {
+        // 印记不足 / 限流 / 未登录等真实错误：显示后端返回的具体原因
+        toast.error(error)
       } else if (data?.error) {
-        // 印记不足等业务错误：走 toast 提示，不跳转
         toast.error(data.error)
       } else {
         toast.error("发起失败，请稍后再试")
