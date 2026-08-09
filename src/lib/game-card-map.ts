@@ -16,7 +16,7 @@ export const GAME_CARD_SELECT = {
   updatedAt: true,
   createdAt: true,
   tags: { select: { tag: { select: { name: true, color: true } } } },
-  resources: { select: { language: true, runType: true, resourceContent: true } },
+  resources: { select: { platform: true, language: true, runType: true, resourceContent: true } },
 } satisfies Prisma.GameSelect
 
 const CARD_TAG_COLOR = "#6b7280"
@@ -44,7 +44,7 @@ export function mapGameToCard(
     updatedAt?: Date | string
     createdAt?: Date | string
     tags?: { tag: { name: string; color: string } }[]
-    resources?: { language: unknown; runType: unknown; resourceContent: unknown }[]
+    resources?: { platform: unknown; language: unknown; runType: unknown; resourceContent: unknown }[]
   },
   opts?: { resourceTagColor?: string; coverFallback?: string },
 ): GameCardData {
@@ -62,12 +62,12 @@ export function mapGameToCard(
       return []
     }
   }
-  // 按字段去重收集资源标签（语言 / 运行方式 / 资源内容）。
-  // color 仅作兼容字段：卡片实际用 CSS 主题色渲染（.game-card-tag）。
+  // 收集资源标签 = 平台 / 语言 / 运行方式 / 资源内容（首页卡片标签组内容，含平台）。
+  // 全部按名称去重，颜色统一用 resourceTagColor（各页面传对应标签组色）。
   const seen = new Set<string>()
   const resourceTags: { name: string; color: string }[] = []
   for (const r of g.resources ?? []) {
-    for (const key of ["language", "runType", "resourceContent"] as const) {
+    for (const key of ["platform", "language", "runType", "resourceContent"] as const) {
       try {
         for (const name of parseTags(r[key])) {
           if (!seen.has(name)) {
