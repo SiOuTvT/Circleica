@@ -94,12 +94,22 @@ import { adminUserRepo } from "@/repositories/admin"
 import { prisma } from "@/lib/prisma"
 import { ValidationError, NotFoundError, ForbiddenError } from "@/lib/errors"
 
+// prisma 在测试里被替换为 mock，但静态类型仍是真实 PrismaClient；
+// 这里断言成测试所需的 mock 形态，便于类型安全地访问 tx* 桩方法。
+const mockPrisma = prisma as unknown as {
+  $transaction: jest.Mock
+  txUserCount: jest.Mock
+  txUserUpdate: jest.Mock
+  txUserDelete: jest.Mock
+  txGameUpdateMany: jest.Mock
+}
+
 const mockAdminUserRepo = jest.mocked(adminUserRepo)
 
 beforeEach(() => {
   jest.clearAllMocks()
   // 默认超管数量 >= 2（不会触发「最后一名」守卫）
-  prisma.txUserCount.mockResolvedValue(2)
+  mockPrisma.txUserCount.mockResolvedValue(2)
 })
 
 // ── updateRole 权限矩阵 ─────────────────────────────────────────
@@ -137,16 +147,16 @@ describe("adminUserService.updateRole", () => {
 
   it("prevents demoting the last SUPER_ADMIN", async () => {
     mockAdminUserRepo.findBasic.mockResolvedValue({ id: "u1", role: "SUPER_ADMIN" } as never)
-    prisma.txUserCount.mockResolvedValue(1)
+    mockPrisma.txUserCount.mockResolvedValue(1)
     await expect(adminUserService.updateRole("u1", "ADMIN", "SUPER_ADMIN"))
       .rejects.toThrow("至少需保留一名超级管理员")
-    expect(prisma.txUserUpdate).not.toHaveBeenCalled()
+    expect(mockPrisma.txUserUpdate).not.toHaveBeenCalled()
   })
 
   it("allows demoting a SUPER_ADMIN when others remain", async () => {
     mockAdminUserRepo.findBasic.mockResolvedValue({ id: "u1", role: "SUPER_ADMIN" } as never)
     await adminUserService.updateRole("u1", "ADMIN", "SUPER_ADMIN")
-    expect(prisma.txUserUpdate).toHaveBeenCalledWith({ where: { id: "u1" }, data: { role: "ADMIN" } })
+    expect(mockPrisma.txUserUpdate).toHaveBeenCalledWith({ where: { id: "u1" }, data: { role: "ADMIN" } })
   })
 
   it("allows ADMIN to promote USER to ADMIN", async () => {
@@ -190,16 +200,16 @@ describe("adminUserService.delete", () => {
 
   it("prevents deleting the last SUPER_ADMIN", async () => {
     mockAdminUserRepo.findBasic.mockResolvedValue({ id: "u1", role: "SUPER_ADMIN" } as never)
-    prisma.txUserCount.mockResolvedValue(1)
+    mockPrisma.txUserCount.mockResolvedValue(1)
     await expect(adminUserService.delete("u1", "SUPER_ADMIN", "other"))
       .rejects.toThrow("至少需保留一名超级管理员")
-    expect(prisma.txUserDelete).not.toHaveBeenCalled()
+    expect(mockPrisma.txUserDelete).not.toHaveBeenCalled()
   })
 
   it("allows SUPER_ADMIN to delete another SUPER_ADMIN when others remain", async () => {
     mockAdminUserRepo.findBasic.mockResolvedValue({ id: "u1", role: "SUPER_ADMIN" } as never)
     await adminUserService.delete("u1", "SUPER_ADMIN", "other")
-    expect(prisma.txUserDelete).toHaveBeenCalledWith({ where: { id: "u1" } })
+    expect(mockPrisma.txUserDelete).toHaveBeenCalledWith({ where: { id: "u1" } })
   })
 
   it("allows ADMIN to delete a regular user", async () => {
