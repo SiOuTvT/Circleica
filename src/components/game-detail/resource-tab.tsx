@@ -113,6 +113,7 @@ const ResourceCard = memo(function ResourceCard({
   onEdit,
   onDelete,
   onReport,
+  onDownload,
   resourceTagColor,
 }: {
   resource: ApiResource
@@ -121,6 +122,7 @@ const ResourceCard = memo(function ResourceCard({
   onEdit: () => void
   onDelete: () => void
   onReport: () => void
+  onDownload: (entryId: string, entryIdx: number) => void
   resourceTagColor?: string
 }) {
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set())
@@ -221,6 +223,9 @@ const ResourceCard = memo(function ResourceCard({
                   {entry.fileSize && (
                     <span className="text-primary/60 ml-0.5">({entry.fileSize})</span>
                   )}
+                  {typeof entry.downloadCount === "number" && entry.downloadCount > 0 && (
+                    <span className="text-primary/60 text-xs">已下 {entry.downloadCount}</span>
+                  )}
                   {isExpanded ? (
                     <ChevronUp className="h-3.5 w-3.5 opacity-60" />
                   ) : (
@@ -237,6 +242,7 @@ const ResourceCard = memo(function ResourceCard({
                       href={entry.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => { if (entry.id) onDownload(entry.id, i) }}
                       className="block text-primary underline underline-offset-2 break-all hover:text-primary/80 transition-colors"
                     >
                       {entry.url}
@@ -358,6 +364,34 @@ export function ResourceTab({
     } finally {
       setLoading(false)
     }
+  }, [gameId])
+
+  /* ── 下载计数：fire-and-forget，不阻塞跳转；成功后在本地回填计数 ── */
+  const trackDownload = useCallback((resourceId: string, entryId: string, resourceIdx: number, entryIdx: number) => {
+    apiFetchSafe<{ downloadCount?: number }>(
+      `/api/games/${gameId}/resources/${resourceId}/entries/${entryId}/download`,
+      { method: "POST" }
+    )
+      .then(({ ok, data }) => {
+        if (ok) {
+          const count = (data as any)?.data?.downloadCount
+          if (typeof count === "number") {
+            setResources((prev) =>
+              prev.map((r, ri) =>
+                ri === resourceIdx
+                  ? {
+                      ...r,
+                      entries: r.entries.map((e, ei) =>
+                        ei === entryIdx && "downloadCount" in e ? { ...e, downloadCount: count } : e
+                      ),
+                    }
+                  : r
+              )
+            )
+          }
+        }
+      })
+      .catch(() => { /* 计数失败不影响跳转 */ })
   }, [gameId])
 
   useEffect(() => {
@@ -518,7 +552,7 @@ export function ResourceTab({
       {!loading && !loadError && resources.length > 0 && (
         <>
           <div className="space-y-3">
-            {resources.slice(0, displayCount).map((res) => {
+            {resources.slice(0, displayCount).map((res, resIdx) => {
               const isOwner = !!currentUserId && res.userId === currentUserId
               const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
               return (
@@ -528,6 +562,7 @@ export function ResourceTab({
                   isOwner={isOwner}
                   isGamePublisher={isGamePublisher}
                   resourceTagColor={resourceTagColor}
+                  onDownload={(entryId, entryIdx) => trackDownload(res.id, entryId, resIdx, entryIdx)}
                   onEdit={() => {
                     setEditingResource(res)
                     setEditOpen(true)

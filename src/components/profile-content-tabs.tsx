@@ -4,7 +4,7 @@ import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
-import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Trash2, Users, X } from "lucide-react"
+import { Calendar, Download, FolderHeart, Loader2, MessageSquare, Plus, Trash2, Users, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -25,24 +25,33 @@ interface CommentLite {
 interface FollowingLite {
   id: string; serialId?: number; username: string; avatar: string; composedAvatarUrl?: string | null; bio: string
 }
+interface DownloadLite {
+  id: string
+  downloadedAt: string
+  resource: { id: string; resourceName: string; gameId: string; user: { id: string; username: string } | null } | null
+  game: { id: string; serialId?: number; title: string; coverImage?: string } | null
+}
 interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
 }
 interface Props {
   userId: string
+  /** 是否本人浏览自己的主页（仅本人可见"下载"tab，保护下载隐私） */
+  isSelf?: boolean
 }
-type TabKey = "favorites" | "comments" | "following"
+type TabKey = "favorites" | "comments" | "following" | "downloads"
 
 const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: "favorites", label: "收藏", icon: FolderHeart },
   { key: "comments", label: "评论", icon: MessageSquare },
   { key: "following", label: "关注", icon: Users },
+  { key: "downloads", label: "下载", icon: Download },
 ]
 
 // 情感消息 key 常量，避免每次渲染传入新数组
 const FAV_MSG_KEYS: string[] = ["empty_favorites"]
 
-export function ProfileContentTabs({ userId }: Props) {
+export function ProfileContentTabs({ userId, isSelf }: Props) {
   const [active, setActive] = useState<TabKey>("favorites")
   const [collections, setCollections] = useState<CollectionData[]>([])
   const [collectionsLoading, setCollectionsLoading] = useState(true)
@@ -56,9 +65,11 @@ export function ProfileContentTabs({ userId }: Props) {
   const [loadedFav, setLoadedFav] = useState(false)
   const [loadedFollowing, setLoadedFollowing] = useState(false)
   const [loadedComments, setLoadedComments] = useState(false)
+  const [loadedDownloads, setLoadedDownloads] = useState(false)
   const [localFav, setLocalFav] = useState<GameLite[]>([])
   const [localFollowing, setLocalFollowing] = useState<FollowingLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
+  const [localDownloads, setLocalDownloads] = useState<DownloadLite[]>([])
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
@@ -97,12 +108,22 @@ export function ProfileContentTabs({ userId }: Props) {
     } catch { setLoadError(true) }
   }, [userId, loadedComments])
 
+  const loadDownloads = useCallback(async () => {
+    if (loadedDownloads) return
+    try {
+      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[] } }>("/api/user/downloads")
+      setLocalDownloads(Array.isArray(data.data?.downloads) ? data.data.downloads : [])
+      setLoadedDownloads(true)
+    } catch { setLoadError(true) }
+  }, [loadedDownloads])
+
   // 切换 tab 时加载对应数据
   useEffect(() => {
     if (active === "favorites") loadFavorites()
     else if (active === "following") loadFollowing()
     else if (active === "comments") loadComments()
-  }, [active, loadFavorites, loadFollowing, loadComments])
+    else if (active === "downloads") loadDownloads()
+  }, [active, loadFavorites, loadFollowing, loadComments, loadDownloads])
 
   const loadCollections = useCallback(async () => {
     setLoadError(false)
@@ -157,7 +178,7 @@ export function ProfileContentTabs({ userId }: Props) {
     <div className="flex flex-col">
       <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
         <div className="flex gap-1 rounded-xl px-1 py-1">
-          {tabs.map((tab) => {
+          {tabs.filter((t) => t.key !== "downloads" || isSelf).map((tab) => {
             const Icon = tab.icon; const isActive = active === tab.key
             return (
               <button key={tab.key} onClick={() => setActive(tab.key)}
@@ -190,6 +211,9 @@ export function ProfileContentTabs({ userId }: Props) {
         )}
         {active === "following" && (
           loadedFollowing ? <FollowingTab users={localFollowing} /> : <TabLoadingSkeleton />
+        )}
+        {active === "downloads" && (
+          loadedDownloads ? <DownloadsTab downloads={localDownloads} /> : <TabLoadingSkeleton />
         )}
       </div>
 
@@ -359,6 +383,46 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
 }
 
 // 加载占位骨架屏
+function DownloadsTab({ downloads }: { downloads: DownloadLite[] }) {
+  if (downloads.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-10 text-center">
+        <Download className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
+        <p className="text-sm text-muted-foreground">还没有下载记录</p>
+        <p className="text-xs text-muted-foreground/60">去游戏详情页下载资源后，这里会记录你的下载历史</p>
+      </div>
+    )
+  }
+  return (
+    <div className="space-y-2.5">
+      {downloads.map((dl) => {
+        const game = dl.game
+        const resourceName = dl.resource?.resourceName?.trim() || "资源"
+        return (
+          <Link
+            key={dl.id}
+            href={game?.serialId ? `/games/${game.serialId}` : "#"}
+            className="flex items-center gap-3 rounded-xl bg-secondary/40 p-3 transition-all hover:bg-secondary"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
+              {game?.coverImage ? (
+                <Image src={game.coverImage} alt="" width={40} height={40} className="h-full w-full object-cover" unoptimized />
+              ) : (
+                <Download className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-foreground">{game?.title ?? "已下架游戏"}</p>
+              <p className="truncate text-xs text-muted-foreground">{resourceName}</p>
+            </div>
+            <span className="shrink-0 text-xs text-muted-foreground">{formatDate(dl.downloadedAt)}</span>
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
+
 function TabLoadingSkeleton() {
   return (
     <div className="flex flex-col gap-2.5">

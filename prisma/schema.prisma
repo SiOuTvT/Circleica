@@ -89,6 +89,7 @@ model User {
   commentLikes      CommentLike[]
   achievements      UserAchievement[]
   resourceReports   ResourceReport[]
+  resourceDownloads ResourceDownloadLog[]
   auditLogs         AuditLog[]
   ownedFrames       UserAvatarFrame[]
   conversationsInitiated Conversation[] @relation("ConversationInitiator")
@@ -218,6 +219,7 @@ model Game {
   /// Galvelica 联动锚点（反向）：本 Game 若已被 Galvelica 收录，对应 Work.gameId 指向此处
   galvelicaWork          Work?                   @relation("gameToGalvelica")
   resources              GameResource[]
+  resourceDownloads      ResourceDownloadLog[]
   logs                   GameLog[]
   curatedCollectionGames CuratedCollectionGame[]
   faveGameUsers          User[]                  @relation("faveGame")
@@ -343,6 +345,7 @@ model GameResource {
   user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   entries         GameResourceEntry[]
   reports         ResourceReport[]
+  downloadLogs    ResourceDownloadLog[]
 
   @@index([gameId])
   @@index([userId])
@@ -374,6 +377,21 @@ model ResourceReport {
   @@unique([resourceId, userId])
   @@index([resourceId])
   @@index([userId])
+}
+
+/// 用户下载记录（登录用户点击资源下载时写入，用于"我的下载"历史）
+model ResourceDownloadLog {
+  id          String          @id @default(cuid())
+  userId      String
+  resourceId  String
+  gameId      String
+  downloadedAt DateTime       @default(now())
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource    GameResource    @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  game        Game            @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([userId, downloadedAt])
+  @@index([gameId])
 }
 
 model Favorite {

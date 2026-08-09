@@ -199,6 +199,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           <div className="rounded-2xl bg-card h-full shadow-none relative z-10">
             <ProfileContentTabs
               userId={user.id}
+              isSelf={isSelf}
             />
           </div>
         </main>

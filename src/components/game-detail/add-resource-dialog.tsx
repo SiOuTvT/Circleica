@@ -61,10 +61,12 @@ function useResourceTagOptions() {
 export interface SubmittedResource {
   id: string
   entries: {
+    id?: string
     url: string
     extractCode: string
     decompressCode: string
     fileSize: string
+    downloadCount?: number
   }[]
   platform: string[]
   language: string[]
