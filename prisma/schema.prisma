@@ -356,6 +356,8 @@ model GameResourceEntry {
   extractCode    String       @default("")
   decompressCode String       @default("")
   fileSize       String       @default("")
+  /// 该分流被点击下载的次数（原子 increment，带简单防刷）
+  downloadCount  Int          @default(0)
   resource       GameResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@index([resourceId])
