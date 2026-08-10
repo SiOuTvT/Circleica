@@ -134,6 +134,24 @@ export async function proxy(req: NextRequest) {
     return withSecurityHeaders(res, req)
   }
 
+  // 页面缓存分级（性能 B 项）：仅「明确公开且非个性化」的页面允许 CDN 缓存，
+  // 其余（含读 cookie/session 的个性化页）一律 no-store，避免跨用户泄漏个性化内容。
+  // 白名单来自 `next build` 路由表确认的静态页（○），它们不读 cookie/searchParams，
+  // 故可安全公开缓存；动态页（首页/游戏列表/后台等）依赖 cookie 或登录态，必须 no-store。
+  // 收益需在站前有 CDN/反向代理（如 Cloudflare）时完全兑现；无 CDN 时仅为正确响应头，无害。
+  const PUBLIC_CACHEABLE_PAGES = new Set([
+    "/about", "/contact", "/creators", "/credits", "/rules",
+    "/discover", "/tags", "/collections",
+  ])
+
+  function pageCacheControl(pathname: string): string {
+    const p = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname
+    if (PUBLIC_CACHEABLE_PAGES.has(p)) {
+      return "public, max-age=300, s-maxage=300, stale-while-revalidate=86400"
+    }
+    return "private, no-store"
+  }
+
   // CSP 仅对页面路由启用，不对 API 设置（避免干扰 NextAuth）
   const isPageRoute = !pathname.startsWith("/api/")
 
@@ -152,6 +170,7 @@ export async function proxy(req: NextRequest) {
     const csp = buildCSP("")
     res = NextResponse.next()
     res.headers.set("Content-Security-Policy", csp)
+    res.headers.set("Cache-Control", pageCacheControl(pathname))
   } else {
     res = NextResponse.next()
   }
