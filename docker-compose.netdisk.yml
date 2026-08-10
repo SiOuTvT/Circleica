@@ -1,0 +1,42 @@
+# Circleica 测试环境 · B 机双存储栈
+# 仅用于 B 服务器（NMNAT9724536304），与 A 机的 Circleica 应用 compose 完全无关。
+#
+# 职责隔离：
+#   filebrowser -> 人工管理游戏压缩包，手动生成分享外链，网站数据库只存该外链
+#   minio       -> S3 协议，对接 A 机 Circleica 的 R2_* 配置（模拟线上 R2），存封面/CG，供页面 <img> 直显
+#
+# 用法（在 B 上）：
+#   mkdir -p /opt/netdisk && cp docker-compose.netdisk.yml /opt/netdisk/
+#   cd /opt/netdisk
+#   # 改下面的 MINIO_ROOT_PASSWORD 为强口令
+#   docker compose -f docker-compose.netdisk.yml up -d
+#   # 建桶并公开（一次性）：
+#   docker run --rm --network host -v $PWD:/tmp minio/mc sh -c \
+#     "mc alias set m http://localhost:9000 circleica <MINIO_ROOT_PASSWORD> && mc mb m/circleica && mc anonymous set public m/circleica"
+#   # File Browser 首次访问 http://<B-IP>:8080 用 admin/admin 登录，立即改强密码
+
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: netdisk-filebrowser
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./fb_db:/database
+      - ./files:/srv          # 压缩包目录，UI 根目录；网站外链指向这里的文件
+    # 首次登录后务必在设置里修改 admin 密码
+
+  minio:
+    image: minio/minio:latest
+    container_name: netdisk-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"           # S3 API：A 机 Circleica 上传 + 浏览器 <img> 直读
+      - "9001:9001"           # 控制台：仅运维用，建议 ufw 只对你的 IP 开放或强密码
+    environment:
+      MINIO_ROOT_USER: circleica
+      MINIO_ROOT_PASSWORD: change_me_strong_password_8plus   # TODO: 改成强口令
+    volumes:
+      - ./minio_data:/data

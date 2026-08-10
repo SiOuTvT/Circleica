@@ -16,6 +16,8 @@ export interface R2Config {
   secretAccessKey: string
   bucketName: string
   publicUrl: string
+  /** 自定义 S3 端点（如 minIO）；缺省走 Cloudflare R2 专属格式 */
+  endpoint?: string
 }
 
 export interface RedisConfig {
@@ -42,7 +44,7 @@ async function loadFromDB() {
   // 读取所有可能的 email key（新 JSON 格式 + 旧平铺格式 + 优先级）
   const DB_KEYS = [
     "r2_account_id", "r2_access_key_id", "r2_secret_access_key",
-    "r2_bucket_name", "r2_public_url",
+    "r2_bucket_name", "r2_public_url", "r2_endpoint",
     "redis_url", "redis_token",
     // 新格式
     "email_provider_resend", "email_provider_brevo", "email_provider_smtp",
@@ -67,6 +69,7 @@ async function loadFromDB() {
         secretAccessKey: db.r2_secret_access_key,
         bucketName: db.r2_bucket_name,
         publicUrl: db.r2_public_url,
+        endpoint: db.r2_endpoint || undefined,
       }
     }
 
@@ -101,6 +104,7 @@ async function loadFromDB() {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
       bucketName: process.env.R2_BUCKET_NAME,
       publicUrl: process.env.R2_PUBLIC_URL || "",
+      endpoint: process.env.R2_ENDPOINT || undefined,
     }
     logger.system.info("[ServiceConfig] R2: 环境变量")
   }

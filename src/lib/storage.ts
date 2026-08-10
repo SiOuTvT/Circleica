@@ -102,7 +102,9 @@ class R2StorageAdapter implements StorageAdapter {
 
     this.client = new S3Client({
       region: "auto",
-      endpoint: `https://${cfg.accountId}.r2.cloudflarestorage.com`,
+      endpoint: cfg.endpoint || `https://${cfg.accountId}.r2.cloudflarestorage.com`,
+      // minIO 等自定义端点用路径风格寻址；R2 走默认虚拟主机风格
+      forcePathStyle: !!cfg.endpoint,
       credentials: { accessKeyId: cfg.accessKeyId, secretAccessKey: cfg.secretAccessKey },
     })
   }
