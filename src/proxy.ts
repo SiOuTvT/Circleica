@@ -193,6 +193,27 @@ export async function proxy(req: NextRequest) {
     if (!hasRole(role as UserRole, "ADMIN")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+
+    // CSRF 纵深防御（审计 2.7）：状态变更的写接口强制同源。
+    // 浏览器在跨站 POST/PUT/PATCH/DELETE 时必带攻击者的 Origin；
+    // 同源请求 Origin 与本站 host 一致。仅当 Origin 存在且 host 不匹配才拦截，
+    // 避免误杀无 Origin 的合法请求（服务端脚本、健康检查、代理内网调用等）。
+    // 注意：若将来把后台 API 与页面部署到不同 host，需同步放宽此处白名单。
+    const isStateChanging =
+      req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE"
+    if (isStateChanging) {
+      const origin = req.headers.get("origin")
+      if (origin) {
+        try {
+          const originHost = new URL(origin).host
+          if (originHost !== req.nextUrl.host) {
+            return NextResponse.json({ error: "Forbidden: cross-origin request" }, { status: 403 })
+          }
+        } catch {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        }
+      }
+    }
   }
 
   return withSecurityHeaders(res, req)
