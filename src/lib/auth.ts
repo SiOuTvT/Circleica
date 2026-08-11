@@ -43,9 +43,9 @@ declare module "next-auth" {
   }
 }
 
-const isSecure =
-  process.env.NODE_ENV === "production" ||
-  process.env.NEXTAUTH_URL?.startsWith("https://") === true
+// cookie 的 Secure 标志跟随实际访问协议：HTTPS（NEXTAUTH_URL 以 https:// 开头）时 Secure，
+// HTTP 直连时为非 Secure，避免生产环境裸 IP/HTTP 访问时浏览器静默丢弃会话 cookie 导致登录失败。
+const isSecure = process.env.NEXTAUTH_URL?.startsWith("https://") === true
 
 // 注意：不使用 PrismaAdapter。
 // PrismaAdapter 用于 OAuth provider（GitHub/Google 等）需要数据库存储 account/session 的场景。
