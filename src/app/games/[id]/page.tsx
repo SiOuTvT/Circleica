@@ -208,7 +208,6 @@ export default async function GameDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/<\/script>/g, '\\u003c\\u002fscript\\u003e') }}
       />
-      <ViewCounter gameId={resolved.id} />
       <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
@@ -312,10 +311,7 @@ export default async function GameDetailPage({
 
               {/* ④ 人气数据 */}
               <div className="flex items-center gap-4 sm:gap-5 pt-4 sm:pt-5 mt-3 sm:mt-4 border-t border-border/40">
-                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                  <Eye className="h-3.5 w-3.5" />
-                  <span className="font-bold tabular-nums">{game.viewCount}</span>
-                </span>
+                <ViewCounter gameId={resolved.id} initialCount={game.viewCount} className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground" />
                 <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                   <Download className="h-3.5 w-3.5" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>

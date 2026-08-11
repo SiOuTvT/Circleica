@@ -1,93 +1,84 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { Eye } from "lucide-react"
 
 /**
- * 浏览量计数器 — 仅当用户从列表页点击游戏卡片进入详情页时计数一次。
- * 原理：GameCard 点击时在 sessionStorage 写入 `pending_view_{gameId}` 标记，
- *       此组件挂载后检查标记，存在则加入队列，延迟批量上报。
- *       刷新页面、切换标签等不会重复计数。
+ * 浏览量计数器 — 同时负责「显示」与「上报」。
+ * 机制：列表页点击卡片时在 sessionStorage 写入 `pending_view_${id}` 标记，
+ *       详情页挂载后检查标记，存在则乐观 +1 显示并上报一次，随后清除标记。
+ *       直接访问（无标记）不计、不显示 +1。刷新页面不会重复计数。
  *
- * 优化：队列积累 + 延迟发送，减少 Beacon 请求数量
+ * 上报改用 fetch(keepalive)，比 navigator.sendBeacon 更可靠（可跨域、可重试）。
  */
 
-// 全局队列，积累多个浏览记录后批量上报
-const VIEW_QUEUE: { gameId: string; ts: number }[] = []
-let FLUSH_TIMER: ReturnType<typeof setTimeout> | null = null
-const FLUSH_DELAY = 1000 // 1 秒延迟发送，积累更多数据
-const BATCH_SIZE = 5 // 达到 5 条立即发送
+const DEFAULT_CLS = "inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground"
 
-function flushViews() {
-  if (VIEW_QUEUE.length === 0) return
-
-  const views = [...VIEW_QUEUE]
-  VIEW_QUEUE.length = 0 // 清空队列
-
-  // 批量上报
-  const payload = JSON.stringify({ views, batch: true })
-  navigator.sendBeacon("/api/games/views/batch", payload)
-}
-
-function queueView(gameId: string) {
-  VIEW_QUEUE.push({ gameId, ts: Date.now() })
-
-  // 达到批次大小立即发送
-  if (VIEW_QUEUE.length >= BATCH_SIZE) {
-    flushViews()
-    return
+function reportView(url: string, views: { gameId?: string; workId?: string; ts: number }[]) {
+  try {
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ views, batch: true }),
+      keepalive: true,
+    }).catch(() => {})
+  } catch {
+    /* 忽略上报失败，不影响浏览 */
   }
-
-  // 否则延迟发送
-  if (FLUSH_TIMER) clearTimeout(FLUSH_TIMER)
-  FLUSH_TIMER = setTimeout(flushViews, FLUSH_DELAY)
 }
 
-export function ViewCounter({ gameId }: { gameId: string }) {
+export function ViewCounter({
+  gameId,
+  initialCount = 0,
+  className,
+}: {
+  gameId: string
+  initialCount?: number
+  className?: string
+}) {
+  const [count, setCount] = useState(initialCount)
+
   useEffect(() => {
+    if (typeof window === "undefined") return
     const key = `pending_view_${gameId}`
     if (!sessionStorage.getItem(key)) return
     sessionStorage.removeItem(key)
-
-    // 加入队列而非立即发送
-    queueView(gameId)
+    setCount((c) => c + 1)
+    reportView("/api/games/views/batch", [{ gameId, ts: Date.now() }])
   }, [gameId])
 
-  return null
+  return (
+    <span className={className ?? DEFAULT_CLS}>
+      <Eye className="h-3.5 w-3.5" />
+      <span className="font-bold tabular-nums">{count}</span>
+    </span>
+  )
 }
 
-/* ────────────────────────────────────────────────
- * 副站作品浏览计数（Work.viewCount）
- * 与主站共用「点击卡片写 sessionStorage 标记 → 详情页上报」机制，
- * 但独立端点（/api/galvelica/views/batch → Work.viewCount increment），
- * 与主站 Game 计数完全分离。
- * ──────────────────────────────────────────────── */
+export function WorkViewCounter({
+  workId,
+  initialCount = 0,
+  className,
+}: {
+  workId: string
+  initialCount?: number
+  className?: string
+}) {
+  const [count, setCount] = useState(initialCount)
 
-const WORK_VIEW_QUEUE: { workId: string; ts: number }[] = []
-let WORK_FLUSH_TIMER: ReturnType<typeof setTimeout> | null = null
-const WORK_FLUSH_DELAY = 1000
-const WORK_BATCH_SIZE = 5
-
-function flushWorkViews() {
-  if (WORK_VIEW_QUEUE.length === 0) return
-  const views = [...WORK_VIEW_QUEUE]
-  WORK_VIEW_QUEUE.length = 0
-  navigator.sendBeacon("/api/galvelica/views/batch", JSON.stringify({ views, batch: true }))
-}
-
-export function WorkViewCounter({ workId }: { workId: string }) {
   useEffect(() => {
+    if (typeof window === "undefined") return
     const key = `pending_work_view_${workId}`
     if (!sessionStorage.getItem(key)) return
     sessionStorage.removeItem(key)
-
-    WORK_VIEW_QUEUE.push({ workId, ts: Date.now() })
-    if (WORK_VIEW_QUEUE.length >= WORK_BATCH_SIZE) {
-      flushWorkViews()
-      return
-    }
-    if (WORK_FLUSH_TIMER) clearTimeout(WORK_FLUSH_TIMER)
-    WORK_FLUSH_TIMER = setTimeout(flushWorkViews, WORK_FLUSH_DELAY)
+    setCount((c) => c + 1)
+    reportView("/api/galvelica/views/batch", [{ workId, ts: Date.now() }])
   }, [workId])
 
-  return null
+  return (
+    <span className={className ?? DEFAULT_CLS}>
+      <Eye className="h-3.5 w-3.5" />
+      <span className="font-bold tabular-nums">{count}</span>
+    </span>
+  )
 }

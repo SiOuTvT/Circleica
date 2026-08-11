@@ -12,11 +12,11 @@ const GITHUB_URL = "https://github.com/SiOuTvT/Circleica"
 export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logoMode?: LogoMode; siteLogo?: string | null }) {
   return (
     <footer role="contentinfo" className="border-t border-border bg-muted/30">
-      <div className="mx-auto max-w-[1140px] px-4 py-1 sm:py-6">
+      <div className="mx-auto max-w-[1140px] px-3 sm:px-6 py-1 sm:py-6">
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
-        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+        <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:text-left">
           {/* 左：品牌介绍 */}
-          <div className="max-w-sm text-left">
+          <div className="max-w-sm text-center sm:text-left">
             {/* 描述句桌面端显示，移动端收起以压低页脚高度 */}
             <div className="mt-1.5 hidden space-y-1.5 sm:block">
               <p className="text-sm text-muted-foreground">
@@ -27,7 +27,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logo
           </div>
 
           {/* 右：关于 + GitHub */}
-          <nav aria-label="关于" className="flex flex-wrap items-center justify-start gap-x-5 gap-y-1 text-sm sm:justify-end">
+          <nav aria-label="关于" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-sm sm:justify-end">
             {ABOUT_LINKS.map((link) => (
               <Link
                 key={link.href}

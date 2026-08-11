@@ -112,7 +112,7 @@ export const forumCommentSchema = z.object({
 export const announcementCreateSchema = z.object({
   title: z.string().min(1, "公告标题不能为空").max(200, "标题最多 200 个字符"),
   summary: z.string().max(500, "摘要最多 500 个字符").optional().default(""),
-  content: z.string().min(1, "公告内容不能为空").max(5000, "内容最多 5000 个字符"),
+  content: z.string().max(5000, "内容最多 5000 个字符").optional().default(""),
   imageUrl: uploadUrl("图片链接格式不正确").max(500).optional().or(z.literal("")),
   link: uploadUrl("外部链接格式不正确").max(500).optional().or(z.literal("")),
   status: z.enum(["draft", "published", "hidden"]).optional().default("draft"),

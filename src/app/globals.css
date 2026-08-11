@@ -1345,14 +1345,15 @@ a[href]:active {
   background-color: var(--primary-soft);
   color: var(--primary);
   border: 1px solid var(--primary-border);
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 500;
   transition: background-color var(--duration-normal);
 }
 @media (max-width: 639px) {
   .game-card-tag {
-    padding: 4px 12px;
-    font-size: 12px;
+    padding: 3px 7px;
+    font-size: 11px;
     font-weight: 600;
   }
 }

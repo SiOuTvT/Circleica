@@ -23,6 +23,16 @@ import { toast } from "sonner"
 const STATUS_LABELS: Record<string, string> = { draft: "草稿", published: "已发布", hidden: "已隐藏" }
 const STATUS_VARIANTS: Record<string, "default" | "success" | "secondary"> = { draft: "secondary", published: "success", hidden: "default" }
 
+const FIELD_LABELS: Record<string, string> = {
+  title: "标题", summary: "摘要", content: "正文", imageUrl: "封面图", link: "外部链接",
+  startAt: "定时上线", endAt: "定时下线",
+}
+function formatFieldErrors(details?: Record<string, string[]>, fallback?: string) {
+  if (!details) return fallback || "操作失败"
+  const parts = Object.entries(details).map(([k, msgs]) => `${FIELD_LABELS[k] ?? k}：${msgs.join("、")}`)
+  return parts.length ? parts.join("；") : (fallback || "操作失败")
+}
+
 interface Ann {
   id: string; title: string; summary: string; content: string; imageUrl: string;
   link: string; status: string; isPinned: boolean; isActive: boolean; sortOrder: number;
@@ -93,7 +103,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     e.preventDefault(); setError(""); setAdding(true)
     const url = isEditing ? `/api/admin/announcements/${editingId}` : "/api/admin/announcements"
     const method = isEditing ? "PUT" : "POST"
-    const { ok, data, error } = await apiFetchSafe<{ data: Ann }>(url, {
+    const { ok, data, error, errorDetails } = await apiFetchSafe<{ data: Ann }>(url, {
       method,
       body: {
         title: title.trim(), summary: summary.trim(), content: content.trim(),
@@ -102,7 +112,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       },
     })
     setAdding(false)
-    if (!ok) { setError(error || "操作失败"); return }
+    if (!ok) { setError(formatFieldErrors(errorDetails, error)); return }
 
     if (isEditing) {
       setAnns(prev => prev.map(a => a.id === editingId ? { ...a, ...data?.data } : a))

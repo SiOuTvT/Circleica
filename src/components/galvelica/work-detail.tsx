@@ -57,7 +57,6 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
   return (
     <div className="galvelica-root">
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
-      <WorkViewCounter workId={work.id} />
 
       <GalvelicaBackLink href="/galvelica" label="Galvelica" className="mb-4" />
 
@@ -122,10 +121,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                 <span className="opacity-70">({work.ratingCount})</span>
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5">
-              <Eye className="h-4 w-4" />
-              <span className="tabular-nums">{work.viewCount}</span>
-            </span>
+            <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="inline-flex items-center gap-1.5" />
           </div>
 
           {/* 联动 CTA：已收录→前往下载页；未收录→申请收录 */}

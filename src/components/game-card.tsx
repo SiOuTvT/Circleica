@@ -106,7 +106,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
       }}
     >
       {/* ─── 封面：竖图比例更舒展（3:4 倾向） ─── */}
-      <div className="relative w-full aspect-[1/1] overflow-hidden bg-muted sm:aspect-[3/2]">
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted sm:aspect-[3/2]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -164,7 +164,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="game-card-tag inline-flex min-w-0 items-center truncate rounded-full px-3 py-1 text-[13px] font-medium"
+                className="game-card-tag inline-flex min-w-0 items-center truncate rounded-full max-w-[48%] sm:max-w-[160px]"
                 style={
                   tag.color
                     ? {
@@ -214,7 +214,7 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border">
       {/* 封面 */}
-      <div className="w-full aspect-[1/1] skeleton-shimmer sm:aspect-[3/2]" />
+      <div className="w-full aspect-[4/3] skeleton-shimmer sm:aspect-[3/2]" />
       {/* 内容 */}
       <div className="flex flex-1 flex-col px-2.5 pb-3 pt-2.5 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         <div className="h-[2.75em] w-full rounded skeleton-shimmer" />
