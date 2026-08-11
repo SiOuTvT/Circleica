@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
+import { Eye } from "lucide-react"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import type { GalvelicaWorkCard, GalvelicaTag } from "@/lib/galvelica"
 import { GAME } from "@/lib/config"
@@ -13,6 +14,12 @@ interface WorkCardProps {
   showTags?: boolean
   /** 副站统一标签色。传入时覆盖 per-tag color，实现「所有标签同色」。 */
   tagColor?: string
+}
+
+function fmtViews(n: number): string {
+  if (n >= 10000) return `${(n / 10000).toFixed(1)}w`
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
+  return String(n)
 }
 
 export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCardProps) {
@@ -79,6 +86,12 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
           {work.studioName || "未知社团"}
           {work.releaseYear ? ` · ${work.releaseYear}` : ""}
         </p>
+        {work.viewCount > 0 && (
+          <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Eye className="h-3 w-3 shrink-0" aria-hidden />
+            {fmtViews(work.viewCount)}
+          </p>
+        )}
         {showTags && work.tags.length > 0 && (
           <TagGroup className="mt-0.5">
             {work.tags.slice(0, GAME.VISIBLE_TAGS).map((t: GalvelicaTag) => (

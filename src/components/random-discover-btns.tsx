@@ -14,12 +14,15 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   async function go() {
     setLoading(true)
     try {
-      // 只在本站创作者里随机：M2 之后详情页统一是 /credits/creator/[slug]，
-      // 旧实现取 VNDB 数字 id 跳 /creators/[id]，主站没有落地页，必然 404。
-      const { ok, data } = await apiFetchSafe<{ slug?: string }>("/api/creators/random", { cache: "no-store" })
+      // 优先 VNDB 随机创作者（跳 /creators/vndb/[id]），无则降级本站 /credits/creator/[slug]
+      const { ok, data } = await apiFetchSafe<{ slug?: string; vndbId?: string }>("/api/creators/random", { cache: "no-store" })
 
-      if (ok && data?.slug) {
-        router.push(`/credits/creator/${encodeURIComponent(data.slug)}`)
+      if (ok && (data?.slug || data?.vndbId)) {
+        if (data.vndbId) {
+          router.push(`/creators/vndb/${encodeURIComponent(data.vndbId)}`)
+        } else {
+          router.push(`/credits/creator/${encodeURIComponent(data.slug!)}`)
+        }
       } else {
         // 本站暂无创作者：降级跳一部随机游戏
         const { ok: ok2, data: data2 } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })

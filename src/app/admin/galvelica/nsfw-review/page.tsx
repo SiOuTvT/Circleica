@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { ImageOff } from "lucide-react"
+import { Pagination } from "@/components/ui/pagination"
 import { NsfwReviewClient, NsfwReviewFilter, type ReviewItem } from "./review-client"
 
 export const metadata = { title: "副站封面 NSFW 审核 · 管理后台" }
 export const dynamic = "force-dynamic"
 
-const PAGE_SIZE = 18
+const PAGE_SIZE = 20
 
 export default async function GalvelicaNsfwReviewPage({
   searchParams,
@@ -78,22 +79,11 @@ export default async function GalvelicaNsfwReviewPage({
     >
       <NsfwReviewClient items={items} filter={filter} />
 
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-xs text-muted-foreground">
           共 {total} 部 · 第 {page}/{totalPages} 页
         </p>
-        <div className="flex items-center gap-2">
-          {page > 1 && (
-            <a href={`/admin/galvelica/nsfw-review?filter=${filter}&page=${page - 1}`} className="rounded-lg px-3 py-1.5 text-sm ring-1 ring-border hover:bg-muted">
-              上一页
-            </a>
-          )}
-          {page < totalPages && (
-            <a href={`/admin/galvelica/nsfw-review?filter=${filter}&page=${page + 1}`} className="rounded-lg px-3 py-1.5 text-sm ring-1 ring-border hover:bg-muted">
-              下一页
-            </a>
-          )}
-        </div>
+        <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/galvelica/nsfw-review" extraParams={{ filter }} />
       </div>
 
       <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">

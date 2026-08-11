@@ -242,15 +242,6 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             <Menu className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
           </button>
 
-          {/* 站点品牌标识：点击返回首页。full 模式用 baked lockup，icon 模式用 emblem，深浅背景自动切换反白 */}
-          <Link
-            href="/"
-            aria-label="Circleica 首页"
-            className="flex h-12 items-center rounded-full pl-1.5 pr-2.5 transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <span className="font-heading text-[19px] font-bold tracking-tight text-foreground leading-none">Circleica</span>
-          </Link>
-
           <div className="ml-auto flex items-center gap-2">
             <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               <Search className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />

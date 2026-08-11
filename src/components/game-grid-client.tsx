@@ -65,7 +65,7 @@ export function GameGridClient({ initialGames, total, tag, q, page, sort = "newe
         ) : (
           // auto-rows-fr：让所有行等高。否则「第 1 行有真卡(2 行标题) + 第 2 行全空槽」时
           // 两行会差 20.6px，出现肉眼可见的高度参差。等高后空槽靠 .game-card-spacer 吸收差额、标签行贴底。
-          <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
             {initialGames.map((game) => (
               <GameCard key={game.id} game={game} />
             ))}

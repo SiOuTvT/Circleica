@@ -81,7 +81,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      className="game-card group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
@@ -164,7 +164,7 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
-                className="game-card-tag inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0"
+                className="game-card-tag inline-flex min-w-0 items-center truncate rounded-full px-3 py-1 text-[13px] font-medium"
                 style={
                   tag.color
                     ? {
