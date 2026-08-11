@@ -205,8 +205,23 @@ export async function proxy(req: NextRequest) {
       const origin = req.headers.get("origin")
       if (origin) {
         try {
-          const originHost = new URL(origin).host
-          if (originHost !== req.nextUrl.host) {
+          const originUrl = new URL(origin)
+          // 同源判定：协议 + 主机名一致即视为同源。满足以下任一即放行：
+          //  1) Origin 的 host（含端口）与本站 nextUrl.host 完全一致；
+          //  2) Origin 的主机名（忽略端口）与本站一致 —— 兼容裸 IP + 非标准端口
+          //     （如 http://1.2.3.4:3000，浏览器 Origin 带端口而中间件 nextUrl.host 解析差异）；
+          //  3) Origin 的 host 与 NEXTAUTH_URL 的 host 一致 —— 兼容反代 / 容器内 Host 改写。
+          // 跨站（不同主机名）的请求仍一律拒绝，CSRF 纵深防御不削弱。
+          const reqHost = req.nextUrl.host
+          const reqHostname = req.nextUrl.hostname
+          const authUrlHost = process.env.NEXTAUTH_URL
+            ? new URL(process.env.NEXTAUTH_URL).host
+            : null
+          const hostOk =
+            originUrl.host === reqHost ||
+            originUrl.hostname === reqHostname ||
+            (authUrlHost !== null && originUrl.host === authUrlHost)
+          if (!hostOk) {
             return NextResponse.json({ error: "Forbidden: cross-origin request" }, { status: 403 })
           }
         } catch {
