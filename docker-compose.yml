@@ -113,6 +113,7 @@ services:
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-}
       R2_PUBLIC_URL: ${R2_PUBLIC_URL:-}
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       # 服务端 / Edge 运行时上报用；客户端用 NEXT_PUBLIC_SENTRY_DSN（构建期已内联，
       # 这里再给一份是为了 instrumentation.ts 的启用判断能读到统一值）。
