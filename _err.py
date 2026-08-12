@@ -1,23 +1,14 @@
-import urllib.request, urllib.error
-
-for attempt in range(10):
-    try:
-        req = urllib.request.Request("http://localhost:3000/galvelica")
-        with urllib.request.urlopen(req, timeout=45) as resp:
-            data = resp.read().decode("utf-8", "ignore")
-            print(f"attempt {attempt}: 200 (len={len(data)})")
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "ignore")
-        print(f"attempt {attempt}: 500")
-        for kw in ["⨯", "Error:", "TypeError", "at async", "PrismaClient",
-                   "getEditorPicks", "getDailyPick", "getFeaturedThemes",
-                   "getGalvelicaTagColor", "GalvelicaHome", "redis",
-                   "ECONNREFUSED", "fetch failed", "getNsfwMode", "isExpired"]:
-            idx = body.find(kw)
-            if idx != -1:
-                snippet = body[idx:idx+200].replace("\n", " ")
-                print("  @@", snippet[:180])
-        break
-    except Exception as e:
-        print(f"attempt {attempt}: other {e}")
-print("DONE")
+import re
+html = open(r"d:\Circleica\_galerr.html", encoding="utf-8", errors="ignore").read()
+# Next dev error overlay embeds the message in a script/stack
+for pat in [r'"message":"([^"]{10,300})"', r'Error:\s*([^\n<]{10,200})', r'TypeError:\s*([^\n<]{10,200})', r'is not a function', r'Cannot read', r'(rateLimit\w*)', r'(RateLimit\w*)']:
+    m = re.search(pat, html)
+    if m:
+        print("MATCH", pat[:30], "=>", m.group(0)[:240])
+# also print any visible text fragment
+text = re.sub(r"<[^>]+>", " ", html)
+text = re.sub(r"\s+", " ", text)
+for kw in ["rateLimit", "RateLimit", "TypeError", "undefined", "Cannot read", "is not a function", "PrismaClient", "Unknown"]:
+    i = text.find(kw)
+    if i >= 0:
+        print("TXT", kw, "::", text[max(0,i-60):i+120])
