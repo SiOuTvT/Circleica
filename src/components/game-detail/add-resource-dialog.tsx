@@ -404,7 +404,7 @@ export function AddResourceDialog({
           <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">{isEditMode ? "编辑资源" : "添加资源"}</DialogTitle>
         </DialogHeader>
 
-        <div className="px-4 sm:px-10 pb-6 sm:pb-10 space-y-6 sm:space-y-8">
+        <div className="px-4 sm:px-10 pb-6 sm:pb-10 space-y-4 sm:space-y-6">
           {/* ════════ 资源链接区 ════════ */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

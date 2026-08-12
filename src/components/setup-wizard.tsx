@@ -271,7 +271,7 @@ export function SetupWizard() {
         </div>
         <div className={cn("relative z-10 w-full max-w-md rounded-2xl overflow-clip text-center", "bg-card border border-border shadow-3")} style={{ animation: "wiz-fade-in 0.6s ease-out" }}>
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[var(--theme-color)]/30 to-transparent" />
-          <div className="p-8 sm:p-10 space-y-6">
+          <div className="p-5 sm:p-8 lg:p-10 space-y-5 sm:space-y-6">
             <div className="text-5xl" style={{ animation: "wiz-fade-in 0.8s ease-out" }}>🎉</div>
             <div>
               <h1 className={cn("text-xl sm:text-2xl font-bold tracking-tight", "text-foreground")}>站点初始化完成</h1>
