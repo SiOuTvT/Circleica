@@ -53,7 +53,7 @@ export function GalvelicaHeaderTools() {
           onClick={() => setOpen((o) => !o)}
           aria-label="更多选项"
           aria-expanded={open}
-          className="galvelica-navlink inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium"
+          className="galvelica-navlink inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-medium"
         >
           <MoreHorizontal className="h-5 w-5" strokeWidth={2} />
         </button>

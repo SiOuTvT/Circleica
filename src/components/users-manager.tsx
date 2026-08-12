@@ -50,7 +50,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
 
   async function generateResetLink(id: string) {
     try {
-      const { ok, data, error } = await apiFetchSafe<{ resetUrl?: string }>(`/api/admin/users/${id}`, { method: "POST" })
+      const { ok, data, error } = await apiFetchSafe<{ data?: { resetUrl?: string } }>(`/api/admin/users/${id}`, { method: "POST" })
       if (ok) setResetLink(data?.data?.resetUrl ?? "")
       else toast.error(error || "操作失败")
     } catch {

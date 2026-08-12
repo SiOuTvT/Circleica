@@ -6,12 +6,13 @@ import { useCallback, useState } from "react"
 // 已知托管在 CDN 上的远程图域名（与 next.config.ts remotePatterns 对齐）。
 // 这些 CDN 本身已做图片优化，Next 在应用服务器上二次编码 AVIF 是弱机上最贵开销，
 // 故对它们直出（unoptimized）跳过应用服务器编码；仅本地 /uploads 走 Next 优化。
+//
+// 例外：VNDB 图床（static/t/s.vndb.org）原图体积大、无服务端缓存，直出会导致副站
+// 图片加载极慢。这里改走 Next 优化（自动缩尺寸 + WebP/AVIF + 31 天磁盘缓存），
+// 首屏明显变快；若 VNDB 拦截服务端抓取，SafeImage 会自动降级为原生 <img> 直连，不丢图。
 const REMOTE_CDN_HOSTS = new Set([
   "utfs.io",
   "uploadthing.com",
-  "static.vndb.org",
-  "t.vndb.org",
-  "s.vndb.org",
   "shared.cdn.queniuqe.com",
   "media.st.dl.eccdnx.com",
   "shared.cloudflare.steamstatic.com",

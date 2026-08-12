@@ -37,7 +37,7 @@ export function VNDBImportManager() {
         return
       }
 
-      const { ok, data, error } = await apiFetchSafe<{ message?: string; results?: any[] }>("/api/admin/vndb/import", {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { message?: string; results?: any[] } }>("/api/admin/vndb/import", {
         method: "POST",
         body: { vndbIds: ids },
       })

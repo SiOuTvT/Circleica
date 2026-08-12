@@ -30,3 +30,13 @@ export function getRecentlyViewed(): GameCardData[] {
     return []
   }
 }
+
+/** 清空浏览记录（客户端专用） */
+export function clearRecentlyViewed() {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* localStorage 不可用时静默 */
+  }
+}

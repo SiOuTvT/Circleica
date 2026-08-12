@@ -14,7 +14,7 @@ export async function GalvelicaHeader() {
       {/* 刊头主体：字标 + 标语 + 右侧工具 */}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/galvelica" className="group inline-flex shrink-0 flex-col leading-none">
-          <span className="galvelica-wordmark galvelica-serif text-2xl font-semibold tracking-tight text-foreground sm:text-[2.6rem]">
+          <span className="galvelica-wordmark galvelica-serif text-xl font-semibold tracking-tight text-foreground sm:text-[2.6rem]">
             Galvelica
           </span>
           <span className="mt-0.5 hidden text-micro font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)] sm:block sm:text-caption">
@@ -22,8 +22,8 @@ export async function GalvelicaHeader() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <GalvelicaSearch className="block" />
+        <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+          <GalvelicaSearch className="block min-w-0 flex-1 sm:flex-none sm:w-44 lg:w-52" />
           <GalvelicaHeaderTools />
         </div>
       </div>

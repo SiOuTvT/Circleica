@@ -40,7 +40,7 @@ function useStatusBadge(status: string): string | null {
   return null
 }
 
-export const GameCard = memo(function GameCard({ game }: { game: GameCardData }) {
+export const GameCard = memo(function GameCard({ game, showTags = true }: { game: GameCardData; showTags?: boolean }) {
   const [imgError, setImgError] = useState(false)
   const [imgFallback, setImgFallback] = useState(false)
 
@@ -158,8 +158,8 @@ export const GameCard = memo(function GameCard({ game }: { game: GameCardData })
         {/* 弹性间距：标题与标签之间 */}
         <div className="game-card-spacer" />
 
-        {/* 第2行：标签（全部 + 去重，颜色连后台标签管理） */}
-        {paramTags.length > 0 && (
+        {/* 第2行：标签（全部 + 去重，颜色连后台标签管理）；showTags=false 时隐藏（如继续浏览） */}
+        {showTags && paramTags.length > 0 && (
           <div className="game-card-tags flex flex-shrink-0 flex-wrap items-center gap-2">
             {paramTags.map((tag, i) => (
               <span

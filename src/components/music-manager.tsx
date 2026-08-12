@@ -162,7 +162,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   }
 
   async function saveEdit(id: string) {
-    const { ok, data } = await apiFetchSafe<{ title?: string; url?: string }>(`/api/admin/music/${id}`, {
+    const { ok, data } = await apiFetchSafe<{ data?: { title?: string; url?: string } }>(`/api/admin/music/${id}`, {
       method: "PUT",
       body: { title: editTitle.trim(), url: editUrl.trim() },
     })

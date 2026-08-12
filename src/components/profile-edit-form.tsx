@@ -83,7 +83,7 @@ export function ProfileEditForm({ user }: Props) {
 
     setSaving(true)
 
-    const { ok, data, error } = await apiFetchSafe<{ username?: string; avatar?: string }>("/api/profile/edit", {
+    const { ok, data, error } = await apiFetchSafe<{ data?: { username?: string; avatar?: string } }>("/api/profile/edit", {
       method: "PUT",
       body: {
         username: username.trim(),

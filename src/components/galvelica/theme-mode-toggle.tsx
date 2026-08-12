@@ -65,10 +65,10 @@ export function ThemeModeToggle({ className }: { className?: string }) {
       title={`主题：${label}`}
       className={
         className ??
-        "galvelica-navlink inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium"
+        "galvelica-navlink inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-medium"
       }
     >
-      <Icon className="h-4 w-4" strokeWidth={2} />
+      <Icon className="h-5 w-5" strokeWidth={2} />
     </button>
   )
 }

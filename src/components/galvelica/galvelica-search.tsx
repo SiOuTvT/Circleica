@@ -33,7 +33,7 @@ export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitL
           className={
             fullWidth
               ? "w-full min-w-0 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
-              : "w-32 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none sm:w-44 lg:w-52"
+              : "w-full min-w-0 rounded-lg border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
           }
           aria-label="检索"
         />

@@ -220,7 +220,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setTranslateSuccess("")
 
     try {
-      const { ok, data, error } = await apiFetchSafe<{ translatedText?: string; error?: string }>("/api/admin/translate", {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { translatedText?: string; error?: string } }>("/api/admin/translate", {
         method: "POST",
         body: { text: sourceText, from: fromLang, to: toLang },
       })
@@ -259,7 +259,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       // 并行请求两个目标语种翻译
       const [r1, r2] = await Promise.all(
         targets.map(t =>
-          apiFetchSafe<{ translatedText?: string; error?: string }>("/api/admin/translate", {
+          apiFetchSafe<{ data?: { translatedText?: string; error?: string } }>("/api/admin/translate", {
             method: "POST",
             body: { text: sourceText, from: fromLang, to: t.to },
           })
@@ -270,8 +270,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       const data2 = r2.data
 
       const errors: string[] = []
-      if (!r1.ok) errors.push(`${targets[0].label}翻译失败: ${data1?.error || r1.error || "未知错误"}`)
-      if (!r2.ok) errors.push(`${targets[1].label}翻译失败: ${data2?.error || r2.error || "未知错误"}`)
+      if (!r1.ok) errors.push(`${targets[0].label}翻译失败: ${data1?.data?.error || r1.error || "未知错误"}`)
+      if (!r2.ok) errors.push(`${targets[1].label}翻译失败: ${data2?.data?.error || r2.error || "未知错误"}`)
       if (errors.length > 0) { setTranslateError(errors.join("；")); return }
 
       setDescLangs(prev => {

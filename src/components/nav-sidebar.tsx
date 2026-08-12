@@ -52,7 +52,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     if (randomLoading) return
     setRandomLoading(true)
     try {
-      const { ok, data } = await apiFetchSafe<{ serialId?: string; id?: string }>("/api/games/random")
+      const { ok, data } = await apiFetchSafe<{ data?: { serialId?: string; id?: string } }>("/api/games/random")
       if (!ok) throw new Error("获取失败")
       router.push(`/games/${data?.data?.serialId ?? data?.data?.id ?? ""}`)
     } catch (err) {
