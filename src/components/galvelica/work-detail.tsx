@@ -2,6 +2,7 @@ import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { WorkViewCounter } from "@/components/view-counter"
+import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
@@ -123,6 +124,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
               </span>
             )}
             <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="inline-flex items-center gap-1.5" />
+            <ViewHistoryRecorder targetType="WORK" targetId={work.id} />
           </div>
 
           {/* 联动 CTA：已收录→前往下载页；未收录→申请收录。

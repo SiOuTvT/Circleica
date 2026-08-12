@@ -986,3 +986,16 @@ model WorkCreator {
   @@unique([workId, creatorId, role])
   @@index([creatorId])
 }
+
+/// 按用户的浏览历史（继续浏览）：主站 Game 与副站 Work 共用，
+/// 同一用户同一目标只保留一条，重复浏览更新 createdAt（最近浏览排前）。
+model ViewHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType String // GAME | WORK
+  targetId   String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, targetType, targetId])
+  @@index([userId, targetType, createdAt])
+}

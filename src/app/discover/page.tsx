@@ -5,6 +5,8 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { CalendarDays, ChevronRight, Clock, History } from "lucide-react"
+import { auth } from "@/lib/auth"
+import { getRecentViewIds } from "@/lib/view-history"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
@@ -189,6 +191,21 @@ export default async function DiscoverPage() {
   const recent = data?.recent ?? []
   const maxYear = years.length ? Math.max(...years.map((y) => y.count)) : 1
 
+  // 继续浏览：服务端按当前登录用户读取真实浏览历史（每人各自独立）
+  const session = await auth()
+  const historyCards: GameCardData[] = []
+  if (session?.user?.id) {
+    const ids = await getRecentViewIds(session.user.id, "GAME", 12)
+    if (ids.length) {
+      const games = await prisma.game.findMany({
+        where: { id: { in: ids }, isPublished: true },
+        select: GAME_CARD_SELECT,
+      })
+      const map = new Map(games.map((g) => [g.id, mapGameToCard(g)]))
+      historyCards.push(...ids.map((id) => map.get(id)).filter(Boolean).map((c) => c as GameCardData))
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* 页头（全站统一 ArchiveHero） */}
@@ -201,7 +218,7 @@ export default async function DiscoverPage() {
 
       {/* 1. 接着看 */}
       <DiscoverySection title="继续浏览" description="你最近看过的作品" icon={History}>
-        <RecentlyViewed />
+        <RecentlyViewed initialCards={historyCards} />
       </DiscoverySection>
 
       {/* 2. 看点精选（平衡权重，不压顶） */}

@@ -1,36 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
-import { getRecentlyViewed, clearRecentlyViewed } from "@/lib/recently-viewed"
+import { useRouter } from "next/navigation"
+import { GameCard, type GameCardData } from "@/components/game-card"
 
-/** 继续浏览：读取 localStorage 中最近看过的游戏（真实浏览历史，无假数据） */
-export function RecentlyViewed() {
-  const [games, setGames] = useState<GameCardData[] | null>(null)
+/**
+ * 继续浏览：展示服务端按当前登录用户记录的浏览历史（真正的「每个人各自的浏览历史」）。
+ * 数据由发现页服务端查询后传入，组件本身不读 localStorage（localStorage 是设备级、无法区分用户）。
+ */
+export function RecentlyViewed({ initialCards = [] }: { initialCards?: GameCardData[] }) {
+  const router = useRouter()
 
-  useEffect(() => {
-    setGames(getRecentlyViewed())
-  }, [])
-
-  function handleClear() {
-    clearRecentlyViewed()
-    setGames([])
+  async function handleClear() {
+    await fetch("/api/history", { method: "DELETE" }).catch(() => {})
+    router.refresh()
   }
 
-  if (games == null) {
-    return (
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="w-[140px] sm:w-[160px] shrink-0">
-            <GameCardSkeleton />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (games.length === 0) {
-    return <p className="text-sm text-muted-foreground">你还没有浏览记录，去看点什么吧～</p>
+  if (initialCards.length === 0) {
+    return <p className="text-sm text-muted-foreground">登录后，你最近看过的作品会出现在这里。</p>
   }
 
   return (
@@ -44,8 +30,11 @@ export function RecentlyViewed() {
           清空浏览记录
         </button>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
-        {games.map((g) => (
+      <div
+        className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20"
+        style={{ contain: "layout style" }}
+      >
+        {initialCards.map((g) => (
           <div key={g.id} className="w-[140px] sm:w-[160px] shrink-0">
             {/* 继续浏览只保留封面 + 名称 + 数据行（访问量等），不再堆标签 */}
             <GameCard game={g} showTags={false} />

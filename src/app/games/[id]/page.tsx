@@ -4,6 +4,7 @@ import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { GameGallery } from "@/components/game-gallery"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
+import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { FeedbackBtn } from "@/components/feedback-btn"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
@@ -312,6 +313,7 @@ export default async function GameDetailPage({
               {/* ④ 人气数据 */}
               <div className="flex items-center gap-4 sm:gap-5 pt-4 sm:pt-5 mt-3 sm:mt-4 border-t border-border/40">
                 <ViewCounter gameId={resolved.id} initialCount={game.viewCount} className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground" />
+                <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
                 <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                   <Download className="h-3.5 w-3.5" />
                   <span className="font-bold tabular-nums">{game.downloadCount}</span>

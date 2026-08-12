@@ -5,7 +5,11 @@ import { EditorPicks } from "@/components/galvelica/editor-pick"
 import { DailyPick, FeaturedThemes } from "@/components/galvelica/home-features"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { GalvelicaRandomLink } from "@/components/galvelica/galvelica-random-link"
-import { getEditorPicks, getDailyPick, getFeaturedThemes, getNsfwMode } from "@/lib/galvelica"
+import { getEditorPicks, getDailyPick, getFeaturedThemes, getNsfwMode, getWorksByIds } from "@/lib/galvelica"
+import type { GalvelicaWorkCard } from "@/lib/galvelica"
+import { WorkGrid } from "@/components/galvelica/work-card"
+import { auth } from "@/lib/auth"
+import { getRecentViewIds } from "@/lib/view-history"
 import { cached, cacheKey } from "@/lib/redis"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
@@ -46,6 +50,14 @@ export default async function GalvelicaHome() {
     ),
     getGalvelicaTagColor().catch(() => undefined),
   ])
+
+  // 继续浏览：服务端按当前登录用户读取真实浏览历史（每人各自独立）
+  const session = await auth()
+  const recentWorks: GalvelicaWorkCard[] = []
+  if (session?.user?.id) {
+    const ids = await getRecentViewIds(session.user.id, "WORK", 12)
+    if (ids.length) recentWorks = await getWorksByIds(ids)
+  }
 
   return (
     <div className="space-y-10 sm:space-y-14">
@@ -100,6 +112,13 @@ export default async function GalvelicaHome() {
           )}
         </div>
       </section>
+
+      {/* ── 继续浏览：个人真实浏览历史（每人各自独立），无历史则不显示 ── */}
+      {recentWorks.length > 0 && (
+        <Section title="继续浏览" subtitle="你最近看过的作品">
+          <WorkGrid works={recentWorks} />
+        </Section>
+      )}
 
       {/* ── 编辑式双栏：编辑精选（主角，2/3）+ 今日偶遇（侧栏，1/3）──
           打破"Hero + 几个横排卡片"的通用模板，形成错落编排的阅览节奏 */}

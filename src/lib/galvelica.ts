@@ -584,6 +584,14 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   return items
 }
 
+/** 按 id 列表取副站作品卡片（继续浏览用），保持传入顺序 */
+export async function getWorksByIds(ids: string[]): Promise<GalvelicaWorkCard[]> {
+  if (!ids.length) return []
+  const works = await prisma.work.findMany({ where: { id: { in: ids } }, select: workCardSelect() })
+  const map = new Map(works.map((w) => [w.id, mapWorkCard(w as unknown as WorkCardSource)]))
+  return ids.map((id) => map.get(id)).filter(Boolean) as GalvelicaWorkCard[]
+}
+
 export async function getRandomWorkSerialId(): Promise<number | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
   const modeWhere = await nsfwModeWhere()
