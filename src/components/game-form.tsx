@@ -820,7 +820,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
+            <div className="flex flex-wrap gap-3 sm:gap-4 pt-2 border-t border-border">
               <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                 <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
                 NSFW 内容

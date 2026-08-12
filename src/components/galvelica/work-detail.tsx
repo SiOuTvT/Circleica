@@ -115,7 +115,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
             </span>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
             {work.ratingAvg != null && (
               <span className="inline-flex items-center gap-1.5">
                 <Star className="h-4 w-4 text-[var(--gal-accent)]" fill="currentColor" strokeWidth={0} />

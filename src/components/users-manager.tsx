@@ -227,7 +227,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                   {resetId === u.id && (
                     <tr className="bg-accent/20">
                       <td colSpan={5} className="px-4 py-3">
-                        <div className="flex flex-wrap items-center gap-3 max-w-xl">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           <label className="text-xs font-medium text-foreground shrink-0">新密码：</label>
                           <input
                             value={newPwd}
