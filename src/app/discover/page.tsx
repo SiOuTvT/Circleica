@@ -89,8 +89,8 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         `,
         prisma.game.findMany({
           where: { isPublished: true, isNsfw: false },
-          orderBy: { favoriteCount: "desc" },
-          take: 9,
+          orderBy: { viewCount: "desc" },
+          take: 12,
           select: GAME_CARD_SELECT,
         }),
         prisma.game.findMany({
