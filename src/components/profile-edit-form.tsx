@@ -190,7 +190,7 @@ export function ProfileEditForm({ user }: Props) {
         </aside>
 
         {/* 右栏：信息 + 安全 */}
-        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-6 min-w-0 order-2 lg:order-none gap-8">
+        <main className="w-full lg:w-[calc(100%-396px)] lg:shrink-0 flex flex-col lg:ml-6 min-w-0 order-2 lg:order-none gap-6 sm:gap-8">
           {/* 基本信息 */}
           <section className="rounded-2xl bg-card border border-border p-5 sm:p-9 space-y-7">
             <h2 className="text-lg font-semibold text-foreground">基本信息</h2>

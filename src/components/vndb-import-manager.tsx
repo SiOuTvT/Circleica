@@ -57,7 +57,7 @@ export function VNDBImportManager() {
   }
 
   return (
-    <div className="rounded-xl bg-card p-6 ring-1 ring-border">
+    <div className="rounded-xl bg-card p-4 sm:p-6 ring-1 ring-border">
       <div className="mb-4 flex items-center gap-2">
         <Database className="h-5 w-5 text-primary" strokeWidth={2} />
         <h3 className="text-base font-semibold text-foreground">VNDB 批量导入</h3>

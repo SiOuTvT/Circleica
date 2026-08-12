@@ -82,7 +82,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       {/* 操作栏（页面头已有标题与说明，这里只保留操作按钮，避免重复大标题） */}
       <div className="flex items-center justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={handleReset}>
@@ -100,9 +100,9 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
         </Button>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
         {/* 左侧：控件 */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {/* 主题色预设（副站铜绿 + 主站 10 套，仅读取色值，数据仍写 galvelica: 命名空间） */}
           <Card>
             <CardHeader className="pb-3">
@@ -219,7 +219,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
         </div>
 
         {/* 右侧：预览（副站风格） */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {/* 实时预览 */}
           <Card>
             <CardHeader className="pb-3">
