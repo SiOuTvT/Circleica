@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import { getRandomCreator } from "@/lib/vndb-client"
+import { getRandomStaff } from "@/lib/vndb-client"
 
 export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   const router  = useRouter()
@@ -16,7 +16,7 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
     setLoading(true)
     try {
       // 优先浏览器端直连 VNDB 随机创作者（绕开部署服务器访问不到 api.vndb.org 的限制）
-      const creator = await getRandomCreator()
+      const creator = await getRandomStaff()
       if (creator?.vndbId) {
         router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
         return
