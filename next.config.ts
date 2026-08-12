@@ -109,7 +109,10 @@ const nextConfig: NextConfig = {
   compress: true,
   typescript: { ignoreBuildErrors: false },
   reactStrictMode: true,
-  allowedDevOrigins: ["192.168.5.53", "192.168.*", "10.*"],
+  // 允许手机通过局域网 IP 访问 dev server。注意：Next.js 的 allowedDevOrigins 不支持 IP 通配
+  // （"192.168.*" 对 IP 不生效，只对域名子域生效），必须写具体 IP。当前电脑局域网 IP 为 192.168.5.37。
+  // 若路由器重新分配了 IP（DHCP），需同步更新这里的地址。
+  allowedDevOrigins: ["192.168.5.37", "localhost", "127.0.0.1", "10.*"],
 
   // ⚠️ 退出 Turbopack，改用 Webpack：Next.js 16 的 Turbopack 在 Windows 上有已知 bug
   // —— dev 时会在项目根目录生成 nul 空文件、并偶发 panic 导致页面停在旧缓存(用户 2026-07-30 踩坑)。

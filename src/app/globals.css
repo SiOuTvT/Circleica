@@ -1394,15 +1394,13 @@ a[href]:active {
 
 /* ═══ 移动端交互优化 ═══ */
 
-/* 小按钮触摸区域至少 44x44px（WCAG / Apple HIG） */
+/* 触摸设备：仅对「按钮类」控件加最小可点面积，避免无差别撑大所有裸 <a>
+   （整卡链接 GameCard 也是 <a>，被撑大会撑破网格、并让 header 内链接溢出遮挡点击）。
+   header / 卡片内真正的 <button> 仍可点。 */
 @media (pointer: coarse) {
-  button, a, [role="button"] {
+  button, [role="button"] {
     min-height: 44px;
     min-width: 44px;
-  }
-  /* 允许内联小按钮用 padding 补偿而非硬撑尺寸 */
-  .inline-flex.items-center.justify-center.rounded-lg {
-    padding: 8px;
   }
 }
 
