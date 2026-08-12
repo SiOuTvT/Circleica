@@ -30,16 +30,21 @@ const INDEX_LINKS = [
 export default async function GalvelicaHome() {
   // 首页三大区块走缓存，避免每次导航回源打库。
   // ⚠️ NSFW 过滤模式必须进缓存 key（防跨用户缓存泄漏）。
-  const nsfwMode = await getNsfwMode()
+  // 任一数据源（VNDB / 数据库 / 缓存）抖动都不应拖垮整页：失败区块优雅降级为空，而非 500 白屏。
+  const nsfwMode = await getNsfwMode().catch(() => "safe")
   const [editorPicks, daily, themes, tagColor] = await Promise.all([
-    cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 5), () => getEditorPicks(5), 300),
+    cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 5), () => getEditorPicks(5), 300).catch(
+      () => [] as any[],
+    ),
     cached(
       cacheKey("galvelica:home:daily", nsfwMode, new Date().toISOString().slice(0, 10)),
       () => getDailyPick(),
       300,
+    ).catch(() => null),
+    cached(cacheKey("galvelica:home:themes", nsfwMode), () => getFeaturedThemes(), 300).catch(
+      () => [] as any[],
     ),
-    cached(cacheKey("galvelica:home:themes", nsfwMode), () => getFeaturedThemes(), 300),
-    getGalvelicaTagColor(),
+    getGalvelicaTagColor().catch(() => undefined),
   ])
 
   return (
