@@ -28,11 +28,11 @@ export function GameLogManager({ gameId }: { gameId: string }) {
     e.preventDefault()
     if (!content.trim()) return
     setAdding(true)
-    const { ok, data } = await apiFetchSafe<Log>(`/api/admin/games/${gameId}/logs`, {
+    const { ok, data } = await apiFetchSafe<{ data?: Log }>(`/api/admin/games/${gameId}/logs`, {
       method: "POST",
       body: { content: content.trim() },
     })
-    if (ok) { setLogs(p => [data as Log, ...p]); setContent("") }
+    if (ok) { setLogs(p => [data?.data as Log, ...p]); setContent("") }
     setAdding(false)
   }
 

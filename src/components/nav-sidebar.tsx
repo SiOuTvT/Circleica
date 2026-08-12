@@ -54,7 +54,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
     try {
       const { ok, data } = await apiFetchSafe<{ serialId?: string; id?: string }>("/api/games/random")
       if (!ok) throw new Error("获取失败")
-      router.push(`/games/${data?.serialId ?? data?.id ?? ""}`)
+      router.push(`/games/${data?.data?.serialId ?? data?.data?.id ?? ""}`)
     } catch (err) {
       logger.api.warn("[NavSidebar] random discover failed", { error: err instanceof Error ? err.message : String(err) })
     } finally {

@@ -118,7 +118,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
               )}
               <div className="px-4 sm:px-6 py-5 sm:py-8 flex flex-col items-center text-center">
-                <div className={user.banner ? "-mt-16 sm:-mt-22 mb-4 sm:mb-5" : "mb-4 sm:mb-5"}>
+                <div className={user.banner ? "-mt-16 sm:-mt-20 mb-4 sm:mb-5" : "mb-4 sm:mb-5"}>
                   <div className="relative h-[100px] w-[100px] sm:h-[130px] sm:w-[130px]">
                     {user.composedAvatarUrl ? (
                       <SafeAvatar src={user.composedAvatarUrl} alt={user.username} size={130} className="h-full w-full" />

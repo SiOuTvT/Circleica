@@ -228,7 +228,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
       setDescLangs(prev => {
         const existing = prev[targetLang]?.trim()
-        const newContent = existing ? `${existing}\n\n${data?.translatedText ?? ""}` : (data?.translatedText ?? "")
+        const newContent = existing ? `${existing}\n\n${data?.data?.translatedText ?? ""}` : (data?.data?.translatedText ?? "")
         return { ...prev, [targetLang]: newContent }
       })
       setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}翻译为${targetLabel}并填入${targetLabel} Tab，可手动修改。`)
@@ -278,14 +278,14 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         const result = { ...prev }
         const d1 = prev[targets[0].lang]?.trim()
         const d2 = prev[targets[1].lang]?.trim()
-        result[targets[0].lang] = d1 ? `${d1}\n\n${data1?.translatedText ?? ""}` : (data1?.translatedText ?? "")
-        result[targets[1].lang] = d2 ? `${d2}\n\n${data2?.translatedText ?? ""}` : (data2?.translatedText ?? "")
+        result[targets[0].lang] = d1 ? `${d1}\n\n${data1?.data?.translatedText ?? ""}` : (data1?.data?.translatedText ?? "")
+        result[targets[1].lang] = d2 ? `${d2}\n\n${data2?.data?.translatedText ?? ""}` : (data2?.data?.translatedText ?? "")
         return result
       })
 
       const parts: string[] = []
-      if (data1?.translatedText) parts.push(targets[0].label)
-      if (data2?.translatedText) parts.push(targets[1].label)
+      if (data1?.data?.translatedText) parts.push(targets[0].label)
+      if (data2?.data?.translatedText) parts.push(targets[1].label)
       setTranslateSuccess(`已将${DESCRIPTION_LANGUAGES.find(l => l.key === activeDescLang)?.label}简介翻译为${parts.join("和")}并填入对应 Tab，可手动修改。`)
     } catch (err) {
       setTranslateError(`翻译出错: ${(err as Error).message}`)

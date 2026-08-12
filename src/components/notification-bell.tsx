@@ -12,9 +12,9 @@ export function NotificationBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const { ok, data } = await apiFetchSafe<{ unreadCount?: number }>("/api/notifications/unread-count")
+      const { ok, data } = await apiFetchSafe<{ data?: { unreadCount?: number } }>("/api/notifications/unread-count")
       if (!ok) return
-      setUnreadCount(data?.unreadCount ?? 0)
+      setUnreadCount(data?.data?.unreadCount ?? 0)
     } catch (err) {
       logger.api.warn("[NotificationBell] fetch unread count failed", { error: err instanceof Error ? err.message : String(err) })
     }

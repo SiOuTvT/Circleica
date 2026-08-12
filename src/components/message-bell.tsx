@@ -12,9 +12,9 @@ export function MessageBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const { ok, data } = await apiFetchSafe<{ count?: number }>("/api/messages/unread-count")
+      const { ok, data } = await apiFetchSafe<{ data?: { count?: number } }>("/api/messages/unread-count")
       if (!ok) return
-      setUnreadCount(data?.count ?? 0)
+      setUnreadCount(data?.data?.count ?? 0)
     } catch (err) {
       logger.api.warn("[MessageBell] fetch unread count failed", { error: err instanceof Error ? err.message : String(err) })
     }

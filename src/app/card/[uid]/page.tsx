@@ -76,15 +76,16 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
 
   return (
     <main style={{ minHeight: "100vh", background: "#e8eaef", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 16px", fontFamily: "'Noto Sans SC','Segoe UI','Microsoft YaHei',sans-serif" }}>
-      <div style={{ width: 400, marginBottom: 24, textAlign: "center" }}>
+      <div style={{ width: "100%", maxWidth: 400, marginBottom: 24, textAlign: "center" }}>
         <h1 style={{ fontSize: 18, fontWeight: 800, color: "#232830", margin: 0 }}>{data.username} 的 Galgame 品味名片</h1>
         <p style={{ fontSize: 12, color: "#8a93a5", marginTop: 6 }}>
           Circleica · Galvelica · 名片 ID {data.serialId}
         </p>
       </div>
 
-      {/* ═══ 名片（720×1280 静态渲染） ═══ */}
-      <div style={{ width: CARD_W, height: 1280, position: "relative", overflow: "hidden", borderRadius: 28, background: `linear-gradient(160deg, ${tintToPaper(themeHex)} 0%, #F8F7F3 45%, ${tintToPaper(themeHex)} 100%)`, boxShadow: "0 24px 60px rgba(0,0,0,0.25)", boxSizing: "border-box", display: "flex", flexDirection: "column", padding: `${SAFE}px`, color: "#232830" }}>
+      {/* ═══ 名片（720×1280 静态渲染，手机端按视口比例缩放避免被裁切） ═══ */}
+      <div style={{ margin: "0 auto", width: "calc(720px * min(1, calc((100vw - 32px) / 720)))", maxWidth: 720, height: "calc(1280px * min(1, calc((100vw - 32px) / 720)))" }}>
+      <div style={{ width: 720, height: 1280, transform: "scale(min(1, calc((100vw - 32px) / 720)))", transformOrigin: "top left", position: "relative", overflow: "hidden", borderRadius: 28, background: `linear-gradient(160deg, ${tintToPaper(themeHex)} 0%, #F8F7F3 45%, ${tintToPaper(themeHex)} 100%)`, boxShadow: "0 24px 60px rgba(0,0,0,0.25)", boxSizing: "border-box", display: "flex", flexDirection: "column", padding: `${SAFE}px`, color: "#232830" }}>
         {/* 背景氛围 */}
         <div style={{ position: "absolute", inset: 0, background: glowGradient(themeHex, 0.05), pointerEvents: "none", zIndex: 0 }} />
         {data.banner && <img src={serverProxyImg(data.banner)} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none", zIndex: 0, opacity: 0.1 }} />}
@@ -283,9 +284,9 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
         <div style={{ height: 66, flexShrink: 0, position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ color: "rgba(40,50,70,0.30)", fontSize: 9, fontWeight: 600, letterSpacing: 8 }}>GALVELICA</span>
         </div>
-      </div>
+      </div></div>
 
-      <div style={{ width: 400, marginTop: 20, textAlign: "center", fontSize: 12, color: "#8a93a5" }}>
+      <div style={{ width: "100%", maxWidth: 400, marginTop: 20, textAlign: "center", fontSize: 12, color: "#8a93a5" }}>
         由 Circleica 生成 · <Link href="/" style={{ color: "#5FA8A0" }}>去主站看看</Link> · <Link href="/galvelica" style={{ color: "#8f6fd8" }}>浏览资料馆</Link>
       </div>
     </main>

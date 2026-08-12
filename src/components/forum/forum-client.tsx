@@ -148,7 +148,7 @@ export function ForumClient({
       const res = await fetch("/api/forum/posts", { method: "POST", body: fd })
       const data = await res.json()
       if (res.ok) {
-        setPosts(p => [data, ...p])
+        setPosts(p => [data.data, ...p])
         toast.success("发帖成功")
       } else {
         toast.error(data.error || "发帖失败，请稍后再试")
@@ -284,7 +284,7 @@ export function ForumClient({
           apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data?.likeCount ?? c.likeCount } : c) })
+                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data?.data?.likeCount ?? c.likeCount } : c) })
               }
             })
             .catch(() => {})

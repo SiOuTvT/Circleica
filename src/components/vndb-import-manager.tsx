@@ -43,8 +43,8 @@ export function VNDBImportManager() {
       })
 
       if (ok) {
-        setMessage(data?.message ?? "")
-        setResults(data?.results ?? [])
+        setMessage(data?.data?.message ?? "")
+        setResults(data?.data?.results ?? [])
         setVndbIds("")
       } else {
         setMessage(error || "导入失败")

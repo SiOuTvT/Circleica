@@ -167,7 +167,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
       body: { title: editTitle.trim(), url: editUrl.trim() },
     })
     if (ok) {
-      setList(p => p.map(m => m.id === id ? { ...m, title: data?.title ?? editTitle, url: data?.url ?? editUrl } : m))
+      setList(p => p.map(m => m.id === id ? { ...m, title: data?.data?.title ?? editTitle, url: data?.data?.url ?? editUrl } : m))
       setEditingId(null)
       toast.success("已更新")
     }

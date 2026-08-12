@@ -41,16 +41,17 @@ export default function SiteSettingsPage() {
       send_welcome_email?: string
     }>("/api/admin/settings")
       .then(({ ok, data }) => {
-        if (ok && data) {
-          setPlaceholderUrl(data.default_placeholder_image || "")
-          setSiteName(data.site_name || "")
-          setSiteDescription(data.site_description || "")
-          setLogoUrl(data.site_logo || "")
-          setLogoMode(data.logo_mode === "icon" ? "icon" : "full")
-          setRegistrationEnabled(data.registration_enabled !== "false")
-          setEmailVerificationEnabled(data.email_verification_enabled === "true")
-          setEmailVerificationRequiredForLogin(data.email_verification_required_for_login === "true")
-          setSendWelcomeEmail(data.send_welcome_email === "true")
+        const s = data?.data
+        if (ok && s) {
+          setPlaceholderUrl(s.default_placeholder_image || "")
+          setSiteName(s.site_name || "")
+          setSiteDescription(s.site_description || "")
+          setLogoUrl(s.site_logo || "")
+          setLogoMode(s.logo_mode === "icon" ? "icon" : "full")
+          setRegistrationEnabled(s.registration_enabled !== "false")
+          setEmailVerificationEnabled(s.email_verification_enabled === "true")
+          setEmailVerificationRequiredForLogin(s.email_verification_required_for_login === "true")
+          setSendWelcomeEmail(s.send_welcome_email === "true")
         }
       })
       .catch(() => {})

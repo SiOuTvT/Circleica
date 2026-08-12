@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { getRandomCreator } from "@/lib/vndb-client"
 
 export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   const router  = useRouter()
@@ -14,23 +15,29 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
   async function go() {
     setLoading(true)
     try {
-      // 优先 VNDB 随机创作者（跳 /creators/vndb/[id]），无则降级本站 /credits/creator/[slug]
-      const { ok, data } = await apiFetchSafe<{ slug?: string; vndbId?: string }>("/api/creators/random", { cache: "no-store" })
+      // 优先浏览器端直连 VNDB 随机创作者（绕开部署服务器访问不到 api.vndb.org 的限制）
+      const creator = await getRandomCreator()
+      if (creator?.vndbId) {
+        router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
+        return
+      }
 
-      if (ok && (data?.slug || data?.vndbId)) {
-        if (data.vndbId) {
-          router.push(`/creators/vndb/${encodeURIComponent(data.vndbId)}`)
-        } else {
-          router.push(`/credits/creator/${encodeURIComponent(data.slug!)}`)
-        }
+      // VNDB 失败：降级本站创作者，再降级随机游戏
+      // apiFetchSafe 返回完整响应体 { success, data: { slug } }，需解包 data.data
+      const { ok, data } = await apiFetchSafe<{ data?: { slug?: string } }>("/api/creators/random", { cache: "no-store" })
+      const inner = data?.data
+      if (ok && inner?.slug) {
+        router.push(`/credits/creator/${encodeURIComponent(inner.slug)}`)
+        return
+      }
+
+      // games/random 返回 { success, data: [{ id, serialId }] }
+      const { ok: ok2, data: data2 } = await apiFetchSafe<{ data?: Array<{ id?: string; serialId?: string }> }>("/api/games/random", { cache: "no-store" })
+      const game = data2?.data?.[0]
+      if (ok2 && game?.id) {
+        router.push(`/games/${game.serialId ?? game.id}`)
       } else {
-        // 本站暂无创作者：降级跳一部随机游戏
-        const { ok: ok2, data: data2 } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
-        if (ok2 && data2?.id) {
-          router.push(`/games/${data2.serialId ?? data2.id}`)
-        } else {
-          toast.error("暂无可推荐的内容")
-        }
+        toast.error("暂无可推荐的内容")
       }
     } catch (error) {
       logger.game.error("Random selection error", error)
@@ -82,9 +89,11 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
     }
 
     // 到达这里：VNDB 无结果 / 超时 / 不可达 → 与「随机创作者」同构降级跳一部随机游戏
-    const { ok, data } = await apiFetchSafe<{ id?: string; serialId?: string }>("/api/games/random", { cache: "no-store" })
-    if (ok && data?.id) {
-      router.push(`/games/${data.serialId ?? data.id}`)
+    // games/random 返回 { success, data: [{ id, serialId }] }
+    const { ok, data } = await apiFetchSafe<{ data?: Array<{ id?: string; serialId?: string }> }>("/api/games/random", { cache: "no-store" })
+    const game = data?.data?.[0]
+    if (ok && game?.id) {
+      router.push(`/games/${game.serialId ?? game.id}`)
     } else {
       toast.error("暂无可推荐的内容")
     }

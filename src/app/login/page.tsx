@@ -106,7 +106,7 @@ function LoginContent() {
           返回首页
         </Link>
 
-        <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
+        <div className="rounded-2xl bg-card p-5 sm:p-8 ring-1 ring-foreground/10">
           {/* 标签切换 */}
           <div className="mb-6 flex rounded-xl bg-secondary/60 p-1">
             <button

@@ -196,7 +196,7 @@ export function AvatarFrameSelector({
               {loading ? (
                 <div className="text-center py-8 text-muted-foreground text-sm">加载中…</div>
               ) : (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* No frame option */}
                   <button
                     onClick={() => handleSelect(null)}
