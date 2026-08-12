@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack -p 3000",
+    "dev": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --turbopack -p 3000 -H 0.0.0.0",
+    "dev:webpack": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack -p 3000 -H 0.0.0.0",
     "dev:clean": "node scripts/dev-clean.js && npm run dev",
     "build": "next build --webpack",
     "start": "next start",
