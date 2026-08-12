@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GalvelicaTags() {
-  const tags = await getPopularTags(80)
+  const tags = await getPopularTags(500)
 
   // 按分组归类（无分组的归入「其他」）
   const groups = new Map<string, typeof tags>()

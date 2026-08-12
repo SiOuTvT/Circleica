@@ -469,8 +469,9 @@ export async function getRelatedWorks(id: string, tagNames: string[], limit = 8)
   return rows.map(mapWorkCard)
 }
 
-export async function getPopularTags(limit = 28): Promise<GalvelicaTag[]> {
-  if (!(await archiveReady())) return getPopularTagsFromGame(limit)
+export async function getPopularTags(limit = 300): Promise<GalvelicaTag[]> {
+  // 副站标签必须只来自副站作品，绝不回退到主站标签（否则会把主站标签混进「其他」分组）
+  if (!(await archiveReady())) return []
   const key = cacheKey("galvelica", "popular-tags", String(limit))
   const cached = await cache.get<GalvelicaTag[]>(key)
   if (cached) return cached
@@ -480,7 +481,7 @@ export async function getPopularTags(limit = 28): Promise<GalvelicaTag[]> {
     where: { works: { some: { work: { isCommercial: false } } } },
     select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
     orderBy: { sortOrder: "desc" },
-    take: 200,
+    take: 600,
   })
   const tags: GalvelicaTag[] = rows
     .map((t) => ({
