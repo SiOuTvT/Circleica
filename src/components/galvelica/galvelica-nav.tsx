@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 export function GalvelicaNav({ className }: { className?: string }) {
   const pathname = usePathname()
   return (
-    <nav className={cn("flex flex-wrap items-center gap-1", className)}>
+    <nav className={cn("flex items-center gap-1", className)}>
       {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
         const active =
           href === "/galvelica"

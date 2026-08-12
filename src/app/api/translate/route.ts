@@ -31,6 +31,24 @@ async function translateWithMyMemory(text: string): Promise<string | null> {
   }
 }
 
+async function translateWithLibre(text: string): Promise<string | null> {
+  try {
+    const res = await fetch("https://translate.argosopensearch.com/translate", {
+      method: "POST",
+      signal: AbortSignal.timeout(8000),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: text, source: "en", target: "zh", format: "text" }),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return typeof data.translatedText === "string" && data.translatedText.trim()
+      ? data.translatedText
+      : null
+  } catch {
+    return null
+  }
+}
+
 async function translateWithGoogle(text: string): Promise<string | null> {
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(text)}`
@@ -62,10 +80,14 @@ export const POST = withHandler(async (req) => {
   // 限制文本长度
   const truncated = text.slice(0, 5000)
 
-  // 优先使用 MyMemory（国内可访问），失败则尝试 Google
+  // 免费翻译链路（无需密钥）：MyMemory（国内可访问）→ LibreTranslate → Google。
   let translated = await translateWithMyMemory(truncated)
   if (!translated) {
-    logger.api.debug("[Translate] MyMemory 失败，尝试 Google Translate...")
+    logger.api.debug("[Translate] MyMemory 失败，尝试 LibreTranslate...")
+    translated = await translateWithLibre(truncated)
+  }
+  if (!translated) {
+    logger.api.debug("[Translate] LibreTranslate 失败，尝试 Google Translate...")
     translated = await translateWithGoogle(truncated)
   }
 

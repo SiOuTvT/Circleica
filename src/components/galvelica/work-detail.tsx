@@ -2,11 +2,11 @@ import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { WorkViewCounter } from "@/components/view-counter"
-import { RichTextContent } from "@/components/rich-text-content"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { SectionTitle } from "@/components/galvelica/section-title"
+import { GalvelicaWorkDescription } from "@/components/galvelica/work-description"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
@@ -264,7 +264,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
       {work.description && (
         <section className="mt-8">
           <SectionTitle>简介</SectionTitle>
-          <RichTextContent html={work.description} className="max-w-3xl text-[15px] leading-relaxed text-foreground/90" />
+          <GalvelicaWorkDescription html={work.description} />
         </section>
       )}
 

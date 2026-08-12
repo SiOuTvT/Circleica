@@ -1,33 +1,39 @@
 "use client"
 
-import { logger } from "@/lib/logger";
 import { Languages, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { apiFetchSafe } from "@/lib/api-client";
 
 /**
  * 一键翻译按钮
- * 使用 Google Translate 免费 API 将英文翻译为中文
+ * 调用 /api/translate（MyMemory → LibreTranslate → Google 免费链路）将英文翻译为中文
  */
 export function TranslateBtn({ text, onTranslated }: { text: string; onTranslated: (translated: string) => void }) {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
   async function translate() {
+    if (!text?.trim()) return
     setLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ translated?: string; error?: string }>("/api/translate", {
+      // apiFetchSafe 返回的是完整响应体 { success, data: { translated } }，
+      // 翻译结果在 data.data.translated（曾漏掉一层 .data 导致点击无反应）。
+      const { data, error } = await apiFetchSafe<{
+        data?: { translated?: string }
+        error?: string
+      }>("/api/translate", {
         method: "POST",
         body: { text: text.slice(0, 5000) },
       })
-      if (data?.translated) {
-        onTranslated(data.translated)
+      if (data?.data?.translated) {
+        onTranslated(data.data.translated)
         setDone(true)
       } else {
-        logger.api.warn("翻译失败", { ok, error })
+        toast.error(error || "翻译失败，请稍后重试")
       }
-    } catch (err) {
-      logger.api.error("翻译失败", err)
+    } catch {
+      toast.error("翻译失败，请稍后重试")
     } finally {
       setLoading(false)
     }

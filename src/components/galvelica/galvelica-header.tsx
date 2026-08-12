@@ -1,9 +1,7 @@
 import Link from "next/link"
 import { GalvelicaNav } from "./galvelica-nav"
 import { GalvelicaSearch } from "./galvelica-search"
-import { ThemeModeToggle } from "./theme-mode-toggle"
-import { GalvelicaNsfwToggle } from "./galvelica-nsfw-toggle"
-import { GalvelicaRealFilterToggle } from "./galvelica-real-filter-toggle"
+import { GalvelicaHeaderTools } from "./galvelica-header-tools"
 
 /**
  * Galvelica 子站 Header · 档案刊头（变体 C）。
@@ -16,38 +14,26 @@ export async function GalvelicaHeader() {
       {/* 刊头主体：字标 + 标语 + 右侧工具 */}
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/galvelica" className="group inline-flex shrink-0 flex-col leading-none">
-          <span className="galvelica-wordmark galvelica-serif text-3xl font-semibold tracking-tight text-foreground sm:text-[2.6rem]">
+          <span className="galvelica-wordmark galvelica-serif text-2xl font-semibold tracking-tight text-foreground sm:text-[2.6rem]">
             Galvelica
           </span>
-          <span className="mt-1 text-micro font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)] sm:text-caption">
+          <span className="mt-0.5 hidden text-micro font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)] sm:block sm:text-caption">
             同人视觉小说资料库 · Archive
           </span>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
           <GalvelicaSearch className="block" />
-          <ThemeModeToggle />
-          <GalvelicaNsfwToggle />
-          <GalvelicaRealFilterToggle />
-          <Link
-            href="/"
-            className="galvelica-navlink hidden shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium sm:inline-flex"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M19 12H5" />
-              <path d="M12 19l-7-7 7-7" />
-            </svg>
-            返回 Circleica
-          </Link>
+          <GalvelicaHeaderTools />
         </div>
       </div>
 
       {/* 铜绿发丝线 */}
       <div className="h-px w-full bg-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)]" />
 
-      {/* 索引导航行 */}
+      {/* 索引导航行：移动端单行横向滚动，避免换行占掉半屏；桌面端正常换行 */}
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <GalvelicaNav className="flex-wrap py-2.5" />
+        <GalvelicaNav className="flex-nowrap overflow-x-auto py-2 sm:flex-wrap sm:overflow-visible" />
       </div>
     </header>
   )

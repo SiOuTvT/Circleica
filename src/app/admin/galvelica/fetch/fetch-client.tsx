@@ -205,7 +205,7 @@ export function GalvelicaFetchClient() {
             <Stat label="失败" value={result.failed} />
           </div>
           {result.results.length > 0 && (
-            <div className="mt-4 max-h-80 overflow-y-auto rounded-lg border border-border">
+            <div className="mt-4 max-h-80 overflow-x-auto overflow-y-auto rounded-lg border border-border">
               <table className="w-full text-left text-sm">
                 <thead className="sticky top-0 bg-muted/60 text-xs text-muted-foreground">
                   <tr>
