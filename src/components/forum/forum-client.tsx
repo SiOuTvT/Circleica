@@ -281,7 +281,7 @@ export function ForumClient({
         onLikeComment={(id) => {
           if (!isLoggedIn || likingCommentIds.current.has(id)) return
           likingCommentIds.current.add(id)
-          apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
+          apiFetchSafe<{ data?: { likeCount?: number } }>(`/api/forum/comments/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
                 setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data?.data?.likeCount ?? c.likeCount } : c) })

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
 import { getRecentlyViewed } from "@/lib/recently-viewed"
 import { apiFetchSafe } from "@/lib/api-client"
+import { Sparkles } from "lucide-react"
+import { DiscoverySection } from "@/components/discover/section"
 
 interface ForYouItem {
   card: GameCardData
@@ -14,14 +16,17 @@ interface ForYouItem {
 /**
  * 为你推荐（重构版 · 2+3 结合）：
  * - 多种子聚合：取最近 3 部浏览记录，各自拉相似后去重，被多部命中的排前
- * - 热门补位：余位用服务端下发的 popular 兜底，保证区块永不空（修掉旧版无历史 return null 消失的 bug）
- * - 响应式网格 + 每卡「理由」小标，与「继续浏览」的横滑彻底区分
+ * - 热门补位：余位用服务端下发的 popular 兜底，保证区块永不空
+ * - 标题按是否有浏览历史动态切换：有历史 →「为你推荐」，无历史 →「热门作品」
+ *   （无历史时不假装懂你兴趣，直接坦白是热门作品，避免误导）
  */
 export function ForYou({ popular = [] }: { popular?: GameCardData[] }) {
   const [items, setItems] = useState<ForYouItem[] | null>(null)
+  const [hasHistory, setHasHistory] = useState(false)
 
   useEffect(() => {
     const seeds = getRecentlyViewed().slice(0, 3)
+    setHasHistory(seeds.length > 0)
     let cancelled = false
 
     ;(async () => {
@@ -80,34 +85,35 @@ export function ForYou({ popular = [] }: { popular?: GameCardData[] }) {
     }
   }, [popular])
 
-  if (items == null) {
-    return (
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex flex-col gap-1.5">
-            <GameCardSkeleton />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">暂无可推荐内容</p>
-  }
+  const title = hasHistory ? "为你推荐" : "热门作品"
+  const description = hasHistory ? "根据你浏览过的作品推荐" : "大家都在看的热门游戏"
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-      {items.map((it) => (
-        <div key={it.card.id} className="flex flex-col gap-1.5">
-          <GameCard game={it.card} />
-          {it.kind === "similar" ? (
-            <p className="truncate text-xs text-muted-foreground/70">与《{it.reason}》相似</p>
-          ) : (
-            <p className="truncate text-xs text-muted-foreground/70">热门推荐</p>
-          )}
+    <DiscoverySection title={title} description={description} icon={Sparkles}>
+      {items == null ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-1.5">
+              <GameCardSkeleton />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">暂无可推荐内容</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {items.map((it) => (
+            <div key={it.card.id} className="flex flex-col gap-1.5">
+              <GameCard game={it.card} showTags={false} />
+              {it.kind === "similar" ? (
+                <p className="truncate text-xs text-muted-foreground/70">与《{it.reason}》相似</p>
+              ) : (
+                <p className="truncate text-xs text-muted-foreground/70">热门推荐</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </DiscoverySection>
   )
 }

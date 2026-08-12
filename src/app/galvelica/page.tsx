@@ -103,8 +103,8 @@ export default async function GalvelicaHome() {
           <Section
             title="编辑精选"
             subtitle="由编辑精心挑选，值得放慢脚步品读的作品"
-            href="/galvelica/works?sort=popular"
-            hrefLabel="按热度浏览"
+            href="/galvelica/works"
+            hrefLabel="浏览全部作品"
           >
             <EditorPicks works={editorPicks} />
           </Section>

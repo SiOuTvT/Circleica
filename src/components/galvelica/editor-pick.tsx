@@ -34,6 +34,7 @@ function Cover({ work, className }: { work: GalvelicaWorkCard; className?: strin
         src={work.coverImage}
         alt={work.title}
         fill
+        priority
         className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         sizes="(max-width: 640px) 40vw, 260px"
         quality={80}

@@ -180,13 +180,11 @@ export default async function MakerDetailPage({
                   <p className="truncate font-heading text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                     {c.nameJa || c.name}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1">
-                    {c.roles.slice(0, 3).map((r) => (
-                      <Tag key={r} className="px-1.5 py-0 text-micro leading-4">
-                        {ROLE_LABELS[r] || r}
-                      </Tag>
-                    ))}
-                  </div>
+                  {c.roles.length > 0 && (
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {c.roles.slice(0, 4).map((r) => ROLE_LABELS[r] || r).join(" · ")}
+                    </p>
+                  )}
                 </div>
               </Link>
             ))}

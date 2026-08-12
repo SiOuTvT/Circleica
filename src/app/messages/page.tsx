@@ -126,11 +126,21 @@ export default function MessagesPage() {
   const activeConv = conversations.find(c => c.id === activeId)
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="mb-4 flex items-center gap-2">
-        <MessageCircle className="h-5 w-5 text-primary" />
-        <h1 className="text-lg font-bold text-foreground">私信</h1>
-      </div>
+    <div className="pt-1">
+      <header className="mb-6 flex flex-col gap-4">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+            <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">MESSAGES</p>
+            <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">私信</h1>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+              与圈内同好私聊，会话与消息实时同步。
+            </p>
+          </div>
+        </div>
+      </header>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[320px_1fr]">
         {/* 会话列表 */}

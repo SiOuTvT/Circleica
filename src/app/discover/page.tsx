@@ -4,7 +4,7 @@ import { cached, cacheKey } from "@/lib/redis"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
-import { CalendarDays, ChevronRight, Clock, History, Sparkles } from "lucide-react"
+import { CalendarDays, ChevronRight, Clock, History } from "lucide-react"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { DiscoverySection } from "@/components/discover/section"
 import { RecentlyViewed } from "@/components/discover/recently-viewed"
@@ -213,10 +213,8 @@ export default async function DiscoverPage() {
         </div>
       )}
 
-      {/* 3. 刷推荐 */}
-      <DiscoverySection title="为你推荐" description="基于你的浏览兴趣" icon={Sparkles}>
-        <ForYou popular={data?.popular ?? []} />
-      </DiscoverySection>
+      {/* 3. 刷推荐（标题由 ForYou 按是否有浏览历史动态决定：为你推荐 / 热门作品） */}
+      <ForYou popular={data?.popular ?? []} />
 
       {/* 4. 发行时间轴（升级为正式板块：自包含年份发行量可视化，不外链别的页面） */}
       <DiscoverySection title="发行时间轴" description="全站作品的年代分布" icon={CalendarDays}>
@@ -241,7 +239,7 @@ export default async function DiscoverPage() {
       </DiscoverySection>
 
       {/* 5. 最近上新（真实内容、自包含，与 /games 完整浏览列表区分） */}
-      <DiscoverySection title="最近上新" description="刚刚入库的作品" icon={Clock}>
+      <DiscoverySection title="最近上新" description="刚刚入库的作品（取最近 8 部）" icon={Clock} actionHref="/games?sort=new" actionLabel="查看全部">
         {recent.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {recent.map((g) => (

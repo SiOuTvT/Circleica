@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
-import { getRecentlyViewed } from "@/lib/recently-viewed"
+import { getRecentlyViewed, clearRecentlyViewed } from "@/lib/recently-viewed"
 
 /** 继续浏览：读取 localStorage 中最近看过的游戏（真实浏览历史，无假数据） */
 export function RecentlyViewed() {
@@ -11,6 +11,11 @@ export function RecentlyViewed() {
   useEffect(() => {
     setGames(getRecentlyViewed())
   }, [])
+
+  function handleClear() {
+    clearRecentlyViewed()
+    setGames([])
+  }
 
   if (games == null) {
     return (
@@ -29,12 +34,24 @@ export function RecentlyViewed() {
   }
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
-      {games.map((g) => (
-        <div key={g.id} className="w-[140px] sm:w-[160px] shrink-0">
-          <GameCard game={g} />
-        </div>
-      ))}
+    <div>
+      <div className="mb-2 flex items-center justify-end">
+        <button
+          type="button"
+          onClick={handleClear}
+          className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
+          清空浏览记录
+        </button>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20" style={{ contain: "layout style" }}>
+        {games.map((g) => (
+          <div key={g.id} className="w-[140px] sm:w-[160px] shrink-0">
+            {/* 继续浏览只保留封面 + 名称 + 数据行（访问量等），不再堆标签 */}
+            <GameCard game={g} showTags={false} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

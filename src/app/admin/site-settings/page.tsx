@@ -29,7 +29,7 @@ export default function SiteSettingsPage() {
   const logoFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    apiFetchSafe<{
+    apiFetchSafe<{ data?: {
       default_placeholder_image?: string
       site_name?: string
       site_description?: string
@@ -39,7 +39,7 @@ export default function SiteSettingsPage() {
       email_verification_enabled?: string
       email_verification_required_for_login?: string
       send_welcome_email?: string
-    }>("/api/admin/settings")
+    }}>("/api/admin/settings")
       .then(({ ok, data }) => {
         const s = data?.data
         if (ok && s) {

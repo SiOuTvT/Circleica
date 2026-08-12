@@ -150,16 +150,9 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
             {display}
           </h3>
           {data.roles.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {data.roles.slice(0, 3).map((r) => (
-                <span
-                  key={r}
-                  className="rounded bg-primary/10 px-1.5 py-0 text-micro leading-4 text-primary/80"
-                >
-                  {roleLabel(r)}
-                </span>
-              ))}
-            </div>
+            <p className="mt-1 truncate text-xs text-muted-foreground">
+              {data.roles.slice(0, 4).map(roleLabel).join(" · ")}
+            </p>
           )}
         </div>
       </div>
