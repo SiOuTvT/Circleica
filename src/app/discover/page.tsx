@@ -207,7 +207,7 @@ export default async function DiscoverPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 页头（全站统一 ArchiveHero） */}
       <ArchiveHero
         variant="discover"
@@ -225,7 +225,7 @@ export default async function DiscoverPage() {
       {featured ? (
         <EditorFeature collection={featured} />
       ) : (
-        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-6 sm:p-10 text-center">
           <p className="text-sm text-muted-foreground">暂无精选合集</p>
         </div>
       )}

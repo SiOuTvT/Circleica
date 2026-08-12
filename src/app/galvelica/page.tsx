@@ -52,8 +52,8 @@ export default async function GalvelicaHome() {
   ])
 
   // 继续浏览：服务端按当前登录用户读取真实浏览历史（每人各自独立）
+  let recentWorks: GalvelicaWorkCard[] = []
   const session = await auth()
-  const recentWorks: GalvelicaWorkCard[] = []
   if (session?.user?.id) {
     const ids = await getRecentViewIds(session.user.id, "WORK", 12)
     if (ids.length) recentWorks = await getWorksByIds(ids)
@@ -122,7 +122,7 @@ export default async function GalvelicaHome() {
 
       {/* ── 编辑式双栏：编辑精选（主角，2/3）+ 今日偶遇（侧栏，1/3）──
           打破"Hero + 几个横排卡片"的通用模板，形成错落编排的阅览节奏 */}
-      <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-3 lg:gap-10">
         <div className="min-w-0 lg:col-span-2">
           <Section
             title="编辑精选"

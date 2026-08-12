@@ -55,7 +55,7 @@ export default async function RulesPage() {
   const custom = await getSiteSetting("page_rules")
 
   return (
-    <div className="mx-auto max-w-3xl py-8 px-4">
+    <div className="mx-auto max-w-3xl py-6 sm:py-8 px-4">
       <h1 className="text-2xl font-bold text-foreground mb-6">社区规则</h1>
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">
         {custom ? <RichTextContent html={custom} /> : <div dangerouslySetInnerHTML={{ __html: DEFAULT_RULES_HTML }} />}

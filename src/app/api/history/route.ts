@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { requireAuth } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth-context"
 import { recordView, type TargetType } from "@/lib/view-history"
 import { prisma } from "@/lib/prisma"
 

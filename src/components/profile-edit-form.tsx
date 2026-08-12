@@ -134,9 +134,9 @@ export function ProfileEditForm({ user }: Props) {
 
       <div className="flex flex-col lg:flex-row items-stretch min-w-0 gap-0">
         {/* 左栏：形象 */}
-        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-8">
+        <aside className="w-full lg:w-[380px] lg:shrink-0 min-w-0 order-1 lg:order-none flex flex-col gap-6 sm:gap-8">
           {/* 个人形象 */}
-          <section className="rounded-2xl bg-card border border-border p-7 sm:p-9">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-7 lg:p-9">
             <h2 className="mb-5 text-lg font-semibold text-foreground">个人形象</h2>
             <div className="flex flex-col items-center">
               <div className="h-[150px] w-[150px] sm:h-[160px] sm:w-[160px]">
@@ -158,7 +158,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 个人封面 */}
-          <section className="rounded-2xl bg-card border border-border p-7 sm:p-9">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-7 lg:p-9">
             <h2 className="mb-5 text-lg font-semibold text-foreground">个人封面</h2>
             <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
               <ImageUpload
@@ -178,7 +178,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 头像框 */}
-          <section className="rounded-2xl bg-card border border-border p-7 sm:p-9">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-7 lg:p-9">
             <h2 className="mb-5 text-lg font-semibold text-foreground">头像框</h2>
             <AvatarFrameSelector
               currentFrameId={user.avatarFrameId}
@@ -243,7 +243,7 @@ export function ProfileEditForm({ user }: Props) {
           </section>
 
           {/* 账号安全 */}
-          <section className="rounded-2xl bg-card border border-border p-7 sm:p-9">
+          <section className="rounded-2xl bg-card border border-border p-5 sm:p-7 lg:p-9">
             <div className="flex items-center gap-2 mb-4">
               <Lock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
               <h2 className="text-lg font-semibold text-foreground">账号安全</h2>

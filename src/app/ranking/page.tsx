@@ -169,7 +169,7 @@ export default async function RankingPage({
   const rest = items.slice(3)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* 页头（全站统一 ArchiveHero） */}
       <ArchiveHero
         variant="ranking"
@@ -216,7 +216,7 @@ export default async function RankingPage({
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-12 text-center">
+        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-8 sm:p-12 text-center">
           <Trophy className="mx-auto h-10 w-10 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="mt-3 text-sm text-muted-foreground">暂无榜单数据</p>
           <p className="mt-1 text-xs text-muted-foreground/70">收录更多作品后，这里会按维度展示排行</p>

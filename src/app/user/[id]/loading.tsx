@@ -9,7 +9,7 @@ export default function UserProfileLoading() {
             <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
               {/* Banner 骨架 */}
               <div className="h-36 w-full animate-pulse bg-muted" />
-              <div className="px-6 py-8 flex flex-col items-center text-center">
+              <div className="px-4 sm:px-6 py-5 sm:py-8 flex flex-col items-center text-center">
                 {/* 头像骨架 */}
                 <div className="-mt-16 sm:-mt-22 mb-4 sm:mb-5">
                   <div className="h-[100px] w-[100px] sm:h-[130px] sm:w-[130px] rounded-full animate-pulse bg-muted" />
@@ -23,7 +23,7 @@ export default function UserProfileLoading() {
                   <div className="h-3 w-3/4 mx-auto rounded animate-pulse bg-muted" />
                 </div>
                 {/* 统计数字 */}
-                <div className="flex gap-6 mt-6">
+                <div className="flex gap-6 mt-4 sm:mt-6">
                   {[1, 2, 3, 4].map(i => (
                     <div key={i} className="flex flex-col items-center gap-1">
                       <div className="h-5 w-8 rounded animate-pulse bg-muted" />
@@ -32,7 +32,7 @@ export default function UserProfileLoading() {
                   ))}
                 </div>
                 {/* 按钮 */}
-                <div className="flex gap-2 mt-6">
+                <div className="flex gap-2 mt-4 sm:mt-6">
                   <div className="h-9 w-24 rounded-lg animate-pulse bg-muted" />
                   <div className="h-9 w-9 rounded-lg animate-pulse bg-muted" />
                 </div>

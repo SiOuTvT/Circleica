@@ -12,11 +12,12 @@ export const metadata: Metadata = {
 
 const STUDIOS_PER_PAGE = 60
 
-export default async function GalvelicaStudios({ searchParams }: { searchParams: { page?: string } }) {
+export default async function GalvelicaStudios({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const { page: pageParam } = await searchParams
   const all = await getStudios()
   const total = all.length
   const totalPages = Math.max(1, Math.ceil(total / STUDIOS_PER_PAGE))
-  const page = Math.min(totalPages, Math.max(1, Number(searchParams.page) || 1))
+  const page = Math.min(totalPages, Math.max(1, Number(pageParam) || 1))
   const start = (page - 1) * STUDIOS_PER_PAGE
   const studios = all.slice(start, start + STUDIOS_PER_PAGE)
 

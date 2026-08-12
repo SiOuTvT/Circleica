@@ -152,7 +152,7 @@ export default function MessagesPage() {
             {loadingList ? (
               <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
             ) : conversations.length === 0 ? (
-              <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
                 还没有会话
                 <div className="mt-1 text-xs text-muted-foreground/70">去用户主页点「发起私聊」即可开始</div>
               </div>
