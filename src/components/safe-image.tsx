@@ -7,12 +7,16 @@ import { useCallback, useState } from "react"
 // 这些 CDN 本身已做图片优化，Next 在应用服务器上二次编码 AVIF 是弱机上最贵开销，
 // 故对它们直出（unoptimized）跳过应用服务器编码；仅本地 /uploads 走 Next 优化。
 //
-// 例外：VNDB 图床（static/t/s.vndb.org）原图体积大、无服务端缓存，直出会导致副站
-// 图片加载极慢。这里改走 Next 优化（自动缩尺寸 + WebP/AVIF + 31 天磁盘缓存），
-// 首屏明显变快；若 VNDB 拦截服务端抓取，SafeImage 会自动降级为原生 <img> 直连，不丢图。
+// 注：VNDB 图床（static/t/s.vndb.org）曾尝试走 Next 优化以缩小原图，但 VNDB 会拦截
+// 服务端抓取导致 /_next/image 返回 500，SafeImage 虽会降级直连却多一次失败请求与
+// 控制台噪声，属负优化，故放回直出集合与其余 CDN 同策略。副站图片提速的真正瓶颈是
+// VNDB 原图大且无服务端缓存，需另建服务端图片代理才能根治。
 const REMOTE_CDN_HOSTS = new Set([
   "utfs.io",
   "uploadthing.com",
+  "static.vndb.org",
+  "t.vndb.org",
+  "s.vndb.org",
   "shared.cdn.queniuqe.com",
   "media.st.dl.eccdnx.com",
   "shared.cloudflare.steamstatic.com",

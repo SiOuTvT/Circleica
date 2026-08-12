@@ -40,7 +40,8 @@ export default async function GalvelicaStudioDetail({
     <div className="space-y-8">
       <div>
         <GalvelicaBackLink href="/galvelica/studios" label="社团索引" />
-        <h1 className="galvelica-h1 mt-3">{name}</h1>
+        <p className="mt-3 text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 社团</p>
+        <h1 className="galvelica-h1 mt-2">{name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {result.total} 部作品</p>
       </div>
 

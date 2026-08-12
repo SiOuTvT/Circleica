@@ -16,7 +16,8 @@ export default async function GalvelicaStudios() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="galvelica-h1">社团索引</h1>
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 社团</p>
+        <h1 className="galvelica-h1 mt-2">社团索引</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {studios.length} 个社团。</p>
       </div>
 

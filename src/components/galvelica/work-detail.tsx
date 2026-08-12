@@ -87,7 +87,8 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
         </div>
 
         <div className="min-w-0">
-          <h1 className="galvelica-h1 sm:text-3xl">
+          <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 作品</p>
+          <h1 className="galvelica-h1 mt-2 sm:text-3xl">
             {work.title}
           </h1>
           {work.originalWork && (
@@ -124,12 +125,13 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
             <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="inline-flex items-center gap-1.5" />
           </div>
 
-          {/* 联动 CTA：已收录→前往下载页；未收录→申请收录 */}
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          {/* 联动 CTA：已收录→前往下载页；未收录→申请收录。
+              窄屏堆叠为整宽按钮，避免按钮内文字被挤压换行 */}
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
             {work.included ? (
               <Link
                 href={`/games/${work.serialId}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90 sm:w-auto"
               >
                 查看资源 · 前往下载页
                 <ArrowUpRight className="h-4 w-4" />
@@ -137,7 +139,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
             ) : (
               <RequestInclusionButton workId={work.id} title={work.title} />
             )}
-            <GalvelicaBackLink site className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" />
+            <GalvelicaBackLink site className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:w-auto" />
           </div>
 
           {/* 标签 */}

@@ -25,7 +25,8 @@ export default async function GalvelicaTags() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="galvelica-h1">标签浏览</h1>
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 标签</p>
+        <h1 className="galvelica-h1 mt-2">标签浏览</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           共 {tags.length} 个标签。沿题材、世界观、社团、作者、角色属性、CP、年份与平台自由探索。
         </p>

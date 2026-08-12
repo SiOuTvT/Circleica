@@ -357,19 +357,19 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
         <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
           {viewStr && (
             <span className="flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               {viewStr}
             </span>
           )}
           {dlStr && (
             <span className="flex items-center gap-1">
-              <Download className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               {dlStr}
             </span>
           )}
           {favStr && (
             <span className="flex items-center gap-1">
-              <Heart className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               {favStr}
             </span>
           )}
