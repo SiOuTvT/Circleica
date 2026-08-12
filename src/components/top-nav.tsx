@@ -242,8 +242,8 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             <Menu className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
           </button>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/search" aria-label="搜索" className="hidden md:flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <Link href="/search" aria-label="搜索" className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               <Search className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </Link>
 
@@ -252,13 +252,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
             <button
               onClick={onToggleForum}
-              className="hidden md:flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+              className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
               title="论坛"
             >
               <MessageSquare className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </button>
 
-            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="hidden md:flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : theme === "dark" ? <Moon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
