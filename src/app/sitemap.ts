@@ -38,7 +38,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }))
 
-    return [...staticPages, ...gamePages]
+    // Galvelica 资料库作品详情页：用 slug 作为 URL 标识（schema 标注「URL 用」）。
+    // 排除商业系列作品（副站资料馆列表/详情一律排除）；总量 < 50000，单 sitemap 文件合规。
+    const works = await prisma.work.findMany({
+      where: { isCommercial: false },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    })
+
+    const workPages: MetadataRoute.Sitemap = works.map(w => ({
+      url: `${BASE}/galvelica/works/${w.slug}`,
+      lastModified: w.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+    }))
+
+    return [...staticPages, ...gamePages, ...workPages]
   } catch {
     return staticPages
   }

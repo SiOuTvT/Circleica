@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
 import { apiFetchSafe, apiDeleteSafe } from "@/lib/api-client"
+import { parseApiResponse } from "@/lib/api-handler"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -19,7 +20,10 @@ export function GameLogManager({ gameId }: { gameId: string }) {
   useEffect(() => {
     const controller = new AbortController()
     apiFetchSafe<Log[]>(`/api/admin/games/${gameId}/logs`, { signal: controller.signal })
-      .then(({ data }) => { if (data) setLogs(data) })
+      .then(({ data }) => {
+        const arr = parseApiResponse<Log[]>(data)
+        if (Array.isArray(arr)) setLogs(arr)
+      })
       .catch(() => {})
     return () => controller.abort()
   }, [gameId])
@@ -28,11 +32,15 @@ export function GameLogManager({ gameId }: { gameId: string }) {
     e.preventDefault()
     if (!content.trim()) return
     setAdding(true)
-    const { ok, data } = await apiFetchSafe<{ data?: Log }>(`/api/admin/games/${gameId}/logs`, {
+    const { ok, data } = await apiFetchSafe<Log>(`/api/admin/games/${gameId}/logs`, {
       method: "POST",
       body: { content: content.trim() },
     })
-    if (ok) { setLogs(p => [data?.data as Log, ...p]); setContent("") }
+    if (ok) {
+      const log = parseApiResponse<Log>(data)
+      if (log) setLogs(p => [log, ...p])
+      setContent("")
+    }
     setAdding(false)
   }
 
@@ -57,7 +65,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
       </form>
       <div className="space-y-2">
         {logs.length === 0 && <p className="text-xs text-muted-foreground">暂无日志</p>}
-        {logs.map(log => (
+        {Array.isArray(logs) && logs.map(log => (
           <div key={log.id} className="flex items-center gap-3 rounded-lg bg-secondary/60/60 px-3 py-2">
             <span className="shrink-0 text-micro text-muted-foreground">
               {formatDate(log.createdAt)}

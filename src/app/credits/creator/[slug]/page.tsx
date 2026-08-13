@@ -21,9 +21,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const decoded = decodeURIComponent(slug)
+  const detail = await getCreatorDetail(decoded, 1)
+  if (!detail) {
+    return {
+      title: "创作者未找到 · Circleica",
+      description: "未找到该创作者。",
+      robots: { index: false, follow: true },
+    }
+  }
   return {
-    title: `创作者：${decoded} · Circleica`,
-    description: `浏览 Circleica 中创作者「${decoded}」的参与作品、所属制作组与职位。`,
+    title: `创作者：${detail.nameJa || detail.name} · Circleica`,
+    description: `浏览 Circleica 中创作者「${detail.nameJa || detail.name}」的参与作品、所属制作组与职位。`,
     alternates: { canonical: `/credits/creator/${slug}` },
   }
 }

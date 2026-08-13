@@ -238,14 +238,14 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
           <button
             onClick={onToggleNav}
-            className="flex h-10 w-10 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted sm:h-11 sm:w-11"
+            className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted sm:h-11 sm:w-11"
             aria-label="切换侧边栏"
           >
             <Menu className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
           </button>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <Link href="/search" aria-label="搜索" className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+            <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               <Search className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </Link>
 
@@ -254,13 +254,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
 
             <button
               onClick={onToggleForum}
-              className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+              className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
               title="论坛"
             >
               <MessageSquare className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </button>
 
-            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : theme === "dark" ? <Moon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
@@ -270,7 +270,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               <div ref={userRef} className="relative ml-1">
                 <button
                   onClick={() => setUserOpen(v => !v)}
-                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-11 sm:w-11"
+                  className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-11 sm:w-11"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
                       ? <Image src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={40} height={40} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />

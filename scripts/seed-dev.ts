@@ -124,7 +124,11 @@ async function run() {
   // 4. 演示用户收藏 + 签到
   for (const gameId of demoFavorites) {
     const fav = await prisma.favorite.findUnique({ where: { userId_gameId: { userId: demo.id, gameId } } })
-    if (!fav) await prisma.favorite.create({ data: { userId: demo.id, gameId } })
+    if (!fav) {
+      await prisma.favorite.create({ data: { userId: demo.id, gameId } })
+      // 同步维护去规范化收藏计数，避免列表/详情/排行榜收藏数与实际不符
+      await prisma.game.update({ where: { id: gameId }, data: { favoriteCount: { increment: 1 } } })
+    }
   }
   const today = new Date()
   for (let i = 0; i < 5; i++) {

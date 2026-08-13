@@ -44,7 +44,8 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
           width: isMobile ? "min(82vw, 300px)" : expanded ? 340 : 260,
-          transform: open ? "translateX(0)" : "translateX(100%)",
+          // 关闭态多平移 1rem（> Windows 15px 滚动条），确保面板含左侧 1px 边框完全移出视口右缘，消除关闭态残留竖条
+          transform: open ? "translateX(0)" : "translateX(calc(100% + 1rem))",
         }}
       >
         {open && (
