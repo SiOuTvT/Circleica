@@ -137,6 +137,7 @@ const nextConfig: NextConfig = {
 // 开发环境完全不 import @sentry/nextjs，避免加载 OpenTelemetry 等重依赖
 async function withSentry(config: NextConfig): Promise<NextConfig> {
   const { withSentryConfig } = await import("@sentry/nextjs");
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || process.env.APP_VERSION
   return withSentryConfig(config, {
     org: process.env.SENTRY_ORG,
     project: process.env.SENTRY_PROJECT,
@@ -147,7 +148,8 @@ async function withSentry(config: NextConfig): Promise<NextConfig> {
     tunnelRoute: "/api/sentry/tunnel",
     // 部署版本关联：release 同时写入浏览器 bundle 与 Sentry issue，
     // 配合 sourcemap 上传可在 Sentry 中直接定位到具体提交/版本。
-    release: (process.env.NEXT_PUBLIC_APP_VERSION || process.env.APP_VERSION) as string,
+    // Sentry 此版本的 release 仅接受对象形式（name 可选）。
+    release: appVersion ? { name: appVersion } : undefined,
   });
 }
 

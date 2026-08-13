@@ -104,7 +104,7 @@ export async function startOtel() {
         severityNumber: SEVERITY[rec.severityText] ?? SeverityNumber.INFO,
         severityText: rec.severityText,
         body: rec.body,
-        attributes: rec.attributes,
+        attributes: rec.attributes as Record<string, never>,
         context: otelContext.active(),
       })
     } catch {
