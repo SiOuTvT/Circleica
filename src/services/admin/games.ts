@@ -12,6 +12,7 @@ import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { cache } from "@/lib/redis"
 import { revalidatePath } from "next/cache"
+import { slugify } from "@/lib/slug"
 
 /**
  * 把一组创作者（来自 VNDB 拉取或手动添加）解析并关联到游戏。
@@ -69,7 +70,7 @@ export async function linkGameStudios(
     const studio = await tx.studio.upsert({
       where: { normalizedName: normalized },
       update: {},
-      create: { normalizedName: normalized, displayName: name, aliases: JSON.stringify([name]) },
+      create: { normalizedName: normalized, displayName: name, aliases: JSON.stringify([name]), slug: slugify(name) },
       select: { id: true },
     })
     links.push({ gameId, studioId: studio.id, role: null })

@@ -15,6 +15,7 @@ import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"
 import { computeQualitySignal, computeQualityScore } from "./quality"
 import { linkGameStudios } from "@/services/admin"
+import { slugify } from "@/lib/slug"
 
 /* ── 跨源匹配（去重核心） ─────────────────────────── */
 /**
@@ -240,6 +241,45 @@ async function resolveCircleicaTagByName(name: string): Promise<string | null> {
     select: { id: true },
   })
   return circleicaTag?.id ?? null
+}
+
+/**
+ * 收录时为主站 Game 解析/新建「主站 Creator」：给定 Galvelica Work 关联的创作者（含名称/罗马音/vndbId），
+ * 按 vndbId → 名称解析同名 source="circleica" 的 Creator；不存在则新建主站 Creator。
+ * 绝不返回 Galvelica Creator 的 id（避免副站 Creator 直接串入主站 GameCreator）。
+ * 新建时一并生成 slug（CJK 友好），避免重复 Studio 类「slug 为空」路由缺陷。
+ */
+async function resolveOrCreateCircleicaCreator(
+  name: string,
+  nameJa?: string,
+  vndbId?: string,
+): Promise<string | null> {
+  const clean = name?.trim()
+  if (!clean) return null
+  if (vndbId) {
+    const byVndb = await prisma.creator.findFirst({
+      where: { vndbId, source: "circleica" },
+      select: { id: true },
+    })
+    if (byVndb) return byVndb.id
+  }
+  const existing = await prisma.creator.findFirst({
+    where: { name: clean, source: "circleica" },
+    select: { id: true },
+  })
+  if (existing) return existing.id
+  // 新建主站 Creator：slug 唯一兜底（同名碰撞时追加序号）
+  let slug = slugify(clean)
+  let n = 2
+  while (await prisma.creator.findFirst({ where: { slug }, select: { id: true } })) {
+    slug = `${slugify(clean)}-${n}`
+    n++
+    if (n > 100) break
+  }
+  const created = await prisma.creator.create({
+    data: { name: clean, nameJa: nameJa ?? "", vndbId: vndbId ?? "", source: "circleica", slug },
+  })
+  return created.id
 }
 
 /**
@@ -643,9 +683,23 @@ export async function createDraftGameFromWork(workId: string): Promise<string> {
       skipDuplicates: true,
     })
   }
-  const creators = work.creators.map((c) => ({ gameId: game.id, creatorId: c.creatorId, role: c.role }))
-  if (creators.length) {
-    await prisma.gameCreator.createMany({ data: creators, skipDuplicates: true })
+  // 阻断 galvelica 创作者前向串色：解析/新建主站 Creator（source=circleica）后，再建 GameCreator
+  // （绝不允许把 galvelica creatorId 直接写入主站 GameCreator，否则破坏主副站隔离）
+  if (work.creators.length) {
+    const srcCreators = await prisma.creator.findMany({
+      where: { id: { in: work.creators.map((c) => c.creatorId) } },
+      select: { id: true, name: true, nameJa: true, vndbId: true },
+    })
+    const gameCreatorData: { gameId: string; creatorId: string; role: string }[] = []
+    for (const wc of work.creators) {
+      const src = srcCreators.find((c) => c.id === wc.creatorId)
+      if (!src || !src.name) continue
+      const circleicaId = await resolveOrCreateCircleicaCreator(src.name, src.nameJa, src.vndbId)
+      if (circleicaId) gameCreatorData.push({ gameId: game.id, creatorId: circleicaId, role: wc.role || "other" })
+    }
+    if (gameCreatorData.length) {
+      await prisma.gameCreator.createMany({ data: gameCreatorData, skipDuplicates: true })
+    }
   }
 
   // 制作组：按名称归一后 upsert Studio 并关联 GameStudio（替代已删除的 Game.studioName 列）
