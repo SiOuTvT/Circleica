@@ -73,6 +73,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
   // 作为该组内容（发现页标签墙 = 全站分类标签），颜色统一用组色。
   const groupTags = await prisma.tag.findMany({
     where: {
+      source: "circleica",
       games: { some: { game: { isPublished: true } } },
     },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -129,7 +130,7 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
 
   const tagIds = tagStats.map(ts => ts.tagId)
   const tags = await prisma.tag.findMany({
-    where: { id: { in: tagIds } },
+    where: { id: { in: tagIds }, source: "circleica" },
     select: { id: true, name: true, slug: true, color: true },
   })
 
@@ -216,8 +217,8 @@ export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null
     // ⚠️ 标签下游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
     const nsfwMode = await getMainNsfwMode()
     const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
-    const tag = await prisma.tag.findFirst({
-      where: { slug },
+    const tag = await prisma.tag.findUnique({
+      where: { slug, source: "circleica" },
       include: { group: { select: { id: true, name: true, color: true } } },
     })
     if (!tag) return null
