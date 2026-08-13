@@ -94,7 +94,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
   }, [])
 
   // 签到状态：先从 sessionStorage 读取当日缓存，过期才请求
+  // 仅登录用户有签到入口，游客直接跳过，避免全站每页多一次无意义的 401 请求
   useEffect(() => {
+    if (!user?.id) return
     const today = toShanghaiDate(new Date())
     try {
       const cached = sessionStorage.getItem("checkin_status")
@@ -114,7 +116,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       })
       .catch(() => setCheckedIn(false))
     return () => controller.abort()
-  }, [])
+  }, [user?.id])
 
   // 获取用户总印记数
   useEffect(() => {

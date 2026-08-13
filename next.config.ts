@@ -41,6 +41,9 @@ const nextConfig: NextConfig = {
     // 过期后 next/image 会在源站 CPU 上重新解码+重编码 AVIF —— 2GB 弱机上最贵的一笔开销。
     // 图片 URL 由 src+w+q 唯一决定，源图换了 URL 也会换，长缓存无副作用（纯赚，不降画质）。
     minimumCacheTTL: 2678400, // 31 天
+    // 允许的 quality 档位：代码中使用的所有 quality 值必须在此列出，
+    // 否则 Next 会对未列出的档位发出警告并就近取值（审计捕获的 quality 警告根因）。
+    qualities: [50, 60, 70, 75, 80, 85],
   },
   poweredByHeader: false,
   output: "standalone",

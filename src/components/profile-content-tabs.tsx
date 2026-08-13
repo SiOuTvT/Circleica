@@ -134,7 +134,13 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     finally { setCollectionsLoading(false) }
   }, [])
 
-  useEffect(() => { loadCollections() }, [loadCollections])
+  // 收藏夹是"当前登录用户"的私有数据，仅在浏览自己主页时加载：
+  // 1) 游客/他人主页不再对 /api/collections 发起请求，消除全站 401 噪音（审计发现）；
+  // 2) 非本人浏览时不会把访客自己的私有收藏夹渲染进对方主页（隐私泄露）。
+  useEffect(() => {
+    if (isSelf) loadCollections()
+    else setCollectionsLoading(false)
+  }, [isSelf, loadCollections])
 
   async function handleCreateCollection() {
     const name = newFolderName.trim()
@@ -199,7 +205,7 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
 
       <div className="p-4 sm:p-5 profile-scroll-area">
         {active === "favorites" && (
-          <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections}
+          <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf}
             onOpenFolder={(col) => setModalCollection(col)}
             showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
             newFolderName={newFolderName} setNewFolderName={setNewFolderName}
@@ -240,8 +246,8 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
   )
 }
 
-function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, loading, creating }: {
-  defaultFolderGames: GameLite[]; collections: CollectionData[]; onOpenFolder: (col: CollectionData) => void
+function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, loading, creating }: {
+  defaultFolderGames: GameLite[]; collections: CollectionData[]; isSelf: boolean; onOpenFolder: (col: CollectionData) => void
   showCreateFolder: boolean; setShowCreateFolder: (v: boolean) => void; newFolderName: string; setNewFolderName: (v: string) => void
   onCreateFolder: () => void; onDeleteFolder: (id: string) => void; loading: boolean; creating: boolean
 }) {
@@ -249,7 +255,8 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
 
   return (
     <div className="space-y-3">
-      {showCreateFolder ? (
+      {/* 收藏夹管理（新建/删除）是本人专属功能，他人主页只读展示对方公开收藏 */}
+      {isSelf && (showCreateFolder ? (
         <div className="rounded-xl bg-secondary/50 p-4 ring-1 ring-border">
           <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="收藏夹名称" className="mb-3 w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
@@ -263,12 +270,12 @@ function FavoritesTab({ defaultFolderGames, collections, onOpenFolder, showCreat
         <button onClick={() => setShowCreateFolder(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary/20 px-4 py-3.5 text-sm font-medium text-muted-foreground hover:bg-primary/5 hover:text-primary transition-colors">
           <Plus className="h-4 w-4" strokeWidth={2} />创建新收藏夹
         </button>
-      )}
+      ))}
 
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div> : <>
         <CollectionCard name="默认收藏夹" gameCount={defaultFolderGames.length} coverGames={defaultFolderGames}
           onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
-        {collections.map((col) => (
+        {isSelf && collections.map((col) => (
           <CollectionCard key={col.id} name={col.name} gameCount={col.favorites?.length ?? 0} coverGames={col.favorites?.map(f => f.game) ?? []}
             onOpen={() => onOpenFolder(col)} onDelete={() => onDeleteFolder(col.id)} />
         ))}

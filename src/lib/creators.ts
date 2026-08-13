@@ -44,7 +44,7 @@ export const CREATOR_LIST_PAGE_SIZE = 24
 function buildCreatorWhere(search: string) {
   const q = search.trim()
   // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
-  const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
+  const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
   return q
     ? {
         OR: [
@@ -327,7 +327,7 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
  */
 export async function getRandomCreatorSlug(): Promise<string | null> {
   try {
-    const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
+    const publishedGameFilter = { games: { some: { game: { isPublished: true } } } }
     const where = { ...publishedGameFilter, slug: { not: null } }
     const total = await prisma.creator.count({ where })
     if (total === 0) return null
