@@ -8,10 +8,10 @@ import { prisma } from "@/lib/prisma"
 import { h1, log, rows } from "./reconcile/_report"
 
 const entities = [
-  { name: "Tag", get: () => prisma.tag },
-  { name: "Studio", get: () => prisma.studio },
-  { name: "Creator", get: () => prisma.creator },
-  { name: "CuratedCollection", get: () => prisma.curatedCollection },
+  { name: "Tag", nameField: "name", get: () => prisma.tag },
+  { name: "Studio", nameField: "displayName", get: () => prisma.studio },
+  { name: "Creator", nameField: "name", get: () => prisma.creator },
+  { name: "CuratedCollection", nameField: "name", get: () => prisma.curatedCollection },
 ] as const
 
 async function main(): Promise<void> {
@@ -26,9 +26,9 @@ async function main(): Promise<void> {
     const bad = await model.count({ where })
     const samples = (await model.findMany({
       where,
-      select: { id: true, slug: true, name: true },
+      select: { id: true, slug: true, [e.nameField]: true },
       take: 10,
-    })) as Array<{ id: string; slug: string | null; name: string }>
+    })) as Array<{ id: string; slug: string | null; [k: string]: unknown }>
     const pct = total > 0 ? ((bad / total) * 100).toFixed(2) : "0.00"
     log(`\n[${e.name}] total=${total} nullOrEmpty=${bad} (${pct}%)`)
     if (samples.length) rows(`${e.name} 样例`, samples, 10)

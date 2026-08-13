@@ -1,7 +1,7 @@
 /**
  * reconcile-achievements.ts  (D-F)
  * 只读：比对 Achievement.unlockCount 与实际 UserAchievement 解锁记录数。
- * 严禁任何写操作。
+ * 使用 $queryRaw（代理识别为只读）。严禁任何写操作。
  */
 import { prisma } from "@/lib/prisma"
 import { h1, log, rows } from "./reconcile/_report"
@@ -9,7 +9,7 @@ import { h1, log, rows } from "./reconcile/_report"
 async function main(): Promise<void> {
   h1("RECONCILE achievements: unlockCount 漂移 (D-F)")
   const total = await prisma.achievement.count()
-  const data = (await prisma.$queryRawUnsafe(`
+  const data = (await prisma.$queryRaw`
     SELECT a.id, a.name, a."unlockCount" AS stored, COALESCE(c.cnt,0)::int AS actual,
            (a."unlockCount" - COALESCE(c.cnt,0))::int AS diff
     FROM "Achievement" a
@@ -18,7 +18,7 @@ async function main(): Promise<void> {
     WHERE a."unlockCount" <> COALESCE(c.cnt,0)
     ORDER BY ABS(a."unlockCount" - COALESCE(c.cnt,0)) DESC
     LIMIT 50
-  `)) as Array<{ id: string; name: string; stored: number; actual: number; diff: number }>
+  `) as Array<{ id: string; name: string; stored: number; actual: number; diff: number }>
   log(`\nAchievement total=${total}, unlockCount 漂移行数=${data.length}`)
   if (data.length) rows("漂移样例", data, 50)
   else log("未发现 unlockCount 漂移。")
