@@ -6,6 +6,7 @@ import { Eye } from "lucide-react"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import type { GalvelicaWorkCard, GalvelicaTag } from "@/lib/galvelica"
 import { GAME } from "@/lib/config"
+import { Cjk } from "@/components/cjk-text"
 
 interface WorkCardProps {
   work: GalvelicaWorkCard
@@ -80,10 +81,10 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
       {/* 信息区 */}
       <div className="flex min-h-0 flex-col gap-1 p-2.5">
         <h3 className="galvelica-serif line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
-          {work.title}
+          <Cjk>{work.title}</Cjk>
         </h3>
         <p className="truncate text-[11px] text-muted-foreground">
-          {work.studioName || "未知社团"}
+          <Cjk>{work.studioName || "未知社团"}</Cjk>
           {work.releaseYear ? ` · ${work.releaseYear}` : ""}
         </p>
         {work.viewCount > 0 && (

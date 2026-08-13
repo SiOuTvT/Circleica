@@ -6,6 +6,7 @@ import Link from "next/link"
 import { memo, useCallback, useState, useRef, useEffect } from "react"
 import { logger } from "@/lib/logger"
 import { pushRecentlyViewed } from "@/lib/recently-viewed"
+import { Cjk } from "@/components/cjk-text"
 
 export interface GameCardData {
   id: string
@@ -152,7 +153,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         {/* 第1行：游戏名称 */}
         <h3 className="game-card-title text-[15px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
-          {game.title}
+          <Cjk>{game.title}</Cjk>
         </h3>
 
         {/* 弹性间距：标题与标签之间 */}
@@ -352,7 +353,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
       {/* 信息 */}
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-sm font-semibold text-foreground">
-          {game.title}
+          <Cjk>{game.title}</Cjk>
         </h3>
         <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
           {viewStr && (
