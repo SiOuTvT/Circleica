@@ -3,6 +3,7 @@
  * 带 Redis/内存缓存支持，缓存 5 分钟
  */
 
+import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -154,13 +155,22 @@ async function getHotTags(limit: number): Promise<TagInfo[]> {
 /**
  * 获取统计信息
  */
-async function getStats(): Promise<{ totalTags: number; totalGames: number }> {
-  const [totalTags, totalGames] = await Promise.all([
-    prisma.tag.count(),
-    prisma.game.count({ where: { isPublished: true } }),
-  ])
+// 标签浏览页「总标签数 / 已发布游戏数」两个聚合计数：与标签/游戏发布无强实时要求，
+// 用 unstable_cache 缓存 5 分钟，避免每次访问标签页都重复 count（PERF-4）。
+const _tagStatsCache = unstable_cache(
+  async () => {
+    const [totalTags, totalGames] = await Promise.all([
+      prisma.tag.count(),
+      prisma.game.count({ where: { isPublished: true } }),
+    ])
+    return { totalTags, totalGames }
+  },
+  ["tags-browser-stats"],
+  { revalidate: 300 },
+)
 
-  return { totalTags, totalGames }
+async function getStats(): Promise<{ totalTags: number; totalGames: number }> {
+  return _tagStatsCache()
 }
 
 /**
