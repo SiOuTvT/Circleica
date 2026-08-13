@@ -25,14 +25,18 @@ jobs:
       - name: Unit tests
         run: npm run test
 
-  # ── 生产构建：需 DATABASE_URL 等密钥（在仓库 Settings → Secrets 配置）──
+  # ── 生产构建：CI 仅验证「能构建」，不连生产库 ──
+  # 说明：DATABASE_URL 仅在 next build 期页面回源数据库时才需要。
+  #   - CI 用本地占位串兜底即可验证「无 DB 依赖的构建」；
+  #   - 真实生产 DATABASE_URL 只在「部署作业（deploy job / GitHub Environment 受保护环境）」注入，
+  #     切勿把生产库连接串放进普通 PR CI 的 Secrets（避免测试污染/误连生产库）。
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: quality
     env:
-      # 构建期若需连接数据库，请在此提供真实 DATABASE_URL（仓库 Secrets）
-      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://circleica:circleica@localhost:5432/circleica' }}
+      # 本地占位串：CI 构建兜底，不会连任何真实数据库
+      DATABASE_URL: ${{ secrets.CI_DATABASE_URL || 'postgresql://circleica:circleica@localhost:5432/circleica' }}
       NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +73,9 @@ jobs:
       DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
       NODE_ENV: test
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      # 非必填：监控/邮件等，缺省时走降级
+      # 可选、非机密：仅用于「验证带监控的构建链路」。缺省时代码自动降级为无监控（不影响业务）。
+      # 不要在此注入生产 SENTRY_DSN / OTEL 端点——CI 只需验证降级路径与基础链路；
+      # 生产真实值只在「部署作业 / GitHub Environment 受保护环境」注入。
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
     steps:
