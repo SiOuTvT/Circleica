@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: Circleica
+    orgId: 1
+    folder: Circleica
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

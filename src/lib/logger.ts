@@ -183,6 +183,7 @@ class Logger {
           body: message,
           attributes: {
             scope: this.scope,
+            level,
             ...enrich,
             ...(context ? this.sanitize(context) : {}),
           },
