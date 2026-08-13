@@ -1,6 +1,6 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSlot } from "@/components/game-card"
-import { CalendarCheck, Gamepad2, Plus } from "lucide-react"
+import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
@@ -55,6 +55,18 @@ export const revalidate = 60
  * 加载完还是 12 格）。用骨架会制造「结构会变」的错误暗示，并引入一次 shimmer 停止的视觉切换。
  * 用空槽则网格从第一帧到最后一帧完全静止，只有内容就地填入。
  */
+/**
+ * 公告区常驻空槽：无公告时常驻，与 AnnounceSwiper 同尺寸，有公告时覆盖。
+ */
+function AnnounceSlot() {
+  return (
+    <div className="announce-slot relative flex w-full h-[200px] sm:h-[220px] lg:h-[310px] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-2xl">
+      <Megaphone className="announce-slot-mark h-8 w-8" strokeWidth={1} aria-hidden="true" />
+      <p className="announce-slot-text text-sm">暂无公告</p>
+    </div>
+  )
+}
+
 function GameGridSlots() {
   return (
     <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
@@ -238,7 +250,7 @@ export default async function HomePage({
 
       {/* Hero + 手机端随机按钮 — 紧密组合 */}
       <div className="flex flex-col gap-4 sm:gap-5">
-        <div className={`grid grid-cols-1 gap-5 items-start ${announcements.length > 0 ? "md:grid-cols-[2fr_3fr]" : "md:grid-cols-1"}`}>
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
           {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
@@ -273,8 +285,12 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* 公告区：有公告时展示轮播；无公告时收起，不再占用首屏大片面积，让资源大厅上移 */}
-          {announcements.length > 0 && <AnnounceSwiper announcements={announcements} />}
+          {/* 公告区：有公告覆盖，无公告常驻占位卡 */}
+          {announcements.length > 0 ? (
+            <AnnounceSwiper announcements={announcements} />
+          ) : (
+            <AnnounceSlot />
+          )}
         </div>
 
         {/* 手机端：随机发现按钮 */}
