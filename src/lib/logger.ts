@@ -93,10 +93,45 @@ class Logger {
 
   // ── 内部 ──────────────────────────
 
+  /**
+   * 把 LogContext 中的 Error / 非 JSON 安全值规整为字符串，避免序列化报错。
+   */
+  private sanitize(ctx: LogContext): Record<string, unknown> {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(ctx)) {
+      if (v instanceof Error) {
+        out[k] = v.message
+        out[`${k}_stack`] = v.stack
+      } else if (v === null || v === undefined) {
+        // 跳过空值，保持日志紧凑
+      } else {
+        out[k] = v
+      }
+    }
+    return out
+  }
+
   private emit(level: LogLevel, message: string, context?: LogContext) {
     if (!shouldLog(level)) return
 
     const timestamp = new Date().toISOString()
+
+    // 关联增强：请求上下文（requestId/route）与当前 Trace（traceId/spanId）。
+    // 仅在服务端 instrumentation 启动时注册这两个 getter；客户端恒为 undefined → 自动降级。
+    const getReqCtx = (globalThis as Record<string, unknown>).__circleicaGetRequestCtx as
+      | (() => { requestId?: string; route?: string } | undefined)
+      | undefined
+    const getTraceCtx = (globalThis as Record<string, unknown>).__circleicaTraceCtx as
+      | (() => { traceId?: string; spanId?: string })
+      | undefined
+    const reqCtx = getReqCtx?.()
+    const traceCtx = getTraceCtx?.()
+
+    const enrich: Record<string, unknown> = {}
+    if (reqCtx?.requestId) enrich.request_id = reqCtx.requestId
+    if (reqCtx?.route) enrich.route = reqCtx.route
+    if (traceCtx?.traceId) enrich.trace_id = traceCtx.traceId
+    if (traceCtx?.spanId) enrich.span_id = traceCtx.spanId
 
     if (process.env.NODE_ENV === "production") {
       // 生产环境：JSON 结构化
@@ -105,9 +140,10 @@ class Logger {
         time: timestamp,
         scope: this.scope,
         msg: message,
+        ...enrich,
       }
       if (context && Object.keys(context).length > 0) {
-        Object.assign(entry, context)
+        Object.assign(entry, this.sanitize(context))
       }
       // 生产环境用 stdout/stderr 分流
       const out = level === "error" ? process.stderr : process.stdout
@@ -116,8 +152,9 @@ class Logger {
       // 开发环境：彩色格式化
       const c = COLORS
       const label = LEVEL_LABELS[level]
-      const ctxStr = context && Object.keys(context).length > 0
-        ? ` ${c.dim}${JSON.stringify(context)}${c.reset}`
+      const ctxObj = { ...enrich, ...(context ? this.sanitize(context) : {}) }
+      const ctxStr = Object.keys(ctxObj).length > 0
+        ? ` ${c.dim}${JSON.stringify(ctxObj)}${c.reset}`
         : ""
       const line = `${c.dim}${timestamp}${c.reset} ${c[level]}${label}${c.reset} ${c.dim}[${this.scope}]${c.reset} ${message}${ctxStr}`
 
@@ -127,6 +164,31 @@ class Logger {
       } else {
         if (typeof process !== "undefined" && process.stdout) process.stdout.write(line + "\n")
         else console.log(line)
+      }
+    }
+
+    // 结构化日志接入后端（Loki / OTel logs）。
+    // 未配置监控服务时 __circleicaLogSink 不存在，此分支自动跳过 —— 实现「无监控降级」。
+    const sink = (globalThis as Record<string, unknown>).__circleicaLogSink as
+      | ((r: {
+          severityText: string
+          body: string
+          attributes: Record<string, unknown>
+        }) => void)
+      | undefined
+    if (sink) {
+      try {
+        sink({
+          severityText: level,
+          body: message,
+          attributes: {
+            scope: this.scope,
+            ...enrich,
+            ...(context ? this.sanitize(context) : {}),
+          },
+        })
+      } catch {
+        /* 监控失败绝不能影响业务日志 */
       }
     }
   }

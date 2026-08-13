@@ -15,11 +15,21 @@
 import type { Instrumentation } from "next"
 
 export async function register() {
+  // ── OpenTelemetry（日志/指标/Trace 统一开放标准）──
+  // 仅在配置了 OTLP 端点时启动采集；否则 instrumentation-otel 内部自动跳过，
+  // 实现「未配置监控服务时的合理降级」。开发环境同样跳过（无该变量）。
+  const { initOtel } = await import("./instrumentation-otel")
+  await initOtel()
+
+  // ── Sentry（前端错误 / RUM / 性能 + 服务端异常采集）──
+  // 仅生产 + 配置了 DSN 时启用；否则 SDK 静默禁用。
   if (process.env.NODE_ENV === "development") return
 
   if (!process.env.SENTRY_DSN && !process.env.NEXT_PUBLIC_SENTRY_DSN) {
     // 未配置 DSN 时 SDK 会静默禁用，这里显式提示，避免"以为在监控其实全盲"
-    console.warn("[sentry] DSN 未配置，错误监控未启用（如需启用请设置 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN）")
+    console.warn(
+      "[sentry] DSN 未配置，错误监控未启用（如需启用请设置 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN）",
+    )
     return
   }
 

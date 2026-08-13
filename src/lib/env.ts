@@ -49,6 +49,17 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().url().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
 
+  // 可选 - OpenTelemetry / 可观测性
+  // OTEL_EXPORTER_OTLP_ENDPOINT：OTel Collector 的 OTLP HTTP 端点（如 http://otel-collector:4318）。
+  //   配置后启用 Trace / Metrics / Logs 采集；留空则整站降级为「无监控」模式（不影响任何业务）。
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().optional(),
+  OTEL_SERVICE_NAME: z.string().optional(),
+
+  // 可选 - 应用版本（Sentry release / OTel resource.service.version / 部署版本关联）
+  APP_VERSION: z.string().optional(),
+  NEXT_PUBLIC_APP_VERSION: z.string().optional(),
+
   // 可选 - Resend
   RESEND_API_KEY: z.string().optional(),
 
@@ -141,6 +152,8 @@ export function getFeatures() {
   return {
     redis: !!(e.UPSTASH_REDIS_REST_URL && e.UPSTASH_REDIS_REST_TOKEN),
     sentry: !!(e.SENTRY_DSN || e.NEXT_PUBLIC_SENTRY_DSN),
+    // OpenTelemetry 采集：配置了 OTLP 端点即视为启用（Trace/Metrics/Logs → Grafana）
+    otel: !!(e.OTEL_EXPORTER_OTLP_ENDPOINT),
     email: !!(e.RESEND_API_KEY || e.BREVO_API_KEY),
     // 注意: 此值仅反映环境变量，DB 配置的能力检查见 service-config.getEmailConfigured()
     r2: !!(e.R2_BUCKET_NAME && e.R2_ACCOUNT_ID),

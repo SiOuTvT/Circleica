@@ -77,6 +77,9 @@ ENV SENTRY_ORG=${SENTRY_ORG}
 ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 ENV APP_VERSION=${VERSION}
+# NEXT_PUBLIC_* 必须在构建期就存在（会被内联进浏览器 bundle），运行时再给来不及。
+# 同时作为 Sentry 浏览器端 release 的版本来源。
+ENV NEXT_PUBLIC_APP_VERSION=${VERSION}
 
 # Build the application（webpack 生产构建，132 页面）
 # 内存默认 4096 = 项目真实需求（标准配置下构建更快更稳）。弱机器不要改这里——
@@ -143,6 +146,7 @@ EXPOSE 3000
 # Environment variables
 ARG VERSION="unknown"
 ENV APP_VERSION=${VERSION}
+ENV NEXT_PUBLIC_APP_VERSION=${VERSION}
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_OPTIONS="--max-http-header-size=1048576"

@@ -145,6 +145,9 @@ async function withSentry(config: NextConfig): Promise<NextConfig> {
     widenClientFileUpload: true,
     sourcemaps: { deleteSourcemapsAfterUpload: true },
     tunnelRoute: "/api/sentry/tunnel",
+    // 部署版本关联：release 同时写入浏览器 bundle 与 Sentry issue，
+    // 配合 sourcemap 上传可在 Sentry 中直接定位到具体提交/版本。
+    release: process.env.NEXT_PUBLIC_APP_VERSION || process.env.APP_VERSION,
   });
 }
 

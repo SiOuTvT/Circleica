@@ -125,6 +125,14 @@ services:
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
       UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
       UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
+      # ── 可观测性（OpenTelemetry）──
+      # 配置该端点后，应用把 Trace/Metrics/Logs 经 OTLP 推送到 OTel Collector（见 docker-compose.observability.yml）。
+      # 留空则应用自动降级为「无监控」模式，不影响业务。多实例均指向同一个 Collector 即可。
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-circleica}
+      APP_VERSION: ${VERSION:-0.1.0}
+      NEXT_PUBLIC_APP_VERSION: ${VERSION:-0.1.0}
     volumes:
       - uploads_data:/app/public/uploads
     healthcheck:

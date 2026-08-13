@@ -18,8 +18,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ZodError } from "zod"
 import { Prisma } from "@prisma/client"
+import { SpanStatusCode } from "@opentelemetry/api"
+import * as Sentry from "@sentry/nextjs"
 import { AppError, RateLimitError, NotFoundError, ConflictError, ValidationError } from "./errors"
 import { logger } from "./logger"
+import { withActiveSpan, recordRequest, recordError, getActiveTraceContext } from "./telemetry"
+import { runWithRequestContext } from "./request-context"
 
 // ── 响应类型 ────────────────────────
 
@@ -111,47 +115,97 @@ type RouteHandler = (req: NextRequest, ctx: { params: Promise<Record<string, str
  * 2. ZodError → 422 + 字段详情
  * 3. 其他 → 500 + 日志
  */
+/**
+ * 把服务端异常上报到 Sentry，并附带当前 Trace 上下文（错误 ↔ Trace 双向关联）。
+ * 监控不可用 / DSN 未配置时 captureException 自动降级为空操作，不抛错。
+ */
+function captureToSentry(error: unknown, requestId: string, route: string, code: string) {
+  try {
+    Sentry.captureException(error, {
+      contexts: { trace: getActiveTraceContext(), request: { requestId, route } },
+      tags: { code },
+    })
+  } catch {
+    /* 监控失败不影响业务 */
+  }
+}
+
 export function withHandler(handler: RouteHandler): RouteHandler {
   return async (req, ctx) => {
-    try {
-      return await handler(req, ctx)
-    } catch (error) {
-      // 业务异常
-      if (error instanceof AppError) {
-        if (error instanceof RateLimitError) {
-          logger.api.warn("请求被限流", { path: req.nextUrl.pathname })
-          // 携带异常中的 retryAfter，让客户端获得准确的重试时间（L2③）
-          return errorResponse(error.message, error.status, error.code, error.details, error.retryAfter)
-        }
-        if (error.status >= 500) {
-          logger.api.error(`[${error.code}] ${error.message}`, error)
-        }
-        return errorResponse(error.message, error.status, error.code, error.details)
-      }
+    // 请求级标识：优先用代理转发的 x-request-id，否则生成，贯穿日志 / Trace / Sentry
+    const requestId = req.headers.get("x-request-id") || crypto.randomUUID()
+    const route = req.nextUrl.pathname
 
-      // Zod 验证错误
-      if (error instanceof ZodError) {
-        const details: Record<string, string[]> = {}
-        for (const issue of error.issues) {
-          const path = issue.path.join(".")
-          if (!details[path]) details[path] = []
-          details[path].push(issue.message)
-        }
-        return errorResponse("数据验证失败", 422, "VALIDATION_ERROR", details)
-      }
+    return runWithRequestContext({ requestId, route }, () =>
+      withActiveSpan(
+        "http.server.request",
+        {
+          "http.method": req.method,
+          "http.route": route,
+          "http.request_id": requestId,
+        },
+        async (span) => {
+          const start = Date.now()
+          const finish = (status: number, code?: string) => {
+            span.setAttributes({ "http.status_code": status })
+            if (status >= 500) {
+              span.setStatus({ code: SpanStatusCode.ERROR, message: code || "server_error" })
+            }
+            recordRequest(req.method, status, Date.now() - start)
+            if (code) recordError(code)
+          }
 
-      // Prisma 已知错误（数据库约束/记录不存在）→ 映射到标准业务异常
-      // 集中在此处理，避免每个 Service/Repository 重复 try-catch Prisma。
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        const mapped = mapPrismaError(error)
-        logger.api.error(`[${mapped.code}] ${mapped.message}`, error)
-        return errorResponse(mapped.message, mapped.status, mapped.code)
-      }
+          try {
+            const res = await handler(req, ctx)
+            finish(res.status)
+            return res
+          } catch (error) {
+            // 业务异常
+            if (error instanceof AppError) {
+              if (error instanceof RateLimitError) {
+                logger.api.warn("请求被限流", { path: req.nextUrl.pathname })
+                // 携带异常中的 retryAfter，让客户端获得准确的重试时间（L2③）
+                finish(429, "RATE_LIMITED")
+                return errorResponse(error.message, error.status, error.code, error.details, error.retryAfter)
+              }
+              if (error.status >= 500) {
+                logger.api.error(`[${error.code}] ${error.message}`, error)
+                captureToSentry(error, requestId, route, error.code)
+              }
+              finish(error.status, error.code)
+              return errorResponse(error.message, error.status, error.code, error.details)
+            }
 
-      // 未知异常
-      logger.api.error("未处理的 API 异常", error, { path: req.nextUrl.pathname })
-      return errorResponse("服务器内部错误，请稍后再试", 500, "INTERNAL")
-    }
+            // Zod 验证错误
+            if (error instanceof ZodError) {
+              const details: Record<string, string[]> = {}
+              for (const issue of error.issues) {
+                const path = issue.path.join(".")
+                if (!details[path]) details[path] = []
+                details[path].push(issue.message)
+              }
+              finish(422, "VALIDATION_ERROR")
+              return errorResponse("数据验证失败", 422, "VALIDATION_ERROR", details)
+            }
+
+            // Prisma 已知错误（数据库约束/记录不存在）→ 映射到标准业务异常
+            // 集中在此处理，避免每个 Service/Repository 重复 try-catch Prisma。
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+              const mapped = mapPrismaError(error)
+              logger.api.error(`[${mapped.code}] ${mapped.message}`, error)
+              finish(mapped.status, mapped.code)
+              return errorResponse(mapped.message, mapped.status, mapped.code)
+            }
+
+            // 未知异常
+            logger.api.error("未处理的 API 异常", error, { path: req.nextUrl.pathname })
+            captureToSentry(error, requestId, route, "INTERNAL")
+            finish(500, "INTERNAL")
+            return errorResponse("服务器内部错误，请稍后再试", 500, "INTERNAL")
+          }
+        },
+      ),
+    )
   }
 }
 
