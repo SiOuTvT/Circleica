@@ -25,6 +25,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
       include: {
         tags: { select: { tag: true } },
         creators: { select: { creatorId: true, role: true, creator: { select: { vndbId: true, name: true, nameJa: true } } } },
+        studios: { select: { studio: { select: { displayName: true } } } },
       },
     }),
     prisma.tag.findMany({ where: { source: "circleica" }, orderBy: { name: "asc" } }),
@@ -52,6 +53,7 @@ export default async function EditGamePage({ params }: { params: Promise<{ id: s
     ageRating: typeof game.ageRating === "string" ? game.ageRating : "",
     status: game.status,
     tagIds: game.tags.map((t) => t.tag.id),
+    studios: game.studios.map((s) => s.studio.displayName),
     creators: game.creators.map((c) => ({ vndbId: c.creator.vndbId, name: c.creator.name, nameJa: c.creator.nameJa, role: c.role })),
     releaseDate: game.releaseDate ? toShanghaiDate(game.releaseDate) : undefined,
   }
