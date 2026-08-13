@@ -221,7 +221,7 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     // ⚠️ 作品列表（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
     const nsfwWhere = await creatorsNsfwWhere()
     creator = await prisma.creator.findFirst({
-      where: { slug: key, source: "circleica" },
+      where: { slug: key },
       include: {
         games: {
           where: { game: { isPublished: true, ...nsfwWhere } },
