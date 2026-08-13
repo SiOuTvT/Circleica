@@ -13,6 +13,7 @@
  */
 
 import type { Instrumentation } from "next"
+import { logger } from "@/lib/logger"
 
 export async function register() {
   // ── OpenTelemetry（日志/指标/Trace 统一开放标准）──
@@ -27,9 +28,7 @@ export async function register() {
 
   if (!process.env.SENTRY_DSN && !process.env.NEXT_PUBLIC_SENTRY_DSN) {
     // 未配置 DSN 时 SDK 会静默禁用，这里显式提示，避免"以为在监控其实全盲"
-    console.warn(
-      "[sentry] DSN 未配置，错误监控未启用（如需启用请设置 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN）",
-    )
+    logger.system.warn("DSN 未配置，错误监控未启用（如需启用请设置 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN）")
     return
   }
 

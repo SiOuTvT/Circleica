@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── 质量门禁：每次 PR 自动跑，无需运行时环境 ──
+  quality:
+    name: Lint / Typecheck / Unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm run test
+
+  # ── 生产构建：需 DATABASE_URL 等密钥（在仓库 Settings → Secrets 配置）──
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: quality
+    env:
+      # 构建期若需连接数据库，请在此提供真实 DATABASE_URL（仓库 Secrets）
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://circleica:circleica@localhost:5432/circleica' }}
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Prisma generate
+        run: npx prisma generate
+      - name: Build
+        run: npm run build
+
+  # ── 端到端：内置 Postgres 服务 + Playwright，验证关键链路 ──
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: build
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: circleica
+          POSTGRES_PASSWORD: circleica
+          POSTGRES_DB: circleica
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U circleica"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
+      NODE_ENV: test
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      # 非必填：监控/邮件等，缺省时走降级
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Prisma generate + migrate
+        run: npx prisma generate && npx prisma migrate deploy
+      - name: Build
+        run: npm run build
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Start server
+        run: npm run start &
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000 --timeout 120000
+      - name: E2E tests
+        run: npm run test:e2e

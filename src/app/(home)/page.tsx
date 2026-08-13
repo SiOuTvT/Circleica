@@ -1,6 +1,6 @@
 import { AnnounceSwiper } from "@/components/announce-swiper"
 import { GameCardSlot } from "@/components/game-card"
-import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
+import { CalendarCheck, Gamepad2, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import { buildGameSearchFilter } from "@/lib/filters"
@@ -59,28 +59,6 @@ function GameGridSlots() {
   return (
     <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSlot key={i} />)}
-    </div>
-  )
-}
-
-/**
- * 公告区常驻空槽：无公告时常驻，与 AnnounceSwiper 同尺寸，有公告时覆盖。
- *
- * 与游戏卡空槽的差异（有意为之）：公告位是「单例大区块」（1 个，面积约单卡 6 倍），
- * 完全空白的 310px 会在视觉上塌陷、易被读成「这块坏了」，所以允许一个图标+文案锚点。
- * 游戏卡空槽是「重复小单元」（11 个），任何标记都会形成网点噪声，故零标记。
- *
- * 已移除的三样东西（勿加回）：
- * 1. dark: 前缀的渐变 —— 本项目 .dark 类是运行时脚本打的，SSR 首屏没有它，
- *    会导致首屏先渲染浅灰色再翻黑，在深色页面里闪一块 310px 浅灰板。一律用「深色为基础 + .light 覆盖」。
- * 2. 底部黑色遮罩 —— 它的唯一作用是让文字压在照片上可读；没照片时就是一条凭空暗带，像图片加载失败。
- * 3. skeleton-shimmer 假内容条 —— 骨架语言，且是动画源。
- */
-function AnnounceSlot() {
-  return (
-    <div className="announce-slot relative flex w-full h-[200px] sm:h-[220px] lg:h-[310px] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-2xl">
-      <Megaphone className="announce-slot-mark h-8 w-8" strokeWidth={1} aria-hidden="true" />
-      <p className="announce-slot-text text-sm">暂无公告</p>
     </div>
   )
 }
@@ -260,7 +238,7 @@ export default async function HomePage({
 
       {/* Hero + 手机端随机按钮 — 紧密组合 */}
       <div className="flex flex-col gap-4 sm:gap-5">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
+        <div className={`grid grid-cols-1 gap-5 items-start ${announcements.length > 0 ? "md:grid-cols-[2fr_3fr]" : "md:grid-cols-1"}`}>
           {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
           <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
@@ -295,12 +273,8 @@ export default async function HomePage({
             </div>
           </div>
 
-          {/* 公告区：有公告覆盖，无公告常驻占位卡 */}
-          {announcements.length > 0 ? (
-            <AnnounceSwiper announcements={announcements} />
-          ) : (
-            <AnnounceSlot />
-          )}
+          {/* 公告区：有公告时展示轮播；无公告时收起，不再占用首屏大片面积，让资源大厅上移 */}
+          {announcements.length > 0 && <AnnounceSwiper announcements={announcements} />}
         </div>
 
         {/* 手机端：随机发现按钮 */}

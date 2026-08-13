@@ -1,29 +1,13 @@
 import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
+import { isSuperAdminRoute } from "@/lib/permissions"
 import dynamic from "next/dynamic"
 import { headers } from "next/headers"
 
 const AdminGlobalSearch = dynamic(() => import("@/components/admin-global-search").then(m => ({ default: m.AdminGlobalSearch })))
 
-/**
- * 需要 SUPER_ADMIN 权限的路由前缀列表
- *
- * ⚠️ 维护提醒：
- * 新增 /admin/* 页面时，如果是 SUPER_ADMIN 专属功能，
- * 必须在此数组中添加对应路径，否则 ADMIN 用户也能访问。
- *
- * "use client" 页面无法自行检查服务端权限，完全依赖此列表。
- */
-const SUPER_ADMIN_PATHS = [
-  "/admin/emotional-messages",
-  "/admin/resource-tags",
-  "/admin/users",
-  "/admin/avatar-frames",
-  "/admin/site-settings",
-  "/admin/pages",
-  "/admin/achievements",
-  "/admin/theme",
-  "/admin/services",
-]
+// SUPER_ADMIN 专属路由的「单一事实来源」在 @/lib/permissions 的 SUPER_ADMIN_ROUTES 维护，
+// 本布局只调用 isSuperAdminRoute() 判断，不再各自维护一份路径数组，避免双写漂移。
+// 新增 SUPER_ADMIN 专属页面时，只需在 permissions.ts 登记即可同时覆盖 proxy 层与本布局。
 
 const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ default: m.AdminNav })), {
   loading: () => (
@@ -58,8 +42,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // 先检查 ADMIN 权限
   await requireAdmin()
 
-  // SUPER_ADMIN 页面需要更高权限
-  if (SUPER_ADMIN_PATHS.some(p => pathname.startsWith(p))) {
+  // SUPER_ADMIN 页面需要更高权限（路由清单来自 permissions.ts 单一真相源）
+  if (isSuperAdminRoute(pathname)) {
     await requireSuperAdmin()
   }
 

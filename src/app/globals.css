@@ -10,6 +10,21 @@ label:has(input[type="radio"]), label:has(input[type="checkbox"]) {
   cursor: pointer;
 }
 
+/* ── P3-4：hover-only 浮层在触控 / 键盘下的可访问性 ──
+ * 部分控件用 `opacity-0 group-hover:opacity-100` 仅在悬停时显示。
+ * 触控设备无 hover → 控件永远不可见、不可操作；键盘 Tab 也看不到。
+ * 统一修复（一处覆盖整类问题，不逐个改组件）：
+ * ① 粗指针设备（手机/平板，hover:none）强制常显；
+ * ② 键盘聚焦（.group:focus-within）时显隐，保证 Tab 可达。 */
+@media (hover: none) {
+  .group-hover\:opacity-100 {
+    opacity: 1 !important;
+  }
+}
+.group:focus-within .group-hover\:opacity-100 {
+  opacity: 1 !important;
+}
+
 /* 全局移动端溢出保护 */
 html {
   overflow-x: clip;
