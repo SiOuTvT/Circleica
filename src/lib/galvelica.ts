@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client"
+import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
@@ -338,6 +339,20 @@ function workSortToOrderBy(sort: GalvelicaSort): Prisma.WorkOrderByWithRelationI
   }
 }
 
+// 列表/搜索分页计数聚合：where 已含 NSFW 模式 / 搜索 / 标签 / 年份等全部过滤维度，
+// 序列化后作为缓存键的一部分，保证不同筛选条件互不串缓存（PERF-4）。
+// Prisma DateTime 过滤接受 ISO 字符串，故 where JSON 往返安全。
+const _workCountCache = unstable_cache(
+  async (whereJson: string) => prisma.work.count({ where: JSON.parse(whereJson) }),
+  ["galvelica-work-count"],
+  { revalidate: 60, tags: ["galvelica-works"] },
+)
+const _gameCountCache = unstable_cache(
+  async (whereJson: string) => prisma.game.count({ where: JSON.parse(whereJson) }),
+  ["galvelica-game-count"],
+  { revalidate: 60, tags: ["galvelica-games"] },
+)
+
 export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaListResult> {
   if (!(await archiveReady())) return listWorksFromGame(query)
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
@@ -345,7 +360,7 @@ export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaLis
   const where = await workWhere(query)
 
   const [total, rows] = await Promise.all([
-    prisma.work.count({ where }),
+    _workCountCache(JSON.stringify(where)),
     prisma.work.findMany({
       where,
       select: workCardSelect(),
@@ -824,7 +839,7 @@ async function listWorksFromGame(query: GalvelicaListQuery): Promise<GalvelicaLi
   const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
   const where = await publishedWhere(query)
   const [total, rows] = await Promise.all([
-    prisma.game.count({ where }),
+    _gameCountCache(JSON.stringify(where)),
     prisma.game.findMany({
       where,
       select: workCardSelectGame(),

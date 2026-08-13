@@ -114,6 +114,39 @@ function loginUrlFor(req: NextRequest, callbackPath: string): URL {
   return url
 }
 
+/**
+ * 同源 Origin 校验（SEC-6 / 审计 2.7 CSRF 纵深防御）。
+ * 浏览器在跨站 POST/PUT/PATCH/DELETE 时必带攻击者的 Origin；同源请求 Origin 与本站 host 一致。
+ * 判定规则（满足任一即放行）：
+ *  1) Origin 的 host（含端口）与本站 nextUrl.host 完全一致；
+ *  2) Origin 的主机名（忽略端口）与本站一致 —— 兼容裸 IP + 非标准端口（如 http://1.2.3.4:3000）；
+ *  3) Origin 的 host 与 NEXTAUTH_URL 的 host 一致 —— 兼容反代 / 容器内 Host 改写。
+ * 仅当 Origin 存在且 host 不匹配（跨站，不同主机名）才返回 403；无 Origin 的合法请求
+ * （服务端脚本、健康检查、代理内网调用）返回 null 放行。异常（非法 Origin 字符串）也拦截。
+ */
+function checkSameOrigin(req: NextRequest): NextResponse | null {
+  const origin = req.headers.get("origin")
+  if (!origin) return null
+  try {
+    const originUrl = new URL(origin)
+    const reqHost = req.nextUrl.host
+    const reqHostname = req.nextUrl.hostname
+    const authUrlHost = process.env.NEXTAUTH_URL
+      ? new URL(process.env.NEXTAUTH_URL).host
+      : null
+    const hostOk =
+      originUrl.host === reqHost ||
+      originUrl.hostname === reqHostname ||
+      (authUrlHost !== null && originUrl.host === authUrlHost)
+    if (!hostOk) {
+      return NextResponse.json({ error: "Forbidden: cross-origin request" }, { status: 403 })
+    }
+    return null
+  } catch {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+}
+
 // 静态资源不执行脚本 → 不需要 CSP/nonce，但仍需 nosniff / CORP 等安全头。
 // 每请求 crypto.getRandomValues + 拼 CSP，在「一页几十张图」的弱机上是纯浪费 CPU。
 const STATIC_ASSET_RE =
@@ -136,6 +169,10 @@ export async function proxy(req: NextRequest) {
 
   // CSP 仅对页面路由启用，不对 API 设置（避免干扰 NextAuth）
   const isPageRoute = !pathname.startsWith("/api/")
+
+  // 状态变更方法（用于同源 Origin 校验的触发条件，SEC-6）
+  const isStateChanging =
+    req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE"
 
   // ── CSP nonce 传递 ──
   // 关键：nonce 必须写进「请求头」，不能只写响应头。
@@ -194,41 +231,18 @@ export async function proxy(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    // CSRF 纵深防御（审计 2.7）：状态变更的写接口强制同源。
-    // 浏览器在跨站 POST/PUT/PATCH/DELETE 时必带攻击者的 Origin；
-    // 同源请求 Origin 与本站 host 一致。仅当 Origin 存在且 host 不匹配才拦截，
-    // 避免误杀无 Origin 的合法请求（服务端脚本、健康检查、代理内网调用等）。
-    // 注意：若将来把后台 API 与页面部署到不同 host，需同步放宽此处白名单。
-    const isStateChanging =
-      req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE"
-    if (isStateChanging) {
-      const origin = req.headers.get("origin")
-      if (origin) {
-        try {
-          const originUrl = new URL(origin)
-          // 同源判定：协议 + 主机名一致即视为同源。满足以下任一即放行：
-          //  1) Origin 的 host（含端口）与本站 nextUrl.host 完全一致；
-          //  2) Origin 的主机名（忽略端口）与本站一致 —— 兼容裸 IP + 非标准端口
-          //     （如 http://1.2.3.4:3000，浏览器 Origin 带端口而中间件 nextUrl.host 解析差异）；
-          //  3) Origin 的 host 与 NEXTAUTH_URL 的 host 一致 —— 兼容反代 / 容器内 Host 改写。
-          // 跨站（不同主机名）的请求仍一律拒绝，CSRF 纵深防御不削弱。
-          const reqHost = req.nextUrl.host
-          const reqHostname = req.nextUrl.hostname
-          const authUrlHost = process.env.NEXTAUTH_URL
-            ? new URL(process.env.NEXTAUTH_URL).host
-            : null
-          const hostOk =
-            originUrl.host === reqHost ||
-            originUrl.hostname === reqHostname ||
-            (authUrlHost !== null && originUrl.host === authUrlHost)
-          if (!hostOk) {
-            return NextResponse.json({ error: "Forbidden: cross-origin request" }, { status: 403 })
-          }
-        } catch {
-          return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-        }
-      }
-    }
+    // CSRF 纵深防御（审计 2.7 / SEC-6）：后台写接口强制同源，复用 checkSameOrigin。
+    const adminOc = checkSameOrigin(req)
+    if (adminOc) return adminOc
+  }
+
+  // SEC-6：跨站写纵深防御 —— 对所有 /api/ 状态变更请求（非 NextAuth 内部路由）强制同源 Origin 校验，
+  // 不止后台接口。浏览器跨站写必带攻击者 Origin，同源请求 Origin 与本站 host 一致；
+  // 仅当 Origin 存在且 host 不匹配才拦截，无 Origin 的合法请求（服务端脚本/健康检查/内网调用）放行。
+  // 排除 /api/auth/：NextAuth 自带 CSRF 保护且部分流程对 Origin 敏感，避免误伤登录态。
+  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth/") && isStateChanging) {
+    const oc = checkSameOrigin(req)
+    if (oc) return oc
   }
 
   return withSecurityHeaders(res, req)
