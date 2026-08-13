@@ -11,7 +11,7 @@
  * Trace → Tempo；Metrics → Prometheus（经 OTel Collector）；Logs → Loki。
  */
 
-import { trace, metrics, SpanStatusCode, type Span } from "@opentelemetry/api"
+import { trace, metrics, context as otelContext, SpanStatusCode, type Span } from "@opentelemetry/api"
 
 const TRACER_NAME = "circleica"
 const METER_NAME = "circleica"
@@ -47,9 +47,9 @@ export async function withActiveSpan<T>(
   fn: (span: Span) => Promise<T>,
 ): Promise<T> {
   const span = tracer.startSpan(name, { attributes })
-  const ctx = trace.setSpan(trace.context.active(), span)
+  const ctx = trace.setSpan(otelContext.active(), span)
   try {
-    return await trace.context.with(ctx, () => fn(span))
+    return await otelContext.with(ctx, () => fn(span))
   } catch (err) {
     span.setStatus({
       code: SpanStatusCode.ERROR,

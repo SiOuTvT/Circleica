@@ -1,0 +1,9 @@
+apiVersion: 1
+contactPoints:
+  - name: default-webhook
+    webhook:
+      # 占位通知地址（无效端点，仅保证规则可加载）。
+      # 上线前请替换为真实渠道：邮件 / Slack / 钉钉 / 企业微信，
+      # 或新增 email / slack 等 contact point 并在 policies.yaml 中引用。
+      url: ${GRAFANA_ALERT_WEBHOOK:-http://127.0.0.1:9/}
+      sendResolved: true

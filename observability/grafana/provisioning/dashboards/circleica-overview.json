@@ -1,0 +1,135 @@
+{
+  "title": "Circleica 可观测性总览",
+  "uid": "circleica-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "title": "5xx 错误率",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 0.01 },
+            { "color": "red", "value": 0.05 }
+          ]
+        },
+        "unit": "percentunit"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(circleica_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(circleica_http_requests_total[5m]))"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "API 错误数（按 code）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 9, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "refId": "A", "expr": "sum by (code) (circleica_http_errors_total)", "legendFormat": "{{code}}" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "请求延迟 P95 / P99（ms）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 9, "x": 15, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "targets": [
+        {
+          "refId": "p95",
+          "expr": "histogram_quantile(0.95, sum by (le)(rate(circleica_http_request_duration_ms_bucket[5m])))",
+          "legendFormat": "P95"
+        },
+        {
+          "refId": "p99",
+          "expr": "histogram_quantile(0.99, sum by (le)(rate(circleica_http_request_duration_ms_bucket[5m])))",
+          "legendFormat": "P99"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "应用异常日志量（level=error）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({service_name=\"circleica\"} | json | level=\"error\" [5m]))",
+          "legendFormat": "error logs"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "数据库异常日志量（scope=DB）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 6 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({service_name=\"circleica\"} | json | level=\"error\" | scope=\"DB\" [5m]))",
+          "legendFormat": "db errors"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Redis / Upstash 异常日志量",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 6 },
+      "datasource": { "type": "loki", "uid": "Loki" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({service_name=\"circleica\"} |~ \"(?i)redis|upstash\" [5m]))",
+          "legendFormat": "redis/upstash"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "主机 CPU 使用率（%）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent" } },
+      "targets": [
+        { "refId": "A", "expr": "avg by (state)(system_cpu_utilization)*100", "legendFormat": "{{state}}" }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "主机内存使用率（%）",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent" } },
+      "targets": [
+        { "refId": "A", "expr": "avg(system_memory_utilization)*100", "legendFormat": "memory" }
+      ]
+    }
+  ]
+}

@@ -18,16 +18,10 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http"
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http"
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics"
-import {
-  LoggerProvider,
-  BatchLogRecordProcessor,
-  SeverityNumber,
-  type Logger as OtelLogger,
-} from "@opentelemetry/sdk-logs"
-import { setGlobalLoggerProvider } from "@opentelemetry/api-logs"
-import { Resource } from "@opentelemetry/resources"
+import { LoggerProvider, BatchLogRecordProcessor } from "@opentelemetry/sdk-logs"
+import { logs, SeverityNumber, type Logger as OtelLogger } from "@opentelemetry/api-logs"
+import { resourceFromAttributes, type Resource } from "@opentelemetry/resources"
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
-import { AlwaysOnSampler, ParentBased } from "@opentelemetry/core"
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node"
 import { PrismaInstrumentation } from "@prisma/instrumentation"
 import { UndiciInstrumentation } from "@opentelemetry/instrumentation-undici"
@@ -57,7 +51,7 @@ export async function startOtel() {
   const version = process.env.APP_VERSION || process.env.NEXT_PUBLIC_APP_VERSION || "dev"
   const deploymentEnv = process.env.NODE_ENV || "production"
 
-  const resource = new Resource({
+  const resource: Resource = resourceFromAttributes({
     [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
     [SemanticResourceAttributes.SERVICE_VERSION]: version,
     [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: deploymentEnv,
@@ -76,7 +70,7 @@ export async function startOtel() {
     resource,
     traceExporter,
     metricReader,
-    sampler: new ParentBased(new AlwaysOnSampler()),
+    // 默认采样（ParentBased(AlwaysOn)）已满足本站规模；不自定义采样器以免版本耦合
     instrumentations: [
       getNodeAutoInstrumentations({
         // 关闭与 Next.js 框架运行时容易冲突的少数项，其余保持默认开启
@@ -90,10 +84,12 @@ export async function startOtel() {
 
   await sdk.start()
 
-  // 日志：NodeSDK 不内置 logs，单独建 LoggerProvider，导出到同一 OTLP 端点 → Loki
-  const loggerProvider = new LoggerProvider({ resource })
-  loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter))
-  setGlobalLoggerProvider(loggerProvider)
+  // 日志：NodeSDK 不内置 logs，单独建 LoggerProvider（处理器在构造函数中注入），导出到同一 OTLP 端点 → Loki
+  const loggerProvider = new LoggerProvider({
+    resource,
+    processors: [new BatchLogRecordProcessor({ exporter: logExporter })],
+  })
+  logs.setGlobalLoggerProvider(loggerProvider)
 
   const otelLogger: OtelLogger = loggerProvider.getLogger("circleica")
 

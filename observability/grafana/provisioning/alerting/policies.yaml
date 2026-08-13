@@ -1,0 +1,7 @@
+apiVersion: 1
+policies:
+  - orgId: 1
+    receiver: default-webhook
+    group_by: ["alertname", "service"]
+    repeat_interval: 6h
+    routes: []

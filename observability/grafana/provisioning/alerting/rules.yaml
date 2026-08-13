@@ -1,0 +1,203 @@
+apiVersion: 1
+groups:
+  - name: circleica-alerts
+    rules:
+      # ── HTTP 层 ──
+      - alert: High5xxErrorRate
+        uid: circleica-5xx
+        title: 5xx 错误率过高
+        description: 近 5 分钟 5xx 错误率超过 5%
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: sum(rate(circleica_http_requests_total{status=~"5.."}[5m])) / sum(rate(circleica_http_requests_total[5m]))
+              legendFormat: "5xx rate"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 0.05
+        annotations:
+          summary: 5xx 错误率超过 5%
+        labels:
+          severity: critical
+
+      - alert: ApiErrorSpike
+        uid: circleica-api-err
+        title: API 错误突增
+        description: 近 10 分钟 API 错误计数超过 50
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: increase(circleica_http_errors_total[10m])
+              legendFormat: "errors"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 50
+        annotations:
+          summary: API 错误近 10 分钟突增（>50）
+        labels:
+          severity: warning
+
+      - alert: HighRequestLatencyP99
+        uid: circleica-latency
+        title: 请求延迟 P99 过高
+        description: 近 5 分钟 P99 延迟超过 2000ms
+        for: 10m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: histogram_quantile(0.99, sum by (le)(rate(circleica_http_request_duration_ms_bucket[5m])))
+              legendFormat: "P99"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 2000
+        annotations:
+          summary: 请求延迟 P99 超过 2000ms
+        labels:
+          severity: warning
+
+      - alert: ServiceDown
+        uid: circleica-down
+        title: 服务不可用
+        description: 超过 5 分钟未收到应用指标，应用可能已宕机
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: absent(circleica_http_requests_total)
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 0
+        annotations:
+          summary: 应用指标缺失，疑似不可用
+        labels:
+          severity: critical
+
+      # ── 日志层（Loki）──
+      - alert: DbExceptions
+        uid: circleica-db
+        title: 数据库异常
+        description: 近 5 分钟出现数据库错误日志
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Loki
+            model:
+              expr: sum(count_over_time({service_name="circleica"} | json | level="error" | scope="DB" [5m]))
+              legendFormat: "db errors"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 0
+        annotations:
+          summary: 检测到数据库异常日志
+        labels:
+          severity: warning
+
+      - alert: AppExceptions
+        uid: circleica-app
+        title: 应用异常过多
+        description: 近 5 分钟 error 级日志超过 20 条
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Loki
+            model:
+              expr: sum(count_over_time({service_name="circleica"} | json | level="error" [5m]))
+              legendFormat: "errors"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 20
+        annotations:
+          summary: 应用 error 级日志近 5 分钟超过 20 条
+        labels:
+          severity: warning
+
+      - alert: RedisExceptions
+        uid: circleica-redis
+        title: Redis / Upstash 异常
+        description: 近 5 分钟出现 Redis / Upstash 相关异常日志超过 5 条
+        for: 5m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Loki
+            model:
+              expr: sum(count_over_time({service_name="circleica"} |~ "(?i)redis|upstash" [5m]))
+              legendFormat: "redis/upstash"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 5
+        annotations:
+          summary: 检测到 Redis / Upstash 异常日志
+        labels:
+          severity: warning
+
+      # ── 主机资源 ──
+      - alert: HostCpuHigh
+        uid: circleica-cpu
+        title: 主机 CPU 使用率过高
+        description: CPU 使用率持续超过 85%
+        for: 10m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: avg by (state)(system_cpu_utilization)*100
+              legendFormat: "{{state}}"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 85
+        annotations:
+          summary: 主机 CPU 使用率超过 85%
+        labels:
+          severity: warning
+
+      - alert: HostMemHigh
+        uid: circleica-mem
+        title: 主机内存使用率过高
+        description: 内存使用率持续超过 90%
+        for: 10m
+        condition: B
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: avg(system_memory_utilization)*100
+              legendFormat: "memory"
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: A > 90
+        annotations:
+          summary: 主机内存使用率超过 90%
+        labels:
+          severity: warning

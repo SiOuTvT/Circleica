@@ -121,10 +121,13 @@ type RouteHandler = (req: NextRequest, ctx: { params: Promise<Record<string, str
  */
 function captureToSentry(error: unknown, requestId: string, route: string, code: string) {
   try {
+    const otel = getActiveTraceContext()
+    const traceContext =
+      otel.traceId && otel.spanId ? { trace_id: otel.traceId, span_id: otel.spanId } : undefined
     Sentry.captureException(error, {
-      contexts: { trace: getActiveTraceContext(), request: { requestId, route } },
+      contexts: { trace: traceContext, request: { requestId, route } },
       tags: { code },
-    })
+    } as never)
   } catch {
     /* 监控失败不影响业务 */
   }
