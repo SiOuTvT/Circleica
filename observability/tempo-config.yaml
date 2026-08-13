@@ -1,0 +1,36 @@
+# Tempo 2.5 配置（本地文件系统存储，all-in-one 模式）
+server:
+  http_listen_port: 3200
+  grpc_listen_port: 4317
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks
+    wal:
+      path: /tmp/tempo/wal
+  block:
+    bloom_filter_bits: 16
+
+compactor:
+  compaction:
+    block_retention: 168h
+
+query_frontend:
+  search:
+    enabled: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]

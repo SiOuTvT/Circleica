@@ -1,0 +1,67 @@
+# OpenTelemetry Collector 配置
+# 接收应用经 OTLP 推送的 Trace / Metrics / Logs，
+# 分别导出到 Tempo（链路）、Prometheus（指标，经 prometheus exporter 暴露）、Loki（日志）。
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+  # 主机资源指标（CPU / 内存 / 磁盘 / 网络 / 负载），覆盖「关键资源使用情况」看板与告警
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      memory:
+      load:
+      disk:
+      filesystem:
+      network:
+
+processors:
+  batch: {}
+
+exporters:
+  # 链路 → Tempo（OTLP gRPC，容器内网络）
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # 指标 → Prometheus（暴露 :8889/metrics，由 Prometheus 抓取）
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+  # 日志 → Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    # 低基数维度映射为 Loki 标签；高基数字段（trace_id / request_id 等）保留在日志行内，供检索
+    labels:
+      resource:
+        - service.name
+        - deployment.environment
+        - host.name
+      severity: severity_number
+    attributes:
+      - scope
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp, hostmetrics]
+      processors: [batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]
