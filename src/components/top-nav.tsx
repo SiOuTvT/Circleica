@@ -255,12 +255,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             <button
               onClick={onToggleForum}
               className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+              aria-label="论坛"
               title="论坛"
             >
               <MessageSquare className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
             </button>
 
-            <button onClick={toggleTheme} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+            <button onClick={toggleTheme} aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
               {theme === "light" ? <Sun className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : theme === "dark" ? <Moon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
                 : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
@@ -270,6 +271,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               <div ref={userRef} className="relative ml-1">
                 <button
                   onClick={() => setUserOpen(v => !v)}
+                  aria-label="用户菜单"
+                  aria-haspopup="menu"
+                  aria-expanded={userOpen}
                   className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-11 sm:w-11"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
