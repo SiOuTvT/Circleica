@@ -108,7 +108,7 @@ export default async function GalvelicaCreatorsPage({
               <div className="flex items-center gap-2.5">
                 {c.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.avatar} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-border" />
+                  <img src={c.avatar} alt={c.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-border" />
                 ) : (
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                     {c.name.charAt(0)}

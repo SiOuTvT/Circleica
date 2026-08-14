@@ -64,11 +64,11 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
   const upperN = n === 0 ? 0 : n === 1 ? 1 : n === 2 ? 2 : 3
   const lowerN = Math.max(0, n - upperN)
 
-  function Cover({ src, w, h, rotate = 0 }: { src: string | null; w: number; h: number; rotate?: number }) {
+  function Cover({ src, w, h, rotate = 0, title }: { src: string | null; w: number; h: number; rotate?: number; title?: string }) {
     return (
       <div style={{ padding: 3, background: "#fff", borderRadius: 8, width: w, boxShadow: "0 2px 5px rgba(35,45,65,0.10), 0 8px 16px rgba(35,45,65,0.07)", border: "1px solid rgba(40,50,70,0.10)", transform: `rotate(${rotate}deg)`, transformOrigin: "center bottom" }}>
         <div style={{ width: w, height: h, borderRadius: 4, overflow: "hidden", background: "#f0f1f5" }}>
-          {src ? <img src={serverProxyImg(src)} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /> : null}
+          {src ? <img src={serverProxyImg(src)} alt={title ?? ""} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /> : null}
         </div>
       </div>
     )
@@ -200,20 +200,20 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
             </div>
             <div style={{ position: "relative", height: 240, marginTop: 8 }}>
               {renderCovers.slice(0, upperN).map((g, i) => {
-                if (n === 1) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2, top: 8, zIndex: 2 }}><Cover src={g.coverImage} w={170} h={250} /></div>
+                if (n === 1) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2, top: 8, zIndex: 2 }}><Cover src={g.coverImage} w={170} h={250} title={g.title} /></div>
                 if (n === 2) return i === 0
-                  ? <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 30, top: 8, zIndex: 2 }}><Cover src={g.coverImage} w={170} h={250} rotate={1.2} /></div>
-                  : <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 - 120, top: 16, zIndex: 1 }}><Cover src={g.coverImage} w={108} h={160} rotate={-12} /></div>
-                if (i === 0) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 30, top: 8, zIndex: 3 }}><Cover src={g.coverImage} w={170} h={250} rotate={1.5} /></div>
-                if (i === 1) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 - 125, top: 14, zIndex: 2 }}><Cover src={g.coverImage} w={108} h={160} rotate={-13} /></div>
-                return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 160, top: 20, zIndex: 2 }}><Cover src={g.coverImage} w={100} h={150} rotate={10} /></div>
+                  ? <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 30, top: 8, zIndex: 2 }}><Cover src={g.coverImage} w={170} h={250} rotate={1.2} title={g.title} /></div>
+                  : <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 - 120, top: 16, zIndex: 1 }}><Cover src={g.coverImage} w={108} h={160} rotate={-12} title={g.title} /></div>
+                if (i === 0) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 30, top: 8, zIndex: 3 }}><Cover src={g.coverImage} w={170} h={250} rotate={1.5} title={g.title} /></div>
+                if (i === 1) return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 - 125, top: 14, zIndex: 2 }}><Cover src={g.coverImage} w={108} h={160} rotate={-13} title={g.title} /></div>
+                return <div key={g.id} style={{ position: "absolute", left: (CONTENT_W - 170) / 2 + 160, top: 20, zIndex: 2 }}><Cover src={g.coverImage} w={100} h={150} rotate={10} title={g.title} /></div>
               })}
             </div>
             {lowerN > 0 && (
               <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: -6 }}>
                 {renderCovers.slice(upperN).map((g, i) => {
                   const w = Math.min(86, (CONTENT_W - (lowerN - 1) * 10) / lowerN)
-                  return <div key={g.id}><Cover src={g.coverImage} w={w} h={Math.round(w * 1.55)} rotate={(i % 2 === 0 ? 1 : -1) * 0.8} /></div>
+                  return <div key={g.id}><Cover src={g.coverImage} w={w} h={Math.round(w * 1.55)} rotate={(i % 2 === 0 ? 1 : -1) * 0.8} title={g.title} /></div>
                 })}
               </div>
             )}

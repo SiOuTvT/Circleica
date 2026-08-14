@@ -12,10 +12,12 @@ export function HeroCover({
   cover,
   initial,
   shape,
+  alt,
 }: {
   cover: string | null | undefined
   initial: string
   shape: "rect" | "circle"
+  alt?: string
 }) {
   const [errored, setErrored] = useState(false)
   const shapeCls =
@@ -32,7 +34,7 @@ export function HeroCover({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={cover}
-          alt=""
+          alt={alt ?? ""}
           className="h-full w-full object-cover"
           onError={() => setErrored(true)}
         />

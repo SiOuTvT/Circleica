@@ -280,7 +280,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       }}>
         <div style={{ width: w, height: h, borderRadius: 4, overflow: "hidden", background: "#f0f1f5" }}>
           {g.coverImage && ok ? (
-            <img src={proxyImg(g.coverImage)} alt="" onError={() => markCoverFailed(g.id)}
+            <img src={proxyImg(g.coverImage)} alt={g.title || "封面"} onError={() => markCoverFailed(g.id)}
               style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
               crossOrigin="anonymous" referrerPolicy="no-referrer" />
           ) : (

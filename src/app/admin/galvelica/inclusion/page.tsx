@@ -85,7 +85,7 @@ export default async function GalvelicaInclusionPage() {
                 <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
                   {r.coverImage && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.coverImage} alt="" className="h-full w-full object-cover" />
+                    <img src={r.coverImage} alt={r.title} className="h-full w-full object-cover" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

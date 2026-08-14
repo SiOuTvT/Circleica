@@ -66,7 +66,7 @@ export function ArchiveHero({
           className,
         )}
       >
-        <HeroCover cover={cover} initial={initial} shape={shape} />
+        <HeroCover cover={cover} initial={initial} shape={shape} alt={title} />
         <div className="min-w-0 flex-1">
           {eyebrow && (
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

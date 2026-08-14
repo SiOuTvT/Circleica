@@ -78,7 +78,7 @@ export default async function GalvelicaCreatorDetailPage({
             <div className="h-24 w-24 overflow-hidden rounded-full bg-muted ring-1 ring-border">
               {creator.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={creator.avatar} alt="" className="h-full w-full object-cover" />
+                <img src={creator.avatar} alt={creator.name} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-2xl font-medium text-muted-foreground">
                   {creator.name.charAt(0)}

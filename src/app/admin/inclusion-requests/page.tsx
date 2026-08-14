@@ -95,7 +95,7 @@ export default async function InclusionRequestsAdmin() {
                 <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
                   {r.work.coverImage && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.work.coverImage} alt="" className="h-full w-full object-cover" />
+                    <img src={r.work.coverImage} alt={r.work.title} className="h-full w-full object-cover" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
