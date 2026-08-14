@@ -11,7 +11,7 @@ import { logAudit } from "@/lib/audit-log"
 import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { cache } from "@/lib/redis"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { slugify } from "@/lib/slug"
 
 /**
@@ -235,6 +235,9 @@ export const adminGameService = {
     revalidatePath("/admin/games")
     revalidatePath("/games")
     revalidatePath("/")
+    // A-8：详情页 Data Cache 失效（cache tag 机制）
+    revalidateTag(`game:${id}`, { expire: 0 })
+    revalidateTag("game-detail", { expire: 0 })
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -251,6 +254,9 @@ export const adminGameService = {
     revalidatePath("/games")
     revalidatePath("/")
     if (target?.serialId) revalidatePath(`/games/${target.serialId}`)
+    // A-8：详情页 Data Cache 失效（cache tag 机制）
+    revalidateTag(`game:${id}`, { expire: 0 })
+    revalidateTag("game-detail", { expire: 0 })
     await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

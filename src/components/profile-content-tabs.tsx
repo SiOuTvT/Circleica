@@ -205,12 +205,12 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
 
       <div className="p-4 sm:p-5 profile-scroll-area">
         {active === "favorites" && (
-          <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf}
+          <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf ?? false}
             onOpenFolder={(col) => setModalCollection(col)}
             showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
             newFolderName={newFolderName} setNewFolderName={setNewFolderName}
             onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
-            loading={collectionsLoading} creating={creating} />
+            loading={collectionsLoading ?? false} creating={creating} />
         )}
         {active === "comments" && (
           loadedComments ? <CommentsTab comments={localComments} /> : <TabLoadingSkeleton />

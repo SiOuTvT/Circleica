@@ -110,7 +110,7 @@ export default async function GameDetailPage({
   // A-8（方案 A）：主体数据走 Data Cache + cache tag，写路径通过 revalidateTag 失效。
   // 个性化字段（isFav / 身份）不进入缓存，由客户端 API 按需拉取。
   const gameResult = await unstable_cache(() => fetchGame(), ["game-detail", gameId], {
-    revalidate: 300,
+    revalidate: 1800,
     tags: ["game-detail", `game:${gameId}`],
   })()
   if (!gameResult) notFound()

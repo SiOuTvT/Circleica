@@ -9,7 +9,7 @@
  * 因此全站用户可控的 URL 字段必须改用本文件的校验器，禁止直接使用 z.string().url()。
  */
 import { z } from "zod"
-import { isHttpUrl, isHttpOrRelativeUrl } from "./url-util"
+import { isHttpUrl, isHttpOrRelativeUrl, HTTP_PROTOCOLS } from "./url-util"
 
 export { isHttpUrl, isHttpOrRelativeUrl, HTTP_PROTOCOLS }
 

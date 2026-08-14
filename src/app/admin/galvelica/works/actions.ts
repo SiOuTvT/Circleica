@@ -1,6 +1,6 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { cache, cacheKey } from "@/lib/redis"
@@ -11,6 +11,17 @@ import { NotFoundError, ValidationError } from "@/lib/errors"
 async function clearWorksCache() {
   await cache.delByPrefix(cacheKey("admin:galvelica:works"))
   await cache.delByPrefix(cacheKey("admin:galvelica:inclusion"))
+}
+
+/** A-9：作品详情页 Data Cache 失效（cache tag 机制）。segment 即详情页 URL 段（serialId 或 slug）。 */
+function revalidateWorkTags(serialId?: number | string | null, slug?: string | null) {
+  try {
+    if (serialId != null) revalidateTag(`work:${serialId}`, { expire: 0 })
+    if (slug) revalidateTag(`work:${slug}`, { expire: 0 })
+    revalidateTag("work-detail", { expire: 0 })
+  } catch {
+    /* revalidateTag 仅在请求上下文可用，非请求场景静默忽略 */
+  }
 }
 
 function parseReleaseDate(raw: string): Date | null {
@@ -39,6 +50,8 @@ export async function editWork(formData: FormData) {
     where: { id },
     data: { title, studioName, status, releaseDate: parseReleaseDate(releaseDateRaw), isNsfw },
   })
+  const w = await prisma.work.findUnique({ where: { id }, select: { slug: true, game: { select: { serialId: true } } } })
+  revalidateWorkTags(w?.game?.serialId, w?.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
@@ -48,12 +61,13 @@ export async function deleteWork(formData: FormData) {
   const id = String(formData.get("id") || "")
   if (!id) throw new ValidationError("缺少作品 id")
 
-  const existing = await prisma.work.findUnique({ where: { id }, select: { id: true } })
+  const existing = await prisma.work.findUnique({ where: { id }, select: { id: true, slug: true, game: { select: { serialId: true } } } })
   if (!existing) throw new NotFoundError("作品")
 
   // Work 子表（sources/tags/creators/requests）均为 onDelete: Cascade，会一并清理。
   // 关联的 Circleica Game 不受影响（关系 onDelete: SetNull）。
   await prisma.work.delete({ where: { id } })
+  revalidateWorkTags(existing.game?.serialId, existing.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
@@ -63,7 +77,7 @@ export async function toggleInclusion(formData: FormData) {
   const id = String(formData.get("id") || "")
   if (!id) throw new ValidationError("缺少作品 id")
 
-  const work = await prisma.work.findUnique({ where: { id }, select: { id: true, gameId: true } })
+  const work = await prisma.work.findUnique({ where: { id }, select: { id: true, gameId: true, slug: true, game: { select: { serialId: true } } } })
   if (!work) throw new NotFoundError("作品")
 
   if (work.gameId) {
@@ -83,6 +97,7 @@ export async function toggleInclusion(formData: FormData) {
       data: { workId: id, status: "APPROVED", decidedAt: new Date(), reviewedBy: null },
     }).catch(() => {})
   }
+  revalidateWorkTags(work.game?.serialId, work.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
   revalidatePath("/admin/galvelica/inclusion")
@@ -95,7 +110,9 @@ export async function batchDeleteWorks(formData: FormData) {
   if (ids.length === 0) throw new ValidationError("未选择任何作品")
 
   // 子表 onDelete: Cascade 会一并清理；关联 Game 不受影响（SetNull）。
+  const delInfo = await prisma.work.findMany({ where: { id: { in: ids } }, select: { slug: true, game: { select: { serialId: true } } } })
   await prisma.work.deleteMany({ where: { id: { in: ids } } })
+  for (const w of delInfo) revalidateWorkTags(w.game?.serialId, w.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }
@@ -107,7 +124,7 @@ export async function batchToggleInclusion(formData: FormData) {
   if (ids.length === 0) throw new ValidationError("未选择任何作品")
   const include = formData.get("include") === "true"
 
-  const works = await prisma.work.findMany({ where: { id: { in: ids } }, select: { id: true, gameId: true } })
+  const works = await prisma.work.findMany({ where: { id: { in: ids } }, select: { id: true, gameId: true, slug: true, game: { select: { serialId: true } } } })
   for (const w of works) {
     if (include && !w.gameId) {
       await createDraftGameFromWork(w.id)
@@ -121,6 +138,7 @@ export async function batchToggleInclusion(formData: FormData) {
       await prisma.inclusionRequest.deleteMany({ where: { workId: w.id, status: "APPROVED" } }).catch(() => {})
     }
   }
+  for (const w of works) revalidateWorkTags(w.game?.serialId, w.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
   revalidatePath("/admin/galvelica/inclusion")
@@ -134,6 +152,8 @@ export async function batchSetNsfw(formData: FormData) {
   const nsfw = formData.get("nsfw") === "true"
 
   await prisma.work.updateMany({ where: { id: { in: ids } }, data: { isNsfw: nsfw } })
+  const infos = await prisma.work.findMany({ where: { id: { in: ids } }, select: { slug: true, game: { select: { serialId: true } } } })
+  for (const w of infos) revalidateWorkTags(w.game?.serialId, w.slug)
   await clearWorksCache()
   revalidatePath("/admin/galvelica/works")
 }

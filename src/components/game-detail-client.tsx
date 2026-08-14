@@ -59,10 +59,7 @@ export default function GameDetailClient({
   downloadLinks,
   creators,
   comments,
-  isLoggedIn,
-  currentUserId,
   gameId,
-  isFav,
   favCount,
   gameTags,
   vndbId,
@@ -76,8 +73,6 @@ export default function GameDetailClient({
   ageRating,
   englishName,
   status,
-  username,
-  userAvatar,
   resourceTagColor,
   publisherId,
 }: {
@@ -86,10 +81,7 @@ export default function GameDetailClient({
   downloadLinks: DownloadLink[]
   creators: Creator[]
   comments: Comment[]
-  isLoggedIn: boolean
-  currentUserId?: string
   gameId: string
-  isFav: boolean
   favCount: number
   gameTags?: TagInfo[]
   vndbId?: string
@@ -103,18 +95,23 @@ export default function GameDetailClient({
   ageRating?: string
   englishName?: string
   status?: string
-  username?: string
-  userAvatar?: string | null
   resourceTagColor?: string
   publisherId?: string
 }) {
+  const { data: session } = useSession()
+  // A-8：个性化身份改由客户端 session 提供（页面已走 Data Cache），不进入缓存键。
+  const isLoggedIn = !!session?.user
+  const currentUserId = session?.user?.id
+  const username = session?.user?.name
+  const userAvatar = session?.user?.image ?? null
+
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<"intro" | "resource" | "comments">(() => {
     const t = searchParams.get("tab")
     if (t === "resource" || t === "intro" || t === "comments") return t
     return "intro"
   })
-  const [fav, setFav] = useState(isFav)
+  const [fav, setFav] = useState(false)
   const [favCnt, setFavCnt] = useState(favCount)
   const [commentCnt, setCommentCnt] = useState(comments.length)
   const [favPending, setFavPending] = useState(false)
@@ -134,6 +131,15 @@ export default function GameDetailClient({
     window.addEventListener("game-fav-change", onFavChange)
     return () => window.removeEventListener("game-fav-change", onFavChange)
   }, [])
+
+  // A-8：个性化收藏状态改由客户端 API 拉取（页面已走 Data Cache），避免污染缓存键。
+  useEffect(() => {
+    let cancelled = false
+    apiFetchSafe<{ isFav: boolean }>(`/api/games/${gameId}/personalization`)
+      .then(({ ok, data }) => { if (ok && data && !cancelled) setFav(data.isFav) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [gameId])
 
   // 举报
   const [reportOpen, setReportOpen] = useState(false)

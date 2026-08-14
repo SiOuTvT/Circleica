@@ -15,7 +15,6 @@ import { mergeSources, type FusedSource, type FusionResult } from "./fusion"
 import type { NormalizedWork, SourceKey } from "./sources/types"
 import { computeQualitySignal, computeQualityScore } from "./quality"
 import { linkGameStudios } from "@/services/admin"
-import { slugify } from "@/lib/slug"
 
 /* ── 跨源匹配（去重核心） ─────────────────────────── */
 /**
