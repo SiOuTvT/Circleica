@@ -9,7 +9,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api-client"
 
@@ -42,11 +42,29 @@ export default function CuratedCollectionsPage() {
   const [editing, setEditing] = useState<CollectionDetail | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [searchInput, setSearchInput] = useState("")
 
-  const fetchCollections = useCallback(async () => {
+  const PAGE_SIZE = 20
+  const pageRef = useRef(1)
+  const searchRef = useRef("")
+
+  const fetchCollections = useCallback(async (pageNo?: number, searchTerm?: string) => {
+    const p = pageNo ?? pageRef.current
+    const s = searchTerm ?? searchRef.current
+    setLoading(true)
     try {
-      const data = await api.get<{ data?: CollectionItem[] }>("/api/admin/curated-collections")
-      setCollections(data.data || [])
+      const params = new URLSearchParams({ page: String(p), pageSize: String(PAGE_SIZE) })
+      if (s.trim()) params.set("search", s.trim())
+      const data = await api.get<{ items?: CollectionItem[]; total?: number; totalPages?: number }>(`/api/admin/curated-collections?${params.toString()}`)
+      const items = data.items ?? []
+      setCollections(items)
+      setTotal(data.total ?? items.length)
+      setTotalPages(data.totalPages ?? 1)
+      pageRef.current = p
+      setPage(p)
     } catch {
       toast.error("加载失败")
     } finally {
@@ -54,7 +72,14 @@ export default function CuratedCollectionsPage() {
     }
   }, [])
 
-  useEffect(() => { fetchCollections() }, [fetchCollections])
+  // 初始加载 + 搜索防抖
+  useEffect(() => {
+    const t = setTimeout(() => {
+      searchRef.current = searchInput
+      fetchCollections(1, searchInput)
+    }, 350)
+    return () => clearTimeout(t)
+  }, [searchInput, fetchCollections])
 
   async function handleCreate() {
     setEditing(null)
@@ -76,7 +101,7 @@ export default function CuratedCollectionsPage() {
     try {
       await api.delete(`/api/admin/curated-collections/${deleteId}`)
       toast.success("已删除")
-      setCollections(prev => prev.filter(c => c.id !== deleteId))
+      fetchCollections(pageRef.current, searchRef.current)
     } catch {
       toast.error("删除失败")
     }
@@ -87,7 +112,7 @@ export default function CuratedCollectionsPage() {
     setShowDialog(false)
     setEditing(null)
     setLoading(true)
-    await fetchCollections()
+    await fetchCollections(pageRef.current, searchRef.current)
   }
 
   if (loading) {
@@ -111,34 +136,57 @@ export default function CuratedCollectionsPage() {
       }
     >
 
-      {collections.length === 0 ? (
-        <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
-      ) : (
-        <div className="space-y-3">
-          {collections.map(c => (
-            <Card key={c.id} size="default" radius="xl" className="flex-row items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground truncate">{c.name}</h3>
-                  {!c.published && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">未发布</span>
-                  )}
-                </div>
-                {c.description && <p className="text-sm text-muted-foreground truncate mt-0.5">{c.description}</p>}
-                <p className="text-xs text-muted-foreground mt-1">{c._count.games} 部游戏</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => handleEdit(c.id)} className={adminBtnSecondary}>
-                  <Pencil className="h-3.5 w-3.5" /> 编辑
-                </button>
-                <button onClick={() => setDeleteId(c.id)} className={adminBtnDanger}>
-                  <Trash2 className="h-3.5 w-3.5" /> 删除
-                </button>
-              </div>
-            </Card>
-          ))}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="搜索合集名称…"
+              className={adminInput + " pl-9"}
+            />
+          </div>
+          {total > 0 && <span className="text-xs text-muted-foreground">共 {total} 条</span>}
         </div>
-      )}
+        {collections.length === 0 ? (
+          <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
+        ) : (
+          <div className="space-y-3">
+            {collections.map(c => (
+              <Card key={c.id} size="default" radius="xl" className="flex-row items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground truncate">{c.name}</h3>
+                    {!c.published && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">未发布</span>
+                    )}
+                  </div>
+                  {c.description && <p className="text-sm text-muted-foreground truncate mt-0.5">{c.description}</p>}
+                  <p className="text-xs text-muted-foreground mt-1">{c._count.games} 部游戏</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button onClick={() => handleEdit(c.id)} className={adminBtnSecondary}>
+                    <Pencil className="h-3.5 w-3.5" /> 编辑
+                  </button>
+                  <button onClick={() => setDeleteId(c.id)} className={adminBtnDanger}>
+                    <Trash2 className="h-3.5 w-3.5" /> 删除
+                  </button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">第 {page} / {totalPages} 页</span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => fetchCollections(page - 1, searchRef.current)} disabled={page <= 1} className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50 hover:bg-muted">上一页</button>
+              <button onClick={() => fetchCollections(page + 1, searchRef.current)} disabled={page >= totalPages} className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50 hover:bg-muted">下一页</button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {showDialog && (
         <CollectionDialog

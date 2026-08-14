@@ -296,13 +296,36 @@ export default function AdminAchievementsPage() {
       )}
 
       {/* 列表 */}
-      <div className="overflow-x-auto">
-        <AdminTable
-          columns={achievementColumns}
-          rows={achievements}
-          getRowKey={(ach) => ach.id}
-          empty={<EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />}
-        />
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="搜索成就名称…"
+              className="w-full rounded-xl border-2 border-input bg-transparent py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+            />
+          </div>
+          {total > 0 && <span className="text-xs text-muted-foreground">共 {total} 条</span>}
+        </div>
+        <div className="overflow-x-auto">
+          <AdminTable
+            columns={achievementColumns}
+            rows={achievements}
+            getRowKey={(ach) => ach.id}
+            empty={<EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />}
+          />
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">第 {page} / {totalPages} 页</span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => load(page - 1, searchRef.current)} disabled={page <= 1} className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50 hover:bg-muted">上一页</button>
+              <button onClick={() => load(page + 1, searchRef.current)} disabled={page >= totalPages} className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50 hover:bg-muted">下一页</button>
+            </div>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog

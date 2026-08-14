@@ -4,14 +4,25 @@ import { prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
 import { ValidationError } from "@/lib/errors"
 
-// GET — 列表（管理后台）
-export const GET = withHandler(async () => {
+// GET — 列表（管理后台，服务端分页 + 搜索）
+export const GET = withHandler(async (req) => {
   await requireAdminRole("ADMIN")
-  const collections = await prisma.curatedCollection.findMany({
-    orderBy: { sortOrder: "asc" },
-    include: { _count: { select: { games: true } } },
-  })
-  return json(collections)
+  const url = new URL(req.url)
+  const page = Math.max(1, Number(url.searchParams.get("page")) || 1)
+  const pageSize = Math.min(Math.max(1, Number(url.searchParams.get("pageSize")) || 20), 100)
+  const search = (url.searchParams.get("search") || "").trim()
+  const where = search ? { name: { contains: search, mode: "insensitive" } } : {}
+  const [collections, total] = await Promise.all([
+    prisma.curatedCollection.findMany({
+      where,
+      orderBy: { sortOrder: "asc" },
+      include: { _count: { select: { games: true } } },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.curatedCollection.count({ where }),
+  ])
+  return json({ items: collections, total, page, pageSize, totalPages: Math.ceil(total / pageSize) })
 })
 
 // POST — 创建合集
