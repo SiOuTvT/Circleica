@@ -18,7 +18,7 @@ const config: Config = {
     "!src/**/index.{ts,tsx}",
   ],
   transform: {
-    "^.+\\.tsx?$": "ts-jest",
+    "^.+\\.tsx?$": ["ts-jest", { isolatedModules: true }],
   },
 }
 

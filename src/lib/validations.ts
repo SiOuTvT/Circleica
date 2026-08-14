@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { EMAIL } from "@/lib/config"
+import { isHttpOrRelativeUrl, httpUrl } from "@/lib/url"
 
 /**
  * 通用验证 Schemas
@@ -7,12 +8,10 @@ import { EMAIL } from "@/lib/config"
  */
 
 // 同源相对路径（如 /uploads/xxx.png，本地/对象存储上传返回）或标准 http(s) 绝对 URL 均合法。
-// 注意：下载类外链（gameResource entries.url）等必须是绝对 URL，不要用此校验器。
+// 注意：下载类外链（gameResource entries.url）等必须是绝对 URL，必须用 httpUrl()（仅 http/https），
+// 禁止 javascript:/data:/file:/ftp: 等伪协议。
 const uploadUrl = (msg: string) =>
-  z
-    .string()
-    .max(2000, msg)
-    .refine((v) => /^https?:\/\//i.test(v) || v.startsWith("/"), { message: msg })
+  z.string().max(2000, msg).refine((v) => isHttpOrRelativeUrl(v), { message: msg })
 
 // ============ 用户相关 ============
 
@@ -155,7 +154,7 @@ export const gameResourceCreateSchema = z.object({
   runType: z.array(z.string().max(50)).max(10).optional(),
   resourceContent: z.array(z.string().max(50)).max(10).optional(),
   entries: z.array(z.object({
-    url: z.string().url("链接格式不正确").max(2000),
+    url: httpUrl("下载链接必须是 http 或 https 地址").max(2000),
     extractCode: z.string().max(100).optional(),
     decompressCode: z.string().max(100).optional(),
     fileSize: z.string().max(50).optional(),
