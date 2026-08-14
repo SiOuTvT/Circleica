@@ -5,6 +5,7 @@ import { UPLOAD } from "@/lib/config"
 import { ValidationError, RateLimitError } from "@/lib/errors"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import sharp from "sharp"
+import { verifyImageSignature } from "@/lib/image-signature"
 
 /**
  * POST /api/upload
@@ -41,6 +42,11 @@ export const POST = withHandler(async (req) => {
   const ext = mimeToExt[file.type] || "png"
 
   const buffer = Buffer.from(await file.arrayBuffer())
+
+  // 魔数校验：不信任客户端声明的 MIME，按真实字节签名判定（纵深防御，拒绝伪造/危险格式）
+  if (!verifyImageSignature(buffer, file.type)) {
+    throw new ValidationError("图片内容与声明格式不符，或包含不支持的格式")
+  }
 
   // 验证图片完整性
   const metadata = await sharp(buffer).metadata()

@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
+import { safeRedirect } from "@/lib/safe-redirect"
 
 export default function LoginPage() {
   return (
@@ -54,10 +55,8 @@ function LoginContent() {
       setError("账号或密码错误")
     } else {
       const callbackUrl = searchParams.get("callbackUrl")
-      // 安全修复：仅允许同源路径，防止开放重定向漏洞
-      const safeUrl = callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") && !callbackUrl.includes("://")
-        ? callbackUrl
-        : "/"
+      // 安全修复：仅允许同源相对路径，防止开放重定向漏洞
+      const safeUrl = safeRedirect(callbackUrl)
       router.push(safeUrl)
       router.refresh()
     }

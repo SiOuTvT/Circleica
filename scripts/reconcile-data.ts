@@ -76,6 +76,50 @@ async function downloadCountReport() {
   return rows.length;
 }
 
+async function dataQualityReport() {
+  console.log("\n=== B-16：Creator 重名（同名多条）===");
+  const dupByName = (await prisma.$queryRawUnsafe(`
+    SELECT name, COUNT(*)::int AS cnt FROM "Creator"
+    GROUP BY name HAVING COUNT(*) > 1
+    ORDER BY cnt DESC LIMIT 100
+  `)) as { name: string; cnt: number }[];
+  const dupByNameVndb = (await prisma.$queryRawUnsafe(`
+    SELECT name, "vndbId", COUNT(*)::int AS cnt FROM "Creator"
+    WHERE "vndbId" <> '' AND "vndbId" IS NOT NULL
+    GROUP BY name, "vndbId" HAVING COUNT(*) > 1
+    ORDER BY cnt DESC LIMIT 100
+  `)) as { name: string; vndbId: string; cnt: number }[];
+  if (dupByName.length === 0) console.log("  [OK] 无同名 Creator");
+  else dupByName.forEach((r) => console.log(`  [潜在重名] name=${r.name} cnt=${r.cnt}`));
+  if (dupByNameVndb.length === 0) console.log("  [OK] 无 (name+vndbId) 真重复 Creator");
+  else dupByNameVndb.forEach((r) => console.log(`  [真重复] name=${r.name} vndbId=${r.vndbId} cnt=${r.cnt}`));
+
+  console.log("\n=== B-18：Game.favoriteCount 漂移（vs Favorite 实计）===");
+  const fav = (await prisma.$queryRawUnsafe(`
+    SELECT g.id, COALESCE(g."favoriteCount",0) AS stored, COALESCE(c.cnt,0) AS real_cnt
+    FROM "Game" g
+    LEFT JOIN (SELECT "gameId", COUNT(*)::int AS cnt FROM "Favorite" GROUP BY "gameId") c ON c."gameId" = g.id
+    WHERE COALESCE(g."favoriteCount",0) IS DISTINCT FROM COALESCE(c.cnt,0)
+    ORDER BY ABS(COALESCE(g."favoriteCount",0) - COALESCE(c.cnt,0)) DESC
+    LIMIT 200
+  `)) as { id: string; stored: number; real_cnt: number }[];
+  if (fav.length === 0) console.log("  [OK] favoriteCount 无漂移");
+  else fav.forEach((r) => console.log(`  [异常] game ${r.id}: stored=${r.stored} real=${r.real_cnt}`));
+
+  console.log("\n=== B-19：Achievement.unlockCount 漂移（vs UserAchievement 实计）===");
+  const ach = (await prisma.$queryRawUnsafe(`
+    SELECT a.id, a."unlockCount" AS stored, COALESCE(c.cnt,0) AS real_cnt
+    FROM "Achievement" a
+    LEFT JOIN (SELECT "achievementId", COUNT(*)::int AS cnt FROM "UserAchievement" GROUP BY "achievementId") c ON c."achievementId" = a.id
+    WHERE COALESCE(a."unlockCount",0) IS DISTINCT FROM COALESCE(c.cnt,0)
+    ORDER BY ABS(COALESCE(a."unlockCount",0) - COALESCE(c.cnt,0)) DESC
+    LIMIT 200
+  `)) as { id: string; stored: number; real_cnt: number }[];
+  if (ach.length === 0) console.log("  [OK] unlockCount 无漂移");
+  else ach.forEach((r) => console.log(`  [异常] achievement ${r.id}: stored=${r.stored} real=${r.real_cnt}`));
+  console.log("  (注：viewCount 为无独立子表的单调计数器，无法对账；Like 无 Game.likeCount 字段，跳过)");
+}
+
 async function main() {
   if (FIX) {
     console.log("══════════════════════════════════════════════════════");
@@ -89,6 +133,7 @@ async function main() {
   console.log(`数据库: ${process.env.DATABASE_URL?.replace(/:[^:@]+@/, ":****@") ?? "(未设置)"}`);
   const a = await slugReport();
   const b = await downloadCountReport();
+  await dataQualityReport();
   console.log(`\n汇总: slug 异常 ${a} 行, downloadCount 漂移 ${b} 行${FIX ? " (已应用修复)" : ""}`);
   await prisma.$disconnect();
 }
