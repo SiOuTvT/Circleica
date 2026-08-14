@@ -282,16 +282,17 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
             showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
             newFolderName={newFolderName} setNewFolderName={setNewFolderName}
             onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
-            loading={collectionsLoading ?? false} creating={creating} />
+            loading={collectionsLoading ?? false} creating={creating}
+            hasMore={favHasMore} loadingMore={favLoadingMore} onLoadMore={loadMoreFavorites} />
         )}
         {active === "comments" && (
-          loadedComments ? <CommentsTab comments={localComments} /> : <TabLoadingSkeleton />
+          loadedComments ? <CommentsTab comments={localComments} hasMore={commentHasMore} loadingMore={commentLoadingMore} onLoadMore={loadMoreComments} /> : <TabLoadingSkeleton />
         )}
         {active === "following" && (
-          loadedFollowing ? <FollowingTab users={localFollowing} /> : <TabLoadingSkeleton />
+          loadedFollowing ? <FollowingTab users={localFollowing} hasMore={followHasMore} loadingMore={followLoadingMore} onLoadMore={loadMoreFollowing} /> : <TabLoadingSkeleton />
         )}
         {active === "downloads" && (
-          loadedDownloads ? <DownloadsTab downloads={localDownloads} /> : <TabLoadingSkeleton />
+          loadedDownloads ? <DownloadsTab downloads={localDownloads} hasMore={dlHasMore} loadingMore={dlLoadingMore} onLoadMore={loadMoreDownloads} /> : <TabLoadingSkeleton />
         )}
       </div>
 
@@ -445,7 +446,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
   )
 })
 
-function CommentsTab({ comments }: { comments: CommentLite[] }) {
+function CommentsTab({ comments, hasMore, loadingMore, onLoadMore }: { comments: CommentLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
   if (comments.length === 0) return <div className="flex flex-col items-center justify-center py-12 text-center"><MessageSquare className="h-10 w-10 text-muted-foreground/30 mb-3" /><p className="text-sm text-muted-foreground">还没有发表评论</p></div>
   return (
     <div className="flex flex-col gap-2.5">
@@ -470,12 +471,13 @@ function CommentsTab({ comments }: { comments: CommentLite[] }) {
           </div>
         )
       })}
+      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
     </div>
   )
 }
 
 // 加载占位骨架屏
-function DownloadsTab({ downloads }: { downloads: DownloadLite[] }) {
+function DownloadsTab({ downloads, hasMore, loadingMore, onLoadMore }: { downloads: DownloadLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
   if (downloads.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -511,6 +513,7 @@ function DownloadsTab({ downloads }: { downloads: DownloadLite[] }) {
           </Link>
         )
       })}
+      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
     </div>
   )
 }
@@ -528,7 +531,7 @@ function TabLoadingSkeleton() {
   )
 }
 
-function FollowingTab({ users }: { users: FollowingLite[] }) {
+function FollowingTab({ users, hasMore, loadingMore, onLoadMore }: { users: FollowingLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
   if (users.length === 0) return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <Users className="h-10 w-10 text-muted-foreground/30 mb-3" />
@@ -553,6 +556,7 @@ function FollowingTab({ users }: { users: FollowingLite[] }) {
           </Link>
         )
       })}
+      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
     </div>
   )
 }

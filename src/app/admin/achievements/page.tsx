@@ -10,9 +10,9 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { AdminTable, type AdminTableColumn } from "@/components/admin/admin-table"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
-import { Award, Edit2, Loader2, Plus, Save, Trash2, X } from "lucide-react"
+import { Award, Edit2, Loader2, Plus, Save, Search, Trash2, X } from "lucide-react"
 import Image from "next/image"
-import { useCallback, useEffect, useState, useId } from "react"
+import { useCallback, useEffect, useState, useId, useRef } from "react"
 import { toast } from "sonner"
 import { api, apiFetchSafe } from "@/lib/api-client"
 
@@ -57,21 +57,46 @@ export default function AdminAchievementsPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Partial<Achievement> | null>(null)
   const [saving, setSaving] = useState(false)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [search, setSearch] = useState("")
+  const [searchInput, setSearchInput] = useState("")
 
   useUnsavedChanges(editing !== null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
+  const PAGE_SIZE = 20
+  const pageRef = useRef(1)
+  const searchRef = useRef("")
+
+  const load = useCallback(async (pageNo?: number, searchTerm?: string) => {
+    const p = pageNo ?? pageRef.current
+    const s = searchTerm ?? searchRef.current
     setLoading(true)
     try {
-      const j = await api.get<any>("/api/admin/achievements")
-      setAchievements(Array.isArray(j) ? j : j.data ?? [])
+      const params = new URLSearchParams({ page: String(p), pageSize: String(PAGE_SIZE) })
+      if (s.trim()) params.set("search", s.trim())
+      const j = await api.get<any>(`/api/admin/achievements?${params.toString()}`)
+      const data = j?.data ?? j
+      setAchievements(Array.isArray(data) ? data : data?.items ?? [])
+      setTotal(data?.total ?? (Array.isArray(data) ? data.length : 0))
+      setTotalPages(data?.totalPages ?? 1)
+      pageRef.current = p
+      setPage(p)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  // 初始加载 + 搜索防抖
+  useEffect(() => {
+    const t = setTimeout(() => {
+      searchRef.current = searchInput
+      load(1, searchInput)
+    }, 350)
+    return () => clearTimeout(t)
+  }, [searchInput, load])
 
   async function handleSave() {
     if (!editing?.name?.trim()) { toast.error("名称不能为空"); return }
@@ -84,7 +109,7 @@ export default function AdminAchievementsPage() {
       else await api.post(url, editing)
       toast.success(isEdit ? "已更新" : "已创建")
       setEditing(null)
-      load()
+      load(pageRef.current, searchRef.current)
     } catch (e) {
       // api.put/post 抛 ApiError：显示后端返回的具体原因（如校验失败、权限不足）
       toast.error(e instanceof Error ? e.message : "保存失败，请重试")
@@ -93,7 +118,7 @@ export default function AdminAchievementsPage() {
 
   async function handleDelete(id: string) {
     const { ok } = await apiFetchSafe(`/api/admin/achievements/${id}`, { method: "DELETE" })
-    if (ok) { toast.success("已删除"); load() }
+    if (ok) { toast.success("已删除"); load(pageRef.current, searchRef.current) }
   }
 
   function startCreate() {
