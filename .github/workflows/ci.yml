@@ -18,6 +18,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Prisma generate
+        run: npx prisma generate
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Lint
