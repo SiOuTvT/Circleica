@@ -169,8 +169,14 @@ async function resolveTagByName(name: string): Promise<string | null> {
     // 同名主站标签存在：不复用、不新建（会违反 name 唯一约束）。返回 null，调用方跳过该标签关联。
     return null
   }
+  // slug 唯一兜底（同名碰撞时追加序号）
+  let tagSlug = slugify(clean)
+  let tn = 2
+  while (await prisma.tag.findUnique({ where: { slug: tagSlug } })) {
+    tagSlug = `${slugify(clean)}-${tn++}`
+  }
   const created = await prisma.tag.create({
-    data: { name: clean, color: "#a78bfa", isVisible: true, source: "galvelica" },
+    data: { name: clean, slug: tagSlug, color: "#a78bfa", isVisible: true, source: "galvelica" },
   })
   return created.id
 }
@@ -198,8 +204,14 @@ async function resolveCreatorByName(name: string, nameJa?: string): Promise<stri
     select: { id: true },
   })
   if (circleicaExisting) return null
+  // slug 唯一兜底（同名碰撞时追加序号）
+  let creatorSlug = slugify(clean)
+  let cn = 2
+  while (await prisma.creator.findUnique({ where: { slug: creatorSlug } })) {
+    creatorSlug = `${slugify(clean)}-${cn++}`
+  }
   const created = await prisma.creator.create({
-    data: { name: clean, nameJa: nameJa ?? "", source: "galvelica" },
+    data: { name: clean, nameJa: nameJa ?? "", slug: creatorSlug, source: "galvelica" },
   })
   return created.id
 }

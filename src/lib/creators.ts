@@ -155,7 +155,7 @@ export interface CreatorGameItem {
 
 export interface CreatorStudioItem {
   /** Archive 稳定可读路由（CJK 直出），与 id 解耦 */
-  slug: string | null
+  slug: string
   normalized: string
   name: string
   gameCount: number
@@ -273,7 +273,7 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
       studios = rows
         .map((r) => {
           const s = map.get(r.studioId)
-          return s ? { slug: s.slug ?? null, normalized: s.normalizedName, name: s.displayName, gameCount: r.cnt } : null
+          return s ? { slug: s.slug, normalized: s.normalizedName, name: s.displayName, gameCount: r.cnt } : null
         })
         .filter((x): x is CreatorStudioItem => x !== null)
         .sort((a, b) => b.gameCount - a.gameCount)
@@ -328,7 +328,7 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
 export async function getRandomCreatorSlug(): Promise<string | null> {
   try {
     const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
-    const where = { ...publishedGameFilter, slug: { not: null } }
+    const where = { ...publishedGameFilter }
     const total = await prisma.creator.count({ where })
     if (total === 0) return null
 

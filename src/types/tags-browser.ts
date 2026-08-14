@@ -5,7 +5,7 @@
 export interface TagInfo {
   id: string
   name: string
-  slug: string | null
+  slug: string
   color: string
   gameCount: number
 }

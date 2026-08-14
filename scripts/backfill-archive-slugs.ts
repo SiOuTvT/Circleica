@@ -1,18 +1,20 @@
 /**
- * Archive slug 回填脚本（幂等）。
+ * Archive slug 回填脚本（已过时，现为安全空跑）。
  *
- * 背景：
+ * 历史背景：
  *   迁移 20260731041500_add_archive_slugs 为 Studio / Creator / CuratedCollection
  *   增加了可空、唯一的 slug 列；迁移 20260731080000_add_tag_slug 为 Tag 增加了同样列。
  *   存量行 slug 为 NULL —— 必须回填，否则依赖 slug 的 Archive 路由
  *   （/credits/collection/[slug]、旧 /collections/[id] 308 跳转、卡片链接）全部失效。
  *
- * 行为：
- *   为每条 slug IS NULL 的行用 slugify(名称) 生成稳定 slug；
- *   唯一性以「库内已存在 slug」为基准循环 -2/-3 保证（与 admin 创建合集逻辑一致）。
+ * 现状（2026-08-15）：
+ *   迁移 20260814000000_slug_not_null 已将 Studio / Creator / Tag / CuratedCollection
+ *   的 slug 改为 NOT NULL @unique，并为存量行按 coalesce(id) 兜底回填。
+ *   因此 slug 已恒非空，本脚本在真实库上不再命中任何 null 行。
  *
- * 幂等：只处理 slug IS NULL 的行，重跑不会覆盖已有 slug。
- *   必须在迁移已应用到目标库之后执行（列不存在时 UPDATE 会报 column does not exist）。
+ * 行为（保守）：
+ *   仅遍历全部行；若某行已有 slug 则 continue（绝不覆盖已有 slug）。
+ *   因 slug 现恒非空，实际无 UPDATE 发生 —— 本脚本成为空跑，仅保留作历史参考，可安全删除。
  *
  * 用法（需先 prisma generate + 目标库可达）：
  *   npx tsx scripts/backfill-archive-slugs.ts
@@ -24,10 +26,11 @@ const prisma = new PrismaClient()
 
 async function backfillStudio() {
   const rows = await prisma.studio.findMany({
-    where: { slug: null },
-    select: { id: true, displayName: true },
+    where: {},
+    select: { id: true, displayName: true, slug: true },
   })
   for (const r of rows) {
+    if (r.slug) continue // slug 现 NOT NULL，迁移已回填，无 null 行
     const base = slugify(r.displayName)
     let slug = base
     let n = 2
@@ -46,10 +49,11 @@ async function backfillStudio() {
 
 async function backfillCreator() {
   const rows = await prisma.creator.findMany({
-    where: { slug: null },
-    select: { id: true, name: true },
+    where: {},
+    select: { id: true, name: true, slug: true },
   })
   for (const r of rows) {
+    if (r.slug) continue // slug 现 NOT NULL，迁移已回填，无 null 行
     const base = slugify(r.name)
     let slug = base
     let n = 2
@@ -68,10 +72,11 @@ async function backfillCreator() {
 
 async function backfillCuratedCollection() {
   const rows = await prisma.curatedCollection.findMany({
-    where: { slug: null },
-    select: { id: true, name: true },
+    where: {},
+    select: { id: true, name: true, slug: true },
   })
   for (const r of rows) {
+    if (r.slug) continue // slug 现 NOT NULL，迁移已回填，无 null 行
     const base = slugify(r.name)
     let slug = base
     let n = 2
@@ -90,10 +95,11 @@ async function backfillCuratedCollection() {
 
 async function backfillTag() {
   const rows = await prisma.tag.findMany({
-    where: { slug: null },
-    select: { id: true, name: true },
+    where: {},
+    select: { id: true, name: true, slug: true },
   })
   for (const r of rows) {
+    if (r.slug) continue // slug 现 NOT NULL，迁移已回填，无 null 行
     const base = slugify(r.name)
     let slug = base
     let n = 2

@@ -8,6 +8,7 @@ import { cache, cacheKey } from "@/lib/redis"
 import { NotFoundError, ValidationError, ConflictError } from "@/lib/errors"
 import { GAL_DEFAULT_TAG_COLOR } from "@/lib/galvelica-palette"
 import { getGalvelicaTagColor, updateSiteSettings } from "@/lib/site-settings"
+import { slugify } from "@/lib/slug"
 
 /** 清副站标签后台列表缓存（120s Redis），revalidatePath 清不掉自定义缓存，必须显式删除。 */
 async function clearTagsCache() {
@@ -23,10 +24,17 @@ export async function createGalvelicaTag(formData: FormData) {
 
   if (!name) throw new ValidationError("标签名不能为空")
 
+  // slug 唯一兜底（管理员手填优先；缺省按名生成，碰撞追加序号）
+  let slug = slugRaw || slugify(name)
+  let n = 2
+  while (await prisma.tag.findUnique({ where: { slug } })) {
+    slug = `${slugify(name)}-${n++}`
+  }
+
   let createdId: string | undefined
   try {
     const created = await prisma.tag.create({
-      data: { name, color, source: "galvelica", slug: slugRaw || null },
+      data: { name, color, source: "galvelica", slug },
       select: { id: true },
     })
     createdId = created.id

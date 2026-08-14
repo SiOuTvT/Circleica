@@ -7,6 +7,7 @@ import { achievementRepo, avatarFrameRepo, creatorRepo, emotionalMessageRepo } f
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError, AppError } from "@/lib/errors"
 import { achievementCreateSchema } from "@/lib/validations"
 import { prisma } from "@/lib/prisma"
+import { slugify } from "@/lib/slug"
 import fs from "fs/promises"
 import path from "path"
 import { logAudit } from "@/lib/audit-log"
@@ -148,10 +149,18 @@ export const creatorService = {
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
+    const baseName = String(raw.name).trim()
+    // slug 唯一兜底（同名碰撞时追加序号）
+    let slug = slugify(baseName)
+    let n = 2
+    while (await prisma.creator.findUnique({ where: { slug } })) {
+      slug = `${slugify(baseName)}-${n++}`
+    }
     const result = await creatorRepo.create({
       source: "circleica",
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
-      name: String(raw.name).trim(),
+      name: baseName,
+      slug,
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
       avatar: raw.avatar ? (sanitizeUrl(String(raw.avatar)) ?? "") : "",
       bio: raw.bio ? String(raw.bio).trim() : "",

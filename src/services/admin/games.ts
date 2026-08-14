@@ -36,8 +36,14 @@ async function linkGameCreators(
     let creator = vndbId ? await tx.creator.findFirst({ where: { vndbId }, select: { id: true } }) : null
     if (!creator && name) creator = await tx.creator.findFirst({ where: { name }, select: { id: true } })
     if (!creator) {
+      // slug 唯一兜底（同名碰撞时追加序号）
+      let slug = slugify(name)
+      let n = 2
+      while (await tx.creator.findUnique({ where: { slug } })) {
+        slug = `${slugify(name)}-${n++}`
+      }
       creator = await tx.creator.create({
-        data: { vndbId, name, nameJa: c.nameJa ? String(c.nameJa) : "" },
+        data: { vndbId, name, slug, nameJa: c.nameJa ? String(c.nameJa) : "" },
         select: { id: true },
       })
     }
@@ -137,14 +143,20 @@ export const adminGameService = {
         : []
       if (newTagNames.length) {
         const tagCreated = await Promise.all(
-          newTagNames.map((name) =>
-            tx.tag.upsert({
+          newTagNames.map(async (name) => {
+            // slug 唯一兜底（同名碰撞时追加序号）
+            let tagSlug = slugify(name)
+            let m = 2
+            while (await tx.tag.findUnique({ where: { slug: tagSlug } })) {
+              tagSlug = `${slugify(name)}-${m++}`
+            }
+            return tx.tag.upsert({
               where: { name },
               update: {},
-              create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+              create: { name, slug: tagSlug, color: "#6b7280", groupId: "preset_detail_header" },
               select: { id: true },
-            }),
-          ),
+            })
+          }),
         )
         for (const t of tagCreated) if (!tagIds.includes(t.id)) tagIds.push(t.id)
       }
@@ -196,14 +208,20 @@ export const adminGameService = {
           : []
         if (newTagNames.length) {
           const tagCreated = await Promise.all(
-            newTagNames.map((name) =>
-              tx.tag.upsert({
+            newTagNames.map(async (name) => {
+              // slug 唯一兜底（同名碰撞时追加序号）
+              let tagSlug = slugify(name)
+              let m = 2
+              while (await tx.tag.findUnique({ where: { slug: tagSlug } })) {
+                tagSlug = `${slugify(name)}-${m++}`
+              }
+              return tx.tag.upsert({
                 where: { name },
                 update: {},
-                create: { name, color: "#6b7280", groupId: "preset_detail_header" },
+                create: { name, slug: tagSlug, color: "#6b7280", groupId: "preset_detail_header" },
                 select: { id: true },
-              }),
-            ),
+              })
+            }),
           )
           for (const t of tagCreated) if (!tagIds.includes(t.id)) tagIds.push(t.id)
         }
