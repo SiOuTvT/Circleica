@@ -2,14 +2,20 @@
 
 import Link from "next/link"
 import { AlertTriangle } from "lucide-react"
+import { useEffect } from "react"
+import { captureClientError } from "@/lib/client-error"
 
 export default function StudioDetailError({
-  error: _error,
+  error,
   reset,
 }: {
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  useEffect(() => {
+    captureClientError(error)
+  }, [error])
+
   return (
     <div className="flex flex-col items-center gap-4 py-24 text-center">
       <AlertTriangle className="h-12 w-12 text-warning/40" strokeWidth={1} />

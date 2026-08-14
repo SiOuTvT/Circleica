@@ -161,11 +161,23 @@ export function withHandler(handler: RouteHandler): RouteHandler {
             recordRequest(req.method, status, Date.now() - start)
             if (code) recordError(code)
           }
+          // B-23：统一回显 x-request-id 响应头 + 输出 access log（便于反向代理/日志关联排障）
+          const emit = (res: NextResponse): NextResponse => {
+            res.headers.set("x-request-id", requestId)
+            logger.api.info("access", {
+              requestId,
+              method: req.method,
+              route,
+              status: res.status,
+              durationMs: Date.now() - start,
+            })
+            return res
+          }
 
           try {
             const res = await handler(req, ctx)
             finish(res.status)
-            return res
+            return emit(res)
           } catch (error) {
             // 业务异常
             if (error instanceof AppError) {
@@ -173,14 +185,14 @@ export function withHandler(handler: RouteHandler): RouteHandler {
                 logger.api.warn("请求被限流", { path: req.nextUrl.pathname })
                 // 携带异常中的 retryAfter，让客户端获得准确的重试时间（L2③）
                 finish(429, "RATE_LIMITED")
-                return errorResponse(error.message, error.status, error.code, error.details, error.retryAfter)
+                return emit(errorResponse(error.message, error.status, error.code, error.details, error.retryAfter))
               }
               if (error.status >= 500) {
                 logger.api.error(`[${error.code}] ${error.message}`, error)
                 captureToSentry(error, requestId, route, error.code)
               }
               finish(error.status, error.code)
-              return errorResponse(error.message, error.status, error.code, error.details)
+              return emit(errorResponse(error.message, error.status, error.code, error.details))
             }
 
             // Zod 验证错误
@@ -192,7 +204,7 @@ export function withHandler(handler: RouteHandler): RouteHandler {
                 details[path].push(issue.message)
               }
               finish(422, "VALIDATION_ERROR")
-              return errorResponse("数据验证失败", 422, "VALIDATION_ERROR", details)
+              return emit(errorResponse("数据验证失败", 422, "VALIDATION_ERROR", details))
             }
 
             // Prisma 已知错误（数据库约束/记录不存在）→ 映射到标准业务异常
@@ -201,14 +213,14 @@ export function withHandler(handler: RouteHandler): RouteHandler {
               const mapped = mapPrismaError(error)
               logger.api.error(`[${mapped.code}] ${mapped.message}`, error)
               finish(mapped.status, mapped.code)
-              return errorResponse(mapped.message, mapped.status, mapped.code)
+              return emit(errorResponse(mapped.message, mapped.status, mapped.code))
             }
 
             // 未知异常
             logger.api.error("未处理的 API 异常", error, { path: req.nextUrl.pathname })
             captureToSentry(error, requestId, route, "INTERNAL")
             finish(500, "INTERNAL")
-            return errorResponse("服务器内部错误，请稍后再试", 500, "INTERNAL")
+            return emit(errorResponse("服务器内部错误，请稍后再试", 500, "INTERNAL"))
           }
         },
       ),

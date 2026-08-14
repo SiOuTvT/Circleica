@@ -1,6 +1,7 @@
 "use client"
 
 import { logger } from "@/lib/logger"
+import { captureClientError } from "@/lib/client-error"
 import { Home, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useEffect } from "react"
@@ -14,6 +15,7 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     logger.system.error("[GlobalError]", error)
+    captureClientError(error)
   }, [error])
 
   return (

@@ -12,8 +12,8 @@
  */
 
 import crypto from "crypto"
-import { PutObjectCommand, DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { mkdir, writeFile, unlink } from "fs/promises"
+import { PutObjectCommand, DeleteObjectCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3"
+import { access, constants, mkdir, writeFile, unlink } from "fs/promises"
 import path from "path"
 import { logger } from "./logger"
 import { STORAGE } from "./config"
@@ -32,6 +32,11 @@ export interface StorageAdapter {
   name: string
   upload(file: Buffer | Uint8Array, folder: string, ext: string): Promise<UploadResult>
   delete(key: string): Promise<void>
+  /**
+   * 可用性探测：供 /api/health 检查存储后端是否可达（B-34）。
+   * 不修改任何数据，轻量 Head/stat 即可；失败返回 { ok:false, detail }。
+   */
+  probe(): Promise<{ ok: boolean; detail?: string }>
 }
 
 // ── MIME 映射 ────────────────────────
@@ -83,6 +88,16 @@ class LocalStorageAdapter implements StorageAdapter {
   async delete(key: string): Promise<void> {
     const filePath = path.join(this.uploadDir, key)
     await unlink(filePath).catch((e) => logger.upload.error("本地文件删除失败", e))
+  }
+
+  async probe(): Promise<{ ok: boolean; detail?: string }> {
+    try {
+      await mkdir(this.uploadDir, { recursive: true })
+      await access(this.uploadDir, constants.W_OK | constants.R_OK)
+      return { ok: true, detail: `dir ${this.uploadDir}` }
+    } catch (e) {
+      return { ok: false, detail: e instanceof Error ? e.message : String(e) }
+    }
   }
 }
 
@@ -137,6 +152,16 @@ class R2StorageAdapter implements StorageAdapter {
       logger.upload.error("R2 删除失败", e, { key })
     }
   }
+
+  async probe(): Promise<{ ok: boolean; detail?: string }> {
+    try {
+      // HeadBucket 是最轻量的可达性检查；超时由 client 默认约束，避免长时间挂死
+      await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }))
+      return { ok: true, detail: `bucket ${this.bucket}` }
+    } catch (e) {
+      return { ok: false, detail: e instanceof Error ? e.message : String(e) }
+    }
+  }
 }
 
 // ── 工厂 ────────────────────────────
@@ -166,6 +191,15 @@ export function getStorage(): StorageAdapter {
  */
 export function getStorageBackend(): string {
   return getStorage().name
+}
+
+/**
+ * 存储可用性探测（B-34）：供 /api/health 调用，不修改任何数据。
+ */
+export async function probeStorage(): Promise<{ backend: string; ok: boolean; detail?: string }> {
+  const adapter = getStorage()
+  const res = await adapter.probe()
+  return { backend: adapter.name, ...res }
 }
 
 /**

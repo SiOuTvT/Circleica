@@ -1,120 +1,15 @@
 import { NextResponse } from "next/server"
+import { getContributors } from "@/lib/github"
+import { logger } from "@/lib/logger"
+import { withHandler } from "@/lib/api-handler"
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const REPO_OWNER = "SiOuTvT"
-const REPO_NAME = "Circleica"
-const PER_PAGE = 100
-
-interface GitHubCommitAuthor {
-  login: string
-  avatar_url: string
-}
-
-interface GitHubCommit {
-  sha: string
-  author: GitHubCommitAuthor | null
-  commit: {
-    author: { name: string; email: string; date: string } | null
-  }
-}
-
-interface Contributor {
-  login: string
-  avatar_url: string
-  contributions: number
-}
-
-let cache: { data: Contributor[]; timestamp: number } | null = null
-const CACHE_TTL = 10 * 60 * 1000 // 10 分钟
-
-export async function GET() {
-  // 有缓存直接返回
-  if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-    return NextResponse.json(cache.data, {
-      headers: { "X-Cache": "HIT", "Cache-Control": "public, max-age=600" },
-    })
-  }
-
+export const GET = withHandler(async () => {
   try {
-    const headers: Record<string, string> = {
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if (GITHUB_TOKEN) {
-      headers.Authorization = `Bearer ${GITHUB_TOKEN}`
-    }
-
-    const contributors = new Map<string, Contributor>()
-    let page = 1
-    let hasMore = true
-
-    // 分页拉取全部 commits，按 author.login 去重统计
-    while (hasMore) {
-      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/commits?per_page=${PER_PAGE}&page=${page}`
-      const res = await fetch(url, { headers, next: { revalidate: 600 } })
-
-      if (!res.ok) {
-        const errBody = await res.text()
-        console.error(`[contributors] GitHub API ${res.status}: ${errBody}`)
-        if (res.status === 403 || res.status === 429) {
-          // 限流：返回已有数据（如有），不返回错误
-          if (contributors.size > 0) {
-            const partial = Array.from(contributors.values())
-            return NextResponse.json(partial, {
-              headers: { "X-Cache": "PARTIAL", "X-Rate-Limited": "true" },
-            })
-          }
-          return NextResponse.json({ error: "GitHub API 限流", detail: errBody }, { status: 502 })
-        }
-        break
-      }
-
-      const commits: GitHubCommit[] = await res.json()
-      if (commits.length === 0) {
-        hasMore = false
-        break
-      }
-
-      for (const c of commits) {
-        const author = c.author
-        if (!author?.login) continue
-        const existing = contributors.get(author.login)
-        if (existing) {
-          existing.contributions++
-        } else {
-          contributors.set(author.login, {
-            login: author.login,
-            avatar_url: author.avatar_url,
-            contributions: 1,
-          })
-        }
-      }
-
-      // GitHub 返回 Link header 包含 rel="next" 时继续
-      const linkHeader = res.headers.get("Link") ?? ""
-      hasMore = linkHeader.includes('rel="next"')
-      page++
-    }
-
-    const result = Array.from(contributors.values()).sort(
-      (a, b) => b.contributions - a.contributions,
-    )
-
-    cache = { data: result, timestamp: Date.now() }
-
-    return NextResponse.json(result, {
-      headers: { "X-Cache": "MISS", "Cache-Control": "public, max-age=600" },
-    })
-  } catch (err) {
-    // 网络/证书等环境性失败：绝不 500（贡献者页是锦上添花的信息），降级返回已有缓存或空列表
-    console.error("[contributors] fetch failed:", (err as Error)?.message)
-    if (cache) {
-      return NextResponse.json(cache.data, {
-        headers: { "X-Cache": "STALE", "Cache-Control": "public, max-age=60" },
-      })
-    }
-    return NextResponse.json([], {
-      headers: { "Cache-Control": "public, max-age=60" },
-    })
+    const contributors = await getContributors()
+    return NextResponse.json(contributors)
+  } catch (error) {
+    // GitHub 不可达时降级为空列表（不抛 5xx），避免阻塞页面渲染
+    logger.api.error("[Contributors] 获取贡献者失败，降级为空", error)
+    return NextResponse.json([], { status: 200 })
   }
-}
+})
