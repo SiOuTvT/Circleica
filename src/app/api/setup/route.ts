@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import bcrypt from "bcryptjs"
 import { serialIdToUid } from "@/lib/serial-id"
-import { ConflictError, ValidationError } from "@/lib/errors"
+import { ConflictError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { validatePassword } from "@/lib/password"
 
 interface SetupBody {
@@ -23,6 +23,16 @@ interface SetupBody {
 }
 
 export const POST = withHandler(async (req) => {
+  // SEC-G 安装锁定：已完成初始化的站点，setup 路由硬锁定，禁止任何二次初始化尝试。
+  // 放在最前，避免无谓的密码哈希 / 事务开销，并给出明确的 403「已锁定」语义。
+  const initFlag = await prisma.siteSetting.findUnique({
+    where: { key: "initialized" },
+    select: { value: true },
+  })
+  if (initFlag?.value === "true") {
+    throw new ForbiddenError("站点已完成初始化，设置接口已锁定")
+  }
+
   const body: SetupBody = await safeParseJson(req)
   const { siteName, admin } = body
 
@@ -48,6 +58,7 @@ export const POST = withHandler(async (req) => {
     if (userCount > 0) {
       return { error: "already_initialized" as const }
     }
+    // 注意：下方 result.error 分支统一抛 ForbiddenError（见文件末尾），与提前锁定保持一致。
 
     const newUser = await tx.user.create({
       data: {
@@ -106,7 +117,7 @@ export const POST = withHandler(async (req) => {
   }, { isolationLevel: "Serializable" })
 
   if ("error" in result) {
-    throw new ConflictError("站点已完成初始化")
+    throw new ForbiddenError("站点已完成初始化，设置接口已锁定")
   }
 
   revalidateTag("site-settings", { expire: 0 })

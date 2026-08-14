@@ -139,6 +139,10 @@ export function withHandler(handler: RouteHandler): RouteHandler {
     const requestId = req.headers.get("x-request-id") || crypto.randomUUID()
     const route = req.nextUrl.pathname
 
+    // SEC-G：写接口统一 body 大小限制（仅针对 JSON 请求体；multipart 文件上传由各路由自行限制）。
+    const tooLarge = checkJsonBodySize(req)
+    if (tooLarge) return tooLarge
+
     return runWithRequestContext({ requestId, route }, () =>
       withActiveSpan(
         "http.server.request",
@@ -250,4 +254,35 @@ export async function safeParseJson<T = any>(
     if (options?.allowEmpty) return {} as T
     throw new ValidationError("请求体格式错误，请提供合法的 JSON")
   }
+}
+
+// ── 请求体大小限制（SEC-G）────────────
+
+/**
+ * 写接口统一 body 大小限制（SEC-G）。
+ * 仅对 JSON 请求体（content-type 含 application/json）做上限校验；
+ * multipart/form-data（文件上传）由各自路由自行限制，此处放行。
+ * 默认上限 1MB，可用环境变量 API_MAX_JSON_BODY_BYTES 覆盖。
+ * 无 content-length 头（分块传输）的请求放行由具体路由解析时再兜底。
+ */
+const MAX_JSON_BODY_BYTES = (() => {
+  const raw = Number(process.env.API_MAX_JSON_BODY_BYTES)
+  return Number.isFinite(raw) && raw > 0 ? raw : 1 * 1024 * 1024
+})()
+
+export function checkJsonBodySize(req: NextRequest): NextResponse | null {
+  const method = req.method
+  if (method !== "POST" && method !== "PUT" && method !== "PATCH" && method !== "DELETE") {
+    return null
+  }
+  const ct = req.headers.get("content-type") || ""
+  if (ct.includes("multipart/form-data")) return null
+  const cl = req.headers.get("content-length")
+  if (cl && Number(cl) > MAX_JSON_BODY_BYTES) {
+    return NextResponse.json(
+      { success: false, error: "请求体过大", code: "PAYLOAD_TOO_LARGE" },
+      { status: 413 },
+    )
+  }
+  return null
 }

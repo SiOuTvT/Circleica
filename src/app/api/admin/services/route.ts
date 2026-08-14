@@ -5,6 +5,8 @@ import { reloadServiceConfig } from "@/lib/service-config"
 import { PROVIDER_MAP, PROVIDER_LABELS } from "@/lib/email-providers"
 import { emailProviderConfigSchema } from "@/lib/validations"
 import { EMAIL } from "@/lib/config"
+import { assertSafeHttpUrl, SsrfBlockedError } from "@/lib/ssrf"
+import { logAudit } from "@/lib/audit-log"
 
 // 非 email 的服务 key（R2/Redis 保持平铺 key 不变）
 const SERVICE_KEYS = [
@@ -109,8 +111,33 @@ export const POST = withHandler(async (req) => {
     toSave.email_provider_order = String(body.email_provider_order || "")
   }
 
+  // SEC-C SSRF 双重校验（权限已在路由层 SUPER_ADMIN 门控）+ URL 层：
+  // 保存前对外部服务 URL（Redis / R2 公网地址）做协议白名单 + 链路本地/云元数据阻断。
+  for (const key of ["redis_url", "r2_public_url"]) {
+    const value = toSave[key]
+    if (value && typeof value === "string" && value.trim()) {
+      try {
+        await assertSafeHttpUrl(value.trim())
+      } catch (e: unknown) {
+        if (e instanceof SsrfBlockedError) {
+          return json({ success: false, message: `${key} 不被允许（禁止保存内部保留地址）` })
+        }
+        return json({ success: false, message: `${key} 必须是合法的 http 或 https 地址` })
+      }
+    }
+  }
+
   await updateSiteSettings(toSave)
   await reloadServiceConfig()
+
+  // 记录管理操作审计日志（运维自有服务配置变更）。
+  void logAudit({
+    userId: "SYSTEM",
+    action: "ADMIN_SERVICE_CONFIG_SAVE",
+    target: body.service || "services",
+    detail: `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`,
+  }).catch(() => {})
+
   return json({ success: true })
 })
 
@@ -157,6 +184,10 @@ async function testConnection(service: string, config: Record<string, string>) {
 
 async function testR2(config: Record<string, string>) {
   if (!config.account_id) return { success: false, message: "请填写 Account ID" }
+  // 阻断 account_id 中的分隔符/控制字符，防止突破固定 endpoint host（https://${account_id}.r2.cloudflarestorage.com）。
+  if (!/^[A-Za-z0-9_-]+$/.test(config.account_id)) {
+    return { success: false, message: "Account ID 格式不合法" }
+  }
   if (!config.access_key_id || !config.secret_access_key) return { success: false, message: "请填写 Access Key ID 和 Secret Access Key" }
   try {
     const { S3Client, ListBucketsCommand } = await import("@aws-sdk/client-s3")
@@ -180,6 +211,16 @@ async function testR2(config: Record<string, string>) {
 async function testRedis(config: Record<string, string>) {
   if (!config.url) return { success: false, message: "请填写 REST URL" }
   if (!config.token) return { success: false, message: "请填写 REST Token" }
+  try {
+    // SEC-C SSRF 双重校验（权限已在路由层 SUPER_ADMIN 门控）+ URL 层：
+    // 仅允许 http/https，并阻断链路本地 / 云元数据地址（如 169.254.169.254）。
+    await assertSafeHttpUrl(config.url)
+  } catch (e: unknown) {
+    if (e instanceof SsrfBlockedError) {
+      return { success: false, message: "连接地址不被允许（禁止访问内部保留地址）" }
+    }
+    return { success: false, message: "Redis REST URL 格式不合法，必须为 http 或 https 地址" }
+  }
   try {
     const res = await fetch(`${config.url}/ping`, {
       headers: { Authorization: `Bearer ${config.token}` },

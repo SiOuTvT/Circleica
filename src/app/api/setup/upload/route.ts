@@ -2,7 +2,7 @@ import { withHandler, json } from "@/lib/api-handler"
 import { prisma } from "@/lib/prisma"
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
-import { ValidationError } from "@/lib/errors"
+import { ValidationError, ForbiddenError } from "@/lib/errors"
 import crypto from "crypto"
 
 const MAX_SIZE = 2 * 1024 * 1024 // 2MB
@@ -21,7 +21,7 @@ export const POST = withHandler(async (req) => {
     select: { value: true },
   })
   if (initialized?.value === "true") {
-    throw new ValidationError("站点已初始化，请使用管理后台上传")
+    throw new ForbiddenError("站点已初始化，设置接口已锁定")
   }
 
   const formData = await req.formData()

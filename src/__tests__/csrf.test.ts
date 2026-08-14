@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { enforceSameOrigin } from "@/lib/csrf"
 import { NextRequest } from "next/server"
 
