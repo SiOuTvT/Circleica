@@ -8,6 +8,20 @@ export const metadata: Metadata = {
   title: "社团索引 · Galvelica",
   description: "浏览制作同人视觉小说的社团，按作品数量排序。",
   alternates: { canonical: "/galvelica/studios" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "Galvelica",
+    title: "社团索引 · Galvelica",
+    description: "浏览制作同人视觉小说的社团，按作品数量排序。",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "社团索引 · Galvelica",
+    description: "浏览制作同人视觉小说的社团，按作品数量排序。",
+    images: ["/opengraph-image"],
+  },
 }
 
 const STUDIOS_PER_PAGE = 60

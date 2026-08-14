@@ -8,6 +8,20 @@ export const metadata: Metadata = {
   title: "标签浏览 · Galvelica",
   description: "沿题材、世界观、剧情类型、游戏系统、社团、作者、角色属性、CP、年份与平台等维度探索同人视觉小说。",
   alternates: { canonical: "/galvelica/tags" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "Galvelica",
+    title: "标签浏览 · Galvelica",
+    description: "沿题材、世界观、剧情类型、游戏系统、社团、作者、角色属性、CP、年份与平台等维度探索同人视觉小说。",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "标签浏览 · Galvelica",
+    description: "沿题材、世界观、剧情类型、游戏系统、社团、作者、角色属性、CP、年份与平台等维度探索同人视觉小说。",
+    images: ["/opengraph-image"],
+  },
 }
 
 export default async function GalvelicaTags() {

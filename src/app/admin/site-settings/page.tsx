@@ -225,9 +225,9 @@ export default function SiteSettingsPage() {
           <div className="flex items-center gap-4">
             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
               {logoUrl ? (
-                <Image src={logoUrl} alt="自定义 Logo 预览" fill className="object-contain p-1" unoptimized />
+                <Image src={logoUrl} alt="自定义 Logo 预览" fill sizes="64px" className="object-contain p-1" unoptimized />
               ) : (
-                <Image src={BRANDING.circleica.emblem} alt="默认 emblem" fill className="object-contain p-1.5" unoptimized />
+                <Image src={BRANDING.circleica.emblem} alt="默认 emblem" fill sizes="64px" className="object-contain p-1.5" unoptimized />
               )}
             </div>
             <div className="flex flex-col gap-2">
@@ -412,7 +412,7 @@ export default function SiteSettingsPage() {
         <div className="flex items-center gap-4">
           <div className="relative h-40 w-28 overflow-hidden rounded-lg border border-border bg-muted">
             {placeholderUrl ? (
-              <Image src={placeholderUrl} alt="占位图预览" fill className="object-cover" unoptimized />
+              <Image src={placeholderUrl} alt="占位图预览" fill sizes="112px" className="object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                 <ImageIcon className="h-10 w-10" />

@@ -74,7 +74,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
       <div className="mb-8 flex flex-col items-start gap-4 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800/50 p-4 ring-1 ring-border shadow-3 light:from-white light:via-white light:to-zinc-50 sm:flex-row sm:gap-6 sm:p-6 lg:p-8">
         {character.image ? (
           <div className="relative mx-auto h-48 w-36 shrink-0 overflow-clip rounded-xl ring-2 ring-border/50 shadow-3 sm:mx-0 sm:h-64 sm:w-48 lg:h-80 lg:w-56">
-            <Image src={character.image} alt={character.name} fill className="object-cover" />
+            <Image src={character.image} alt={character.name} fill sizes="(max-width: 640px) 144px, 224px" className="object-cover" />
           </div>
         ) : (
           <div className="mx-auto flex h-48 w-36 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-5xl font-bold text-white ring-2 ring-border/50 shadow-3 sm:mx-0 sm:h-64 sm:w-48 lg:h-80 lg:w-56">

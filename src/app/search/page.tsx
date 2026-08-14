@@ -6,11 +6,29 @@ import Link from "next/link"
 import { logger } from "@/lib/logger"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "搜索",
-  description: "搜索同人游戏、Galgame、视觉小说资源，按名称、标签、原作查找",
-  openGraph: { title: "搜索 · Circleica", description: "搜索同人游戏资源", images: ["/opengraph-image"] },
-  alternates: { canonical: "/search" },
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; tag?: string; sort?: string; view?: string }>
+}): Promise<Metadata> {
+  const sp = await searchParams
+  const q = sp.q?.trim()
+  const tag = sp.tag?.trim()
+  const title = q ? `搜索「${q}」` : tag ? `标签 #${tag}` : "搜索"
+  const canonical = q
+    ? `/search?q=${encodeURIComponent(q)}`
+    : tag
+      ? `/search?tag=${encodeURIComponent(tag)}`
+      : "/search"
+  const description = q
+    ? `搜索同人游戏、Galgame、视觉小说资源，关键词「${q}」的查找结果`
+    : "搜索同人游戏、Galgame、视觉小说资源，按名称、标签、原作查找"
+  return {
+    title,
+    description,
+    openGraph: { title: `${title} · Circleica`, description, images: ["/opengraph-image"] },
+    alternates: { canonical },
+  }
 }
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@prisma/client"

@@ -14,15 +14,17 @@ import { ForYou } from "@/components/discover/for-you"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, type GameCardData } from "@/components/game-card"
 
-export const metadata: Metadata = {
-  title: "发现",
-  description: "接着看、看点精选、刷刷推荐——找到下一部想玩的作品",
-  openGraph: {
-    title: "发现 · Circleica",
-    description: "探索同人游戏，发现更多好作品",
-    images: ["/opengraph-image"],
-  },
-  alternates: { canonical: "/discover" },
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "发现",
+    description: "接着看、看点精选、刷刷推荐——找到下一部想玩的作品",
+    openGraph: {
+      title: "发现 · Circleica",
+      description: "探索同人游戏，发现更多好作品",
+      images: ["/opengraph-image"],
+    },
+    alternates: { canonical: "/discover" },
+  }
 }
 
 export const revalidate = 120

@@ -20,6 +20,22 @@ export const metadata: Metadata = {
   description:
     "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
   alternates: { canonical: "/galvelica" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "Galvelica",
+    title: "Galvelica · 同人视觉小说资料库",
+    description:
+      "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Galvelica · 同人视觉小说资料库",
+    description:
+      "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
+    images: ["/opengraph-image"],
+  },
 }
 
 /* 资料库索引快捷入口：指向各检索维度，强化「进入资料库」的入口感 */

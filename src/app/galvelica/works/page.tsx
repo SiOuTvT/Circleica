@@ -14,6 +14,20 @@ export const metadata: Metadata = {
   title: "作品库 · Galvelica",
   description: "浏览 Galvelica 资料库中的同人视觉小说作品，支持按标签、年份、社团与关键词筛选。",
   alternates: { canonical: "/galvelica/works" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "Galvelica",
+    title: "作品库 · Galvelica",
+    description: "浏览 Galvelica 资料库中的同人视觉小说作品，支持按标签、年份、社团与关键词筛选。",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "作品库 · Galvelica",
+    description: "浏览 Galvelica 资料库中的同人视觉小说作品，支持按标签、年份、社团与关键词筛选。",
+    images: ["/opengraph-image"],
+  },
 }
 
 type RawSP = Record<string, string | string[] | undefined>

@@ -8,6 +8,20 @@ export const metadata: Metadata = {
   title: "年份索引 · Galvelica",
   description: "沿时间轴回看同人视觉小说的创作脉络，按发布年份浏览作品。",
   alternates: { canonical: "/galvelica/years" },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "Galvelica",
+    title: "年份索引 · Galvelica",
+    description: "沿时间轴回看同人视觉小说的创作脉络，按发布年份浏览作品。",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "年份索引 · Galvelica",
+    description: "沿时间轴回看同人视觉小说的创作脉络，按发布年份浏览作品。",
+    images: ["/opengraph-image"],
+  },
 }
 
 export default async function GalvelicaYears() {

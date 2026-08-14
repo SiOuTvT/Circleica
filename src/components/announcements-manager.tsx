@@ -443,7 +443,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
       {/* 封面 */}
       <div className="relative aspect-video bg-muted/60">
         {ann.imageUrl ? (
-          <Image src={ann.imageUrl} alt="" fill className="object-cover" unoptimized />
+          <Image src={ann.imageUrl} alt={ann.title || "公告封面"} fill sizes="(max-width: 768px) 100vw, 320px" className="object-cover" unoptimized />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg text-muted-foreground/30">📢</div>

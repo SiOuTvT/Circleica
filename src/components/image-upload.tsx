@@ -181,7 +181,7 @@ export function ImageUpload({
           )}
           style={{ aspectRatio }}
         >
-          <Image src={preview} alt="预览" fill className="object-cover" unoptimized />
+          <Image src={preview} alt="预览" fill sizes="(max-width: 640px) 100vw, 256px" className="object-cover" unoptimized />
           {/* 悬浮遮罩 */}
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
             <button
