@@ -77,7 +77,16 @@ async function downloadCountReport() {
 }
 
 async function main() {
-  console.log(`模式: ${FIX ? "修复" : "报告仅"}\n数据库: ${process.env.DATABASE_URL?.replace(/:[^:@]+@/, ":****@") ?? "(未设置)"}`);
+  if (FIX) {
+    console.log("══════════════════════════════════════════════════════");
+    console.log("【写模式 --fix】将应用 UPDATE 修复；请确认这是对 staging 库执行");
+    console.log("══════════════════════════════════════════════════════");
+  } else {
+    console.log("══════════════════════════════════════════════════════");
+    console.log("【只读报告模式】仅 SELECT，不会写入任何数据；加 --fix 才修复");
+    console.log("══════════════════════════════════════════════════════");
+  }
+  console.log(`数据库: ${process.env.DATABASE_URL?.replace(/:[^:@]+@/, ":****@") ?? "(未设置)"}`);
   const a = await slugReport();
   const b = await downloadCountReport();
   console.log(`\n汇总: slug 异常 ${a} 行, downloadCount 漂移 ${b} 行${FIX ? " (已应用修复)" : ""}`);
