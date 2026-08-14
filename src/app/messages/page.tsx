@@ -58,6 +58,9 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const [refreshTick, setRefreshTick] = useState(0)
+  const [oldestCursor, setOldestCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingEarlier, setLoadingEarlier] = useState(false)
 
   const loadList = useCallback(async () => {
     try {
@@ -78,7 +81,15 @@ export default function MessagesPage() {
     if (!activeId) return
     const timer = setInterval(async () => {
       const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[] } }>(`/api/messages/${activeId}`)
-      if (ok) setMessages(data?.data?.messages ?? [])
+      if (ok) {
+        const incoming = data?.data?.messages ?? []
+        setMessages(prev => {
+          const map = new Map<string, MessageItem>()
+          for (const m of prev) map.set(m.id, m)
+          for (const m of incoming) map.set(m.id, m)
+          return [...map.values()].sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))
+        })
+      }
     }, 10_000)
     return () => clearInterval(timer)
   }, [activeId])
@@ -92,13 +103,36 @@ export default function MessagesPage() {
     setActiveId(id)
     setLoadingDetail(true)
     try {
-      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[] } }>(`/api/messages/${id}`)
-      if (ok) setMessages(data?.data?.messages ?? [])
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[]; hasMore?: boolean; nextCursor?: string | null } }>(`/api/messages/${id}`)
+      if (ok) {
+        const msgs = data?.data?.messages ?? []
+        setMessages(msgs)
+        setOldestCursor(data?.data?.nextCursor ?? null)
+        setHasMore(data?.data?.hasMore ?? false)
+      }
     } catch (e) {
       logger.api.warn("[Messages] load detail failed", { error: e instanceof Error ? e.message : String(e) })
     } finally {
       setLoadingDetail(false)
       setRefreshTick(t => t + 1)
+    }
+  }
+
+  async function loadEarlier() {
+    if (!activeId || !oldestCursor || loadingEarlier) return
+    setLoadingEarlier(true)
+    try {
+      const { ok, data } = await apiFetchSafe<{ success?: boolean; data?: { messages?: MessageItem[]; hasMore?: boolean; nextCursor?: string | null } }>(`/api/messages/${activeId}?cursor=${encodeURIComponent(oldestCursor)}`)
+      if (ok) {
+        const msgs = data?.data?.messages ?? []
+        setMessages(prev => [...msgs, ...prev])
+        setOldestCursor(data?.data?.nextCursor ?? null)
+        setHasMore(data?.data?.hasMore ?? false)
+      }
+    } catch (e) {
+      logger.api.warn("[Messages] load earlier failed", { error: e instanceof Error ? e.message : String(e) })
+    } finally {
+      setLoadingEarlier(false)
     }
   }
 
@@ -229,6 +263,17 @@ export default function MessagesPage() {
               </div>
 
               <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+                {hasMore && (
+                  <div className="flex justify-center pb-2">
+                    <button
+                      onClick={loadEarlier}
+                      disabled={loadingEarlier}
+                      className="rounded-full border border-border bg-muted/50 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+                    >
+                      {loadingEarlier ? "加载中…" : "加载更早的消息"}
+                    </button>
+                  </div>
+                )}
                 {loadingDetail ? (
                   <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
                 ) : messages.length === 0 ? (

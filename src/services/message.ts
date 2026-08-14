@@ -111,8 +111,12 @@ export const messageService = {
     return conversations
   },
 
-  /** 打开会话：校验权限 + 读消息 + 标记对方消息已读 */
-  async getConversation(userId: string, conversationId: string) {
+  /** 打开会话：校验权限 + 读消息（游标分页）+ 标记对方消息已读 */
+  async getConversation(
+    userId: string,
+    conversationId: string,
+    opts: { cursor?: string | null; limit?: number } = {}
+  ) {
     const conv = await prisma.conversation.findUnique({
       where: { id: conversationId },
       include: {
@@ -125,9 +129,12 @@ export const messageService = {
       throw new ForbiddenError("无权查看该会话")
     }
 
+    const limit = Math.min(opts.limit ?? 30, 100)
     const messages = await prisma.message.findMany({
       where: { conversationId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
+      ...(opts.cursor ? { cursor: { id: opts.cursor }, skip: 1 } : {}),
+      take: limit,
       include: { sender: { select: { id: true, username: true, avatar: true } } },
     })
 
@@ -137,7 +144,10 @@ export const messageService = {
       data: { isRead: true },
     })
 
-    return { conversation: conv, messages, newlyRead: unreadCount.count }
+    const ordered = messages.reverse()
+    const hasMore = messages.length >= limit
+    const nextCursor = ordered.length ? ordered[0].id : null
+    return { conversation: conv, messages: ordered, hasMore, nextCursor, newlyRead: unreadCount.count }
   },
 
   /** 未读私聊总数（导航角标） */

@@ -4,11 +4,13 @@ import { messageService } from "@/services/message"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { RateLimitError } from "@/lib/errors"
 
-/** 会话详情（含消息 + 标记对方已读） */
-export const GET = withHandler(async (_req, ctx) => {
+/** 会话详情（含消息游标分页 + 标记对方已读） */
+export const GET = withHandler(async (req, ctx) => {
   const { userId } = await requireAuth()
   const { id } = await ctx!.params
-  const result = await messageService.getConversation(userId, id)
+  const url = new URL(req.url)
+  const cursor = url.searchParams.get("cursor") || undefined
+  const result = await messageService.getConversation(userId, id, { cursor, limit: 30 })
   return json(result)
 })
 
