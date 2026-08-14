@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Trophy } from "lucide-react"
 import { prisma } from "@/lib/prisma"
@@ -137,6 +138,14 @@ async function getRanked(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): 
   }))
 }
 
+async function getRankedCached(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): Promise<RankedItem[]> {
+  return unstable_cache(
+    async () => getRanked(dim, scope, nsfwMode),
+    ["ranking", dim, scope, nsfwMode],
+    { revalidate: 3600, tags: ["ranking"] }
+  )()
+}
+
 // 奖章配色：名次是核心信息，前景/背景对比度需满足 WCAG AA（4.5:1）。
 // 金 amber-400(#fbbf24) 配白字仅约 1.65:1，故改用 amber-950(#451a03) ≈ 9.2:1；
 // 银 slate-300 + slate-800 ≈ 9:1、铜 orange-700 + 白字 ≈ 5.1:1，均已达标。
@@ -160,7 +169,7 @@ export default async function RankingPage({
 
   let items: RankedItem[] = []
   try {
-    items = await getRanked(dim, scope, nsfwMode)
+    items = await getRankedCached(dim, scope, nsfwMode)
   } catch {
     items = []
   }
