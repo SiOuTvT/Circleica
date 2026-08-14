@@ -10,6 +10,8 @@ import { prisma } from "@/lib/prisma"
 import fs from "fs/promises"
 import path from "path"
 import { logAudit } from "@/lib/audit-log"
+import { fetchWithTimeout, withRetry } from "@/lib/http"
+import { sanitizeExternalUrl } from "@/lib/sanitize-url"
 import { sanitizeUrl } from "@/lib/sanitize"
 import { logger } from "@/lib/logger"
 import { cache } from "@/lib/redis"
@@ -206,21 +208,36 @@ export const creatorService = {
 
   async fetchFromVndb(vndbId: string) {
     if (!vndbId) throw new ValidationError("缺少 id 参数")
-    const res = await fetch("https://api.vndb.org/kana/staff", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filters: ["id", "=", vndbId],
-        fields: "id,name,lang,gender,description,extlinks{url,label},aliases{name}",
-      }),
-    })
+    // B-31：统一超时 + 网络层指数退避重试（仅针对连接/超时等瞬时故障，不重试业务 4xx/5xx）
+    let res: Response
+    try {
+      res = await withRetry(
+        () =>
+          fetchWithTimeout("https://api.vndb.org/kana/staff", {
+            method: "POST",
+            timeoutMs: 8000,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filters: ["id", "=", vndbId],
+              fields: "id,name,lang,gender,description,extlinks{url,label},aliases{name}",
+            }),
+          }),
+        { retries: 2, baseDelayMs: 300 },
+      )
+    } catch {
+      throw new AppError("VNDB 请求超时或网络不可达", "INTERNAL", 502)
+    }
     if (!res.ok) throw new AppError("VNDB 请求失败", "INTERNAL", 502)
     const data = await res.json()
     const staff = data.results?.[0]
     if (!staff) throw new NotFoundError("Staff")
     const nameJa = staff.aliases?.find((a: { name: string }) => /[぀-ヿ一-鿿]/.test(a.name))?.name ?? ""
-    const twitterUrl = staff.extlinks?.find((e: { label: string }) => e.label === "Xitter" || e.label === "Twitter")?.url ?? ""
-    const wikipediaUrl = staff.extlinks?.find((e: { label: string }) => e.label?.startsWith("Wikipedia"))?.url ?? ""
+    const twitterUrl = sanitizeExternalUrl(
+      staff.extlinks?.find((e: { label: string }) => e.label === "Xitter" || e.label === "Twitter")?.url,
+    )
+    const wikipediaUrl = sanitizeExternalUrl(
+      staff.extlinks?.find((e: { label: string }) => e.label?.startsWith("Wikipedia"))?.url,
+    )
     return { vndbId: staff.id, name: staff.name, nameJa, bio: staff.description ?? "", gender: staff.gender ?? "", twitterUrl, wikipediaUrl }
   },
 }

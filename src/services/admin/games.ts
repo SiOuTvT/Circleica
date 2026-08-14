@@ -8,6 +8,7 @@ import { NotFoundError, ValidationError } from "@/lib/errors"
 import type { Prisma, GameStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { logAudit } from "@/lib/audit-log"
+import { CacheTag, gameTag } from "@/lib/cache-tags"
 import { logger } from "@/lib/logger"
 import { ensurePresetTagGroups } from "@/lib/preset-tag-groups"
 import { cache } from "@/lib/redis"
@@ -235,9 +236,9 @@ export const adminGameService = {
     revalidatePath("/admin/games")
     revalidatePath("/games")
     revalidatePath("/")
-    // A-8：详情页 Data Cache 失效（cache tag 机制）
-    revalidateTag(`game:${id}`, { expire: 0 })
-    revalidateTag("game-detail", { expire: 0 })
+    // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
+    revalidateTag(gameTag(id), { expire: 0 })
+    revalidateTag(CacheTag.gameDetail, { expire: 0 })
     await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -254,9 +255,9 @@ export const adminGameService = {
     revalidatePath("/games")
     revalidatePath("/")
     if (target?.serialId) revalidatePath(`/games/${target.serialId}`)
-    // A-8：详情页 Data Cache 失效（cache tag 机制）
-    revalidateTag(`game:${id}`, { expire: 0 })
-    revalidateTag("game-detail", { expire: 0 })
+    // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
+    revalidateTag(gameTag(id), { expire: 0 })
+    revalidateTag(CacheTag.gameDetail, { expire: 0 })
     await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
