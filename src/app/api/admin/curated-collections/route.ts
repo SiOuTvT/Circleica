@@ -11,7 +11,7 @@ export const GET = withHandler(async (req) => {
   const page = Math.max(1, Number(url.searchParams.get("page")) || 1)
   const pageSize = Math.min(Math.max(1, Number(url.searchParams.get("pageSize")) || 20), 100)
   const search = (url.searchParams.get("search") || "").trim()
-  const where = search ? { name: { contains: search, mode: "insensitive" } } : {}
+  const where = search ? { name: { contains: search, mode: "insensitive" as const } } : {}
   const [collections, total] = await Promise.all([
     prisma.curatedCollection.findMany({
       where,

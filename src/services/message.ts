@@ -8,7 +8,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import { NotFoundError, ValidationError, ForbiddenError, ConflictError } from "@/lib/errors"
+import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { checkAchievements } from "@/lib/achievements"
 import { createNotification } from "@/lib/notifications"
 

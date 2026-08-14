@@ -10,7 +10,7 @@ export const GET = withHandler(async (req: NextRequest) => {
   const page = Math.max(1, Number(url.searchParams.get("page")) || 1)
   const pageSize = Math.min(Math.max(1, Number(url.searchParams.get("pageSize")) || 20), 100)
   const search = (url.searchParams.get("search") || "").trim()
-  const where = search ? { name: { contains: search, mode: "insensitive" } } : {}
+  const where = search ? { name: { contains: search, mode: "insensitive" as const } } : {}
   const [items, total] = await Promise.all([
     prisma.achievement.findMany({
       where,

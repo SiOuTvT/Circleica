@@ -60,6 +60,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   const [editSubmitting, setEditSubmitting] = useState(false)
   const [editingComment, setEditingComment] = useState<string | null>(null)
   const [editCommentText, setEditCommentText] = useState("")
+  const [commentPage, setCommentPage] = useState(1)
+  const [loadingMoreComments, setLoadingMoreComments] = useState(false)
 
   // 注入面包屑动态标签
   const { setDynamicLabel } = useBreadcrumb()
@@ -207,6 +209,22 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
       return <><span className="text-primary/80">@{name}</span> {rest}</>
     }
     return content
+  }
+
+  // 加载更多评论（按页追加，避免一次性全量拉取）
+  async function loadMoreComments() {
+    if (loadingMoreComments) return
+    const next = commentPage + 1
+    setLoadingMoreComments(true)
+    try {
+      const data = await api.get<{ items?: Comment[] }>(`/api/forum/comments?postId=${post.id}&page=${next}`)
+      setComments(prev => [...prev, ...(data.items ?? [])])
+      setCommentPage(next)
+    } catch {
+      toast.error("评论加载失败")
+    } finally {
+      setLoadingMoreComments(false)
+    }
   }
 
   return (
@@ -371,6 +389,14 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
               </div>
             ))}
           </div>
+          {comments.length < (totalCommentCount ?? 0) && (
+            <div className="flex justify-center pt-2">
+              <button onClick={loadMoreComments} disabled={loadingMoreComments}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50">
+                {loadingMoreComments ? "加载中…" : "加载更多评论"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ── 评论输入框 ── */}

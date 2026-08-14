@@ -35,7 +35,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
         _count: { select: { comments: true } },
         comments: {
           orderBy: { createdAt: "asc" },
-          take: 100, // cap initial load; total count passed separately so UI can show "X of Y"
+          take: 50, // 初始仅加载第一页，更多评论由前端「加载更多」按需拉取
           include: { user: { select: { id: true, username: true, avatar: true } } },
         },
       },

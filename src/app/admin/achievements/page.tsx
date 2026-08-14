@@ -60,7 +60,6 @@ export default function AdminAchievementsPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const [search, setSearch] = useState("")
   const [searchInput, setSearchInput] = useState("")
 
   useUnsavedChanges(editing !== null)
