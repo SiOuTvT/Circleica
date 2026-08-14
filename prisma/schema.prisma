@@ -237,7 +237,7 @@ model Game {
 model Studio {
   id             String       @id @default(cuid())
   normalizedName String       @unique // 小写 + trim 的路由 key / 去重 key
-  slug          String?      @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
+  slug          String       @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
   displayName    String // 规范展示名（后台可手工改）
   aliases        String       @default("[]") // JSON 数组：摄入期收集的所有原始写法
   vndbId         String? // 预留：未来 VNDB producer 关联（不填）
@@ -276,7 +276,7 @@ model TagGroup {
 model Tag {
   id          String    @id @default(cuid())
   name        String    @unique
-  slug        String?   @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
+  slug        String   @unique // Archive 稳定可读路由（CJK 直出），与 normalizedName 职责分离
   description String    @default("")
   color       String    @default("#a78bfa")
   sortOrder   Int       @default(0)
@@ -511,7 +511,7 @@ model AuditLog {
 model Creator {
   id           String        @id @default(cuid())
   vndbId       String        @default("")
-  slug         String?       @unique // Archive 稳定可读路由（CJK 直出）
+  slug         String        @unique // Archive 稳定可读路由（CJK 直出）
   name         String
   nameJa       String        @default("")
   avatar       String        @default("")
@@ -587,7 +587,7 @@ model EmailVerificationToken {
 model CuratedCollection {
   id          String                  @id @default(cuid())
   name        String
-  slug        String?                 @unique // Archive 稳定可读路由（CJK 直出）
+  slug        String                 @unique // Archive 稳定可读路由（CJK 直出）
   description String                  @default("")
   sortOrder   Int                     @default(0)
   published   Boolean                 @default(true)
@@ -945,7 +945,7 @@ model WorkSource {
   fetchedAt  DateTime       @default(now())
 
   @@unique([workId, source])
-  @@index([source, externalId])
+  @@unique([source, externalId])
 }
 
 // ── 收录申请（Circleica↔Galvelica 联动载体） ──
