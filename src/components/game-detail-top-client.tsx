@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils"
 import { Download, Heart, Loader2, Share2 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
@@ -11,26 +12,47 @@ import { ConfirmDialog } from "./ui/confirm-dialog"
 export function GameDetailTopClient({
   gameId,
   downloadLinks,
-  isFav,
-  isLoggedIn,
   onDownloadClick,
   scrollToResources = false,
   compact = false,
 }: {
   gameId: string
   downloadLinks: { label: string; url: string }[]
-  isFav: boolean
-  isLoggedIn: boolean
   onDownloadClick?: () => void
   /** 点击下载时自动滚动到资源区 */
   scrollToResources?: boolean
   /** 紧凑模式：三个按钮等宽并排，用于手机端卡片内 */
   compact?: boolean
 }) {
-  const [fav, setFav] = useState(isFav)
+  const { status } = useSession()
+  const isLoggedIn = status === "authenticated"
+  const [fav, setFav] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [unfavoriting, setUnfavoriting] = useState(false)
+
+  // A-8：个性化收藏状态改由客户端 API 拉取（页面已走 Data Cache），避免污染缓存键。
+  useEffect(() => {
+    let cancelled = false
+    apiFetchSafe<{ isFav: boolean }>(`/api/games/${gameId}/personalization`)
+      .then(({ ok, data }) => {
+        if (ok && data && !cancelled) setFav(data.isFav)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [gameId])
+
+  // 与 GameDetailClient 跨组件同步收藏态
+  useEffect(() => {
+    const onFavChange = (e: Event) => {
+      const detail = (e as CustomEvent<{ isFav: boolean }>).detail
+      setFav(detail.isFav)
+    }
+    window.addEventListener("game-fav-change", onFavChange)
+    return () => window.removeEventListener("game-fav-change", onFavChange)
+  }, [])
 
   function handleFavoriteClick() {
     if (!isLoggedIn) return

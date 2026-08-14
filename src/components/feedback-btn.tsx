@@ -2,13 +2,16 @@
 
 import { Flag } from "lucide-react"
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { ReportDialog } from "./game-detail/report-dialog"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
-export function FeedbackBtn({ gameId, isLoggedIn }: { gameId: string; isLoggedIn: boolean }) {
+export function FeedbackBtn({ gameId }: { gameId: string }) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const { status } = useSession()
+  const isLoggedIn = status === "authenticated"
 
   if (!isLoggedIn) return null
 

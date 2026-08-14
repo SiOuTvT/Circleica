@@ -6,7 +6,6 @@ import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { FeedbackBtn } from "@/components/feedback-btn"
-import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
@@ -21,6 +20,7 @@ import { Download, Eye, Heart, Library } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
+import { unstable_cache } from "next/cache"
 import { cache as reactCache } from "react"
 
 /**
@@ -73,7 +73,7 @@ export default async function GameDetailPage({
   const { id } = await params
 
   // auth 和 resolveGame 无依赖，并行执行
-  const [session, resolved] = await Promise.all([auth(), resolveGame(id)])
+  const resolved = await resolveGame(id)
   if (!resolved) notFound()
   const gameId = resolved.id
 
@@ -107,15 +107,21 @@ export default async function GameDetailPage({
   }
 
   type GameData = NonNullable<Awaited<ReturnType<typeof fetchGame>>>
-  const gameResult = await fetchGame()
+  // A-8（方案 A）：主体数据走 Data Cache + cache tag，写路径通过 revalidateTag 失效。
+  // 个性化字段（isFav / 身份）不进入缓存，由客户端 API 按需拉取。
+  const gameResult = await unstable_cache(() => fetchGame(), ["game-detail", gameId], {
+    revalidate: 300,
+    tags: ["game-detail", `game:${gameId}`],
+  })()
   if (!gameResult) notFound()
   const game: GameData = gameResult
 
   const tags = game.tags.map((t) => t.tag)
   const tagNames = tags.map((t) => t.name)
 
-  // 获取各组颜色（资源标签/详情页信息栏）+ 收藏状态，并行执行
-  const [resourceTagColor, detailHeaderTagColor, isFav] = await Promise.all([
+  // 获取各组颜色（资源标签/详情页信息栏），并行执行。
+  // 收藏状态（isFav）属个性化字段，已从服务端移除，由客户端 /api/games/[id]/personalization 拉取。
+  const [resourceTagColor, detailHeaderTagColor] = await Promise.all([
     (async () => {
       try {
         const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
@@ -148,11 +154,6 @@ export default async function GameDetailPage({
       } catch (err) { logger.game.warn("[GameDetailPage] detailHeaderTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
       return "#f472b6"
     })(),
-    session?.user?.id
-      ? prisma.favorite.findUnique({
-          where: { userId_gameId: { userId: session.user.id, gameId: resolved.id } },
-        }).then(f => !!f)
-      : Promise.resolve(false),
   ])
 
   // 从所有资源中收集去重的 resourceTags（平台、语言、运行方式、资源内容）。
@@ -302,8 +303,6 @@ export default async function GameDetailPage({
                   <GameDetailTopClient
                     gameId={resolved.id}
                     downloadLinks={downloadLinks}
-                    isFav={isFav}
-                    isLoggedIn={!!session}
                     compact
                     scrollToResources
                   />
@@ -322,7 +321,7 @@ export default async function GameDetailPage({
                   <Heart className="h-3.5 w-3.5" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
-                <FeedbackBtn gameId={resolved.id} isLoggedIn={!!session} />
+                <FeedbackBtn gameId={resolved.id} />
                 {game.galvelicaWork?.slug ? (
                   <Link
                     href={`/galvelica/works/${game.galvelicaWork.slug}`}
@@ -369,10 +368,7 @@ export default async function GameDetailPage({
               createdAt: c.createdAt.toISOString(),
               user: c.user,
             }))}
-            isLoggedIn={!!session?.user}
-            currentUserId={session?.user?.id}
             gameId={resolved.id}
-            isFav={isFav}
             favCount={game.favoriteCount}
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor, groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
@@ -386,8 +382,6 @@ export default async function GameDetailPage({
             ageRating={game.ageRating ? game.ageRating : undefined}
             englishName={game.englishName ? game.englishName : undefined}
             status={game.status}
-            username={session?.user?.name || undefined}
-            userAvatar={session?.user?.image || null}
             resourceTagColor={resourceTagColor}
             publisherId={game.publisher?.id}
           />
