@@ -70,52 +70,124 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
   const [localFollowing, setLocalFollowing] = useState<FollowingLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
   const [localDownloads, setLocalDownloads] = useState<DownloadLite[]>([])
+  // 各 tab 的分页状态
+  const [favNextPage, setFavNextPage] = useState<number | null>(null)
+  const [favHasMore, setFavHasMore] = useState(false)
+  const [favLoadingMore, setFavLoadingMore] = useState(false)
+  const [followNextPage, setFollowNextPage] = useState<number | null>(null)
+  const [followHasMore, setFollowHasMore] = useState(false)
+  const [followLoadingMore, setFollowLoadingMore] = useState(false)
+  const [commentNextPage, setCommentNextPage] = useState<number | null>(null)
+  const [commentHasMore, setCommentHasMore] = useState(false)
+  const [commentLoadingMore, setCommentLoadingMore] = useState(false)
+  const [dlPage, setDlPage] = useState(1)
+  const [dlHasMore, setDlHasMore] = useState(false)
+  const [dlLoadingMore, setDlLoadingMore] = useState(false)
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
     try {
-      // API 返回 Favorite[]（每项含嵌套 game），需提取 game 并过滤掉孤儿记录（game 为 null）
-      const data = await apiGet<{ success: boolean; data: { id: string; game: GameLite | null }[] }>(`/api/profile/${userId}/favorites`)
-      const games = Array.isArray(data.data)
-        ? data.data.map((f) => f.game).filter((g): g is GameLite => g !== null)
+      // API 返回 { items: Favorite[], hasMore, nextPage, total }（每项含嵌套 game），需提取 game 并过滤孤儿
+      const data = await apiGet<{ success: boolean; data: { items: { id: string; game: GameLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/favorites?page=1`)
+      const games = Array.isArray(data.data?.items)
+        ? data.data.items.map((f) => f.game).filter((g): g is GameLite => g !== null)
         : []
       setLocalFav(games)
+      setFavNextPage(data.data?.nextPage ?? null)
+      setFavHasMore(data.data?.hasMore ?? false)
       setLoadedFav(true)
     } catch { setLoadError(true) }
   }, [userId, loadedFav])
 
+  const loadMoreFavorites = useCallback(async () => {
+    if (!favNextPage || favLoadingMore) return
+    setFavLoadingMore(true)
+    try {
+      const data = await apiGet<{ success: boolean; data: { items: { id: string; game: GameLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/favorites?page=${favNextPage}`)
+      const games = Array.isArray(data.data?.items)
+        ? data.data.items.map((f) => f.game).filter((g): g is GameLite => g !== null)
+        : []
+      setLocalFav(prev => [...prev, ...games])
+      setFavNextPage(data.data?.nextPage ?? null)
+      setFavHasMore(data.data?.hasMore ?? false)
+    } catch { setLoadError(true) } finally { setFavLoadingMore(false) }
+  }, [userId, favNextPage, favLoadingMore])
+
   const loadFollowing = useCallback(async () => {
     if (loadedFollowing) return
     try {
-      // API 返回 Follow[]（每项含嵌套 following 用户），需提取 following 并过滤掉孤儿记录（用户被删）
-      const data = await apiGet<{ success: boolean; data: { following: FollowingLite | null }[] }>(`/api/profile/${userId}/follows`)
-      const users = Array.isArray(data.data)
-        ? data.data.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
+      // API 返回 { items: Follow[], hasMore, nextPage, total }（每项含嵌套 following 用户），需提取 following 并过滤孤儿
+      const data = await apiGet<{ success: boolean; data: { items: { following: FollowingLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/follows?page=1`)
+      const users = Array.isArray(data.data?.items)
+        ? data.data.items.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
         : []
       setLocalFollowing(users)
+      setFollowNextPage(data.data?.nextPage ?? null)
+      setFollowHasMore(data.data?.hasMore ?? false)
       setLoadedFollowing(true)
     } catch { setLoadError(true) }
   }, [userId, loadedFollowing])
 
+  const loadMoreFollowing = useCallback(async () => {
+    if (!followNextPage || followLoadingMore) return
+    setFollowLoadingMore(true)
+    try {
+      const data = await apiGet<{ success: boolean; data: { items: { following: FollowingLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/follows?page=${followNextPage}`)
+      const users = Array.isArray(data.data?.items)
+        ? data.data.items.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
+        : []
+      setLocalFollowing(prev => [...prev, ...users])
+      setFollowNextPage(data.data?.nextPage ?? null)
+      setFollowHasMore(data.data?.hasMore ?? false)
+    } catch { setLoadError(true) } finally { setFollowLoadingMore(false) }
+  }, [userId, followNextPage, followLoadingMore])
+
   const loadComments = useCallback(async () => {
     if (loadedComments) return
     try {
-      const data = await apiGet<{ success: boolean; data: CommentLite[] }>(`/api/profile/${userId}/comments`)
-      setLocalComments(Array.isArray(data.data) ? data.data : [])
+      const data = await apiGet<{ success: boolean; data: { items: CommentLite[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/comments?page=1`)
+      setLocalComments(Array.isArray(data.data?.items) ? data.data.items : [])
+      setCommentNextPage(data.data?.nextPage ?? null)
+      setCommentHasMore(data.data?.hasMore ?? false)
       setLoadedComments(true)
     } catch { setLoadError(true) }
   }, [userId, loadedComments])
 
+  const loadMoreComments = useCallback(async () => {
+    if (!commentNextPage || commentLoadingMore) return
+    setCommentLoadingMore(true)
+    try {
+      const data = await apiGet<{ success: boolean; data: { items: CommentLite[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/comments?page=${commentNextPage}`)
+      setLocalComments(prev => [...prev, ...(Array.isArray(data.data?.items) ? data.data.items : [])])
+      setCommentNextPage(data.data?.nextPage ?? null)
+      setCommentHasMore(data.data?.hasMore ?? false)
+    } catch { setLoadError(true) } finally { setCommentLoadingMore(false) }
+  }, [userId, commentNextPage, commentLoadingMore])
+
   const loadDownloads = useCallback(async () => {
     if (loadedDownloads) return
     try {
-      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[] } }>("/api/user/downloads")
+      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[]; page: number; totalPages: number } }>("/api/user/downloads?page=1")
       setLocalDownloads(Array.isArray(data.data?.downloads) ? data.data.downloads : [])
+      setDlPage(data.data?.page ?? 1)
+      setDlHasMore((data.data?.page ?? 1) < (data.data?.totalPages ?? 1))
       setLoadedDownloads(true)
     } catch { setLoadError(true) }
   }, [loadedDownloads])
+
+  const loadMoreDownloads = useCallback(async () => {
+    if (dlLoadingMore) return
+    const next = dlPage + 1
+    setDlLoadingMore(true)
+    try {
+      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[]; page: number; totalPages: number } }>(`/api/user/downloads?page=${next}`)
+      setLocalDownloads(prev => [...prev, ...(Array.isArray(data.data?.downloads) ? data.data.downloads : [])])
+      setDlPage(next)
+      setDlHasMore(next < (data.data?.totalPages ?? 1))
+    } catch { setLoadError(true) } finally { setDlLoadingMore(false) }
+  }, [dlPage, dlLoadingMore])
 
   // 切换 tab 时加载对应数据
   useEffect(() => {
@@ -246,10 +318,22 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
   )
 }
 
-function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, loading, creating }: {
+function LoadMoreButton({ hasMore, loading, onLoadMore, label = "加载更多" }: { hasMore: boolean; loading: boolean; onLoadMore: () => void; label?: string }) {
+  if (!hasMore) return null
+  return (
+    <div className="flex justify-center pt-2">
+      <button onClick={onLoadMore} disabled={loading} className="flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50">
+        {loading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />加载中…</> : label}
+      </button>
+    </div>
+  )
+}
+
+function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, loading, creating, hasMore, loadingMore, onLoadMore }: {
   defaultFolderGames: GameLite[]; collections: CollectionData[]; isSelf: boolean; onOpenFolder: (col: CollectionData) => void
   showCreateFolder: boolean; setShowCreateFolder: (v: boolean) => void; newFolderName: string; setNewFolderName: (v: string) => void
   onCreateFolder: () => void; onDeleteFolder: (id: string) => void; loading: boolean; creating: boolean
+  hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void
 }) {
   const { messages: favMsgs } = useEmotionalMessages(FAV_MSG_KEYS)
 
@@ -289,6 +373,7 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
           </p>
         </div>
       )}
+      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
     </div>
   )
 }

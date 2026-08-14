@@ -277,44 +277,66 @@ export const checkinRepo = {
 export const profileRepo = {
   findComments(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit
-    // 直接返回评论数组（与 findFavorites 一致），
-    // 由 route 的 json() 包装为 { success, data }，客户端 data.data 即数组。
-    // 注意：旧实现返回 [comments, count] 元组，但客户端按数组处理，
-    // 导致首页渲染 c.game 为 undefined 而崩溃（评论 tab 偶发报错的根因）。
-    return prisma.comment.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      skip, take: limit,
-      include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+    // 返回分页对象 { items, hasMore, nextPage, total }，由 route 的 json() 包装为
+    // { success, data }，客户端 data.data 即该对象。
+    return Promise.all([
+      prisma.comment.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+      }),
+      prisma.comment.count({ where: { userId } }),
+    ]).then(([items, total]) => {
+      const hasMore = skip + items.length < total
+      return { items, hasMore, nextPage: hasMore ? page + 1 : null, total }
     })
   },
 
-  findFavorites(userId: string) {
-    return prisma.favorite.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+  findFavorites(userId: string, opts: { page?: number; limit?: number } = {}) {
+    const page = Math.max(1, opts.page ?? 1)
+    const limit = Math.min(opts.limit ?? 50, 100)
+    const skip = (page - 1) * limit
+    return Promise.all([
+      prisma.favorite.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
+      }),
+      prisma.favorite.count({ where: { userId } }),
+    ]).then(([items, total]) => {
+      const hasMore = skip + items.length < total
+      return { items, hasMore, nextPage: hasMore ? page + 1 : null, total }
     })
   },
 
-  findFollowing(userId: string) {
-    return prisma.follow.findMany({
-      where: { followerId: userId },
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      include: {
-        following: {
-          select: {
-            id: true,
-            serialId: true,
-            username: true,
-            avatar: true,
-            composedAvatarUrl: true,
-            bio: true,
+  findFollowing(userId: string, opts: { page?: number; limit?: number } = {}) {
+    const page = Math.max(1, opts.page ?? 1)
+    const limit = Math.min(opts.limit ?? 50, 100)
+    const skip = (page - 1) * limit
+    return Promise.all([
+      prisma.follow.findMany({
+        where: { followerId: userId },
+        orderBy: { createdAt: "desc" },
+        skip, take: limit,
+        include: {
+          following: {
+            select: {
+              id: true,
+              serialId: true,
+              username: true,
+              avatar: true,
+              composedAvatarUrl: true,
+              bio: true,
+            },
           },
         },
-      },
+      }),
+      prisma.follow.count({ where: { followerId: userId } }),
+    ]).then(([items, total]) => {
+      const hasMore = skip + items.length < total
+      return { items, hasMore, nextPage: hasMore ? page + 1 : null, total }
     })
   },
 }

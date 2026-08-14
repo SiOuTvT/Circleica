@@ -553,6 +553,6 @@ export const checkinService = {
 
 export const profileDataService = {
   getComments(userId: string, page: number) { return profileRepo.findComments(userId, page, 20) },
-  getFavorites(userId: string) { return profileRepo.findFavorites(userId) },
-  getFollowing(userId: string) { return profileRepo.findFollowing(userId) },
+  getFavorites(userId: string, opts: { page?: number; limit?: number } = {}) { return profileRepo.findFavorites(userId, opts) },
+  getFollowing(userId: string, opts: { page?: number; limit?: number } = {}) { return profileRepo.findFollowing(userId, opts) },
 }
