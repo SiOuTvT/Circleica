@@ -161,6 +161,25 @@ export async function proxy(req: NextRequest) {
     res = NextResponse.next()
   }
 
+  // 兼容 legacy middleware（B-23）：非 /api 页面回显 x-request-id 响应头并输出 access log。
+  // 删除 src/middleware.ts 后在此保留等价行为，避免可观测性回归；
+  // /api 路由由 withHandler 统一处理，故此处仅对齐非 api 页面分支。
+  if (isPageRoute) {
+    const incoming = req.headers.get("x-request-id")
+    const requestId = incoming || crypto.randomUUID()
+    res.headers.set("x-request-id", requestId)
+    console.log(
+      JSON.stringify({
+        level: "info",
+        t: "access",
+        requestId,
+        method: req.method,
+        route: req.nextUrl.pathname,
+        ua: req.headers.get("user-agent")?.slice(0, 120) ?? null,
+      }),
+    )
+  }
+
   // 登录守卫：未登录访问受保护页面，直接 307 到登录页
   // 尾部斜杠归一后再比对，避免 /notifications/ 绕过（Next 默认 trailingSlash=false，
   // 但反向代理改写路径时仍可能带上）。

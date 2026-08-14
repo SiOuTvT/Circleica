@@ -7,7 +7,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
 import { apiFetchSafe, apiDeleteSafe } from "@/lib/api-client"
-import { parseApiResponse } from "@/lib/api-handler"
+import { parseApiResponse } from "@/lib/api-handler-client"
 
 interface Log { id: string; content: string; createdAt: string }
 
