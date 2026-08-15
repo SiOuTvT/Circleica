@@ -17,7 +17,14 @@ export interface RateLimitConfig {
 }
 
 // ============ 内存后端 ============
-const memoryStore = new Map<string, RateLimitEntry>()
+// 用 globalThis 承载，避免 dev HMR / proxy 按请求重估模块时丢失计数
+// （Next dev 下 proxy.ts 可能每请求重新求值，模块级 const 会被重置；globalThis 跨重估持久）。
+// 生产环境为单实例长生命周期，globalThis 同样稳定；多实例部署应配置 Redis 走分布式限流。
+const memoryStore: Map<string, RateLimitEntry> =
+  (globalThis as unknown as { __circleica_rl_store?: Map<string, RateLimitEntry> })
+    .__circleica_rl_store ??
+  ((globalThis as unknown as { __circleica_rl_store?: Map<string, RateLimitEntry> })
+    .__circleica_rl_store = new Map<string, RateLimitEntry>())
 const MAX_STORE_SIZE = 10000
 
 // 清理过期记录（每10分钟执行一次）

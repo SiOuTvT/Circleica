@@ -1,0 +1,6 @@
+
+> Build error occurred
+Error: [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":50,"threshold":50,"scope":"turn","targets":["d:\\Circleica\\.next\\server\\app-paths-manifest.json"],"targetCount":1}
+    at checkBulkDeleteGuard (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:273:19)
+    at tryTrash (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:602:5)
+    at Object.unlinkSync (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:662:9)
