@@ -1,0 +1,79 @@
+
+> circleica@0.1.0 start
+> next start
+
+▲ Next.js 16.3.1
+- Local:         http://localhost:3000
+- Network:       http://192.168.5.12:3000
+✓ Ready in 438ms
+✓ Running next.config.ts took 139ms
+⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+{"level":"info","time":"2026-08-15T23:34:21.444Z","scope":"System","msg":"OTEL_EXPORTER_OTLP_ENDPOINT 未配置，跳过 OpenTelemetry 采集（无监控降级模式）"}
+{"level":"warn","time":"2026-08-15T23:34:21.447Z","scope":"System","msg":"DSN 未配置，错误监控未启用（如需启用请设置 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN）"}
+{"level":"info","time":"2026-08-15T23:34:23.422Z","scope":"System","msg":"[ServiceConfig] R2: 未配置（使用本地存储）"}
+{"level":"info","time":"2026-08-15T23:34:23.425Z","scope":"System","msg":"[ServiceConfig] Redis: 未配置（使用内存缓存）"}
+{"level":"info","time":"2026-08-15T23:34:23.425Z","scope":"System","msg":"[ServiceConfig] Email: 未配置（邮件功能不可用）"}
+{"level":"info","time":"2026-08-15T23:34:23.480Z","scope":"System","msg":"[ServiceConfig] R2: 未配置（使用本地存储）"}
+{"level":"info","time":"2026-08-15T23:34:23.481Z","scope":"System","msg":"[ServiceConfig] Redis: 未配置（使用内存缓存）"}
+{"level":"info","time":"2026-08-15T23:34:23.481Z","scope":"System","msg":"[ServiceConfig] Email: 未配置（邮件功能不可用）"}
+{"level":"info","time":"2026-08-15T23:34:23.532Z","scope":"Upload","msg":"存储后端: 本地文件系统","request_id":"578c6bbe-0d40-4d9b-a4d9-e30a68242dee","route":"/api/health"}
+{"level":"info","time":"2026-08-15T23:34:23.539Z","scope":"API","msg":"access","request_id":"578c6bbe-0d40-4d9b-a4d9-e30a68242dee","route":"/api/health","requestId":"578c6bbe-0d40-4d9b-a4d9-e30a68242dee","method":"GET","status":200,"durationMs":135}
+{"level":"info","time":"2026-08-15T23:34:25.642Z","scope":"API","msg":"access","request_id":"87f91060-442d-4d08-adf9-3140de97ecd5","route":"/api/health","requestId":"87f91060-442d-4d08-adf9-3140de97ecd5","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:34:27.698Z","scope":"API","msg":"access","request_id":"c11bd058-dc6f-4725-92d2-8405c8808aad","route":"/api/health","requestId":"c11bd058-dc6f-4725-92d2-8405c8808aad","method":"GET","status":200,"durationMs":2}
+{"level":"info","time":"2026-08-15T23:34:29.753Z","scope":"API","msg":"access","request_id":"cfaffc19-3897-461d-80d8-9ef3d966f303","route":"/api/health","requestId":"cfaffc19-3897-461d-80d8-9ef3d966f303","method":"GET","status":200,"durationMs":5}
+{"level":"info","time":"2026-08-15T23:34:31.851Z","scope":"API","msg":"access","request_id":"2d2f96ea-d81b-48f4-8e9f-be0e9fef9177","route":"/api/health","requestId":"2d2f96ea-d81b-48f4-8e9f-be0e9fef9177","method":"GET","status":200,"durationMs":13}
+{"level":"info","time":"2026-08-15T23:34:33.908Z","scope":"API","msg":"access","request_id":"599e5947-7a74-4308-a403-0994ea0a56d7","route":"/api/health","requestId":"599e5947-7a74-4308-a403-0994ea0a56d7","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:34:35.942Z","scope":"API","msg":"access","request_id":"26e06293-c848-4bfc-88c2-3ad182a2243f","route":"/api/health","requestId":"26e06293-c848-4bfc-88c2-3ad182a2243f","method":"GET","status":200,"durationMs":3}
+{"level":"info","time":"2026-08-15T23:34:38.028Z","scope":"API","msg":"access","request_id":"e54260a2-29e6-4061-b43b-d77b3c8ef220","route":"/api/health","requestId":"e54260a2-29e6-4061-b43b-d77b3c8ef220","method":"GET","status":200,"durationMs":6}
+{"level":"info","time":"2026-08-15T23:34:40.175Z","scope":"API","msg":"access","request_id":"0491e98b-c07a-4caf-b98c-f792976229c4","route":"/api/health","requestId":"0491e98b-c07a-4caf-b98c-f792976229c4","method":"GET","status":200,"durationMs":10}
+{"level":"info","time":"2026-08-15T23:34:42.255Z","scope":"API","msg":"access","request_id":"976a3a7e-ebe4-43d7-a090-018a34b97fd9","route":"/api/health","requestId":"976a3a7e-ebe4-43d7-a090-018a34b97fd9","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:34:44.311Z","scope":"API","msg":"access","request_id":"9e6dab81-4eab-4da6-8dd9-861f59d3595f","route":"/api/health","requestId":"9e6dab81-4eab-4da6-8dd9-861f59d3595f","method":"GET","status":200,"durationMs":5}
+{"level":"info","time":"2026-08-15T23:34:46.344Z","scope":"API","msg":"access","request_id":"5829b39a-fc8b-4e04-8e74-12315fb48433","route":"/api/health","requestId":"5829b39a-fc8b-4e04-8e74-12315fb48433","method":"GET","status":200,"durationMs":2}
+{"level":"info","time":"2026-08-15T23:34:48.417Z","scope":"API","msg":"access","request_id":"a393082a-9e60-4e4a-b86d-e988d8d0d024","route":"/api/health","requestId":"a393082a-9e60-4e4a-b86d-e988d8d0d024","method":"GET","status":200,"durationMs":5}
+{"level":"info","time":"2026-08-15T23:34:50.509Z","scope":"API","msg":"access","request_id":"313d2e66-34fd-432e-92e5-1773c03635b0","route":"/api/health","requestId":"313d2e66-34fd-432e-92e5-1773c03635b0","method":"GET","status":200,"durationMs":17}
+{"level":"info","time":"2026-08-15T23:34:52.561Z","scope":"API","msg":"access","request_id":"3ab46449-7845-4afc-ba11-2e33f782851a","route":"/api/health","requestId":"3ab46449-7845-4afc-ba11-2e33f782851a","method":"GET","status":200,"durationMs":13}
+{"level":"info","time":"2026-08-15T23:34:54.632Z","scope":"API","msg":"access","request_id":"c040b4d1-7f73-4350-925f-43c27e8564ed","route":"/api/health","requestId":"c040b4d1-7f73-4350-925f-43c27e8564ed","method":"GET","status":200,"durationMs":6}
+{"level":"info","time":"2026-08-15T23:34:56.718Z","scope":"API","msg":"access","request_id":"dd1df366-af82-41ff-9672-14f3c2f3b6f4","route":"/api/health","requestId":"dd1df366-af82-41ff-9672-14f3c2f3b6f4","method":"GET","status":200,"durationMs":7}
+{"level":"info","time":"2026-08-15T23:34:58.805Z","scope":"API","msg":"access","request_id":"e0cb36bd-0d56-4bd1-b8a7-ded5a26f6ce2","route":"/api/health","requestId":"e0cb36bd-0d56-4bd1-b8a7-ded5a26f6ce2","method":"GET","status":200,"durationMs":3}
+{"level":"info","time":"2026-08-15T23:35:00.848Z","scope":"API","msg":"access","request_id":"a10a4998-13f6-4e71-a239-30137609133e","route":"/api/health","requestId":"a10a4998-13f6-4e71-a239-30137609133e","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:35:02.967Z","scope":"API","msg":"access","request_id":"3e6ee9ed-7ab2-4615-b675-2797654ed982","route":"/api/health","requestId":"3e6ee9ed-7ab2-4615-b675-2797654ed982","method":"GET","status":200,"durationMs":9}
+{"level":"info","time":"2026-08-15T23:35:05.024Z","scope":"API","msg":"access","request_id":"73573076-557e-4007-9640-cf09a8108dab","route":"/api/health","requestId":"73573076-557e-4007-9640-cf09a8108dab","method":"GET","status":200,"durationMs":9}
+{"level":"info","time":"2026-08-15T23:35:07.097Z","scope":"API","msg":"access","request_id":"25a48433-15bc-47b9-ad5c-8ba1d98c7887","route":"/api/health","requestId":"25a48433-15bc-47b9-ad5c-8ba1d98c7887","method":"GET","status":200,"durationMs":3}
+{"level":"info","time":"2026-08-15T23:35:09.175Z","scope":"API","msg":"access","request_id":"b4497b3c-53ba-4291-adb4-9f456b70b2ae","route":"/api/health","requestId":"b4497b3c-53ba-4291-adb4-9f456b70b2ae","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:35:11.226Z","scope":"API","msg":"access","request_id":"19ee66f8-2d1d-4f77-bcf0-ef9af75b09ce","route":"/api/health","requestId":"19ee66f8-2d1d-4f77-bcf0-ef9af75b09ce","method":"GET","status":200,"durationMs":5}
+{"level":"info","time":"2026-08-15T23:35:13.289Z","scope":"API","msg":"access","request_id":"5e0131ee-724a-4b7e-9b3d-ff98eba8c579","route":"/api/health","requestId":"5e0131ee-724a-4b7e-9b3d-ff98eba8c579","method":"GET","status":200,"durationMs":2}
+{"level":"info","time":"2026-08-15T23:35:15.363Z","scope":"API","msg":"access","request_id":"4bef3319-376c-470c-aba6-d1a4915979a4","route":"/api/health","requestId":"4bef3319-376c-470c-aba6-d1a4915979a4","method":"GET","status":200,"durationMs":3}
+{"level":"info","time":"2026-08-15T23:35:17.413Z","scope":"API","msg":"access","request_id":"96094d2c-1b6d-4b62-8f6b-cad00d84b3e8","route":"/api/health","requestId":"96094d2c-1b6d-4b62-8f6b-cad00d84b3e8","method":"GET","status":200,"durationMs":4}
+{"level":"info","time":"2026-08-15T23:35:19.491Z","scope":"API","msg":"access","request_id":"dd44a6fb-b2ce-4d96-8fde-b2de0704b790","route":"/api/health","requestId":"dd44a6fb-b2ce-4d96-8fde-b2de0704b790","method":"GET","status":200,"durationMs":5}
+{"level":"info","time":"2026-08-15T23:35:21.677Z","scope":"API","msg":"access","request_id":"bf2179e3-d4f7-4c2f-9a4e-4181cabed637","route":"/api/health","requestId":"bf2179e3-d4f7-4c2f-9a4e-4181cabed637","method":"GET","status":200,"durationMs":35}
+{"level":"info","time":"2026-08-15T23:35:23.761Z","scope":"API","msg":"access","request_id":"3c734264-7452-47b1-b508-0ec05708aa5d","route":"/api/health","requestId":"3c734264-7452-47b1-b508-0ec05708aa5d","method":"GET","status":200,"durationMs":15}
+{"level":"info","time":"2026-08-15T23:35:43.120Z","scope":"API","msg":"access","request_id":"b8dd91d7-17b7-4b17-821c-09a164f43d46","route":"/api/health","requestId":"b8dd91d7-17b7-4b17-821c-09a164f43d46","method":"GET","status":200,"durationMs":7}
+{"level":"info","t":"access","requestId":"759d89f3-48e9-41ca-b45e-60e76011aead","method":"GET","route":"/","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"50936ad1-ef92-407d-9024-4802bade6501","method":"GET","route":"/games","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"9a434dcb-5bca-4473-a1c4-3a098768b94e","method":"GET","route":"/games/1","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"6aae3fbc-f7d2-4ef4-9638-18362cd44645","method":"GET","route":"/login","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"5cb326df-9e5f-4f13-93a0-a40b08077a58","method":"GET","route":"/galvelica","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"1e301448-996b-4965-888d-6d7b9dace8de","method":"GET","route":"/discover","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"ba312aea-e2e1-4f5d-9a72-33a9df41083b","method":"GET","route":"/search","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"327f36c9-f6ea-4ff4-ad9f-41083b3ce57d","method":"GET","route":"/ranking","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"771fc3af-0b5d-4400-8a60-40f55b864429","method":"GET","route":"/admin","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"01cbe0b1-a053-4583-a258-888e1804b11b","method":"GET","route":"/forum","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"5f86aa1c-82e2-4deb-93a2-441ab6a5096a","method":"GET","route":"/profile","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"eda5f907-773b-4388-8ab9-12049ab2f69b","method":"GET","route":"/rules","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"68bc7d29-f5a2-48bc-bd80-6b17fdca9227","method":"GET","route":"/messages","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"ee12d706-45a7-4e60-8407-7b8a6488230c","method":"GET","route":"/notifications","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"085def7e-c1dd-4587-87d5-22084ff03be0","method":"GET","route":"/","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"9608534d-15b4-4123-a523-de7422187919","method":"GET","route":"/games","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"d5a6f9a7-8ad4-475c-887a-88a6fd0f508b","method":"GET","route":"/games/1","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"88a5952d-489d-4a09-a996-3f725dae991d","method":"GET","route":"/login","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"200a80b1-4c7a-488d-a733-f2eedadafb53","method":"GET","route":"/galvelica","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"61c81079-fc49-4fb1-b5f1-80d7542ce63e","method":"GET","route":"/discover","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"289fdc1e-2eac-4f10-97b4-243e69a2e677","method":"GET","route":"/search","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"7765bb59-2514-4ae9-ae2d-bde11749c97b","method":"GET","route":"/ranking","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"340f1a57-923c-44d7-a7b3-0b18c45f3e6c","method":"GET","route":"/admin","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"2397f023-9185-4864-b148-0890927c1e4a","method":"GET","route":"/forum","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"34947ecd-903f-4b5e-a379-a17963b10366","method":"GET","route":"/profile","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"b0409fe7-8687-4ae1-9544-afbebea70a28","method":"GET","route":"/rules","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"b76b7548-e0fd-4d4c-a33d-09100116c383","method":"GET","route":"/messages","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"7a983c05-4f74-4204-9c35-86e76a2ae25b","method":"GET","route":"/notifications","ua":"curl/8.9.1"}
+{"level":"info","t":"access","requestId":"25f94f49-6836-4f95-ae6d-2c75e2818e52","method":"GET","route":"/setup","ua":"curl/8.9.1"}

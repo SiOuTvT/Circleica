@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - name: Prisma generate
@@ -36,19 +36,33 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     needs: quality
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: circleica
+          POSTGRES_PASSWORD: circleica
+          POSTGRES_DB: circleica
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U circleica"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      # 本地占位串：CI 构建兜底，不会连任何真实数据库
-      DATABASE_URL: ${{ secrets.CI_DATABASE_URL || 'postgresql://circleica:circleica@localhost:5432/circleica' }}
+      # 本地 CI 数据库（由上方 services 提供），非生产库，仅验证 ISR 预渲染链路
+      DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
       NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
-      - name: Prisma generate
-        run: npx prisma generate
+      - name: Prisma generate + migrate
+        run: npx prisma generate && npx prisma migrate deploy
       - name: Build
         run: npm run build
 
