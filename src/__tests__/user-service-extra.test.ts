@@ -115,7 +115,7 @@ import { prisma } from "@/lib/prisma"
 import { deleteByUrl } from "@/lib/storage"
 import { checkAchievements } from "@/lib/achievements"
 import { invalidateHomeStats } from "@/lib/home-stats"
-import { ValidationError, ConflictError, NotFoundError, UnauthorizedError } from "@/lib/errors"
+import { ValidationError, ConflictError, NotFoundError } from "@/lib/errors"
 
 const mockUserRepo = jest.mocked(userRepo)
 const mockPrisma = jest.mocked(prisma)
@@ -288,8 +288,6 @@ describe("userService.updateProfile", () => {
 // ── checkinService ───────────────────────────────────────────────
 
 describe("checkinService.checkIn", () => {
-  const today = new Date(new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" }) + "T00:00:00+08:00")
-
   it("rejects duplicate check-in on the same day", async () => {
     mockCheckinRepo.findByDate.mockResolvedValue({ id: "c1" } as never)
     await expect(checkinService.checkIn("user-1")).rejects.toThrow(ConflictError)

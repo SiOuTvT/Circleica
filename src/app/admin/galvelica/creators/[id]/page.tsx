@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
-import { PenTool, Layers, ExternalLink } from "lucide-react"
+import { Layers, ExternalLink } from "lucide-react"
 import { CreatorDetailClient } from "./creator-detail-client"
 
 export const metadata = { title: "Galvelica 创作者详情 · 管理后台" }

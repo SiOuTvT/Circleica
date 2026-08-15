@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { requireSiteAdmin } from "@/lib/auth-context"
-import { prisma, Prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"

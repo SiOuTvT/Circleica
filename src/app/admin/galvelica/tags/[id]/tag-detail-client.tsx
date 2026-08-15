@@ -5,7 +5,7 @@ import { Pencil, Merge } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { adminInput, adminBtnPrimary } from "@/lib/admin-styles"
+import { adminInput } from "@/lib/admin-styles"
 import { GAL_PRESET_TAG_COLORS } from "@/lib/galvelica-palette"
 import { editGalvelicaTag, mergeGalvelicaTag } from "../actions"
 

@@ -2,7 +2,7 @@ import { requireSuperAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Badge } from "@/components/ui/badge"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { SmilePlus } from "lucide-react"
+
 import dynamic from "next/dynamic"
 
 const EmotionalMessagesManager = dynamic(() => import("./manager").then(m => ({ default: m.EmotionalMessagesManager })), {

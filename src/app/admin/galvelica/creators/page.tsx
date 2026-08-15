@@ -1,6 +1,6 @@
 import { Pagination } from "@/components/ui/pagination"
 import { requireSiteAdmin } from "@/lib/auth-context"
-import { prisma, Prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
