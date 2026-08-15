@@ -49,7 +49,7 @@ function addConnectionParams(url: string, params: Record<string, string | number
   }
 }
 
-const realPrisma = globalForPrisma.prisma ?? createPrismaClient()
+export const realPrisma = globalForPrisma.prisma ?? createPrismaClient()
 
 // 开发环境缓存到 globalThis
 if (process.env.NODE_ENV !== "production") {

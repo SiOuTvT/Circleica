@@ -1,6 +1,7 @@
 import { withHandler, json } from "@/lib/api-handler"
 import { requireAuth } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 import { NotFoundError } from "@/lib/errors"
 
 /** 内存级防刷：同一资源分流 60s 内仅计一次（IP + entryId 维度），避免刷新/误点刷爆计数 */
@@ -73,7 +74,7 @@ export const POST = withHandler(async (req, ctx) => {
       data: { userId, resourceId, gameId },
     }).catch((e) => {
       // 历史记录失败不影响计数，但记录以便排查
-      console.error("[download] 写入下载历史失败", e)
+      logger.api.error("[download] 写入下载历史失败", e)
     })
   }
 

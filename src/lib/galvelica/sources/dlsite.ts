@@ -165,6 +165,7 @@ function extractGenres(html: string): { name: string; sourceId?: string }[] {
 async function dlsiteFetch(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
       headers: {
         "User-Agent": UA,
         Accept: "text/html,application/xhtml+xml",

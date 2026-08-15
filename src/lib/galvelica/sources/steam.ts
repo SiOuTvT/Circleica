@@ -43,6 +43,7 @@ function toStr(v: number | string | undefined | null): string {
 async function steamFetch<T>(url: string): Promise<T | null> {
   try {
     const res = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
       headers: { Accept: "application/json", "User-Agent": UA },
     })
     if (!res.ok) return null

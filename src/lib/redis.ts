@@ -42,6 +42,17 @@ function warnCacheFailureThrottled(op: string, key: string, err: unknown): void 
   })
 }
 
+// Redis 写入类（set/del/delByPrefix）失败同样可能在故障期高频触发，加独立节流避免刷屏。
+let lastCacheWriteErrAt = 0
+function warnCacheWriteFailureThrottled(op: string, err: unknown): void {
+  const now = Date.now()
+  if (now - lastCacheWriteErrAt < CACHE_WARN_INTERVAL_MS) return
+  lastCacheWriteErrAt = now
+  logger.db.warn(`[cache] Redis ${op} 失败，已忽略（缓存写入降级，60s 内不再重复告警）`, {
+    error: err instanceof Error ? err.message : String(err),
+  })
+}
+
 // ============ Redis 实现 ============
 
 class RedisCache implements CacheClient {
@@ -95,7 +106,7 @@ class RedisCache implements CacheClient {
         body: serialized,
       })
     } catch (error) {
-      logger.db.error("Redis set error", error)
+      warnCacheWriteFailureThrottled("set", error)
     }
   }
 
@@ -103,7 +114,7 @@ class RedisCache implements CacheClient {
     try {
       await this.request(`/del/${encodeURIComponent(key)}`)
     } catch (error) {
-      logger.db.error("Redis del error", error)
+      warnCacheWriteFailureThrottled("del", error)
     }
   }
 
@@ -123,7 +134,7 @@ class RedisCache implements CacheClient {
         cursor = String(res.cursor ?? "0")
       } while (cursor !== "0")
     } catch (error) {
-      logger.db.error("Redis delByPrefix error", error)
+      warnCacheWriteFailureThrottled("delByPrefix", error)
     }
   }
 

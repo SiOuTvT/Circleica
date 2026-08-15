@@ -91,7 +91,7 @@ async function boothFetch(url: string): Promise<string | null> {
   const headers = getPixivHeaders()
   if (!headers) return null // 未配置 token，优雅降级
   try {
-    const res = await fetch(url, { headers, redirect: "follow" })
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000), headers, redirect: "follow" })
     if (!res.ok) return null
     const text = await res.text()
     if (!text || text.length < 200) return null

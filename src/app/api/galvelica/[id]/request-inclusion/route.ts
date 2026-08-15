@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { cache, cacheKey } from "@/lib/redis"
 import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
+import { withHandler } from "@/lib/api-handler"
 
 /**
  * POST /api/galvelica/<workId>/request-inclusion
@@ -11,8 +12,8 @@ import { createDraftGameFromWork } from "@/lib/galvelica/work-service"
  * 并记一条 APPROVED 请求（供后台追溯）。已存在对应资源（草稿/已发布）则返回 409。
  * 需登录（用户决策 2026-08-07：提交收录要求登录，便于追溯防刷）。
  */
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export const POST = withHandler(async (req, ctx) => {
+  const { id } = (await ctx.params) as { id: string }
 
   // 鉴权：必须登录后才能提交收录申请（可追溯，防换 IP 刷草稿）
   const session = await auth()
@@ -77,4 +78,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   return NextResponse.json({ ok: true, gameId })
-}
+})

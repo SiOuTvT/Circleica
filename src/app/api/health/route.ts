@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
-import { prisma } from "@/lib/prisma"
+import { realPrisma } from "@/lib/prisma"
 import { cache, isRedisAvailable } from "@/lib/redis"
 import { probeStorage } from "@/lib/storage"
 import { withHandler } from "@/lib/api-handler"
@@ -31,7 +31,7 @@ export const GET = withHandler(async (_req) => {
   // 检查数据库
   try {
     const dbStart = Date.now()
-    await prisma.$queryRaw`SELECT 1`
+    await realPrisma.$queryRaw`SELECT 1`
     checks.database = { status: "ok", latency: Date.now() - dbStart }
   } catch (error) {
     logger.db.error("[Health] Database check failed", error)
