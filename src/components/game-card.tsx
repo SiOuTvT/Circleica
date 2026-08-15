@@ -82,7 +82,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
@@ -288,7 +288,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
-      className="group flex items-center gap-4 rounded-xl bg-card p-3 ring-1 ring-border transition-all hover:ring-foreground/10"
+      className="group flex items-center gap-4 rounded-xl bg-card p-3 ring-1 ring-border transition-shadow hover:ring-foreground/10"
       onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
