@@ -11,6 +11,7 @@
  */
 
 import { z } from "zod"
+import { logger } from "./logger"
 
 // ── Schema 定义 ──────────────────────
 
@@ -119,7 +120,7 @@ function validate(): Env {
 
   // 运行时验证失败
   const issues = parsed.error.issues.map(i => `  ${i.path.join(".")}: ${i.message}`).join("\n")
-  console.error(`\n❌ 环境变量验证失败:\n${issues}\n`)
+  logger.system.error(`环境变量验证失败:\n${issues}`)
 
   if (process.env.NODE_ENV === "production") {
     process.exit(1)

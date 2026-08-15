@@ -35,7 +35,14 @@ if [ -z "$NEXTAUTH_SECRET" ]; then
   fi
 fi
 
-# ── 数据库迁移 (best-effort, 不阻断启动) ──
+# ── 数据库迁移 (fail-fast on persistent failure) ──
+# 设计要点：
+#  - 迁移失败即退出（exit 1），让容器/编排器明确判定部署失败并告警，
+#    而不是「带着不匹配的 schema 悄悄启动」导致数据不一致或运行时 500。
+#  - 仍保留 3 次重试 + 单次 120s 上限，仅过滤数据库短暂不可达等瞬态错误；
+#    若 3 次后仍失败，视为真实迁移故障，必须 fail-fast。
+#  - 推荐使用独立 `migrate` 服务（docker-compose 的 migrate 服务已 fail-fast）
+#    执行迁移；本入口的迁移作为 Coolify/standalone 场景的兜底。
 if [ -z "$DATABASE_URL" ]; then
   printf "  ${Y}⚠${N} 未设置 DATABASE_URL，跳过迁移（应用运行时将报错，请在环境变量中配置）\n"
 else
@@ -57,12 +64,13 @@ else
   if [ "$MIGRATE_OK" = true ]; then
     printf "  ${G}✓${N} 数据库迁移完成\n"
   else
-    printf "  ${R}✗${N} 数据库迁移失败（best-effort：仍启动服务，详见下方日志）\n"
+    printf "  ${R}✗${N} 数据库迁移失败（已重试 3 次仍失败，终止启动以避免以不匹配的 schema 提供服务）\n"
     printf "  ${R}   常见原因：_prisma_migrations 存在卡死/冲突迁移（历史被杀部署导致漂移）。\n"
-    printf "  ${R}   修复：在容器内执行 \`npx prisma migrate resolve --applied <迁移名>\` 后重跑 migrate deploy。\n"
+    printf "  ${R}   修复：在容器内执行 \`npx prisma migrate resolve --applied <迁移名>\` 后重跑 \`docker compose run --rm migrate\`。\n"
     printf "  ${R}──── 迁移日志 ────\n"
     sed 's/^/    /' /tmp/migrate.log 2>/dev/null
     printf "  ${R}─────────────────\n"
+    exit 1
   fi
 fi
 
