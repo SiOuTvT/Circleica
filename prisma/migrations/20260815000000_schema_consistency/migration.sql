@@ -1,5 +1,5 @@
 -- 20260815000000 schema consistency fixes
--- 1) 补齐 WorkSourceType 枚举缺失变体（schema 定义 12 个，历史迁移仅注册 8 个：
+-- 1) 补齐 WorkSourceType 枚举缺失变体（schema 定义 11 个，历史迁移仅注册 8 个：
 --    GETCHU / FUWANOVEL / BOOTH 缺失）。干净库 migrate deploy 后若应用写入这三源
 --    会运行时报 invalid input value for enum work sourcetype。幂等补齐（PG 12+ 支持事务内 ADD VALUE）。
 DO $$
