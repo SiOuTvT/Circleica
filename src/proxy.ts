@@ -11,49 +11,51 @@ import { enforceSameOrigin } from "@/lib/csrf"
 // proxy.js 回写为 middleware.js，运行时（node .next/standalone/server.js）无感。
 // ─────────────────────────────────────────────────────────────
 
-// CSP 策略（模板缓存）
-let _cspTemplate: { scriptPrefix: string; rest: string } | null = null
+// ─────────────────────────────────────────────────────────────
+// CSP（每请求生成 nonce）。
+// nonce 通过 x-nonce 请求头透传给 Server Component，由根 layout 读取并应用到自管
+// 内联脚本（ThemeScript）；Next 会据此为自身注入的 framework / RSC-flight 内联脚本
+// 自动补上「同一个」nonce 属性，故 strict-dynamic 下脚本全部放行、不再白屏。
+//
+// 关键前提（此前白屏的真正根因）：根 layout 必须读取 headers() 使全站 dynamic。
+// 若页面被静态/ISR 缓存，HTML 里的 nonce 是构建期/上一次请求的固定值，与响应头
+// 的 per-request nonce 不匹配 → 框架脚本被拦 → 白屏。见 src/app/layout.tsx。
+// ─────────────────────────────────────────────────────────────
+function generateNonce(): string {
+  return Buffer.from(crypto.randomUUID()).toString("base64")
+}
 
-function buildCSP(_nonce: string): string {
-  if (!_cspTemplate) {
-    const imgDomains = [
-      "'self'", "data:", "blob:",
-      "*.r2.dev", "*.r2.cloudflarestorage.com",
-      "utfs.io", "uploadthing.com",
-      "static.vndb.org", "t.vndb.org",
-      "*.gravatar.com", "cdn.libravatar.org",
-      ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL).origin] : []),
-      ...(process.env.NODE_ENV === "development" ? ["localhost"] : []),
-    ]
-    const directives = [
-      `default-src 'self'`,
-      "", // 占位：scriptSrc
-      `style-src 'self' 'unsafe-inline'`,
-      `img-src ${imgDomains.join(" ")}`,
-      `font-src 'self' data:`,
-      `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
-      `frame-ancestors 'none'`,
-      `base-uri 'self'`,
-      `form-action 'self'`,
-      `object-src 'none'`,
-    ]
-    const isDev = process.env.NODE_ENV === "development"
-    // 生产环境严禁 eval：eval 是 XSS 利用者执行恶意脚本的主要通道，
-    // 移除后即便有注入点也难以落地。开发环境保留 eval 以兼容 Next 的 HMR/dev overlay。
-    const scriptPrefix = isDev
-      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'`
-      : `script-src 'self' 'unsafe-inline'`
-    _cspTemplate = {
-      scriptPrefix,
-      rest: directives.slice(2).join("; "),
-    }
-  }
-  // 说明：Next 16 的 nonce 自动注入机制与官方文档不一致（实测：请求头/响应头 x-nonce
-  // 无法与 body 内 Next 生成的 script nonce 对齐，strict-dynamic 下生产会白屏）。
-  // 为保生产可用，script-src 统一用 'unsafe-inline'（配合其余严格指令：default-src 'self'、
-  // style-src 受限、img/font/connect 白名单、frame-ancestors none、object-src none）。
-  // 未来若 Next 修复 nonce 对齐，可恢复 strict-dynamic。
-  return `default-src 'self'; ${_cspTemplate.scriptPrefix}; ${_cspTemplate.rest}`
+function buildCSP(nonce: string): string {
+  const isDev = process.env.NODE_ENV === "development"
+  const imgDomains = [
+    "'self'", "data:", "blob:",
+    "*.r2.dev", "*.r2.cloudflarestorage.com",
+    "utfs.io", "uploadthing.com",
+    "static.vndb.org", "t.vndb.org",
+    "*.gravatar.com", "cdn.libravatar.org",
+    ...(process.env.R2_PUBLIC_URL ? [new URL(process.env.R2_PUBLIC_URL).origin] : []),
+    ...(process.env.NODE_ENV === "development" ? ["localhost"] : []),
+  ]
+  // 生产环境严禁 eval：eval 是 XSS 利用者执行恶意脚本的主要通道，
+  // 移除后即便有注入点也难以落地。开发环境保留 eval 以兼容 Next 的 HMR/dev overlay。
+  // 'strict-dynamic'：被 nonce 脚本加载的后续脚本（含 Next 自身 chunk、Sentry 等）
+  // 自动放行，无需逐个白名单；'self' / 'unsafe-inline' 在 strict-dynamic 下被忽略。
+  const scriptSrc = isDev
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
+    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
+  const directives = [
+    `default-src 'self'`,
+    scriptSrc,
+    `style-src 'self' 'unsafe-inline'`,
+    `img-src ${imgDomains.join(" ")}`,
+    `font-src 'self' data:`,
+    `connect-src 'self' https://api.vndb.org https://*.ingest.sentry.io https://*.sentry.io wss://*.sentry.io https://*.r2.cloudflarestorage.com`,
+    `frame-ancestors 'none'`,
+    `base-uri 'self'`,
+    `form-action 'self'`,
+    `object-src 'none'`,
+  ]
+  return directives.join("; ")
 }
 
 // ── 需要登录才能访问的页面（精确匹配，不做前缀通配）──
@@ -142,20 +144,20 @@ export async function proxy(req: NextRequest) {
   const isStateChanging =
     req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE"
 
-  // ── CSP nonce 传递 ──
-  // 关键：nonce 必须写进「请求头」，不能只写响应头。
-  // Server Component 里的 headers() 读到的是**请求头**，仅 res.headers.set("x-nonce")
-  // 会让组件侧恒为 undefined —— 生产 CSP 含 'nonce-xxx' 'strict-dynamic' 时，
-  // 无 nonce 的内联脚本（主题脚本 + Next 自身的 hydration 脚本）会被浏览器全部拦截，
-  // 表现为线上白屏 / 主题闪烁；而 dev 分支用 'unsafe-inline'，本地完全复现不出来。
-  //
-  // 同时把 CSP 也写入请求头：Next 会据此为自己注入的 script 标签补 nonce 属性，
-  // 缺这一步则框架脚本在 strict-dynamic 下依然被拦。
+  // ── CSP nonce 生成 + 透传 ──
+  // 1) 生成每请求 nonce，写入响应头 Content-Security-Policy（script-src 'nonce-…' 'strict-dynamic'）。
+  // 2) 同一 nonce 同时写进「请求头」x-nonce，并通过 NextResponse.next({ request:{ headers } })
+  //    透传给 Server Component：根 layout 用 headers().get('x-nonce') 读取并应用到自管内联脚本，
+  //    Next 也会据此为自身注入的 framework / RSC-flight 内联脚本自动补相同 nonce。
+  //    二者同源 → strict-dynamic 下脚本全部放行，不再白屏。
   let res: NextResponse
 
   if (isPageRoute) {
-    const csp = buildCSP("")
-    res = NextResponse.next()
+    const nonce = generateNonce()
+    const csp = buildCSP(nonce)
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set("x-nonce", nonce)
+    res = NextResponse.next({ request: { headers: requestHeaders } })
     res.headers.set("Content-Security-Policy", csp)
   } else {
     res = NextResponse.next()

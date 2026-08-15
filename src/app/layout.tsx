@@ -7,6 +7,7 @@ import { isSiteInitialized, getSiteName, getSiteDescription, getSiteLogo, getSit
 import { waitForServiceConfig } from "@/lib/service-config"
 import { checkSecurity } from "@/lib/security-check"
 import type { Metadata, Viewport } from "next"
+import { headers } from "next/headers"
 import NextTopLoader from "nextjs-toploader"
 import { SetupWizard } from "@/components/setup-wizard"
 import "./globals.css"
@@ -80,9 +81,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   // 权威主题色：走 unstable_cache（TTL 60s），后台改主题色时 updateSiteSettings 已 revalidateTag
   // 即时失效 → 写后立即生效，且不再每个请求直查 DB。
-  // 注意：这里不再调用 headers() 读取 nonce —— 那一处动态 API 曾把全站钉死成 dynamic。
-  // nonce 改由 proxy.ts 的 CSP 'sha256-...' 放行 ThemeScript（内容固定，无需 nonce），
-  // 主题色 CSS 变量改由下方内联 <style> 注入（style-src 允许 'unsafe-inline'）。
+  // nonce：proxy.ts 每请求生成并写入请求头 x-nonce；此处读取后透传给 ThemeScript 内联脚本。
+  // 读取 headers() 会令全站转为 dynamic 渲染 —— 这是 nonce CSP 的硬性前提（否则静态缓存页
+  // 的 nonce 与响应头 nonce 不匹配 → 框架脚本被拦 → 白屏），正确性优先于静态缓存的微小幅能收益。
+  const nonce = (await headers()).get("x-nonce") ?? ""
   const themeColor = await getSiteSetting("themeColor", "#4C7E96")
   const t = resolveThemeTokens(themeColor)
   const themeStyle = `:root{--primary:${t.primary};--theme-color:${t.primary};--theme-color-hover:${t.primary};--theme-color-active:${t.primary};--clr-blue:${t.primary};--clr-sky:${t.accent};--ring:${t.ring};--clr-glow:${t.glow};}`
@@ -106,7 +108,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="zh-CN" className="h-full antialiased" style={themeVars} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
-        <ThemeScript />
+        <ThemeScript nonce={nonce} />
       </head>
         <body className="min-h-screen bg-background text-foreground">
           <Providers themeColor={themeColor}>
@@ -126,7 +128,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="zh-CN" className="h-full antialiased" style={themeVars} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
-        <ThemeScript />
+        <ThemeScript nonce={nonce} />
       </head>
       <body className="min-h-full overflow-x-hidden bg-background text-foreground" suppressHydrationWarning>
         <LayoutShiftGuard />
