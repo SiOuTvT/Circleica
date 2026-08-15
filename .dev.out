@@ -2613,3 +2613,4 @@
 {"level":"info","t":"access","requestId":"b1d1d866-db71-47f2-b291-de8845604b56","method":"GET","route":"/","ua":"node"}
  GET / 200 in 231ms (next.js: 6ms, proxy.ts: 32ms, application-code: 193ms)
  GET / 200 in 178ms (next.js: 4ms, proxy.ts: 6ms, application-code: 169ms)
+✓ Finished filesystem cache database compaction in 10.8s
