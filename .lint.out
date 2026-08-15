@@ -1,0 +1,160 @@
+
+d:\Circleica\src\app\admin\achievements\page.tsx
+  79:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\checkins\page.tsx
+  61:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\collections\page.tsx
+  234:45   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:40   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:160  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\creators\page.tsx
+  43:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\galvelica\commercial\page.tsx
+  38:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\galvelica\creators\page.tsx
+  43:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\galvelica\tags\page.tsx
+  34:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\galvelica\works\page.tsx
+  34:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\games\page.tsx
+  38:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\resource-tags\page.tsx
+  28:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\review\page.tsx
+  35:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\services\page.tsx
+   50:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  120:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\tags\[id]\detail-client.tsx
+  144:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  180:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  193:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\admin\users\page.tsx
+  37:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\app\card\[uid]\page.tsx
+   71:18  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   91:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   97:28  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   99:26  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  182:32  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  243:32  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+d:\Circleica\src\app\galvelica\page.tsx
+  57:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\admin-global-search.tsx
+  72:52   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:67   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:87   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:104  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:119  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:139  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:27   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\admin\checkin-config-editor.tsx
+  31:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\card-generate-btn.tsx
+  283:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  315:9   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  327:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  333:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  445:30  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  548:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  633:44  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+d:\Circleica\src\components\forum-post-detail.tsx
+   80:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\forum-sidebar.tsx
+  121:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  121:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\forum\forum-client.tsx
+   78:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  256:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  269:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  313:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\game-detail\resource-tab.tsx
+  354:70   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  354:96   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  354:106  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  360:26   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  377:34   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  405:63   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  405:79   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  434:63   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  434:79   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  465:63   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\game-form.tsx
+  314:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\music-manager.tsx
+  119:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\tag-groups-manager.tsx
+   98:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  205:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  257:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  267:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  322:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\tags-manager.tsx
+  51:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\components\vndb-import-manager.tsx
+  40:93  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\lib\api-handler.ts
+  259:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+d:\Circleica\src\lib\galvelica\sources\egs.ts
+  37:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 97 problems (0 errors, 97 warnings)
+

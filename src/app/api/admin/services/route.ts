@@ -32,6 +32,13 @@ export const GET = withHandler(async () => {
     config[key] = all[key] || ""
   }
 
+  // R2 / Redis 凭证为「只写」字段：GET 绝不回传真实值，避免 Secret Key / Access Key /
+  // Token 泄露到浏览器（XSS / 扩展 / 网络面板均可读取）。客户端以空白占位，
+  // 仅在管理员主动修改时才需重新填写 —— 与 admin 页面的 write-only 设计一致。
+  config.r2_secret_access_key = ""
+  config.r2_access_key_id = ""
+  config.redis_token = ""
+
   // Email providers（JSON key，脱敏后返回）
   const emailProviders: Record<string, Record<string, string>> = {}
   for (const key of Object.keys(all)) {

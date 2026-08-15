@@ -1,0 +1,96 @@
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in D:/Circleica/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+PASS src/lib/__tests__/time-ago.test.ts
+PASS src/lib/__tests__/parse-utils.test.ts
+PASS src/__tests__/rate-limit.test.ts
+PASS src/lib/__tests__/utils.test.ts
+PASS src/lib/__tests__/serial-id.test.ts
+PASS src/__tests__/validations.test.ts
+PASS src/__tests__/message-service.test.ts
+[90m2026-08-15T21:43:00.688Z[0m [33mWRN[0m [90m[System][0m [ServiceConfig] 数据库读取失败，使用环境变量
+[90m2026-08-15T21:43:00.690Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-15T21:43:00.690Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-15T21:43:00.690Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+PASS src/__tests__/forum-service.test.ts
+PASS src/__tests__/game-service.test.ts
+PASS src/__tests__/user-service-extra.test.ts
+PASS src/lib/__tests__/ssrf.test.ts
+PASS src/__tests__/csrf.test.ts
+PASS src/__tests__/auth-context.test.ts
+PASS src/lib/__tests__/parse-description.test.ts
+PASS src/__tests__/storage.test.ts
+PASS src/lib/__tests__/sanitize.test.ts
+PASS src/__tests__/admin-permissions.test.ts
+PASS src/__tests__/errors.test.ts
+PASS src/__tests__/user-service.test.ts
+PASS src/__tests__/api-handler.test.ts
+PASS src/lib/__tests__/sanitize-url.test.ts
+PASS src/lib/__tests__/trivial.test.ts
+PASS src/lib/__tests__/safe-redirect.test.ts
+PASS src/lib/__tests__/url.test.ts
+PASS src/lib/__tests__/image-signature.test.ts
+PASS src/lib/__tests__/http.test.ts
+PASS src/__tests__/sec-g.test.ts
+PASS src/__tests__/personalization.test.ts
+PASS src/__tests__/setup-lock.test.ts
+[90m2026-08-15T21:43:02.389Z[0m [31mERR[0m [90m[DB][0m [Health] Database check failed [90m{"request_id":"cfe5878a-e0f1-41ca-8649-63d6a14c34b7","route":"/api/health","error":"connection refused","stack":"Error: connection refused\n    at Object.<anonymous> (D:\\Circleica\\src\\__tests__\\observability-preverify.test.ts:38:71)\n    at Promise.finally.completed (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1561:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1501:10)\n    at _callCircusTest (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1011:40)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at _runTest (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:951:3)\n    at d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:853:7\n    at _runTestsForDescribeBlock (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:866:11)\n    at _runTestsForDescribeBlock (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:861:11)\n    at run (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:765:3)\n    at runAndTransformResultsToJestFormat (d:\\Circleica\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1993:21)\n    at jestAdapter (d:\\Circleica\\node_modules\\jest-circus\\build\\runner.js:111:19)\n    at runTestInternal (d:\\Circleica\\node_modules\\jest-runner\\build\\testWorker.js:276:16)\n    at runTest (d:\\Circleica\\node_modules\\jest-runner\\build\\testWorker.js:344:7)\n    at Object.worker (d:\\Circleica\\node_modules\\jest-runner\\build\\testWorker.js:498:12)"}[0m
+PASS src/__tests__/observability-preverify.test.ts
+[90m2026-08-15T21:43:02.333Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"310f45d4-e0fd-461d-a8f6-2bac42065bb4","route":"/api/games/1/personalization","requestId":"310f45d4-e0fd-461d-a8f6-2bac42065bb4","method":"GET","status":200,"durationMs":5}[0m
+[90m2026-08-15T21:43:02.341Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"3ac10b93-43e9-4290-94ed-68c87d430797","route":"/api/games/1/personalization","requestId":"3ac10b93-43e9-4290-94ed-68c87d430797","method":"GET","status":200,"durationMs":1}[0m
+[90m2026-08-15T21:43:02.344Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"aa9ef43f-a10c-4f4c-81a7-fa190d302b4e","route":"/api/games/1/personalization","requestId":"aa9ef43f-a10c-4f4c-81a7-fa190d302b4e","method":"GET","status":200,"durationMs":0}[0m
+[90m2026-08-15T21:43:02.348Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"ce73a2ab-018b-4c38-a8b6-f0bfecd4acb4","route":"/api/setup","requestId":"ce73a2ab-018b-4c38-a8b6-f0bfecd4acb4","method":"POST","status":403,"durationMs":4}[0m
+[90m2026-08-15T21:43:02.370Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"c1754c0d-6ff7-49e7-bc8b-3a1e580486d4","route":"/api/health","requestId":"c1754c0d-6ff7-49e7-bc8b-3a1e580486d4","method":"GET","status":200,"durationMs":8}[0m
+[90m2026-08-15T21:43:02.390Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"cfe5878a-e0f1-41ca-8649-63d6a14c34b7","route":"/api/health","requestId":"cfe5878a-e0f1-41ca-8649-63d6a14c34b7","method":"GET","status":503,"durationMs":13}[0m
+[90m2026-08-15T21:43:02.394Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"abc-123","route":"/api/x","requestId":"abc-123","method":"GET","status":200,"durationMs":1}[0m
+[90m2026-08-15T21:43:02.396Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"1e19028b-14da-4a16-859e-ca1e1554dbfb","route":"/api/x","requestId":"1e19028b-14da-4a16-859e-ca1e1554dbfb","method":"GET","status":200,"durationMs":1}[0m
+[90m2026-08-15T21:43:02.399Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"4ba7743f-4f97-4359-a26f-8d048d34dc43","route":"/api/x","requestId":"4ba7743f-4f97-4359-a26f-8d048d34dc43","method":"GET","status":404,"durationMs":1}[0m
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+
+Test Suites: 30 passed, 30 total
+Tests:       325 passed, 325 total
+Snapshots:   0 total
+Time:        6.738 s
+Ran all test suites.

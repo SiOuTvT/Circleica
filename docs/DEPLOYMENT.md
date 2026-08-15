@@ -19,6 +19,22 @@
 
 > `docker-compose.yml` 中有若干占位默认值（如 `POSTGRES_PASSWORD: circleica`）。**部署时必须用真实值覆盖**，不要用占位弱口令。
 
+## 防滥用（C-1）：应用层 + Cloudflare / WAF 层
+
+游戏资源保持**公开读**（不强制登录、不验证码、不人机验证）。应用层已做匿名频控，但仍建议 Cloudflare / WAF 作为第一道规模化防线。
+
+### 应用层（已实现）
+- `src/proxy.ts` 对**未登录**请求做 IP 频控：页面 HTML 500/min/IP、公开 API GET 120/min/IP；登录用户 / Bearer 调用方豁免；搜索等已有 30/min 细粒度限制保留。
+- 下载计数接口单 IP 60/min 硬限（纵深防御既有 60s 同分流去重）。
+- **必须**：在 Cloudflare / 边缘代理开启 `TRUST_CF_CONNECTING_IP=1`（或正确 reset `x-forwarded-for`），否则 `getClientIP` 解析不出真实客户端 IP，频控退化为 fail-open（不拦截、也不误杀）。
+
+### Cloudflare / WAF 层（部署配置，非代码）
+- **速率限制规则（Rate Limiting Rules）**：对站点匿名流量设阈值（如 100 req / 10s / IP）；对 R2 公网资源域名（`*.r2.dev` 或自定义域名）设更严阈值，防批量刷下载；命中返回 429 / Challenge。
+- **Bot Management / Super Bot Fight Mode**：放行 Googlebot / Bingbot 等已验证好 Bot；对疑似脚本化爬取启用托管质询（Managed Challenge），正常用户无感。
+- **WAF 自定义规则**：异常 UA、缺失浏览器头、异常 Range / HEAD 高频、单 IP 短时大量不同资源请求 → 质询 / 拦截。
+- **R2 公网域名保护**：R2 管理 API / 签名生成只走 Cloudflare / 服务端凭据，**绝不暴露** Access Key / Secret Key / Bucket 管理权限；公开资源仅经公网 URL 访问。
+- **缓存注意**：公开列表 / 详情页可合理边缘缓存，但 CSP nonce 为每请求生成、应用已令全站 dynamic，响应不进 CDN 全页缓存，避免固定 nonce 被复用。
+
 ## 部署步骤
 
 1. 把代码与 `.env` 放到服务器。

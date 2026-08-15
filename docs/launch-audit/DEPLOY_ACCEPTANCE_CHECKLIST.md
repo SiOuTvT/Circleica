@@ -9,12 +9,20 @@
 
 ---
 
-## C-1 · R2 对象存储真实连通
+## C-1 · R2 对象存储真实连通 + 防滥用
 - [ ] 部署机注入 `R2_ENDPOINT` / `R2_ACCESS_KEY` / `R2_SECRET` / `R2_BUCKET`
 - [ ] 真实上传一个测试资源 → 返回成功
 - [ ] 真实下载 / 生成签名 URL → 可访问且不过期异常
 - [ ] 资源列表/删除路径冒烟
 - **未闭环原因（本机）**：无生产凭证，物理无法验证。
+
+### C-1 防滥用（本轮新增 · 已在本机实现并部分验证）
+- **产品决策已确认**：游戏资源**保持公开读**（不强制登录、不验证码、不人机验证、复制链接不登录可访问）。
+- **A 防页面 / API 批量爬取**：`src/proxy.ts` 对**未登录**的页面 HTML（500/min/IP）与公开 API GET（120/min/IP）做匿名 IP 频控；登录用户 / Bearer 调用方豁免；搜索等已有 30/min 细粒度限制保留。需部署环境 `TRUST_CF_CONNECTING_IP=1`（或边缘代理正确 reset `x-forwarded-for`）以解析真实客户端 IP，否则 fail-open（不误杀）。
+- **B 防公开下载资源被批量刷**：下载计数接口新增单 IP 60/min 硬限（纵深防御既有 60s 同分流去重）；公开资源 URL 为 R2 公网域名（**不含任何凭证**）。
+- **密钥不泄露（本轮修复）**：`src/app/api/admin/services/route.ts` GET 不再回传 `r2_secret_access_key` / `r2_access_key_id` / `redis_token` 真实值（改只写空白占位），Secret Key 不再进入浏览器。R2 凭证仅服务端使用；公网 URL ≠ 管理权限。
+- **Cloudflare / WAF 层建议**见 `docs/DEPLOYMENT.md`（速率限制规则 + Bot Management + R2 公网域名限流 + 管理/签名仅走 Cloudflare 凭据）。
+- 验证：API 层频控 dev 运行时实测 120 次后返回 429；页面层频控代码正确（dev 下 proxy 按请求重估模块导致计数不跨请求累积，生产单实例长生命周期会正确累积，建议部署环境终验）。
 
 ## C-2 · Sentry 真实事件上报
 - [ ] 部署环境注入 `SENTRY_DSN` / `SENTRY_AUTH_TOKEN`
@@ -29,10 +37,12 @@
 - **未闭环原因（本机）**：无 Collector 端点。
 
 ## C-4 · HTTPS / TLS / CSP
+- [x] **CSP nonce 已在代码层实现（本轮新增）**：`src/proxy.ts` 每请求生成 nonce → 写入 `Content-Security-Policy`（`script-src 'self' 'nonce-…' 'strict-dynamic'`，生产去 `unsafe-eval'`）+ 透传 `x-nonce` 请求头；根 `layout.tsx` 读取并应用到 `<ThemeScript nonce>`，并令全站 dynamic（消除静态缓存 nonce 不匹配这一白屏根因）；Next 自动为自身 framework / RSC-flight 内联脚本补同源 nonce。
+- [x] **dev 运行时真实验证**：首页/游戏/登录/Galvelica/搜索/发现/排行全部 200；每个页面 `cspHasNonce=true` 且**所有内联脚本 nonce 与 CSP nonce 完全对齐（`mismatch=0`）、无未带 nonce 的内联脚本**（仅 JSON-LD 非执行型脚本不带 nonce，不受 script-src 约束）；证明非生产白屏。
 - [ ] 部署机配置证书 + 强制 HTTPS 重定向
 - [ ] 全站 Mixed Content 检查通过
 - [ ] CSP 头（含协作信令放行）在生产域生效且无阻断
-- **未闭环原因（本机）**：属部署基础设施，localhost 无 TLS。
+- **未闭环原因（本机）**：HTTPS / 生产域 CSP 无阻断验证属部署基础设施，localhost 无 TLS，仍需部署环境终验。
 
 ## C-5 · Redis 真实实例
 - [ ] 部署环境连真实 Redis（`REDIS_URL`）
@@ -67,14 +77,14 @@
 |---|---|---|
 | C-6 Prisma/tsc/lint/jest | 真实全过（tsc 修复 2 个真实错误后 EXIT 0；jest 325/0；lint 0err/97warn） | 本机 PASS（build/e2e 归 CI runner，历史绿） |
 | C-6 build | 被本机 safe-delete shim 拦截 `.next` 清理，非代码缺陷 | 归 CI runner 终验 |
-| C-1 R2 | 代码核验就绪；**产品决策：公开读 or 私有+签名 URL（当前公开读，无签名 URL 代码）** | 待部署环境 + 产品决策 |
+| C-1 R2 + 防滥用 | **产品决策已确认（公开读）**；A 防爬 / B 防刷 / 密钥不泄露已在本机实现（API 频控 dev 实测 429；页面频控代码正确待部署终验；R2 Secret 泄露修复） | 待部署环境（R2 连通 + 生产频控 + Cloudflare/WAF 速率规则） |
 | C-2 Sentry | 代码核验就绪 | 待部署环境 |
 | C-3 OTEL | 代码核验就绪（缺省降级无监控） | 待部署环境 |
-| C-4 HTTPS/TLS | 代码核验就绪；**产品决策：CSP nonce or unsafe-inline（当前 unsafe-inline，Next16 兼容取舍）** | 待部署环境 + 产品决策 |
+| C-4 HTTPS/TLS + nonce | **nonce CSP 已实现并 dev 真实验证（mismatch=0，白屏根因消除）**；生产域 HTTPS + 无阻断待部署终验 | 待部署环境（HTTPS + 生产域 CSP 无阻断） |
 | C-5 Redis | 代码核验就绪（惰性代理+内存降级） | 待部署环境 |
 | C-7 回滚 | 配置核验就绪（backup/healthcheck/migrate） | 待部署环境 |
 
-两个**产品级决策**（按用户要求未擅自改动，仅审计与准备方案）：① C-1 R2 公开读 vs 私有 + 签名 URL；② C-4 生产 CSP nonce vs unsafe-inline。代码当前两种取向都能跑，决定后补充对应改造。
+两个**产品级决策**本轮已由用户拍板并落地：① C-1 确认「公开读」（不强制登录/验证码/人机验证），并补充 A 防爬 + B 防刷下载 + 密钥不泄露；② C-4 确认「nonce CSP 现在修」，已在本机实现并 dev 真实验证。两者均不再是待决策项。
 
 - 结论：**CONDITIONAL GO**。本机已真实闭环 C-6 代码质量门禁并修复 1 个会让 CI typecheck 真实挂掉的缺陷；C-1~C-5、C-7 附部署环境精确 runbook，待在服务器/CI runner 真实执行后全部可 PASS。
 - 若任一 C 项在部署环境实测失败：立即登记为实际问题，进入修复闭环，不在本清单标记为"已优化"。
@@ -94,3 +104,30 @@
 - ScriptWeaver 专属文档（`sw-asset` / D-1 反证）已移出 Circleica 至 `archive/`，不列入治理队列。
 
 **整备后结论仍为 CONDITIONAL GO**：代码与数据侧已收口，剩余 C-1~C-7 必须在部署服务器 / CI runner 真实执行并 PASS 后才解除。
+
+---
+
+## C-1 / C-4 落地轮（2026-08-16 第二轮 · 用户确认继续推进）
+
+用户本轮明确：不以部署速度优先，把能解决的问题在本机收口；C-1 公开读但加强防滥用、C-4 nonce 现在修、Next.js 不盲目升级、治理队列重新判断。
+
+### C-4 · nonce CSP（已实现 + 真实验证）
+- `src/proxy.ts`：`generateNonce()` 每请求生成；`buildCSP(nonce)` 输出 `script-src 'self' 'nonce-…' 'strict-dynamic'`（生产去 `unsafe-eval'`）；同一 nonce 经 `x-nonce` 请求头透传 `NextResponse.next({ request:{ headers } })`。
+- `src/app/layout.tsx`：读取 `headers().get('x-nonce')` 并传入 `<ThemeScript nonce>`，借此令全站 dynamic（**消除静态缓存 nonce 不匹配这一白屏根因**）。
+- `src/components/theme-script.tsx`：`<script nonce={nonce}>`。
+- **dev 运行时真实验证**（临时脚本已删除）：首页/游戏/登录/Galvelica/搜索/发现/排行全部 200；`cspHasNonce=true` 且**所有内联脚本 nonce 与 CSP nonce 完全对齐（`mismatch=0`、`noNonceInline=0`，仅 JSON-LD 非执行型脚本不带 nonce，不受 script-src 约束）**；证明非生产白屏。
+- 生产构建（`npm run build`）本机被 safe-delete shim 拦截 `.next` 清理（环境约束，非代码缺陷）；runtime 验证已替代证明 nonce 机制正确；部署环境 `next build` + `next start` 仍需终验。
+- Next.js 版本：`16.3.1`（最新稳定），auto-nonce 已支持，**无需升级**。
+
+### C-1 · 公开读 + 防滥用（已实现）
+- 产品决策：游戏资源公开读（不强制登录 / 不验证码 / 不人机验证）。
+- **A 防爬**：`proxy.ts` 对未登录的页面 HTML（500/min/IP）与公开 API GET（120/min/IP）做匿名 IP 频控；登录 / Bearer 豁免；搜索等细粒度限制保留。需 `TRUST_CF_CONNECTING_IP=1` 解析真实 IP，否则 fail-open。
+- **B 防刷下载**：下载计数接口新增单 IP 60/min 硬限（纵深防御 60s 同分流去重）。
+- **密钥不泄露（修复）**：admin/services GET 不再回传 R2 Secret/AccessKey/Redis Token 真实值（只写空白占位）；R2 公网 URL 不含凭证。
+- Cloudflare / WAF 层速率限制 + Bot Management + R2 公网域名限流建议在 `docs/DEPLOYMENT.md`。
+
+### 治理队列重判（STANDALONE_CLEANUP_QUEUE.md）
+- 原队列（~97 any、console 清理、audit_screenshots 存档）重新评估：**均不满足「现在修」标准**（大型类型重构 / 高风险 / 用户待定决策），保持后续治理；本轮未把任何问题违规丢入「以后」。
+
+### 本机代码门禁（第二轮补充）
+- `tsc` 0、`lint` 0 错 / 97 警告（pre-existing any，无新增）、`jest` 325/0、rate-limit 机制 dev 实测 429。
