@@ -111,13 +111,18 @@ verify*.cjs
 *.md
 !README.md
 !LICENSE.md
-docs/
-# 例外：docs/ 下与源码直接相关的正式设计文档保留版本控制（其余报告/临时文档仍排除）
+!SECURITY.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+docs/*
+# 例外：docs/ 下正式文档与最终审计证据保留版本控制（其余报告/临时文档仍排除）
 !docs/ARCHITECTURE.md
-!docs/API_REFERENCE.md
-!docs/CONTRIBUTING.md
-!docs/DOC_STANDARDS.md
-!docs/GETTING_STARTED.md
+!docs/DEVELOPMENT.md
+!docs/DEPLOYMENT.md
+!docs/OBSERVABILITY.md
+!docs/DATA_MODEL.md
+!docs/launch-audit/
+!docs/launch-audit/**
 deliverables/
 screenshots/
 responsive-audit/
