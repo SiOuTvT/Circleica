@@ -52,7 +52,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
   const [sortBy, setSortBy] = useState<"name" | "count">("name")
   const [editingTagId, setEditingTagId] = useState<string | null>(null)
   const [deletingTag, setDeletingTag] = useState<TagItem | null>(null)
-  const [saving, setSaving] = useState(false)
+  const [, setSaving] = useState(false)
 
   const active = tabs.find((t) => t.id === activeTab) ?? tabs[0]
   const activeTags = useMemo(() => active?.tags ?? [], [active])

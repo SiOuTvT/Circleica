@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 export function AdminCard({
   children,
   className,
-  _galvelica,
+  galvelica: _galvelica,
   hover,
 }: {
   children: ReactNode

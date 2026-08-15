@@ -90,44 +90,6 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
   /* ── 标签组 CRUD ── */
 
-  async function handleCreateGroup(e: React.FormEvent) {
-    e.preventDefault()
-    if (!newGroupName.trim()) return
-    setSaving(true)
-    setError("")
-    try {
-      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tag-groups", {
-        method: "POST",
-        body: {
-          name: newGroupName.trim(),
-          description: newGroupDesc,
-          color: newGroupColor,
-          positions: newGroupPositions,
-        },
-      })
-      if (!ok) {
-        setError(error ?? "创建失败")
-        setSaving(false)
-        return
-      }
-      setGroups((prev) =>
-        [...prev, { ...data, tags: [] }].sort((a, b) => {
-          if (a.isPreset && !b.isPreset) return -1
-          if (!a.isPreset && b.isPreset) return 1
-          return a.name.localeCompare(b.name)
-        })
-      )
-      setNewGroupName("")
-      setNewGroupDesc("")
-      setNewGroupPositions([])
-      setShowCreateGroup(false)
-      toast.success("标签组创建成功")
-    } catch {
-      setError("网络错误")
-    }
-    setSaving(false)
-  }
-
   async function handleUpdateGroup(id: string) {
     if (!editGroupName.trim()) return
     setSaving(true)

@@ -44,25 +44,6 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
   const [error, setError] = useState("")
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string; gameCount?: number; forceEndpoint?: boolean } | null>(null)
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault()
-    if (!name.trim()) return
-    setSaving(true); setError("")
-    try {
-      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
-        method: "POST",
-        body: { name: name.trim(), description, color, groupId: groupId || null, sortOrder, isVisible },
-      })
-      if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
-      // 新建标签实体在 data.data（apiFetchSafe 返回完整响应体）
-      const created = (data as any)?.data ?? data
-      const groupName = initialGroups.find(g => g.id === created.groupId)?.name ?? null
-      setTags(prev => [...prev, { ...created, gameCount: 0, groupName }].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)))
-      setName(""); setDescription(""); setSortOrder(0); setIsVisible(true)
-    } catch { setError("网络错误") }
-    setSaving(false)
-  }
-
   async function handleUpdate(id: string) {
     if (!editName.trim()) return
     setSaving(true); setError("")
