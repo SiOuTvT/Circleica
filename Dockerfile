@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════
 # Stage 1: Dependencies
 # ═══════════════════════════════════════════
-FROM node:20-bookworm-slim AS deps
+FROM node:24-bookworm-slim AS deps
 
 WORKDIR /app
 
@@ -28,7 +28,7 @@ RUN npx prisma generate
 # ═══════════════════════════════════════════
 # Stage 2: Build
 # ═══════════════════════════════════════════
-FROM node:20-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -96,7 +96,7 @@ RUN chmod +x /ingest-entrypoint.sh
 # ═══════════════════════════════════════════
 # Stage 3: Production Runtime
 # ═══════════════════════════════════════════
-FROM node:20-bookworm-slim AS runner
+FROM node:24-bookworm-slim AS runner
 
 WORKDIR /app
 
