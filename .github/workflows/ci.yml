@@ -27,9 +27,11 @@ jobs:
       - name: Unit tests
         run: npm run test
 
-  # ── 生产构建：CI 仅验证「能构建」，不连生产库 ──
-  # 说明：DATABASE_URL 仅在 next build 期页面回源数据库时才需要。
-  #   - CI 用本地占位串兜底即可验证「无 DB 依赖的构建」；
+  # ── 生产构建：CI 用内置 postgres 服务验证「能构建 + ISR 预渲染可连库」──
+  # 说明：项目多个页面为 ISR（revalidate），next build 期会预渲染并回源数据库，
+  #   故 build 作业需自带一个本地 postgres 服务（非生产库）并执行 migrate deploy 建表，
+  #   否则预渲染会因连不上库 / 表不存在而失败。
+  #   - 此处 DATABASE_URL 指向 CI 本地 postgres 服务，不连任何真实生产库；
   #   - 真实生产 DATABASE_URL 只在「部署作业（deploy job / GitHub Environment 受保护环境）」注入，
   #     切勿把生产库连接串放进普通 PR CI 的 Secrets（避免测试污染/误连生产库）。
   build:
@@ -98,7 +100,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - name: Prisma generate + migrate
