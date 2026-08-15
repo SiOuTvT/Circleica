@@ -21,11 +21,11 @@ jest.mock("@/lib/redis", () => ({
   cache: { get: jest.fn() },
 }))
 
+import { realPrisma } from "@/lib/prisma"
 import { GET } from "@/app/api/health/route"
 
 describe("health route (realPrisma 直连 DB 探测)", () => {
   it("DB 可达时返回 healthy + checks.database.status=ok", async () => {
-    const { realPrisma } = require("@/lib/prisma")
     realPrisma.$queryRaw.mockResolvedValue([{ "?column?": 1 }])
     const res = await GET(new NextRequest("http://localhost/api/health"), { params: Promise.resolve({}) })
     const body = await res.json()
@@ -35,7 +35,6 @@ describe("health route (realPrisma 直连 DB 探测)", () => {
   })
 
   it("DB 不可达时如实上报 error 且不谎报 healthy（fail-loud）", async () => {
-    const { realPrisma } = require("@/lib/prisma")
     realPrisma.$queryRaw.mockRejectedValue(new Error("connection refused"))
     const res = await GET(new NextRequest("http://localhost/api/health"), { params: Promise.resolve({}) })
     const body = await res.json()
