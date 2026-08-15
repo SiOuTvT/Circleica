@@ -6,7 +6,7 @@ import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getMakerDetail, getStudioSlugByName, type MakerGameItem } from "@/lib/makers"
 import { GameCard, type GameCardData } from "@/components/game-card"
-import { Tag } from "@/components/ui/tag"
+
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { StatsBar } from "@/components/archive/stats-bar"

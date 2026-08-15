@@ -86,7 +86,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const isEdit = !!gameId
 
   // 标签列表（可被 VNDB 拉取动态扩展）
-  const [tags, setTags] = useState<Tag[]>(initialTags)
+  const [tags] = useState<Tag[]>(initialTags)
   const [tagGroups] = useState<TagGroup[]>(initialTagGroups)
 
   const [title, setTitle]               = useState(initialData?.title ?? "")

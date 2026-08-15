@@ -23,7 +23,7 @@ const variantClass: Record<AdminButtonVariant, string> = {
  */
 export function AdminButton({
   variant = "primary",
-  galvelica,
+  _galvelica,
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {

@@ -11,7 +11,7 @@ import { GalvelicaWorkDescription } from "@/components/galvelica/work-descriptio
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
-import { Eye, Star, ArrowUpRight } from "lucide-react"
+import { Star, ArrowUpRight } from "lucide-react"
 
 const ROLE_ORDER = ["director", "scenario", "art", "chardesign", "music", "songs"]
 

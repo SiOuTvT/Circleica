@@ -915,24 +915,6 @@ async function getRelatedWorksFromGame(id: string, tagNames: string[], limit = 8
   return rows.map(mapCardGame)
 }
 
-async function getPopularTagsFromGame(limit = 28): Promise<GalvelicaTag[]> {
-  const key = cacheKey("galvelica", "popular-tags", String(limit))
-  const cached = await cache.get<GalvelicaTag[]>(key)
-  if (cached) return cached
-  const rows = await prisma.tag.findMany({
-    where: { isVisible: true, games: { some: { game: { isPublished: true } } } },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { games: true } } },
-    orderBy: { sortOrder: "desc" },
-    take: 200,
-  })
-  const tags: GalvelicaTag[] = rows
-    .map((t) => ({ id: t.id, name: t.name, color: t.color, groupName: t.group?.name ?? null, groupColor: t.group?.color ?? null, count: t._count.games }))
-    .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
-    .slice(0, limit)
-  await cache.set(key, tags, GAL_CACHE_TTL)
-  return tags
-}
-
 async function getYearsFromGame(): Promise<{ year: number; count: number }[]> {
   const key = cacheKey("galvelica", "years")
   const cached = await cache.get<{ year: number; count: number }[]>(key)

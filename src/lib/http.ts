@@ -38,7 +38,7 @@ export interface RetryOptions {
  * 网络层异常（超时/连接失败）一律重试，5xx 与 429 默认重试，其它 4xx 不重试。
  */
 export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const { retries = 2, baseDelayMs = 300, retryOn4xx = false, shouldRetry } = options
+  const { retries = 2, baseDelayMs = 300, shouldRetry } = options
   let lastErr: unknown
 
   for (let attempt = 0; attempt <= retries; attempt++) {

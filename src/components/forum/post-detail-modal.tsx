@@ -101,7 +101,7 @@ function PostDetailModalInner({
   useEffect(() => {
     setLocalComments(post?.comments ?? [])
     setEditingComment(null)
-  }, [post?.id])
+  }, [post?.id, post?.comments])
 
   // Esc 键关闭表情面板
   useEffect(() => {

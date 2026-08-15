@@ -16,7 +16,7 @@ import { isNumericId } from "@/lib/serial-id"
 import { timeAgoPublished } from "@/lib/time-ago"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
-import { Download, Eye, Heart, Library } from "lucide-react"
+import { Download, Heart, Library } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
@@ -117,7 +117,6 @@ export default async function GameDetailPage({
   const game: GameData = gameResult
 
   const tags = game.tags.map((t) => t.tag)
-  const tagNames = tags.map((t) => t.name)
 
   // 获取各组颜色（资源标签/详情页信息栏），并行执行。
   // 收藏状态（isFav）属个性化字段，已从服务端移除，由客户端 /api/games/[id]/personalization 拉取。

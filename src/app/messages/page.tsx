@@ -1,6 +1,6 @@
 "use client"
 
-import { MessageBell } from "@/components/message-bell"
+
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
 import { cn } from "@/lib/utils"

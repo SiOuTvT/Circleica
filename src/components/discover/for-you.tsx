@@ -1,6 +1,6 @@
 "use client"
 
-import { GameCard, GameCardSkeleton, type GameCardData } from "@/components/game-card"
+import { GameCard, type GameCardData } from "@/components/game-card"
 import { Sparkles } from "lucide-react"
 import { DiscoverySection } from "@/components/discover/section"
 

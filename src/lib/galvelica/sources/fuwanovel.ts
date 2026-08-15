@@ -46,13 +46,6 @@ function getMeta(html: string, key: string, attr: "name" | "property"): string |
   return undefined
 }
 
-function normalizeDate(s?: string): string | undefined {
-  if (!s) return undefined
-  const iso = /^(\d{4}-\d{2}-\d{2})/.exec(s)
-  if (iso) return iso[1]
-  return undefined
-}
-
 function stripSuffix(t: string): string {
   return t.replace(/\s*[-|]\s*(Fuwanovel|FuwaNovel).*$/i, "").trim()
 }

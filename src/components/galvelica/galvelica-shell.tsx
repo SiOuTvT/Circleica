@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { GalvelicaNav } from "./galvelica-nav"
+
 import { GalvelicaHeader } from "./galvelica-header"
 import { getGalvelicaThemeSettings } from "@/lib/site-settings"
 import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
