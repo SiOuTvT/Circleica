@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { NotFoundError } from "@/lib/errors"
+import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
+import { NextResponse } from "next/server"
 
 /** 内存级防刷：同一资源分流 60s 内仅计一次（IP + entryId 维度），避免刷新/误点刷爆计数 */
 const recentDownloads = new Map<string, number>()
@@ -13,6 +15,16 @@ export const POST = withHandler(async (req, ctx) => {
     id: string
     resourceId: string
     entryId: string
+  }
+
+  // 匿名/全体防刷：单 IP 每分钟最多 60 次下载计数（防止批量刷下载计数、探测 entry.url、
+  // 以及异常高频下载行为）。与下方 60s 同分流去重形成纵深防御；正常用户单次点击远达不到。
+  const dlRl = await checkRateLimit(rateLimits.download)
+  if (!dlRl.success) {
+    return NextResponse.json(
+      { success: false, error: "下载请求过于频繁，请稍后再试" },
+      { status: 429, headers: { "Retry-After": String(dlRl.reset) } },
+    )
   }
 
   // 尽力取登录用户（未登录也可计数，但不会写入"我的下载"历史）

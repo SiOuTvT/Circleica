@@ -156,6 +156,8 @@ export const rateLimits = {
   interact: { windowMs: 60_000, maxRequests: 30, message: "操作过于频繁，请稍后再试" },
   /** 举报限制：每分钟 10 次（登录用户，防灌水管理员队列） */
   report: { windowMs: 60_000, maxRequests: 10, message: "举报过于频繁，请稍后再试" },
+  /** 公开资源下载计数接口：每分钟 60 次（防批量刷下载计数 / 探测 entry.url） */
+  download: { windowMs: 60_000, maxRequests: 60, message: "下载请求过于频繁，请稍后再试" },
 } as const
 
 /**

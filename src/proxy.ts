@@ -2,6 +2,7 @@ import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
 import { enforceSameOrigin } from "@/lib/csrf"
+import { getRateLimit, getClientIP } from "@/lib/rate-limit"
 
 // ─────────────────────────────────────────────────────────────
 // Next.js 16 起 `middleware` 文件约定已废弃，官方改用 `proxy`。
@@ -122,6 +123,15 @@ function loginUrlFor(req: NextRequest, callbackPath: string): URL {
 const STATIC_ASSET_RE =
   /^\/uploads\/|\.(?:png|jpe?g|gif|webp|avif|svg|ico|css|js|woff2?|txt|xml|webmanifest)$/i
 
+// 匿名防爬 / 防刷阈值（网站层 + API 层）。
+// 阈值刻意宽松：正常浏览 / 搜索 / 翻页 / 查看游戏远达不到；仅异常批量脚本化请求才会触发 429。
+// 生产需 TRUST_CF_CONNECTING_IP=1（或边缘代理正确 reset x-forwarded-for），让 getClientIP
+// 解析出真实客户端 IP；否则 IP 无法解析时该限流失效（fail-open，不误杀全体）。
+const ANON_PAGE_LIMIT_PER_MIN = 500
+const ANON_API_LIMIT_PER_MIN = 120
+const RATE_WINDOW_MS = 60_000
+const PAGE_RATE_LIMITED_HTML = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>请求过于频繁</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;color:#555"><div style="text-align:center;padding:24px"><div style="font-size:48px;font-weight:700;color:#4C7E96">429</div><p style="margin-top:8px">您的访问频率过高，请稍后再试。</p></div></body></html>`
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -143,6 +153,44 @@ export async function proxy(req: NextRequest) {
   // 状态变更方法（用于同源 Origin 校验的触发条件，SEC-6）
   const isStateChanging =
     req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE"
+
+  // ── 匿名防爬 / 防刷（网站层 + API 层）──
+  // 仅对「未登录的 GET」生效：页面 HTML 与公开 API 数据接口是批量爬取 / 刷资源的主要面。
+  // 登录用户（会话 cookie）与 Bearer 调用方不受此匿名限流约束，避免误伤正常账户。
+  // 仅当能解析出真实客户端 IP 时才限流；IP 无法解析（dev / 未正确配置回源头）时
+  // fail-open，不拦截，避免误杀全体。更细的 Bot 识别交给 Cloudflare / WAF 层。
+  const isGet = req.method === "GET"
+  const hasSession =
+    !!req.cookies.get(SESSION_COOKIE_NAME) ||
+    !!req.headers.get("authorization")?.startsWith("Bearer ")
+  const isAuthApi = pathname.startsWith("/api/auth/")
+  if (isGet && !hasSession && !isAuthApi) {
+    const ip = getClientIP(req)
+    if (ip !== "unknown") {
+      const cfg = isPageRoute
+        ? { windowMs: RATE_WINDOW_MS, maxRequests: ANON_PAGE_LIMIT_PER_MIN }
+        : { windowMs: RATE_WINDOW_MS, maxRequests: ANON_API_LIMIT_PER_MIN }
+      const bucket = isPageRoute ? "anon-page" : "anon-api"
+      const rl = await getRateLimit(`${bucket}:${ip}`, cfg)
+      if (!rl.allowed) {
+        const retryAfter = String(Math.max(1, Math.ceil((rl.resetTime - Date.now()) / 1000)))
+        if (isPageRoute) {
+          const res429 = new NextResponse(PAGE_RATE_LIMITED_HTML, {
+            status: 429,
+            headers: { "Content-Type": "text/html; charset=utf-8", "Retry-After": retryAfter },
+          })
+          return withSecurityHeaders(res429, req)
+        }
+        return withSecurityHeaders(
+          NextResponse.json(
+            { success: false, error: "请求过于频繁，请稍后再试" },
+            { status: 429, headers: { "Retry-After": retryAfter } },
+          ),
+          req,
+        )
+      }
+    }
+  }
 
   // ── CSP nonce 生成 + 透传 ──
   // 1) 生成每请求 nonce，写入响应头 Content-Security-Policy（script-src 'nonce-…' 'strict-dynamic'）。
