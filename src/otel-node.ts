@@ -76,6 +76,9 @@ export async function startOtel() {
         // 关闭与 Next.js 框架运行时容易冲突的少数项，其余保持默认开启
         "@opentelemetry/instrumentation-fs": { enabled: false },
         "@opentelemetry/instrumentation-dns": { enabled: false },
+        // 本站使用自建 logger（非 winston），关闭 winston 自动插桩以移除构建期
+        // "@opentelemetry/winston-transport 缺失"警告（该插桩对本项目无实际作用）
+        "@opentelemetry/instrumentation-winston": { enabled: false },
       }),
       new PrismaInstrumentation(),
       new UndiciInstrumentation({ enabled: true }),
