@@ -26,7 +26,7 @@ import { GET } from "@/app/api/health/route"
 
 describe("health route (realPrisma 直连 DB 探测)", () => {
   it("DB 可达时返回 healthy + checks.database.status=ok", async () => {
-    realPrisma.$queryRaw.mockResolvedValue([{ "?column?": 1 }])
+    ;(realPrisma.$queryRaw as unknown as jest.Mock).mockResolvedValue([{ "?column?": 1 }])
     const res = await GET(new NextRequest("http://localhost/api/health"), { params: Promise.resolve({}) })
     const body = await res.json()
     expect(res.status).toBe(200)
@@ -35,7 +35,7 @@ describe("health route (realPrisma 直连 DB 探测)", () => {
   })
 
   it("DB 不可达时如实上报 error 且不谎报 healthy（fail-loud）", async () => {
-    realPrisma.$queryRaw.mockRejectedValue(new Error("connection refused"))
+    ;(realPrisma.$queryRaw as unknown as jest.Mock).mockRejectedValue(new Error("connection refused"))
     const res = await GET(new NextRequest("http://localhost/api/health"), { params: Promise.resolve({}) })
     const body = await res.json()
     expect(body.checks.database.status).toBe("error")
