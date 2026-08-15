@@ -130,6 +130,15 @@ const nextConfig: NextConfig = {
         "isomorphic-dompurify": "dompurify",
       }
     }
+    // 本站使用自建 logger 而非 winston。@opentelemetry/auto-instrumentations-node 在加载期
+    // 会静态 require @opentelemetry/instrumentation-winston，后者又静态 import 可选的
+    // @opentelemetry/winston-transport（本仓库未安装）。该插桩已在 otel-node.ts 中 disabled，
+    // 运行时不会实例化，但 webpack 构建期解析会报 "Module not found" 警告。将其 stub 为空模块
+    // 以消除警告，无需为本项目引入无关的 winston 依赖。
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@opentelemetry/winston-transport": false,
+    }
     return config
   },
 };
