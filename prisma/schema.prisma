@@ -528,6 +528,7 @@ model Creator {
   @@index([name])
   @@index([createdAt])
   @@index([source])
+  @@unique([name, source]) // 防副站摄入并发重复 Creator（与应用层 upsert 双保险）
 }
 
 model GameCreator {

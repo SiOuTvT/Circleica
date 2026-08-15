@@ -120,7 +120,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
               <span className="inline-flex items-center gap-1.5">
                 <Star className="h-4 w-4 text-[var(--gal-accent)]" fill="currentColor" strokeWidth={0} />
                 <span className="font-semibold text-foreground tabular-nums">{work.ratingAvg}</span>
-                <span className="opacity-70">({work.ratingCount})</span>
+                {work.ratingCount > 0 && <span className="opacity-70">({work.ratingCount})</span>}
               </span>
             )}
             <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="inline-flex items-center gap-1.5" />

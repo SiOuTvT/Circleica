@@ -3,13 +3,13 @@
  *
  * 用途：在 staging / 生产库实跑，产出对账报告，定位并（可选）修复两类已知异常：
  *   1) slug NULL：Creator/Tag/Studio/CuratedCollection/Work 等含 slug 列的表是否存在 NULL/空值。
- *   2) Game.downloadCount 漂移：与 ResourceDownloadLog 实际下载次数不一致的行。
+ *   2) Game.downloadCount 漂移：与 GameResourceEntry 各条目 downloadCount 之和不一致的行。
  *
  * 运行：
  *   npx tsx scripts/reconcile-data.ts            # 仅报告，不改数据
  *   npx tsx scripts/reconcile-data.ts --fix      # 报告并应用修复
  *
- * 安全：--fix 仅对确认异常做最小 UPDATE，且 downloadCount 以 ResourceDownloadLog 实计为准。
+ * 安全：--fix 仅对确认异常做最小 UPDATE，且 downloadCount 以 GameResourceEntry 条目计数之和为准。
  */
 import { PrismaClient } from "@prisma/client";
 
@@ -47,7 +47,12 @@ async function downloadCountReport() {
     SELECT g.id, COALESCE(g."downloadCount",0) AS stored, COALESCE(c.cnt,0) AS real_cnt
     FROM "Game" g
     LEFT JOIN (
-      SELECT "gameId", COUNT(*)::int AS cnt FROM "ResourceDownloadLog" GROUP BY "gameId"
+      -- 真实下载次数 = 各资源条目点击计数之和，经 GameResource 关联到 Game
+      --（GameResourceEntry 通过 resourceId → GameResource.gameId 间接关联 Game）
+      SELECT gr."gameId", SUM(gre."downloadCount")::int AS cnt
+      FROM "GameResource" gr
+      JOIN "GameResourceEntry" gre ON gre."resourceId" = gr."id"
+      GROUP BY gr."gameId"
     ) c ON c."gameId" = g.id
     WHERE COALESCE(g."downloadCount",0) IS DISTINCT FROM COALESCE(c.cnt,0)
     ORDER BY ABS(COALESCE(g."downloadCount",0) - COALESCE(c.cnt,0)) DESC
@@ -71,7 +76,7 @@ async function downloadCountReport() {
       console.log(`  [已修复] game ${r.id}: ${r.stored} -> ${r.real_cnt}`);
     }
   } else {
-    console.log(`  => 共 ${rows.length} 行漂移；加 --fix 以 ResourceDownloadLog 实计重写 downloadCount`);
+    console.log(`  => 共 ${rows.length} 行漂移；加 --fix 以 GameResourceEntry 条目计数之和重写 downloadCount`);
   }
   return rows.length;
 }

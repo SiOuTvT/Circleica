@@ -210,8 +210,11 @@ async function resolveCreatorByName(name: string, nameJa?: string): Promise<stri
   while (await prisma.creator.findUnique({ where: { slug: creatorSlug } })) {
     creatorSlug = `${slugify(clean)}-${cn++}`
   }
-  const created = await prisma.creator.create({
-    data: { name: clean, nameJa: nameJa ?? "", slug: creatorSlug, source: "galvelica" },
+  // 幂等创建：并发摄入时用 (name, source) 唯一约束兜底，避免重复 Creator
+  const created = await prisma.creator.upsert({
+    where: { name_source: { name: clean, source: "galvelica" } },
+    create: { name: clean, nameJa: nameJa ?? "", slug: creatorSlug, source: "galvelica" },
+    update: nameJa ? { nameJa } : {},
   })
   return created.id
 }
@@ -287,8 +290,11 @@ async function resolveOrCreateCircleicaCreator(
     n++
     if (n > 100) break
   }
-  const created = await prisma.creator.create({
-    data: { name: clean, nameJa: nameJa ?? "", vndbId: vndbId ?? "", source: "circleica", slug },
+  // 幂等创建：并发摄入时用 (name, source) 唯一约束兜底，避免重复 Creator
+  const created = await prisma.creator.upsert({
+    where: { name_source: { name: clean, source: "circleica" } },
+    create: { name: clean, nameJa: nameJa ?? "", vndbId: vndbId ?? "", source: "circleica", slug },
+    update: {},
   })
   return created.id
 }
@@ -499,15 +505,54 @@ export async function upsertWorkFromRaw(
 
   if (!workId) {
     const slug = await ensureUniqueSlug(opts.slug || slugify(normalized.title || externalId))
-    const created = await prisma.work.create({
-      data: {
-        slug,
-        gameId: opts.gameId,
-        title: normalized.title || externalId,
-        doujinCategory: opts.doujinCategory ?? null,
-      },
-    })
-    workId = created.id
+    // 在「建 Work + 挂 WorkSource」事务内完成，避免并发/崩溃重跑时两个进程各建一个 Work、
+    // 却只有一个 WorkSource 成功（另一个成孤儿重复 Work）。WorkSource 的 (source, externalId)
+    // 唯一约束在此事务内兜底：若另一进程已抢先注册，upsert 触发 P2002，整事务回滚（不留孤儿），
+    // 随后在 catch 中改 adoption 既有 Work。
+    try {
+      workId = await prisma.$transaction(async (tx) => {
+        const created = await tx.work.create({
+          data: {
+            slug,
+            gameId: opts.gameId,
+            title: normalized.title || externalId,
+            doujinCategory: opts.doujinCategory ?? null,
+          },
+        })
+        await tx.workSource.upsert({
+          where: { workId_source: { workId: created.id, source: sourceKey as WorkSourceType } },
+          create: {
+            workId: created.id,
+            source: sourceKey as WorkSourceType,
+            externalId,
+            raw: raw as unknown as Prisma.InputJsonValue,
+            status: "ok",
+          },
+          update: {
+            raw: raw as unknown as Prisma.InputJsonValue,
+            externalId,
+            status: "ok",
+            fetchedAt: new Date(),
+          },
+        })
+        return created.id
+      })
+    } catch (e) {
+      if ((e as { code?: string })?.code === "P2002") {
+        // 并发竞态：另一进程已注册该 (source, externalId)。复用其 Work，避免孤儿重复 Work。
+        const won = await prisma.workSource.findFirst({
+          where: { source: sourceKey as WorkSourceType, externalId },
+          select: { workId: true },
+        })
+        if (won?.workId) {
+          workId = won.workId
+        } else {
+          const matchId = await findCrossSourceMatch(sourceKey, normalized)
+          if (matchId) workId = matchId
+        }
+      }
+      if (!workId) throw e
+    }
   }
 
   // 把本作品的匹配键登记进内存索引，供同一次 ingest 中后续条目做跨源去重
@@ -517,23 +562,6 @@ export async function upsertWorkFromRaw(
     normalized.englishName,
     (normalized.aliases ?? []).join(", "),
   ])
-
-  await prisma.workSource.upsert({
-    where: { workId_source: { workId, source: sourceKey as WorkSourceType } },
-    create: {
-      workId,
-      source: sourceKey as WorkSourceType,
-      externalId,
-      raw: raw as unknown as Prisma.InputJsonValue,
-      status: "ok",
-    },
-    update: {
-      raw: raw as unknown as Prisma.InputJsonValue,
-      externalId,
-      status: "ok",
-      fetchedAt: new Date(),
-    },
-  })
 
   // 同人分类：已知且 Work 当前为空则补写（跨源匹配挂到已有 Work 时也能补齐）
   if (opts.doujinCategory) {

@@ -42,8 +42,11 @@ async function linkGameCreators(
       while (await tx.creator.findUnique({ where: { slug } })) {
         slug = `${slugify(name)}-${n++}`
       }
-      creator = await tx.creator.create({
-        data: { vndbId, name, slug, nameJa: c.nameJa ? String(c.nameJa) : "" },
+      // 幂等创建：并发摄入时用 (name, source) 唯一约束兜底，避免重复 Creator
+      creator = await tx.creator.upsert({
+        where: { name_source: { name, source: "circleica" } },
+        create: { vndbId, name, slug, nameJa: c.nameJa ? String(c.nameJa) : "" },
+        update: {},
         select: { id: true },
       })
     }

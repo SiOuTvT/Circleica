@@ -83,7 +83,15 @@ export const creatorRepo = {
       orderBy: { game: { createdAt: "desc" } },
     })
   },
-  create(data: Prisma.CreatorCreateInput) {
+  async create(data: Prisma.CreatorCreateInput) {
+    // 幂等：若 (name, source) 已存在则返回既有记录，避免重复 Creator（配合唯一约束）
+    const existing = await prisma.creator.findFirst({
+      where: { name: data.name, source: data.source ?? "circleica" },
+      select: { id: true },
+    })
+    if (existing) {
+      return prisma.creator.findUniqueOrThrow({ where: { id: existing.id } })
+    }
     return prisma.creator.create({ data })
   },
   update(id: string, data: Prisma.CreatorUpdateInput) {
