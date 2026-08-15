@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt"
 import { NextRequest, NextResponse } from "next/server"
 import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
-import { checkSameOrigin, enforceSameOrigin } from "@/lib/csrf"
+import { enforceSameOrigin } from "@/lib/csrf"
 
 // ─────────────────────────────────────────────────────────────
 // Next.js 16 起 `middleware` 文件约定已废弃，官方改用 `proxy`。
@@ -14,7 +14,7 @@ import { checkSameOrigin, enforceSameOrigin } from "@/lib/csrf"
 // CSP 策略（模板缓存）
 let _cspTemplate: { scriptPrefix: string; rest: string } | null = null
 
-function buildCSP(nonce: string): string {
+function buildCSP(_nonce: string): string {
   if (!_cspTemplate) {
     const imgDomains = [
       "'self'", "data:", "blob:",

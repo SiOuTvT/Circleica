@@ -2,7 +2,7 @@ import { requireAdmin } from "@/lib/admin"
 import { getSiteSettings } from "@/lib/site-settings"
 import { PagesManager } from "./pages-manager"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { FileText } from "lucide-react"
+
 
 export const metadata = { title: "页面管理 · 管理后台" }
 

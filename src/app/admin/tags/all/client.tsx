@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Pencil, Search, Tags, Trash2, X } from "lucide-react"
 import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useRouter } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -55,7 +55,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
   const [saving, setSaving] = useState(false)
 
   const active = tabs.find((t) => t.id === activeTab) ?? tabs[0]
-  const activeTags = active?.tags ?? []
+  const activeTags = useMemo(() => active?.tags ?? [], [active])
 
   const filtered = useMemo(() => {
     let list = activeTags

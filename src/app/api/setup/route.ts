@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import bcrypt from "bcryptjs"
 import { serialIdToUid } from "@/lib/serial-id"
-import { ConflictError, ValidationError, ForbiddenError } from "@/lib/errors"
+import { ValidationError, ForbiddenError } from "@/lib/errors"
 import { validatePassword } from "@/lib/password"
 
 interface SetupBody {

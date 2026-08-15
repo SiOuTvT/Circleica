@@ -7,7 +7,7 @@ import { TagsOverviewClient } from "./overview-client"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import Link from "next/link"
 import { List } from "lucide-react"
-import { cache, cacheKey, cached } from "@/lib/redis"
+import { cacheKey, cached } from "@/lib/redis"
 
 export default async function TagsOverviewPage() {
   await requireAdmin()
