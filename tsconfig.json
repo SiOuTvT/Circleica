@@ -43,7 +43,6 @@
     ".next-dev/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "audit_screenshots"
+    "node_modules"
   ]
 }
