@@ -133,3 +133,17 @@
 2. 在部署服务器注入真实凭证（`.env`）。
 3. 按 `docs/DEPLOYMENT.md` + `DEPLOY_ACCEPTANCE_CHECKLIST.md` 执行 C-1~C-7 真实验收与回滚演练。
 4. 全部 PASS 后，重生成最终发布评估（`FINAL_RELEASE_ASSESSMENT.md`）并将结论改为 GO。
+
+---
+
+## 第二轮更新（2026-08-16 · C-1 / C-4 落地）
+
+用户确认继续推进，不以部署速度优先，把能解决的问题在本机收口。
+
+- **C-1（R2 公开读 + 防滥用）已落地**：产品决策确认为公开读（不强制登录 / 不验证码 / 不人机验证）。A 防爬（`proxy.ts` 匿名 IP 频控：页面 500/min、API 120/min，登录 / Bearer 豁免）、B 防刷下载（下载计数接口单 IP 60/min 硬限）、密钥不泄露（admin/services GET 不再回传 R2 Secret / AccessKey / Redis Token）均已实现。Cloudflare / WAF 层速率规则 + Bot Management + R2 公网域名限流建议在 `docs/DEPLOYMENT.md`。
+- **C-4（nonce CSP）已实现并真实验证**：`proxy.ts` 每请求生成 nonce 并经 `x-nonce` 透传；`layout.tsx` 读取并应用（令全站 dynamic，消除静态缓存 nonce 不匹配这一白屏根因）；`theme-script.tsx` 带 nonce。dev 运行时验证所有主要页面 200、内联脚本 nonce 与 CSP nonce 完全对齐（`mismatch=0`）、无未带 nonce 的内联脚本（仅 JSON-LD 非执行型不带 nonce）。Next.js `16.3.1`（最新稳定），auto-nonce 已支持，无需升级。
+- **本机代码门禁（第二轮）**：`tsc` 0、`lint` 0 错 / 97 警告（pre-existing any，无新增）、`jest` 325/0；rate-limit 机制 dev 实测 120 次后 429。
+- **生产构建**：`npm run build` 本机被 safe-delete shim 拦截 `.next` 清理（环境约束，非代码缺陷）；runtime 验证已替代证明 nonce 机制正确，部署环境 `next build` + `next start` 仍需终验。
+- 治理队列（STANDALONE_CLEANUP_QUEUE.md）已重新判断：队列项均不满足「现在修」标准，保持后续治理，非为赶部署而推迟。
+
+结论仍为 **CONDITIONAL GO**：C-1 / C-4 代码层已收口并验证，剩余 C-1~C-7（R2 真实连通 / Sentry / OTEL / 生产 HTTPS + CSP 无阻断 / Redis / CI / 回滚）仍需部署环境真实验收。
