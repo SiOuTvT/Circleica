@@ -40,11 +40,9 @@
     "@opentelemetry/sdk-metrics": "^2.10.0",
     "@opentelemetry/sdk-node": "^0.221.0",
     "@opentelemetry/semantic-conventions": "^1.43.0",
+    "@prisma/adapter-pg": "7.9.1",
     "@prisma/client": "7.9.1",
     "@prisma/instrumentation": "7.9.1",
-    "@prisma/adapter-pg": "7.9.1",
-    "pg": "^8.16.3",
-    "dotenv": "^16.4.7",
     "@sentry/nextjs": "^10.70.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tiptap/extension-image": "^2.11.5",
@@ -60,12 +58,14 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.8",
+    "dotenv": "^16.4.7",
     "html2canvas": "^1.4.1",
     "isomorphic-dompurify": "^3.13.0",
     "lucide-react": "^1.31.0",
     "next": "^16.2.7",
     "next-auth": "^5.0.0-beta.32",
     "nextjs-toploader": "^3.9.17",
+    "pg": "^8.16.3",
     "prisma": "7.9.1",
     "radix-ui": "^1.4.3",
     "react": "19.2.8",
@@ -100,14 +100,19 @@
     "playwright": "^1.60.0",
     "shadcn": "^4.6.0",
     "tailwindcss": "^4.3.3",
-    "ts-jest": "^29.4.11",
     "tsx": "^4.23.11",
-    "typescript": "^5"
+    "typescript": "^7.0.2",
+    "@typescript/typescript6": "6.0.2",
+    "@swc/core": "^1.16.0",
+    "@swc/jest": "^0.2.39"
   },
   "overrides": {
     "next": {
       "postcss": "8.5.23"
     },
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "typescript-eslint": {
+      "typescript": "npm:@typescript/typescript6@6.0.2"
+    }
   }
 }

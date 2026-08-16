@@ -20,7 +20,15 @@ const config: Config = {
     "!src/**/index.{ts,tsx}",
   ],
   transform: {
-    "^.+\\.tsx?$": ["ts-jest", { isolatedModules: true }],
+    "^.+\\.tsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: { syntax: "typescript", tsx: true, decorators: false },
+          transform: { react: { runtime: "automatic" } },
+        },
+      },
+    ],
   },
 }
 
