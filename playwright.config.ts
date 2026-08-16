@@ -29,7 +29,10 @@ export default defineConfig({
   webServer: {
     command: `node --max-old-space-size=4096 node_modules/next/dist/bin/next dev --webpack -p ${PORT}`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // 始终复用已存在的服务器：CI 中 e2e 作业已用 `npm run start &` 起好服务，
+    // 若此处为 false 会再起一个 next dev 抢 3000 端口导致冲突。true 时若服务器未就绪
+    // 则由 Playwright 自行启动（同样不会冲突）。
+    reuseExistingServer: true,
     timeout: 120_000,
   },
 })

@@ -2614,3 +2614,4 @@
  GET / 200 in 231ms (next.js: 6ms, proxy.ts: 32ms, application-code: 193ms)
  GET / 200 in 178ms (next.js: 4ms, proxy.ts: 6ms, application-code: 169ms)
 ✓ Finished filesystem cache database compaction in 10.8s
+✓ Compiled in 3s
