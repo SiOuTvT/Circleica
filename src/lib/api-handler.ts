@@ -17,7 +17,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { ZodError } from "zod"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { SpanStatusCode } from "@opentelemetry/api"
 import * as Sentry from "@sentry/nextjs"
 import { AppError, RateLimitError, NotFoundError, ConflictError, ValidationError } from "./errors"

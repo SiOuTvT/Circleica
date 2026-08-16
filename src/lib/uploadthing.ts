@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createUploadthing, type FileRouter } from "uploadthing/next"
 import { hasRole } from "@/lib/permissions"
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 
 const f = createUploadthing()
 

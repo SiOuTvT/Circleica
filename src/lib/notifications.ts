@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import type { NotificationTypeEnum, NotificationTargetTypeEnum } from "@prisma/client"
+import type { NotificationTypeEnum, NotificationTargetTypeEnum } from "@/generated/prisma/client"
 
 interface CreateNotificationParams {
   userId: string      // 接收通知的用户

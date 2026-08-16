@@ -31,7 +31,7 @@ export async function generateMetadata({
   }
 }
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { unstable_cache } from "next/cache"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { getGameNsfwModeFilter } from "@/lib/filters"

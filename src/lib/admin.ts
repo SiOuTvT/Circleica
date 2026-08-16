@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { UserRole } from "@prisma/client"
+import { UserRole } from "@/generated/prisma/client"
 import { redirect } from "next/navigation"
 
 export type { UserRole }

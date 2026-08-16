@@ -8,7 +8,7 @@
  *
  * 所有函数均为纯数据操作，不渲染、不鉴权；鉴权由调用方（路由 / 脚本 / 后台）负责。
  */
-import { Prisma, type WorkSourceType, type GameStatus } from "@prisma/client"
+import { Prisma, type WorkSourceType, type GameStatus } from "@/generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getAdapter } from "./sources"
 import { mergeSources, type FusedSource, type FusionResult } from "./fusion"

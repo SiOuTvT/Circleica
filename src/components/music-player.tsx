@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react"
 import { hasRole } from "@/lib/permissions"
 import { apiFetchSafe } from "@/lib/api-client"
-import type { UserRole } from "@prisma/client";
+import type { UserRole } from "@/generated/prisma/client";
 
 interface Track { id: string; title: string; url: string }
 

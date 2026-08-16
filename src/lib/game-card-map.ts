@@ -1,5 +1,5 @@
 import type { GameCardData } from "@/components/game-card"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 
 /** 列表/发现页统一选字段（含资源，用于推导 resourceTags） */
 export const GAME_CARD_SELECT = {

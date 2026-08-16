@@ -6,7 +6,7 @@
  *
  * 新增超级管理员专属页面时，必须在此登记，否则 ADMIN 也能访问。
  */
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 
 /** 重新导出 UserRole，便于各组件从角色 SSOT 统一引用，避免散落 from "@prisma/client" */
 export type { UserRole }

@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth"
 import { UnauthorizedError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { hasRole } from "@/lib/permissions"
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 
 export type SiteId = "circleica" | "galvelica"
 
