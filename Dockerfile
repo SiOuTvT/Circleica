@@ -81,6 +81,11 @@ ENV APP_VERSION=${VERSION}
 # 同时作为 Sentry 浏览器端 release 的版本来源。
 ENV NEXT_PUBLIC_APP_VERSION=${VERSION}
 
+# 生成 Prisma client（src/generated/prisma 已 .gitignore，干净 git clone + docker build
+# 时仅 COPY . 不含该目录，必须在此独立执行以保证 next build 拿到 client）。
+# 置于 next build 前、且继承上面的 PRISMA_*_ENGINE_TYPE=library 设置，与运行时一致。
+RUN npx prisma generate
+
 # Build the application（webpack 生产构建，132 页面）
 # 内存默认 4096 = 项目真实需求（标准配置下构建更快更稳）。弱机器不要改这里——
 # 经 Coolify Build Arguments / docker build --build-arg 传 NEXT_BUILD_MEMORY 覆盖即可（2GB 机器传 2048）。
