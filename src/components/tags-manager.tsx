@@ -7,7 +7,7 @@ import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "luc
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import type { TagGroup } from "./tag-groups-manager"
+import type { TagGroup, AdminTagApiResponse } from "./tag-groups-manager"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
 interface Tag {
@@ -48,13 +48,14 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     if (!editName.trim()) return
     setSaving(true); setError("")
     try {
-      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${id}`, {
+      const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<Tag>>(`/api/admin/tags/${id}`, {
         method: "PUT",
         body: { name: editName.trim(), description: editDescription, color: editColor, groupId: editGroupId || null, sortOrder: editSortOrder, isVisible: editIsVisible },
       })
       if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
       // 更新后的标签实体在 data.data
-      const updated = (data as any)?.data ?? data
+      const updated = data?.data
+      if (!updated) { setError("更新失败"); setSaving(false); return }
       const groupName = initialGroups.find(g => g.id === updated.groupId)?.name ?? null
       setTags(prev => prev.map(t => t.id === id ? { ...t, name: updated.name, description: updated.description, color: updated.color, groupId: updated.groupId, groupName, sortOrder: updated.sortOrder, isVisible: updated.isVisible } : t))
       setEditing(null)
@@ -64,7 +65,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
 
   async function handleDelete(id: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
-    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${id}`, {
+    const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<void>>(`/api/admin/tags/${id}`, {
       method,
       body: forceDelete ? { forceDelete: true } : undefined,
     })

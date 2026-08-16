@@ -15,7 +15,7 @@ interface GalvelicaWorkRow {
   slug: string
   title: string
   studioName: string | null
-  releaseDate: string | null
+  releaseDate: Date | null
   status: string
   isNsfw: boolean
   viewCount: number

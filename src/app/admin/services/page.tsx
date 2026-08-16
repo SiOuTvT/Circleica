@@ -47,7 +47,7 @@ export default function ServicesPage() {
   const [sendingTest, setSendingTest] = useState(false)
 
   useEffect(() => {
-    apiFetchSafe<{ data?: any }>("/api/admin/services")
+    apiFetchSafe<{ data: ServiceConfig }>("/api/admin/services")
       .then(({ ok, data }) => {
         if (ok && data?.data) {
           const d = data.data
@@ -117,12 +117,12 @@ export default function ServicesPage() {
       const payload = service === "r2"
         ? { account_id: config.r2_account_id, access_key_id: config.r2_access_key_id, secret_access_key: config.r2_secret_access_key }
         : { url: config.redis_url, token: config.redis_token }
-      const { data } = await apiFetchSafe<{ data?: any }>("/api/admin/services", {
+      const { data } = await apiFetchSafe<EmailTestResults>("/api/admin/services", {
         method: "POST",
         body: { action: "test", service, config: payload },
       })
-      const result = data?.data || data
-      setTestResult(prev => ({ ...prev, [service]: { ok: !!result?.success, msg: result?.message || result?.error || "未知结果" } }))
+      const result: EmailTestResults = { ...(data ?? {}) }
+      setTestResult(prev => ({ ...prev, [service]: { ok: !!result.success, msg: result.message || result.error || "未知结果" } }))
     } catch {
       setTestResult(prev => ({ ...prev, [service]: { ok: false, msg: "测试请求失败" } }))
     } finally {
@@ -135,7 +135,7 @@ export default function ServicesPage() {
     setSendingTest(true)
     setTestResult(prev => { const next = { ...prev }; delete next.email; return next })
     try {
-      const { data } = await apiFetchSafe<{ data?: any }>("/api/admin/services", {
+      const { data } = await apiFetchSafe<EmailTestResults>("/api/admin/services", {
         method: "POST",
         body: {
           action: "test", service: "email",
@@ -146,7 +146,7 @@ export default function ServicesPage() {
           },
         },
       })
-      const result: EmailTestResults = (data?.data || data) as EmailTestResults
+      const result: EmailTestResults = { ...(data ?? {}) }
       setTestResult(prev => ({
         ...prev,
         email: {

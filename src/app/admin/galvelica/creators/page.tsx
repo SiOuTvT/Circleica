@@ -40,7 +40,7 @@ export default async function GalvelicaCreatorsPage({
     : baseFilter
 
   const cacheKeyCreators = cacheKey("admin:galvelica:creators", String(page), q)
-  let cached: { creators: any[]; total: number } | null = null
+  let cached: { creators: { id: string; name: string; nameJa: string; avatar: string; workCount: number }[]; total: number } | null = null
   try {
     cached = await cache.get<typeof cached>(cacheKeyCreators)
   } catch (e) {

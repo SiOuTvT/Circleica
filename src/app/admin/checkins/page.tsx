@@ -21,6 +21,14 @@ const CheckInConfigEditor = dynamic(() => import("@/components/admin/checkin-con
   loading: () => <div className="h-40 rounded-xl bg-muted animate-pulse" />,
 })
 
+interface CheckInRow {
+  id: string
+  date: Date
+  createdAt: Date
+  marks: number
+  user: { id: string; username: string; avatar: string | null }
+}
+
 export const metadata = { title: "签到记录 · 管理后台" }
 
 export default async function AdminCheckInsPage({
@@ -58,7 +66,7 @@ export default async function AdminCheckInsPage({
 
   // 使用缓存减少重复查询（5 分钟 TTL）
   const cacheKeyCheckins = cacheKey("admin:checkins", String(page), String(limit), q, from, to)
-  let cachedData: { checkIns: any[]; total: number } | null = null
+  let cachedData: { checkIns: CheckInRow[]; total: number } | null = null
 
   try {
     cachedData = await cache.get<typeof cachedData>(cacheKeyCheckins)
@@ -66,7 +74,7 @@ export default async function AdminCheckInsPage({
     logger.db.error("[AdminCheckins] Cache get failed", e)
   }
 
-  let checkIns: any[]
+  let checkIns: CheckInRow[]
   let total: number
 
   if (cachedData) {

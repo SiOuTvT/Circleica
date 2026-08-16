@@ -36,6 +36,15 @@ export interface TagGroup {
   tags: TagInGroup[]
 }
 
+interface AdminTagApiResponse<T> {
+  success?: boolean
+  data?: T
+  confirm?: boolean
+  error?: string
+  tagCount?: number
+  gameCount?: number
+}
+
 /* ──────────────────── 常量 ──────────────────── */
 
 const PRESET_COLORS = TAG_PRESET_COLORS
@@ -95,7 +104,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tag-groups/${id}`, {
+      const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<TagGroup>>(`/api/admin/tag-groups/${id}`, {
         method: "PUT",
         body: {
           name: editGroupName.trim(),
@@ -110,7 +119,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         return
       }
       // 更新后的标签组实体在 data.data
-      const updated = (data as any)?.data ?? data
+      const updated = data?.data
+      if (!updated) {
+        setError("更新失败")
+        setSaving(false)
+        return
+      }
       setGroups((prev) =>
         prev.map((g) =>
           g.id === id
@@ -128,7 +142,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
   async function handleDeleteGroup(id: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
-    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tag-groups/${id}`, {
+    const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<void>>(`/api/admin/tag-groups/${id}`, {
       method,
       body: forceDelete ? { forceDelete: true } : undefined,
     })
@@ -164,7 +178,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setError("")
     try {
       const group = groups.find((g) => g.id === groupId)
-      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
+      const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<TagInGroup>>("/api/admin/tags", {
         method: "POST",
         body: {
           name: newTagName.trim(),
@@ -180,7 +194,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         return
       }
       // 新建标签实体在 data.data（apiFetchSafe 返回完整响应体）
-      const created = (data as any)?.data ?? data
+      const created = data?.data
+      if (!created) {
+        setError("创建失败")
+        setSaving(false)
+        return
+      }
       setGroups((prev) =>
         prev.map((g) =>
           g.id === groupId
@@ -202,7 +221,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const { ok, data: result, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
+      const { ok, data: result, error } = await apiFetchSafe<AdminTagApiResponse<TagInGroup>>(`/api/admin/tags/${tagId}`, {
         method: "PUT",
         body: data,
       })
@@ -212,7 +231,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         return
       }
       // 更新后的标签实体在 result.data（apiFetchSafe 返回完整响应体）
-      const updated = (result as any)?.data ?? result
+      const updated = result?.data
+      if (!updated) {
+        setError("更新失败")
+        setSaving(false)
+        return
+      }
       // 更新标签，如果换了组就移动
       setGroups((prev) => {
         const newGroups = prev.map((g) => ({
@@ -254,7 +278,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
     setSaving(true)
     setError("")
     try {
-      const { ok, data: result, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
+      const { ok, data: result, error } = await apiFetchSafe<AdminTagApiResponse<TagInGroup>>(`/api/admin/tags/${tagId}`, {
         method: "PUT",
         body: data,
       })
@@ -264,7 +288,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
         return
       }
       // 更新后的标签实体在 result.data（apiFetchSafe 返回完整响应体）
-      const updated = (result as any)?.data ?? result
+      const updated = result?.data
+      if (!updated) {
+        setError("更新失败")
+        setSaving(false)
+        return
+      }
       // 从未分组列表中移除
       setUngroupedTags((prev) => prev.filter((t) => t.id !== tagId))
       // 如果分配了组，添加到对应组
@@ -319,7 +348,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
 
   async function handleDeleteTag(tagId: string, forceDelete = false) {
     const method = forceDelete ? "PATCH" : "DELETE"
-    const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${tagId}`, {
+    const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<void>>(`/api/admin/tags/${tagId}`, {
       method,
       body: forceDelete ? { forceDelete: true } : undefined,
     })

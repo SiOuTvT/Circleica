@@ -36,6 +36,14 @@ interface CollectionDetail extends CollectionItem {
   games: Array<{ sortOrder: number; game: GameItem }>
 }
 
+interface GameSearchResult {
+  id: string
+  serialId: number
+  title: string
+  coverImage: string
+  studios?: { studio: { displayName: string } }[]
+}
+
 export default function CuratedCollectionsPage() {
   const [collections, setCollections] = useState<CollectionItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -231,10 +239,10 @@ function CollectionDialog({ collection, onClose, onSaved }: {
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
-        const data = await api.get<{ data?: any }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
+        const data = await api.get<{ data?: GameSearchResult[] }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
         // /api/admin/games 返回 { success, data: [games[], count] }
-        const games = Array.isArray(data.data) ? data.data : (data.data?.games || [])
-        setSearchResults(games.map((g: any) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studios: (g.studios ?? []).map((s: any) => s.studio.displayName) })))
+        const games = Array.isArray(data.data) ? data.data : []
+        setSearchResults(games.map((g) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studios: (g.studios ?? []).map((s) => s.studio.displayName) })))
       } catch { setSearchResults([]) }
       finally { setSearching(false) }
     }, 300)

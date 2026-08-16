@@ -9,6 +9,19 @@ import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Building2 } from "lucide-react"
 
+interface CommercialWorkRow {
+  id: string
+  slug: string
+  title: string
+  studioName: string
+  releaseDate: Date | null
+  status: string
+  isNsfw: boolean
+  coverSexual: number
+  gameId: string | null
+  game: { serialId: number } | null
+}
+
 export const metadata = { title: "Galvelica 商业作品归档 · 管理后台" }
 export const dynamic = "force-dynamic"
 
@@ -35,14 +48,14 @@ export default async function GalvelicaCommercialPage({
   }
 
   const cacheKeyWorks = cacheKey("admin:galvelica:commercial", String(page), q, String(limit))
-  let cached: { works: any[]; total: number } | null = null
+  let cached: { works: CommercialWorkRow[]; total: number } | null = null
   try {
     cached = await cache.get<typeof cached>(cacheKeyWorks)
   } catch (e) {
     logger.db.error("[GalvelicaCommercial] Cache get failed", e)
   }
 
-  let works: any[]
+  let works: CommercialWorkRow[]
   let total: number
 
   if (cached) {

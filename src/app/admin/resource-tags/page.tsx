@@ -25,7 +25,7 @@ export default function ResourceTagsPage() {
   const [newValues, setNewValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    apiFetchSafe<{ data?: any[] }>("/api/admin/resource-tags")
+    apiFetchSafe<{ data?: TagGroup[] }>("/api/admin/resource-tags")
       .then(({ ok, data }) => { if (ok) setGroups(data?.data ?? []); setLoading(false) })
       .catch(() => { toast.error("加载失败"); setLoading(false) })
   }, [])
