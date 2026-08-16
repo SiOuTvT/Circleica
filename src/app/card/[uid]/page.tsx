@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { ROLE_META } from "@/lib/permissions"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Galgame 品味名片", description: "Circleica · Galvelica 个人品味档案" }

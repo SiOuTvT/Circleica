@@ -108,7 +108,7 @@ jest.mock("@/lib/home-stats", () => ({
   invalidateHomeStats: jest.fn().mockResolvedValue(undefined),
 }))
 
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { authService, userService, checkinService, followService, collectionService, commentService } from "@/services/user"
 import { userRepo, checkinRepo, followRepo, commentRepo, collectionRepo, notificationRepo } from "@/repositories/user"
 import { prisma } from "@/lib/prisma"

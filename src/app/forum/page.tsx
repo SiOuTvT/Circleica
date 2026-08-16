@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma"
 
 import type { Metadata } from "next"
 import { hasRole } from "@/lib/permissions"
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 
 export const revalidate = 30
 export async function generateMetadata(): Promise<Metadata> {

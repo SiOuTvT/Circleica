@@ -13,9 +13,9 @@
  *   npx tsx scripts/reconcile-counters.ts           # 仅报告
  *   npx tsx scripts/reconcile-counters.ts --fix     # 报告并修复漂移
  */
-import { PrismaClient } from "@prisma/client";
+import { realPrisma as prisma } from "@/lib/prisma"
 
-const prisma = new PrismaClient();
+
 const FIX = process.argv.includes("--fix");
 
 type CounterCheck = {

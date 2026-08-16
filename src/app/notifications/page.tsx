@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import NotificationsClient from "./notifications-client"
-import { NotificationTypeEnum } from "@prisma/client"
+import { NotificationTypeEnum } from "@/generated/prisma/client"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"

@@ -24,7 +24,7 @@
  * 环境变量：
  *   RESTORE_VNDB_DELAY_MS  两次 VNDB 重拉之间的间隔(ms)，默认 200
  */
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { fuseWork, refetchSource } from "@/lib/galvelica/work-service"
 import { getAdapter } from "@/lib/galvelica/sources"

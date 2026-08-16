@@ -11,9 +11,9 @@
  *
  * 安全：--fix 仅对确认异常做最小 UPDATE，且 downloadCount 以 GameResourceEntry 条目计数之和为准。
  */
-import { PrismaClient } from "@prisma/client";
+import { realPrisma as prisma } from "@/lib/prisma"
 
-const prisma = new PrismaClient();
+
 const FIX = process.argv.includes("--fix");
 
 async function slugReport() {

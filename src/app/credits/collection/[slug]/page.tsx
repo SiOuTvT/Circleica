@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { notFound } from "next/navigation"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { getMainNsfwMode } from "@/lib/nsfw-mode"

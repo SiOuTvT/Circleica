@@ -9,10 +9,10 @@
  * 幂等：重复执行不会重复建（按 vndbId / username 判重）。
  * 用法：npm run seed
  */
-import { PrismaClient } from "@prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
-const prisma = new PrismaClient()
+
 
 const DEMO_USER = { username: "demo_user", password: "demo123456" }
 
