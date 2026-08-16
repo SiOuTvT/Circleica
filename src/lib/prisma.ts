@@ -16,11 +16,17 @@ function createPrismaClient(): PrismaClient {
   const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME
   const poolSize = parseInt(process.env.DATABASE_POOL_SIZE || (isServerless ? "1" : "10"))
 
+  // 与 env.ts 保持一致：DATABASE_URL 缺失时用占位串，确保 PrismaClient 构造不抛错
+  // （缺失库环境下由下方离线回退机制处理连接失败，而非在模块加载时直接崩溃）。
+  // 生产/本地有真实连接串时该值不变，行为不受影响。
+  const dbUrl =
+    process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
   return new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
     datasources: {
       db: {
-        url: addConnectionParams(process.env.DATABASE_URL!, {
+        url: addConnectionParams(dbUrl, {
           connection_limit: poolSize,
           pool_timeout: 20,
           connect_timeout: 10,
