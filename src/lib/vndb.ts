@@ -130,7 +130,10 @@ class VNDBClient {
       } else {
         // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
         // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
-        this.dispatcher = new undici.Agent({ connect: { family: 4 } })
+        // connect.family 为合法的 undici 运行时选项，但新版 undici 类型要求对象必带 port，
+        // 此处仅需 family，故 cast 规避类型声明收紧（不影响运行时）
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.dispatcher = new undici.Agent({ connect: { family: 4 } as any })
         logger.db.debug("[VNDB] 未配置代理，强制 IPv4 直连")
       }
     } catch (e) {
