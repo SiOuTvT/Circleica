@@ -8,7 +8,7 @@
     "dev:clean": "node scripts/dev-clean.js && npm run dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "node --require ./scripts/eslint-ts6-shim.cjs ./node_modules/eslint/bin/eslint.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -110,9 +110,6 @@
     "next": {
       "postcss": "8.5.23"
     },
-    "sharp": "^0.35.3",
-    "typescript-eslint": {
-      "typescript": "npm:@typescript/typescript6@6.0.2"
-    }
+    "sharp": "^0.35.3"
   }
 }
