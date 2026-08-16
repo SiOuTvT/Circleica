@@ -2615,3 +2615,10 @@
  GET / 200 in 178ms (next.js: 4ms, proxy.ts: 6ms, application-code: 169ms)
 ✓ Finished filesystem cache database compaction in 10.8s
 ✓ Compiled in 3s
+✓ Compiled in 6.4s
+✓ Compiled in 2.6s
+✓ Compiled in 750ms
+✓ Compiled in 280ms
+✓ Compiled in 326ms
+✓ Compiled in 557ms
+[?25h
