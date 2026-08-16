@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient, Prisma } from "@/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 import { logger } from "@/lib/logger"
 import { ServiceUnavailableError } from "@/lib/errors"
 
@@ -22,18 +23,44 @@ function createPrismaClient(): PrismaClient {
   const dbUrl =
     process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder"
 
-  return new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-    datasources: {
-      db: {
-        url: addConnectionParams(dbUrl, {
-          connection_limit: poolSize,
-          pool_timeout: 20,
-          connect_timeout: 10,
-        }),
-      },
-    },
+  // 连接参数：语义与原先 datasources 的 connection_limit/pool_timeout/connect_timeout 一致
+  const connectionParams = {
+    connection_limit: poolSize,
+    pool_timeout: 20,
+    connect_timeout: 10,
+  }
+
+  // Prisma 7 强制驱动适配器：连接池交 pg 管理，故将同样的参数映射到 pg Pool 选项，
+  // 保持「连接池大小 / 连接超时 / 空闲回收」生命周期行为不变。
+  // 同时保留 addConnectionParams 对 URL 的改造（兼容日志/可能读取 query 的工具）。
+  const adapter = new PrismaPg({
+    connectionString: addConnectionParams(dbUrl, connectionParams),
+    max: connectionParams.connection_limit,
+    connectionTimeoutMillis: connectionParams.connect_timeout * 1000,
+    idleTimeoutMillis: connectionParams.pool_timeout * 1000,
+    ...buildSslConfig(),
   })
+
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  })
+}
+
+/**
+ * 生产 SSL 配置：仅由环境变量驱动，禁止硬编码证书/密码/连接参数。
+ * - DATABASE_SSL=true  → 跳过证书校验（自签/内网常用）
+ * - DATABASE_SSL_CA    → 使用指定 CA 并强制校验
+ * 未设置时返回空对象，由连接串自身的 sslmode 决定。
+ */
+function buildSslConfig(): { ssl?: object } {
+  if (process.env.DATABASE_SSL === "true") {
+    return { ssl: { rejectUnauthorized: false } }
+  }
+  if (process.env.DATABASE_SSL_CA) {
+    return { ssl: { ca: process.env.DATABASE_SSL_CA, rejectUnauthorized: true } }
+  }
+  return {}
 }
 
 /**
