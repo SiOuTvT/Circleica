@@ -36,13 +36,16 @@ test.describe("游戏列表", () => {
 
 test.describe("游戏详情", () => {
   test("详情页包含核心元素", async ({ page }) => {
-    // 直接访问 /games/1（假设存在）
-    const res = await page.goto("/games/1")
-    if (res?.status() === 404) {
+    // App Router 自定义 404 页的 HTTP 状态码不保证是 404，故改为从列表页进入首个游戏；
+    // 若库中没有游戏则跳过（与项目其它 e2e 用例的空库兜底策略一致）。
+    await page.goto("/games")
+    await page.waitForLoadState("networkidle")
+    const firstCard = page.locator('a[href^="/games/"]').first()
+    if (!(await firstCard.isVisible())) {
       test.skip()
       return
     }
-
+    await firstCard.click()
     await page.waitForLoadState("networkidle")
 
     // Tab 导航存在

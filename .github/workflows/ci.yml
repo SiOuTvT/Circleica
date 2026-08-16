@@ -108,6 +108,11 @@ jobs:
       - run: npm install --legacy-peer-deps
       - name: Prisma generate + migrate
         run: npx prisma generate && npx prisma migrate deploy
+      # 注入演示数据：seed 第一步会创建 demo 用户，使 userCount > 0，
+      # 从而 isSiteInitialized() 返回 true —— 否则空库下根布局只渲染 SetupWizard，
+      # 所有页面内容（登录表单/搜索框/首页统计/侧边栏…）都不会出现，e2e 全挂。
+      - name: Seed demo data (initialize site for e2e)
+        run: npm run seed
       - name: Build
         run: npm run build
       - name: Install Playwright browsers
