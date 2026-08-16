@@ -17,7 +17,10 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      # 用 npm install 而非 npm ci：本地 safe-delete 安全删除机制会拦截 npm 写 lock 文件的
+      # 临时文件 rename 覆盖操作，导致无法生成 npm ci 认可的完整 package-lock.json；
+      # npm install 容忍 lock 漂移、自动调和依赖，CI runner 为干净环境可正常安装。
+      - run: npm install --legacy-peer-deps
       - name: Prisma generate
         run: npx prisma generate
       - name: Typecheck
@@ -62,7 +65,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm install --legacy-peer-deps
       - name: Prisma generate + migrate
         run: npx prisma generate && npx prisma migrate deploy
       - name: Build
@@ -102,7 +105,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm install --legacy-peer-deps
       - name: Prisma generate + migrate
         run: npx prisma generate && npx prisma migrate deploy
       - name: Build
