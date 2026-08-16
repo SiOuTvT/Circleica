@@ -9,6 +9,16 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { PenTool } from "lucide-react"
 import { CreatorsList } from "./creators-list"
 
+interface CreatorRow {
+  id: string
+  name: string
+  nameJa: string | null
+  avatar: string | null
+  gender: string | null
+  vndbId: string | null
+  gameCount: number
+}
+
 export const metadata = { title: "创作者管理 · 管理后台" }
 
 export default async function AdminCreatorsPage({
@@ -40,14 +50,14 @@ export default async function AdminCreatorsPage({
 
   // 缓存列表 + 计数，避免每次导航都打 2 次 prisma
   const cacheKeyCreators = cacheKey("admin:creators", String(page), q, String(limit))
-  let cachedCreators: { creators: any[]; total: number } | null = null
+  let cachedCreators: { creators: CreatorRow[]; total: number } | null = null
   try {
     cachedCreators = await cache.get<typeof cachedCreators>(cacheKeyCreators)
   } catch (e) {
     logger.db.error("[AdminCreators] Cache get failed", e)
   }
 
-  let mappedCreators: any[]
+  let mappedCreators: CreatorRow[]
   let total: number
 
   if (cachedCreators) {

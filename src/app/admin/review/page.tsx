@@ -12,6 +12,18 @@ import Image from "next/image"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 
+interface ReviewGameRow {
+  id: string
+  serialId: number
+  title: string
+  coverImage: string | null
+  status: string
+  isNsfw: boolean
+  createdAt: Date
+  rejectReason: string | null
+  publisher: { id: string; username: string } | null
+}
+
 const ReviewActions = dynamic(() => import("./review-actions").then(m => ({ default: m.ReviewActions })), {
   loading: () => <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />,
 })
@@ -32,7 +44,7 @@ export default async function AdminReviewPage({
 
   // 使用缓存减少频繁刷新带来的查询压力（1 分钟 TTL）
   const cacheKeyReview = cacheKey("admin:review", String(page), String(limit))
-  let cachedData: { games: any[]; total: number } | null = null
+  let cachedData: { games: ReviewGameRow[]; total: number } | null = null
 
   try {
     cachedData = await cache.get<typeof cachedData>(cacheKeyReview)
@@ -40,7 +52,7 @@ export default async function AdminReviewPage({
     logger.db.error("[AdminReview] Cache get failed", e)
   }
 
-  let games: any[]
+  let games: ReviewGameRow[]
   let total: number
 
   if (cachedData) {

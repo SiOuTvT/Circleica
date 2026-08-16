@@ -10,6 +10,18 @@ import { Download, Plus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
+interface AdminGameRow {
+  id: string
+  title: string
+  status: string
+  isNsfw: boolean
+  isPublished: boolean
+  viewCount: number
+  favoriteCount: number
+  createdAt: Date
+  tags: { tag: { name: string; color: string } }[]
+}
+
 const AdminGamesTable = dynamic(() => import("@/components/admin-games-table").then(m => ({ default: m.AdminGamesTable })), {
   loading: () => <div className="animate-pulse space-y-3">{Array.from({length:8}).map((_,i) => <div key={i} className="h-12 rounded bg-muted" />)}</div>,
 })
@@ -35,14 +47,14 @@ export default async function AdminGamesPage({
 
   // 缓存列表 + 计数，避免每次导航都打 4 次 prisma（含 3 次全表 count）
   const cacheKeyGames = cacheKey("admin:games", String(page), q, String(limit))
-  let cachedGames: { games: any[]; total: number; published: number; draft: number } | null = null
+  let cachedGames: { games: AdminGameRow[]; total: number; published: number; draft: number } | null = null
   try {
     cachedGames = await cache.get<typeof cachedGames>(cacheKeyGames)
   } catch (e) {
     logger.db.error("[AdminGames] Cache get failed", e)
   }
 
-  let games: any[]
+  let games: AdminGameRow[]
   let total: number
   let published: number
   let draft: number

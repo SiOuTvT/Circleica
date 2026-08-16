@@ -7,6 +7,16 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
 import dynamic from "next/dynamic"
 
+interface AdminUserRow {
+  id: string
+  username: string
+  email: string
+  role: string
+  avatar: string | null
+  createdAt: string
+  _count: { favorites: number; comments: number; checkIns: number }
+}
+
 const UsersManager = dynamic(() => import("@/components/users-manager").then(m => ({ default: m.UsersManager })), {
   loading: () => <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />)}</div>,
 })
@@ -34,7 +44,7 @@ export default async function AdminUsersPage({
 
   // 使用缓存减少 _count 联查压力（2 分钟 TTL）
   const cacheKeyUsers = cacheKey("admin:users", String(page), q, String(limit))
-  let cachedData: { users: any[]; total: number } | null = null
+  let cachedData: { users: AdminUserRow[]; total: number } | null = null
 
   try {
     cachedData = await cache.get<typeof cachedData>(cacheKeyUsers)
@@ -42,7 +52,7 @@ export default async function AdminUsersPage({
     logger.db.error("[AdminUsers] Cache get failed", e)
   }
 
-  let users: any[]
+  let users: AdminUserRow[]
   let total: number
 
   if (cachedData) {

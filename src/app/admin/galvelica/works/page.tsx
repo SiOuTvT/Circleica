@@ -10,6 +10,19 @@ import { Layers } from "lucide-react"
 import { AdminSearch } from "@/components/admin/admin-search"
 import { WorksTableClient } from "./works-table-client"
 
+interface GalvelicaWorkRow {
+  id: string
+  slug: string
+  title: string
+  studioName: string | null
+  releaseDate: string | null
+  status: string
+  isNsfw: boolean
+  viewCount: number
+  favoriteCount: number
+  gameId: string | null
+}
+
 export const metadata = { title: "Galvelica 作品管理 · 管理后台" }
 
 export default async function GalvelicaWorksPage({
@@ -31,14 +44,14 @@ export default async function GalvelicaWorksPage({
   }
 
   const cacheKeyWorks = cacheKey("admin:galvelica:works", String(page), q, String(limit))
-  let cached: { works: any[]; total: number } | null = null
+  let cached: { works: GalvelicaWorkRow[]; total: number } | null = null
   try {
     cached = await cache.get<typeof cached>(cacheKeyWorks)
   } catch (e) {
     logger.db.error("[GalvelicaWorks] Cache get failed", e)
   }
 
-  let works: any[]
+  let works: GalvelicaWorkRow[]
   let total: number
 
   if (cached) {

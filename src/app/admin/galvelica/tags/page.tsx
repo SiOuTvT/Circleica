@@ -11,6 +11,13 @@ import Link from "next/link"
 import { TagCreateForm, TagRowActions, TagColorPalette } from "./tag-actions"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
+interface GalvelicaTagRow {
+  id: string
+  name: string
+  color: string
+  workCount: number
+}
+
 export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
 
 export default async function GalvelicaTagsPage({
@@ -31,7 +38,7 @@ export default async function GalvelicaTagsPage({
     : baseFilter
 
   const cacheKeyTags = cacheKey("admin:galvelica:tags", String(page), q)
-  let cached: { tags: any[]; total: number } | null = null
+  let cached: { tags: GalvelicaTagRow[]; total: number } | null = null
   try {
     cached = await cache.get<typeof cached>(cacheKeyTags)
   } catch (e) {
