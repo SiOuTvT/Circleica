@@ -15,7 +15,8 @@
  *   npx tsx scripts/dedup-cross-source.ts           # 默认 DRY-RUN（只报告，不改库）
  *   npx tsx scripts/dedup-cross-source.ts --apply   # 真正去重
  */
-import { PrismaClient, type WorkSourceType } from "@prisma/client"
+import { type WorkSourceType } from "@/generated/prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { FUSION_TABLE, type FusedFields } from "@/lib/galvelica/fusion"
 import {
   normalizeMatchKey,
@@ -41,7 +42,7 @@ function sameExactDate(a: Date | string | null | undefined, b: Date | string | n
   return !!ka && !!kb && ka === kb
 }
 
-const prisma = new PrismaClient()
+
 const APPLY = process.argv.includes("--apply")
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))

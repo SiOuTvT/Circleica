@@ -10,11 +10,11 @@
  *   - 设 EGS_INGEST_ALL=1 时，也新建作品，统一按 DERIVATIVE 兜底（EGS 偏商业，保守不进 PURE）。
  */
 import { setTimeout as sleep } from "node:timers/promises"
-import { PrismaClient } from "@prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { erogesapeAdapter } from "@/lib/galvelica/sources/egs"
 import { findCrossSourceMatch, upsertWorkFromRaw } from "@/lib/galvelica/work-service"
 
-const prisma = new PrismaClient()
+
 const ENABLED = process.env.GALVELICA_ENABLE_EGS === "1"
 const INGEST_ALL = process.env.EGS_INGEST_ALL === "1"
 const PER_PAGE = Math.max(1, Number(process.env.EGS_PER_PAGE || 100))

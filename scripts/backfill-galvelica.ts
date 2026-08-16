@@ -13,12 +13,13 @@
  * 用法：在已建好 Stage A 表、已 prisma generate 后，于本机执行
  *   npx tsx scripts/backfill-galvelica.ts
  */
-import { PrismaClient, type WorkSourceType } from "@prisma/client"
+import { type WorkSourceType } from "@/generated/prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { vndbAdapter } from "@/lib/galvelica/sources/vndb"
 import { fuseWork } from "@/lib/galvelica/work-service"
 import type { NormalizedWork } from "@/lib/galvelica/sources/types"
 
-const prisma = new PrismaClient()
+
 
 /** 把 Game 现有字段转成归一化结构（MANUAL 回退用） */
 function gameToNormalized(g: {

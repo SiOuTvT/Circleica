@@ -7,9 +7,10 @@
  *   npm run galvelica:purge-domestic          # 预览
  *   PURGE=1 npm run galvelica:purge-domestic  # 真删
  */
-import { PrismaClient, type WorkSourceType } from "@prisma/client"
+import { type WorkSourceType } from "@/generated/prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 
-const prisma = new PrismaClient()
+
 const DRY = process.env.PURGE !== "1"
 const SOURCES: WorkSourceType[] = ["CNGL", "YMGAL", "BANGUMI"]
 

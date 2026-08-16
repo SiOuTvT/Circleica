@@ -19,10 +19,10 @@
  * 用法（需先 prisma generate + 目标库可达）：
  *   npx tsx scripts/backfill-archive-slugs.ts
  */
-import { PrismaClient } from "@prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
 
-const prisma = new PrismaClient()
+
 
 async function backfillStudio() {
   const rows = await prisma.studio.findMany({

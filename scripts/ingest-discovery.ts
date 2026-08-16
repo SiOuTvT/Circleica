@@ -19,7 +19,8 @@
 import { setTimeout as sleep } from "node:timers/promises"
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
-import { PrismaClient, type WorkSourceType } from "@prisma/client"
+import { type WorkSourceType } from "@/generated/prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { upsertWorkFromRaw } from "@/lib/galvelica/work-service"
 import {
   searchSteamGames,
@@ -28,7 +29,7 @@ import {
 } from "@/lib/galvelica/sources/steam"
 import { gateAllowsSource } from "@/lib/galvelica/sources/doujin-gate"
 
-const prisma = new PrismaClient()
+
 
 const DEFAULT_TERMS = [
   "visual novel",

@@ -19,11 +19,11 @@
 import { setTimeout as sleep } from "node:timers/promises"
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
-import { PrismaClient } from "@prisma/client"
+import { realPrisma as prisma } from "@/lib/prisma"
 import { vndbClient } from "@/lib/vndb"
 import { upsertWorkFromRaw, slugify, buildCrossSourceIndex } from "@/lib/galvelica/work-service"
 
-const prisma = new PrismaClient()
+
 
 // ── 配置（环境变量可覆盖） ──────────────────────
 // 默认省空间：广收录是批量建库，融合完成后丢弃原始 JSON 缓存（省 70–80% 磁盘）。
