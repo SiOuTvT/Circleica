@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma, ForumPostCategory } from "@prisma/client"
+import type { Prisma, ForumPostCategory } from "@/generated/prisma/client"
 
 export const forumRepo = {
   // ── 帖子 ────────────────────────────

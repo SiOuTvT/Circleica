@@ -5,7 +5,7 @@
 
 import { adminUserRepo, checkInRepo } from "@/repositories/admin"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
-import type { UserRole } from "@prisma/client"
+import type { UserRole } from "@/generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { logAudit } from "@/lib/audit-log"
 import { logger } from "@/lib/logger"

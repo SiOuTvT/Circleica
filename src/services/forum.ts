@@ -8,7 +8,7 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { forumPostSchema, forumCommentSchema } from "@/lib/validations"
 import { FORUM } from "@/lib/config"
 import { sanitizeUrl } from "@/lib/sanitize"
-import type { ForumPostCategory } from "@prisma/client"
+import type { ForumPostCategory } from "@/generated/prisma/client"
 
 export const forumService = {
   getPosts(page: number, category?: string, solved?: string) {

@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma, UserRole } from "@prisma/client"
+import type { Prisma, UserRole } from "@/generated/prisma/client"
 import { toShanghaiDate } from "@/lib/date"
 
 // ── 用户 ────────────────────────────

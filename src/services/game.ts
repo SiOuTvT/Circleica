@@ -7,7 +7,7 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
 import { checkAchievements } from "@/lib/achievements"
-import type { Prisma, UserRole } from "@prisma/client"
+import type { Prisma, UserRole } from "@/generated/prisma/client"
 import { hasRole } from "@/lib/permissions"
 
 export const gameService = {

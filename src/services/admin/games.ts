@@ -5,7 +5,7 @@
 
 import { adminGameRepo, adminReviewRepo } from "@/repositories/admin"
 import { NotFoundError, ValidationError } from "@/lib/errors"
-import type { Prisma, GameStatus } from "@prisma/client"
+import type { Prisma, GameStatus } from "@/generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { logAudit } from "@/lib/audit-log"
 import { CacheTag, gameTag } from "@/lib/cache-tags"

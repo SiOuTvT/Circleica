@@ -5,7 +5,7 @@
 
 import { musicRepo, playlistRepo } from "@/repositories/admin"
 import { NotFoundError, ValidationError } from "@/lib/errors"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/generated/prisma/client"
 import { logAudit } from "@/lib/audit-log"
 import { deleteByUrl } from "@/lib/storage"
 import { logger } from "@/lib/logger"

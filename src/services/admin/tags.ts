@@ -5,7 +5,7 @@
 
 import { tagGroupRepo, tagRepo } from "@/repositories/admin"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/generated/prisma/client"
 import { prisma } from "@/lib/prisma"
 import { logAudit } from "@/lib/audit-log"
 import { logger } from "@/lib/logger"

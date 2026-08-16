@@ -3,7 +3,7 @@
  */
 
 import { userRepo, collectionRepo, notificationRepo, followRepo, commentRepo, searchRepo, checkinRepo, profileRepo } from "@/repositories/user"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { NotFoundError, ValidationError, ConflictError, UnauthorizedError, ForbiddenError } from "@/lib/errors"
 import { collectionCreateSchema } from "@/lib/validations"
 import { sendPasswordResetEmail, sendVerificationEmail, sendEmailChangeEmail, sendWelcomeEmail } from "@/lib/email"

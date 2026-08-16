@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 
 /** findRandom 原生 SQL 返回的精简游戏行（仅随机展示所需字段） */
 interface RandomGameRow {
