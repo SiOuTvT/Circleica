@@ -3,7 +3,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
-import type { Prisma, UserRole } from "@/generated/prisma/client"
+import type { Prisma, UserRole, NotificationTypeEnum, NotificationTargetTypeEnum } from "@/generated/prisma/client"
 import { toShanghaiDate } from "@/lib/date"
 
 // ── 用户 ────────────────────────────
@@ -151,7 +151,7 @@ export const notificationRepo = {
     return prisma.notification.deleteMany({ where: { userId, isRead: true } })
   },
 
-  create(data: { userId: string; actorId: string; type: import("@prisma/client").NotificationTypeEnum; targetType: import("@prisma/client").NotificationTargetTypeEnum; targetId: string }) {
+  create(data: { userId: string; actorId: string; type: NotificationTypeEnum; targetType: NotificationTargetTypeEnum; targetId: string }) {
     return prisma.notification.create({ data })
   },
 }
