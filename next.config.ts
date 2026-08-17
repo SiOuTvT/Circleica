@@ -47,6 +47,12 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   output: "standalone",
+  // uploadthing 及其嵌套依赖 (@effect/schema / effect) 是纯服务端依赖。Next 在 server 构建里
+  // 会尝试打包它们，触发 webpack 对 effect 的 ESM 子路径 exports (effect/Array 等) 解析失败
+  // (Module not found)，导致 build 中断。外部化后由 Node 运行时 require 解析
+  // (已用 require.resolve 验证可解析)，webpack 不再接触其深层子路径，构建即通过。
+  // 不影响客户端：uploadthing/next 仅在 API route 与服务端代码使用。
+  serverExternalPackages: ["uploadthing", "@uploadthing/shared", "effect", "@effect/schema"],
   // 开发模式产物写到 .next-dev（避开 IDE 工具对 .next 的持续 robocopy 清理锁，
   // 也避免 .next 无限膨胀拖慢 dev 启动）。生产构建仍用默认 .next。
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
