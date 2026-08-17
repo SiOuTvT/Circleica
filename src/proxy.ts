@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { isSuperAdminRoute, hasRole, type UserRole } from "@/lib/permissions"
 import { enforceSameOrigin } from "@/lib/csrf"
 import { getRateLimit, getClientIP } from "@/lib/rate-limit"
+import { logger } from "@/lib/logger"
 
 // ─────────────────────────────────────────────────────────────
 // Next.js 16 起 `middleware` 文件约定已废弃，官方改用 `proxy`。
@@ -218,16 +219,13 @@ export async function proxy(req: NextRequest) {
     const incoming = req.headers.get("x-request-id")
     const requestId = incoming || crypto.randomUUID()
     res.headers.set("x-request-id", requestId)
-    console.log(
-      JSON.stringify({
-        level: "info",
-        t: "access",
-        requestId,
-        method: req.method,
-        route: req.nextUrl.pathname,
-        ua: req.headers.get("user-agent")?.slice(0, 120) ?? null,
-      }),
-    )
+    logger.system.info("access", {
+      t: "access",
+      requestId,
+      method: req.method,
+      route: req.nextUrl.pathname,
+      ua: req.headers.get("user-agent")?.slice(0, 120) ?? null,
+    })
   }
 
   // 登录守卫：未登录访问受保护页面，直接 307 到登录页

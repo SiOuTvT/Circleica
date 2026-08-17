@@ -7,7 +7,6 @@ import { captureClientError } from "@/lib/client-error"
 
 export default function CollectionListError({ error }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error("[CollectionList] render error", error)
     captureClientError(error)
   }, [error])
 

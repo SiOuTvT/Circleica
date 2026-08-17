@@ -7,7 +7,6 @@ import { captureClientError } from "@/lib/client-error"
 
 export default function TagListError({ error }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error("[TagList] render error", error)
     captureClientError(error)
   }, [error])
 
