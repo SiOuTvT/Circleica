@@ -8,6 +8,7 @@ import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { AdminTagApiResponse } from "@/components/tag-groups-manager"
 
 /* ──────────────────── 类型 ──────────────────── */
 
@@ -178,7 +179,7 @@ export function TagGroupDetailClient({
     setSaving(true)
     setError("")
     try {
-      const { ok, data, error } = await apiFetchSafe<any>(`/api/admin/tags/${editingTag}`, {
+      const { ok, data, error } = await apiFetchSafe<AdminTagApiResponse<TagItem>>(`/api/admin/tags/${editingTag}`, {
         method: "PUT",
         body: {
           name: editName.trim(),
