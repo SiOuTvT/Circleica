@@ -37,9 +37,9 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
   // Load playlists
   const fetchPlaylists = useCallback(async () => {
     try {
-      const { ok, data } = await apiFetchSafe<unknown[] | { data?: unknown[] }>("/api/admin/playlists")
+      const { ok, data } = await apiFetchSafe<PlaylistItem[] | { data?: PlaylistItem[] }>("/api/admin/playlists")
       if (ok) {
-        setPlaylists((Array.isArray(data) ? data : data?.data ?? []) as PlaylistItem[])
+        setPlaylists(Array.isArray(data) ? data : data?.data ?? [])
       }
     } catch (err) { logger.api.warn("[MusicManager] fetchPlaylists failed", { error: err instanceof Error ? err.message : String(err) }) }
   }, [])
@@ -116,14 +116,15 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     if (!musicUrl && !file) { setError("请填写直链或上传文件"); return }
 
     setAdding(true)
-    const { ok, data, error } = await apiFetchSafe<any>("/api/admin/music", {
+    const { ok, data, error } = await apiFetchSafe<{ data?: MusicItem }>("/api/admin/music", {
       method: "POST",
       body: { title: title.trim(), url: musicUrl, playlistId: selectedPlaylistId || undefined },
     })
     setAdding(false)
     if (!ok) { setError(error ?? ""); return }
     // 新建音乐实体在 data.data（apiFetchSafe 返回完整响应体）
-    const created = (data as any)?.data ?? data
+    const created = data?.data
+    if (!created) { setTitle(""); setUrl(""); setFile(null); return }
     setList(p => [created, ...p])
     setTitle(""); setUrl(""); setFile(null)
   }

@@ -54,7 +54,7 @@ export default async function GalvelicaHome() {
   const nsfwMode = await getNsfwMode().catch(() => "safe")
   const [editorPicks, daily, themes, tagColor] = await Promise.all([
     cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 5), () => getEditorPicks(5), 300).catch(
-      () => [] as any[],
+      () => [],
     ),
     cached(
       cacheKey("galvelica:home:daily", nsfwMode, new Date().toISOString().slice(0, 10)),
@@ -62,7 +62,7 @@ export default async function GalvelicaHome() {
       300,
     ).catch(() => null),
     cached(cacheKey("galvelica:home:themes", nsfwMode), () => getFeaturedThemes(), 300).catch(
-      () => [] as any[],
+      () => [],
     ),
     getGalvelicaTagColor().catch(() => undefined),
   ])

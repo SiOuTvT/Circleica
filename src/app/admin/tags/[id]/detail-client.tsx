@@ -141,7 +141,7 @@ export function TagGroupDetailClient({
     setSaving(true)
     setError("")
     try {
-      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/tags", {
+      const { ok, data, error } = await apiFetchSafe<{ data?: TagItem; confirm?: boolean; error?: string }>("/api/admin/tags", {
         method: "POST",
         body: {
           name: newTagName.trim(),
@@ -153,7 +153,8 @@ export function TagGroupDetailClient({
       })
       if (!ok) { setError(error ?? "创建失败"); setSaving(false); return }
       // apiFetchSafe 的 data 是完整响应体，新建的标签实体在 data.data
-      const created = (data as any)?.data ?? data
+      const created = data?.data
+      if (!created) { setError("创建失败"); setSaving(false); return }
       setTags((prev) => [...prev, { ...created, gameCount: 0 }].sort((a, b) => a.name.localeCompare(b.name)))
       setNewTagName("")
       setShowCreate(false)
@@ -190,7 +191,8 @@ export function TagGroupDetailClient({
       })
       if (!ok) { setError(error ?? "更新失败"); setSaving(false); return }
       // 更新后的标签实体在 data.data
-      const updated = (data as any)?.data ?? data
+      const updated = data?.data
+      if (!updated) { setError("更新失败"); setSaving(false); return }
       if (updated.groupId && updated.groupId !== group.id) {
         setTags((prev) => prev.filter((t) => t.id !== editingTag))
         toast.success("已移动到其他标签组")

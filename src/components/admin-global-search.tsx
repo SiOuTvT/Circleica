@@ -18,6 +18,16 @@ interface SearchResult {
   subtitle?: string
 }
 
+interface GameSearchHit { id: string; title: string; coverImage?: string }
+interface UserSearchHit { id: string; username: string }
+interface ForumPostSearchHit { id: string; title: string }
+interface AdminSearchResponse {
+  games?: GameSearchHit[]
+  users?: UserSearchHit[]
+  forumPosts?: ForumPostSearchHit[]
+  data?: { games?: GameSearchHit[]; users?: UserSearchHit[]; forumPosts?: ForumPostSearchHit[] }
+}
+
 const TYPE_CONFIG = {
   game:  { label: "游戏", icon: Gamepad2,      href: (id: string) => `/admin/games?edit=${id}` },
   user:  { label: "用户", icon: Users,          href: (_id: string) => `/admin/users` },
@@ -69,8 +79,8 @@ export function AdminGlobalSearch() {
     setLoading(true)
     timerRef.current = setTimeout(async () => {
       try {
-        const j = await api.get<{ data?: { games?: any[]; users?: any[]; forumPosts?: any[] }; games?: any[]; users?: any[]; forumPosts?: any[] }>(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
-        const raw = (j as any).data ?? j
+        const j = await api.get<AdminSearchResponse>(`/api/admin/search?q=${encodeURIComponent(q.trim())}`)
+        const raw = j?.data ?? j
         // API 返回 { games: [], users: [], forumPosts: [] }，映射为 SearchResult[]
         const flat: SearchResult[] = [
           ...((raw.games ?? []).map((g: { id: string; title: string; coverImage?: string }) => ({ type: "game" as const, id: g.id, title: g.title }))),

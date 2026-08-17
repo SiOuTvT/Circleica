@@ -311,30 +311,30 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setVndbSuccess("")
 
     try {
-      const { ok, data, error } = await apiFetchSafe<any>("/api/admin/vndb", {
+      const { ok, data, error } = await apiFetchSafe<{ data?: Record<string, unknown> } | Record<string, unknown>>("/api/admin/vndb", {
         method: "POST",
         body: { vndbId: id },
       })
       if (!ok) { setVndbError(error ?? "拉取失败"); return }
 
       // API 返回 { success, data: { title, ... } }，json() helper 与 apiClient 双层结构
-      const d = (data as { data?: Record<string, unknown> })?.data ?? data
+      const d = data?.data ?? data
 
       // 自动填充字段（所有字段均可手动修改）
-      if (d.title) setTitle(d.title as string)
-      if (d.japaneseName) setOriginalWork(d.japaneseName as string)
-      if (d.englishName) setEnglishName(d.englishName as string)
-      if (d.aliases) setAliases(d.aliases as string)
+      if (d?.title) setTitle(d.title as string)
+      if (d?.japaneseName) setOriginalWork(d.japaneseName as string)
+      if (d?.englishName) setEnglishName(d.englishName as string)
+      if (d?.aliases) setAliases(d.aliases as string)
       // 简介：按内容语言归类到对应 Tab，并自动切换过去以便立即可见
-      if (d.description) {
+      if (d?.description) {
         const lang = detectDescriptionLang(d.description as string)
         setDescLangs(prev => ({ ...prev, [lang]: d.description as string }))
         setActiveDescLang(lang)
       }
-      if (Array.isArray(d.studios) && d.studios.length) setStudios(d.studios as string[])
+      if (Array.isArray(d?.studios) && d.studios.length) setStudios(d.studios as string[])
 
       // 发售日期
-      if (d.releaseDate) {
+      if (d?.releaseDate) {
         const dateStr = (d.releaseDate as string).substring(0, 10)
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
           setReleaseDate(dateStr)
@@ -342,7 +342,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       }
 
       // 标签：仅作为草稿名称暂存（拉取 ≠ 入库），保存游戏时才创建并关联
-      if (Array.isArray(d.tagNames) && d.tagNames.length) {
+      if (Array.isArray(d?.tagNames) && d.tagNames.length) {
         setDraftTagNames(prev => {
           const merged = new Set([...prev, ...(d.tagNames as string[])])
           return Array.from(merged)
@@ -350,12 +350,12 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       }
 
       // 创作者（脚本、原画、音乐等）
-      if ((d.creators as unknown[])?.length) {
+      if ((d?.creators as unknown[])?.length) {
         setCreators(d.creators as Array<{ vndbId: string; name: string; nameJa: string; role: string }>)
       }
 
       // 封面图（VNDB 主视觉）
-      if (d.coverImage) setCoverImage(d.coverImage as string)
+      if (d?.coverImage) setCoverImage(d.coverImage as string)
 
       // 游戏时长（VNDB length 1-5 已映射为可读文本）
       if (d.gameDuration) setGameDuration(d.gameDuration as string)

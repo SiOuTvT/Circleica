@@ -28,9 +28,9 @@ export function CheckInConfigEditor() {
 
   async function fetchConfig() {
     try {
-      const { ok, data } = await apiFetchSafe<any>("/api/admin/checkin-config")
+      const { ok, data } = await apiFetchSafe<{ data: CheckInConfig } | CheckInConfig>("/api/admin/checkin-config")
       if (!ok) throw new Error("加载配置失败")
-      const cfg = data?.data ?? data
+      const cfg = (data?.data ?? data ?? { title: "", subtitle: "", imageUrl: "" }) as CheckInConfig
       setConfig(cfg)
       setPreview(cfg.imageUrl || "")
     } catch {

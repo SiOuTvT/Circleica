@@ -351,13 +351,13 @@ export function ResourceTab({
   const fetchResources = useCallback(async () => {
     try {
       setLoadError(null)
-      const { ok, data } = await apiFetchSafe<{ data?: { resources?: any[] } } | { resources?: any[] } | any[]>(`/api/games/${gameId}/resources`)
+      const { ok, data } = await apiFetchSafe<{ data?: ApiResource[] } | { resources?: ApiResource[] } | ApiResource[]>(`/api/games/${gameId}/resources`)
       if (!ok) {
         throw new Error("加载失败")
       }
       // GET /api/games/[id]/resources 返回 { success, data: 资源数组 }，
       // apiFetchSafe 的 data 是完整响应体，data.data 才是数组本身。
-      const d = (data as any)?.data ?? data
+      const d = data?.data ?? data
       setResources(Array.isArray(d) ? d : (d?.resources ?? []))
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "加载资源失败")
@@ -374,7 +374,7 @@ export function ResourceTab({
     )
       .then(({ ok, data }) => {
         if (ok) {
-          const count = (data as any)?.data?.downloadCount
+          const count = data?.data?.downloadCount
           if (typeof count === "number") {
             setResources((prev) =>
               prev.map((r, ri) =>
@@ -402,7 +402,7 @@ export function ResourceTab({
   const handleAdd = useCallback(async (resource: SubmittedResource) => {
     setActionLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: any; resource?: any }>(`/api/games/${gameId}/resources`, {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { resource?: ApiResource }; resource?: ApiResource }>(`/api/games/${gameId}/resources`, {
         method: "POST",
         body: {
           entries: resource.entries,
@@ -431,7 +431,7 @@ export function ResourceTab({
     if (!editingResource) return
     setActionLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: any; resource?: any }>(`/api/games/${gameId}/resources/${editingResource.id}`, {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { resource?: ApiResource }; resource?: ApiResource }>(`/api/games/${gameId}/resources/${editingResource.id}`, {
         method: "PUT",
         body: {
           entries: resource.entries,
@@ -462,13 +462,13 @@ export function ResourceTab({
     if (!reportTarget) return
     setActionLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: any; alreadyReported?: boolean }>(`/api/games/${gameId}/resources/${reportTarget.id}/report`, {
+      const { ok, data, error } = await apiFetchSafe<{ data?: { alreadyReported?: boolean; isReported?: boolean; isReportedByMe?: boolean }; alreadyReported?: boolean; isReported?: boolean; isReportedByMe?: boolean }>(`/api/games/${gameId}/resources/${reportTarget.id}/report`, {
         method: "POST",
       })
       if (!ok) {
         throw new Error(error || "反馈失败")
       }
-      const d = (data?.data ?? data) as { alreadyReported?: boolean; isReported?: boolean; isReportedByMe?: boolean } | undefined
+      const d = data?.data ?? data
       if (d?.alreadyReported) {
         toast.info("你已经反馈过了")
       } else {

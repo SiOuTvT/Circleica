@@ -34,15 +34,18 @@ class ErogameScapeAdapter implements SourceAdapter {
   }
 
   normalize(payload: unknown): NormalizedWork {
-    const g = (payload ?? {}) as Record<string, any>
-    const makers: any[] = Array.isArray(g.makers) ? g.makers : g.maker ? [g.maker] : []
+    const g = (payload ?? {}) as Record<string, unknown>
+    const str = (v: unknown): string => (typeof v === "string" ? v : "")
+    const makers: Array<Record<string, unknown>> = Array.isArray(g.makers)
+      ? (g.makers as Array<Record<string, unknown>>)
+      : g.maker ? [g.maker as Record<string, unknown>] : []
     const studioName = makers.map((m) => m?.name).filter(Boolean).join(", ")
-    const cover = typeof g.image === "string" ? g.image : g.image?.url ?? ""
+    const cover = typeof g.image === "string" ? g.image : (g.image as Record<string, unknown> | null)?.url ?? ""
     return {
-      title: g.title || g.name || "",
-      originalWork: g.kana || g.original || "",
-      englishName: g.english || "",
-      description: g.description || "",
+      title: str(g.title) || str(g.name),
+      originalWork: str(g.kana) || str(g.original),
+      englishName: str(g.english),
+      description: str(g.description),
       coverImage: cover,
       releaseDate: g.selldate ? String(g.selldate).slice(0, 10) : "",
       studioName,
@@ -52,10 +55,12 @@ class ErogameScapeAdapter implements SourceAdapter {
   }
 
   /** 分页拉取游戏列表，用于批量摄入。返回原始 game 对象数组。 */
-  async listGames(page = 1, perPage = 100): Promise<any[]> {
+  async listGames(page = 1, perPage = 100): Promise<unknown[]> {
     const data = await egsFetch(`/api/v1/games?page=${page}&per_page=${perPage}`)
     if (Array.isArray(data)) return data
-    if (Array.isArray((data as any)?.games)) return (data as any).games
+    if (Array.isArray((data as Record<string, unknown>)?.games)) {
+      return (data as Record<string, unknown>).games as unknown[]
+    }
     return []
   }
 }

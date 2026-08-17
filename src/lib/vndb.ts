@@ -96,14 +96,19 @@ interface VNDBSearchResult {
   more: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type UndiciDispatcher = any
+interface VNDBApiResponse {
+  results?: unknown[]
+  more?: boolean
+  [key: string]: unknown
+}
+
+type UndiciDispatcher = import("undici").Dispatcher
 
 class VNDBClient {
   // 使用 HTTP API endpoint
   private baseUrl = "https://api.vndb.org/kana"
   private CACHE_TTL = 24 * 60 * 60 // 24小时缓存（秒）
-  private dispatcher: UndiciDispatcher = null
+  private dispatcher: UndiciDispatcher | null = null
   private proxyInitialized = false
   
   // 熔断器：当 VNDB 不可达时快速失败，避免长时间阻塞
@@ -130,10 +135,7 @@ class VNDBClient {
       } else {
         // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
         // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
-        // connect.family 为合法的 undici 运行时选项，但新版 undici 类型要求对象必带 port，
-        // 此处仅需 family，故 cast 规避类型声明收紧（不影响运行时）
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.dispatcher = new undici.Agent({ connect: { family: 4 } as any })
+        this.dispatcher = new undici.Agent({ connect: { family: 4 } })
         logger.db.debug("[VNDB] 未配置代理，强制 IPv4 直连")
       }
     } catch (e) {
@@ -144,8 +146,7 @@ class VNDBClient {
   /**
    * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<any> {
+  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<VNDBApiResponse> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
       const remaining = Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000)
@@ -174,8 +175,8 @@ class VNDBClient {
         if (this.dispatcher) {
         const undici = await import("undici")
           fetchOptions.dispatcher = this.dispatcher
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          response = await (undici.fetch as any)(url, fetchOptions)
+          // undici.fetch 返回 undici.Response，与 DOM Response 在类型系统上不互通，此处为引擎边界转换
+          response = (await undici.fetch(url, fetchOptions)) as unknown as Response
         } else {
           response = await fetch(url, fetchOptions)
         }
@@ -190,7 +191,7 @@ class VNDBClient {
           throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText}`)
         }
 
-        const result = await response.json()
+        const result: VNDBApiResponse = await response.json()
         logger.db.debug("[VNDB] 响应成功", { resultCount: result.results?.length || 0 })
         return result
       } catch (error: unknown) {
@@ -228,11 +229,11 @@ class VNDBClient {
     const key = cacheKey("vndb", "vn_search", query, limit)
     try {
       return await cached(key, async () => {
-        return await this.sendRequest("vn", {
+        return (await this.sendRequest("vn", {
           filters: ["search", "=", query],
           fields: "id,title,alttitle,rating,image.url",
           results: limit,
-        })
+        })) as VNDBSearchResult
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("VNDB search failed", error)
@@ -256,7 +257,7 @@ class VNDBClient {
           return null
         }
         
-        return data.results[0]
+        return data.results[0] as VNDBVisualNovel
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("Failed to fetch VN details", error)
@@ -334,11 +335,11 @@ class VNDBClient {
     const key = cacheKey("vndb", "producer_search", query, limit)
     try {
       return await cached(key, async () => {
-        return await this.sendRequest("producer", {
+        return (await this.sendRequest("producer", {
           filters: ["search", "=", query],
           fields: "id,name,original,description,type",
           results: limit,
-        })
+        })) as ProducerResult
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("VNDB producer search failed", error)
@@ -364,7 +365,7 @@ class VNDBClient {
         results: 1,
       })
 
-      const result = processProducerResults(data)
+      const result = processProducerResults(data as ProducerResult)
       if (result) {
         logger.db.debug(`[VNDB] 选中创作者: ${result.name} (ID: ${result.id})`)
       }
@@ -393,7 +394,7 @@ class VNDBClient {
           results: STAFF_SEARCH_RESULTS,
         })
 
-        const result = processStaffResults(data)
+        const result = processStaffResults(data as StaffResult)
         if (result) {
           logger.db.debug(`[VNDB] 选中 staff: ${result.name} (ID: ${result.id}, 作品数: ${result.vns?.length || 0})`)
           return result
@@ -543,23 +544,33 @@ class VNDBClient {
           return null
         }
 
-        const producer = data.results[0]
+        const producer = data.results[0] as Record<string, unknown>
+        const producerName = typeof producer.name === "string" ? producer.name : ""
 
         // 通过搜索该创作者名称获取其开发的VN
+        let developed: Array<{ id: string; title: string; image?: { url: string }; rating?: number }> = []
         try {
           const vnData = await this.sendRequest("vn", {
-            filters: ["search", "=", producer.name],
+            filters: ["search", "=", producerName],
             fields: "id,title,rating,image.url",
             results: 10,
             sort: "rating",
             reverse: true,
           })
-          producer.developed = vnData.results || []
+          developed = (vnData.results ?? []) as Array<{ id: string; title: string; image?: { url: string }; rating?: number }>
         } catch {
-          producer.developed = []
+          developed = []
         }
 
-        return producer
+        return {
+          id: producer.id as string,
+          name: producerName,
+          original: producer.original as string | undefined,
+          type: producer.type as string,
+          description: producer.description as string | undefined,
+          image: producer.image as { url: string } | undefined,
+          developed,
+        }
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("Failed to fetch producer details", error)
@@ -643,7 +654,7 @@ class VNDBClient {
           return null
         }
 
-        const c = data.results[0]
+        const c = data.results[0] as VNDBCharacter
         const vn = c.vns?.[0]
 
         return {
@@ -694,7 +705,7 @@ class VNDBClient {
         reverse: true,
       })
 
-      const result = processCharacterResults(vnData)
+      const result = processCharacterResults(vnData as CharacterResult)
       if (result) {
         logger.db.debug(`[VNDB] 选中角色: ${result.name} (ID: ${result.id})`)
       }

@@ -77,7 +77,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     const prev = post.likeCount
     setPost(p => ({ ...p, likeCount: p.likeCount + 1 }))
     try {
-      const j = await api.post<any>(`/api/forum/posts/${post.id}/like`)
+      const j = await api.post<{ likeCount?: number; data?: { likeCount?: number } }>(`/api/forum/posts/${post.id}/like`)
       const d = j?.data ?? j
       setPost(p => ({ ...p, likeCount: d.likeCount ?? p.likeCount }))
     } catch {
@@ -92,7 +92,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     if (!isLoggedIn || likingCommentId === id) return
     setLikingCommentId(id)
     try {
-      const j = await api.post<any>(`/api/forum/comments/${id}/like`)
+      const j = await api.post<{ likeCount?: number; data?: { likeCount?: number } }>(`/api/forum/comments/${id}/like`)
       const d = j?.data ?? j
       setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
@@ -102,7 +102,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   // ── 标记已解决 ──
   async function toggleSolve() {
     try {
-      const j = await api.post<any>(`/api/forum/posts/${post.id}/solve`)
+      const j = await api.post<{ isSolved?: boolean; data?: { isSolved?: boolean } }>(`/api/forum/posts/${post.id}/solve`)
       const d = j?.data ?? j
       setPost(p => ({ ...p, isSolved: d.isSolved ?? p.isSolved }))
     } catch (err) { logger.forum.warn("[ForumPostDetail] toggleSolve failed", { error: err instanceof Error ? err.message : String(err) }) }

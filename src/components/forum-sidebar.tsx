@@ -14,6 +14,14 @@ interface ForumSidebarProps {
   onToggle: () => void
 }
 
+interface SidebarPost {
+  id: string
+  title: string
+  user: { username: string }
+  isSolved?: boolean
+  createdAt?: string
+}
+
 export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarProps) {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -118,11 +126,11 @@ function ForumSidebarPosts() {
   useEffect(() => {
     const controller = new AbortController()
     // apiFetchSafe 返回完整响应体 { success, data: { posts, ... } }，需解 data.data
-    apiFetchSafe<{ posts?: any[]; data?: { posts?: any[] } }>("/api/forum/posts", { signal: controller.signal })
+    apiFetchSafe<{ posts?: SidebarPost[]; data?: { posts?: SidebarPost[] } }>("/api/forum/posts", { signal: controller.signal })
       .then(({ ok, data }) => {
         if (ok) {
-          const inner = (data as any)?.data ?? data
-          setPosts(((inner?.posts as any[]) || []).slice(0, 20))
+          const inner = data?.data ?? data
+          setPosts((inner?.posts ?? []).slice(0, 20))
         }
         setLoading(false)
       })

@@ -3,6 +3,19 @@
 import { useEffect, useRef, useState } from "react"
 import { logger } from "@/lib/logger"
 
+interface TurnstileApi {
+  render: (el: HTMLElement, opts: {
+    sitekey: string
+    callback: (token: string) => void
+    "error-callback"?: () => void
+  }) => string
+  remove: (widgetId: string) => void
+}
+
+declare global {
+  interface Window { turnstile?: TurnstileApi }
+}
+
 interface TurnstileCaptchaProps {
   onVerify: (token: string) => void
   onError?: () => void
@@ -41,8 +54,7 @@ export function TurnstileCaptcha({ onVerify, onError }: TurnstileCaptchaProps) {
 
   useEffect(() => {
     if (!loaded || !siteKey || !containerRef.current) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ts = (window as any).turnstile
+    const ts = window.turnstile
     if (!ts) return
 
     widgetIdRef.current = ts.render(containerRef.current, {

@@ -16,6 +16,17 @@ import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
 
+interface ForumListData {
+  posts?: Post[]
+  page?: number
+  totalPages?: number
+}
+
+interface ForumPostDetailData {
+  post?: Post
+  comments?: Comment[]
+}
+
 export interface ForumClientProps {
   initialPosts: Post[]
   isLoggedIn: boolean
@@ -75,7 +86,7 @@ export function ForumClient({
     if (search) params.set("search", search)
 
     try {
-      const { ok, data } = await apiFetchSafe<{ data?: any; posts?: Post[]; page?: number; totalPages?: number }>(`/api/forum/posts?${params}`)
+      const { ok, data } = await apiFetchSafe<{ data?: ForumListData } | ForumListData>(`/api/forum/posts?${params}`)
       if (ok) {
         const d = data?.data ?? data
         if (reset) {
@@ -107,7 +118,7 @@ export function ForumClient({
       params.set("limit", "20")
       if (activeCategory) params.set("category", activeCategory)
       if (debouncedSearch) params.set("search", debouncedSearch)
-      const { ok, data } = await apiFetchSafe<{ data?: any; posts?: Post[]; totalPages?: number }>(`/api/forum/posts?${params}`)
+      const { ok, data } = await apiFetchSafe<{ data?: ForumListData } | ForumListData>(`/api/forum/posts?${params}`)
       if (ok) {
         const d = data?.data ?? data
         if (d.posts && d.posts.length > 0) {
@@ -128,7 +139,7 @@ export function ForumClient({
 
   // 打开帖子详情
   const openPost = useCallback(async (id: string) => {
-    const { ok, data } = await apiFetchSafe<any>(`/api/forum/posts/${id}`)
+    const { ok, data } = await apiFetchSafe<{ data?: ForumPostDetailData } | ForumPostDetailData>(`/api/forum/posts/${id}`)
     if (ok) { setActivePost((data?.data ?? data) as (Post & { comments: Comment[] }) | null) }
   }, [])
 
@@ -253,7 +264,7 @@ export function ForumClient({
           apiFetchSafe<{ data?: { likeCount?: number }; likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                const inner = (data as any)?.data ?? data
+                const inner = data?.data ?? data
                 setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: inner?.likeCount ?? x.likeCount } : x))
                 setActivePost(p => p && { ...p, likeCount: inner?.likeCount ?? p.likeCount })
               }
@@ -266,7 +277,7 @@ export function ForumClient({
         }}
         onToggleSolve={async (id) => {
           try {
-            const { ok, data } = await apiFetchSafe<{ data?: any; isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
+            const { ok, data } = await apiFetchSafe<{ data?: { isSolved?: boolean }; isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
             const d = data?.data ?? data
             if (ok) {
               setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d?.isSolved } : x))
@@ -310,7 +321,7 @@ export function ForumClient({
         post={editingPost}
         onClose={() => setEditingPost(null)}
         onSave={async (id, title, content) => {
-          const { ok, data, error } = await apiFetchSafe<{ data?: any; title?: string; content?: string; updatedAt?: string }>(`/api/forum/posts/${id}`, {
+          const { ok, data, error } = await apiFetchSafe<{ data?: { title?: string; content?: string; updatedAt?: string }; title?: string; content?: string; updatedAt?: string }>(`/api/forum/posts/${id}`, {
             method: "PUT",
             body: { title, content },
           })

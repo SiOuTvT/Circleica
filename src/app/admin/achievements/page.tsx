@@ -76,7 +76,7 @@ export default function AdminAchievementsPage() {
     try {
       const params = new URLSearchParams({ page: String(p), pageSize: String(PAGE_SIZE) })
       if (s.trim()) params.set("search", s.trim())
-      const j = await api.get<any>(`/api/admin/achievements?${params.toString()}`)
+      const j = await api.get<{ items?: Achievement[]; total?: number; totalPages?: number; data?: { items?: Achievement[]; total?: number; totalPages?: number } }>(`/api/admin/achievements?${params.toString()}`)
       const data = j?.data ?? j
       setAchievements(Array.isArray(data) ? data : data?.items ?? [])
       setTotal(data?.total ?? (Array.isArray(data) ? data.length : 0))
