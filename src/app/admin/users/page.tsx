@@ -12,7 +12,7 @@ interface AdminUserRow {
   username: string
   email: string
   role: string
-  avatar: string | null
+  avatar: string
   createdAt: string
   _count: { favorites: number; comments: number; checkIns: number }
 }
@@ -72,7 +72,7 @@ export default async function AdminUsersPage({
       }),
       prisma.user.count({ where }),
     ])
-    users = usersResult.map(u => ({ ...u, createdAt: u.createdAt.toISOString() }))
+    users = usersResult.map(u => ({ ...u, avatar: u.avatar ?? "", createdAt: u.createdAt.toISOString() }))
     total = totalResult
 
     // 写入缓存

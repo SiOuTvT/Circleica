@@ -245,3 +245,17 @@ export async function apiFetchSafe<T = unknown>(
     return { ok: false, error: "请求失败" }
   }
 }
+
+/**
+ * 解包后端响应体。
+ * 后端统一以 { success, data } 信封返回；个别历史接口直接返回数据本身。
+ * 此处与历史运行行为 `data?.data ?? data` 完全一致，同时提供类型安全。
+ */
+export function unwrapApiData<T>(body: unknown): T | undefined {
+  if (body && typeof body === "object" && !Array.isArray(body)) {
+    const obj = body as Record<string, unknown>
+    if ("data" in obj && obj.data !== undefined) return obj.data as T
+    if ("resources" in obj && obj.resources !== undefined) return obj.resources as T
+  }
+  return body as T | undefined
+}

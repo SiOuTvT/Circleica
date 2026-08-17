@@ -14,6 +14,7 @@ import {
   type StaffResult,
   type ProducerResult,
   type CharacterResult,
+  type VNDBResponse,
   KNOWN_PRODUCER_IDS,
   STAFF_SEARCH_TERMS,
   POPULAR_VN_SEARCHES,
@@ -96,12 +97,6 @@ interface VNDBSearchResult {
   more: boolean
 }
 
-interface VNDBApiResponse {
-  results?: unknown[]
-  more?: boolean
-  [key: string]: unknown
-}
-
 type UndiciDispatcher = import("undici").Dispatcher
 
 class VNDBClient {
@@ -135,7 +130,7 @@ class VNDBClient {
       } else {
         // 强制 IPv4：Node.js undici fetch 默认优先 IPv6，
         // 但很多国内网络 IPv6 到 api.vndb.org 不通，导致超时
-        this.dispatcher = new undici.Agent({ connect: { family: 4 } })
+        this.dispatcher = new undici.Agent({ connect: { family: 4 } } as import("undici").Agent.Options)
         logger.db.debug("[VNDB] 未配置代理，强制 IPv4 直连")
       }
     } catch (e) {
@@ -146,7 +141,7 @@ class VNDBClient {
   /**
    * 发送 HTTP POST 请求到 VNDB API（带重试机制 + 代理支持 + 熔断器）
    */
-  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<VNDBApiResponse> {
+  private async sendRequest(endpoint: string, data: Record<string, unknown>, retries = 2): Promise<VNDBResponse> {
     // 熔断器检查：如果 VNDB 之前不可达，直接快速失败
     if (this.circuitBroken && Date.now() < this.circuitBrokenUntil) {
       const remaining = Math.ceil((this.circuitBrokenUntil - Date.now()) / 1000)
@@ -176,7 +171,7 @@ class VNDBClient {
         const undici = await import("undici")
           fetchOptions.dispatcher = this.dispatcher
           // undici.fetch 返回 undici.Response，与 DOM Response 在类型系统上不互通，此处为引擎边界转换
-          response = (await undici.fetch(url, fetchOptions)) as unknown as Response
+          response = (await undici.fetch(url, fetchOptions as import("undici").RequestInit)) as unknown as Response
         } else {
           response = await fetch(url, fetchOptions)
         }
@@ -191,7 +186,7 @@ class VNDBClient {
           throw new Error(`VNDB HTTP error: ${response.status} ${response.statusText}`)
         }
 
-        const result: VNDBApiResponse = await response.json()
+        const result: VNDBResponse = await response.json()
         logger.db.debug("[VNDB] 响应成功", { resultCount: result.results?.length || 0 })
         return result
       } catch (error: unknown) {
@@ -257,7 +252,7 @@ class VNDBClient {
           return null
         }
         
-        return data.results[0] as VNDBVisualNovel
+        return data.results[0] as unknown as VNDBVisualNovel
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("Failed to fetch VN details", error)
@@ -339,7 +334,7 @@ class VNDBClient {
           filters: ["search", "=", query],
           fields: "id,name,original,description,type",
           results: limit,
-        })) as ProducerResult
+        })) as VNDBSearchResult
       }, this.CACHE_TTL)
     } catch (error) {
       logger.db.error("VNDB producer search failed", error)
@@ -365,7 +360,7 @@ class VNDBClient {
         results: 1,
       })
 
-      const result = processProducerResults(data as ProducerResult)
+      const result = processProducerResults(data)
       if (result) {
         logger.db.debug(`[VNDB] 选中创作者: ${result.name} (ID: ${result.id})`)
       }
@@ -394,7 +389,7 @@ class VNDBClient {
           results: STAFF_SEARCH_RESULTS,
         })
 
-        const result = processStaffResults(data as StaffResult)
+        const result = processStaffResults(data)
         if (result) {
           logger.db.debug(`[VNDB] 选中 staff: ${result.name} (ID: ${result.id}, 作品数: ${result.vns?.length || 0})`)
           return result
@@ -654,18 +649,18 @@ class VNDBClient {
           return null
         }
 
-        const c = data.results[0] as VNDBCharacter
+        const c = data.results[0] as unknown as VNDBCharacter
         const vn = c.vns?.[0]
 
         return {
           id: c.id,
           name: c.name || "未知角色",
           original: c.original || "",
-          image: c.image?.url || "",
+          image: c.image ? (typeof c.image === "string" ? c.image : c.image.url) : "",
           role: vn?.role || "",
           gender: c.gender || [],
-          age: c.age || null,
-          birthday: c.birthday || null,
+          age: c.age ?? undefined,
+          birthday: c.birthday ?? undefined,
           bloodType: c.blood_type || "",
           height: c.height || "",
           weight: c.weight || "",
@@ -675,7 +670,7 @@ class VNDBClient {
           cup: c.cup || "",
           description: c.description || "",
           aliases: c.aliases || [],
-          traits: (c.traits || [])
+          traits: (c.trait || [])
             .filter((t: { spoiler: number }) => t.spoiler === 0)
             .map((t: { name: string; group_name: string }) => ({ name: t.name, groupName: t.group_name })),
           vnTitle: vn?.title || "",
@@ -705,7 +700,7 @@ class VNDBClient {
         reverse: true,
       })
 
-      const result = processCharacterResults(vnData as CharacterResult)
+      const result = processCharacterResults(vnData)
       if (result) {
         logger.db.debug(`[VNDB] 选中角色: ${result.name} (ID: ${result.id})`)
       }

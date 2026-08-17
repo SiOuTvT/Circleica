@@ -73,7 +73,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
       setTags(prev => prev.filter(t => t.id !== id))
       toast.success("已删除")
     } else if (data?.confirm) {
-      setDeleteConfirm({ id, name: data.error, gameCount: data.gameCount, forceEndpoint: true })
+      setDeleteConfirm({ id, name: data.error ?? "", gameCount: data.gameCount, forceEndpoint: true })
     } else {
       toast.error(error || "删除失败")
     }

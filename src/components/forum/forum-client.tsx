@@ -14,7 +14,7 @@ import { PostDetailModal } from "./post-detail-modal"
 import { EditPostModal } from "./edit-post-modal"
 import type { Post, Comment, User } from "./forum-client-root"
 import { logger } from "@/lib/logger"
-import { apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 
 interface ForumListData {
   posts?: Post[]
@@ -86,16 +86,16 @@ export function ForumClient({
     if (search) params.set("search", search)
 
     try {
-      const { ok, data } = await apiFetchSafe<{ data?: ForumListData } | ForumListData>(`/api/forum/posts?${params}`)
+      const { ok, data } = await apiFetchSafe<ForumListData>(`/api/forum/posts?${params}`)
       if (ok) {
-        const d = data?.data ?? data
+        const d = unwrapApiData<ForumListData>(data)
         if (reset) {
-          setPosts(d.posts ?? [])
+          setPosts(d?.posts ?? [])
         } else {
-          setPosts(prev => [...prev, ...(d.posts ?? [])])
+          setPosts(prev => [...prev, ...(d?.posts ?? [])])
         }
-        setCurrentPage(d.page ?? 1)
-        setTotalPages(d.totalPages ?? 1)
+        setCurrentPage(d?.page ?? 1)
+        setTotalPages(d?.totalPages ?? 1)
       }
     } catch (error) {
       logger.forum.error("Failed to fetch posts", error)
@@ -118,13 +118,13 @@ export function ForumClient({
       params.set("limit", "20")
       if (activeCategory) params.set("category", activeCategory)
       if (debouncedSearch) params.set("search", debouncedSearch)
-      const { ok, data } = await apiFetchSafe<{ data?: ForumListData } | ForumListData>(`/api/forum/posts?${params}`)
+      const { ok, data } = await apiFetchSafe<ForumListData>(`/api/forum/posts?${params}`)
       if (ok) {
-        const d = data?.data ?? data
-        if (d.posts && d.posts.length > 0) {
-          setPosts(prev => [...prev, ...d.posts])
+        const d = unwrapApiData<ForumListData>(data)
+        if (d?.posts && d?.posts.length > 0) {
+          setPosts(prev => [...prev, ...(d?.posts ?? [])])
           setCurrentPage(nextPage)
-          setTotalPages(d.totalPages)
+          setTotalPages(d?.totalPages ?? 1)
         } else {
           // 无更多数据，直接设置到最后一页
           setCurrentPage(totalPages)
@@ -139,8 +139,8 @@ export function ForumClient({
 
   // 打开帖子详情
   const openPost = useCallback(async (id: string) => {
-    const { ok, data } = await apiFetchSafe<{ data?: ForumPostDetailData } | ForumPostDetailData>(`/api/forum/posts/${id}`)
-    if (ok) { setActivePost((data?.data ?? data) as (Post & { comments: Comment[] }) | null) }
+    const { ok, data } = await apiFetchSafe<ForumPostDetailData>(`/api/forum/posts/${id}`)
+    if (ok) { setActivePost(unwrapApiData<ForumPostDetailData>(data) as (Post & { comments: Comment[] }) | null) }
   }, [])
 
   // URL 参数自动打开
@@ -261,10 +261,10 @@ export function ForumClient({
           setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
           setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
           // apiFetchSafe 返回完整响应体 { success, data: { likeCount } }，需解 data.data
-          apiFetchSafe<{ data?: { likeCount?: number }; likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
+          apiFetchSafe<{ likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                const inner = data?.data ?? data
+                const inner = unwrapApiData<{ likeCount?: number }>(data)
                 setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: inner?.likeCount ?? x.likeCount } : x))
                 setActivePost(p => p && { ...p, likeCount: inner?.likeCount ?? p.likeCount })
               }
@@ -277,11 +277,11 @@ export function ForumClient({
         }}
         onToggleSolve={async (id) => {
           try {
-            const { ok, data } = await apiFetchSafe<{ data?: { isSolved?: boolean }; isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
-            const d = data?.data ?? data
+            const { ok, data } = await apiFetchSafe<{ isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
+            const d = unwrapApiData<{ isSolved?: boolean }>(data)
             if (ok) {
-              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d?.isSolved } : x))
-              setActivePost(p => p && { ...p, isSolved: d?.isSolved })
+              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d?.isSolved ?? x.isSolved } : x))
+              setActivePost(p => p && { ...p, isSolved: d?.isSolved ?? p.isSolved })
             }
           } catch (err) { logger.forum.warn("[ForumClient] toggle solve failed", { error: err instanceof Error ? err.message : String(err) }) }
         }}
@@ -292,10 +292,10 @@ export function ForumClient({
         onLikeComment={(id) => {
           if (!isLoggedIn || likingCommentIds.current.has(id)) return
           likingCommentIds.current.add(id)
-          apiFetchSafe<{ data?: { likeCount?: number } }>(`/api/forum/comments/${id}/like`, { method: "POST" })
+          apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: data?.data?.likeCount ?? c.likeCount } : c) })
+                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: unwrapApiData<{ likeCount?: number }>(data)?.likeCount ?? c.likeCount } : c) })
               }
             })
             .catch(() => {})
@@ -321,16 +321,16 @@ export function ForumClient({
         post={editingPost}
         onClose={() => setEditingPost(null)}
         onSave={async (id, title, content) => {
-          const { ok, data, error } = await apiFetchSafe<{ data?: { title?: string; content?: string; updatedAt?: string }; title?: string; content?: string; updatedAt?: string }>(`/api/forum/posts/${id}`, {
+          const { ok, data, error } = await apiFetchSafe<{ title?: string; content?: string; updatedAt?: string }>(`/api/forum/posts/${id}`, {
             method: "PUT",
             body: { title, content },
           })
           if (!ok) {
             throw new Error(error || "保存失败，请稍后再试")
           }
-          const wrapped = data?.data ?? data
-          setPosts(p => p.map(x => x.id === id ? { ...x, title: wrapped?.title, content: wrapped?.content, updatedAt: wrapped?.updatedAt } : x))
-          setActivePost(p => p && { ...p, title: wrapped?.title, content: wrapped?.content, updatedAt: wrapped?.updatedAt })
+          const wrapped = unwrapApiData<{ title?: string; content?: string; updatedAt?: string }>(data)
+          setPosts(p => p.map(x => x.id === id ? { ...x, title: wrapped?.title ?? x.title, content: wrapped?.content ?? x.content, updatedAt: wrapped?.updatedAt ?? x.updatedAt } : x))
+          setActivePost(p => p && { ...p, title: wrapped?.title ?? p.title, content: wrapped?.content ?? p.content, updatedAt: wrapped?.updatedAt ?? p.updatedAt })
           setEditingPost(null)
         }}
       />

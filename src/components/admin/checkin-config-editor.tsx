@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 
 interface CheckInConfig {
   title: string
@@ -28,9 +28,9 @@ export function CheckInConfigEditor() {
 
   async function fetchConfig() {
     try {
-      const { ok, data } = await apiFetchSafe<{ data: CheckInConfig } | CheckInConfig>("/api/admin/checkin-config")
+      const { ok, data } = await apiFetchSafe<CheckInConfig>("/api/admin/checkin-config")
       if (!ok) throw new Error("加载配置失败")
-      const cfg = (data?.data ?? data ?? { title: "", subtitle: "", imageUrl: "" }) as CheckInConfig
+      const cfg = unwrapApiData<CheckInConfig>(data) ?? { title: "", subtitle: "", imageUrl: "" }
       setConfig(cfg)
       setPreview(cfg.imageUrl || "")
     } catch {

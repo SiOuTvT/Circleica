@@ -7,7 +7,7 @@ import { AlertTriangle, ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash
 import Image from "next/image"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
 
 /* ─── 后台配置的下载链接 ─── */
@@ -320,6 +320,19 @@ const ResourceCard = memo(function ResourceCard({
 
 
 /* ─── 主组件 ─── */
+/** 从创建/编辑资源的响应体中提取单个 ApiResource（兼容 { data: { resource } } / { resource } / 直接资源对象 三种形态）。 */
+function extractResource(body: unknown): ApiResource | undefined {
+  if (!body || typeof body !== "object") return undefined
+  const obj = body as Record<string, unknown>
+  const inner = obj.data !== undefined ? obj.data : body
+  if (inner && typeof inner === "object") {
+    const i = inner as Record<string, unknown>
+    if (i.resource && typeof i.resource === "object") return i.resource as ApiResource
+    return i as unknown as ApiResource
+  }
+  return undefined
+}
+
 export function ResourceTab({
   downloadLinks,
   creators: _creators,
@@ -351,14 +364,14 @@ export function ResourceTab({
   const fetchResources = useCallback(async () => {
     try {
       setLoadError(null)
-      const { ok, data } = await apiFetchSafe<{ data?: ApiResource[] } | { resources?: ApiResource[] } | ApiResource[]>(`/api/games/${gameId}/resources`)
+      const { ok, data } = await apiFetchSafe<ApiResource[]>(`/api/games/${gameId}/resources`)
       if (!ok) {
         throw new Error("加载失败")
       }
       // GET /api/games/[id]/resources 返回 { success, data: 资源数组 }，
       // apiFetchSafe 的 data 是完整响应体，data.data 才是数组本身。
-      const d = data?.data ?? data
-      setResources(Array.isArray(d) ? d : (d?.resources ?? []))
+      const d = unwrapApiData<ApiResource[]>(data)
+      setResources(Array.isArray(d) ? d : [])
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "加载资源失败")
     } finally {
@@ -374,7 +387,7 @@ export function ResourceTab({
     )
       .then(({ ok, data }) => {
         if (ok) {
-          const count = data?.data?.downloadCount
+          const count = unwrapApiData<{ downloadCount?: number }>(data)?.downloadCount
           if (typeof count === "number") {
             setResources((prev) =>
               prev.map((r, ri) =>
@@ -402,7 +415,7 @@ export function ResourceTab({
   const handleAdd = useCallback(async (resource: SubmittedResource) => {
     setActionLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: { resource?: ApiResource }; resource?: ApiResource }>(`/api/games/${gameId}/resources`, {
+      const { ok, data, error } = await apiFetchSafe<{ resource?: ApiResource }>(`/api/games/${gameId}/resources`, {
         method: "POST",
         body: {
           entries: resource.entries,
@@ -417,8 +430,8 @@ export function ResourceTab({
       if (!ok) {
         throw new Error(error || "提交失败")
       }
-      const d = data?.data ?? data
-      setResources(prev => [d.resource ?? d, ...prev])
+      const added = extractResource(data)
+      if (added) setResources(prev => [added, ...prev])
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "提交资源失败")
     } finally {
@@ -431,7 +444,7 @@ export function ResourceTab({
     if (!editingResource) return
     setActionLoading(true)
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: { resource?: ApiResource }; resource?: ApiResource }>(`/api/games/${gameId}/resources/${editingResource.id}`, {
+      const { ok, data, error } = await apiFetchSafe<{ resource?: ApiResource }>(`/api/games/${gameId}/resources/${editingResource.id}`, {
         method: "PUT",
         body: {
           entries: resource.entries,
@@ -446,8 +459,8 @@ export function ResourceTab({
       if (!ok) {
         throw new Error(error || "编辑失败")
       }
-      const d = data?.data ?? data
-      setResources(prev => prev.map(r => r.id === editingResource.id ? (d.resource ?? d) : r))
+      const updated = extractResource(data)
+      if (updated) setResources(prev => prev.map(r => r.id === editingResource.id ? { ...r, ...updated } : r))
       setEditingResource(null)
       setEditOpen(false)
     } catch (err) {

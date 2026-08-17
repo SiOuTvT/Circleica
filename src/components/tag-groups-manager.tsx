@@ -36,7 +36,7 @@ export interface TagGroup {
   tags: TagInGroup[]
 }
 
-interface AdminTagApiResponse<T> {
+export interface AdminTagApiResponse<T> {
   success?: boolean
   data?: T
   confirm?: boolean
@@ -153,7 +153,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
       setDeleteConfirm({
         type: "group",
         id,
-        name: data.error,
+        name: data.error ?? "",
         count: data.tagCount,
         forceEndpoint: true,
       })
@@ -362,7 +362,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
       setDeleteConfirm({
         type: "tag",
         id: tagId,
-        name: data.error,
+        name: data.error ?? "",
         count: data.gameCount,
         forceEndpoint: true,
       })

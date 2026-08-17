@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation"
 import { memo, useEffect, useRef, useState, useId } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
-import { apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import {
   PLATFORM_LABELS, PLATFORM_ORDER, LANGUAGE_LABELS, LANGUAGE_ORDER,
   GAME_STATUS_LABELS, GAME_STATUS_ORDER, AGE_RATING_LABELS, AGE_RATING_ORDER,
@@ -311,14 +311,14 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     setVndbSuccess("")
 
     try {
-      const { ok, data, error } = await apiFetchSafe<{ data?: Record<string, unknown> } | Record<string, unknown>>("/api/admin/vndb", {
+      const { ok, data, error } = await apiFetchSafe<Record<string, unknown>>("/api/admin/vndb", {
         method: "POST",
         body: { vndbId: id },
       })
       if (!ok) { setVndbError(error ?? "拉取失败"); return }
 
       // API 返回 { success, data: { title, ... } }，json() helper 与 apiClient 双层结构
-      const d = data?.data ?? data
+      const d = unwrapApiData<Record<string, unknown>>(data) ?? {}
 
       // 自动填充字段（所有字段均可手动修改）
       if (d?.title) setTitle(d.title as string)

@@ -40,7 +40,12 @@ class ErogameScapeAdapter implements SourceAdapter {
       ? (g.makers as Array<Record<string, unknown>>)
       : g.maker ? [g.maker as Record<string, unknown>] : []
     const studioName = makers.map((m) => m?.name).filter(Boolean).join(", ")
-    const cover = typeof g.image === "string" ? g.image : (g.image as Record<string, unknown> | null)?.url ?? ""
+    const coverUrl = (g.image as Record<string, unknown> | null)?.url
+    const cover = typeof g.image === "string"
+      ? g.image
+      : typeof coverUrl === "string"
+        ? coverUrl
+        : ""
     return {
       title: str(g.title) || str(g.name),
       originalWork: str(g.kana) || str(g.original),
