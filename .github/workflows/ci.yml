@@ -11,6 +11,10 @@ jobs:
   quality:
     name: Lint / Typecheck / Unit
     runs-on: ubuntu-latest
+    env:
+      # 本地 CI 占位 DATABASE_URL：prisma generate 仅解析 datasource 配置、不连库，
+      # 故无需 postgres 服务；与 build/e2e 同模式，严禁注入任何生产库连接串。
+      DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
