@@ -16,8 +16,8 @@ jobs:
       # 故无需 postgres 服务；与 build/e2e 同模式，严禁注入任何生产库连接串。
       DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -64,8 +64,8 @@ jobs:
       DATABASE_URL: postgresql://circleica:circleica@localhost:5432/circleica
       NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -104,8 +104,8 @@ jobs:
       SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm

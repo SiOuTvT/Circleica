@@ -110,6 +110,10 @@
     "next": {
       "postcss": "8.5.23"
     },
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "effect": "3.4.8",
+    "@prisma/config": {
+      "effect": "3.20.0"
+    }
   }
 }
