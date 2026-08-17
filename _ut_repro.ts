@@ -1,5 +1,7 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
+type UploadedFileShape = { url: string; name?: string; key?: string };
+
 const f = createUploadthing();
 
 export const ourFileRouter = {
@@ -8,9 +10,7 @@ export const ourFileRouter = {
       return { userId: "u1" };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      const url: string = file.url;
-      const name: string = file.name;
-      const key: string = file.key;
-      return { url, name, key, userId: metadata.userId };
+      const { url, name, key } = file as unknown as UploadedFileShape;
+      return { url: url ?? "", name: name ?? "", key: key ?? "", userId: metadata.userId };
     }),
 } satisfies FileRouter;
