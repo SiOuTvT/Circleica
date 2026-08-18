@@ -125,6 +125,9 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 # Copy Prisma schema + generated client + engines（迁移和运行时需要）
 COPY --from=builder /app/prisma ./prisma
+# Copy Prisma config（Prisma 7 的 migrate/seed 依赖它提供 datasource url；
+# 漏拷会导致容器内 prisma migrate deploy 报 datasource.url required）
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 # Copy 完整 node_modules（确保 prisma CLI 及其所有传递依赖完整可用）
 # .dockerignore 已排除本地 node_modules，此处来自 builder 阶段的干净构建
 COPY --from=builder /app/node_modules ./node_modules
