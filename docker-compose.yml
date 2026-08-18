@@ -160,8 +160,7 @@ services:
       - backup_data:/backups
     entrypoint: >
       sh -c '
-      echo "0 3 * * * pg_dump -h db -U circleica circleica | gzip > /backups/circleica-$$(date +\%Y\%m\%d-\%H\%M\%S).sql.gz && find /backups -name \"circleica-*.sql.gz\" -mtime +7 -delete" | crontab -
-      crond -f -l 2
+      echo "0 3 * * * pg_dump -h db -U circleica circleica | gzip > /backups/circleica-$$(date +\%Y\%m\%d-\%H\%M\%S).sql.gz && find /backups -name \"circleica-*.sql.gz\" -mtime +7 -delete" | crontab -; crond -f -l 2
       '
     networks:
       - circleica
