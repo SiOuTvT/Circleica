@@ -47,12 +47,11 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   output: "standalone",
-  // uploadthing 及其嵌套依赖 (@effect/schema / effect) 是纯服务端依赖。Next 在 server 构建里
-  // 会尝试打包它们，触发 webpack 对 effect 的 ESM 子路径 exports (effect/Array 等) 解析失败
-  // (Module not found)，导致 build 中断。外部化后由 Node 运行时 require 解析
-  // (已用 require.resolve 验证可解析)，webpack 不再接触其深层子路径，构建即通过。
+  // uploadthing / @uploadthing/shared 是纯服务端依赖，需外部化：由 Node 运行时 require 解析，
+  // webpack 不打包其内部。注意不要在此加 effect / @effect/schema——它们会被 Next 自动加进
+  // transpilePackages，与 serverExternalPackages 重名会触发构建校验冲突（build 直接失败）。
   // 不影响客户端：uploadthing/next 仅在 API route 与服务端代码使用。
-  serverExternalPackages: ["uploadthing", "@uploadthing/shared", "effect", "@effect/schema"],
+  serverExternalPackages: ["uploadthing", "@uploadthing/shared"],
   // 开发模式产物写到 .next-dev（避开 IDE 工具对 .next 的持续 robocopy 清理锁，
   // 也避免 .next 无限膨胀拖慢 dev 启动）。生产构建仍用默认 .next。
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
@@ -168,20 +167,6 @@ async function withSentry(config: NextConfig): Promise<NextConfig> {
   });
 }
 
-// uploadthing 及其嵌套依赖 (effect / @effect/schema) 必须外部化，否则 webpack 在 server 构建里
-// 解析 effect 的 ESM 子路径导出 (effect/Array 等) 时报 Module not found。但 withSentryConfig 会把
-// 这部分包也塞进 transpilePackages，与 serverExternalPackages 冲突 (Next 校验二者不能重叠，
-// 报错 "packages specified in the 'transpilePackages' conflict with the 'serverExternalPackages'")。
-// 这里在最终配置上把冲突包从 transpilePackages 剔除，保留外部化，消除冲突——外部化后 webpack 不再
-// 接触 effect 的深层子路径，而 Node 运行时 require 可正常解析 (已用 require.resolve 验证)。
-function dropTranspileConflict(cfg: NextConfig): NextConfig {
-  const conflicting = new Set(["effect", "@effect/schema"]);
-  if (Array.isArray(cfg.transpilePackages)) {
-    cfg.transpilePackages = cfg.transpilePackages.filter((p) => !conflicting.has(p));
-  }
-  return cfg;
-}
-
 // Sentry 仅当配置了 DSN 才注入：未配置时完全不启用 @sentry/nextjs webpack 插件，
 // 客户端不再打包 Sentry SDK（省 ~456K 首屏 JS，移动端首屏大头）；服务端 instrumentation.ts 已有同款守卫。
 // 开发环境始终跳过（避免 OpenTelemetry 等重依赖拖慢 dev 启动）。
@@ -190,4 +175,4 @@ const configPromise = process.env.NODE_ENV === "development" || !sentryEnabled
   ? Promise.resolve(nextConfig)
   : withSentry(nextConfig);
 
-export default configPromise.then(dropTranspileConflict);
+export default configPromise;
