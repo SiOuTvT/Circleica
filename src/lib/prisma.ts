@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@/generated/prisma/client"
+import { PrismaClient } from "@/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { logger } from "@/lib/logger"
 import { ServiceUnavailableError } from "@/lib/errors"
@@ -355,4 +355,9 @@ if (typeof process !== "undefined") {
   process.on("SIGINT", shutdown)
 }
 
-export { Prisma }
+// Prisma 7 的运行时辅助函数（join / sql / raw 等）通过命名空间暴露，下游既要「值」
+// （Prisma.join() / Prisma.sql``）也要「类型」（Prisma.InputJsonValue 等）。这里必须用
+// 显式 re-export 同时导出二者：若写成「import { Prisma } 后再 export { Prisma }」两步，
+// Next 的 swc 在 isolatedModules 下会把本文件未作值使用的 Prisma 误判为仅类型而擦除，
+// 导致页面 Prisma.join() 运行时崩溃（Build 预渲染 admin 页面直接挂掉）。
+export { Prisma } from "@/generated/prisma/client"
