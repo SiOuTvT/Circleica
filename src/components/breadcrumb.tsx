@@ -24,6 +24,7 @@ const ROUTE_NAMES: Record<string, string> = {
   profile: "个人中心",
   edit: "编辑资料",
   notifications: "消息通知",
+  messages: "私信",
   // admin 子页面
   users: "用户管理",
   games: "游戏管理",

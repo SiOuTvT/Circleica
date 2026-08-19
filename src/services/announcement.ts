@@ -13,6 +13,7 @@ import { NotFoundError, ValidationError } from "@/lib/errors"
 import { sanitizeUrl } from "@/lib/sanitize"
 import type { AuthContext } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
+import { invalidateHomeStats } from "@/lib/home-stats"
 
 const VALID_STATUSES = ["draft", "published", "hidden"]
 
@@ -64,7 +65,10 @@ export const announcementService = {
       endAt: validated.endAt ? new Date(validated.endAt) : null,
     }
 
-    return announcementRepo.create(createData)
+    const result = await announcementRepo.create(createData)
+    // 公告会影响首页公告区，主动失效首页统计缓存，否则首页最多滞后 5 分钟才显示
+    await invalidateHomeStats()
+    return result
   },
 
   /** 管理员：更新公告 */
@@ -91,14 +95,18 @@ export const announcementService = {
     if (parsed.endAt !== undefined) data.endAt = parsed.endAt ? new Date(parsed.endAt) : null
     if (parsed.sortOrder !== undefined) data.sortOrder = parsed.sortOrder
 
-    return announcementRepo.update(id, data)
+    const result = await announcementRepo.update(id, data)
+    await invalidateHomeStats()
+    return result
   },
 
   /** 管理员：删除公告 */
   async delete(id: string) {
     const existing = await announcementRepo.findById(id)
     if (!existing) throw new NotFoundError("公告")
-    return announcementRepo.delete(id)
+    const result = await announcementRepo.delete(id)
+    await invalidateHomeStats()
+    return result
   },
 
   /** 管理员：重排序 */
