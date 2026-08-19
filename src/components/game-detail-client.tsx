@@ -387,10 +387,6 @@ export default function GameDetailClient({
             }}
           />
 
-          {/* 评分 — 桌面端 */}
-          <div className="mt-4 border-t border-border/70 pt-4">
-            <GameRating gameId={gameId} />
-          </div>
         </div>
       </div>
 
