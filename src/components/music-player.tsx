@@ -2,16 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { Music2, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react"
-import { hasRole } from "@/lib/permissions"
 import { apiFetchSafe } from "@/lib/api-client"
-import type { UserRole } from "@/generated/prisma/client";
 
 interface Track { id: string; title: string; url: string }
 
 export function MusicPlayer() {
-  const { data: session } = useSession()
   const audioRef              = useRef<HTMLAudioElement>(null)
   const [tracks, setTracks]   = useState<Track[]>([])
   const [cur, setCur]         = useState(0)
@@ -20,16 +16,14 @@ export function MusicPlayer() {
   const [expanded, setExpanded] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  const isSuperAdmin = hasRole(session?.user?.role as UserRole, "SUPER_ADMIN")
-
+  // 全站可见：后台启用的音乐（isActive）对所有用户播放；无曲目时播放器自动不渲染
   useEffect(() => {
-    if (!isSuperAdmin) return
     const controller = new AbortController()
     apiFetchSafe<Track[]>("/api/music", { signal: controller.signal })
       .then(({ data }) => { if (data && Array.isArray(data) && data.length) setTracks(data) })
       .catch(() => {})
     return () => controller.abort()
-  }, [isSuperAdmin])
+  }, [])
 
   // 切换曲目时加载（使用 playingRef 避免将 playing 加入 deps 导致循环）
   const playingRef = useRef(playing)
