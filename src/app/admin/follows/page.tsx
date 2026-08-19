@@ -7,7 +7,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
-import { UserPlus } from "lucide-react"
+import { Repeat, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
@@ -51,6 +51,20 @@ export default async function AdminFollowsPage({
     prisma.follow.count({ where }),
   ])
 
+  // 互关检测：若存在反向记录（following 也关注了 follower），标记为互关
+  const reversePairs = follows.length
+    ? await prisma.follow.findMany({
+        where: {
+          OR: follows.map((f) => ({
+            followerId: f.followingId,
+            followingId: f.followerId,
+          })),
+        },
+        select: { followerId: true, followingId: true },
+      })
+    : []
+  const reverseSet = new Set(reversePairs.map((r) => `${r.followerId}:${r.followingId}`))
+
   const totalPages = Math.ceil(total / limit)
 
   return (
@@ -84,6 +98,12 @@ export default async function AdminFollowsPage({
                   <Link href={`/admin/users?q=${encodeURIComponent(follow.follower.username)}`} className="hover:underline">{follow.follower.username}</Link>
                   <span className="mx-2 text-muted-foreground">关注了</span>
                   <Link href={`/admin/users?q=${encodeURIComponent(follow.following.username)}`} className="hover:underline">{follow.following.username}</Link>
+                  {reverseSet.has(`${follow.followerId}:${follow.followingId}`) && (
+                    <Badge variant="secondary" size="sm" className="ml-2 align-middle">
+                      <Repeat className="mr-0.5 h-3 w-3" />
+                      互关
+                    </Badge>
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDateTime(follow.createdAt)}
