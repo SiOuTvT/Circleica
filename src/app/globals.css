@@ -591,7 +591,8 @@ main > * {
   /* 移动端 */
   @media (max-width: 767px) {
     body {
-      font-size: 15px;
+      font-size: 14px;
+      line-height: 1.6;
     }
   }
   
@@ -628,6 +629,22 @@ main > * {
     line-height: 1.5;
     font-weight: 500;
     font-size: 0.75rem;
+  }
+
+  /* 移动端标题收敛一档，减少「过大/简陋」感（桌面保持不变） */
+  @media (max-width: 767px) {
+    h1 {
+      font-size: 1.375rem;
+    }
+    h2 {
+      font-size: 1.125rem;
+    }
+    h3 {
+      font-size: 0.9375rem;
+    }
+    h4 {
+      font-size: 0.8125rem;
+    }
   }
   
   /* 段落增加呼吸感 */
