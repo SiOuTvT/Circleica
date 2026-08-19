@@ -80,6 +80,16 @@ const TYPE_CONFIG: Record<string, {
         : `${actor} 发布了新资源`,
     href: (_targetType, id) => `/games/${id}?tab=resource`,
   },
+  game_comment_new: {
+    icon: Bell,
+    text: (actor) => `${actor} 评论了你的游戏`,
+    href: (_targetType, id) => `/games/${id}?tab=comments`,
+  },
+  game_comment_like: {
+    icon: Bell,
+    text: (actor) => `${actor} 赞了你的评论`,
+    href: (_targetType, id) => `/games/${id}?tab=comments`,
+  },
 }
 
 export default function NotificationsClient({

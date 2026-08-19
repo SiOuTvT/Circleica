@@ -3,6 +3,7 @@
  */
 
 import { gameRepo } from "@/repositories/game"
+import { notificationRepo } from "@/repositories/user"
 import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
@@ -84,6 +85,21 @@ export const gameService = {
     if (content && content.length > 2000) throw new ValidationError("评论最多 2000 个字符")
     const comment = await gameRepo.createComment(userId, gameId, content?.trim() || "", imageUrl, parentId)
     checkAchievements(userId).catch(() => {})
+    // 通知游戏发布者（新评论）
+    prisma.game
+      .findUnique({ where: { id: gameId }, select: { publisherId: true } })
+      .then((game) => {
+        if (game?.publisherId) {
+          notificationRepo.create({
+            userId: game.publisherId,
+            actorId: userId,
+            type: "game_comment_new",
+            targetType: "game",
+            targetId: gameId,
+          }).catch(() => {})
+        }
+      })
+      .catch(() => {})
     return comment
   },
 

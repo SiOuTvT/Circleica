@@ -71,8 +71,8 @@ export default async function AdminGameResourcesPage({
         <div className="space-y-2">
           {resources.map((r) => {
             const downloadCount = r.entries.reduce((s, e) => s + e.downloadCount, 0)
-            const platforms: string[] = Array.isArray(r.platform) ? r.platform : []
-            const languages: string[] = Array.isArray(r.language) ? r.language : []
+            const platforms = Array.isArray(r.platform) ? (r.platform as string[]) : []
+            const languages = Array.isArray(r.language) ? (r.language as string[]) : []
             return (
               <Card
                 key={r.id}

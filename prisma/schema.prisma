@@ -35,6 +35,8 @@ enum NotificationTypeEnum {
   follow
   achievement_unlock
   private_message
+  game_comment_new
+  game_comment_like
 }
 
 enum NotificationTargetTypeEnum {
@@ -43,6 +45,7 @@ enum NotificationTargetTypeEnum {
   user
   achievement
   conversation
+  game
 }
 
 model User {

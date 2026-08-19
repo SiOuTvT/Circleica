@@ -73,7 +73,18 @@ export const forumService = {
   async toggleLike(userId: string, postId: string) {
     const post = await forumRepo.findPostById(postId)
     if (!post) throw new NotFoundError("帖子")
-    return forumRepo.togglePostLike(userId, postId)
+    const result = await forumRepo.togglePostLike(userId, postId)
+    // 新增点赞时通知帖子作者
+    if (result.liked && post.userId !== userId) {
+      notificationRepo.create({
+        userId: post.userId,
+        actorId: userId,
+        type: "forum_post_like",
+        targetType: "forum_post",
+        targetId: postId,
+      }).catch(() => {})
+    }
+    return result
   },
 
   async solve(userId: string, postId: string) {
@@ -136,6 +147,17 @@ export const forumService = {
   async toggleCommentLike(userId: string, commentId: string) {
     const comment = await forumRepo.findCommentById(commentId)
     if (!comment) throw new NotFoundError("评论")
-    return forumRepo.toggleCommentLike(userId, commentId)
+    const result = await forumRepo.toggleCommentLike(userId, commentId)
+    // 新增点赞时通知评论作者
+    if (result.liked && comment.userId !== userId) {
+      notificationRepo.create({
+        userId: comment.userId,
+        actorId: userId,
+        type: "forum_comment_like",
+        targetType: "forum_comment",
+        targetId: commentId,
+      }).catch(() => {})
+    }
+    return result
   },
 }

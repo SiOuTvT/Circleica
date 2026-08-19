@@ -488,7 +488,18 @@ export const commentService = {
   async toggleLike(userId: string, commentId: string) {
     const comment = await commentRepo.findById(commentId)
     if (!comment) throw new NotFoundError("评论")
-    return commentRepo.toggleLike(userId, commentId)
+    const result = await commentRepo.toggleLike(userId, commentId)
+    // 新增点赞时通知评论作者
+    if (result.liked && comment.userId !== userId) {
+      notificationRepo.create({
+        userId: comment.userId,
+        actorId: userId,
+        type: "game_comment_like",
+        targetType: "game",
+        targetId: comment.gameId,
+      }).catch(() => {})
+    }
+    return result
   },
 }
 
