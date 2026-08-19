@@ -9,7 +9,7 @@ import Image from "next/image"
 import {
   ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
   Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Sun, Tag, UserPlus, Users, X, CopyCheck,
+  PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Star, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -48,6 +48,7 @@ const navGroups: NavGroup[] = [
       { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN", site: "circleica" },
       { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN", site: "circleica" },
       { icon: Music, label: "音乐", href: "/admin/music", minRole: "ADMIN", site: "circleica" },
+      { icon: Download, label: "游戏资源", href: "/admin/game-resources", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {
@@ -58,6 +59,7 @@ const navGroups: NavGroup[] = [
       { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN", site: "circleica" },
       { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN", site: "circleica" },
       { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN", site: "circleica" },
+      { icon: Star, label: "评分数据", href: "/admin/ratings", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {

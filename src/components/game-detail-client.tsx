@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
 import { GameInfoList } from "./game-detail/game-info-list"
+import { GameRating } from "./game-rating"
 import { ReportDialog } from "./game-detail/report-dialog"
 
 /** 资源 Tab — 懒加载 */
@@ -358,6 +359,10 @@ export default function GameDetailClient({
               isOpen={mobileArchiveOpen}
               onToggle={() => setMobileArchiveOpen(v => !v)}
             />
+            {/* 评分 — 移动端 */}
+            <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border">
+              <GameRating gameId={gameId} />
+            </div>
           </div>
         )}
 
@@ -381,6 +386,11 @@ export default function GameDetailClient({
               gameTags,
             }}
           />
+
+          {/* 评分 — 桌面端 */}
+          <div className="mt-4 border-t border-border/70 pt-4">
+            <GameRating gameId={gameId} />
+          </div>
         </div>
       </div>
 

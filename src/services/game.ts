@@ -69,6 +69,10 @@ export const gameService = {
     return gameRepo.getRating(userId, gameId)
   },
 
+  getRatingStats(gameId: string) {
+    return gameRepo.getRatingStats(gameId)
+  },
+
   // ── 评论 ────────────────────────────
 
   getComments(gameId: string, page: number, limit: number) {
