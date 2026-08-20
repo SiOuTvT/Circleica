@@ -150,7 +150,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>
                 <EmailVerificationBanner />
-                <div className="space-y-3 sm:space-y-7">
+                <div className="space-y-2 sm:space-y-4">
                   <Breadcrumb />
                   {children}
                 </div>

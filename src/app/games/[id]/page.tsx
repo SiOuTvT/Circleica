@@ -364,7 +364,7 @@ export default async function GameDetailPage({
               content: c.content,
               imageUrl: c.imageUrl,
               likeCount: c.likeCount,
-              createdAt: c.createdAt.toISOString(),
+              createdAt: typeof c.createdAt === 'string' ? c.createdAt : c.createdAt.toISOString(),
               user: c.user,
             }))}
             gameId={resolved.id}

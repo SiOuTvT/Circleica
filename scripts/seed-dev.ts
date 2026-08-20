@@ -9,8 +9,14 @@
  * 幂等：重复执行不会重复建（按 vndbId / username 判重）。
  * 用法：npm run seed
  */
-import { realPrisma as prisma } from "@/lib/prisma"
+import { PrismaClient } from "../src/generated/prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 import bcrypt from "bcryptjs"
+import "dotenv/config"
+
+// 直接构建 PrismaClient，绕过 @/lib/prisma 的 globalThis 缓存（seed 脚本独立进程）
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
 
 
 
@@ -50,7 +56,9 @@ async function run() {
     select: {
       id: true, title: true, description: true, coverImage: true, releaseDate: true,
       platforms: true, originalLanguage: true, slug: true,
+      studioName: true,
       tags: { take: 3, select: { tag: { select: { name: true, color: true, id: true } } } },
+      creators: { select: { creatorId: true, role: true, creator: { select: { name: true, nameJa: true, vndbId: true } } } },
     },
   })
   console.log("[seed] Work 候选:", works.length)
@@ -86,6 +94,44 @@ async function run() {
       })
       createdGames++
       console.log("[seed] 派生 Game:", game.title)
+    }
+
+    // 关联创作者（从 Work creators 复制到 Game，源=circleica）
+    if (w.creators.length) {
+      for (const wc of w.creators) {
+        const creator = wc.creator
+        if (!creator?.name) continue
+        let circleicaCreator = await prisma.creator.findFirst({
+          where: { name: creator.name, source: "circleica" },
+        })
+        if (!circleicaCreator) {
+          try {
+            circleicaCreator = await prisma.creator.create({
+              data: {
+                name: creator.name,
+                nameJa: creator.nameJa || "",
+                vndbId: creator.vndbId || "",
+                source: "circleica",
+                slug: creator.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+              },
+            })
+          } catch (e: any) {
+            if (e?.code === "P2002") {
+              circleicaCreator = await prisma.creator.findFirst({ where: { name: creator.name, source: "circleica" } })
+            } else throw e
+          }
+        }
+        if (circleicaCreator) {
+          const exists = await prisma.gameCreator.findUnique({
+            where: { gameId_creatorId: { gameId: game.id, creatorId: circleicaCreator.id } },
+          }).catch(() => null)
+          if (!exists) {
+            await prisma.gameCreator.create({
+              data: { gameId: game.id, creatorId: circleicaCreator.id, role: wc.role || "other" },
+            }).catch(() => {})
+          }
+        }
+      }
     }
 
     // 关联标签（从 Work 的 tag 里复用/新建；name 全局唯一，复用不限 source）
