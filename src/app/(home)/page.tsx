@@ -60,9 +60,9 @@ export const revalidate = 60
  */
 function AnnounceSlot() {
   return (
-    <div className="announce-slot relative flex w-full h-[200px] sm:h-[220px] lg:h-[310px] flex-col items-center justify-center gap-2.5 overflow-hidden rounded-2xl">
-      <Megaphone className="announce-slot-mark h-8 w-8" strokeWidth={1} aria-hidden="true" />
-      <p className="announce-slot-text text-sm">暂无公告</p>
+    <div className="announce-slot relative flex w-full h-[140px] sm:h-[180px] lg:h-[310px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
+      <Megaphone className="announce-slot-mark h-7 w-7" strokeWidth={1} aria-hidden="true" />
+      <p className="announce-slot-text text-xs">暂无公告</p>
     </div>
   )
 }
@@ -147,7 +147,13 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
     gridData = { games: [], total: 0 }
   }
 
-  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} page={page} sort={sort} view={view} />
+  // ── P0：精选游戏 Hero（手机端首屏视觉锚点）────────────────────
+  // 取网格第一张游戏作为精选（已由上方缓存命中或查询返回，无额外 DB 压力）。
+  // 仅在无公告时显示；有公告时公告轮播占据 Hero 位置。
+  const featuredGame = gridData.games.length > 0 ? gridData.games[0] : null
+  // ── P0 结束 ─────────────────────────────────────────────
+
+  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} page={page} sort={sort} view={view} featuredGame={featuredGame} />
 }
 
 export default async function HomePage({
@@ -252,7 +258,7 @@ export default async function HomePage({
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
           {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
-          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
+          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[260px] flex-col brand-card-bg">
             <div className="flex flex-col flex-1 px-6 py-8 justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">视觉小说资源站</p>
