@@ -3,6 +3,7 @@
 import { GameCard, GameListRow, GameListRowSlot, GameCardSlot, type GameCardData } from "@/components/game-card"
 import { ResultToolbar } from "@/components/result-toolbar"
 import { Pagination } from "@/components/ui/pagination"
+import { FeaturedGameHero } from "@/components/featured-game-hero"
 
 interface Props {
   initialGames: GameCardData[]
@@ -12,6 +13,8 @@ interface Props {
   page: number
   sort?: string
   view?: "grid" | "list"
+  /** P0：精选游戏（手机端 Hero 用） */
+  featuredGame?: GameCardData | null
 }
 
 const GAMES_PER_PAGE = 24
@@ -21,7 +24,7 @@ const GAMES_PER_PAGE = 24
 // 仅在第 1 页生效；分页（total>24）或内容充足（>=12）时不补占位。
 const PLACEHOLDER_SLOTS = 12
 
-export function GameGridClient({ initialGames, total, tag, q, page, sort = "newest", view = "grid" }: Props) {
+export function GameGridClient({ initialGames, total, tag, q, page, sort = "newest", view = "grid", featuredGame }: Props) {
   const totalPages = Math.ceil(total / GAMES_PER_PAGE)
   const isSearch = tag && tag !== "全部"
   const basePath = isSearch ? "/search" : "/"
@@ -53,6 +56,8 @@ export function GameGridClient({ initialGames, total, tag, q, page, sort = "newe
         />
       )}
       <div className="mt-4">
+        {/* P0：手机端精选 Hero — 在网格前展示一个游戏，解决首屏空洞 */}
+        {featuredGame && <FeaturedGameHero game={featuredGame} />}
         {view === "list" ? (
           <div className="flex flex-col gap-2">
             {initialGames.map((game) => (

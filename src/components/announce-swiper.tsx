@@ -63,7 +63,7 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
 
   return (
     <div
-      className="relative w-full h-[200px] sm:h-[220px] lg:h-[310px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="relative w-full h-[140px] sm:h-[180px] lg:h-[310px] overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

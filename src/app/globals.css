@@ -1381,6 +1381,13 @@ a[href]:active {
   color: var(--muted-foreground);
 }
 
+/* P1：移动端统计文字微调 — 12→12.5px 提升可读性，图标-文字间距收紧 */
+@media (max-width: 639px) {
+  .game-card-stat {
+    font-size: 12.5px;
+  }
+}
+
 .light .game-card-title {
   color: #111111;
 }
@@ -1398,11 +1405,11 @@ a[href]:active {
 
 .game-card-spacer {
   flex: 1 1 0%;
-  min-height: 12px; /* token: sp-3 */
+  min-height: 6px; /* P1：收紧弹性间距，减少卡片内部空洞感 */
 }
 @media (min-width: 640px) {
   .game-card-spacer {
-    min-height: 12px;
+    min-height: 8px;
   }
 }
 
@@ -1411,16 +1418,16 @@ a[href]:active {
   background-color: var(--primary-soft);
   color: var(--primary);
   border: 1px solid var(--primary-border);
-  padding: 5px 10px;
-  font-size: 13px;
+  padding: 4px 9px;
+  font-size: 12px;
   font-weight: 500;
   transition: background-color var(--duration-normal);
 }
 @media (max-width: 639px) {
   .game-card-tag {
-    padding: 3px 7px;
+    padding: 2px 6px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 .game-card-tag:hover {
