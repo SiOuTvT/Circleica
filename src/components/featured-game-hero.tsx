@@ -15,15 +15,13 @@ interface FeaturedGameHeroProps {
  * 布局：左封面 + 右信息（移动端上下堆叠）。
  * 封面 16:10，信息区包含标题、标签、描述片段和进入按钮。
  */
-export function FeaturedGameHero({ game, description }: FeaturedGameHeroProps) {
+export function FeaturedGameHero({ game, description: _description }: FeaturedGameHeroProps) {
   const href = `/games/${game.serialId ?? game.id}`
   const tags = (game.resourceTags ?? [])
     .map((t) => (typeof t === "string" ? { name: t } : t))
     .slice(0, 2)
 
-  const descSnippet = description
-    ? description.replace(/<[^>]+>/g, "").slice(0, 60)
-    : ""
+  // description 字段预留；当前 GameCardData 不含此字段，hero 先展示封面+标题+标签
 
   return (
     <Link
@@ -60,12 +58,6 @@ export function FeaturedGameHero({ game, description }: FeaturedGameHeroProps) {
           <h2 className="text-[15px] font-semibold leading-snug text-foreground line-clamp-2">
             {game.title}
           </h2>
-
-          {descSnippet && (
-            <p className="line-clamp-1 text-xs text-muted-foreground leading-relaxed">
-              {descSnippet}
-            </p>
-          )}
 
           {tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
