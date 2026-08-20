@@ -6,6 +6,7 @@ import { GameCardData } from "@/components/game-card"
 
 interface FeaturedGameHeroProps {
   game: GameCardData
+  description?: string
 }
 
 /**
@@ -14,16 +15,15 @@ interface FeaturedGameHeroProps {
  * 布局：左封面 + 右信息（移动端上下堆叠）。
  * 封面 16:10，信息区包含标题、标签、描述片段和进入按钮。
  */
-export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
+export function FeaturedGameHero({ game, description }: FeaturedGameHeroProps) {
   const href = `/games/${game.serialId ?? game.id}`
   const tags = (game.resourceTags ?? [])
     .map((t) => (typeof t === "string" ? { name: t } : t))
     .slice(0, 2)
 
-  const descSnippet =
-    game.description && typeof game.description === "string"
-      ? game.description.replace(/<[^>]+>/g, "").slice(0, 60)
-      : ""
+  const descSnippet = description
+    ? description.replace(/<[^>]+>/g, "").slice(0, 60)
+    : ""
 
   return (
     <Link
