@@ -3,6 +3,7 @@ import { GameCardSlot } from "@/components/game-card"
 import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
 import { GameGridClient } from "@/components/game-grid-client"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
+import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
@@ -308,20 +309,24 @@ export default async function HomePage({
 
       {/* 游戏网格 */}
       <section>
-          <div className="mb-4 sm:mb-5">
-            <div className="flex items-end justify-between border-b border-border pb-3">
-              <div>
-                <p className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">资源大厅</p>
-                <h2 className="text-lg font-semibold tracking-wide text-foreground">
-                  {q ? `「${q}」的搜索结果` : activeTag === "全部" ? "最新资源" : `# ${activeTag}`}
-                </h2>
-              </div>
-            </div>
-          </div>
         <Suspense fallback={<GameGridSlots />}>
           <GameGridServer tag={activeTag} q={q} mode={nsfwMode} sort={sort} view={view} page={page} />
         </Suspense>
       </section>
+
+      {/* 查看全部最新资源 */}
+      <div className="flex justify-center pt-2 pb-4">
+        <Link
+          href="/games"
+          className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
+        >
+          查看全部最新资源
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M5 12h14" />
+            <path d="M12 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
 
     </div>
   )

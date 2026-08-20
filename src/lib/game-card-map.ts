@@ -23,9 +23,10 @@ const CARD_TAG_COLOR = "#6b7280"
 
 /**
  * 将 Prisma Game（含 tags/resources）映射为 GameCard 所需的 GameCardData。
- * 资源标签来自 resources 的 language / runType / resourceContent 去重合并。
+ * 首页卡片标签只取「平台 + 语言」，不取运行方式 / 资源内容。
+ * 运行方式属于平台维度内部信息，详情页完整展示。
  *
- * opts.resourceTagColor：资源标签统一颜色（默认 CARD_TAG_COLOR 灰；卡片实际以
+ * opts.resourceTagColor：标签统一颜色（默认 CARD_TAG_COLOR 灰；卡片实际以
  * .game-card-tag 的 CSS 主题色渲染，此字段仅作兼容）。
  * opts.coverFallback：封面为空时的回退图（如站点占位图），默认空串。
  */
@@ -50,8 +51,7 @@ export function mapGameToCard(
 ): GameCardData {
   const resourceTagColor = opts?.resourceTagColor ?? CARD_TAG_COLOR
   const downloadLinks = Array.isArray(g.downloadLinks) ? g.downloadLinks : []
-  // 解析资源标签字段：兼容「数组」与「JSON 字符串」（历史存 JSON.stringify 的字段）。
-  // 注意：此链路不走 repository 层反序列化（GAME_CARD_SELECT 直接查 Prisma），必须在此自行解析。
+  // 解析字段：兼容「数组」与「JSON 字符串」（历史存 JSON.stringify 的字段）。
   const parseTags = (field: unknown): string[] => {
     if (Array.isArray(field)) return field.filter((x): x is string => typeof x === "string")
     if (typeof field !== "string" || field.trim() === "") return []
@@ -62,23 +62,28 @@ export function mapGameToCard(
       return []
     }
   }
-  // 收集资源标签 = 平台 / 语言 / 运行方式 / 资源内容（首页卡片标签组内容，含平台）。
-  // 全部按名称去重，颜色统一用 resourceTagColor（各页面传对应标签组色）。
+  // 首页卡片标签 = 平台 + 语言（只取这两类，不取运行方式 / 资源内容）。
   const seen = new Set<string>()
   const resourceTags: { name: string; color: string }[] = []
   for (const r of g.resources ?? []) {
-    for (const key of ["platform", "language", "runType", "resourceContent"] as const) {
-      try {
-        for (const name of parseTags(r[key])) {
-          if (!seen.has(name)) {
-            seen.add(name)
-            resourceTags.push({ name, color: resourceTagColor })
-          }
+    // 先取平台
+    try {
+      for (const name of parseTags(r.platform)) {
+        if (!seen.has(name)) {
+          seen.add(name)
+          resourceTags.push({ name, color: resourceTagColor })
         }
-      } catch {
-        /* 单个资源解析失败不影响整体 */
       }
-    }
+    } catch { /* 单条解析失败不影响整体 */ }
+    // 再取语言
+    try {
+      for (const name of parseTags(r.language)) {
+        if (!seen.has(name)) {
+          seen.add(name)
+          resourceTags.push({ name, color: resourceTagColor })
+        }
+      }
+    } catch { /* 单条解析失败不影响整体 */ }
   }
   return {
     id: g.id,
