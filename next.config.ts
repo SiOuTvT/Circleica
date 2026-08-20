@@ -118,9 +118,9 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: false },
   reactStrictMode: true,
   // 允许手机通过局域网 IP 访问 dev server。注意：Next.js 的 allowedDevOrigins 不支持 IP 通配
-  // （"192.168.*" 对 IP 不生效，只对域名子域生效），必须写具体 IP。当前电脑局域网 IP 为 192.168.5.37。
+  // （"192.168.*" 对 IP 不生效，只对域名子域生效），必须写具体 IP。当前电脑局域网 IP 为 192.168.5.12。
   // 若路由器重新分配了 IP（DHCP），需同步更新这里的地址。
-  allowedDevOrigins: ["192.168.5.37", "localhost", "127.0.0.1", "10.*"],
+  allowedDevOrigins: ["192.168.5.12", "localhost", "127.0.0.1", "10.*"],
 
   // ⚠️ 退出 Turbopack，改用 Webpack：Next.js 16 的 Turbopack 在 Windows 上有已知 bug
   // —— dev 时会在项目根目录生成 nul 空文件、并偶发 panic 导致页面停在旧缓存(用户 2026-07-30 踩坑)。
@@ -134,6 +134,20 @@ const nextConfig: NextConfig = {
         ...config.resolve.alias,
         "isomorphic-dompurify": "dompurify",
       }
+      // 客户端 bundle 绝不引入 OTel / grpc 等 Node 专属依赖；若构建期误解析到
+      // stream / worker_threads，直接置 false 跳过（客户端本就不使用，无运行时影响）。
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        stream: false,
+        worker_threads: false,
+      }
+    } else {
+      // 服务端构建（含 instrumentation 编译）会把 OTel 链（grpc-js / gcp-metadata 等）打包进来，
+      // 这些依赖会 require 大量 Node 核心模块（stream / fs / crypto / net / tls / http / os / path / zlib …）。
+      // 该编译默认未开启 node 外部化，导致 "Can't resolve 'stream'/'fs'/…" 并使整页 500。
+      // 显式开启 externalsPresets.node，让 webpack 把所有 Node 内置模块外部化、交由 Node 运行时
+      // 真实提供（生产启用 OTel 时 grpc-js 也能拿到真正的核心模块，不会因 stub 成空而崩溃）。
+      config.externalsPresets = { ...(config.externalsPresets || {}), node: true }
     }
     // 本站使用自建 logger 而非 winston。@opentelemetry/auto-instrumentations-node 在加载期
     // 会静态 require @opentelemetry/instrumentation-winston，后者又静态 import 可选的

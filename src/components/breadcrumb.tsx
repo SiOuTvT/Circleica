@@ -220,7 +220,7 @@ export function Breadcrumb() {
     ]
     if (allCrumbs.length === 0) return null
     return (
-      <nav className="my-2 sm:my-7 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
+      <nav className="mt-3 sm:mt-7 mb-0 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
           className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
@@ -310,7 +310,7 @@ export function Breadcrumb() {
   if (allCrumbs.length === 0) return null
 
   return (
-    <nav className="my-3 sm:my-7 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
+    <nav className="mt-3 sm:mt-7 mb-0 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
         className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"

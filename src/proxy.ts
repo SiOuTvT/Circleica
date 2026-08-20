@@ -17,7 +17,11 @@ import { logger } from "@/lib/logger"
 // CSP（每请求生成 nonce）。
 // nonce 通过 x-nonce 请求头透传给 Server Component，由根 layout 读取并应用到自管
 // 内联脚本（ThemeScript）；Next 会据此为自身注入的 framework / RSC-flight 内联脚本
-// 自动补上「同一个」nonce 属性，故 strict-dynamic 下脚本全部放行、不再白屏。
+// 自动补上「同一个」nonce 属性。内联脚本籍此放行。
+//
+// 重要：Next.js 不会为外部 chunk（/_next/static/chunks/*.js）补 nonce。因此 script-src
+// 必须保留 'self' 以放行同源外部 chunk，绝不能加 'strict-dynamic'（它会令 'self' 失效、
+// 导致 chunk 被拦、页面无法水合）。详见下方 buildCSP 注释。
 //
 // 关键前提（此前白屏的真正根因）：根 layout 必须读取 headers() 使全站 dynamic。
 // 若页面被静态/ISR 缓存，HTML 里的 nonce 是构建期/上一次请求的固定值，与响应头
@@ -40,11 +44,14 @@ function buildCSP(nonce: string): string {
   ]
   // 生产环境严禁 eval：eval 是 XSS 利用者执行恶意脚本的主要通道，
   // 移除后即便有注入点也难以落地。开发环境保留 eval 以兼容 Next 的 HMR/dev overlay。
-  // 'strict-dynamic'：被 nonce 脚本加载的后续脚本（含 Next 自身 chunk、Sentry 等）
-  // 自动放行，无需逐个白名单；'self' / 'unsafe-inline' 在 strict-dynamic 下被忽略。
+  // 不使用 'strict-dynamic'：Next.js 仅为内联 framework / RSC-flight 脚本自动补 nonce，
+  // 外部 chunk（/_next/static/chunks/*.js）不以 nonce 加载。若带 'strict-dynamic'，
+  // 'self' / 'unsafe-inline' 会整体失效 → 这些同源 chunk 被 CSP 拦截 → 页面无法水合、
+  // 全站按钮/表单/菜单失去交互（白屏）。故保留 'self' 放行同源脚本，内联脚本仍由
+  // 'nonce-…' 守护；不出现 'unsafe-inline'，注入的内联脚本仍被拦，XSS 防护不降级。
   const scriptSrc = isDev
-    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`
-    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
+    ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
+    : `script-src 'self' 'nonce-${nonce}'`
   const directives = [
     `default-src 'self'`,
     scriptSrc,
@@ -194,11 +201,12 @@ export async function proxy(req: NextRequest) {
   }
 
   // ── CSP nonce 生成 + 透传 ──
-  // 1) 生成每请求 nonce，写入响应头 Content-Security-Policy（script-src 'nonce-…' 'strict-dynamic'）。
+  // 1) 生成每请求 nonce，写入响应头 Content-Security-Policy（script-src 'self' 'nonce-…'）。
   // 2) 同一 nonce 同时写进「请求头」x-nonce，并通过 NextResponse.next({ request:{ headers } })
   //    透传给 Server Component：根 layout 用 headers().get('x-nonce') 读取并应用到自管内联脚本，
-  //    Next 也会据此为自身注入的 framework / RSC-flight 内联脚本自动补相同 nonce。
-  //    二者同源 → strict-dynamic 下脚本全部放行，不再白屏。
+  //    Next 也会据此为自身注入的 framework / RSC-flight 内联脚本自动补相同 nonce → 内联脚本放行。
+  // 3) 外部 chunk（/_next/static/chunks/*.js）由 'self' 放行：Next 不会为它们补 nonce，
+  //    故绝不能加 'strict-dynamic'（它会令 'self' 失效、chunk 被拦、页面无法水合、全站交互失灵）。
   let res: NextResponse
 
   if (isPageRoute) {

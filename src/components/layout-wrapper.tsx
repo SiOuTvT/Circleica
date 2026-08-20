@@ -146,11 +146,11 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
           >
             <div className="flex-1 px-3 sm:px-4 pb-8">
               <div className="mx-auto max-w-[1140px]">
-                <div className="sticky top-0 z-30">
+                <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>
                 <EmailVerificationBanner />
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-3 sm:space-y-7">
                   <Breadcrumb />
                   {children}
                 </div>
@@ -190,7 +190,8 @@ function BackToTop() {
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm ring-1 ring-border text-muted-foreground transition-all hover:text-foreground hover:ring-foreground/20 shadow-2"
+      className="fixed right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-card/80 backdrop-blur-sm ring-1 ring-border text-muted-foreground transition-all hover:text-foreground hover:ring-foreground/20 shadow-2"
+      style={{ bottom: "calc(6rem + env(safe-area-inset-bottom, 0px))" }}
       aria-label="回到顶部"
     >
       <ChevronUp className="h-5 w-5" strokeWidth={2} />

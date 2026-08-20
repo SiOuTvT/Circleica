@@ -92,6 +92,40 @@ main > * {
   }
 }
 
+/* ═══ 移动端触控与视口基线（权威方案落地 · 详见 docs/MOBILE_DESIGN_SYSTEM.md） ═══
+   权威依据：
+   · Apple HIG — 控件最小命中区 44×44 pt
+   · Material Design 3 — 触摸目标 48×48 dp，8dp 间距栅格
+   · WCAG 2.2 SC 2.5.8（AA）24×24px / SC 2.5.5（AAA）44×44px
+   · CSS 动态视口 dvh/svh/lvh + env(safe-area-inset-*)（刘海 / Home 指示条 / 圆角） */
+@media (hover: none) and (pointer: coarse) {
+  /* ① 触控设备：可交互控件最小命中区 44×44，专治「点了没反应 / 点不动」 */
+  button:not(.no-tap-expand),
+  [role="button"]:not(.no-tap-expand),
+  [role="tab"]:not(.no-tap-expand),
+  [role="menuitem"]:not(.no-tap-expand),
+  [role="link"]:not(.no-tap-expand),
+  summary:not(.no-tap-expand),
+  select:not(.no-tap-expand),
+  label:has(input):not(.no-tap-expand) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ② 安全区工具类（刘海屏 / Home 指示条 / 设备圆角，避免元素被系统 UI 遮挡而点不到） */
+.safe-top    { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* ③ 动态视口工具类（替代写死的 100vh，避免移动端地址栏伸缩导致布局跳动） */
+.min-h-dvh { min-height: 100vh; min-height: 100dvh; }
+.h-dvh      { height: 100vh; height: 100dvh; }
+.min-h-svh  { min-height: 100vh; min-height: 100svh; }
+
 /* 手机端统一 padding 保护 */
 @media (max-width: 639px) {
   /* 确保所有表格不溢出 */
@@ -591,7 +625,7 @@ main > * {
   /* 移动端 */
   @media (max-width: 767px) {
     body {
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.6;
     }
   }

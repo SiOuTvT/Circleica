@@ -198,7 +198,14 @@ scratch/
 # ============================================================
 audit_screenshots/
 .pw-browsers/
+# Playwright 下载浏览器时误建的「尾部带空格」目录（.pw-browsers + 空格），
+# 需显式转义空格才能被 git 识别忽略，否则 IDE 面板会展开显示其下数百个二进制文件
+.pw-browsers\ /
 audit_*.json
 audit_*.txt
 audit_*.out
 audit_*.err
+
+# agent 调试临时产物（验证脚本/截图/日志，物理文件保留在磁盘但禁止提交）
+scripts/_tmp_*
+scripts/_trace_archive/

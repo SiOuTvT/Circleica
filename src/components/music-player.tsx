@@ -87,7 +87,7 @@ export function MusicPlayer() {
         "ring-1 ring-border",
         "bg-card/95",
         "shadow-4 backdrop-blur-xl transition-all duration-300",
-        expanded ? "w-64" : "w-12"
+        expanded ? "w-64" : "w-14"
       )} style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>
         {/* 进度条 */}
         {expanded && (
@@ -98,7 +98,7 @@ export function MusicPlayer() {
           </div>
         )}
 
-        <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center gap-2 p-1.5">
           {/* 音乐图标按钮（收起时点击展开） */}
           <button
             onClick={() => setExpanded(v => !v)}
