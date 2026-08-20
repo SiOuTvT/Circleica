@@ -60,7 +60,7 @@ export const revalidate = 60
  */
 function AnnounceSlot() {
   return (
-    <div className="announce-slot relative flex w-full h-[140px] sm:h-[180px] lg:h-[260px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
+    <div className="announce-slot relative flex w-full h-[140px] sm:h-[180px] lg:h-[310px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
       <Megaphone className="announce-slot-mark h-7 w-7" strokeWidth={1} aria-hidden="true" />
       <p className="announce-slot-text text-xs">暂无公告</p>
     </div>
@@ -258,36 +258,33 @@ export default async function HomePage({
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
           {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
-          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[280px] flex-col brand-card-bg">
-            <div className="flex flex-col flex-1 px-6 py-6">
-              {/* 上部：眉标 + 标题 + 描述 */}
-              <div className="flex-shrink-0">
+          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
+            <div className="flex flex-col flex-1 px-6 py-8 justify-between">
+              <div>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">视觉小说资源站</p>
                 <h2 className="mt-3 text-[32px] font-semibold tracking-tight leading-tight text-foreground">{siteName}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-prose">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
               </div>
-              {/* 中部：统计行 — flex-1 撑开，内容垂直居中 */}
-              <div className="flex-1 flex items-center min-h-0">
-                <div className="grid grid-cols-3 divide-x divide-border w-full">
-                  <div className="flex flex-col items-center gap-1.5 py-2" title="已发布的游戏总数">
-                    <Gamepad2 className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                    <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
-                    <p className="text-xs text-muted-foreground text-center">游戏总数</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 pl-6 py-2" title="近 7 天新上架的游戏">
-                    <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                    <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
-                    <p className="text-xs text-muted-foreground text-center">本周新增</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 pl-6 py-2" title="今日新增的签到次数">
-                    <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                    <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
-                    <p className="text-xs text-muted-foreground text-center">今日签到</p>
-                  </div>
+              {/* 统计行 */}
+              <div className="grid grid-cols-3 divide-x divide-border">
+                <div className="flex flex-col gap-2.5" title="已发布的游戏总数">
+                  <Gamepad2 className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
+                  <p className="text-sm text-muted-foreground">游戏总数</p>
+                </div>
+                <div className="flex flex-col gap-2.5 pl-6" title="近 7 天新上架的游戏">
+                  <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
+                  <p className="text-sm text-muted-foreground">本周新增游戏</p>
+                </div>
+                <div className="flex flex-col gap-2.5 pl-6" title="今日新增的签到次数">
+                  <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
+                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
+                  <p className="text-sm text-muted-foreground">今日签到</p>
                 </div>
               </div>
-              {/* 下部：按钮行 — 紧贴底部 */}
-              <div className="flex-shrink-0 flex gap-2 pt-2">
+              {/* 按钮行 */}
+              <div className="flex gap-2">
                 <RandomCreatorBtn />
                 <RandomCharacterBtn />
               </div>
