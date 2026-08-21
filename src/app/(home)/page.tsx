@@ -1,7 +1,6 @@
 import { GameCard, GameCardSlot } from "@/components/game-card"
-import { Megaphone } from "lucide-react"
 import { Suspense } from "react"
-import { HomeAnnounceBar, buildActivities, type ActivityItem } from "@/components/home-announce-bar"
+import { HomeAnnounceBar, buildActivities, type ActivityItem, type StatItem } from "@/components/home-announce-bar"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"

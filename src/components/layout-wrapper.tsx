@@ -1,6 +1,5 @@
 "use client"
 
-import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbProvider } from "@/components/breadcrumb-context"
 import { SiteFooter } from "@/components/site-footer"
 import { TopNav } from "@/components/top-nav"
@@ -151,7 +150,6 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
                 </div>
                 <EmailVerificationBanner />
                 <div className="space-y-2 sm:space-y-4">
-                  <Breadcrumb />
                   {children}
                 </div>
               </div>
