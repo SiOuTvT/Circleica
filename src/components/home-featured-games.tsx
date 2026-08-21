@@ -14,28 +14,29 @@ interface HomeFeaturedGamesProps {
   games: GameCardData[]
 }
 
-/** 5-panel layout using percentages for true full-width responsiveness.
- *  Panel widths add up to ~100% with intentional asymmetric gaps.
- *  Diagonal edges are created with clip-path on alternating panels. */
+/** Percentage-based 5-panel layout for full-width responsiveness.
+ *  Panels overlap slightly, creating a continuous visual composition.
+ *  Odd-numbered panels get diagonal right edges via clip-path. */
 const PANEL_POSITIONS = [
-  { left: "0%",   width: "20%" },   // A
-  { left: "17%",  width: "19%" },   // B — slightly overlaps A
-  { left: "34%",  width: "26%" },   // C — wider center
-  { left: "58%",  width: "19%" },   // D — slightly overlaps C
-  { left: "75%",  width: "25%" },   // E — wide right anchor
+  { left: "0%",   width: "22%" },   // A — left anchor, widest
+  { left: "18%",  width: "18%" },   // B — overlaps A
+  { left: "34%",  width: "28%" },   // C — center, widest panel
+  { left: "60%",  width: "18%" },   // D — overlaps C
+  { left: "76%",  width: "24%" },   // E — right anchor
 ]
+
+const HUES = [240, 265, 185, 38, 0]
 
 export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const featured: FeaturedGame[] = games.slice(0, 5).map((g, i) => {
-    const hues = [240, 260, 180, 38, 0]
-    const hue = hues[i % hues.length]
+    const hue = HUES[i % HUES.length]
     return {
       ...g,
-      gradientFrom: `linear-gradient(to top, hsla(${hue}, 70%, 40%, 0.85), hsla(${hue}, 60%, 30%, 0.3) 40%, transparent 75%)`,
-      gradientTo: `hsla(${hue}, 50%, 20%, 0.15)`,
+      gradientFrom: `linear-gradient(to top, hsla(${hue}, 70%, 35%, 0.9), hsla(${hue}, 50%, 25%, 0.4) 35%, transparent 70%)`,
+      gradientTo: `hsla(${hue}, 40%, 15%, 0.2)`,
     }
   })
 
@@ -61,31 +62,32 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
       className="w-full select-none"
       onKeyDown={handleKeyNav}
     >
-      {/* Section label */}
-      <div className="flex items-center gap-2 mb-2 px-1">
-        <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40 flex-shrink-0">
+      {/* Section label — thin line separators */}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="h-px flex-1 bg-border/60" />
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/35 flex-shrink-0">
           Featured
         </p>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-border" />
+        <span className="h-px flex-1 bg-border/60" />
       </div>
 
       {/* Panels — full width, tall, continuous visual */}
       <div
         className="relative w-full overflow-hidden"
         style={{
-          height: "clamp(260px, 36vh, 440px)",
+          height: "clamp(280px, 42vh, 480px)",
         }}
       >
-        {/* Subtle background base */}
-        <div className="absolute inset-0 bg-muted/30" />
+        {/* Base dark fill */}
+        <div className="absolute inset-0 bg-muted/40" />
 
         {featured.map((game, i) => {
           const pos = PANEL_POSITIONS[i]
           const isHovered = hoveredIdx === i
-          // Create diagonal edge on right side of odd panels
-          const clipRight = i < featured.length - 1 && i % 2 === 1
-            ? "polygon(0 0, 88% 0, 100% 8%, 88% 100%, 0 100%)"
+
+          // Diagonal right edge on panels 1 and 3 (even indices in 0-based)
+          const clipRight = i < featured.length - 1
+            ? "polygon(0 0, 90% 0, 100% 6%, 90% 100%, 0 100%)"
             : undefined
 
           return (
@@ -98,7 +100,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                 left: pos.left,
                 width: pos.width,
                 zIndex: isHovered ? 10 : 1,
-                transform: isHovered ? "scale(1.02)" : "scale(1)",
+                transform: isHovered ? "scale(1.025)" : "scale(1)",
                 transformOrigin: "center center",
                 clipPath: clipRight,
               }}
@@ -117,10 +119,10 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                   quality={80}
                 />
               ) : (
-                <div className="absolute inset-0 bg-muted" />
+                <div className="absolute inset-0 bg-muted/50" />
               )}
 
-              {/* Gradient overlay — always visible, stronger on hover */}
+              {/* Gradient overlay */}
               <div
                 className="absolute inset-0 transition-opacity duration-300"
                 style={{
@@ -129,12 +131,12 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                 }}
               />
 
-              {/* Hover brighten */}
-              <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.06]" />
+              {/* Subtle hover brighten */}
+              <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.05]" />
 
-              {/* Title — always visible, never hidden */}
-              <div className="absolute inset-x-0 bottom-0 z-[2] p-3 sm:p-4">
-                <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.02]">
+              {/* Game title — always visible */}
+              <div className="absolute inset-x-0 bottom-0 z-[2] p-3 sm:p-5">
+                <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 drop-shadow-md transition-transform duration-300 group-hover:scale-[1.02]">
                   {game.title}
                 </h3>
               </div>
@@ -142,27 +144,27 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           )
         })}
 
-        {/* Diagonal accent dividers between panels */}
+        {/* Diagonal accent dividers */}
         {featured.length > 1 &&
           PANEL_POSITIONS.slice(0, -1).map((pos, i) => {
             const rightEdge = parseFloat(pos.left) + parseFloat(pos.width)
-            const hue = [240, 260, 180, 38, 0][i % 5]
+            const hue = HUES[i % HUES.length]
             return (
               <div
                 key={`div-${i}`}
                 className="absolute top-0 bottom-0 z-[5] pointer-events-none"
                 style={{
-                  left: `${rightEdge - 0.3}%`,
-                  width: "3px",
-                  background: `linear-gradient(to bottom, transparent 5%, hsla(${hue}, 60%, 60%, 0.5) 30%, hsla(${hue}, 60%, 50%, 0.35) 70%, transparent 95%)`,
-                  transform: `skewX(${i % 2 === 0 ? "-6" : "6"}deg)`,
+                  left: `${rightEdge - 0.2}%`,
+                  width: "2px",
+                  background: `linear-gradient(to bottom, transparent 3%, hsla(${hue}, 55%, 55%, 0.45) 25%, hsla(${hue}, 55%, 45%, 0.3) 75%, transparent 97%)`,
+                  transform: `skewX(${i % 2 === 0 ? "-5" : "5"}deg)`,
                 }}
               />
             )
           })}
 
-        {/* Bottom edge fade — subtle */}
-        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent z-[6] pointer-events-none" />
+        {/* Bottom fade into page background */}
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent z-[6] pointer-events-none" />
       </div>
     </section>
   )
