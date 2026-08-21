@@ -49,7 +49,7 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
     <section>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40 flex-shrink-0">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/35 flex-shrink-0">
           {title}
         </h2>
         <div className="flex items-center gap-3">
@@ -82,17 +82,15 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
         </div>
       </div>
 
-      {/* Track */}
+      {/* Track with fade edges */}
       <div className="relative">
-        {/* Fade edges */}
         {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-2 w-8 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-1 w-10 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
         )}
         {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-r from-transparent via-background/80 to-background z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-r from-transparent via-background/80 to-background z-10 pointer-events-none" />
         )}
 
-        {/* Scrollable area */}
         <div
           ref={scrollRef}
           className="flex gap-3.5 overflow-x-auto scroll-smooth"
@@ -111,7 +109,7 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
             <div
               key={game.id}
               data-game-track
-              className="shrink-0 w-[220px]"
+              className="shrink-0 w-[240px]"
             >
               <GameCard game={game} showTags={false} />
             </div>

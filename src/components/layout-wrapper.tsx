@@ -20,11 +20,12 @@ const EmailVerificationBanner = dynamic(() => import("@/components/email-verific
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量
    ═══════════════════════════════════════════════════ */
-const LEFT_W = 180          // 左侧栏正常宽度（从200收窄，给主内容区更多空间）
-const LEFT_EXPANDED_W = 216 // 左侧栏展开（只开左边时，从240收窄）
-const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
-const RIGHT_W = 260         // 右侧栏正常宽度
-const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
+const LEFT_W = 180
+const LEFT_EXPANDED_W = 216
+const LEFT_COLLAPSED_W = 60
+const RIGHT_W = 260
+const RIGHT_EXPANDED_W = 340
+const CONTENT_MAX_W = 1400
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -145,7 +146,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="flex-1 px-3 sm:px-4 lg:px-8 pb-8">
-              <div className="mx-auto">
+              <div className="mx-auto" style={{ maxWidth: `${CONTENT_MAX_W}px` }}>
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>

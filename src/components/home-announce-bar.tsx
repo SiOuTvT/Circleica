@@ -95,28 +95,28 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
   return (
     <div className="flex flex-col gap-3 min-w-0">
       {/* Header */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         <span className="h-1 w-1 rounded-full bg-primary/50 shrink-0" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/40">
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40">
           Activity
         </p>
       </div>
 
-      {/* Animated item — slide transition */}
+      {/* Animated item */}
       <div className="relative h-[48px] overflow-hidden">
         <div
           key={animKey}
           className={`absolute inset-0 ${enterClass}`}
         >
           <div className="flex items-start gap-2">
-            <span className="mt-1.5 h-[3px] w-[3px] rounded-full bg-foreground/20 shrink-0" />
+            <span className="mt-1.5 h-[3px] w-[3px] rounded-full bg-foreground/15 shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] text-foreground/80 leading-snug">
+              <p className="text-[13px] text-foreground/75 leading-snug">
                 {typeLabel[item.type] ? `[${typeLabel[item.type]}] ` : ""}
                 {item.title}
               </p>
-              <div className="flex items-center gap-1 mt-1">
-                <Clock className="h-2.5 w-2.5 text-muted-foreground/35" strokeWidth={1.5} />
+              <div className="flex items-center gap-1.5 mt-1">
+                <Clock className="h-2.5 w-2.5 text-muted-foreground/30" strokeWidth={1.5} />
                 <span className="text-[11px] text-muted-foreground/40">
                   {timeAgo(item.time)}
                 </span>
@@ -126,7 +126,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
         </div>
       </div>
 
-      {/* Subtle page indicator */}
+      {/* Subtle navigation */}
       {activities.length > 1 && (
         <div className="flex items-center gap-2">
           <button
@@ -166,38 +166,38 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-        {/* ── Announcement (open area, left ~60%) ── */}
+      <div className="flex flex-col sm:flex-row gap-5 sm:gap-8">
+        {/* ── Announcement (open area, left) ── */}
         <div className="flex-[3] min-w-0">
           {announcements.length > 0 ? (
             <div>
-              {/* Thin top accent line */}
-              <div className="h-px bg-gradient-to-r from-primary/30 via-primary/15 to-transparent mb-4" />
+              {/* Thin accent line */}
+              <div className="h-px bg-gradient-to-r from-primary/25 via-primary/10 to-transparent mb-4" />
 
               {/* Label */}
-              <div className="flex items-center gap-2 mb-2.5">
-                <span className="h-[3px] w-[3px] rounded-full bg-primary/50" />
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/45">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="h-[3px] w-[3px] rounded-full bg-primary/60" />
+                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/45">
                   Announcement
                 </p>
               </div>
 
-              {/* Content — pure text, no card */}
+              {/* Content — pure text, no background, no card */}
               <Link
                 href={href}
                 target={ann.link ? "_blank" : undefined}
                 rel={ann.link ? "noopener noreferrer" : undefined}
                 className="group block"
               >
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+                <h2 className="text-2xl sm:text-[28px] font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                   {ann.title}
                 </h2>
                 {summary && (
-                  <p className="hidden sm:block text-[15px] text-muted-foreground/60 line-clamp-1 mt-2 leading-relaxed">
+                  <p className="hidden sm:block text-[15px] text-muted-foreground/55 line-clamp-1 mt-2.5 leading-relaxed">
                     {summary}
                   </p>
                 )}
-                <p className="text-[11px] text-muted-foreground/40 mt-2.5">
+                <p className="text-[11px] text-muted-foreground/40 mt-3 tracking-wide">
                   {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
                 </p>
               </Link>
@@ -205,15 +205,15 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
           ) : (
             <div className="flex items-center gap-2 py-1">
               <span className="h-[3px] w-[3px] rounded-full bg-muted-foreground/20" />
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/30">
+              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/30">
                 Announcement
               </p>
             </div>
           )}
         </div>
 
-        {/* ── Activity (open area, right ~40%) ── */}
-        <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/30 sm:pl-6">
+        {/* ── Activity (open area, right) ── */}
+        <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/25 sm:pl-6">
           <ActivityTicker activities={activities} />
         </div>
       </div>
