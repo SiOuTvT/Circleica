@@ -43,15 +43,6 @@ export const revalidate = 60
 
 // ─── Announcement fallback ────────────────────────────────────
 
-function AnnounceSlot() {
-  return (
-    <div className="relative flex w-full h-[140px] sm:h-[180px] lg:h-[310px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
-      <Megaphone className="h-7 w-7 text-muted-foreground/30" strokeWidth={1} aria-hidden="true" />
-      <p className="text-xs text-muted-foreground/50">暂无公告</p>
-    </div>
-  )
-}
-
 function GameGridSlots() {
   return (
     <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
