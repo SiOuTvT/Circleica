@@ -157,7 +157,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               </p>
             )}
             <div className="flex flex-col gap-0.5">
-              <DiscoverRandomBtn collapsed={collapsed} />
+              <DiscoverCreatorBtn collapsed={collapsed} />
+              <DiscoverCharacterBtn collapsed={collapsed} />
             </div>
           </div>
 

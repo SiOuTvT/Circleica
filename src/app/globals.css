@@ -2062,69 +2062,40 @@ body[data-has-bottom-nav="true"] {
    → 后台「主题设置 / 初始化向导」改主题色（10 预设 + 自定义取色器）后，
       本卡的光晕与呼吸光会【自动跟随】刷新，无需改任何代码。
    另：深/浅模式是另一条线（靠 .light 切，不碰色相）；换主题色=换 hue，切明暗=换亮度，二者独立。 */
-.brand-card-bg {
-  position: relative;
-  isolation: isolate;                 /* 隔离堆叠上下文，确保 ::before 呼吸光不压住内部文字 */
-  background-color: var(--card);
-  background-image:
-    /* 顶部极淡中性高光 — 拉开顶部明度，形成纵深 */
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 18%),
-    /* 底部中性压暗 — 拉开底部明度，避免同色糊一团 */
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.30) 100%),
-    /* 右上主色光晕 ~22%（主光源） */
-    radial-gradient(130% 100% at 88% 8%, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 58%),
-    /* 左下呼应光 ~13%（单一呼应，不引入杂色） */
-    radial-gradient(100% 90% at 8% 98%, color-mix(in srgb, var(--primary) 13%, transparent) 0%, transparent 52%);
-  background-repeat: no-repeat;
+/* [removed in homepage v2 refactor — brand card no longer used] */
+
+/* ── Home Activity Ticker 动画 ────────────────────────────────
+ * 克制、平滑的内容切换位移。
+ * 速度：300ms ease-in-out，无弹跳，无缩放。 */
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes slideInDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes slideOutUp {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
+}
+@keyframes slideOutDown {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
 }
 
-/* 极慢呼吸光（层次仍靠上方静态叠加；尊重 prefers-reduced-motion 由全局 PRM 块冻结） */
-.brand-card-bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;                        /* 位于静态背景之上、内部文字之下 */
-  pointer-events: none;
-  background: radial-gradient(120% 95% at 86% 6%, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 52%);
-  opacity: 0.5;
-  animation: brand-breath 9s ease-in-out infinite;
+.animate-slide-in-up   { animation: slideInUp   300ms ease-in-out forwards; }
+.animate-slide-in-down  { animation: slideInDown  300ms ease-in-out forwards; }
+.animate-slide-out-up   { animation: slideOutUp   300ms ease-in-out forwards; }
+.animate-slide-out-down { animation: slideOutDown 300ms ease-in-out forwards; }
+
+/* ── Home Announce Bar ───────────────────────────────────────── */
+.home-announce-gradient {
+  background: linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 50%, transparent 100%);
 }
 
-@keyframes brand-breath {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.72; }
-}
-
-/* ── 亮色模式覆盖（深色为基础，此处仅微调中性高光/压暗，主色跟随主题翻转） ── */
-.light .brand-card-bg {
-  background-image:
-    /* 顶部中性高光（白卡上极淡） */
-    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 14%),
-    /* 底部中性压暗（白卡上仅极轻，避免脏） */
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 58%, rgba(0, 0, 0, 0.06) 100%),
-    /* 右上主色光晕 */
-    radial-gradient(130% 100% at 88% 8%, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 58%),
-    /* 左下呼应光 */
-    radial-gradient(100% 90% at 8% 98%, color-mix(in srgb, var(--primary) 11%, transparent) 0%, transparent 52%);
-}
-
-.light .brand-card-bg::before {
-  background: radial-gradient(120% 95% at 86% 6%, color-mix(in srgb, var(--primary) 14%, transparent) 0%, transparent 52%);
-  opacity: 0.4;
-}
-
-/* ── 品牌卡文字层精修（仅装饰类；所有可见文字仍是项目原始字符串） ── */
-/* 眉标锚点：主色小圆点 + 辉光（装饰，非文字） */
-.brand-eyebrow-dot {
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--primary);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--primary) 55%, transparent);
-}
-/* 统计图标：低饱和主色（随主题翻转） */
-.brand-stat-icon {
-  color: color-mix(in srgb, var(--primary) 55%, var(--muted-foreground));
+/* ── Discover section label (left sidebar) ──────────────────── */
+.discover-section-label {
+  margin-top: 6px;
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Bell, ChevronLeft, ChevronRight, ImageOff } from "lucide-react"
@@ -22,9 +22,9 @@ interface AnnounceItem {
   isPinned: boolean
 }
 
-interface ActivityItem {
+export interface ActivityItem {
   id: string
-  type: "game_added" | "game_updated" | "announcement" | "creator_joined"
+  type: string
   title: string
   time: string
 }

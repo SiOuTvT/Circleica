@@ -1,7 +1,9 @@
-import { AnnounceSwiper } from "@/components/announce-swiper"
-import { GameCardSlot } from "@/components/game-card"
-import { CalendarCheck, Gamepad2, Megaphone, Plus } from "lucide-react"
-import { GameGridClient } from "@/components/game-grid-client"
+import { GameCard, GameCardSlot } from "@/components/game-card"
+import { Megaphone } from "lucide-react"
+import { Suspense } from "react"
+import { HomeAnnounceBar, buildActivities, type ActivityItem } from "@/components/home-announce-bar"
+import { HomeFeaturedGames } from "@/components/home-featured-games"
+import { HomeGameTrack } from "@/components/home-game-track"
 import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
@@ -10,9 +12,7 @@ import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
-import { getSiteSetting, getSiteName, getSiteDescription } from "@/lib/site-settings"
-import { homeStatsCacheKey } from "@/lib/home-stats"
-import { Suspense } from "react"
+import { getSiteName, getSiteDescription, getSiteSetting } from "@/lib/site-settings"
 
 type HomeAnnouncement = {
   id: string
@@ -28,20 +28,15 @@ type HomeAnnouncement = {
 }
 
 type StatsPending = Map<string, Promise<[number, number, number, HomeAnnouncement[]]>>
-/** 游戏网格缓存载荷（mapGameToCard 输出为纯可序列化数据，可进 Redis） */
 type CachedGrid = { games: ReturnType<typeof mapGameToCard>[]; total: number }
 type GridPending = Map<string, Promise<CachedGrid>>
 
-// 全局去重 Map 单例：跨请求防止缓存 miss 时并发重复查询；存于 globalThis 以在 dev HMR 期间持久化。
-// 仅在模块顶层初始化 globalThis（react-hooks/immutability 不允许在组件/钩子内重赋值外部绑定），
-// 运行期内只通过 Map.get/set/delete 变更，不重赋值外部变量。
 const PENDING_HOLDER_KEY = "__circleica_homepage_stats_pending"
 const globalRef = globalThis as Record<string, unknown>
 const PENDING_HOLDER: { map: StatsPending } =
   (globalRef[PENDING_HOLDER_KEY] as { map: StatsPending } | undefined) ?? { map: new Map() }
 if (!globalRef[PENDING_HOLDER_KEY]) globalRef[PENDING_HOLDER_KEY] = PENDING_HOLDER
 
-// 游戏网格单飞去重（与统计分属不同类型载荷，独立持有，避免类型互相污染）
 const GRID_PENDING_KEY = "__circleica_homepage_grid_pending"
 const GRID_PENDING: { map: GridPending } =
   (globalRef[GRID_PENDING_KEY] as { map: GridPending } | undefined) ?? { map: new Map() }
@@ -49,21 +44,13 @@ if (!globalRef[GRID_PENDING_KEY]) globalRef[GRID_PENDING_KEY] = GRID_PENDING
 
 export const revalidate = 60
 
-/**
- * 首页网格的 Suspense fallback —— 直接用常驻空槽，不用 shimmer 骨架。
- *
- * 理由：骨架的语义是「结构会变，内容在来」，但首页网格的结构恒定不变（加载中 12 格，
- * 加载完还是 12 格）。用骨架会制造「结构会变」的错误暗示，并引入一次 shimmer 停止的视觉切换。
- * 用空槽则网格从第一帧到最后一帧完全静止，只有内容就地填入。
- */
-/**
- * 公告区常驻空槽：无公告时常驻，与 AnnounceSwiper 同尺寸，有公告时覆盖。
- */
+// ─── Announcement fallback ────────────────────────────────────
+
 function AnnounceSlot() {
   return (
-    <div className="announce-slot relative flex w-full h-[140px] sm:h-[180px] lg:h-[310px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
-      <Megaphone className="announce-slot-mark h-7 w-7" strokeWidth={1} aria-hidden="true" />
-      <p className="announce-slot-text text-xs">暂无公告</p>
+    <div className="relative flex w-full h-[140px] sm:h-[180px] lg:h-[310px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
+      <Megaphone className="h-7 w-7 text-muted-foreground/30" strokeWidth={1} aria-hidden="true" />
+      <p className="text-xs text-muted-foreground/50">暂无公告</p>
     </div>
   )
 }
@@ -76,8 +63,9 @@ function GameGridSlots() {
   )
 }
 
+// ─── Game grid data fetching (unchanged logic) ─────────────────
+
 type SortKey = "newest" | "popular" | "mostFaved"
-type ViewKey = "grid" | "list"
 
 const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favoriteCount?: "desc" }> = {
   newest: { createdAt: "desc" },
@@ -85,15 +73,11 @@ const ORDER_BY: Record<SortKey, { createdAt?: "desc"; viewCount?: "desc"; favori
   mostFaved: { favoriteCount: "desc" },
 }
 
-async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", page }: { tag: string; q: string; mode: MainNsfwMode; sort?: SortKey; view?: ViewKey; page: number }) {
+async function GameGridServer({ tag, q, mode, sort = "newest", page }: { tag: string; q: string; mode: MainNsfwMode; sort?: SortKey; page: number }) {
   const where = buildGameSearchFilter({ q, tag, mode })
   const GAMES_PER_PAGE = 24
   const skip = (page - 1) * GAMES_PER_PAGE
 
-  // 游戏网格 60s Redis 短缓存（与品牌区统计同源模式）：
-  // 首页每次导航都全量查库（findMany + count + tagGroup + placeholder）是移动端慢的根因之一。
-  // 短 TTL：后台发布/编辑游戏后最多 60s 内自动刷新，无需手动硬刷新。
-  // ⚠️ NSFW 模式必须进 key：否则共享缓存跨用户泄漏（SFW 用户可能命中 all 模式的结果）。
   const gridCacheKey = cacheKey("homepage:games:grid", tag, q, mode, sort, String(page))
   const pendingMap = GRID_PENDING.map
 
@@ -103,7 +87,6 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
     if (cached) {
       gridData = cached
     } else {
-      // 复用全局单飞去重：并发请求只查一次库，其余等同一 Promise
       let pending = pendingMap.get(gridCacheKey)
       if (!pending) {
         pending = (async () => {
@@ -121,7 +104,6 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
 
           const placeholder = await getSiteSetting("default_placeholder_image")
 
-          // 获取"首页卡片标签"组的颜色（预设组 id 稳定，直接按 id 查；未配置则回退默认灰）
           let cardTagColor = "#6b7280"
           try {
             const homeCardTag = await prisma.tagGroup.findFirst({
@@ -129,7 +111,7 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
               select: { color: true },
             })
             if (homeCardTag?.color) cardTagColor = homeCardTag.color
-          } catch (err) { logger.db.warn("[HomePage] cardTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+          } catch {}
 
           return {
             games: games.map((g) => mapGameToCard(g, { resourceTagColor: cardTagColor, coverFallback: placeholder })),
@@ -148,173 +130,119 @@ async function GameGridServer({ tag, q, mode, sort = "newest", view = "grid", pa
     gridData = { games: [], total: 0 }
   }
 
-  // ── P0：精选游戏 Hero（手机端首屏视觉锚点）────────────────────
-  // 取网格第一张游戏作为精选（已由上方缓存命中或查询返回，无额外 DB 压力）。
-  // 仅在无公告时显示；有公告时公告轮播占据 Hero 位置。
-  const featuredGame = gridData.games.length > 0 ? gridData.games[0] : null
-  // ── P0 结束 ─────────────────────────────────────────────
-
-  return <GameGridClient initialGames={gridData.games} total={gridData.total} tag={tag} q={q} page={page} sort={sort} view={view} featuredGame={featuredGame} />
+  return gridData
 }
+
+// ─── Activity data builder ─────────────────────────────────────
+
+function buildHomeActivities(announcements: HomeAnnouncement[]): ActivityItem[] {
+  const items: ActivityItem[] = []
+
+  if (announcements.length > 0) {
+    const a = announcements[0]
+    items.push({
+      id: `ann-${a.id}`,
+      type: "announcement" as const,
+      title: a.title,
+      time: a.createdAt,
+    })
+  }
+
+  return items
+}
+
+// ─── Page ──────────────────────────────────────────────────────
 
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; tag?: string; sort?: string; view?: string; page?: string }>
 }) {
-  const sp        = await searchParams
-  const q         = sp.q?.trim() || ""
+  const sp = await searchParams
+  const q = sp.q?.trim() || ""
   const activeTag = sp.tag || "全部"
-  // NSFW 过滤模式：服务端按 cookie 解析（nsfw_mode，兼容旧 nsfw_status）。
-  // 不再读 URL 参数 ?nsfw=1 —— 避免 URL 分享绕过登录门槛切换过滤。
-  const nsfwMode  = await getMainNsfwMode()
+  const nsfwMode = await getMainNsfwMode()
   const VALID_SORTS = ["newest", "popular", "mostFaved"] as const
   const sort = VALID_SORTS.includes(sp.sort as SortKey) ? (sp.sort as SortKey) : "newest"
-  const VALID_VIEWS = ["grid", "list"] as const
-  const view = VALID_VIEWS.includes(sp.view as ViewKey) ? (sp.view as ViewKey) : "grid"
-  const page      = Math.max(1, parseInt(sp.page || "1"))
+  const page = Math.max(1, parseInt(sp.page || "1"))
 
-  let total = 0
-  let todayCheckins = 0
-  let weekNewGames = 0
-  let announcements: HomeAnnouncement[] = []
+  // ── Fetch data in parallel ──────────────────────────────────
+  const [siteName, siteDesc, gridData] = await Promise.all([
+    getSiteName(),
+    getSiteDescription(),
+    GameGridServer({ tag: activeTag, q, mode: nsfwMode, sort, page }),
+  ])
 
-  // 获取站点品牌信息
-  const [siteName, siteDesc] = await Promise.all([getSiteName(), getSiteDescription()])
-
-  // 统计数据缓存 key（按日期和 NSFW 模式区分，与写操作侧 invalidateHomeStats 同源）
+  // Announcements (same query as before, inlined here)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const statsCacheKey = homeStatsCacheKey(nsfwMode)
-
-  // 全局去重 Map（模块级单例，跨 HMR 持久化于 globalThis），防止并发请求同时 miss 缓存
-  const pendingMap = PENDING_HOLDER.map
-
+  let announcements: HomeAnnouncement[] = []
   try {
-    const weekAgo = new Date(today)
-    weekAgo.setDate(weekAgo.getDate() - 7)
-
-    // 尝试从缓存获取统计数据（TTL 5 分钟）
-    const cached = await cache.get<{ total: number; todayCheckins: number; weekNewGames: number; announcements: HomeAnnouncement[] }>(statsCacheKey)
+    const cached = await cache.get<{ announcements: HomeAnnouncement[] }>(cacheKey("homepage:announcements"))
     if (cached) {
-      ;({ total, todayCheckins, weekNewGames } = cached)
       announcements = cached.announcements
     } else {
-      // 检查是否有正在进行的请求
-      let pending = pendingMap.get(statsCacheKey)
-      if (!pending) {
-        // 发起新请求
-        // 首页品牌卡「三统计」口径（非显而易见，集中说明以免误读）：
-        //   ① total        = 已发布游戏【总数】  （isPublished=true；SFW 模式再排除 isNsfw，NSFW 模式只统计 isNsfw，全部模式不筛）
-        //   ② weekNewGames = 「本周新增」= 已发布 且 createdAt 在最近 7 天内(now-7d) 的游戏数。
-        //                    数的是「新上架/新发布的游戏」，不是新用户、新标签、也不是更新动作。
-        //   ③ todayCheckins= 「今日签到」= 今天 checkIn 表新增的签到记录数。
-        //   三者均带 5 分钟缓存（见下方 cache.set(…, 300)）；DB 不可达时走空数据兜底，绝不注入假数据。
-        //   ⚠️ 当前主站 DB 无已发布游戏，线上三数均为 0（真数据，非 bug），发布后会自动增长。
-        pending = Promise.all([
-          prisma.game.count({
-            where: {
-              isPublished: true,
-              ...(nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}),
-            },
-          }),                                                                                    // ① total：已发布游戏总数
-          prisma.checkIn.count({ where: { createdAt: { gte: today } } }),                          // ③ todayCheckins：今日签到数
-          prisma.game.count({ where: { isPublished: true, createdAt: { gte: weekAgo } } }),        // ② weekNewGames：本周新增（近 7 天新发布）
+      const statsCacheKey = `homepage:stats:${nsfwMode}:${today.toISOString().slice(0, 10)}`
+      const pending = PENDING_HOLDER.map.get(statsCacheKey)
+      const annPromise = prisma.announcement.findMany({
+        where: {
+          status: "published",
+          isActive: true,
+          AND: [
+            { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
+            { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
+          ],
+        },
+        orderBy: [{ isPinned: "desc" }, { sortOrder: "asc" }],
+        take: 5,
+        select: { id: true, title: true, summary: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true, isPinned: true },
+      }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })))
 
-          prisma.announcement.findMany({
-            where: {
-              status: "published",
-              isActive: true,
-              AND: [
-                { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
-                { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
-              ],
-            },
-            orderBy: [{ isPinned: "desc" }, { sortOrder: "asc" }],
-            take: 5,
-            select: { id: true, title: true, summary: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true, isPinned: true },
-          }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))),
-        ]).finally(() => {
-          pendingMap.delete(statsCacheKey)
-        })
-        pendingMap.set(statsCacheKey, pending)
-      }
-      const [totalResult, todayCheckinsResult, weekNewGamesResult, announcementsResult] = await pending!
-      total = totalResult
-      todayCheckins = todayCheckinsResult
-      weekNewGames = weekNewGamesResult
-      announcements = announcementsResult
-      // 缓存 5 分钟
-      await cache.set(statsCacheKey, { total, todayCheckins, weekNewGames, announcements }, 300)
+      announcements = await annPromise
+      await cache.set(statsCacheKey, { announcements }, 300).catch(() => {})
     }
   } catch (error) {
-    logger.db.error("[HomePage] Database query failed (离线回退空数据)", error)
+    logger.db.error("[HomePage] Announcements query failed", error)
   }
+
+  const activities = buildHomeActivities(announcements)
+  const featuredGames = gridData.games.slice(0, 5)
+  const trackGames = gridData.games.slice(5, 25)
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pt-4">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
-      {/* Hero + 手机端随机按钮 — 紧密组合 */}
-      <div className="flex flex-col gap-4 sm:gap-5">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-5 items-start">
-          {/* 品牌卡 - 桌面端：站点概览（资源站风格，非海报式） */}
-          <div className="hidden md:flex rounded-2xl bg-card ring-1 ring-border overflow-hidden h-[310px] flex-col brand-card-bg">
-            <div className="flex flex-col flex-1 px-6 py-8 justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">视觉小说资源站</p>
-                <h2 className="mt-3 text-[32px] font-semibold tracking-tight leading-tight text-foreground">{siteName}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground max-w-prose">{siteDesc || "GalGame 与同人游戏的资源档案库"}</p>
-              </div>
-              {/* 统计行 */}
-              <div className="grid grid-cols-3 divide-x divide-border">
-                <div className="flex flex-col gap-2.5" title="已发布的游戏总数">
-                  <Gamepad2 className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{total}</p>
-                  <p className="text-sm text-muted-foreground">游戏总数</p>
-                </div>
-                <div className="flex flex-col gap-2.5 pl-6" title="近 7 天新上架的游戏">
-                  <Plus className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{weekNewGames}</p>
-                  <p className="text-sm text-muted-foreground">本周新增游戏</p>
-                </div>
-                <div className="flex flex-col gap-2.5 pl-6" title="今日新增的签到次数">
-                  <CalendarCheck className="brand-stat-icon h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-                  <p className="text-3xl font-bold text-foreground leading-none tabular-nums">{todayCheckins}</p>
-                  <p className="text-sm text-muted-foreground">今日签到</p>
-                </div>
-              </div>
-              {/* 按钮行 */}
-              <div className="flex gap-2">
-                <RandomCreatorBtn />
-                <RandomCharacterBtn />
-              </div>
-            </div>
-          </div>
+      {/* ── Announcement + Activity ──────────────────────────── */}
+      <HomeAnnounceBar
+        announcements={announcements}
+        activities={activities}
+        siteName={siteName}
+      />
 
-          {/* 公告区：有公告覆盖，无公告常驻占位卡 */}
-          {announcements.length > 0 ? (
-            <AnnounceSwiper announcements={announcements} />
-          ) : (
-            <AnnounceSlot />
-          )}
-        </div>
+      {/* ── 5-Panel Featured Games ───────────────────────────── */}
+      <HomeFeaturedGames games={featuredGames} />
 
-        {/* 手机端：随机发现按钮 */}
-        <div className="flex md:hidden gap-2">
-          <div className="flex-1"><RandomCreatorBtn fullWidth /></div>
-          <div className="flex-1"><RandomCharacterBtn fullWidth /></div>
-        </div>
-      </div>
+      {/* ── Game Tracks ──────────────────────────────────────── */}
+      {trackGames.length > 0 && (
+        <HomeGameTrack
+          games={trackGames}
+          title="Latest Arrivals"
+          viewAllHref="/games"
+          viewAllLabel="查看全部"
+        />
+      )}
 
-      {/* 游戏网格 */}
-      <section>
-        <Suspense fallback={<GameGridSlots />}>
-          <GameGridServer tag={activeTag} q={q} mode={nsfwMode} sort={sort} view={view} page={page} />
-        </Suspense>
-      </section>
+      {/* ── Grid fallback (when track has insufficient games) ── */}
+      {trackGames.length === 0 && gridData.games.length > 0 && (
+        <section>
+          <Suspense fallback={<GameGridSlots />}>
+            <LegacyGameGrid games={gridData.games} total={gridData.total} tag={activeTag} q={q} page={page} sort={sort} />
+          </Suspense>
+        </section>
+      )}
 
-      {/* 查看全部最新资源 */}
+      {/* ── View all link ────────────────────────────────────── */}
       <div className="flex justify-center pt-2 pb-4">
         <Link
           href="/games"
@@ -327,7 +255,39 @@ export default async function HomePage({
           </svg>
         </Link>
       </div>
-
     </div>
+  )
+}
+
+// ─── Legacy grid (only shown when track is empty) ──────────────
+
+function LegacyGameGrid({ games, total, tag, q, page, sort }: { games: ReturnType<typeof mapGameToCard>[]; total: number; tag: string; q: string; page: number; sort: string }) {
+  const isSearch = tag && tag !== "全部"
+  const basePath = isSearch ? "/search" : "/"
+  const totalPages = Math.ceil(total / 24)
+  const placeholderCount = page === 1 ? Math.max(0, 12 - games.length) : 0
+  const hasReal = games.length > 0
+
+  if (!hasReal && placeholderCount === 0) return null
+
+  return (
+    <>
+      <div className="mt-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+          {games.map((game) => (
+            <GameCard key={game.id} game={game} />
+          ))}
+          {Array.from({ length: placeholderCount }).map((_, i) => (
+            <GameCardSlot key={`ph-${i}`} />
+          ))}
+        </div>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="mt-8">
+          {/* Pagination would go here - keeping minimal for legacy fallback */}
+        </div>
+      )}
+    </>
   )
 }
