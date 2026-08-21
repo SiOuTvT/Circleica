@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Bell, ChevronLeft, ChevronRight, Clock } from "lucide-react"
 import { timeAgo } from "@/lib/time-ago"
-import { stripHtml } from "@/lib/sanitize"
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -66,7 +65,6 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
     tick((idx + 1) % activities.length, "up")
   }, [idx, activities.length, tick])
 
-  // Auto-rotate every 8s
   useEffect(() => {
     if (activities.length <= 1) return
     timerRef.current = setInterval(next, 8000)
@@ -75,7 +73,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
 
   if (activities.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground/50">
+      <div className="flex items-center gap-2 text-muted-foreground/40">
         <Bell className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
         <span className="text-[13px]">暂无动态</span>
       </div>
@@ -93,21 +91,18 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 min-w-0">
+    <div className="flex flex-col gap-2.5 min-w-0">
       {/* Header */}
       <div className="flex items-center gap-2">
         <span className="h-1 w-1 rounded-full bg-primary/50 shrink-0" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/40">
           Activity
         </p>
       </div>
 
       {/* Animated item */}
       <div className="relative h-[48px] overflow-hidden">
-        <div
-          key={animKey}
-          className={`absolute inset-0 ${enterClass}`}
-        >
+        <div key={animKey} className={`absolute inset-0 ${enterClass}`}>
           <div className="flex items-start gap-2">
             <span className="mt-1.5 h-[3px] w-[3px] rounded-full bg-foreground/15 shrink-0" />
             <div className="min-w-0 flex-1">
@@ -126,7 +121,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
         </div>
       </div>
 
-      {/* Subtle navigation */}
+      {/* Subtle nav */}
       {activities.length > 1 && (
         <div className="flex items-center gap-2">
           <button
@@ -157,68 +152,62 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
 export function HomeAnnounceBar({ announcements, activities, siteName = "Circleica" }: HomeAnnounceBarProps) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
-
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])
 
   const ann = announcements[cur]
-  const summary = ann?.summary || (ann ? stripHtml(ann.content) : "")
   const href = ann?.link || ann ? `/announcements/${ann.id}` : "#"
 
   return (
     <div className="w-full">
-      <div className="mx-auto" style={{ maxWidth: "1100px" }}>
-        <div className="flex flex-col sm:flex-row gap-5 sm:gap-8">
-        {/* ── Announcement (open area, left) ── */}
-        <div className="flex-[3] min-w-0">
-          {announcements.length > 0 ? (
-            <div>
-              {/* Label */}
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-[3px] w-[3px] rounded-full bg-primary/60" />
-                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
+      {/* Content constrained for readability */}
+      <div className="mx-auto" style={{ maxWidth: "1000px" }}>
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
+          {/* ── Announcement (open area, left) ── */}
+          <div className="flex-1 min-w-0">
+            {announcements.length > 0 ? (
+              <div>
+                {/* Label */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-[3px] w-[3px] rounded-full bg-primary/50" />
+                  <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/40">
+                    Announcement
+                  </p>
+                </div>
+
+                {/* Thin separator */}
+                <div className="h-px bg-border/40 mb-3" />
+
+                {/* Content — pure text, no card */}
+                <Link href={href} target={ann.link ? "_blank" : undefined} rel={ann.link ? "noopener noreferrer" : undefined} className="group block">
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    {ann.title}
+                  </h2>
+                  {ann.summary && (
+                    <p className="hidden sm:block text-[15px] text-muted-foreground/50 line-clamp-1 mt-2 leading-relaxed">
+                      {ann.summary}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-muted-foreground/35 mt-2.5">
+                    {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
+                  </p>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 py-1">
+                <span className="h-[3px] w-[3px] rounded-full bg-muted-foreground/20" />
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/25">
                   Announcement
                 </p>
               </div>
+            )}
+          </div>
 
-              {/* Thin accent line */}
-              <div className="h-px bg-gradient-to-r from-border/80 via-border/40 to-transparent mb-4" />
-
-              {/* Content — pure text, no background, no card */}
-              <Link
-                href={href}
-                target={ann.link ? "_blank" : undefined}
-                rel={ann.link ? "noopener noreferrer" : undefined}
-                className="group block"
-              >
-                <h2 className="text-2xl sm:text-[32px] font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                  {ann.title}
-                </h2>
-                {summary && (
-                  <p className="hidden sm:block text-base text-muted-foreground/55 line-clamp-1 mt-3 leading-relaxed">
-                    {summary}
-                  </p>
-                )}
-                <p className="text-[11px] text-muted-foreground/40 mt-3 tracking-wide">
-                  {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
-                </p>
-              </Link>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 py-1">
-              <span className="h-[3px] w-[3px] rounded-full bg-muted-foreground/20" />
-              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/30">
-                Announcement
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* ── Activity (open area, right) ── */}
-        <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/25 sm:pl-6">
-          <ActivityTicker activities={activities} />
+          {/* ── Activity (open area, right) ── */}
+          <div className="sm:w-[200px] sm:shrink-0 sm:border-l sm:border-border/25 sm:pl-6">
+            <ActivityTicker activities={activities} />
+          </div>
         </div>
       </div>
-        </div>
-      </div>
+    </div>
   )
 }
