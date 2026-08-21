@@ -47,19 +47,21 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
 
   return (
     <section ref={containerRef} className="w-full select-none" onKeyDown={handleKeyNav}>
-      {/* Label */}
-      <div className="flex items-center gap-3 mb-3">
-        <span className="h-px flex-1 bg-border/50" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/30 flex-shrink-0">
-          Featured
-        </p>
-        <span className="h-px flex-1 bg-border/50" />
-      </div>
+      {/* Inner wrapper — provides padding for full-width breakout */}
+      <div className="px-3 sm:px-4 lg:px-8">
+        {/* Label */}
+        <div className="flex items-center gap-3 mb-3">
+          <span className="h-px flex-1 bg-border/50" />
+          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/30 flex-shrink-0">
+            Featured
+          </p>
+          <span className="h-px flex-1 bg-border/50" />
+        </div>
 
       {/* 5-panel visual — CSS Grid with overlapping percentage widths */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: "clamp(380px, 52vh, 580px)" }}
+        style={{ height: "clamp(420px, 58vh, 640px)" }}
       >
         {/* Dark base */}
         <div className="absolute inset-0 bg-muted/50" />
@@ -68,7 +70,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
         <div
           className="absolute inset-0 grid"
           style={{
-            gridTemplateColumns: "24% 19% 27% 19% 16%",
+            gridTemplateColumns: "23% 18% 26% 18% 15%",
             gap: 0,
           }}
         >
@@ -141,7 +143,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           [0, 1, 2, 3].map((i) => {
             const hue = HUES[i % HUES.length]
             // Position at the right edge of each panel's column
-            const cumWidths = [24, 43, 70, 89] // cumulative column starts
+            const cumWidths = [23, 41, 67, 85] // cumulative column starts
             return (
               <div
                 key={`div-${i}`}
@@ -158,6 +160,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
 
         {/* Bottom fade into page background */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent z-[6] pointer-events-none" />
+      </div>
       </div>
     </section>
   )
