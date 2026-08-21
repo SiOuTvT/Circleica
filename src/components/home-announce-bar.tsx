@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Bell, Clock, ChevronLeft, ChevronRight, ImageOff } from "lucide-react"
+import { Bell, ChevronLeft, ChevronRight, Clock } from "lucide-react"
 import { timeAgo } from "@/lib/time-ago"
 import { stripHtml } from "@/lib/sanitize"
 
@@ -94,7 +93,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 min-w-0">
+    <div className="flex flex-col gap-2.5 min-w-0">
       {/* Header */}
       <div className="flex items-center gap-1.5">
         <span className="h-1 w-1 rounded-full bg-primary/50 shrink-0" />
@@ -103,43 +102,46 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
         </p>
       </div>
 
-      {/* Items */}
-      <div className="space-y-2.5">
-        {activities.slice(0, 3).map((act) => (
-          <div key={act.id} className="flex items-start gap-2">
-            <span className="mt-1 h-1 w-1 rounded-full bg-foreground/25 shrink-0" />
+      {/* Animated item */}
+      <div className="relative h-[52px] overflow-hidden">
+        <div
+          key={animKey}
+          className={`absolute inset-0 ${enterClass}`}
+        >
+          <div className="flex items-start gap-2">
+            <span className="mt-1.5 h-1 w-1 rounded-full bg-foreground/20 shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] text-foreground/80 truncate leading-snug">
-                {typeLabel[act.type] ? `[${typeLabel[act.type]}] ` : ""}
-                {act.title}
+              <p className="text-[13px] text-foreground/80 leading-snug">
+                {typeLabel[item.type] ? `[${typeLabel[item.type]}] ` : ""}
+                {item.title}
               </p>
-              <div className="flex items-center gap-1 mt-0.5">
+              <div className="flex items-center gap-1 mt-1">
                 <Clock className="h-2.5 w-2.5 text-muted-foreground/35" strokeWidth={1.5} />
-                <span className="text-[11px] text-muted-foreground/45">
-                  {timeAgo(act.time)}
+                <span className="text-[11px] text-muted-foreground/40">
+                  {timeAgo(item.time)}
                 </span>
               </div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
 
-      {/* Pagination — very subtle */}
+      {/* Subtle pagination */}
       {activities.length > 1 && (
-        <div className="flex items-center gap-2 pt-1">
+        <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); tick((idx - 1 + activities.length) % activities.length, "down") }}
-            className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/25 transition-colors hover:text-muted-foreground/60"
+            className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/20 transition-colors hover:text-muted-foreground/50"
             aria-label="上一条"
           >
             <ChevronLeft className="h-3 w-3" strokeWidth={2} />
           </button>
-          <span className="text-[10px] text-muted-foreground/35 tabular-nums">
+          <span className="text-[10px] text-muted-foreground/30 tabular-nums">
             {String(idx + 1).padStart(2, "0")}/{String(activities.length).padStart(2, "0")}
           </span>
           <button
             onClick={(e) => { e.stopPropagation(); next() }}
-            className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/25 transition-colors hover:text-muted-foreground/60"
+            className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/20 transition-colors hover:text-muted-foreground/50"
             aria-label="下一条"
           >
             <ChevronRight className="h-3 w-3" strokeWidth={2} />
@@ -153,19 +155,10 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
 // ─── Announcement Area ────────────────────────────────────────
 
 export function HomeAnnounceBar({ announcements, activities, siteName = "Circleica" }: HomeAnnounceBarProps) {
-  const [imgError, setImgError] = useState(false)
   const [cur, setCur] = useState(0)
   const len = announcements.length
-  const pausedRef = useRef(false)
 
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])
-
-  useEffect(() => { setImgError(false) }, [cur])
-  useEffect(() => {
-    if (len <= 1 || pausedRef.current) return
-    const t = setInterval(next, 6000)
-    return () => clearInterval(t)
-  }, [len, next])
 
   const ann = announcements[cur]
   const summary = ann?.summary || (ann ? stripHtml(ann.content) : "")
@@ -173,65 +166,50 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-5 sm:gap-0">
-        {/* ── Announcement (open area, left 60%) ── */}
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+        {/* ── Announcement (open area, left) ── */}
         <div className="flex-[3] min-w-0">
           {announcements.length > 0 ? (
             <div>
-              {/* Subtle background — not a card */}
-              {ann.imageUrl && !imgError && (
-                <div className="absolute inset-0 -z-10 opacity-[0.12]">
-                  <img
-                    key={`${ann.id}-${cur}`}
-                    src={ann.imageUrl}
-                    alt=""
-                    className="h-32 w-full object-cover"
-                    loading={cur === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    onError={() => setImgError(true)}
-                  />
-                </div>
-              )}
-
+              {/* Label */}
               <div className="flex items-center gap-2 mb-2">
-                <span className="h-[3px] w-[3px] rounded-full bg-primary/60" />
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/50">
+                <span className="h-[3px] w-[3px] rounded-full bg-primary/50" />
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/45">
                   Announcement
                 </p>
               </div>
 
-              <Link
-                href={href}
-                target={ann.link ? "_blank" : undefined}
-                rel={ann.link ? "noopener noreferrer" : undefined}
-                className="group block"
-              >
+              {/* Thin separator */}
+              <div className="h-px bg-border/50 mb-3" />
+
+              {/* Content */}
+              <Link href={href} target={ann.link ? "_blank" : undefined} rel={ann.link ? "noopener noreferrer" : undefined} className="group block">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                   {ann.title}
                 </h2>
                 {summary && (
-                  <p className="hidden sm:block text-sm text-muted-foreground/65 line-clamp-1 mt-1.5 leading-relaxed">
+                  <p className="hidden sm:block text-sm text-muted-foreground/60 line-clamp-1 mt-1.5 leading-relaxed">
                     {summary}
                   </p>
                 )}
-                <p className="text-[11px] text-muted-foreground/45 mt-2">
+                <p className="text-[11px] text-muted-foreground/40 mt-2">
                   {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
                 </p>
               </Link>
             </div>
           ) : (
             <div className="flex items-center gap-2 py-1">
-              <span className="h-[3px] w-[3px] rounded-full bg-muted-foreground/25" />
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/35">
+              <span className="h-[3px] w-[3px] rounded-full bg-muted-foreground/20" />
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/30">
                 Announcement
               </p>
-              <span className="text-sm text-muted-foreground/35 ml-1">暂无公告</span>
+              <span className="text-sm text-muted-foreground/30 ml-1">暂无公告</span>
             </div>
           )}
         </div>
 
-        {/* ── Activity (open area, right 40%) ── */}
-        <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/40 sm:pl-5">
+        {/* ── Activity (open area, right) ── */}
+        <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/30 sm:pl-5">
           <ActivityTicker activities={activities} />
         </div>
       </div>

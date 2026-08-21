@@ -85,9 +85,11 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           const pos = PANEL_POSITIONS[i]
           const isHovered = hoveredIdx === i
 
-          // Diagonal right edge on panels 1 and 3 (even indices in 0-based)
+          // Alternating diagonal right edges — creates stepped magazine composition
           const clipRight = i < featured.length - 1
-            ? "polygon(0 0, 90% 0, 100% 6%, 90% 100%, 0 100%)"
+            ? (i % 2 === 0
+                ? "polygon(0 0, 84% 0, 100% 12%, 84% 100%, 0 100%)"
+                : "polygon(0 0, 90% 0, 100% 5%, 90% 100%, 0 100%)")
             : undefined
 
           return (
