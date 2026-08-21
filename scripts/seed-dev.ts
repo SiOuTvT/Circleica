@@ -98,6 +98,7 @@ async function run() {
 
     // 关联创作者（从 Work creators 复制到 Game，源=circleica）
     if (w.creators.length) {
+      let added = 0
       for (const wc of w.creators) {
         const creator = wc.creator
         if (!creator?.name) continue
@@ -105,6 +106,9 @@ async function run() {
           where: { name: creator.name, source: "circleica" },
         })
         if (!circleicaCreator) {
+          // 生成唯一 slug：基础 slug + 随机后缀防碰撞
+          const baseSlug = creator.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+          const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 8)}`
           try {
             circleicaCreator = await prisma.creator.create({
               data: {
@@ -112,26 +116,34 @@ async function run() {
                 nameJa: creator.nameJa || "",
                 vndbId: creator.vndbId || "",
                 source: "circleica",
-                slug: creator.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+                slug,
               },
             })
           } catch (e: any) {
+            // P2002 = unique constraint violation → 复用已有
             if (e?.code === "P2002") {
               circleicaCreator = await prisma.creator.findFirst({ where: { name: creator.name, source: "circleica" } })
-            } else throw e
+            } else { console.warn("[seed] Creator create failed:", creator.name, e.message); continue }
           }
         }
         if (circleicaCreator) {
+          const role = wc.role || "other"
           const exists = await prisma.gameCreator.findUnique({
-            where: { gameId_creatorId: { gameId: game.id, creatorId: circleicaCreator.id } },
+            where: { gameId_creatorId_role: { gameId: game.id, creatorId: circleicaCreator.id, role } },
           }).catch(() => null)
           if (!exists) {
-            await prisma.gameCreator.create({
-              data: { gameId: game.id, creatorId: circleicaCreator.id, role: wc.role || "other" },
-            }).catch(() => {})
+            try {
+              await prisma.gameCreator.create({
+                data: { gameId: game.id, creatorId: circleicaCreator.id, role },
+              })
+              added++
+            } catch (e: any) {
+              console.warn("[seed] GameCreator link failed:", game.title, "->", creator.name, e.message)
+            }
           }
         }
       }
+      if (added > 0) console.log("[seed] 创作者关联:", game.title, `+${added}`)
     }
 
     // 关联标签（从 Work 的 tag 里复用/新建；name 全局唯一，复用不限 source）
