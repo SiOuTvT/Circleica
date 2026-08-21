@@ -77,8 +77,8 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           // Diagonal right edge clip — staggered angles for organic feel
           const clipRight = !isLast
             ? (i % 2 === 0
-                ? "polygon(0 0, 82% 0, 100% 14%, 82% 100%, 0 100%)"
-                : "polygon(0 0, 87% 0, 100% 6%, 87% 100%, 0 100%)")
+                ? "polygon(0 0, 75% 0, 100% 22%, 75% 100%, 0 100%)"
+                : "polygon(0 0, 85% 0, 100% 8%, 85% 100%, 0 100%)")
             : "polygon(0 0, 100% 0, 100% 100%, 0 100%)"
 
           return (

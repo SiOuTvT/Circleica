@@ -166,7 +166,8 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-5 sm:gap-8">
+      <div className="mx-auto" style={{ maxWidth: "1100px" }}>
+        <div className="flex flex-col sm:flex-row gap-5 sm:gap-8">
         {/* ── Announcement (open area, left) ── */}
         <div className="flex-[3] min-w-0">
           {announcements.length > 0 ? (
@@ -215,6 +216,8 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
         {/* ── Activity (open area, right) ── */}
         <div className="sm:flex-[2] sm:min-w-0 sm:border-l sm:border-border/25 sm:pl-6">
           <ActivityTicker activities={activities} />
+        </div>
+      </div>
         </div>
       </div>
     </div>
