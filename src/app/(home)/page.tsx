@@ -210,7 +210,7 @@ export default async function HomePage({
   const trackGames = gridData.games.slice(5, 25)
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8 pt-4">
+    <div className="flex flex-col gap-8 sm:gap-10 pt-5">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
       {/* ── Announcement + Activity ──────────────────────────── */}
