@@ -1,67 +1,60 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import type { GameCardData } from "@/components/game-card"
-
-interface FeaturedGame extends GameCardData {
-  hue: number
-}
 
 interface HomeFeaturedGamesProps {
   games: GameCardData[]
 }
 
-const HUES = [245, 265, 185, 35, 0, 200, 320]
-const MIN_PANEL_W = 180
+// 固定5个，上3下2紧凑拼贴
+const TOP_COUNT = 3
+const BOTTOM_COUNT = 2
+const TOTAL = TOP_COUNT + BOTTOM_COUNT
+
+// 重叠量
+const H_OVERLAP = 12  // 水平重叠 px
+const V_OVERLAP = 18  // 垂直重叠 px
+
+// 斜切偏移量（每侧占面板宽度的百分比）
+const CUT = 3
+
+// 上排错位：A=0 B=+4px C=-3px
+const TOP_Y_OFFSETS = [0, 4, -3]
+// 下排错位：D=-2px E=+3px
+const BOT_Y_OFFSETS = [-2, 3]
+
+// clip-path: 左内斜 / 右内斜 / 两侧内斜
+function clipLeft(): string {
+  return `polygon(${CUT}% 0, 100% 0, 100% 100%, ${CUT}% 100%, 0 calc(100% - ${CUT}%))`
+}
+function clipRight(): string {
+  return `polygon(0 0, calc(100% - ${CUT}%) 0, 100% ${CUT}%, calc(100% - ${CUT}%) 100%, 0 100%)`
+}
+function clipBoth(): string {
+  return `polygon(${CUT}% 0, calc(100% - ${CUT}%) 0, 100% ${CUT}%, calc(100% - ${CUT}%) 100%, ${CUT}% 100%, 0 calc(100% - ${CUT}%))`
+}
+function getClip(idx: number, row: "top" | "bot"): string | undefined {
+  if (row === "top") {
+    if (idx === 0) return clipRight()           // A: 右切
+    if (idx === TOP_COUNT - 1) return clipLeft() // C: 左切
+    return clipBoth()                            // B: 双切
+  }
+  // bottom row: D=左切, E=右切
+  if (idx === 0) return clipLeft()
+  return clipRight()
+}
 
 export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
-  const [panelCount, setPanelCount] = useState(6)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-
-  // Dynamic panel count based on container width
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const measure = () => {
-      const w = el.clientWidth
-      const count = Math.max(3, Math.min(8, Math.floor(w / MIN_PANEL_W)))
-      setPanelCount((prev) => prev === count ? prev : count)
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
-  const handleKeyNav = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-        e.preventDefault()
-        const dir = e.key === "ArrowRight" ? 1 : -1
-        const list = containerRef.current?.querySelectorAll("[data-panel]") as NodeListOf<HTMLElement> | undefined
-        if (!list || list.length === 0) return
-        const nextIdx = ((hoveredIdx ?? 0) + dir + list.length) % list.length
-        list[nextIdx]?.focus()
-        setHoveredIdx(nextIdx)
-      }
-    },
-    [hoveredIdx],
-  )
-
-  const featured: FeaturedGame[] = games.slice(0, panelCount).map((g, i) => ({
-    ...g,
-    hue: HUES[i % HUES.length],
-  }))
-
-  if (featured.length === 0) return null
+  const topGames = games.slice(0, TOP_COUNT)
+  const botGames = games.slice(TOP_COUNT, TOTAL)
+  if (topGames.length === 0) return null
 
   return (
-    <section ref={containerRef} className="w-full select-none" onKeyDown={handleKeyNav}>
+    <section className="w-full select-none" aria-label="精选游戏">
       {/* Label */}
-      <div className="flex items-center gap-3 mb-2.5 px-3 sm:px-6 lg:px-8">
+      <div className="flex items-center gap-3 mb-3">
         <span className="h-px flex-1 bg-border/40" />
         <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/25 flex-shrink-0">
           Featured
@@ -69,101 +62,96 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
         <span className="h-px flex-1 bg-border/40" />
       </div>
 
-      {/* Featured gallery — wide, flat, continuous visual strip */}
+      {/* 拼贴容器：宽度55-60%，高度200-240px */}
       <div
-        className="relative w-full overflow-hidden"
-        style={{ height: "clamp(200px, 28vh, 280px)" }}
+        className="relative"
+        style={{ width: "58%", maxWidth: "700px", minHeight: "220px" }}
       >
-        {/* Dark base */}
-        <div className="absolute inset-0 bg-muted/40" />
-
-        {/* Unified gradient across entire surface — creates ONE visual layer */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-[1] pointer-events-none" />
-
-        {/* Panels — leftmost on top (highest z), each overlaps into next
-            This creates the continuous stepped visual: panel 0 is fully visible,
-            panel 1 bleeds 12px into panel 0's space (covered by panel 0's right edge
-            clip), panel 2 bleeds 12px into panel 1, etc. */}
-        <div className="absolute inset-0 flex">
-          {featured.map((game, i) => {
-            const isHovered = hoveredIdx === i
-            const isFirst = i === 0
-            const isLast = i === featured.length - 1
-            // Each non-first panel bleeds 16px left into previous panel's space
-            const marginLeft = isFirst ? 0 : -16
-            // Right clip creates the stepped edge
-            const clipRight = !isLast
-              ? (i % 2 === 0
-                  ? "polygon(0 0, 85% 0, 100% 16%, 85% 100%, 0 100%)"
-                  : "polygon(0 0, 90% 0, 100% 7%, 90% 100%, 0 100%)")
-              : undefined
-
-            return (
-              <Link
-                key={game.id}
-                data-panel={i}
-                href={`/games/${game.serialId ?? game.id}`}
-                className="group relative flex-1 overflow-hidden transition-all duration-500 ease-out focus:outline-none"
-                style={{
-                  marginLeft,
-                  zIndex: featured.length - i, // leftmost = highest z
-                  transform: isHovered ? "scale(1.02)" : "scale(1)",
-                  transformOrigin: "center center",
-                  clipPath: clipRight,
-                }}
-                onMouseEnter={() => setHoveredIdx(i)}
-                onMouseLeave={() => setHoveredIdx(null)}
-              >
-                {game.coverImage ? (
-                  <Image
-                    src={game.coverImage}
-                    alt={game.title}
-                    fill
-                    className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                    sizes={`${100 / panelCount}vw`}
-                    priority={i === 0}
-                    quality={80}
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-muted/60" />
-                )}
-
-                {/* Hover brighten */}
-                <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.05] z-[2]" />
-
-                {/* Title */}
-                <div className="absolute inset-x-0 bottom-0 z-[3] p-2.5 sm:p-4">
-                  <h3 className="text-xs sm:text-sm font-bold text-white leading-snug line-clamp-2 drop-shadow-md transition-transform duration-300 group-hover:scale-[1.02]">
-                    {game.title}
-                  </h3>
-                </div>
-              </Link>
-            )
-          })}
+        {/* ── 上排：3个 ── */}
+        <div className="flex" style={{ gap: `-${H_OVERLAP}px` }}>
+          {topGames.map((game, i) => (
+            <Link
+              key={game.id}
+              href={`/games/${game.serialId ?? game.id}`}
+              className="group relative overflow-hidden transition-all duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
+              style={{
+                flex: "1 1 0",
+                height: "140px",
+                marginLeft: i === 0 ? 0 : -H_OVERLAP,
+                zIndex: TOP_COUNT - i,
+                clipPath: getClip(i, "top"),
+                transform: `translateY(${TOP_Y_OFFSETS[i]}px)`,
+              }}
+            >
+              {game.coverImage ? (
+                <Image
+                  src={game.coverImage}
+                  alt={game.title}
+                  fill
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                  sizes="20vw"
+                  priority={i < 2}
+                  quality={80}
+                />
+              ) : (
+                <div className="absolute inset-0 bg-muted/60" />
+              )}
+              {/* 底部渐变 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+              {/* 标题 */}
+              <div className="absolute inset-x-0 bottom-0 z-[2] p-2">
+                <h3 className="text-[11px] sm:text-xs font-bold text-white leading-snug line-clamp-1 drop-shadow-md">
+                  {game.title}
+                </h3>
+              </div>
+            </Link>
+          ))}
         </div>
 
-        {/* Diagonal accent dividers */}
-        {featured.length > 1 &&
-          featured.slice(0, -1).map((_, i) => {
-            const hue = HUES[i % HUES.length]
-            // Right edge of each panel (except last) in flex-1 percentage
-            const leftPct = ((i + 1) / featured.length) * 100
-            return (
-              <div
-                key={`div-${i}`}
-                className="absolute top-0 bottom-0 z-[5] pointer-events-none"
-                style={{
-                  left: `${leftPct - 0.3}%`,
-                  width: "2px",
-                  background: `linear-gradient(to bottom, transparent 3%, hsla(${hue}, 50%, 55%, 0.35) 20%, hsla(${hue}, 50%, 45%, 0.2) 80%, transparent 97%)`,
-                  transform: `skewX(${i % 2 === 0 ? "-4" : "4"}deg)`,
-                }}
-              />
-            )
-          })}
-
-        {/* Bottom fade */}
-        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent z-[5] pointer-events-none" />
+        {/* ── 下排：2个，向右偏移半格，与上排交错 ── */}
+        <div
+          className="flex"
+          style={{
+            gap: `-${H_OVERLAP}px`,
+            marginTop: -V_OVERLAP,
+            marginLeft: "16.5%",
+          }}
+        >
+          {botGames.map((game, i) => (
+            <Link
+              key={game.id}
+              href={`/games/${game.serialId ?? game.id}`}
+              className="group relative overflow-hidden transition-all duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
+              style={{
+                flex: "1 1 0",
+                height: "130px",
+                marginLeft: i === 0 ? 0 : -H_OVERLAP,
+                zIndex: BOTTOM_COUNT - i,
+                clipPath: getClip(i, "bot"),
+                transform: `translateY(${BOT_Y_OFFSETS[i]}px)`,
+              }}
+            >
+              {game.coverImage ? (
+                <Image
+                  src={game.coverImage}
+                  alt={game.title}
+                  fill
+                  className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                  sizes="20vw"
+                  quality={80}
+                />
+              ) : (
+                <div className="absolute inset-0 bg-muted/60" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 z-[2] p-2">
+                <h3 className="text-[11px] sm:text-xs font-bold text-white leading-snug line-clamp-1 drop-shadow-md">
+                  {game.title}
+                </h3>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )

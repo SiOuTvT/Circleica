@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { HomeAnnounceBar, buildActivities, type ActivityItem } from "@/components/home-announce-bar"
 import { HomeFeaturedGames } from "@/components/home-featured-games"
 import { HomeGameTrack } from "@/components/home-game-track"
-import { RandomCharacterBtn, RandomCreatorBtn } from "@/components/random-discover-btns"
+import { HomeStatsPlaceholder } from "@/components/home-stats-placeholder"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
@@ -210,20 +210,23 @@ export default async function HomePage({
   const trackGames = allGames
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8 pt-4">
+    <div className="flex flex-col gap-5 sm:gap-7 pt-4">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
-      {/* ── Announcement + Activity ──────────────────────────── */}
+      {/* ── Announcement + Activity（全宽对齐主内容区）── */}
       <HomeAnnounceBar
         announcements={announcements}
         activities={activities}
         siteName={siteName}
       />
 
-      {/* ── 5-Panel Featured Games ───────────────────────────── */}
+      {/* ── 轻量 Statistics 数据区域（预留位置，暂无数据）── */}
+      <HomeStatsPlaceholder />
+
+      {/* ── Featured 五图紧凑拼贴 ── */}
       <HomeFeaturedGames games={allGames} />
 
-      {/* ── Game Tracks ──────────────────────────────────────── */}
+      {/* ── Game Tracks ── */}
       {trackGames.length > 0 && (
         <HomeGameTrack
           games={trackGames}
@@ -233,7 +236,7 @@ export default async function HomePage({
         />
       )}
 
-      {/* ── Grid fallback (when track has insufficient games) ── */}
+      {/* ── Grid fallback ── */}
       {trackGames.length === 0 && gridData.games.length > 0 && (
         <section>
           <Suspense fallback={<GameGridSlots />}>
@@ -242,7 +245,7 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* ── View all link ────────────────────────────────────── */}
+      {/* ── View all link ── */}
       <div className="flex justify-center pt-2 pb-4">
         <Link
           href="/games"
