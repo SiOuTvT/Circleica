@@ -46,7 +46,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
   if (featured.length === 0) return null
 
   return (
-    <section ref={containerRef} className="w-full select-none" onKeyDown={handleKeyNav}>
+    <section ref={containerRef} className="w-full select-none px-3 sm:px-6 lg:px-10" onKeyDown={handleKeyNav}>
       {/* Label */}
       <div className="flex items-center gap-3 mb-3">
         <span className="h-px flex-1 bg-border/50" />
