@@ -11,12 +11,16 @@ import {
   Trophy,
   User,
   Users,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { type LogoMode } from "@/lib/branding"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
+import { getRandomStaff } from "@/lib/vndb-client"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 const NAV_SECTIONS = [
   {
@@ -145,6 +149,18 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           {/* 分隔，区分特色入口与普通导航 */}
           <div className="mx-1 my-1 h-px bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]" aria-hidden />
 
+          {/* ── Discover 分区 ── */}
+          <div>
+            {!collapsed && (
+              <p className="discover-section-label mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
+                Discover
+              </p>
+            )}
+            <div className="flex flex-col gap-0.5">
+              <DiscoverRandomBtn collapsed={collapsed} />
+            </div>
+          </div>
+
           {NAV_SECTIONS.map((section) => (
             <div key={section.label}>
               {section.items.map(({ icon: Icon, label, href }) => {
@@ -170,7 +186,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </div>
           ))}
 
-          {/* 随机发现 */}
+          {/* 随机发现（跳转随机游戏） */}
           <div>
             <button
               onClick={handleRandomDiscover}
@@ -186,8 +202,127 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               {!collapsed && <span>{randomLoading ? "发现中..." : "随机发现"}</span>}
             </button>
           </div>
+
+          {/* ── Discover 分区 ── */}
+          <div>
+            {!collapsed && (
+              <p className="discover-section-label mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
+                Discover
+              </p>
+            )}
+            <div className="flex flex-col gap-1">
+              <DiscoverCreatorBtn collapsed={collapsed} />
+              <DiscoverCharacterBtn collapsed={collapsed} />
+            </div>
+          </div>
         </nav>
       </aside>
     </>
+  )
+}
+
+/* ── 轻量 Discover 按钮（用于左侧栏） ── */
+function useDiscoverNav() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+
+  const navToCreator = useCallback(async () => {
+    if (loading) return
+    setLoading(true)
+    try {
+      const creator = await getRandomStaff()
+      if (creator?.vndbId) {
+        router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
+        return
+      }
+      const { ok, data } = await apiFetchSafe<{ data?: { slug?: string } }>("/api/creators/random", { cache: "no-store" })
+      const inner = data?.data
+      if (ok && inner?.slug) {
+        router.push(`/credits/creator/${encodeURIComponent(inner.slug)}`)
+        return
+      }
+      const { ok: ok2, data: data2 } = await apiFetchSafe<{ data?: Array<{ id?: string; serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      const game = data2?.data?.[0]
+      if (ok2 && game?.serialId) router.push(`/games/${game.serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } catch (err) {
+      logger.game.error("Discover random creator error", err)
+      toast.error("随机创作者获取失败")
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, router])
+
+  const navToCharacter = useCallback(async () => {
+    if (loading) return
+    setLoading(true)
+    let navigated = false
+    try {
+      const { getRandomCharacter } = await import("@/lib/vndb-client")
+      const character = await getRandomCharacter()
+      if (character?.vndbId) {
+        router.push(`/characters/${character.vndbId}`)
+        navigated = true
+      }
+    } catch {
+      // VNDB failed, try fallback
+    } finally {
+      if (!navigated) setLoading(false)
+    }
+    if (navigated) return
+    try {
+      const { ok, data } = await apiFetchSafe<{ data?: Array<{ id?: string; serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      const game = data?.data?.[0]
+      if (ok && game?.serialId) router.push(`/games/${game.serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } catch {
+      toast.error("随机角色获取失败")
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, router])
+
+  return { navToCreator, navToCharacter, loading }
+}
+
+function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
+  const { navToCreator, loading } = useDiscoverNav()
+  return (
+    <button
+      onClick={navToCreator}
+      disabled={loading}
+      className={cn(
+        "flex items-center rounded-lg py-[6px] font-medium transition-all whitespace-nowrap w-full",
+        collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
+        "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
+      )}
+      title={collapsed ? "随机创作者" : undefined}
+    >
+      {loading
+        ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} />
+        : <User className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+      {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
+    </button>
+  )
+}
+
+function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
+  const { navToCharacter, loading } = useDiscoverNav()
+  return (
+    <button
+      onClick={navToCharacter}
+      disabled={loading}
+      className={cn(
+        "flex items-center rounded-lg py-[6px] font-medium transition-all whitespace-nowrap w-full",
+        collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
+        "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
+      )}
+      title={collapsed ? "随机角色" : undefined}
+    >
+      {loading
+        ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} />
+        : <Sparkles className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+      {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
+    </button>
   )
 }
