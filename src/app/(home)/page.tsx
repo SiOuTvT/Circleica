@@ -220,10 +220,8 @@ export default async function HomePage({
         siteName={siteName}
       />
 
-      {/* ── 5-Panel Featured Games (full-width breakout) ─────── */}
-      <div className="featured-full-width">
-        <HomeFeaturedGames games={allGames} />
-      </div>
+      {/* ── 5-Panel Featured Games ───────────────────────────── */}
+      <HomeFeaturedGames games={allGames} />
 
       {/* ── Game Tracks ──────────────────────────────────────── */}
       {trackGames.length > 0 && (

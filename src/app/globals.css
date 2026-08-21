@@ -2064,16 +2064,6 @@ body[data-has-bottom-nav="true"] {
    另：深/浅模式是另一条线（靠 .light 切，不碰色相）；换主题色=换 hue，切明暗=换亮度，二者独立。 */
 /* [removed in homepage v2 refactor — brand card no longer used] */
 
-/* ── Home Featured full-width breakout ────────────────────────
- * Breaks out of the max-width content container by centering
- * relative to viewport, not parent. Works inside max-width. */
-.featured-full-width {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 /* ── Home Activity Ticker 动画 ────────────────────────────────
  * 克制、平滑的内容切换位移。
  * 速度：300ms ease-in-out，无弹跳，无缩放。 */
