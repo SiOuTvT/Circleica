@@ -206,8 +206,8 @@ export default async function HomePage({
   }
 
   const activities = buildHomeActivities(announcements)
-  const featuredGames = gridData.games.slice(0, 5)
-  const trackGames = gridData.games.slice(5, 25)
+  const allGames = gridData.games
+  const trackGames = allGames
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pt-4">
