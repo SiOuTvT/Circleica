@@ -102,13 +102,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
   }
 
   const item = activities[idx]
-
-  const enterClass = dir === "up"
-    ? "animate-slide-in-up"
-    : "animate-slide-in-down"
-  const exitClass = dir === "up"
-    ? "animate-slide-out-up"
-    : "animate-slide-out-down"
+  const enterClass = dir === "up" ? "animate-slide-in-up" : "animate-slide-in-down"
 
   const typeLabel: Record<string, string> = {
     announcement: "公告",

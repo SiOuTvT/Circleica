@@ -203,19 +203,6 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               {!collapsed && <span>{randomLoading ? "发现中..." : "随机发现"}</span>}
             </button>
           </div>
-
-          {/* ── Discover 分区 ── */}
-          <div>
-            {!collapsed && (
-              <p className="discover-section-label mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
-                Discover
-              </p>
-            )}
-            <div className="flex flex-col gap-1">
-              <DiscoverCreatorBtn collapsed={collapsed} />
-              <DiscoverCharacterBtn collapsed={collapsed} />
-            </div>
-          </div>
         </nav>
       </aside>
     </>

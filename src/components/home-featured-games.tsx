@@ -16,13 +16,16 @@ interface HomeFeaturedGamesProps {
   games: GameCardData[]
 }
 
-/** Diagonal panel offsets (px from left) and widths for 5-panel layout. */
+/** Panel positions and widths for 5-panel layout.
+ *  Total span: 1040px, fits within 1200px container with asymmetric spacing.
+ *  Even panels (0,2,4): diagonal right edge creates stepped visual.
+ *  Odd panels (1,3): positioned to overlap even panels for depth. */
 const PANEL_LAYOUT = [
-  { left: 0, width: 220 },
-  { left: 185, width: 195 },
-  { left: 360, width: 260 },
-  { left: 590, width: 195 },
-  { left: 755, width: 220 },
+  { left: 0,   width: 240 },  // Panel A: full-left anchor
+  { left: 215, width: 200 },  // Panel B: slight overlap on A
+  { left: 395, width: 245 },  // Panel C: wider center, slight overlap on B
+  { left: 610, width: 200 },  // Panel D: slight overlap on C
+  { left: 790, width: 250 },  // Panel E: wide right anchor
 ]
 
 const ACCENTS = [
