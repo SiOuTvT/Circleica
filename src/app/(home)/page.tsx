@@ -210,7 +210,7 @@ export default async function HomePage({
   const trackGames = gridData.games.slice(5, 25)
 
   return (
-    <div className="flex flex-col gap-12 sm:gap-16 pt-4">
+    <div className="flex flex-col gap-6 sm:gap-8 pt-4">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
       {/* ── Announcement + Activity ──────────────────────────── */}
@@ -220,8 +220,10 @@ export default async function HomePage({
         siteName={siteName}
       />
 
-      {/* ── 5-Panel Featured Games ───────────────────────────── */}
-      <HomeFeaturedGames games={featuredGames} />
+      {/* ── 5-Panel Featured Games (full-width breakout) ─────── */}
+      <div className="featured-full-width">
+        <HomeFeaturedGames games={featuredGames} />
+      </div>
 
       {/* ── Game Tracks ──────────────────────────────────────── */}
       {trackGames.length > 0 && (

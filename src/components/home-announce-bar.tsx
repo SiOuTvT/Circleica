@@ -172,16 +172,16 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
         <div className="flex-[3] min-w-0">
           {announcements.length > 0 ? (
             <div>
-              {/* Thin accent line */}
-              <div className="h-px bg-gradient-to-r from-primary/25 via-primary/10 to-transparent mb-4" />
-
               {/* Label */}
               <div className="flex items-center gap-2 mb-3">
                 <span className="h-[3px] w-[3px] rounded-full bg-primary/60" />
-                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/45">
+                <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
                   Announcement
                 </p>
               </div>
+
+              {/* Thin accent line */}
+              <div className="h-px bg-gradient-to-r from-border/80 via-border/40 to-transparent mb-4" />
 
               {/* Content — pure text, no background, no card */}
               <Link
@@ -190,11 +190,11 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
                 rel={ann.link ? "noopener noreferrer" : undefined}
                 className="group block"
               >
-                <h2 className="text-2xl sm:text-[28px] font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                <h2 className="text-2xl sm:text-[32px] font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                   {ann.title}
                 </h2>
                 {summary && (
-                  <p className="hidden sm:block text-[15px] text-muted-foreground/55 line-clamp-1 mt-2.5 leading-relaxed">
+                  <p className="hidden sm:block text-base text-muted-foreground/55 line-clamp-1 mt-3 leading-relaxed">
                     {summary}
                   </p>
                 )}
@@ -220,6 +220,5 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
       </div>
         </div>
       </div>
-    </div>
   )
 }
