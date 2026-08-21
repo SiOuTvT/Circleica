@@ -106,8 +106,8 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
         }
       }}
     >
-      {/* ─── 封面：竖图比例更舒展（5:4 倾向，比16:10略矮） ─── */}
-      <div className="relative w-full aspect-[5/4] overflow-hidden bg-muted sm:aspect-[3/2]">
+      {/* ─── 封面：紧凑横向比例 ─── */}
+      <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted sm:aspect-[16/9]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -215,7 +215,7 @@ export function GameCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border">
       {/* 封面 */}
-      <div className="w-full aspect-[16/10] skeleton-shimmer sm:aspect-[3/2]" />
+      <div className="w-full aspect-[16/9] skeleton-shimmer sm:aspect-[16/9]" />
       {/* 内容 */}
       <div className="flex flex-1 flex-col px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         <div className="h-[2.75em] w-full rounded skeleton-shimmer" />
@@ -243,7 +243,7 @@ export function GameCardSkeleton() {
 export function GameCardSlot() {
   return (
     <div aria-hidden="true" className="game-slot flex flex-col overflow-hidden rounded-2xl">
-      <div className="game-slot-cover w-full aspect-[16/10] sm:aspect-[3/2]" />
+      <div className="game-slot-cover w-full aspect-[16/9] sm:aspect-[16/9]" />
       <div className="flex flex-1 flex-col px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         <div className="game-slot-title" />
         <div className="game-card-spacer" />

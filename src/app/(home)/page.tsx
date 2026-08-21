@@ -2,9 +2,6 @@ import { GameCard, GameCardSlot } from "@/components/game-card"
 import { Megaphone } from "lucide-react"
 import { Suspense } from "react"
 import { HomeAnnounceBar, buildActivities, type ActivityItem } from "@/components/home-announce-bar"
-import { HomeFeaturedGames } from "@/components/home-featured-games"
-import { HomeGameTrack } from "@/components/home-game-track"
-import { HomeStatsPlaceholder } from "@/components/home-stats-placeholder"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
@@ -207,37 +204,31 @@ export default async function HomePage({
 
   const activities = buildHomeActivities(announcements)
   const allGames = gridData.games
-  const trackGames = allGames
 
   return (
     <div className="flex flex-col gap-5 sm:gap-7 pt-4">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
-      {/* ── Announcement + Activity（全宽对齐主内容区）── */}
+      {/* ── Announcement + Activity ── */}
       <HomeAnnounceBar
         announcements={announcements}
         activities={activities}
         siteName={siteName}
       />
 
-      {/* ── 轻量 Statistics 数据区域（预留位置，暂无数据）── */}
-      <HomeStatsPlaceholder />
-
-      {/* ── Featured 五图紧凑拼贴 ── */}
-      <HomeFeaturedGames games={allGames} />
-
-      {/* ── Game Tracks ── */}
-      {trackGames.length > 0 && (
-        <HomeGameTrack
-          games={trackGames}
-          title="Latest Arrivals"
-          viewAllHref="/games"
-          viewAllLabel="查看全部"
-        />
-      )}
-
-      {/* ── Grid fallback ── */}
-      {trackGames.length === 0 && gridData.games.length > 0 && (
+      {/* ── 游戏网格 ── */}
+      {allGames.length > 0 ? (
+        <section>
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
+            {allGames.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+            {Array.from({ length: Math.max(0, 12 - allGames.length) }).map((_, i) => (
+              <GameCardSlot key={`ph-${i}`} />
+            ))}
+          </div>
+        </section>
+      ) : (
         <section>
           <Suspense fallback={<GameGridSlots />}>
             <LegacyGameGrid games={gridData.games} total={gridData.total} tag={activeTag} q={q} page={page} sort={sort} />
@@ -245,7 +236,7 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* ── View all link ── */}
+      {/* ── 查看全部 ── */}
       <div className="flex justify-center pt-2 pb-4">
         <Link
           href="/games"

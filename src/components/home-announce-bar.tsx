@@ -235,7 +235,7 @@ export function HomeAnnounceBar({ announcements, activities, siteName = "Circlei
               </Link>
             ) : (
               /* 无公告空状态 */
-              <div className="flex items-center justify-center rounded-2xl bg-muted/30 border border-dashed border-border/30" style={{ minHeight: "200px" }}>
+              <div className="flex items-center justify-center rounded-2xl bg-muted/30 border border-dashed border-border/30 h-full">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
                   <Bell className="h-6 w-6" strokeWidth={1.5} />
                   <span className="text-[13px]">暂无公告</span>
