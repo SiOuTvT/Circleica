@@ -14,8 +14,7 @@ interface HomeFeaturedGamesProps {
 }
 
 const HUES = [245, 265, 185, 35, 0, 200, 320]
-
-const MIN_PANEL_W = 195
+const MIN_PANEL_W = 180
 
 export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
   const [panelCount, setPanelCount] = useState(6)
@@ -70,7 +69,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
         <span className="h-px flex-1 bg-border/40" />
       </div>
 
-      {/* Featured gallery — wide, flat, continuous surface */}
+      {/* Featured gallery — wide, flat, continuous visual strip */}
       <div
         className="relative w-full overflow-hidden"
         style={{ height: "clamp(200px, 28vh, 280px)" }}
@@ -78,16 +77,26 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
         {/* Dark base */}
         <div className="absolute inset-0 bg-muted/40" />
 
-        {/* ONE unified gradient across entire surface — bottom dark for text, top light for images */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent z-[1] pointer-events-none" />
+        {/* Unified gradient across entire surface — creates ONE visual layer */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-[1] pointer-events-none" />
 
-        {/* Game panels — straight edges, overlapping, NO per-panel gradients */}
+        {/* Panels — leftmost on top (highest z), each overlaps into next
+            This creates the continuous stepped visual: panel 0 is fully visible,
+            panel 1 bleeds 12px into panel 0's space (covered by panel 0's right edge
+            clip), panel 2 bleeds 12px into panel 1, etc. */}
         <div className="absolute inset-0 flex">
           {featured.map((game, i) => {
             const isHovered = hoveredIdx === i
+            const isFirst = i === 0
             const isLast = i === featured.length - 1
-            // Slight overlap for continuous feel
-            const marginRight = isLast ? 0 : -8
+            // Each non-first panel bleeds 16px left into previous panel's space
+            const marginLeft = isFirst ? 0 : -16
+            // Right clip creates the stepped edge
+            const clipRight = !isLast
+              ? (i % 2 === 0
+                  ? "polygon(0 0, 85% 0, 100% 16%, 85% 100%, 0 100%)"
+                  : "polygon(0 0, 90% 0, 100% 7%, 90% 100%, 0 100%)")
+              : undefined
 
             return (
               <Link
@@ -96,15 +105,15 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                 href={`/games/${game.serialId ?? game.id}`}
                 className="group relative flex-1 overflow-hidden transition-all duration-500 ease-out focus:outline-none"
                 style={{
-                  marginRight,
-                  zIndex: isHovered ? 10 : featured.length - i,
+                  marginLeft,
+                  zIndex: featured.length - i, // leftmost = highest z
                   transform: isHovered ? "scale(1.02)" : "scale(1)",
                   transformOrigin: "center center",
+                  clipPath: clipRight,
                 }}
                 onMouseEnter={() => setHoveredIdx(i)}
                 onMouseLeave={() => setHoveredIdx(null)}
               >
-                {/* Cover image — center-focused to preserve faces/bodies */}
                 {game.coverImage ? (
                   <Image
                     src={game.coverImage}
@@ -133,28 +142,25 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           })}
         </div>
 
-        {/* Diagonal accent dividers — thin colored lines between panels */}
-        {featured.length > 1 && (
-          <div className="absolute inset-0 flex pointer-events-none z-[4]">
-            {featured.slice(0, -1).map((game, i) => {
-              const hue = HUES[i % HUES.length]
-              // Position divider at the boundary between panels
-              // Each panel is flex-1, divider goes at right edge minus overlap
-              return (
-                <div
-                  key={`div-${i}`}
-                  className="absolute top-0 bottom-0"
-                  style={{
-                    left: `${((i + 1) / featured.length) * 100 - 0.4}%`,
-                    width: "2px",
-                    background: `linear-gradient(to bottom, transparent 3%, hsla(${hue}, 50%, 55%, 0.4) 20%, hsla(${hue}, 50%, 45%, 0.25) 80%, transparent 97%)`,
-                    transform: `skewX(${i % 2 === 0 ? "-4" : "4"}deg)`,
-                  }}
-                />
-              )
-            })}
-          </div>
-        )}
+        {/* Diagonal accent dividers */}
+        {featured.length > 1 &&
+          featured.slice(0, -1).map((_, i) => {
+            const hue = HUES[i % HUES.length]
+            // Right edge of each panel (except last) in flex-1 percentage
+            const leftPct = ((i + 1) / featured.length) * 100
+            return (
+              <div
+                key={`div-${i}`}
+                className="absolute top-0 bottom-0 z-[5] pointer-events-none"
+                style={{
+                  left: `${leftPct - 0.3}%`,
+                  width: "2px",
+                  background: `linear-gradient(to bottom, transparent 3%, hsla(${hue}, 50%, 55%, 0.35) 20%, hsla(${hue}, 50%, 45%, 0.2) 80%, transparent 97%)`,
+                  transform: `skewX(${i % 2 === 0 ? "-4" : "4"}deg)`,
+                }}
+              />
+            )
+          })}
 
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent z-[5] pointer-events-none" />
