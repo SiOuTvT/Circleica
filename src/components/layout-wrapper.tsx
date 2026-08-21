@@ -20,8 +20,8 @@ const EmailVerificationBanner = dynamic(() => import("@/components/email-verific
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量
    ═══════════════════════════════════════════════════ */
-const LEFT_W = 200          // 左侧栏正常宽度
-const LEFT_EXPANDED_W = 240 // 左侧栏展开（只开左边时）
+const LEFT_W = 180          // 左侧栏正常宽度（从200收窄，给主内容区更多空间）
+const LEFT_EXPANDED_W = 216 // 左侧栏展开（只开左边时，从240收窄）
 const LEFT_COLLAPSED_W = 60 // 左侧栏折叠
 const RIGHT_W = 260         // 右侧栏正常宽度
 const RIGHT_EXPANDED_W = 340 // 右侧栏展开（只开右边时）
@@ -145,7 +145,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="flex-1 px-3 sm:px-4 pb-8">
-              <div className="mx-auto max-w-[1140px]">
+              <div className="mx-auto max-w-[1200px]">
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>

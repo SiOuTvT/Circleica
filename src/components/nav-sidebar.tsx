@@ -95,7 +95,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
         style={{
           background: "var(--sidebar)",
           borderRight: "1px solid var(--sidebar-border)",
-          width: collapsed ? 60 : expanded ? 240 : mobileOpen ? 180 : 200,
+          width: collapsed ? 60 : expanded ? 216 : mobileOpen ? 180 : 180,
         }}
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">

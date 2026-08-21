@@ -106,8 +106,8 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
         }
       }}
     >
-      {/* ─── 封面：竖图比例更舒展（3:4 倾向） ─── */}
-      <div className="relative w-full aspect-[16/10] overflow-hidden bg-muted sm:aspect-[3/2]">
+      {/* ─── 封面：竖图比例更舒展（5:4 倾向，比16:10略矮） ─── */}
+      <div className="relative w-full aspect-[5/4] overflow-hidden bg-muted sm:aspect-[3/2]">
         {game.coverImage && !imgError ? (
           imgFallback ? (
             // 降级：原生 img 绕过 next/image 优化管道
@@ -152,12 +152,12 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       {/* ─── 内容区：自然撑开 ─── */}
       <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
         {/* 第1行：游戏名称 */}
-        <h3 className="game-card-title text-[16px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
+        <h3 className="game-card-title text-[17px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
           <Cjk>{game.title}</Cjk>
         </h3>
 
-        {/* 弹性间距：标题与标签之间 */}
-        <div className="game-card-spacer" />
+        {/* 弹性间距：标题与标签之间（给标题更多呼吸空间，形成层级） */}
+        <div className="game-card-spacer game-card-spacer-title" />
 
         {/* 第2行：标签（全部 + 去重，颜色连后台标签管理）；showTags=false 时隐藏（如继续浏览） */}
         {showTags && paramTags.length > 0 && (
