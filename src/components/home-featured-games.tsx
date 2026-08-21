@@ -14,18 +14,19 @@ interface HomeFeaturedGamesProps {
   games: GameCardData[]
 }
 
-/** Percentage-based 5-panel layout for full-width responsiveness.
- *  Panels overlap slightly, creating a continuous visual composition.
- *  Odd-numbered panels get diagonal right edges via clip-path. */
+/** Percentage-based 5-panel layout — full width, overlapping, continuous visual.
+ *  Panels are positioned so they overlap slightly, creating depth and a
+ *  magazine-cover composition rather than 5 separate cards.
+ *  Total span: 0% → 103% (panels intentionally overlap). */
 const PANEL_POSITIONS = [
-  { left: "0%",   width: "22%" },   // A — left anchor, widest
-  { left: "18%",  width: "18%" },   // B — overlaps A
-  { left: "34%",  width: "28%" },   // C — center, widest panel
-  { left: "60%",  width: "18%" },   // D — overlaps C
-  { left: "76%",  width: "24%" },   // E — right anchor
+  { left: "0%",   width: "24%" },   // A — left anchor
+  { left: "19%",  width: "20%" },   // B — overlaps A
+  { left: "37%",  width: "30%" },   // C — wider centerpiece
+  { left: "65%",  width: "20%" },   // D — overlaps C
+  { left: "83%",  width: "20%" },   // E — right anchor
 ]
 
-const HUES = [240, 265, 185, 38, 0]
+const HUES = [245, 265, 185, 35, 0]
 
 export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -35,7 +36,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
     const hue = HUES[i % HUES.length]
     return {
       ...g,
-      gradientFrom: `linear-gradient(to top, hsla(${hue}, 70%, 35%, 0.9), hsla(${hue}, 50%, 25%, 0.4) 35%, transparent 70%)`,
+      gradientFrom: `linear-gradient(to top, hsla(${hue}, 65%, 30%, 0.92), hsla(${hue}, 45%, 20%, 0.4) 30%, transparent 65%)`,
       gradientTo: `hsla(${hue}, 40%, 15%, 0.2)`,
     }
   })
@@ -62,34 +63,32 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
       className="w-full select-none"
       onKeyDown={handleKeyNav}
     >
-      {/* Section label — thin line separators */}
-      <div className="flex items-center gap-3 mb-2">
-        <span className="h-px flex-1 bg-border/60" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/35 flex-shrink-0">
+      {/* Label — minimal */}
+      <div className="flex items-center gap-3 mb-3">
+        <span className="h-px flex-1 bg-border/50" />
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/30 flex-shrink-0">
           Featured
         </p>
-        <span className="h-px flex-1 bg-border/60" />
+        <span className="h-px flex-1 bg-border/50" />
       </div>
 
-      {/* Panels — full width, tall, continuous visual */}
+      {/* Panels container — full width, tall, continuous */}
       <div
         className="relative w-full overflow-hidden"
-        style={{
-          height: "clamp(280px, 42vh, 480px)",
-        }}
+        style={{ height: "clamp(320px, 50vh, 540px)" }}
       >
-        {/* Base dark fill */}
-        <div className="absolute inset-0 bg-muted/40" />
+        {/* Dark base fill */}
+        <div className="absolute inset-0 bg-muted/50" />
 
         {featured.map((game, i) => {
           const pos = PANEL_POSITIONS[i]
           const isHovered = hoveredIdx === i
 
-          // Alternating diagonal right edges — creates stepped magazine composition
+          // Alternating diagonal right edges for stepped composition
           const clipRight = i < featured.length - 1
             ? (i % 2 === 0
-                ? "polygon(0 0, 84% 0, 100% 12%, 84% 100%, 0 100%)"
-                : "polygon(0 0, 90% 0, 100% 5%, 90% 100%, 0 100%)")
+                ? "polygon(0 0, 82% 0, 100% 14%, 82% 100%, 0 100%)"
+                : "polygon(0 0, 88% 0, 100% 6%, 88% 100%, 0 100%)")
             : undefined
 
           return (
@@ -102,7 +101,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                 left: pos.left,
                 width: pos.width,
                 zIndex: isHovered ? 10 : 1,
-                transform: isHovered ? "scale(1.025)" : "scale(1)",
+                transform: isHovered ? "scale(1.02)" : "scale(1)",
                 transformOrigin: "center center",
                 clipPath: clipRight,
               }}
@@ -115,30 +114,30 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                   src={game.coverImage}
                   alt={game.title}
                   fill
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  sizes="20vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                  sizes="22vw"
                   priority={i === 0}
                   quality={80}
                 />
               ) : (
-                <div className="absolute inset-0 bg-muted/50" />
+                <div className="absolute inset-0 bg-muted/60" />
               )}
 
-              {/* Gradient overlay */}
+              {/* Colored gradient overlay */}
               <div
                 className="absolute inset-0 transition-opacity duration-300"
                 style={{
                   background: game.gradientFrom,
-                  opacity: isHovered ? 0.95 : 0.82,
+                  opacity: isHovered ? 0.92 : 0.78,
                 }}
               />
 
-              {/* Subtle hover brighten */}
-              <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.05]" />
+              {/* Hover brightness */}
+              <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.06]" />
 
-              {/* Game title — always visible */}
+              {/* Game title */}
               <div className="absolute inset-x-0 bottom-0 z-[2] p-3 sm:p-5">
-                <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 drop-shadow-md transition-transform duration-300 group-hover:scale-[1.02]">
+                <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 drop-shadow-lg transition-transform duration-300 group-hover:scale-[1.03]">
                   {game.title}
                 </h3>
               </div>
@@ -146,7 +145,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           )
         })}
 
-        {/* Diagonal accent dividers */}
+        {/* Colored diagonal dividers — visible, creates the cutting effect */}
         {featured.length > 1 &&
           PANEL_POSITIONS.slice(0, -1).map((pos, i) => {
             const rightEdge = parseFloat(pos.left) + parseFloat(pos.width)
@@ -156,10 +155,10 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
                 key={`div-${i}`}
                 className="absolute top-0 bottom-0 z-[5] pointer-events-none"
                 style={{
-                  left: `${rightEdge - 0.2}%`,
+                  left: `${rightEdge - 0.3}%`,
                   width: "2px",
-                  background: `linear-gradient(to bottom, transparent 3%, hsla(${hue}, 55%, 55%, 0.45) 25%, hsla(${hue}, 55%, 45%, 0.3) 75%, transparent 97%)`,
-                  transform: `skewX(${i % 2 === 0 ? "-5" : "5"}deg)`,
+                  background: `linear-gradient(to bottom, transparent 2%, hsla(${hue}, 55%, 55%, 0.5) 20%, hsla(${hue}, 55%, 45%, 0.3) 80%, transparent 98%)`,
+                  transform: `skewX(${i % 2 === 0 ? "-6" : "6"}deg)`,
                 }}
               />
             )
