@@ -109,7 +109,7 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
             <div
               key={game.id}
               data-game-track
-              className="shrink-0 w-[240px]"
+              className="shrink-0 w-[280px]"
             >
               <GameCard game={game} showTags={false} />
             </div>
