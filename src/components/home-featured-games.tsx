@@ -3,11 +3,9 @@
 import { useCallback, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { type GameCardData } from "@/components/game-card"
+import type { GameCardData } from "@/components/game-card"
 
 interface FeaturedGame extends GameCardData {
-  accent: string
   gradientFrom: string
   gradientTo: string
 }
@@ -16,36 +14,30 @@ interface HomeFeaturedGamesProps {
   games: GameCardData[]
 }
 
-/** Panel positions and widths for 5-panel layout.
- *  Total span: 1040px, fits within 1200px container with asymmetric spacing.
- *  Even panels (0,2,4): diagonal right edge creates stepped visual.
- *  Odd panels (1,3): positioned to overlap even panels for depth. */
-const PANEL_LAYOUT = [
-  { left: 0,   width: 240 },  // Panel A: full-left anchor
-  { left: 215, width: 200 },  // Panel B: slight overlap on A
-  { left: 395, width: 245 },  // Panel C: wider center, slight overlap on B
-  { left: 610, width: 200 },  // Panel D: slight overlap on C
-  { left: 790, width: 250 },  // Panel E: wide right anchor
-]
-
-const ACCENTS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#06b6d4",
-  "#f59e0b",
-  "#ef4444",
+/** 5-panel layout using percentages for true full-width responsiveness.
+ *  Panel widths add up to ~100% with intentional asymmetric gaps.
+ *  Diagonal edges are created with clip-path on alternating panels. */
+const PANEL_POSITIONS = [
+  { left: "0%",   width: "20%" },   // A
+  { left: "17%",  width: "19%" },   // B — slightly overlaps A
+  { left: "34%",  width: "26%" },   // C — wider center
+  { left: "58%",  width: "19%" },   // D — slightly overlaps C
+  { left: "75%",  width: "25%" },   // E — wide right anchor
 ]
 
 export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const featured: FeaturedGame[] = games.slice(0, 5).map((g, i) => ({
-    ...g,
-    accent: ACCENTS[i % ACCENTS.length],
-    gradientFrom: `color-mix(in srgb, ${ACCENTS[i % ACCENTS.length]} 55%, transparent 70%)`,
-    gradientTo: `color-mix(in srgb, ${ACCENTS[i % ACCENTS.length]} 15%, transparent 90%)`,
-  }))
+  const featured: FeaturedGame[] = games.slice(0, 5).map((g, i) => {
+    const hues = [240, 260, 180, 38, 0]
+    const hue = hues[i % hues.length]
+    return {
+      ...g,
+      gradientFrom: `linear-gradient(to top, hsla(${hue}, 70%, 40%, 0.85), hsla(${hue}, 60%, 30%, 0.3) 40%, transparent 75%)`,
+      gradientTo: `hsla(${hue}, 50%, 20%, 0.15)`,
+    }
+  })
 
   const handleKeyNav = useCallback(
     (e: React.KeyboardEvent) => {
@@ -70,82 +62,79 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
       onKeyDown={handleKeyNav}
     >
       {/* Section label */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <span className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40 flex-shrink-0">
           Featured
         </p>
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-border" />
       </div>
 
-      {/* Panels container */}
+      {/* Panels — full width, tall, continuous visual */}
       <div
-        className="relative mx-auto overflow-hidden rounded-2xl"
+        className="relative w-full overflow-hidden"
         style={{
-          height: "clamp(160px, 20vh, 240px)",
-          maxWidth: "100%",
-          background: "var(--muted)",
+          height: "clamp(260px, 36vh, 440px)",
         }}
       >
+        {/* Subtle background base */}
+        <div className="absolute inset-0 bg-muted/30" />
+
         {featured.map((game, i) => {
-          const layout = PANEL_LAYOUT[i]
+          const pos = PANEL_POSITIONS[i]
           const isHovered = hoveredIdx === i
-          const isOdd = i % 2 === 1
+          // Create diagonal edge on right side of odd panels
+          const clipRight = i < featured.length - 1 && i % 2 === 1
+            ? "polygon(0 0, 88% 0, 100% 8%, 88% 100%, 0 100%)"
+            : undefined
 
           return (
             <Link
               key={game.id}
               data-panel={i}
               href={`/games/${game.serialId ?? game.id}`}
-              className="group absolute inset-y-0 overflow-hidden transition-transform duration-500 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group absolute inset-y-0 overflow-hidden transition-all duration-500 ease-out focus:outline-none"
               style={{
-                left: `${layout.left}px`,
-                width: `${layout.width}px`,
-                zIndex: isHovered ? 3 : 1,
-                transform: isHovered ? "scale(1.03)" : undefined,
+                left: pos.left,
+                width: pos.width,
+                zIndex: isHovered ? 10 : 1,
+                transform: isHovered ? "scale(1.02)" : "scale(1)",
                 transformOrigin: "center center",
+                clipPath: clipRight,
               }}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
             >
-              {/* Background image */}
-              {game.coverImage && (
+              {/* Cover image */}
+              {game.coverImage ? (
                 <Image
                   src={game.coverImage}
                   alt={game.title}
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes={`${layout.width}px`}
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="20vw"
                   priority={i === 0}
-                  quality={75}
+                  quality={80}
                 />
+              ) : (
+                <div className="absolute inset-0 bg-muted" />
               )}
 
-              {/* Diagonal clip on odd panels — creates the stepped edges */}
-              {isOdd && (
-                <div
-                  className="absolute inset-0 z-[2]"
-                  style={{
-                    clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-                  }}
-                />
-              )}
-
-              {/* Gradient overlay */}
+              {/* Gradient overlay — always visible, stronger on hover */}
               <div
-                className="absolute inset-0 z-[1] transition-opacity duration-300"
+                className="absolute inset-0 transition-opacity duration-300"
                 style={{
-                  background: `linear-gradient(to top, ${game.gradientFrom}, ${game.gradientTo} 60%, transparent 85%)`,
-                  opacity: isHovered ? 0.95 : 0.8,
+                  background: game.gradientFrom,
+                  opacity: isHovered ? 0.95 : 0.82,
                 }}
               />
 
-              {/* Hover brightness */}
-              <div
-                className="absolute inset-0 z-[1] bg-white/0 transition-all duration-300 group-hover:bg-white/[0.04]"
-              />
+              {/* Hover brighten */}
+              <div className="absolute inset-0 bg-white/0 transition-all duration-300 group-hover:bg-white/[0.06]" />
 
-              {/* Game title */}
-              <div className="absolute inset-x-0 bottom-0 z-[3] p-3 sm:p-4">
-                <h3 className="text-sm sm:text-base font-semibold text-white leading-snug line-clamp-2 drop-shadow-sm">
+              {/* Title — always visible, never hidden */}
+              <div className="absolute inset-x-0 bottom-0 z-[2] p-3 sm:p-4">
+                <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.02]">
                   {game.title}
                 </h3>
               </div>
@@ -153,30 +142,27 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
           )
         })}
 
-        {/* Diagonal divider lines between panels */}
+        {/* Diagonal accent dividers between panels */}
         {featured.length > 1 &&
-          PANEL_LAYOUT.slice(0, -1).map((layout, i) => {
-            const accent = ACCENTS[i % ACCENTS.length]
-            const rightEdge = layout.left + layout.width
-            const dividerTop = "8%"
-            const dividerBottom = "92%"
-
+          PANEL_POSITIONS.slice(0, -1).map((pos, i) => {
+            const rightEdge = parseFloat(pos.left) + parseFloat(pos.width)
+            const hue = [240, 260, 180, 38, 0][i % 5]
             return (
               <div
-                key={`divider-${i}`}
-                className="absolute z-[4] pointer-events-none"
+                key={`div-${i}`}
+                className="absolute top-0 bottom-0 z-[5] pointer-events-none"
                 style={{
-                  left: `${rightEdge - 1}px`,
-                  top: dividerTop,
-                  bottom: dividerBottom,
+                  left: `${rightEdge - 0.3}%`,
                   width: "3px",
-                  background: `linear-gradient(to bottom, transparent, ${accent}66, ${accent}44, ${accent}66, transparent)`,
-                  transform: `skewX(${i % 2 === 0 ? "-8" : "8"}deg)`,
-                  transformOrigin: "center",
+                  background: `linear-gradient(to bottom, transparent 5%, hsla(${hue}, 60%, 60%, 0.5) 30%, hsla(${hue}, 60%, 50%, 0.35) 70%, transparent 95%)`,
+                  transform: `skewX(${i % 2 === 0 ? "-6" : "6"}deg)`,
                 }}
               />
             )
           })}
+
+        {/* Bottom edge fade — subtle */}
+        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-background to-transparent z-[6] pointer-events-none" />
       </div>
     </section>
   )

@@ -20,8 +20,8 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
   const checkScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
-    setCanScrollLeft(el.scrollLeft > 2)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2)
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
   }, [])
 
   useEffect(() => {
@@ -39,8 +39,8 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
   const scroll = useCallback((dir: -1 | 1) => {
     const el = scrollRef.current
     if (!el) return
-    const cardWidth = 200
-    el.scrollBy({ left: dir * cardWidth, behavior: "smooth" })
+    const cardW = el.clientWidth * 0.55
+    el.scrollBy({ left: dir * cardW, behavior: "smooth" })
   }, [])
 
   if (games.length === 0) return null
@@ -49,34 +49,36 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
     <section>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/40 flex-shrink-0">
           {title}
         </h2>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="text-[11px] text-muted-foreground/50 transition-colors hover:text-foreground"
+              className="text-[11px] text-muted-foreground/40 transition-colors hover:text-foreground/70 flex-shrink-0"
             >
               {viewAllLabel}
             </Link>
           )}
-          <button
-            onClick={() => scroll(-1)}
-            disabled={!canScrollLeft}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 text-muted-foreground/50 transition-all hover:border-foreground/20 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="向左滚动"
-          >
-            <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-          </button>
-          <button
-            onClick={() => scroll(1)}
-            disabled={!canScrollRight}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 text-muted-foreground/50 transition-all hover:border-foreground/20 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="向右滚动"
-          >
-            <ChevronRight className="h-4 w-4" strokeWidth={2} />
-          </button>
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onClick={() => scroll(-1)}
+              disabled={!canScrollLeft}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/30 transition-colors hover:text-foreground/60 disabled:opacity-20 disabled:cursor-default"
+              aria-label="向左滚动"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+            <button
+              onClick={() => scroll(1)}
+              disabled={!canScrollRight}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/30 transition-colors hover:text-foreground/60 disabled:opacity-20 disabled:cursor-default"
+              aria-label="向右滚动"
+            >
+              <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -84,30 +86,29 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
       <div className="relative group/track">
         {/* Fade edges */}
         {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background via-background/80 to-transparent z-10 pointer-events-none" />
         )}
         {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-r from-transparent to-background z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-r from-transparent via-background/80 to-background z-10 pointer-events-none" />
         )}
 
         {/* Scrollable area */}
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth pb-2"
+          className="flex gap-3 overflow-x-auto scroll-smooth pb-3 -mb-3"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
-            scrollSnapType: "x proximity",
+            scrollPaddingLeft: "8px",
           }}
         >
-          {/* Hide scrollbar with style tag (WebKit) */}
-          <style>{`[data-track]::-webkit-scrollbar { display: none }`}
-          </style>
+          <style>{`[data-game-track]::-webkit-scrollbar { display: none }`}</style>
 
           {games.map((game) => (
             <div
               key={game.id}
-              className="shrink-0 w-[150px] sm:w-[170px] scroll-snap-start"
+              data-game-track
+              className="shrink-0 w-[190px]"
             >
               <GameCard game={game} showTags={false} />
             </div>
