@@ -113,7 +113,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
         setCheckedIn(val)
         try { sessionStorage.setItem("checkin_status", JSON.stringify({ date: today, checkedIn: val })) } catch (err) { logger.user.warn("[TopNav] write checkin cache failed", { error: err instanceof Error ? err.message : String(err) }) }
       })
-      .catch(() => setCheckedIn(false))
+      .catch(() => {})  // 失败时保持当前状态，不重置为 false
     return () => controller.abort()
   }, [user?.id])
 
