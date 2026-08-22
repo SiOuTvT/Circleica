@@ -99,11 +99,10 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
                     <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
                   <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
-                    {/* 毛玻璃背景：保证文字可读性，不完全遮挡图片 */}
-                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-black/30 backdrop-blur-sm rounded-b-2xl pointer-events-none" />
-                    <div className="relative z-[3]">
-                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-white/90 transition-colors drop-shadow-md">{ann.title}</h2>
-                      {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed drop-shadow-sm">{ann.summary}</p>}
+                    {/* 文字区域毛玻璃卡片 */}
+                    <div className="relative inline-block max-w-[85%] rounded-xl bg-black/35 backdrop-blur-md px-4 py-3 sm:px-5 sm:py-4">
+                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2">{ann.title}</h2>
+                      {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed">{ann.summary}</p>}
                       <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
                     </div>
                   </div>
