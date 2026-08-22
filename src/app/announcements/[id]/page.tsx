@@ -177,8 +177,8 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col min-h-0 flex-1">
             <h3 className="text-sm font-semibold text-foreground/70 mb-3">其他公告</h3>
             <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 scrollbar-thin">
-              {otherAnnouncements.length > 0 ? (
-                otherAnnouncements.map((a) => (
+              {allAnnouncements.length > 0 ? (
+                allAnnouncements.map((a) => (
                   <Link
                     key={a.id}
                     href={`/announcements/${a.id}`}
