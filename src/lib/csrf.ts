@@ -11,9 +11,14 @@ function sameOriginHosts(req: NextRequest): string[] {
   const authUrlHost = process.env.NEXTAUTH_URL
     ? new URL(process.env.NEXTAUTH_URL).host
     : null
-  return authUrlHost
+  const hosts = authUrlHost
     ? [reqHost, reqHostname, authUrlHost]
     : [reqHost, reqHostname]
+  // 开发环境追加 localhost/127.0.0.1/[::1] 的各种端口组合，防止浏览器 Origin 与 nextUrl 格式不一致
+  if (process.env.NODE_ENV === "development") {
+    hosts.push("localhost", "127.0.0.1", "[::1]")
+  }
+  return hosts
 }
 
 /** Origin 存在时校验是否同源；无 Origin 返回 null（交由调用方决定兜底策略）。 */

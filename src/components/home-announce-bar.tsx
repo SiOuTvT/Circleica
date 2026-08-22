@@ -86,8 +86,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
     <div className="flex flex-col min-w-0 max-h-full">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto min-h-0"
-        style={{ scrollbarWidth: "thin" }}
+        className="flex-1 overflow-y-auto min-h-0 scrollbar-hide"
       >
         <div className="flex flex-col gap-3.5 pr-1">
           {activities.map((act) => (
@@ -151,10 +150,10 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
 
   return (
     <div className="w-full">
-      {/* 桌面端 flex 左右并排（天然等高）；移动端垂直堆叠 */}
+      {/* 桌面端：左列固定内容 + 右列 Activity 用 same 高度 */}
       <div className="flex flex-col lg:flex-row lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
-        <div className="flex flex-col gap-4 min-w-0 flex-[3]">
+        <div className="flex flex-col gap-4 min-w-0 lg:w-0 lg:flex-[3]">
           {/* 公告区 */}
           <div className="relative min-w-0">
             {announcements.length > 0 ? (
@@ -259,8 +258,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
           </div>
         </div>
 
-        {/* ── 右侧列：Activity（flex-2，与左列天然等高，内部滚动）── */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col flex-[2] min-h-0 min-w-[280px] overflow-hidden">
+        {/* ── 右侧列：Activity（固定高度匹配左列，内部滚动）── */}
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col lg:w-[35%] shrink-0" style={{ height: "clamp(308px, calc(30vh + 88px), 368px)" }}>
           <ActivityList activities={activities} />
         </div>
       </div>
