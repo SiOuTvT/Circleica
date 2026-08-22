@@ -95,24 +95,27 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
             {announcements.length > 0 ? (
               <>
                 <div className="group relative block overflow-hidden rounded-2xl" style={{ height: "clamp(220px, 30vh, 280px)" }}>
-                  {/* 整个区域点击跳转 */}
-                  <Link href={href} target={ann.link ? "_blank" : undefined} rel={ann.link ? "noopener noreferrer" : undefined} className="absolute inset-0 z-[1]" aria-label={`查看公告：${ann.title}`} />
-                  {/* 背景图 */}
+                  {/* 背景图：不可点击，普通鼠标 */}
                   {ann.imageUrl ? (
-                    <div className="absolute inset-0 cursor-pointer">
+                    <div className="absolute inset-0">
                       <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" sizes="(max-width: 1024px) 100vw, 60vw" priority quality={80} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40 cursor-pointer" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
-                  {/* 毛玻璃文字层：默认鼠标箭头，hover 时标题变主题色 */}
-                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-default">
-                    <div className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 pointer-events-none">
-                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">{ann.title}</h2>
+                  {/* 毛玻璃文字层：可点击进入详情，pointer cursor */}
+                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
+                    <Link
+                      href={href}
+                      target={ann.link ? "_blank" : undefined}
+                      rel={ann.link ? "noopener noreferrer" : undefined}
+                      className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 block cursor-pointer hover:bg-black/45 transition-colors"
+                    >
+                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 hover:text-primary transition-colors duration-300">{ann.title}</h2>
                       {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed">{ann.summary}</p>}
                       <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
-                    </div>
+                    </Link>
                   </div>
                 </div>
                 {len > 1 && (
