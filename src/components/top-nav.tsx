@@ -132,11 +132,16 @@ export function TopNav({ onToggleForum }: TopNavProps) {
   // 监听滚动，用于导航栏背景透明度渐变
   useEffect(() => {
     let ticking = false
+    const scrolledRef = { current: false }
     function handleScroll() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const y = Math.max(0, window.scrollY)
-          setScrolled(y > 10)
+          const next = y > 10
+          if (next !== scrolledRef.current) {
+            scrolledRef.current = next
+            setScrolled(next)
+          }
           ticking = false
         })
         ticking = true
@@ -197,7 +202,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
     if (checkedIn || checkinLoading) return
     setCheckinLoading(true)
     setUserOpen(false)
-    api.post<{ data?: { marks?: number } }>("/api/checkin")
+    api.post<{ data?: { marks?: number } }>("/api/checkin", undefined, { timeout: 30000 })
       .then((data) => {
         // 成功：{ success: true, data: { marks, streak } }
         setCheckedIn(true)
@@ -261,7 +266,9 @@ export function TopNav({ onToggleForum }: TopNavProps) {
             {user && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <NotificationBell />
+                  <div title="通知">
+                    <NotificationBell />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">通知</TooltipContent>
               </Tooltip>
@@ -269,7 +276,9 @@ export function TopNav({ onToggleForum }: TopNavProps) {
             {user && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <MessageBell />
+                  <div title="私信">
+                    <MessageBell />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">私信</TooltipContent>
               </Tooltip>

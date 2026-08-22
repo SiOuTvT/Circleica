@@ -306,16 +306,16 @@ export default async function HomePage({
       />
 
       {/* ── 最新资源入口 ── */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground">最新资源</h2>
-        <Link href="/games" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+      <Link href="/games" className="flex items-center gap-2 group">
+        <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">最新资源</h2>
+        <span className="flex items-center gap-0.5 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
           更多
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="transition-transform group-hover:translate-x-0.5">
             <path d="M5 12h14" />
             <path d="M12 5l7 7-7 7" />
           </svg>
-        </Link>
-      </div>
+        </span>
+      </Link>
 
       {/* ── 游戏网格 ── */}
       {allGames.length > 0 ? (

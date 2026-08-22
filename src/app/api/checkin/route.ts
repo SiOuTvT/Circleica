@@ -5,8 +5,9 @@ import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
 import { RateLimitError } from "@/lib/errors"
 
 export const GET = withHandler(async () => {
-  const { userId } = await requireAuth()
-  const status = await checkinService.getStatus(userId)
+  const auth = await requireAuth().catch(() => null)
+  if (!auth) return json({ checkedIn: false })
+  const status = await checkinService.getStatus(auth.userId)
   return json(status)
 })
 
