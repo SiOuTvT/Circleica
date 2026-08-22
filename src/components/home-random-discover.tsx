@@ -66,7 +66,7 @@ export function HomeRandomDiscover() {
       ) : (
         <>
           <span className="text-base font-bold text-foreground leading-tight">随机</span>
-          <span className="text-base font-bold text-foreground leading-tight">发现</span>
+          <span className="text-base font-bold text-foreground leading-tight">游戏</span>
         </>
       )}
     </button>
