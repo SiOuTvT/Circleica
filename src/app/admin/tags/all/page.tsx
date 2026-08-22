@@ -23,8 +23,18 @@ const RESOURCE_LABELS: Record<string, string> = {
   resource_content_types: "资源内容",
 }
 
-// 预设组 Tab 展示顺序（其余组按名称排序，未分组最后）
+// 预设组 Tab 展示顺序（其余组按名称排序）
 const PRESET_ORDER = ["preset_home_card", "preset_detail_header", "preset_discover", "preset_resource_tab"]
+
+interface RawTag {
+  id: string
+  name: string
+  color: string
+  isVisible: boolean
+  groupId: string | null
+  description: string | null
+  _count: { games: number }
+}
 
 export default async function AllTagsPage() {
   await requireAdmin()
@@ -38,10 +48,10 @@ export default async function AllTagsPage() {
   }
 
   if (!tabs) {
-    const [groups, rawTags] = await Promise.all([
+    const [groups, rawTags, publishedTags] = await Promise.all([
       prisma.tagGroup.findMany({
         orderBy: { name: "asc" },
-        select: { id: true, name: true, color: true, description: true },
+        select: { id: true, name: true,  color: true, description: true },
       }),
       prisma.tag.findMany({
         where: { source: "circleica" },
@@ -56,34 +66,43 @@ export default async function AllTagsPage() {
           _count: { select: { games: true } },
         },
       }),
+      // 详情页标签 / 发现页标签：同源「已发布游戏关联的标签」，仅前台位置/颜色不同
+      prisma.tag.findMany({
+        where: { source: "circleica", games: { some: { game: { isPublished: true } } } },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          isVisible: true,
+          groupId: true,
+          description: true,
+          _count: { select: { games: true } },
+        },
+      }),
     ])
 
-    // 按标签组归桶
+    const toItem = (t: RawTag): TagItem => ({
+      id: t.id,
+      name: t.name,
+      color: t.color,
+      gameCount: t._count.games,
+      isVisible: t.isVisible,
+      description: t.description,
+      groupId: t.groupId,
+    })
+
+    // 按标签组归桶（详情页/发现页由下方 publishedTags 填充，这里跳过，避免重复）
     const groupMap = new Map<string, GroupTab>()
     for (const g of groups) {
       groupMap.set(g.id, { id: g.id, name: g.name, color: g.color, description: g.description, tags: [] })
     }
-    const ungrouped: GroupTab = {
-      id: "__ungrouped",
-      name: "未分组",
-      color: "#6b7280",
-      description: "未归属任何标签组的标签",
-      tags: [],
-    }
 
     for (const t of rawTags) {
-      const item: TagItem = {
-        id: t.id,
-        name: t.name,
-        color: t.color,
-        gameCount: t._count.games,
-        isVisible: t.isVisible,
-        description: t.description,
-        groupId: t.groupId,
-      }
+      if (t.groupId === "preset_detail_header" || t.groupId === "preset_discover") continue
       const bucket = t.groupId ? groupMap.get(t.groupId) : undefined
-      if (bucket) bucket.tags.push(item)
-      else ungrouped.tags.push(item)
+      if (bucket) bucket.tags.push(toItem(t))
+      else groupMap.get("preset_detail_header")?.tags.push(toItem(t))
     }
 
     // 首页卡片 / 资源标签组：并入设置驱动的资源伪标签（只读，不参与编辑删除）
@@ -115,7 +134,16 @@ export default async function AllTagsPage() {
       }
     }
 
-    // 排序：预设组按固定顺序，其余按名称，未分组最后
+    // 详情页标签 / 发现页标签：用「已发布游戏关联的标签」填充（同源，仅前台位置/颜色不同）
+    const detailBucket = groupMap.get("preset_detail_header")
+    const discoverBucket = groupMap.get("preset_discover")
+    for (const t of publishedTags) {
+      const item = toItem(t)
+      if (detailBucket) detailBucket.tags.push(item)
+      if (discoverBucket) discoverBucket.tags.push({ ...item, color: discoverBucket.color })
+    }
+
+    // 排序：预设组按固定顺序，其余按名称
     const ordered = Array.from(groupMap.values()).sort((a, b) => {
       const ai = PRESET_ORDER.indexOf(a.id)
       const bi = PRESET_ORDER.indexOf(b.id)
@@ -124,7 +152,6 @@ export default async function AllTagsPage() {
       if (ra !== rb) return ra - rb
       return a.name.localeCompare(b.name)
     })
-    if (ungrouped.tags.length > 0) ordered.push(ungrouped)
 
     tabs = ordered
     try {
@@ -138,7 +165,10 @@ export default async function AllTagsPage() {
     orderBy: { name: "asc" },
     select: { id: true, name: true, color: true },
   })
-  const total = tabs.reduce((s, t) => s + t.tags.length, 0)
+  // 去重计数（详情页/发现页同源，避免重复计入）
+  const seen = new Set<string>()
+  for (const t of tabs) for (const tag of t.tags) seen.add(tag.id)
+  const total = seen.size
 
   return (
     <AdminPageContainer

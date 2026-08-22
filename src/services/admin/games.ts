@@ -157,7 +157,8 @@ export const adminGameService = {
               where: { name },
               // 复用同名标签时强制归属主站，避免串入副站/VNDB 同名标签；新建也明确 source。
               // 拉取的标签此时仅登记为「草稿关联」，游戏发布( isPublished )后才计入主站标签体系。
-              update: { source: "circleica" },
+              // 更新时也强制归入详情页标签组，否则旧标签(VNDB/早期导入)会一直 groupId=NULL 变成未分组。
+              update: { source: "circleica", groupId: "preset_detail_header" },
               create: { name, slug: tagSlug, color: "#6b7280", groupId: "preset_detail_header", source: "circleica" },
               select: { id: true },
             })

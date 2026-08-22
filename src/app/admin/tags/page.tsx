@@ -44,8 +44,7 @@ export default async function TagsOverviewPage() {
 
 async function loadTagsOverview() {
   // 获取标签计数、资源标签设置、标签组和未分组标签（全部并行）
-  const [totalTagCount, allResourceSettings, groups] = await Promise.all([
-    prisma.tag.count({ where: { source: "circleica" } }),
+  const [allResourceSettings, groups, publishedTagCount] = await Promise.all([
     prisma.siteSetting.findMany({ where: { key: { in: ["resource_platforms", "resource_languages", "resource_run_types", "resource_content_types"] } } }),
     prisma.tagGroup.findMany({
       orderBy: [{ isPreset: "desc" }, { name: "asc" }],
@@ -58,6 +57,8 @@ async function loadTagsOverview() {
         },
       },
     }),
+    // 详情页标签 / 发现页标签：同一批「已发布游戏关联的标签」，仅前台位置/颜色不同
+    prisma.tag.count({ where: { source: "circleica", games: { some: { game: { isPublished: true } } } } }),
   ])
 
   // 资源标签计数
@@ -97,12 +98,12 @@ async function loadTagsOverview() {
     color: g.color,
     positions: Array.isArray(g.positions) ? g.positions : (typeof g.positions === "string" ? JSON.parse(g.positions || "[]") : []),
     isPreset: g.isPreset,
-    // 根据预设组类型显示不同标签数
+    // 根据预设组类型显示不同标签数：首页卡片/资源组用资源预设计数，详情页与发现页用「已发布游戏关联的标签数」
     tagCount: g.id === "preset_home_card"
       ? homeCardTagCount
       : g.id === "preset_resource_tab"
         ? totalResourceTagCount
-        : g.isPreset ? totalTagCount : g.tags.length,
+        : publishedTagCount,
     totalGames: g.tags.reduce((s, t) => s + getGameCount(t.id), 0),
   }))
 
