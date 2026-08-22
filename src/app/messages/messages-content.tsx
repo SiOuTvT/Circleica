@@ -158,12 +158,9 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
       {/* 会话列表 */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        {tabNav && <div className="px-3 pt-3">{tabNav}</div>}
-        <div className="border-b border-border px-4 py-3">
-          <span className="text-sm font-semibold text-foreground">会话</span>
-        </div>
-        <div className="max-h-[70vh] overflow-y-auto">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
+        {tabNav && <div className="px-3 pt-3 pb-1">{tabNav}</div>}
+        <div className="flex-1 overflow-y-auto max-h-[70vh]">
           {loadingList ? (
             <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : conversations.length === 0 ? (
