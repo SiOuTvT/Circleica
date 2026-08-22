@@ -116,7 +116,7 @@ function ActivityTicker({ activities }: { activities: ActivityItem[] }) {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1.5 flex-wrap">
                 {act.username && (
                   <span className="text-[12px] font-semibold text-foreground/80 truncate">
                     {act.username}
@@ -176,7 +176,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
   return (
     <div className="w-full">
       {/* 桌面端：左右并排 Grid；移动端：垂直堆叠 */}
-      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_340px] lg:gap-5">
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
         <div className="flex flex-col gap-4 lg:gap-0 min-w-0" style={{ gridColumn: "1", gridRow: "1 / 3" }}>
           {/* 公告区 */}
