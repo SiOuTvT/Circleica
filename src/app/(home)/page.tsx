@@ -256,38 +256,12 @@ export default async function HomePage({
     logger.db.error("[HomePage] Announcements query failed", error)
   }
 
-  // ── 动态数据（签到、评论、收藏）──
+  // ── 动态数据（只保留有意义的内容动态）──
   let checkins: { user: { username: string; avatar: string | null }; createdAt: Date }[] = []
   let comments: { content: string; createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
   let favorites: { createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
-  try {
-    const [recentCheckins, recentComments, recentFavorites] = await Promise.all([
-      prisma.checkIn.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        include: { user: { select: { username: true, avatar: true } } },
-      }),
-      prisma.comment.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        include: {
-          user: { select: { username: true, avatar: true } },
-          game: { select: { title: true } },
-        },
-      }),
-      prisma.favorite.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        include: {
-          user: { select: { username: true, avatar: true } },
-          game: { select: { title: true } },
-        },
-      }),
-    ])
-    checkins = recentCheckins
-    comments = recentComments
-    favorites = recentFavorites
-  } catch {}
+  // 注：首页动态只展示公告，不展示签到/评论/收藏等普通操作
+  // 后续如有「发布新游戏」「游戏更新」等有意义的动态事件，再接入
 
   const activities = buildHomeActivities(announcements, checkins, comments, favorites)
   const allGames = gridData.games
@@ -306,8 +280,8 @@ export default async function HomePage({
       />
 
       {/* ── 最新资源入口 ── */}
-      <Link href="/games" className="flex items-center gap-2 group">
-        <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">最新资源</h2>
+      <Link href="/games" className="flex items-center gap-2.5 group">
+        <h2 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">最新资源</h2>
         <span className="flex items-center gap-0.5 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
           更多
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="transition-transform group-hover:translate-x-0.5">

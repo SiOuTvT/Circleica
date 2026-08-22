@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 
 const NAV_SECTIONS = [
   {
@@ -37,28 +38,11 @@ interface NavSidebarProps {
   onToggle: () => void
   mobileOpen?: boolean
   onMobileToggle?: () => void
-  logoMode?: LogoMode
-  siteLogo?: string | null
 }
 
 export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
   const pathname = usePathname()
-  const router = useRouter()
-  const [randomLoading, setRandomLoading] = useState(false)
-
-  const handleRandomDiscover = useCallback(async () => {
-    if (randomLoading) return
-    setRandomLoading(true)
-    try {
-      const { ok, data } = await apiFetchSafe<{ data?: { serialId?: string; id?: string } }>("/api/games/random")
-      if (!ok) throw new Error("获取失败")
-      router.push(`/games/${data?.data?.serialId ?? data?.data?.id ?? ""}`)
-    } catch (err) {
-      logger.api.warn("[NavSidebar] random discover failed", { error: err instanceof Error ? err.message : String(err) })
-    } finally {
-      setRandomLoading(false)
-    }
-  }, [randomLoading, router])
+  const [randomLoading] = useState(false)
 
   const isGalvelica = pathname === "/galvelica" || pathname.startsWith("/galvelica/")
 

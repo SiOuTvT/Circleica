@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2, Sparkles } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useRef } from "react"
 import { toast } from "sonner"
@@ -57,16 +57,18 @@ export function HomeRandomDiscover() {
     <button
       onClick={handleRandom}
       disabled={loading}
-      className="flex flex-col items-center justify-center rounded-xl bg-card border border-border px-3 py-3 text-center shadow-sm hover:bg-accent/50 hover:border-border/60 transition-colors disabled:opacity-50 cursor-pointer"
+      className="rounded-xl bg-card border border-border px-4 py-3 text-center shadow-sm hover:bg-accent/50 hover:border-border/60 transition-colors disabled:opacity-50 cursor-pointer flex flex-col items-center justify-center gap-0.5"
       title="随机发现一个作品"
+      style={{ minWidth: "80px" }}
     >
       {loading ? (
-        <Loader2 className="h-5 w-5 text-primary animate-spin mb-1" strokeWidth={2} />
+        <Loader2 className="h-5 w-5 text-primary animate-spin" strokeWidth={2} />
       ) : (
-        <Sparkles className="h-5 w-5 text-primary mb-1" strokeWidth={2} />
+        <>
+          <span className="text-sm font-semibold text-foreground leading-tight">随机</span>
+          <span className="text-sm font-semibold text-foreground leading-tight">发现</span>
+        </>
       )}
-      <span className="text-xs font-semibold text-foreground leading-tight">随机</span>
-      <span className="text-xs font-semibold text-foreground leading-tight">发现</span>
     </button>
   )
 }

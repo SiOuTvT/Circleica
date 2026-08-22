@@ -140,8 +140,6 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
           onToggle={toggleNav}
           mobileOpen={navMobileOpen}
           onMobileToggle={() => setNavMobileOpen(v => !v)}
-          logoMode={logoMode}
-          siteLogo={siteLogo}
         />
       )}
 

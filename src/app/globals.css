@@ -1381,13 +1381,19 @@ a[href]:active {
 }
 
 .game-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-card-hover);
-  border-color: color-mix(in srgb, var(--border) 70%, var(--foreground));
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
 }
 
 .game-card:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
+  transition-duration: 80ms;
+}
+
+.game-card:hover .game-card-title {
+  color: var(--primary);
+  transition: color var(--duration-normal) ease;
 }
 
 .game-card-title {

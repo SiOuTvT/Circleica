@@ -94,24 +94,27 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
           <div className="relative min-w-0">
             {announcements.length > 0 ? (
               <>
-                <Link href={href} target={ann.link ? "_blank" : undefined} rel={ann.link ? "noopener noreferrer" : undefined} className="group relative block overflow-hidden rounded-2xl" style={{ height: "clamp(220px, 30vh, 280px)" }}>
+                <div className="group relative block overflow-hidden rounded-2xl" style={{ height: "clamp(220px, 30vh, 280px)" }}>
+                  {/* 整个区域点击跳转 */}
+                  <Link href={href} target={ann.link ? "_blank" : undefined} rel={ann.link ? "noopener noreferrer" : undefined} className="absolute inset-0 z-[1]" aria-label={`查看公告：${ann.title}`} />
+                  {/* 背景图 */}
                   {ann.imageUrl ? (
-                    <div className="absolute inset-0">
+                    <div className="absolute inset-0 cursor-pointer">
                       <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" sizes="(max-width: 1024px) 100vw, 60vw" priority quality={80} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40 cursor-pointer" />
                   )}
-                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
-                    {/* 毛玻璃文字卡片：底部居中，自然宽度 */}
-                    <div className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4">
-                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2">{ann.title}</h2>
+                  {/* 毛玻璃文字层：默认鼠标箭头，hover 时标题变主题色 */}
+                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-default">
+                    <div className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 pointer-events-none">
+                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">{ann.title}</h2>
                       {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed">{ann.summary}</p>}
                       <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
                     </div>
                   </div>
-                </Link>
+                </div>
                 {len > 1 && (
                   <>
                     <button onClick={() => setCur((cur - 1 + len) % len)} className="absolute left-2 top-1/2 -translate-y-1/2 z-[5] flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>

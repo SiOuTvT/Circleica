@@ -78,6 +78,8 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
   const statusBadge = useStatusBadge(game.status)
 
   const sizes = "(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+  // VNDB 图片经常导致 next/image 代理500，直接使用原生 img 加载
+  const isExternalImage = coverSrc && (coverSrc.includes("vndb.org") || coverSrc.includes("steamstatic.com"))
 
   return (
     <Link
@@ -109,7 +111,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       {/* ─── 封面：紧凑横向比例 ─── */}
       <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted sm:aspect-[16/9]">
         {game.coverImage && !imgError ? (
-          imgFallback ? (
+          (imgFallback || isExternalImage) ? (
             // 降级：原生 img 绕过 next/image 优化管道
             // eslint-disable-next-line @next/next/no-img-element
             <img
