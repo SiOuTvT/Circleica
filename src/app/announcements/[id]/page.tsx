@@ -129,7 +129,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           <div className="h-px bg-border/30 mb-6" />
 
           {/* 正文 */}
-          <div className="text-[15px] leading-[1.8] text-foreground/85">
+          <div className="text-base leading-[1.9] text-foreground/90">
             <RichTextContent html={ann.content} />
           </div>
 
@@ -152,19 +152,19 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           )}
         </article>
 
-        {/* ═══ 右侧：本篇索引 + 其他公告（sticky） ═══ */}
-        <aside className="hidden lg:flex flex-col w-[280px] shrink-0 gap-5 sticky top-20 self-start max-h-[calc(100vh-6rem)]">
+        {/* ═══ 右侧：本篇索引 + 公告列表（sticky） ═══ */}
+        <aside className="hidden lg:flex flex-col w-[320px] shrink-0 gap-5 sticky top-20 self-start max-h-[calc(100vh-6rem)]">
 
           {/* 本篇索引 */}
           {showIndex && (
-            <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col" style={{ maxHeight: "260px" }}>
-              <h3 className="text-sm font-semibold text-foreground/70 mb-3">本篇索引</h3>
-              <nav className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 scrollbar-thin">
+            <div className="rounded-xl bg-muted/30 border border-border/20 p-5 flex flex-col" style={{ maxHeight: "280px" }}>
+              <h3 className="text-base font-semibold text-foreground mb-3">本篇索引</h3>
+              <nav className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-0.5 scrollbar-thin">
                 {headings.map((h) => (
                   <a
                     key={h.id}
                     href={`#${h.id}`}
-                    className="text-[14px] text-muted-foreground/80 hover:text-foreground hover:bg-muted/50 rounded px-2 py-2 transition-colors"
+                    className="text-[15px] text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg px-3 py-2 transition-colors font-medium"
                   >
                     {h.text}
                   </a>
@@ -174,17 +174,17 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           )}
 
           {/* 公告列表 */}
-          <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col min-h-0 flex-1">
-            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1.5 scrollbar-thin">
+          <div className="rounded-xl bg-muted/30 border border-border/20 p-5 flex flex-col min-h-0 flex-1">
+            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 scrollbar-thin">
               {allAnnouncements.length > 0 ? (
                 allAnnouncements.map((a) => (
                   <Link
                     key={a.id}
                     href={`/announcements/${a.id}`}
-                    className={`text-[14px] rounded px-2 py-2 transition-colors ${
+                    className={`text-[15px] rounded-lg px-3 py-2.5 transition-colors font-medium ${
                       a.id === id
-                        ? "text-foreground font-medium bg-primary/10"
-                        : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/50"
+                        ? "text-primary bg-primary/10 border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
                     {a.isPinned && <span className="text-primary mr-1">📌</span>}

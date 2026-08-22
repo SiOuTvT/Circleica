@@ -296,7 +296,24 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           </div>
         </section>
 
-        {/* ── 公告列表 ── */}
+        <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)}
+          title="删除公告" description="确定要删除该公告吗？此操作不可恢复。"
+          confirmText="删除" variant="destructive" onConfirm={() => deleteAnn(deleteId!)} />
+      </div>
+
+      {/* ── 右侧：实时预览 + 公告列表 ── */}
+      <aside className="w-full xl:w-[460px] shrink-0 space-y-5">
+        {/* 预览 */}
+        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden xl:sticky xl:top-4 xl:self-start">
+          <div className="px-4 py-2.5 border-b border-border bg-muted/20">
+            <p className="text-xs font-medium text-muted-foreground">前台效果预览</p>
+          </div>
+          <div className="p-4">
+            <PreviewCard ann={previewAnn} />
+          </div>
+        </div>
+
+        {/* 公告列表（从左侧移过来） */}
         <section className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
             <p className="text-xs text-muted-foreground font-medium">
@@ -309,7 +326,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             <EmptyState icon={Megaphone} title="暂无公告" description="在左侧表单创建第一条公告" />
           )}
 
-          <div className="divide-y divide-border/60">
+          <div className="divide-y divide-border/60 max-h-[500px] overflow-y-auto">
             {anns.map(ann => (
               <div key={ann.id}
                 draggable
@@ -320,19 +337,14 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                   ${draggingId === ann.id ? "opacity-30" : ""}
                   ${dragOverId === ann.id && draggingId !== ann.id ? "border-t-[3px] border-primary" : ""}`}>
                 <div className="flex items-center gap-3 px-4 py-3">
-                  {/* Drag handle */}
                   <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 group-hover/item:text-muted-foreground transition-colors">
                     <GripVertical className="h-4 w-4" />
                   </div>
-
-                  {/* 缩略图 */}
                   <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border/50">
                     {ann.imageUrl
                       ? <Image src={ann.imageUrl} alt="" width={56} height={32} className="w-full h-full object-cover" unoptimized />
                       : <div className="w-full h-full flex items-center justify-center text-micro text-muted-foreground/40">🎮</div>}
                   </div>
-
-                  {/* 信息 */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       {ann.isPinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
@@ -357,8 +369,6 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       )}
                     </div>
                   </div>
-
-                  {/* 操作按钮 — hover 才显示 */}
                   <div className="flex shrink-0 items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
                     <IconBtn onClick={() => startEdit(ann)} title="编辑"><Pencil className="h-3.5 w-3.5" /></IconBtn>
                     <IconBtn onClick={() => togglePinned(ann.id, ann.isPinned)} title={ann.isPinned ? "取消置顶" : "置顶"}
@@ -376,22 +386,6 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             ))}
           </div>
         </section>
-
-        <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)}
-          title="删除公告" description="确定要删除该公告吗？此操作不可恢复。"
-          confirmText="删除" variant="destructive" onConfirm={() => deleteAnn(deleteId!)} />
-      </div>
-
-      {/* ── 右侧：实时预览 ── */}
-      <aside className="w-full xl:w-[340px] shrink-0 xl:sticky xl:top-4 xl:self-start">
-        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
-          <div className="px-4 py-2.5 border-b border-border bg-muted/20">
-            <p className="text-xs font-medium text-muted-foreground">前台效果预览</p>
-          </div>
-          <div className="p-4">
-            <PreviewCard ann={previewAnn} />
-          </div>
-        </div>
       </aside>
     </div>
   )
