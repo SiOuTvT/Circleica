@@ -1,6 +1,6 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, Clock, User } from "lucide-react"
+import { ArrowLeft, Clock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -34,7 +34,7 @@ function extractHeadings(html: string): { id: string; text: string }[] {
   while ((match = regex.exec(html)) !== null) {
     const text = match[2].replace(/<[^>]+>/g, "").trim()
     if (text) {
-      headings.push({ id: `section-${idx}`, text: text.slice(0, 40) })
+      headings.push({ id: `section-${idx}`, text: text.slice(0, 50) })
       idx++
     }
   }
@@ -47,25 +47,28 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
   const ann = await prisma.announcement.findFirst({ where: { id, isActive: true } })
   if (!ann) notFound()
 
-  // 并行获取：上一篇/下一篇 + 其他公告
-  const [prev, next, otherAnnouncements] = await Promise.all([
-    prisma.announcement.findFirst({
-      where: { isActive: true, createdAt: { lt: ann.createdAt }, id: { not: id } },
-      orderBy: { createdAt: "desc" },
-      select: { id: true, title: true, createdAt: true },
-    }),
-    prisma.announcement.findFirst({
-      where: { isActive: true, createdAt: { gt: ann.createdAt }, id: { not: id } },
-      orderBy: { createdAt: "asc" },
-      select: { id: true, title: true, createdAt: true },
-    }),
-    prisma.announcement.findMany({
-      where: { isActive: true, id: { not: id } },
-      orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-      take: 20,
-      select: { id: true, title: true, createdAt: true, isPinned: true },
-    }),
-  ])
+  // 获取发布人实时头像（通过 authorName 查询用户表）
+  const publisher = ann.authorName
+    ? await prisma.user.findFirst({ where: { username: ann.authorName }, select: { avatar: true } }).catch(() => null)
+    : null
+
+  // 按 createdAt 排序获取所有公告，用于 prev/next
+  const allAnnouncements = await prisma.announcement.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, title: true, createdAt: true, isPinned: true },
+  })
+
+  const currentIndex = allAnnouncements.findIndex((a) => a.id === id)
+  const prev = currentIndex < allAnnouncements.length - 1 ? allAnnouncements[currentIndex + 1] : null
+  const next = currentIndex > 0 ? allAnnouncements[currentIndex - 1] : null
+  const otherAnnouncements = allAnnouncements.filter((a) => a.id !== id)
+
+  // 发布人信息：优先使用数据库实时头像，其次存储的快照
+  const author = {
+    name: ann.authorName || "Circleica",
+    avatar: publisher?.avatar || ann.authorAvatar || null,
+  }
 
   const headings = extractHeadings(ann.content)
   const showIndex = headings.length >= 2
@@ -75,15 +78,6 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
   return (
     <div className="w-full">
-      {/* 返回按钮 */}
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground mb-5"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
-        返回首页
-      </Link>
-
       {/* PC: 左右分栏；移动端: 单列 */}
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
@@ -91,15 +85,15 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
         <article className="flex-1 min-w-0">
           {/* 封面图 */}
           {ann.imageUrl && (
-            <div className="relative mb-6 overflow-hidden rounded-xl aspect-[16/9]">
+            <div className="relative mb-5 overflow-hidden rounded-xl" style={{ maxHeight: 300 }}>
               <Image
                 src={ann.imageUrl}
                 alt={ann.title}
-                fill
-                className="object-cover"
+                width={800}
+                height={300}
+                className="w-full object-cover"
                 sizes="(max-width: 768px) 100vw, 60vw"
                 priority
-                quality={85}
               />
             </div>
           )}
@@ -109,29 +103,25 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
             {ann.title}
           </h1>
 
-          {/* 发布人 + 日期（头像 + 名字 + 日期，无分隔点） */}
+          {/* 发布人信息：头像 + 用户名 + 发布时间（同一行） */}
           <div className="flex items-center gap-3 mb-6">
-            {ann.authorAvatar ? (
-              <Image
-                src={ann.authorAvatar}
-                alt={ann.authorName}
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-full object-cover ring-1 ring-border/50"
+            {author.avatar ? (
+              <img
+                src={author.avatar}
+                alt={author.name}
+                className="h-10 w-10 rounded-full object-cover ring-1 ring-border/50"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center">
-                <User className="h-4 w-4 text-primary/60" strokeWidth={2} />
+              <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center ring-1 ring-border/30">
+                <span className="text-sm font-bold text-primary/70">{(author.name || "C")[0]}</span>
               </div>
             )}
-            <div>
-              <span className="text-sm font-medium text-foreground">{ann.authorName}</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Clock className="h-3 w-3 text-muted-foreground/40" strokeWidth={1.5} />
-                <time className="text-xs text-muted-foreground/60" dateTime={ann.createdAt.toISOString()}>
-                  {dateStr}
-                </time>
-              </div>
+            <div className="flex items-center gap-4">
+              <span className="text-base font-medium text-foreground">{author.name}</span>
+              <span className="text-sm text-muted-foreground/60 flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" strokeWidth={1.5} />
+                {dateStr}
+              </span>
             </div>
           </div>
 
@@ -139,23 +129,11 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           <div className="h-px bg-border/30 mb-6" />
 
           {/* 正文 */}
-          <div className="prose-sm sm:prose max-w-none">
+          <div className="text-[15px] leading-[1.8] text-foreground/85">
             <RichTextContent html={ann.content} />
           </div>
 
-          {/* 外部链接 */}
-          {ann.link && (
-            <a
-              href={ann.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-            >
-              查看详情 →
-            </a>
-          )}
-
-          {/* 上下篇导航 */}
+          {/* 上一篇 / 下一篇 */}
           {(prev || next) && (
             <div className="mt-10 pt-6 border-t border-border/30 flex flex-col sm:flex-row sm:justify-between gap-3">
               {prev ? (
@@ -179,14 +157,14 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
 
           {/* 本篇索引 */}
           {showIndex && (
-            <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col min-h-0" style={{ maxHeight: "240px" }}>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">本篇索引</h3>
+            <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col" style={{ maxHeight: "260px" }}>
+              <h3 className="text-sm font-semibold text-foreground/70 mb-3">本篇索引</h3>
               <nav className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 scrollbar-thin">
                 {headings.map((h) => (
                   <a
                     key={h.id}
                     href={`#${h.id}`}
-                    className="text-[13px] text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 rounded px-2 py-1.5 transition-colors truncate"
+                    className="text-[14px] text-muted-foreground/80 hover:text-foreground hover:bg-muted/50 rounded px-2 py-2 transition-colors"
                   >
                     {h.text}
                   </a>
@@ -196,18 +174,18 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           )}
 
           {/* 其他公告 */}
-          <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col min-h-0 flex-1" style={{ maxHeight: showIndex ? "calc(100vh - 6rem - 240px - 20px)" : "calc(100vh - 6rem)" }}>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">其他公告</h3>
+          <div className="rounded-xl bg-muted/30 border border-border/20 p-4 flex flex-col min-h-0 flex-1">
+            <h3 className="text-sm font-semibold text-foreground/70 mb-3">其他公告</h3>
             <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-1 scrollbar-thin">
               {otherAnnouncements.length > 0 ? (
                 otherAnnouncements.map((a) => (
                   <Link
                     key={a.id}
                     href={`/announcements/${a.id}`}
-                    className={`text-[13px] rounded px-2 py-1.5 transition-colors truncate ${
+                    className={`text-[14px] rounded px-2 py-2 transition-colors ${
                       a.id === id
                         ? "text-foreground font-medium bg-primary/10"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/50"
+                        : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
                     {a.isPinned && <span className="text-primary mr-1">📌</span>}
@@ -215,7 +193,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
                   </Link>
                 ))
               ) : (
-                <p className="text-xs text-muted-foreground/40">暂无其他公告</p>
+                <p className="text-sm text-muted-foreground/40">暂无其他公告</p>
               )}
             </div>
           </div>
@@ -226,26 +204,25 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       <div className="lg:hidden mt-8 space-y-5">
         {showIndex && (
           <div className="rounded-xl bg-muted/30 border border-border/20 p-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">本篇索引</h3>
+            <h3 className="text-sm font-semibold text-foreground/70 mb-3">本篇索引</h3>
             <nav className="flex flex-col gap-1">
               {headings.map((h) => (
-                <a key={h.id} href={`#${h.id}`} className="text-[13px] text-muted-foreground/70 hover:text-foreground rounded px-2 py-1.5 transition-colors">
+                <a key={h.id} href={`#${h.id}`} className="text-[14px] text-muted-foreground/80 hover:text-foreground rounded px-2 py-2 transition-colors">
                   {h.text}
                 </a>
               ))}
             </nav>
           </div>
         )}
-
         <div className="rounded-xl bg-muted/30 border border-border/20 p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 mb-3">其他公告</h3>
+          <h3 className="text-sm font-semibold text-foreground/70 mb-3">其他公告</h3>
           <div className="flex flex-col gap-1">
-            {otherAnnouncements.slice(0, 5).map((a) => (
+            {otherAnnouncements.slice(0, 8).map((a) => (
               <Link
                 key={a.id}
                 href={`/announcements/${a.id}`}
-                className={`text-[13px] rounded px-2 py-1.5 transition-colors ${
-                  a.id === id ? "text-foreground font-medium bg-primary/10" : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/50"
+                className={`text-[14px] rounded px-2 py-2 transition-colors ${
+                  a.id === id ? "text-foreground font-medium bg-primary/10" : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 {a.isPinned && <span className="text-primary mr-1">📌</span>}

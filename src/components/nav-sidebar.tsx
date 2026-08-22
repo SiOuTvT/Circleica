@@ -231,14 +231,14 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 } finally { setLoading(false) }
               }, [loading, router])
               const creatorBtn = (
-                <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[13px]", "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} /> : <User className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+                <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <User className="h-5 w-5 shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
-                <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[13px]", "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} /> : <Sparkles className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />}
+                <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <Sparkles className="h-5 w-5 shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
                 </button>
               )
