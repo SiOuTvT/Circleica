@@ -181,8 +181,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </div>
           ))}
 
-          {/* 随机发现 — 最底部 */}
-          <div className="mt-auto pt-2 border-t border-border/20 flex flex-col gap-0.5">
+          {/* 随机发现 — 排行榜下方 */}
+          <div className="flex flex-col gap-0.5">
             <DiscoverCreatorBtn collapsed={collapsed} />
             <DiscoverCharacterBtn collapsed={collapsed} />
           </div>
