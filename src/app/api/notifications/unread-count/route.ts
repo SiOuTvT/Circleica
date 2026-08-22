@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/auth-context"
 import { notificationService } from "@/services/user"
 
 export const GET = withHandler(async () => {
-  const { userId } = await requireAuth()
-  const count = await notificationService.getUnreadCount(userId)
+  const auth = await requireAuth().catch(() => null)
+  if (!auth) return json({ unreadCount: 0 })
+  const count = await notificationService.getUnreadCount(auth.userId)
   return json({ unreadCount: count })
 })

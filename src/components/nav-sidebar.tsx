@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { logger } from "@/lib/logger"
 import {
   Compass,
@@ -110,7 +111,6 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               if (window.innerWidth < 1024) {
                 if (onMobileToggle) onMobileToggle()
               } else {
-                // 触发桌面端收起（通过父组件的 toggleNav）
                 const event = new CustomEvent("toggle-nav-sidebar")
                 window.dispatchEvent(event)
               }
@@ -128,30 +128,37 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           </button>
 
           {/* ── Galvelica 特色入口：视觉权重高于普通菜单 ── */}
-          <Link
-            href="/galvelica"
-            className={cn(
-              "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden",
-              collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-base" : "gap-3 px-3",
-              isGalvelica
-                ? "bg-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)]"
-                : "bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
-            )}
-            title={collapsed ? "Galvelica · 同人视觉小说资料库" : undefined}
-          >
-            {/* 左侧强调竖条 */}
-            <span
-              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]"
-              aria-hidden
-            />
-            <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
-            {!collapsed && (
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/galvelica"
+                  className="group relative flex items-center justify-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden w-11 h-11 text-base bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
+                >
+                  <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
+                  <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Galvelica · 同人视觉小说资料库</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Link
+              href="/galvelica"
+              className={cn(
+                "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden gap-3 px-3",
+                isGalvelica
+                  ? "bg-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)]"
+                  : "bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
+              )}
+            >
+              <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
+              <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-[15px] tracking-wide">Galvelica</span>
                 <span className="truncate text-micro font-normal text-muted-foreground/70">同人视觉小说资料库</span>
               </span>
-            )}
-          </Link>
+            </Link>
+          )}
 
           {/* 分隔，区分特色入口与普通导航 */}
           <div className="mx-1 my-1 h-px bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]" aria-hidden />
@@ -160,7 +167,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             <div key={section.label}>
               {section.items.map(({ icon: Icon, label, href }) => {
                 const isActive = pathname === href || (href !== "/" && pathname.startsWith(href))
-                return (
+                const link = (
                   <Link
                     key={href}
                     href={href}
@@ -171,12 +178,17 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                         ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
-                    title={collapsed ? label : undefined}
                   >
                     <Icon className="h-6 w-6 shrink-0" strokeWidth={2} />
                     {!collapsed && <span>{label}</span>}
                   </Link>
                 )
+                return collapsed ? (
+                  <Tooltip key={href}>
+                    <TooltipTrigger asChild>{link}</TooltipTrigger>
+                    <TooltipContent side="right">{label}</TooltipContent>
+                  </Tooltip>
+                ) : link
               })}
             </div>
           ))}
@@ -258,7 +270,7 @@ function useDiscoverNav() {
 
 function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
   const { navToCreator, loading } = useDiscoverNav()
-  return (
+  const btn = (
     <button
       onClick={navToCreator}
       disabled={loading}
@@ -267,7 +279,6 @@ function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
         collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
         "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
       )}
-      title={collapsed ? "随机创作者" : undefined}
     >
       {loading
         ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} />
@@ -275,11 +286,19 @@ function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
       {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
     </button>
   )
+  return collapsed ? (
+    <Tooltip>
+      <TooltipTrigger asChild>{btn}</TooltipTrigger>
+      <TooltipContent side="right">随机创作者</TooltipContent>
+    </Tooltip>
+  ) : btn
+}
+  )
 }
 
 function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
   const { navToCharacter, loading } = useDiscoverNav()
-  return (
+  const btn = (
     <button
       onClick={navToCharacter}
       disabled={loading}
@@ -288,7 +307,6 @@ function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
         collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
         "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
       )}
-      title={collapsed ? "随机角色" : undefined}
     >
       {loading
         ? <Loader2 className="h-[18px] w-[18px] animate-spin" strokeWidth={2} />
@@ -296,4 +314,10 @@ function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
       {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
     </button>
   )
+  return collapsed ? (
+    <Tooltip>
+      <TooltipTrigger asChild>{btn}</TooltipTrigger>
+      <TooltipContent side="right">随机角色</TooltipContent>
+    </Tooltip>
+  ) : btn
 }

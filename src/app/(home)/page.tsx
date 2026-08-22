@@ -305,6 +305,15 @@ export default async function HomePage({
         siteName={siteName}
       />
 
+      {/* ── 查看全部入口 ── */}
+      <Link href="/games" className="flex items-center justify-end gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+        查看全部最新资源
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M5 12h14" />
+          <path d="M12 5l7 7-7 7" />
+        </svg>
+      </Link>
+
       {/* ── 游戏网格 ── */}
       {allGames.length > 0 ? (
         <section>
