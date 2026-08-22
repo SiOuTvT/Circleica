@@ -1391,6 +1391,23 @@ a[href]:active {
   transition-duration: 80ms;
 }
 
+/* 点击波纹效果 */
+.game-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), var(--primary) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.4s ease;
+}
+.game-card:active::after {
+  opacity: 0.15;
+  transition: opacity 0s;
+}
+
 .game-card:hover .game-card-title {
   color: var(--primary);
   transition: color var(--duration-normal) ease;
