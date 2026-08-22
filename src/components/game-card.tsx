@@ -150,18 +150,15 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       </div>
 
       {/* ─── 内容区：自然撑开 ─── */}
-      <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
-        {/* 第1行：游戏名称 */}
-        <h3 className="game-card-title text-[17px] font-semibold leading-snug line-clamp-2 min-h-[2.75em] text-foreground">
+      <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2.5 pb-2.5 pt-2.5 sm:px-3.5 sm:pb-3 sm:pt-3">
+        {/* 游戏名称：允许 1-2 行，不限制最小高度 */}
+        <h3 className="game-card-title text-[18px] font-semibold leading-snug line-clamp-2 text-foreground">
           <Cjk>{game.title}</Cjk>
         </h3>
 
-        {/* 弹性间距：标题与标签之间（给标题更多呼吸空间，形成层级） */}
-        <div className="game-card-spacer game-card-spacer-title" />
-
-        {/* 第2行：标签（全部 + 去重，颜色连后台标签管理）；showTags=false 时隐藏（如继续浏览） */}
+        {/* 标签区：始终与标题保持一致间距 */}
         {showTags && paramTags.length > 0 && (
-          <div className="game-card-tags flex flex-shrink-0 flex-wrap items-center gap-2">
+          <div className="game-card-tags mt-2.5 flex flex-shrink-0 flex-wrap items-center gap-1.5">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
@@ -182,11 +179,8 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
           </div>
         )}
 
-        {/* 弹性间距：标签与统计之间 */}
-        <div className="game-card-spacer" />
-
-        {/* 第3行：数据（常驻显示，统计在最底部） */}
-        <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3">
+        {/* 数据区：始终贴底 */}
+        <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3 pt-2">
           {viewStr && (
             <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
               <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
@@ -217,9 +211,9 @@ export function GameCardSkeleton() {
       {/* 封面 */}
       <div className="w-full aspect-[16/9] skeleton-shimmer sm:aspect-[16/9]" />
       {/* 内容 */}
-      <div className="flex flex-1 flex-col px-2 pb-2.5 pt-2 sm:px-3.5 sm:pb-3.5 sm:pt-3">
-        <div className="h-[2.75em] w-full rounded skeleton-shimmer" />
-        <div className="flex flex-wrap gap-2 mt-2.5">
+      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2.5 sm:px-3.5 sm:pb-3 sm:pt-3">
+        <div className="h-[22px] w-full rounded skeleton-shimmer" />
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           <div className="h-5 w-14 rounded-full skeleton-shimmer" />
           <div className="h-5 w-12 rounded-full skeleton-shimmer" />
         </div>
