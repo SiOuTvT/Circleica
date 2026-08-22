@@ -45,7 +45,7 @@ function formatTime(iso: string) {
   return y ? `${d.getMonth() + 1}月${d.getDate()}日 ${hm}` : `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 }
 
-export default function MessagesContent() {
+export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }) {
   const { data: session } = useSession()
   const me = session?.user as { id?: string } | undefined
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
@@ -159,6 +159,7 @@ export default function MessagesContent() {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
       {/* 会话列表 */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        {tabNav && <div className="px-3 pt-3">{tabNav}</div>}
         <div className="border-b border-border px-4 py-3">
           <span className="text-sm font-semibold text-foreground">会话</span>
         </div>

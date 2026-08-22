@@ -56,7 +56,7 @@ function getHref(n: NotificationItem): string {
   return "#"
 }
 
-export default function NotificationsContent() {
+export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactNode }) {
   const [activeCat, setActiveCat] = useState<CategoryKey>("all")
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -88,6 +88,7 @@ export default function NotificationsContent() {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       {/* 左侧：通知分类 */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        {tabNav && <div className="px-3 pt-3">{tabNav}</div>}
         <div className="border-b border-border px-4 py-3">
           <span className="text-sm font-semibold text-foreground">通知分类</span>
         </div>

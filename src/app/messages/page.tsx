@@ -18,27 +18,44 @@ export default function UnifiedMessagesPage() {
 
   return (
     <div className="pt-1">
-      {/* 顶部 Tab 切换 */}
-      <div className="mb-4 flex gap-1 rounded-xl bg-muted/30 p-1">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
-              activeTab === tab.key
-                ? "bg-card text-foreground shadow-sm ring-1 ring-border"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <tab.icon className="h-4 w-4" strokeWidth={2} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* 页面头部 */}
+      <header className="mb-6 flex items-start gap-4">
+        <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+          <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">MESSAGES</p>
+          <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">私信与通知</h1>
+          <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+            与圈内同好私聊，查看站内通知。
+          </p>
+        </div>
+      </header>
 
-      {/* 内容区域 */}
-      {activeTab === "messages" ? <MessagesContent /> : <NotificationsContent />}
+      {/* Tab 切换（在左侧面板内部） */}
+      {activeTab === "messages" ? <MessagesContent tabNav={<TabNav activeTab={activeTab} onTabChange={setActiveTab} />} /> : <NotificationsContent tabNav={<TabNav activeTab={activeTab} onTabChange={setActiveTab} />} />}
+    </div>
+  )
+}
+
+function TabNav({ activeTab, onTabChange }: { activeTab: Tab; onTabChange: (tab: Tab) => void }) {
+  return (
+    <div className="flex gap-1 mb-2">
+      {TABS.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => onTabChange(tab.key)}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all",
+            activeTab === tab.key
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          <tab.icon className="h-3.5 w-3.5" strokeWidth={2} />
+          {tab.label}
+        </button>
+      ))}
     </div>
   )
 }

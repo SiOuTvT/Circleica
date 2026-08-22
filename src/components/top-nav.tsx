@@ -2,8 +2,6 @@
 
 import { AvatarFrame } from "@/components/avatar-frame"
 import { CheckInToast } from "@/components/checkin-toast"
-import { MessageBell } from "@/components/message-bell"
-import { NotificationBell } from "@/components/notification-bell"
 import { NsfwModeToggle } from "@/components/nsfw-mode-toggle"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
@@ -15,6 +13,7 @@ import Image from "next/image"
 import { type LogoMode } from "@/lib/branding"
 import {
   ArrowLeft,
+  Bell,
   CalendarCheck,
   Loader2,
   LogOut,
