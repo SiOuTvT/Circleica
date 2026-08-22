@@ -122,20 +122,66 @@ async function GameGridServer({ tag, q, mode, sort = "newest", page }: { tag: st
 
 // ─── Activity data builder ─────────────────────────────────────
 
-function buildHomeActivities(announcements: HomeAnnouncement[]): ActivityItem[] {
+function buildHomeActivities(
+  announcements: HomeAnnouncement[],
+  checkins: { user: { username: string; avatar: string | null }; createdAt: Date }[],
+  comments: { content: string; createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[],
+  favorites: { createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[],
+): ActivityItem[] {
   const items: ActivityItem[] = []
 
+  // 签到动态
+  for (const c of checkins.slice(0, 3)) {
+    items.push({
+      id: `checkin-${c.user.username}-${c.createdAt.getTime()}`,
+      type: "checkin",
+      title: "签到了",
+      time: c.createdAt.toISOString(),
+      avatar: c.user.avatar ?? undefined,
+      username: c.user.username,
+    })
+  }
+
+  // 评论动态
+  for (const c of comments.slice(0, 3)) {
+    items.push({
+      id: `comment-${c.createdAt.getTime()}`,
+      type: "comment",
+      title: `评论了《${c.game.title}》`,
+      time: c.createdAt.toISOString(),
+      avatar: c.user.avatar ?? undefined,
+      username: c.user.username,
+      content: c.content.slice(0, 30),
+    })
+  }
+
+  // 收藏动态
+  for (const f of favorites.slice(0, 2)) {
+    items.push({
+      id: `fav-${f.createdAt.getTime()}`,
+      type: "favorite",
+      title: `收藏了《${f.game.title}》`,
+      time: f.createdAt.toISOString(),
+      avatar: f.user.avatar ?? undefined,
+      username: f.user.username,
+    })
+  }
+
+  // 公告动态
   if (announcements.length > 0) {
     const a = announcements[0]
     items.push({
       id: `ann-${a.id}`,
-      type: "announcement" as const,
+      type: "announcement",
       title: a.title,
       time: a.createdAt,
     })
   }
 
-  return items
+  // 按时间排序
+  items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+
+  return items.slice(0, 8)
 }
 
 // ─── Page ──────────────────────────────────────────────────────
@@ -211,7 +257,40 @@ export default async function HomePage({
     logger.db.error("[HomePage] Announcements query failed", error)
   }
 
-  const activities = buildHomeActivities(announcements)
+  // ── 动态数据（签到、评论、收藏）──
+  let checkins: { user: { username: string; avatar: string | null }; createdAt: Date }[] = []
+  let comments: { content: string; createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
+  let favorites: { createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
+  try {
+    const [recentCheckins, recentComments, recentFavorites] = await Promise.all([
+      prisma.checkIn.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { user: { select: { username: true, avatar: true } } },
+      }),
+      prisma.comment.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          user: { select: { username: true, avatar: true } },
+          game: { select: { title: true } },
+        },
+      }),
+      prisma.favorite.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          user: { select: { username: true, avatar: true } },
+          game: { select: { title: true } },
+        },
+      }),
+    ])
+    checkins = recentCheckins
+    comments = recentComments
+    favorites = recentFavorites
+  } catch {}
+
+  const activities = buildHomeActivities(announcements, checkins, comments, favorites)
   const allGames = gridData.games
 
   return (
