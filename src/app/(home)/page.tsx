@@ -305,14 +305,17 @@ export default async function HomePage({
         siteName={siteName}
       />
 
-      {/* ── 查看全部入口 ── */}
-      <Link href="/games" className="flex items-center justify-end gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-        查看全部最新资源
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M5 12h14" />
-          <path d="M12 5l7 7-7 7" />
-        </svg>
-      </Link>
+      {/* ── 最新资源入口 ── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-foreground">最新资源</h2>
+        <Link href="/games" className="flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+          更多
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M5 12h14" />
+            <path d="M12 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
 
       {/* ── 游戏网格 ── */}
       {allGames.length > 0 ? (
@@ -333,20 +336,6 @@ export default async function HomePage({
           </Suspense>
         </section>
       )}
-
-      {/* ── 查看全部 ── */}
-      <div className="flex justify-center pt-2 pb-4">
-        <Link
-          href="/games"
-          className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
-        >
-          查看全部最新资源
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg>
-        </Link>
-      </div>
     </div>
   )
 }

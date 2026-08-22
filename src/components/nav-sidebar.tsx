@@ -106,26 +106,31 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
           {/* ── 侧边栏顶部：三条杠按钮，控制侧边栏展开/收起 ── */}
-          <button
-            onClick={() => {
-              if (window.innerWidth < 1024) {
-                if (onMobileToggle) onMobileToggle()
-              } else {
-                const event = new CustomEvent("toggle-nav-sidebar")
-                window.dispatchEvent(event)
-              }
-            }}
-            className={cn(
-              "flex items-center rounded-xl transition-all whitespace-nowrap nav-icon-btn",
-              collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
-            )}
-            aria-label="切换侧边栏"
-          >
-            <Menu className="h-5 w-5 shrink-0" strokeWidth={2} />
-            {!collapsed && (
-              <span className="text-sm font-medium text-muted-foreground">菜单</span>
-            )}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => {
+                  if (window.innerWidth < 1024) {
+                    if (onMobileToggle) onMobileToggle()
+                  } else {
+                    const event = new CustomEvent("toggle-nav-sidebar")
+                    window.dispatchEvent(event)
+                  }
+                }}
+                className={cn(
+                  "flex items-center rounded-xl transition-all whitespace-nowrap nav-icon-btn",
+                  collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
+                )}
+                aria-label="切换侧边栏"
+              >
+                <Menu className="h-5 w-5 shrink-0" strokeWidth={2} />
+                {!collapsed && (
+                  <span className="text-sm font-medium text-muted-foreground">菜单</span>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">菜单</TooltipContent>
+          </Tooltip>
 
           {/* ── Galvelica 特色入口：视觉权重高于普通菜单 ── */}
           {collapsed ? (
@@ -276,7 +281,7 @@ function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
       disabled={loading}
       className={cn(
         "flex items-center rounded-lg py-[6px] font-medium transition-all whitespace-nowrap w-full",
-        collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
+        collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-2.5 px-3 text-[13px]",
         "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
       )}
     >
@@ -302,7 +307,7 @@ function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
       disabled={loading}
       className={cn(
         "flex items-center rounded-lg py-[6px] font-medium transition-all whitespace-nowrap w-full",
-        collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-3 text-[13px]",
+        collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-2.5 px-3 text-[13px]",
         "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
       )}
     >
