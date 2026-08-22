@@ -98,14 +98,15 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
         className="absolute inset-x-0 bottom-0 z-[1] h-[60%] bg-gradient-to-t from-black/60 via-black/20 to-transparent dark:from-black/70 dark:via-black/30"
       />
 
-      {/* 内容层 */}
-      <Link
-        href={href}
-        target={ann.link ? "_blank" : undefined}
-        rel={ann.link ? "noopener noreferrer" : undefined}
-        className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer"
-      >
-        <div className="flex flex-col max-w-2xl backdrop-blur-md bg-black/35 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5">
+      {/* 内容层：仅毛玻璃内容区可点击进入详情；图片区域仅显示小手光标、点击不跳转 */}
+      <div className="absolute inset-0 z-[2] flex flex-col justify-end p-2.5 sm:p-3 lg:p-3.5 cursor-pointer">
+        <Link
+          href={href}
+          target={ann.link ? "_blank" : undefined}
+          rel={ann.link ? "noopener noreferrer" : undefined}
+          className="flex flex-col max-w-2xl cursor-default backdrop-blur-md bg-black/35 dark:bg-black/40 rounded-xl ring-1 ring-white/[0.08] px-3 py-2 sm:px-5 sm:py-3.5"
+        >
+          <div className="flex flex-col">
           {/* 发布者行 */}
           <div className="flex items-center gap-1.5 mb-1 sm:mb-2">
             {ann.authorAvatar ? (
@@ -157,7 +158,8 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
             <span className="inline-block transition-transform hover:translate-x-1" aria-hidden="true">→</span>
           </span>
         </div>
-      </Link>
+        </Link>
+      </div>
 
       {/* 翻页按钮 */}
       {len > 1 && (
