@@ -64,8 +64,8 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const { ok, data } = await apiFetchSafe<{ data?: NotificationItem[] }>("/api/notifications")
-      if (ok) setNotifications(data?.data ?? [])
+      const { ok, data } = await apiFetchSafe<{ data?: { notifications?: NotificationItem[] } }>("/api/notifications")
+      if (ok) setNotifications(data?.data?.notifications ?? [])
     } catch {}
     finally { setLoading(false) }
   }, [])
@@ -79,7 +79,7 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
 
   async function markAllRead() {
     try {
-      await apiFetchSafe("/api/notifications", { method: "PATCH" })
+      await apiFetchSafe("/api/notifications", { method: "PUT" })
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
     } catch {}
   }
