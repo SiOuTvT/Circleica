@@ -156,11 +156,11 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
   const activeConv = conversations.find(c => c.id === activeId)
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
-      {/* 会话列表 */}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[320px_1fr] lg:grid-cols-[360px_1fr]" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
+      {/* 左侧：会话列表 */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-        {tabNav && <div className="px-3 pt-3 pb-1">{tabNav}</div>}
-        <div className="flex-1 overflow-y-auto max-h-[70vh]">
+        {tabNav && <div className="px-3 pt-3 pb-1 shrink-0">{tabNav}</div>}
+        <div className="flex-1 overflow-y-auto scrollbar-thin">
           {loadingList ? (
             <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : conversations.length === 0 ? (
@@ -211,7 +211,7 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
       </div>
 
       {/* 会话详情 */}
-      <div className="flex min-h-[70vh] flex-col rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-card overflow-hidden">
         {!activeConv ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
             <MessageCircle className="h-10 w-10 opacity-40" />

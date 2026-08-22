@@ -85,11 +85,11 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[320px_1fr] lg:grid-cols-[360px_1fr]" style={{ height: "calc(100vh - 200px)", minHeight: "500px" }}>
       {/* 左侧：通知分类 */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-        {tabNav && <div className="px-3 pt-3 pb-1">{tabNav}</div>}
-        <div className="flex-1 overflow-y-auto max-h-[70vh] p-2">
+        {tabNav && <div className="px-3 pt-3 pb-1 shrink-0">{tabNav}</div>}
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-2">
           {CATEGORIES.map((catItem) => (
             <button
               key={catItem.key}
@@ -121,7 +121,7 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto max-h-[70vh]">
+        <div className="flex-1 overflow-y-auto scrollbar-thin">
           {loading ? (
             <div className="flex justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
           ) : filtered.length === 0 ? (
