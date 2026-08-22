@@ -151,10 +151,10 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
 
   return (
     <div className="w-full">
-      {/* 桌面端 3:2 左右并排；移动端垂直堆叠 */}
-      <div className="flex flex-col lg:grid lg:grid-cols-[3fr_2fr] lg:gap-5">
+      {/* 桌面端 flex 左右并排（天然等高）；移动端垂直堆叠 */}
+      <div className="flex flex-col lg:flex-row lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className="flex flex-col gap-4 min-w-0 flex-[3]">
           {/* 公告区 */}
           <div className="relative min-w-0">
             {announcements.length > 0 ? (
@@ -259,8 +259,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
           </div>
         </div>
 
-        {/* ── 右侧列：Activity（跨两行等高，内部滚动）── */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col lg:row-span-2 min-h-0">
+        {/* ── 右侧列：Activity（flex-2，与左列天然等高，内部滚动）── */}
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col flex-[2] min-h-0 min-w-[280px]">
           <ActivityList activities={activities} />
         </div>
       </div>
