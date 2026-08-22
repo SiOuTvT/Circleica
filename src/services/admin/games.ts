@@ -201,6 +201,10 @@ export const adminGameService = {
         "gameDuration", "englishName", "aliases", "rejectReason"]
       const safe: Record<string, unknown> = {}
       for (const k of ALLOWED) { if (k in data) safe[k] = data[k] }
+      // releaseDate 可能是 "YYYY-MM-DD" 纯日期字符串，Prisma 需要完整 ISO-8601 DateTime
+      if (typeof safe.releaseDate === "string" && safe.releaseDate) {
+        safe.releaseDate = new Date(safe.releaseDate + "T00:00:00.000Z")
+      }
       const updated = await tx.game.update({ where: { id }, data: safe })
 
       // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
