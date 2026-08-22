@@ -293,8 +293,6 @@ function DiscoverCreatorBtn({ collapsed }: { collapsed: boolean }) {
     </Tooltip>
   ) : btn
 }
-  )
-}
 
 function DiscoverCharacterBtn({ collapsed }: { collapsed: boolean }) {
   const { navToCharacter, loading } = useDiscoverNav()
