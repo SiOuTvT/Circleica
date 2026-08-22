@@ -1386,22 +1386,23 @@ a[href]:active {
   border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
 }
 
+/* 点击时不做 scale/translate（会导致 layout 跳动），只靠 ripple 反馈 */
 .game-card:active {
-  transform: translateY(0) scale(0.98);
-  transition-duration: 80ms;
+  transition-duration: 0ms;
 }
 
-/* 点击波纹效果 */
+/* 点击波纹效果 — 从点击位置扩散 */
 .game-card::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), var(--primary) 0%, transparent 70%);
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), var(--primary) 0%, transparent 60%);
   opacity: 0;
   pointer-events: none;
   z-index: 10;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
+  transform: translateZ(0);
 }
 .game-card:active::after {
   opacity: 0.15;
