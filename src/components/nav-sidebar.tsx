@@ -156,19 +156,6 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           {/* 分隔，区分特色入口与普通导航 */}
           <div className="mx-1 my-1 h-px bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]" aria-hidden />
 
-          {/* ── Discover 分区 ── */}
-          <div>
-            {!collapsed && (
-              <p className="discover-section-label mb-1 px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
-                Discover
-              </p>
-            )}
-            <div className="flex flex-col gap-0.5">
-              <DiscoverCreatorBtn collapsed={collapsed} />
-              <DiscoverCharacterBtn collapsed={collapsed} />
-            </div>
-          </div>
-
           {NAV_SECTIONS.map((section) => (
             <div key={section.label}>
               {section.items.map(({ icon: Icon, label, href }) => {
@@ -194,21 +181,10 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             </div>
           ))}
 
-          {/* 随机发现（跳转随机游戏） */}
-          <div>
-            <button
-              onClick={handleRandomDiscover}
-              disabled={randomLoading}
-              className={cn(
-                "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full",
-                collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base",
-                "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50"
-              )}
-              title={collapsed ? "随机发现" : undefined}
-            >
-              <Compass className={cn("h-6 w-6 shrink-0", randomLoading && "animate-spin")} strokeWidth={2} />
-              {!collapsed && <span>{randomLoading ? "发现中..." : "随机发现"}</span>}
-            </button>
+          {/* 随机发现 — 最底部 */}
+          <div className="mt-auto pt-2 border-t border-border/20 flex flex-col gap-0.5">
+            <DiscoverCreatorBtn collapsed={collapsed} />
+            <DiscoverCharacterBtn collapsed={collapsed} />
           </div>
         </nav>
       </aside>

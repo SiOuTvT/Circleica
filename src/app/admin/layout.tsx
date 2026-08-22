@@ -2,6 +2,7 @@ import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
 import { isSuperAdminRoute } from "@/lib/permissions"
 import dynamic from "next/dynamic"
 import { headers } from "next/headers"
+import { AdminBackButton } from "@/components/admin-back-button"
 
 const AdminGlobalSearch = dynamic(() => import("@/components/admin-global-search").then(m => ({ default: m.AdminGlobalSearch })))
 
@@ -55,6 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* 全局搜索：隐藏触发按钮，保留 Ctrl+K 快捷键和 Dialog */}
         <div className="sr-only"><AdminGlobalSearch /></div>
         <div className="mx-auto w-full max-w-[1400px] px-4 pt-0 pb-2 sm:px-8 sm:py-5">
+          <AdminBackButton />
           {children}
         </div>
       </main>

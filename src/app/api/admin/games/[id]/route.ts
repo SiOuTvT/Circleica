@@ -13,7 +13,12 @@ export const PUT = withHandler(async (req, ctx) => {
   await requireAdminRole()
   const { id } = await ctx!.params
   const body = await safeParseJson(req)
-  return json(await adminGameService.update(id, body))
+  try {
+    return json(await adminGameService.update(id, body))
+  } catch (err) {
+    console.error("[AdminGame PUT] update failed:", err)
+    throw err
+  }
 })
 
 export const DELETE = withHandler(async (_req, ctx) => {

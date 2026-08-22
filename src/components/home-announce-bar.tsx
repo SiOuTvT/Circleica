@@ -57,13 +57,13 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-1.5 flex-wrap">
-                  {act.username && <span className="text-sm font-semibold text-foreground/90 truncate">{act.username}</span>}
-                  <span className="text-sm text-foreground/60 truncate">{act.title}</span>
+                  {act.username && <span className="text-[15px] font-semibold text-foreground truncate">{act.username}</span>}
+                  <span className="text-[15px] text-foreground/70 truncate">{act.title}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
-                  {typeLabel[act.type] && <span className="text-[11px] px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground/60 font-medium">{typeLabel[act.type]}</span>}
-                  <Clock className="h-3 w-3 text-muted-foreground/30" strokeWidth={1.5} />
-                  <span className="text-xs text-muted-foreground/45">{timeAgo(act.time)}</span>
+                  {typeLabel[act.type] && <span className="text-xs px-1.5 py-0.5 rounded bg-muted/80 text-foreground/60 font-medium">{typeLabel[act.type]}</span>}
+                  <Clock className="h-3 w-3 text-muted-foreground/40" strokeWidth={1.5} />
+                  <span className="text-xs text-muted-foreground/55">{timeAgo(act.time)}</span>
                 </div>
               </div>
             </div>
@@ -99,9 +99,13 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
                     <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
                   <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-white/90 transition-colors drop-shadow-md">{ann.title}</h2>
-                    {ann.summary && <p className="hidden sm:block text-sm text-white/70 line-clamp-1 mt-1.5 leading-relaxed drop-shadow-sm">{ann.summary}</p>}
-                    <p className="text-xs text-white/50 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
+                    {/* 毛玻璃背景：保证文字可读性，不完全遮挡图片 */}
+                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-black/30 backdrop-blur-sm rounded-b-2xl pointer-events-none" />
+                    <div className="relative z-[3]">
+                      <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-white/90 transition-colors drop-shadow-md">{ann.title}</h2>
+                      {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed drop-shadow-sm">{ann.summary}</p>}
+                      <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
+                    </div>
                   </div>
                 </Link>
                 {len > 1 && (
