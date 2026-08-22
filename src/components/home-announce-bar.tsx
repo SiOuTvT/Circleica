@@ -46,7 +46,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
       </div>
     )
   }
-  const typeLabel: Record<string, string> = { checkin: "签到", comment: "评论", favorite: "收藏", announcement: "公告" }
+  const typeLabel: Record<string, string> = { checkin: "签到", comment: "评论", favorite: "收藏", announcement: "公告", game_added: "发布", game_updated: "更新" }
   return (
     <div className="flex flex-col min-w-0 max-h-full">
       <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 scrollbar-thin">
@@ -63,7 +63,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline gap-1.5 flex-wrap">
                   {act.username && <span className="text-[15px] font-semibold text-foreground truncate">{act.username}</span>}
-                  <span className="text-[15px] text-foreground/70 truncate">{act.title}</span>
+                  <span className="text-[15px] text-foreground/80 truncate">{act.title}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
                   {typeLabel[act.type] && <span className="text-xs px-1.5 py-0.5 rounded bg-muted/80 text-foreground/60 font-medium">{typeLabel[act.type]}</span>}

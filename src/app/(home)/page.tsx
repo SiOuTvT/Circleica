@@ -125,46 +125,37 @@ async function GameGridServer({ tag, q, mode, sort = "newest", page }: { tag: st
 
 function buildHomeActivities(
   announcements: HomeAnnouncement[],
-  recentGames: { id: string; title: string; createdAt: Date }[],
-  updatedGames: { id: string; title: string; updatedAt: Date }[],
+  recentGames: { id: string; title: string; createdAt: Date; publisher: { username: string; avatar: string | null } | null }[],
 ): ActivityItem[] {
   const items: ActivityItem[] = []
 
-  // 公告动态（使用实时头像）
-  for (const a of announcements.slice(0, 3)) {
+  // 公告：「某某某 发布了公告《XXX》」
+  for (const a of announcements.slice(0, 5)) {
     items.push({
       id: `ann-${a.id}`,
       type: "announcement",
-      title: a.title,
+      title: `发布了公告《${a.title}》`,
       time: a.createdAt,
       username: a.authorName || "Circleica",
     })
   }
 
-  // 新游戏上架
-  for (const g of recentGames.slice(0, 5)) {
+  // 发布游戏：「某某某 发布了游戏《XXX》」
+  for (const g of recentGames.slice(0, 15)) {
     items.push({
       id: `new-${g.id}`,
       type: "game_added",
-      title: `《${g.title}》上架`,
+      title: `发布了游戏《${g.title}》`,
       time: g.createdAt.toISOString(),
+      username: g.publisher?.username || "Circleica",
+      avatar: g.publisher?.avatar ?? undefined,
     })
   }
 
-  // 游戏更新
-  for (const g of updatedGames.slice(0, 3)) {
-    items.push({
-      id: `upd-${g.id}`,
-      type: "game_updated",
-      title: `《${g.title}》有更新`,
-      time: g.updatedAt.toISOString(),
-    })
-  }
-
-  // 按时间排序
+  // 按时间排序，最新在前
   items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 
-  return items.slice(0, 15)
+  return items.slice(0, 30)
 }
 
 // ─── Page ──────────────────────────────────────────────────────
@@ -239,28 +230,18 @@ export default async function HomePage({
   }
 
   // ── 动态数据（有意义的内容动态）──
-  let recentGames: { id: string; title: string; createdAt: Date }[] = []
-  let updatedGames: { id: string; title: string; updatedAt: Date }[] = []
+  let recentGames: { id: string; title: string; createdAt: Date; publisher: { username: string; avatar: string | null } | null }[] = []
   try {
-    const [newGames, upGames] = await Promise.all([
-      prisma.game.findMany({
-        where: { isPublished: true },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: { id: true, title: true, createdAt: true },
-      }),
-      prisma.game.findMany({
-        where: { isPublished: true },
-        orderBy: { updatedAt: "desc" },
-        take: 5,
-        select: { id: true, title: true, updatedAt: true },
-      }),
-    ])
+    const newGames = await prisma.game.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, title: true, createdAt: true, publisher: { select: { username: true, avatar: true } } },
+    })
     recentGames = newGames
-    updatedGames = upGames
   } catch {}
 
-  const activities = buildHomeActivities(announcements, recentGames, updatedGames)
+  const activities = buildHomeActivities(announcements, recentGames)
   const allGames = gridData.games
 
   return (
@@ -277,7 +258,7 @@ export default async function HomePage({
       />
 
       {/* ── 最新资源入口 ── */}
-      <div className="flex items-center gap-3 py-2">
+      <div className="flex items-center gap-4 py-2">
         <h2 className="text-2xl font-bold text-foreground">最新资源</h2>
         <Link href="/games" className="flex items-center gap-1 text-base font-medium text-primary hover:text-primary/80 transition-colors">
           更多
