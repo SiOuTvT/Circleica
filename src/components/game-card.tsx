@@ -158,7 +158,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
 
         {/* 标签区：标题与标签之间明显留白 */}
         {showTags && paramTags.length > 0 && (
-          <div className="game-card-tags mt-3 flex flex-shrink-0 flex-wrap items-center gap-1.5">
+          <div className="game-card-tags mt-4 flex flex-shrink-0 flex-wrap items-center gap-1.5">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}

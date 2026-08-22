@@ -14,10 +14,10 @@ import { toShanghaiDate } from "@/lib/date"
 import Image from "next/image"
 import { type LogoMode } from "@/lib/branding"
 import {
+  ArrowLeft,
   CalendarCheck,
   Loader2,
   LogOut,
-  Menu,
   MessageSquare,
   SunMoon,
   Moon,
@@ -35,14 +35,12 @@ import { toast } from "sonner"
 const CHECKIN_MSG_KEYS: string[] = ["checkin_success", "checkin_duplicate"]
 
 interface TopNavProps {
-  navCollapsed?: boolean
-  onToggleNav?: () => void
   onToggleForum?: () => void
   logoMode?: LogoMode
   siteLogo?: string | null
 }
 
-export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
+export function TopNav({ onToggleForum }: TopNavProps) {
   const router = useRouter()
   const { data: session } = useSession()
   const user = session?.user
@@ -240,21 +238,21 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={onToggleNav}
+                onClick={() => router.back()}
                 className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
-                aria-label="切换侧边栏"
+                aria-label="返回上一页"
               >
-                <Menu className="h-5 w-5" strokeWidth={2} />
+                <ArrowLeft className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">导航菜单</TooltipContent>
+            <TooltipContent side="bottom">返回</TooltipContent>
           </Tooltip>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-                  <Search className="h-5 w-5" strokeWidth={2} />
+                  <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="bottom">搜索</TooltipContent>
@@ -270,7 +268,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                   className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
                   aria-label="论坛"
                 >
-                  <MessageSquare className="h-5 w-5" strokeWidth={2} />
+                  <MessageSquare className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom">论坛</TooltipContent>
@@ -279,9 +277,9 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button onClick={toggleTheme} aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-                  {theme === "light" ? <Sun className="h-5 w-5" strokeWidth={2} />
-                    : theme === "dark" ? <Moon className="h-5 w-5" strokeWidth={2} />
-                    : <SunMoon className="h-5 w-5" strokeWidth={2} />}
+                  {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                    : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                    : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom">{theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"}</TooltipContent>

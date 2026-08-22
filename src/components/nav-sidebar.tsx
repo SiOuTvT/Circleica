@@ -7,6 +7,7 @@ import {
   Home,
   Layers,
   Library,
+  Menu,
   Tag,
   Trophy,
   User,
@@ -103,22 +104,28 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
         }}
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
-          {/* ── 主站品牌区：站点身份；折叠态仅显示 emblem ── */}
-          <Link
-            href="/"
-            aria-label="Circleica 首页"
+          {/* ── 侧边栏顶部：三条杠按钮，控制侧边栏展开/收起 ── */}
+          <button
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                if (onMobileToggle) onMobileToggle()
+              } else {
+                // 触发桌面端收起（通过父组件的 toggleNav）
+                const event = new CustomEvent("toggle-nav-sidebar")
+                window.dispatchEvent(event)
+              }
+            }}
             className={cn(
-              "flex items-center rounded-xl transition-all overflow-hidden whitespace-nowrap",
+              "flex items-center rounded-xl transition-all whitespace-nowrap nav-icon-btn",
               collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
             )}
-            title={collapsed ? "Circleica" : undefined}
+            aria-label="切换侧边栏"
           >
-            {collapsed ? (
-              <span className="font-heading text-xl font-bold leading-none text-foreground">C</span>
-            ) : (
-              <span className="font-heading text-lg font-bold tracking-tight text-foreground leading-none">Circleica</span>
+            <Menu className="h-5 w-5 shrink-0" strokeWidth={2} />
+            {!collapsed && (
+              <span className="text-sm font-medium text-muted-foreground">菜单</span>
             )}
-          </Link>
+          </button>
 
           {/* ── Galvelica 特色入口：视觉权重高于普通菜单 ── */}
           <Link

@@ -107,6 +107,16 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
 
   const toggleForum = useCallback(() => setForumOpen(v => !v), [])
 
+  // 监听侧边栏三条杠按钮的自定义事件
+  useEffect(() => {
+    const handler = () => {
+      if (window.innerWidth < 1024) setNavMobileOpen(v => !v)
+      else setNavCollapsed(v => !v)
+    }
+    window.addEventListener("toggle-nav-sidebar", handler)
+    return () => window.removeEventListener("toggle-nav-sidebar", handler)
+  }, [])
+
   // Galvelica 是独立子站：脱离主站框架（侧边栏 / 顶栏 / 面包屑 / 论坛栏 / 播放器），
   // 由 src/app/galvelica/layout.tsx 提供自己的 Header / 导航 / Footer。
   if (isGalvelica) {
@@ -146,7 +156,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto" style={{ maxWidth: "1200px" }}>
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
-                  <TopNav onToggleNav={toggleNav} onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
+                  <TopNav onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>
                 <EmailVerificationBanner />
                 <div className="space-y-5 sm:space-y-7 pt-6 sm:pt-8">
