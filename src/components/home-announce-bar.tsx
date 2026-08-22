@@ -175,115 +175,114 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
 
   return (
     <div className="w-full">
-      {/* 两行 Grid：左=公告+数据行，右=Activity（跨两行等高） */}
-      <div
-        className="grid gap-4 sm:gap-5"
-        style={{ gridTemplateColumns: "1fr 320px", gridTemplateRows: "1fr auto" }}
-      >
-        {/* ── 公告区（左上，跨 row 1）── */}
-        <div className="min-w-0">
-          {announcements.length > 0 ? (
-            <Link
-              href={href}
-              target={ann.link ? "_blank" : undefined}
-              rel={ann.link ? "noopener noreferrer" : undefined}
-              className="group relative block overflow-hidden rounded-2xl"
-              style={{ height: "260px" }}
-            >
-              {/* 背景图片 */}
-              {ann.imageUrl ? (
-                <div className="absolute inset-0">
-                  <Image
-                    src={ann.imageUrl}
-                    alt={ann.title}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                    sizes="(max-width: 640px) 100vw, 60vw"
-                    priority
-                    quality={80}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
-                </div>
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
-              )}
-
-              {/* 文字内容 */}
-              <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-white/90 transition-colors drop-shadow-md">
-                  {ann.title}
-                </h2>
-                {ann.summary && (
-                  <p className="hidden sm:block text-[14px] text-white/60 line-clamp-1 mt-1.5 leading-relaxed drop-shadow-sm">
-                    {ann.summary}
-                  </p>
-                )}
-                <p className="text-[11px] text-white/40 mt-2">
-                  {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
-                </p>
-              </div>
-
-              {/* 轮播箭头 */}
-              {len > 1 && (
-                <>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setCur((cur - 1 + len) % len) }}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/60 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
-                    aria-label="上一条公告"
-                  >
-                    <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); next() }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/60 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
-                    aria-label="下一条公告"
-                  >
-                    <ChevronRight className="h-4 w-4" strokeWidth={2} />
-                  </button>
-                  <div className="absolute bottom-3 right-4 z-[3] flex gap-1.5">
-                    {announcements.map((_, i) => (
-                      <span
-                        key={i}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"
-                        }`}
-                      />
-                    ))}
+      {/* 桌面端：两列 Grid；移动端：单列堆叠 */}
+      <div className="flex flex-col lg:grid lg:gap-5" style={{ "--lg-left": "1fr", "--lg-right": "340px" } as React.CSSProperties}>
+        {/* ── 左侧列：公告 + 数据行 ── */}
+        <div className="flex flex-col gap-4 lg:gap-0 min-w-0" style={{ gridColumn: "1", gridRow: "1 / 3" }}>
+          {/* 公告区 */}
+          <div className="min-w-0">
+            {announcements.length > 0 ? (
+              <Link
+                href={href}
+                target={ann.link ? "_blank" : undefined}
+                rel={ann.link ? "noopener noreferrer" : undefined}
+                className="group relative block overflow-hidden rounded-2xl"
+                style={{ height: "clamp(220px, 30vh, 280px)" }}
+              >
+                {/* 背景图片 */}
+                {ann.imageUrl ? (
+                  <div className="absolute inset-0">
+                    <Image
+                      src={ann.imageUrl}
+                      alt={ann.title}
+                      fill
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      sizes="(max-width: 1024px) 100vw, 60vw"
+                      priority
+                      quality={80}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
                   </div>
-                </>
-              )}
-            </Link>
-          ) : (
-            <div className="flex items-center justify-center rounded-2xl bg-muted/30 border border-dashed border-border/30" style={{ height: "260px" }}>
-              <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
-                <Bell className="h-6 w-6" strokeWidth={1.5} />
-                <span className="text-[13px]">暂无公告</span>
-              </div>
-            </div>
-          )}
-        </div>
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
+                )}
 
-        {/* ── 数据行（左下，row 2）── */}
-        <div className="flex items-center gap-6 sm:gap-10 py-3 px-1">
-          {stats.map((stat, i) => (
-            <div key={i} className="flex flex-col">
-              <span className="text-[11px] text-muted-foreground/45">{stat.label}</span>
-              <span className="text-xl font-bold text-foreground tabular-nums mt-0.5">
-                {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
-              </span>
+                {/* 文字内容 */}
+                <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 group-hover:text-white/90 transition-colors drop-shadow-md">
+                    {ann.title}
+                  </h2>
+                  {ann.summary && (
+                    <p className="hidden sm:block text-[14px] text-white/60 line-clamp-1 mt-1.5 leading-relaxed drop-shadow-sm">
+                      {ann.summary}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-white/40 mt-2">
+                    {ann.authorName || siteName} · {timeAgo(ann.createdAt)}
+                  </p>
+                </div>
+
+                {/* 轮播箭头 */}
+                {len > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCur((cur - 1 + len) % len) }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/60 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
+                      aria-label="上一条公告"
+                    >
+                      <ChevronLeft className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); next() }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-[3] flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white/60 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
+                      aria-label="下一条公告"
+                    >
+                      <ChevronRight className="h-4 w-4" strokeWidth={2} />
+                    </button>
+                    <div className="absolute bottom-3 right-4 z-[3] flex gap-1.5">
+                      {announcements.map((_, i) => (
+                        <span
+                          key={i}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${
+                            i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </Link>
+            ) : (
+              <div className="flex items-center justify-center rounded-2xl bg-muted/30 border border-dashed border-border/30" style={{ height: "clamp(220px, 30vh, 280px)" }}>
+                <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
+                  <Bell className="h-6 w-6" strokeWidth={1.5} />
+                  <span className="text-[13px]">暂无公告</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 数据行（只在公告下方） */}
+          <div className="flex items-center gap-6 sm:gap-10 py-3 px-1">
+            {stats.map((stat, i) => (
+              <div key={i} className="flex flex-col">
+                <span className="text-[11px] text-muted-foreground/45">{stat.label}</span>
+                <span className="text-xl font-bold text-foreground tabular-nums mt-0.5">
+                  {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
+                </span>
+              </div>
+            ))}
+            {/* 第三项预留位 */}
+            <div className="flex flex-col opacity-0 pointer-events-none">
+              <span className="text-[11px]">预留</span>
+              <span className="text-xl font-bold">0</span>
             </div>
-          ))}
-          {/* 第三项预留位（不显示内容） */}
-          <div className="flex flex-col opacity-0 pointer-events-none">
-            <span className="text-[11px]">预留</span>
-            <span className="text-xl font-bold">0</span>
           </div>
         </div>
 
-        {/* ── Activity（右侧，跨两行）── */}
+        {/* ── 右侧列：Activity（桌面端跨两行等高，移动端自然高度）── */}
         <div
-          className="row-span-2 rounded-2xl bg-muted/15 border border-border/15 p-4 sm:p-5 flex flex-col"
-          style={{ gridRow: "1 / 3" }}
+          className="rounded-2xl bg-muted/15 border border-border/15 p-4 sm:p-5 flex flex-col lg:row-span-2"
         >
           <ActivityTicker activities={activities} />
         </div>
