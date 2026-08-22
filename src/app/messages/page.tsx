@@ -40,19 +40,19 @@ export default function UnifiedMessagesPage() {
 
 function TabNav({ activeTab, onTabChange }: { activeTab: Tab; onTabChange: (tab: Tab) => void }) {
   return (
-    <div className="flex gap-1 mb-2">
+    <div className="flex gap-1.5 mb-2">
       {TABS.map((tab) => (
         <button
           key={tab.key}
           onClick={() => onTabChange(tab.key)}
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all",
+            "flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
             activeTab === tab.key
-              ? "bg-primary/10 text-primary"
+              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
-          <tab.icon className="h-3.5 w-3.5" strokeWidth={2} />
+          <tab.icon className="h-4 w-4" strokeWidth={2} />
           {tab.label}
         </button>
       ))}
