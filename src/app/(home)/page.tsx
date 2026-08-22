@@ -1,6 +1,7 @@
 import { GameCard, GameCardSlot } from "@/components/game-card"
 import { Suspense } from "react"
 import { HomeAnnounceBar, buildActivities, type ActivityItem, type StatItem } from "@/components/home-announce-bar"
+import { HomeRandomDiscover } from "@/components/home-random-discover"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
@@ -206,23 +207,21 @@ export default async function HomePage({
     GameGridServer({ tag: activeTag, q, mode: nsfwMode, sort, page }),
   ])
 
-  // ── 统计数据（游戏总数 + 今日签到）──
+  // ── 统计数据（游戏总数 + 累计签到）──
   let totalGames = 0
-  let todayCheckins = 0
+  let totalCheckins = 0
   try {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const [gameCount, checkinCount] = await Promise.all([
+    const [gameCount, checkinSum] = await Promise.all([
       prisma.game.count({ where: { isPublished: true } }),
-      prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
+      prisma.checkIn.aggregate({ _sum: { marks: true } }),
     ])
     totalGames = gameCount
-    todayCheckins = checkinCount
+    totalCheckins = checkinSum._sum.marks ?? 0
   } catch {}
 
   const stats: StatItem[] = [
     { label: "游戏总数", value: totalGames },
-    { label: "今日签到", value: todayCheckins },
+    { label: "累计签到", value: totalCheckins },
   ]
 
   // Announcements (same query as before, inlined here)
@@ -302,6 +301,7 @@ export default async function HomePage({
         announcements={announcements}
         activities={activities}
         stats={stats}
+        randomDiscover={<HomeRandomDiscover />}
         siteName={siteName}
       />
 

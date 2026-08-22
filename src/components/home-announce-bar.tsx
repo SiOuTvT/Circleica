@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { useCallback, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -19,7 +20,11 @@ export interface ActivityItem {
 export interface StatItem { label: string; value: number | string }
 
 interface HomeAnnounceBarProps {
-  announcements: AnnounceItem[]; activities: ActivityItem[]; stats: StatItem[]; siteName?: string
+  announcements: AnnounceItem[]
+  activities: ActivityItem[]
+  stats: StatItem[]
+  randomDiscover?: ReactNode
+  siteName?: string
 }
 
 export function buildActivities(announcements: AnnounceItem[]): ActivityItem[] {
@@ -74,7 +79,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
   )
 }
 
-export function HomeAnnounceBar({ announcements, activities, stats, siteName = "Circleica" }: HomeAnnounceBarProps) {
+export function HomeAnnounceBar({ announcements, activities, stats, randomDiscover, siteName = "Circleica" }: HomeAnnounceBarProps) {
   const [cur, setCur] = useState(0)
   const len = announcements.length
   const next = useCallback(() => setCur((i) => (i + 1) % len), [len])
@@ -134,6 +139,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
               <span className="text-2xl font-bold text-muted-foreground/30">—</span>
               <p className="text-xs text-muted-foreground/30 mt-1 font-medium">预留</p>
             </div>
+            {/* 随机发现功能入口 */}
+            {randomDiscover}
           </div>
         </div>
         {/* ── 右侧列：Activity ── */}

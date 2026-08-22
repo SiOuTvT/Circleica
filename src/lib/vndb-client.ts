@@ -35,7 +35,7 @@ async function vndbPost(endpoint: string, data: Record<string, unknown>, retries
           "User-Agent": "Circleica/1.0",
         },
         body: JSON.stringify(data),
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(15000),
       })
 
       if (!response.ok) {
@@ -47,10 +47,10 @@ async function vndbPost(endpoint: string, data: Record<string, unknown>, retries
       const isLastAttempt = attempt === retries
       if (isLastAttempt) throw error
 
-      // 网络错误则重试
+      // 网络错误则重试，间隔递增
       const err = error as Error & { name?: string }
-      if (err?.message?.includes('fetch failed') || err?.name === 'TimeoutError') {
-        await new Promise(r => setTimeout(r, 1000 * attempt))
+      if (err?.message?.includes('fetch failed') || err?.name === 'TimeoutError' || err?.name === 'AbortError') {
+        await new Promise(r => setTimeout(r, 1500 * attempt))
       } else {
         throw error
       }
