@@ -258,8 +258,22 @@ export function TopNav({ onToggleForum }: TopNavProps) {
               <TooltipContent side="bottom">搜索</TooltipContent>
             </Tooltip>
 
-            {user && <NotificationBell />}
-            {user && <MessageBell />}
+            {user && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <NotificationBell />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">通知</TooltipContent>
+              </Tooltip>
+            )}
+            {user && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <MessageBell />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">私信</TooltipContent>
+              </Tooltip>
+            )}
 
             <Tooltip>
               <TooltipTrigger asChild>
