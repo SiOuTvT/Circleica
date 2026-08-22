@@ -266,21 +266,11 @@ export function TopNav({ onToggleForum }: TopNavProps) {
             {user && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div title="通知">
-                    <NotificationBell />
-                  </div>
+                  <Link href="/messages" className="relative flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                    <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                  </Link>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">通知</TooltipContent>
-              </Tooltip>
-            )}
-            {user && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div title="私信">
-                    <MessageBell />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">私信</TooltipContent>
+                <TooltipContent side="bottom">消息</TooltipContent>
               </Tooltip>
             )}
 
