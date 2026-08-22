@@ -175,8 +175,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
 
   return (
     <div className="w-full">
-      {/* 桌面端：两列 Grid；移动端：单列堆叠 */}
-      <div className="flex flex-col lg:grid lg:gap-5" style={{ "--lg-left": "1fr", "--lg-right": "340px" } as React.CSSProperties}>
+      {/* 桌面端：左右并排 Grid；移动端：垂直堆叠 */}
+      <div className="flex flex-col lg:grid lg:grid-cols-[1fr_340px] lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
         <div className="flex flex-col gap-4 lg:gap-0 min-w-0" style={{ gridColumn: "1", gridRow: "1 / 3" }}>
           {/* 公告区 */}
