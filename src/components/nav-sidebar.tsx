@@ -187,28 +187,48 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 if (loading) return
                 setLoading(true)
                 try {
-                  const creator = await getRandomStaff()
-                  if (creator?.vndbId) { router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`); return }
-                  const { ok, data } = await apiFetchSafe<{ data?: { slug?: string } }>("/api/creators/random", { cache: "no-store" })
-                  if (ok && data?.data?.slug) { router.push(`/credits/creator/${encodeURIComponent(data.data.slug)}`); return }
-                  const { ok: ok2, data: data2 } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
-                  if (ok2 && data2?.data?.[0]?.serialId) router.push(`/games/${data2.data[0].serialId}`)
+                  // 快速尝试 VNDB（10秒总超时）
+                  const creator = await Promise.race([
+                    getRandomStaff(),
+                    new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+                  ])
+                  if (creator?.vndbId) {
+                    router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
+                    return
+                  }
+                  // 降级：随机游戏（本地DB，快速）
+                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
                   else toast.error("暂无可推荐的内容")
-                } catch { toast.error("随机创作者获取失败") }
-                finally { setLoading(false) }
+                } catch {
+                  // VNDB 失败：降级随机游戏
+                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+                  else toast.error("暂无可推荐的内容")
+                } finally { setLoading(false) }
               }, [loading, router])
               const handleCharacter = useCallback(async () => {
                 if (loading) return
                 setLoading(true)
                 try {
                   const { getRandomCharacter } = await import("@/lib/vndb-client")
-                  const character = await getRandomCharacter()
-                  if (character?.vndbId) { router.push(`/characters/${character.vndbId}`); return }
+                  const character = await Promise.race([
+                    getRandomCharacter(),
+                    new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+                  ])
+                  if (character?.vndbId) {
+                    router.push(`/characters/${character.vndbId}`)
+                    return
+                  }
+                  // 降级：随机游戏
                   const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
                   if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
                   else toast.error("暂无可推荐的内容")
-                } catch { toast.error("随机角色获取失败") }
-                finally { setLoading(false) }
+                } catch {
+                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+                  else toast.error("暂无可推荐的内容")
+                } finally { setLoading(false) }
               }, [loading, router])
               const creatorBtn = (
                 <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-lg py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-[13px]", "text-muted-foreground hover:bg-accent/50 hover:text-foreground disabled:opacity-50")}>

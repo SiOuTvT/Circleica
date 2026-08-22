@@ -58,7 +58,7 @@ export function HomeRandomDiscover() {
       onClick={handleRandom}
       disabled={loading}
       className="rounded-xl bg-card border border-border px-5 py-3.5 text-center shadow-sm hover:bg-accent/50 hover:border-border/60 transition-colors disabled:opacity-50 cursor-pointer flex flex-col items-center justify-center gap-1"
-      title="随机发现一个作品"
+      title="随机游戏"
       style={{ minWidth: "100px" }}
     >
       {loading ? (

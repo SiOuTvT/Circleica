@@ -95,9 +95,9 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
             {announcements.length > 0 ? (
               <>
                 <div className="group relative block overflow-hidden rounded-2xl" style={{ height: "clamp(220px, 30vh, 280px)" }}>
-                  {/* 背景图：不可点击，普通鼠标 */}
+                  {/* 背景图：pointer cursor，提示可交互 */}
                   {ann.imageUrl ? (
-                    <div className="absolute inset-0">
+                    <div className="absolute inset-0 cursor-pointer">
                       <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" sizes="(max-width: 1024px) 100vw, 60vw" priority quality={80} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>

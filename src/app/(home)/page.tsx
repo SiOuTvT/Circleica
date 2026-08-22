@@ -125,64 +125,46 @@ async function GameGridServer({ tag, q, mode, sort = "newest", page }: { tag: st
 
 function buildHomeActivities(
   announcements: HomeAnnouncement[],
-  checkins: { user: { username: string; avatar: string | null }; createdAt: Date }[],
-  comments: { content: string; createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[],
-  favorites: { createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[],
+  recentGames: { id: string; title: string; createdAt: Date }[],
+  updatedGames: { id: string; title: string; updatedAt: Date }[],
 ): ActivityItem[] {
   const items: ActivityItem[] = []
 
-  // 签到动态
-  for (const c of checkins.slice(0, 3)) {
-    items.push({
-      id: `checkin-${c.user.username}-${c.createdAt.getTime()}`,
-      type: "checkin",
-      title: "签到了",
-      time: c.createdAt.toISOString(),
-      avatar: c.user.avatar ?? undefined,
-      username: c.user.username,
-    })
-  }
-
-  // 评论动态
-  for (const c of comments.slice(0, 3)) {
-    items.push({
-      id: `comment-${c.createdAt.getTime()}`,
-      type: "comment",
-      title: `评论了《${c.game.title}》`,
-      time: c.createdAt.toISOString(),
-      avatar: c.user.avatar ?? undefined,
-      username: c.user.username,
-      content: c.content.slice(0, 30),
-    })
-  }
-
-  // 收藏动态
-  for (const f of favorites.slice(0, 2)) {
-    items.push({
-      id: `fav-${f.createdAt.getTime()}`,
-      type: "favorite",
-      title: `收藏了《${f.game.title}》`,
-      time: f.createdAt.toISOString(),
-      avatar: f.user.avatar ?? undefined,
-      username: f.user.username,
-    })
-  }
-
   // 公告动态
-  if (announcements.length > 0) {
-    const a = announcements[0]
+  for (const a of announcements.slice(0, 3)) {
     items.push({
       id: `ann-${a.id}`,
       type: "announcement",
       title: a.title,
       time: a.createdAt,
+      username: a.authorName || "Circleica",
+    })
+  }
+
+  // 新游戏上架
+  for (const g of recentGames.slice(0, 5)) {
+    items.push({
+      id: `new-${g.id}`,
+      type: "game_added",
+      title: `《${g.title}》上架`,
+      time: g.createdAt.toISOString(),
+    })
+  }
+
+  // 游戏更新
+  for (const g of updatedGames.slice(0, 3)) {
+    items.push({
+      id: `upd-${g.id}`,
+      type: "game_updated",
+      title: `《${g.title}》有更新`,
+      time: g.updatedAt.toISOString(),
     })
   }
 
   // 按时间排序
   items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 
-  return items.slice(0, 20)
+  return items.slice(0, 15)
 }
 
 // ─── Page ──────────────────────────────────────────────────────
@@ -256,14 +238,29 @@ export default async function HomePage({
     logger.db.error("[HomePage] Announcements query failed", error)
   }
 
-  // ── 动态数据（只保留有意义的内容动态）──
-  let checkins: { user: { username: string; avatar: string | null }; createdAt: Date }[] = []
-  let comments: { content: string; createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
-  let favorites: { createdAt: Date; user: { username: string; avatar: string | null }; game: { title: string } }[] = []
-  // 注：首页动态只展示公告，不展示签到/评论/收藏等普通操作
-  // 后续如有「发布新游戏」「游戏更新」等有意义的动态事件，再接入
+  // ── 动态数据（有意义的内容动态）──
+  let recentGames: { id: string; title: string; createdAt: Date }[] = []
+  let updatedGames: { id: string; title: string; updatedAt: Date }[] = []
+  try {
+    const [newGames, upGames] = await Promise.all([
+      prisma.game.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, title: true, createdAt: true },
+      }),
+      prisma.game.findMany({
+        where: { isPublished: true },
+        orderBy: { updatedAt: "desc" },
+        take: 5,
+        select: { id: true, title: true, updatedAt: true },
+      }),
+    ])
+    recentGames = newGames
+    updatedGames = upGames
+  } catch {}
 
-  const activities = buildHomeActivities(announcements, checkins, comments, favorites)
+  const activities = buildHomeActivities(announcements, recentGames, updatedGames)
   const allGames = gridData.games
 
   return (
