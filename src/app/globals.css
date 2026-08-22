@@ -1009,6 +1009,21 @@ main > * {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128,128,128,0.25) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(128,128,128,0.25);
+  border-radius: 4px;
+  max-height: 60px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 /* ── 焦点环 - 简洁聚焦指示 ──
  *

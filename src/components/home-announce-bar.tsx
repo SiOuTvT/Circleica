@@ -86,7 +86,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
     <div className="flex flex-col min-w-0 max-h-full">
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto min-h-0 scrollbar-hide"
+        className="flex-1 overflow-y-auto min-h-0 scrollbar-thin"
       >
         <div className="flex flex-col gap-3.5 pr-1">
           {activities.map((act) => (
