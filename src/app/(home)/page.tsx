@@ -160,6 +160,25 @@ export default async function HomePage({
     GameGridServer({ tag: activeTag, q, mode: nsfwMode, sort, page }),
   ])
 
+  // ── 统计数据（游戏总数 + 今日签到）──
+  let totalGames = 0
+  let todayCheckins = 0
+  try {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const [gameCount, checkinCount] = await Promise.all([
+      prisma.game.count({ where: { isPublished: true } }),
+      prisma.checkIn.count({ where: { createdAt: { gte: today } } }),
+    ])
+    totalGames = gameCount
+    todayCheckins = checkinCount
+  } catch {}
+
+  const stats: StatItem[] = [
+    { label: "游戏总数", value: totalGames },
+    { label: "今日签到", value: todayCheckins },
+  ]
+
   // Announcements (same query as before, inlined here)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -199,10 +218,11 @@ export default async function HomePage({
     <div className="flex flex-col gap-5 sm:gap-7 pt-4">
       <h1 className="sr-only">{siteName} · 资源大厅</h1>
 
-      {/* ── Announcement + Activity ── */}
+      {/* ── Announcement + Activity + 数据行 ── */}
       <HomeAnnounceBar
         announcements={announcements}
         activities={activities}
+        stats={stats}
         siteName={siteName}
       />
 
