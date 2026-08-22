@@ -294,7 +294,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                   aria-label="用户菜单"
                   aria-haspopup="menu"
                   aria-expanded={userOpen}
-                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
                       ? <Image src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={36} height={36} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-[10px] font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
@@ -372,7 +372,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               </div>
             ) : (
               <div className="ml-1">
-                <Link href="/login" className="inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
+                <Link href="/login" className="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
                   登录
                 </Link>
               </div>

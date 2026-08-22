@@ -181,7 +181,7 @@ function buildHomeActivities(
   // 按时间排序
   items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 
-  return items.slice(0, 8)
+  return items.slice(0, 20)
 }
 
 // ─── Page ──────────────────────────────────────────────────────
@@ -265,12 +265,12 @@ export default async function HomePage({
     const [recentCheckins, recentComments, recentFavorites] = await Promise.all([
       prisma.checkIn.findMany({
         orderBy: { createdAt: "desc" },
-        take: 5,
+        take: 10,
         include: { user: { select: { username: true, avatar: true } } },
       }),
       prisma.comment.findMany({
         orderBy: { createdAt: "desc" },
-        take: 5,
+        take: 10,
         include: {
           user: { select: { username: true, avatar: true } },
           game: { select: { title: true } },
@@ -278,7 +278,7 @@ export default async function HomePage({
       }),
       prisma.favorite.findMany({
         orderBy: { createdAt: "desc" },
-        take: 5,
+        take: 10,
         include: {
           user: { select: { username: true, avatar: true } },
           game: { select: { title: true } },

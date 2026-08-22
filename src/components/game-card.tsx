@@ -152,13 +152,13 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       {/* ─── 内容区：自然撑开 ─── */}
       <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2.5 pb-2.5 pt-2.5 sm:px-3.5 sm:pb-3 sm:pt-3">
         {/* 游戏名称：允许 1-2 行，不限制最小高度 */}
-        <h3 className="game-card-title text-[18px] font-semibold leading-snug line-clamp-2 text-foreground">
+        <h3 className="game-card-title text-[20px] font-semibold leading-snug line-clamp-2 text-foreground">
           <Cjk>{game.title}</Cjk>
         </h3>
 
-        {/* 标签区：始终与标题保持一致间距 */}
+        {/* 标签区：标题与标签之间明显留白 */}
         {showTags && paramTags.length > 0 && (
-          <div className="game-card-tags mt-2.5 flex flex-shrink-0 flex-wrap items-center gap-1.5">
+          <div className="game-card-tags mt-3 flex flex-shrink-0 flex-wrap items-center gap-1.5">
             {paramTags.map((tag, i) => (
               <span
                 key={`p-${i}`}
