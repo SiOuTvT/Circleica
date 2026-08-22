@@ -85,14 +85,11 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[300px_1fr] lg:grid-cols-[320px_1fr]">
       {/* 左侧：通知分类 */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        {tabNav && <div className="px-3 pt-3">{tabNav}</div>}
-        <div className="border-b border-border px-4 py-3">
-          <span className="text-sm font-semibold text-foreground">通知分类</span>
-        </div>
-        <div className="p-2">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
+        {tabNav && <div className="px-3 pt-3 pb-1">{tabNav}</div>}
+        <div className="flex-1 overflow-y-auto max-h-[70vh] p-2">
           {CATEGORIES.map((catItem) => (
             <button
               key={catItem.key}
