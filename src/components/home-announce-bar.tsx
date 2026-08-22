@@ -104,17 +104,17 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
-                  {/* 毛玻璃文字层：可点击进入详情，pointer cursor */}
-                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6">
+                  {/* 毛玻璃文字层：覆盖整卡的最上层；图片区域显示小手，内容区默认光标 */}
+                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-pointer">
                     <Link
                       href={href}
                       target={ann.link ? "_blank" : undefined}
                       rel={ann.link ? "noopener noreferrer" : undefined}
-                      className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 block cursor-pointer hover:bg-black/45 transition-colors"
+                      className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 block cursor-default hover:bg-black/45 transition-colors"
                     >
                       <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 hover:text-primary transition-colors duration-300">{ann.title}</h2>
                       {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed">{ann.summary}</p>}
-                      <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName} · {timeAgo(ann.createdAt)}</p>
+                      <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName}　{timeAgo(ann.createdAt)}</p>
                     </Link>
                   </div>
                 </div>
@@ -141,12 +141,12 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                 <p className="text-xs text-muted-foreground mt-1 font-medium">{stat.label}</p>
               </div>
             ))}
-            <div className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-3 text-center">
+            <div key="reserved" className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-3 text-center">
               <span className="text-2xl font-bold text-muted-foreground/30">—</span>
               <p className="text-xs text-muted-foreground/30 mt-1 font-medium">预留</p>
             </div>
             {/* 随机发现功能入口 */}
-            {randomDiscover}
+            {randomDiscover ? <div key="random-discover" className="contents">{randomDiscover}</div> : null}
           </div>
         </div>
         {/* ── 右侧列：Activity ── */}

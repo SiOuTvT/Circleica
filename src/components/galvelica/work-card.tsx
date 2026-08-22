@@ -49,7 +49,7 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
         ) : (
           /* 品牌化占位：标题首字 + 副站主题色渐变（无封面时） */
           <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)] to-[color-mix(in_srgb,var(--gal-accent)_4%,transparent)]">
-            <span className="galvelica-serif text-5xl font-semibold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">
+            <span className="galvelica-serif text-5xl font-bold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">
               {(work.title || "?").trim().charAt(0).toUpperCase()}
             </span>
             <span className="mt-1 text-micro font-medium text-muted-foreground/60">暂无封面</span>
@@ -80,7 +80,7 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
 
       {/* 信息区 */}
       <div className="flex min-h-0 flex-col gap-1 p-2.5">
-        <h3 className="galvelica-serif line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
+        <h3 className="galvelica-serif line-clamp-2 text-sm font-extrabold leading-snug text-foreground transition-colors group-hover:text-[var(--gal-accent)]">
           <Cjk>{work.title}</Cjk>
         </h3>
         <p className="truncate text-[11px] text-muted-foreground">

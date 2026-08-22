@@ -104,7 +104,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 )}
                 aria-label="切换侧边栏"
               >
-                <Menu className="h-5 w-5 shrink-0" strokeWidth={2} />
+                <Menu className="h-6 w-6 shrink-0" strokeWidth={2} />
                 {!collapsed && (
                   <span className="text-sm font-medium text-muted-foreground">菜单</span>
                 )}
@@ -232,13 +232,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               }, [loading, router])
               const creatorBtn = (
                 <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <User className="h-5 w-5 shrink-0" strokeWidth={2} />}
+                  {loading ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} /> : <User className="h-6 w-6 shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
                 <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <Sparkles className="h-5 w-5 shrink-0" strokeWidth={2} />}
+                  {loading ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} /> : <Sparkles className="h-6 w-6 shrink-0" strokeWidth={ 2} />}
                   {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
                 </button>
               )
