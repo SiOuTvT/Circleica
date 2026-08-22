@@ -5,6 +5,7 @@ import { CheckInToast } from "@/components/checkin-toast"
 import { MessageBell } from "@/components/message-bell"
 import { NotificationBell } from "@/components/notification-bell"
 import { NsfwModeToggle } from "@/components/nsfw-mode-toggle"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
@@ -236,36 +237,55 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
       >
         <div className="flex h-full w-full items-center gap-1 sm:gap-3">
 
-          <button
-            onClick={onToggleNav}
-            className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted sm:h-11 sm:w-11"
-            aria-label="切换侧边栏"
-          >
-            <Menu className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onToggleNav}
+                className="flex h-10 w-10 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+                aria-label="切换侧边栏"
+              >
+                <Menu className="h-5 w-5" strokeWidth={2} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">导航菜单</TooltipContent>
+          </Tooltip>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              <Search className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
-            </Link>
+          <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/search" aria-label="搜索" className="flex h-10 w-10 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                  <Search className="h-5 w-5" strokeWidth={2} />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">搜索</TooltipContent>
+            </Tooltip>
 
             {user && <NotificationBell />}
             {user && <MessageBell />}
 
-            <button
-              onClick={onToggleForum}
-              className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
-              aria-label="论坛"
-              title="论坛"
-            >
-              <MessageSquare className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onToggleForum}
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+                  aria-label="论坛"
+                >
+                  <MessageSquare className="h-5 w-5" strokeWidth={2} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">论坛</TooltipContent>
+            </Tooltip>
 
-            <button onClick={toggleTheme} aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} title={theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
-              {theme === "light" ? <Sun className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
-                : theme === "dark" ? <Moon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />
-                : <SunMoon className="h-6 w-6 lg:h-7 lg:w-7" strokeWidth={2} />}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button onClick={toggleTheme} aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} className="flex h-10 w-10 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                  {theme === "light" ? <Sun className="h-5 w-5" strokeWidth={2} />
+                    : theme === "dark" ? <Moon className="h-5 w-5" strokeWidth={2} />
+                    : <SunMoon className="h-5 w-5" strokeWidth={2} />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{theme === "dark" ? "深色模式" : theme === "light" ? "浅色模式" : "跟随系统"}</TooltipContent>
+            </Tooltip>
 
             {user ? (
               <div ref={userRef} className="relative ml-1">
@@ -274,13 +294,13 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
                   aria-label="用户菜单"
                   aria-haspopup="menu"
                   aria-expanded={userOpen}
-                  className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-11 sm:w-11"
+                  className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-border transition-all hover:ring-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     {(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl
-                      ? <Image src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={40} height={40} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
-                      : <AvatarFrame frameId={user.avatarFrame || "none"} size={40}>
+                      ? <Image src={`${(session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string}${((session?.user as Record<string, unknown> & { composedAvatarUrl?: string })?.composedAvatarUrl as string).includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={36} height={36} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-[10px] font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                      : <AvatarFrame frameId={user.avatarFrame || "none"} size={36}>
                           {(localAvatar || user.image)
-                            ? <Image src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={40} height={40} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
+                            ? <Image src={`${(localAvatar || user.image)}${(localAvatar || user.image || '').includes('?') ? '&' : '?'}t=${avatarVersion}`} alt={user.name ?? ""} width={36} height={36} className="h-full w-full object-cover rounded-full" unoptimized onError={(e) => { e.currentTarget.style.display = 'none'; const fb = document.createElement('div'); fb.className = 'flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-[10px] font-bold text-white'; fb.textContent = (user.name ?? "U")[0].toUpperCase(); e.currentTarget.parentElement?.appendChild(fb); }} />
                             : <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/80 text-xs font-bold text-white">{(user.name ?? "U")[0].toUpperCase()}</div>
                           }
                         </AvatarFrame>
@@ -352,7 +372,7 @@ export function TopNav({ onToggleNav, onToggleForum }: TopNavProps) {
               </div>
             ) : (
               <div className="ml-1">
-                <Link href="/login" className="inline-flex h-11 items-center justify-center rounded-full px-6 text-base font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
+                <Link href="/login" className="inline-flex h-9 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
                   登录
                 </Link>
               </div>
