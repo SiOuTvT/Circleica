@@ -83,7 +83,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
   }
 
   return (
-    <div className="flex flex-col min-w-0 h-full">
+    <div className="flex flex-col min-w-0 max-h-full">
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto min-h-0"
@@ -260,7 +260,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
         </div>
 
         {/* ── 右侧列：Activity（flex-2，与左列天然等高，内部滚动）── */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col flex-[2] min-h-0 min-w-[280px]">
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col flex-[2] min-h-0 min-w-[280px] overflow-hidden">
           <ActivityList activities={activities} />
         </div>
       </div>
