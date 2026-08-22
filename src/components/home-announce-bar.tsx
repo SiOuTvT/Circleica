@@ -259,8 +259,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, siteName = "
           </div>
         </div>
 
-        {/* ── 右侧列：Activity（内部滚动，高度匹配左列）── */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col lg:row-span-1 min-h-[300px]">
+        {/* ── 右侧列：Activity（跨两行等高，内部滚动）── */}
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col lg:row-span-2 min-h-0">
           <ActivityList activities={activities} />
         </div>
       </div>
