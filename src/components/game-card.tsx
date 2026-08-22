@@ -85,7 +85,15 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
     <Link
       href={`/games/${game.serialId ?? game.id}`}
       className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      onClick={() => {
+      onClick={(e) => {
+        // 设置波纹中心位置
+        try {
+          const rect = e.currentTarget.getBoundingClientRect()
+          const x = ((e.clientX - rect.left) / rect.width * 100)
+          const y = ((e.clientY - rect.top) / rect.height * 100)
+          e.currentTarget.style.setProperty('--ripple-x', `${x}%`)
+          e.currentTarget.style.setProperty('--ripple-y', `${y}%`)
+        } catch {}
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
           pushRecentlyViewed({

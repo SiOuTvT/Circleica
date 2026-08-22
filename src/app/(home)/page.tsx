@@ -280,9 +280,9 @@ export default async function HomePage({
       />
 
       {/* ── 最新资源入口 ── */}
-      <Link href="/games" className="flex items-center gap-2.5 group">
+      <Link href="/games" className="flex items-center gap-3 group">
         <h2 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">最新资源</h2>
-        <span className="flex items-center gap-0.5 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
+        <span className="flex items-center gap-1 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
           更多
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="transition-transform group-hover:translate-x-0.5">
             <path d="M5 12h14" />
