@@ -562,8 +562,62 @@ export const checkinService = {
 
 // ── 个人资料页 ─────────────────────
 
+export type ActivityKind = "game_published" | "resource_added" | "resource_edited" | "other"
+export interface ActivityItemData {
+  id: string
+  kind: ActivityKind
+  title: string
+  description?: string
+  href?: string
+  coverImage?: string
+  createdAt: string | Date
+  demo?: boolean
+}
+
 export const profileDataService = {
   getComments(userId: string, page: number) { return profileRepo.findComments(userId, page, 20) },
   getFavorites(userId: string, opts: { page?: number; limit?: number } = {}) { return profileRepo.findFavorites(userId, opts) },
   getFollowing(userId: string, opts: { page?: number; limit?: number } = {}) { return profileRepo.findFollowing(userId, opts) },
+  async getActivities(userId: string, opts: { limit?: number } = {}) {
+    const limit = Math.min(opts.limit ?? 20, 50)
+    const [games, resources] = await Promise.all([
+      prisma.game.findMany({
+        where: { publisherId: userId, isPublished: true },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: { id: true, serialId: true, title: true, coverImage: true, createdAt: true },
+      }),
+      prisma.gameResource.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: { id: true, resourceName: true, gameId: true, createdAt: true, updatedAt: true, game: { select: { serialId: true, title: true, coverImage: true } } },
+      }),
+    ])
+    const items: ActivityItemData[] = []
+    for (const g of games) {
+      items.push({
+        id: `game-${g.id}`,
+        kind: "game_published",
+        title: g.title,
+        description: "发布了新游戏",
+        href: `/games/${g.serialId}`,
+        coverImage: g.coverImage || undefined,
+        createdAt: g.createdAt,
+      })
+    }
+    for (const r of resources) {
+      items.push({
+        id: `res-${r.id}`,
+        kind: "resource_added",
+        title: r.game?.title ? `在《${r.game.title}》下添加了资源` : "添加了资源",
+        description: r.resourceName || undefined,
+        href: r.game?.serialId ? `/games/${r.game.serialId}?tab=resources` : undefined,
+        coverImage: r.game?.coverImage || undefined,
+        createdAt: r.updatedAt > r.createdAt ? r.updatedAt : r.createdAt,
+      })
+    }
+    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    return { items: items.slice(0, limit) }
+  },
 }

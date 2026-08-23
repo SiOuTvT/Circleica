@@ -31,11 +31,12 @@ interface Props {
   /** 是否本人浏览自己的主页（仅本人可见"下载"tab，保护下载隐私） */
   isSelf?: boolean
 }
-type TabKey = "favorites" | "comments"
+type TabKey = "favorites" | "comments" | "reserved"
 
 const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: "favorites", label: "收藏", icon: FolderHeart },
   { key: "comments", label: "评论", icon: MessageSquare },
+  { key: "reserved", label: "更多", icon: Plus },
 ]
 
 // 情感消息 key 常量，避免每次渲染传入新数组
@@ -68,9 +69,6 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
   const [commentLoadingMore, setCommentLoadingMore] = useState(false)
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
-
-  // 动态时间轴默认加载（右侧竖条常驻，不依赖 Tab 切换）
-  useEffect(() => { loadActivity() }, [loadActivity])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
@@ -137,6 +135,9 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     }
   }, [userId, loadedActivity])
 
+  // 动态时间轴默认加载（右侧竖条常驻，不依赖 Tab 切换）
+  useEffect(() => { loadActivity() }, [loadActivity])
+
   // 切换 tab 时加载对应数据
   useEffect(() => {
     if (active === "favorites") loadFavorites()
@@ -199,30 +200,31 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
   useBodyScrollLock(!!modalCollection)
 
   return (
-    <div className="flex flex-col">
-      <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
-        <div className="flex gap-1 rounded-xl px-1 py-1">
-          {tabs.filter((t) => t.key !== "downloads" || isSelf).map((tab) => {
-            const Icon = tab.icon; const isActive = active === tab.key
-            return (
-              <button key={tab.key} onClick={() => setActive(tab.key)}
-                className={cn(
-                  "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out",
-                  isActive
-                    ? "bg-[var(--tab-active)] text-[var(--tab-active-text)] font-bold"
-                    : "bg-transparent text-[var(--tab-inactive-text)] font-medium"
-                )}>
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-                {tab.label}
-                {tab.key === "comments" && localComments.length > 0 && <Badge variant="default" size="sm">{localComments.length}</Badge>}
-              </button>
-            )
-          })}
+    <div className="flex flex-col lg:flex-row lg:items-stretch">
+      {/* 左栏：Tab 切换区域（贴壁） */}
+      <section className="flex min-w-0 flex-1 flex-col lg:border-r lg:border-border">
+        <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
+          <div className="flex gap-1 rounded-xl px-1 py-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon; const isActive = active === tab.key
+              return (
+                <button key={tab.key} onClick={() => setActive(tab.key)}
+                  className={cn(
+                    "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out",
+                    isActive
+                      ? "bg-[var(--tab-active)] text-[var(--tab-active-text)] font-bold"
+                      : "bg-transparent text-[var(--tab-inactive-text)] font-medium"
+                  )}>
+                  <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                  {tab.label}
+                  {tab.key === "comments" && localComments.length > 0 && <Badge variant="default" size="sm">{localComments.length}</Badge>}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row profile-scroll-area">
-        <div className="min-w-0 flex-1">
+        <div className="flex-1 p-4 sm:p-5 profile-scroll-area">
           {active === "favorites" && (
             <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf ?? false}
               onOpenFolder={(col) => setModalCollection(col)}
@@ -235,25 +237,27 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
           {active === "comments" && (
             loadedComments ? <CommentsTab comments={localComments} hasMore={commentHasMore} loadingMore={commentLoadingMore} onLoadMore={loadMoreComments} /> : <TabLoadingSkeleton />
           )}
+          {/* 第三个 Tab：预留占位框架，暂不填充内容 */}
+          {active === "reserved" && (
+            <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground/60">敬请期待</div>
+          )}
         </div>
+      </section>
 
-        {/* 右侧动态时间轴竖条：固定宽、内部上下滚动 */}
-        <aside className="w-full shrink-0 lg:w-[300px]">
-          <div className="rounded-2xl border border-border bg-card">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <h3 className="text-sm font-semibold text-foreground">动态</h3>
-            </div>
-            <div className="max-h-[360px] overflow-y-auto p-3">
-              {loadedActivity ? (
-                <UserActivityTimeline items={activities} />
-              ) : (
-                <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
-              )}
-            </div>
-          </div>
-        </aside>
-      </div>
+      {/* 右栏：通高独立动态流区域，中间细分隔竖线由左栏 border-r 提供，无外框 */}
+      <aside className="w-full shrink-0 lg:w-[300px]">
+        <div className="flex items-center gap-2 px-4 py-3 sm:px-5">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          <h3 className="text-sm font-semibold text-foreground">动态</h3>
+        </div>
+        <div className="profile-scroll-area max-h-[calc(100vh-12rem)] overflow-y-auto px-3 py-2 pb-6">
+          {loadedActivity ? (
+            <UserActivityTimeline items={activities} />
+          ) : (
+            <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+          )}
+        </div>
+      </aside>
 
       {/* 收藏夹弹窗 - 用 portal 渲染到 body，脱离 layout-wrapper 的 translateX 容器，
           否则 fixed 会被 transform 捕获定位、z-50 困在内部 stacking context 盖不住侧栏 */}
