@@ -628,8 +628,9 @@ export function ResourceTab({
         </>
       )}
 
-      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区（桌面横向分栏，窄屏竖向堆叠） */}
-      <div className="mt-6 flex flex-col gap-6 border-t border-border/60 pt-5 lg:flex-row">
+      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区。
+          桌面中等屏起横向分栏（左动态右下载），中间一条竖线与用户主页动态区风格一致；窄屏竖向堆叠。 */}
+      <div className="mt-6 flex flex-col gap-6 border-t border-border/60 pt-5 md:flex-row md:border-l md:border-t-0 md:pl-6 md:pt-0">
         {/* 左：游戏动态 */}
         <section className="min-w-0 flex-1">
           <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
@@ -638,7 +639,7 @@ export function ResourceTab({
 
         {/* 右：后台配置的下载链接 */}
         {downloadLinks.length > 0 && (
-          <div className="w-full shrink-0 space-y-2 lg:w-[280px]">
+          <div className="w-full shrink-0 space-y-2 md:w-[260px]">
             {downloadLinks.map((dl, i) => (
               <a
                 key={i}
