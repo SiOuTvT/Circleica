@@ -162,7 +162,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
       {/* ─── 内容区：自然撑开 ─── */}
       <div className="game-card-body flex flex-1 flex-col overflow-hidden px-2.5 pb-2.5 pt-2.5 sm:px-3.5 sm:pb-3 sm:pt-3">
         {/* 游戏名称：允许 1-2 行，不限制最小高度 */}
-        <h3 className="game-card-title text-[20px] font-semibold leading-snug line-clamp-2 text-foreground">
+        <h3 className="game-card-title text-[20px] font-bold leading-snug line-clamp-2 text-foreground">
           <Cjk>{game.title}</Cjk>
         </h3>
 

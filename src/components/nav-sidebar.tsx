@@ -100,11 +100,11 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 }}
                 className={cn(
                   "flex items-center rounded-xl transition-all whitespace-nowrap nav-icon-btn",
-                  collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
+                  collapsed ? "justify-center mx-auto w-10 h-10" : "gap-2.5 px-2.5 py-2"
                 )}
                 aria-label="切换侧边栏"
               >
-                <Menu className="h-6 w-6 shrink-0" strokeWidth={2} />
+                <Menu className="h-5 w-5 shrink-0" strokeWidth={2} />
                 {!collapsed && (
                   <span className="text-sm font-medium text-muted-foreground">菜单</span>
                 )}
@@ -119,10 +119,10 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               <TooltipTrigger asChild>
                 <Link
                   href="/galvelica"
-                  className="group relative flex items-center justify-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden w-11 h-11 text-base bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
+                  className="group relative flex items-center justify-center rounded-xl py-2 font-semibold transition-all whitespace-nowrap overflow-hidden w-10 h-10 text-sm bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
                 >
                   <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
-                  <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
+                  <Library className="h-5 w-5 shrink-0" strokeWidth={2.2} />
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">Galvelica · 同人视觉小说资料库</TooltipContent>
@@ -131,17 +131,17 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             <Link
               href="/galvelica"
               className={cn(
-                "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden gap-3 px-3",
+                "group relative flex items-center rounded-xl py-2 font-semibold transition-all whitespace-nowrap overflow-hidden gap-2.5 px-2.5",
                 isGalvelica
                   ? "bg-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)]"
                   : "bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
               )}
             >
               <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
-              <Library className="h-6 w-6 shrink-0" strokeWidth={2.2} />
+              <Library className="h-5 w-5 shrink-0" strokeWidth={2.2} />
               <span className="flex min-w-0 flex-col leading-tight">
-                <span className="truncate text-[15px] tracking-wide">Galvelica</span>
-                <span className="truncate text-micro font-normal text-muted-foreground/70">同人视觉小说资料库</span>
+                <span className="truncate text-sm tracking-wide">Galvelica</span>
+                <span className="truncate text-[11px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
               </span>
             </Link>
           )}
@@ -158,14 +158,14 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     key={href}
                     href={href}
                     className={cn(
-                      "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap",
-                      collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base",
+                      "flex items-center rounded-xl py-2 font-medium transition-all whitespace-nowrap",
+                      collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-2.5 text-sm",
                       isActive
                         ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                     )}
                   >
-                    <Icon className="h-6 w-6 shrink-0" strokeWidth={2} />
+                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
                     {!collapsed && <span>{label}</span>}
                   </Link>
                 )
@@ -231,14 +231,14 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 } finally { setLoading(false) }
               }, [loading, router])
               const creatorBtn = (
-                <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} /> : <User className="h-6 w-6 shrink-0" strokeWidth={2} />}
+                <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-xl py-2 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-2.5 text-sm", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <User className="h-5 w-5 shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
-                <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-sm" : "gap-3 px-3 text-base", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} /> : <Sparkles className="h-6 w-6 shrink-0" strokeWidth={ 2} />}
+                <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-xl py-2 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-10 h-10 text-sm" : "gap-2.5 px-2.5 text-sm", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={2} /> : <Sparkles className="h-5 w-5 shrink-0" strokeWidth={ 2} />}
                   {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
                 </button>
               )

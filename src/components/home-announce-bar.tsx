@@ -95,26 +95,37 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
             {announcements.length > 0 ? (
               <>
                 <div className="group relative block overflow-hidden rounded-2xl" style={{ height: "clamp(220px, 30vh, 280px)" }}>
-                  {/* 背景图：pointer cursor，提示可交互 */}
+                  {/* 背景图：仅作视觉，不可点击、不显示小手；hover 轻微放大作为点缀 */}
                   {ann.imageUrl ? (
-                    <div className="absolute inset-0 cursor-pointer">
+                    <div className="absolute inset-0">
                       <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" sizes="(max-width: 1024px) 100vw, 60vw" priority quality={80} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
-                  {/* 毛玻璃文字层：覆盖整卡的最上层；图片区域显示小手，内容区默认光标 */}
-                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-pointer">
+                  {/* 毛玻璃文字层：覆盖整卡最上层。默认光标（不可点击），仅内容区点击跳详情 */}
+                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-default">
                     <Link
                       href={href}
                       target={ann.link ? "_blank" : undefined}
                       rel={ann.link ? "noopener noreferrer" : undefined}
                       className="rounded-xl bg-black/35 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 block cursor-default hover:bg-black/45 transition-colors"
                     >
+                      {/* 第一行：发布者头像 + 名字 + 时间 */}
+                      <div className="flex items-center gap-2.5 mb-2">
+                        {ann.authorAvatar ? (
+                          <Image src={ann.authorAvatar} alt={ann.authorName || ""} width={28} height={28} className="rounded-full object-cover ring-1 ring-white/30 shrink-0" />
+                        ) : (
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-bold text-white shrink-0">{(ann.authorName || siteName || "?").slice(0, 1)}</span>
+                        )}
+                        <span className="text-xs text-white/85 font-medium truncate">{ann.authorName || siteName}</span>
+                        <span className="text-xs text-white/50 shrink-0">· {timeAgo(ann.createdAt)}</span>
+                      </div>
+                      {/* 第二行：标题 */}
                       <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug line-clamp-2 hover:text-primary transition-colors duration-300">{ann.title}</h2>
+                      {/* 第三行：摘要 */}
                       {ann.summary && <p className="hidden sm:block text-sm text-white/80 line-clamp-1 mt-1.5 leading-relaxed">{ann.summary}</p>}
-                      <p className="text-xs text-white/60 mt-2">{ann.authorName || siteName}　{timeAgo(ann.createdAt)}</p>
                     </Link>
                   </div>
                 </div>

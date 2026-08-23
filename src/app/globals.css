@@ -1416,6 +1416,9 @@ a[href]:active {
 
 .game-card-title {
   color: var(--foreground);
+  /* 系统中文无衬线（微软雅黑等）700 字重视觉偏细，叠 0.4px 描边强化笔划厚度 */
+  -webkit-text-stroke: 0.4px currentColor;
+  paint-order: stroke fill;
 }
 
 .game-card-stat {
