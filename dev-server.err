@@ -43,3 +43,9 @@
 [browser] Image with src "https://t.vndb.org/sf/02/8702.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
 [browser] Image with src "https://t.vndb.org/sf/16/24316.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
 [browser] Image with src "https://t.vndb.org/sf/17/24317.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ Error: The destination stream closed early.
+    at ignore-listed frames {
+  digest: '4024625481'
+}
+[browser] Image with src "https://t.vndb.org/sf/06/226906.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/05/226905.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
