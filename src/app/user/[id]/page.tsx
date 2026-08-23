@@ -4,6 +4,7 @@ import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { CardGenerateBtn } from "@/components/card-generate-btn"
 import { FollowButton } from "@/components/follow-button"
 import { ProfileContentTabs } from "@/components/profile-content-tabs"
+import { ProfileStatCounters } from "@/components/profile-stat-counters"
 import { SafeAvatar } from "@/components/safe-avatar"
 import { StartConversationButton } from "@/components/start-conversation-button"
 import { auth } from "@/lib/auth"
@@ -141,10 +142,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                   )}
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3 px-4">{user.bio || "这个人很懒，什么都没留下。"}</p>
-                <div className="mt-4 sm:mt-6 flex items-center justify-center gap-8 sm:gap-12">
-                  <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.following}</span><span className="text-xs text-muted-foreground mt-0.5">关注</span></div>
-                  <div className="flex flex-col items-center"><span className="text-lg font-bold text-foreground">{user._count.followers}</span><span className="text-xs text-muted-foreground mt-0.5">粉丝</span></div>
-                </div>
+                <ProfileStatCounters
+                  userId={user.id}
+                  following={user._count.following}
+                  followers={user._count.followers}
+                />
                 <div className="mt-4 sm:mt-6 flex items-center justify-center gap-6 sm:gap-10">
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><Bookmark className="h-4 w-4 text-primary" strokeWidth={2} /><span className="text-lg font-bold text-foreground">{user._count.favorites}</span></div><span className="text-xs text-muted-foreground">收藏</span></div>
                   <div className="flex flex-col items-center gap-1.5"><div className="flex items-center gap-1.5"><MessageSquare className="h-4 w-4 text-primary" strokeWidth={2} /><span className="text-lg font-bold text-foreground">{user._count.comments}</span></div><span className="text-xs text-muted-foreground">评论</span></div>

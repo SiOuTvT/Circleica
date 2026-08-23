@@ -4,7 +4,7 @@ import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
-import { Calendar, Download, FolderHeart, Loader2, MessageSquare, Plus, Trash2, Users, X } from "lucide-react"
+import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -449,32 +449,3 @@ function TabLoadingSkeleton() {
   )
 }
 
-function FollowingTab({ users, hasMore, loadingMore, onLoadMore }: { users: FollowingLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
-  if (users.length === 0) return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <Users className="h-10 w-10 text-muted-foreground/30 mb-3" />
-      <p className="text-sm text-muted-foreground">还没有关注任何人</p>
-    </div>
-  )
-  return (
-    <div className="flex flex-col gap-2">
-      {users.map((u) => {
-        const avatar = u.composedAvatarUrl || u.avatar
-        return (
-          <Link key={u.id} href={`/user/${u.serialId ?? u.id}`} className="group flex items-center gap-3 rounded-xl bg-secondary/40 p-3 hover:bg-secondary/70">
-            {avatar ? (
-              <Image src={avatar} alt={u.username} width={40} height={40} className="h-10 w-10 rounded-full object-cover" unoptimized />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">{u.username.slice(0, 1)}</div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{u.username}</p>
-              {u.bio && <p className="text-xs text-muted-foreground truncate">{u.bio}</p>}
-            </div>
-          </Link>
-        )
-      })}
-      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
-    </div>
-  )
-}
