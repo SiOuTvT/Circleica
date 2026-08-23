@@ -628,17 +628,17 @@ export function ResourceTab({
         </>
       )}
 
-      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区 */}
-      <div className="mt-6 grid gap-6 border-t border-border/60 pt-5 lg:grid-cols-[1fr_280px]">
+      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区（桌面横向分栏，窄屏竖向堆叠） */}
+      <div className="mt-6 flex flex-col gap-6 border-t border-border/60 pt-5 lg:flex-row">
         {/* 左：游戏动态 */}
-        <section>
+        <section className="min-w-0 flex-1">
           <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
           <UserActivityTimeline items={gameActivities} />
         </section>
 
         {/* 右：后台配置的下载链接 */}
         {downloadLinks.length > 0 && (
-          <div className="space-y-2">
+          <div className="w-full shrink-0 space-y-2 lg:w-[280px]">
             {downloadLinks.map((dl, i) => (
               <a
                 key={i}
