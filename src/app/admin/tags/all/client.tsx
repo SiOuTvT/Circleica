@@ -164,7 +164,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
-                  style={{ background: tag.color || active.color }}
+                  style={{ background: active.color }}
                 />
                 <span className="block min-w-0 flex-1 truncate font-medium text-foreground" title={tag.name}>
                   {tag.name}

@@ -1386,9 +1386,10 @@ a[href]:active {
   border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
 }
 
-/* 点击时不做 scale/translate（会导致 layout 跳动），只靠 ripple 反馈 */
+/* 点击时不做位移跳动，靠 ripple 反馈；叠加 A+B 的「按压微缩」让手感更扎实 */
 .game-card:active {
   transition-duration: 0ms;
+  transform: scale(0.985);
 }
 
 /* 点击波纹效果 — 从点击位置扩散 */
