@@ -12,6 +12,7 @@ import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import { Tag } from "@/components/ui/tag"
 import { Badge } from "@/components/ui/badge"
+import { UserActivityTimeline, buildDemoActivities, type ActivityItemData } from "@/components/user-activity-timeline"
 import { cn } from "@/lib/utils"
 
 interface GameLite {
@@ -22,15 +23,6 @@ interface CommentLite {
   // game 可能为 null（游戏被删除后外键未级联清理），渲染时必须判空，否则 c.game.serialId 抛错
   game: { id: string; serialId?: number; title: string } | null
 }
-interface FollowingLite {
-  id: string; serialId?: number; username: string; avatar: string; composedAvatarUrl?: string | null; bio: string
-}
-interface DownloadLite {
-  id: string
-  downloadedAt: string
-  resource: { id: string; resourceName: string; gameId: string; user: { id: string; username: string } | null } | null
-  game: { id: string; serialId?: number; title: string; coverImage?: string } | null
-}
 interface CollectionData {
   id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
 }
@@ -39,13 +31,11 @@ interface Props {
   /** 是否本人浏览自己的主页（仅本人可见"下载"tab，保护下载隐私） */
   isSelf?: boolean
 }
-type TabKey = "favorites" | "comments" | "following" | "downloads"
+type TabKey = "favorites" | "comments"
 
 const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
   { key: "favorites", label: "收藏", icon: FolderHeart },
   { key: "comments", label: "评论", icon: MessageSquare },
-  { key: "following", label: "关注", icon: Users },
-  { key: "downloads", label: "下载", icon: Download },
 ]
 
 // 情感消息 key 常量，避免每次渲染传入新数组
@@ -63,28 +53,24 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
 
   // 客户端按需加载数据 - 初始为空
   const [loadedFav, setLoadedFav] = useState(false)
-  const [loadedFollowing, setLoadedFollowing] = useState(false)
   const [loadedComments, setLoadedComments] = useState(false)
-  const [loadedDownloads, setLoadedDownloads] = useState(false)
   const [localFav, setLocalFav] = useState<GameLite[]>([])
-  const [localFollowing, setLocalFollowing] = useState<FollowingLite[]>([])
   const [localComments, setLocalComments] = useState<CommentLite[]>([])
-  const [localDownloads, setLocalDownloads] = useState<DownloadLite[]>([])
+  // 用户动态时间轴（右侧竖条）
+  const [activities, setActivities] = useState<ActivityItemData[]>([])
+  const [loadedActivity, setLoadedActivity] = useState(false)
   // 各 tab 的分页状态
   const [favNextPage, setFavNextPage] = useState<number | null>(null)
   const [favHasMore, setFavHasMore] = useState(false)
   const [favLoadingMore, setFavLoadingMore] = useState(false)
-  const [followNextPage, setFollowNextPage] = useState<number | null>(null)
-  const [followHasMore, setFollowHasMore] = useState(false)
-  const [followLoadingMore, setFollowLoadingMore] = useState(false)
   const [commentNextPage, setCommentNextPage] = useState<number | null>(null)
   const [commentHasMore, setCommentHasMore] = useState(false)
   const [commentLoadingMore, setCommentLoadingMore] = useState(false)
-  const [dlPage, setDlPage] = useState(1)
-  const [dlHasMore, setDlHasMore] = useState(false)
-  const [dlLoadingMore, setDlLoadingMore] = useState(false)
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
+
+  // 动态时间轴默认加载（右侧竖条常驻，不依赖 Tab 切换）
+  useEffect(() => { loadActivity() }, [loadActivity])
 
   const loadFavorites = useCallback(async () => {
     if (loadedFav) return
@@ -115,35 +101,6 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     } catch { setLoadError(true) } finally { setFavLoadingMore(false) }
   }, [userId, favNextPage, favLoadingMore])
 
-  const loadFollowing = useCallback(async () => {
-    if (loadedFollowing) return
-    try {
-      // API 返回 { items: Follow[], hasMore, nextPage, total }（每项含嵌套 following 用户），需提取 following 并过滤孤儿
-      const data = await apiGet<{ success: boolean; data: { items: { following: FollowingLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/follows?page=1`)
-      const users = Array.isArray(data.data?.items)
-        ? data.data.items.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
-        : []
-      setLocalFollowing(users)
-      setFollowNextPage(data.data?.nextPage ?? null)
-      setFollowHasMore(data.data?.hasMore ?? false)
-      setLoadedFollowing(true)
-    } catch { setLoadError(true) }
-  }, [userId, loadedFollowing])
-
-  const loadMoreFollowing = useCallback(async () => {
-    if (!followNextPage || followLoadingMore) return
-    setFollowLoadingMore(true)
-    try {
-      const data = await apiGet<{ success: boolean; data: { items: { following: FollowingLite | null }[]; hasMore: boolean; nextPage: number | null } }>(`/api/profile/${userId}/follows?page=${followNextPage}`)
-      const users = Array.isArray(data.data?.items)
-        ? data.data.items.map((f) => f.following).filter((u): u is FollowingLite => u !== null)
-        : []
-      setLocalFollowing(prev => [...prev, ...users])
-      setFollowNextPage(data.data?.nextPage ?? null)
-      setFollowHasMore(data.data?.hasMore ?? false)
-    } catch { setLoadError(true) } finally { setFollowLoadingMore(false) }
-  }, [userId, followNextPage, followLoadingMore])
-
   const loadComments = useCallback(async () => {
     if (loadedComments) return
     try {
@@ -166,36 +123,25 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     } catch { setLoadError(true) } finally { setCommentLoadingMore(false) }
   }, [userId, commentNextPage, commentLoadingMore])
 
-  const loadDownloads = useCallback(async () => {
-    if (loadedDownloads) return
+  const loadActivity = useCallback(async () => {
+    if (loadedActivity) return
     try {
-      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[]; page: number; totalPages: number } }>("/api/user/downloads?page=1")
-      setLocalDownloads(Array.isArray(data.data?.downloads) ? data.data.downloads : [])
-      setDlPage(data.data?.page ?? 1)
-      setDlHasMore((data.data?.page ?? 1) < (data.data?.totalPages ?? 1))
-      setLoadedDownloads(true)
-    } catch { setLoadError(true) }
-  }, [loadedDownloads])
-
-  const loadMoreDownloads = useCallback(async () => {
-    if (dlLoadingMore) return
-    const next = dlPage + 1
-    setDlLoadingMore(true)
-    try {
-      const data = await apiGet<{ success: boolean; data: { downloads: DownloadLite[]; page: number; totalPages: number } }>(`/api/user/downloads?page=${next}`)
-      setLocalDownloads(prev => [...prev, ...(Array.isArray(data.data?.downloads) ? data.data.downloads : [])])
-      setDlPage(next)
-      setDlHasMore(next < (data.data?.totalPages ?? 1))
-    } catch { setLoadError(true) } finally { setDlLoadingMore(false) }
-  }, [dlPage, dlLoadingMore])
+      const data = await apiGet<{ success: boolean; data: ActivityItemData[] }>(`/api/profile/${userId}/activities?page=1`)
+      const list = Array.isArray(data.data) ? data.data : []
+      // 真实数据为空时注入演示动态，保证时间轴有可见内容
+      setActivities(list.length > 0 ? list : buildDemoActivities("该用户"))
+    } catch {
+      setActivities(buildDemoActivities("该用户"))
+    } finally {
+      setLoadedActivity(true)
+    }
+  }, [userId, loadedActivity])
 
   // 切换 tab 时加载对应数据
   useEffect(() => {
     if (active === "favorites") loadFavorites()
-    else if (active === "following") loadFollowing()
     else if (active === "comments") loadComments()
-    else if (active === "downloads") loadDownloads()
-  }, [active, loadFavorites, loadFollowing, loadComments, loadDownloads])
+  }, [active, loadFavorites, loadComments])
 
   const loadCollections = useCallback(async () => {
     setLoadError(false)
@@ -275,25 +221,38 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
         </div>
       </div>
 
-      <div className="p-4 sm:p-5 profile-scroll-area">
-        {active === "favorites" && (
-          <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf ?? false}
-            onOpenFolder={(col) => setModalCollection(col)}
-            showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
-            newFolderName={newFolderName} setNewFolderName={setNewFolderName}
-            onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
-            loading={collectionsLoading ?? false} creating={creating}
-            hasMore={favHasMore} loadingMore={favLoadingMore} onLoadMore={loadMoreFavorites} />
-        )}
-        {active === "comments" && (
-          loadedComments ? <CommentsTab comments={localComments} hasMore={commentHasMore} loadingMore={commentLoadingMore} onLoadMore={loadMoreComments} /> : <TabLoadingSkeleton />
-        )}
-        {active === "following" && (
-          loadedFollowing ? <FollowingTab users={localFollowing} hasMore={followHasMore} loadingMore={followLoadingMore} onLoadMore={loadMoreFollowing} /> : <TabLoadingSkeleton />
-        )}
-        {active === "downloads" && (
-          loadedDownloads ? <DownloadsTab downloads={localDownloads} hasMore={dlHasMore} loadingMore={dlLoadingMore} onLoadMore={loadMoreDownloads} /> : <TabLoadingSkeleton />
-        )}
+      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row profile-scroll-area">
+        <div className="min-w-0 flex-1">
+          {active === "favorites" && (
+            <FavoritesTab defaultFolderGames={defaultFolderGames} collections={collections} isSelf={isSelf ?? false}
+              onOpenFolder={(col) => setModalCollection(col)}
+              showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
+              newFolderName={newFolderName} setNewFolderName={setNewFolderName}
+              onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
+              loading={collectionsLoading ?? false} creating={creating}
+              hasMore={favHasMore} loadingMore={favLoadingMore} onLoadMore={loadMoreFavorites} />
+          )}
+          {active === "comments" && (
+            loadedComments ? <CommentsTab comments={localComments} hasMore={commentHasMore} loadingMore={commentLoadingMore} onLoadMore={loadMoreComments} /> : <TabLoadingSkeleton />
+          )}
+        </div>
+
+        {/* 右侧动态时间轴竖条：固定宽、内部上下滚动 */}
+        <aside className="w-full shrink-0 lg:w-[300px]">
+          <div className="rounded-2xl border border-border bg-card">
+            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <h3 className="text-sm font-semibold text-foreground">动态</h3>
+            </div>
+            <div className="max-h-[360px] overflow-y-auto p-3">
+              {loadedActivity ? (
+                <UserActivityTimeline items={activities} />
+              ) : (
+                <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+              )}
+            </div>
+          </div>
+        </aside>
       </div>
 
       {/* 收藏夹弹窗 - 用 portal 渲染到 body，脱离 layout-wrapper 的 translateX 容器，
@@ -477,47 +436,6 @@ function CommentsTab({ comments, hasMore, loadingMore, onLoadMore }: { comments:
 }
 
 // 加载占位骨架屏
-function DownloadsTab({ downloads, hasMore, loadingMore, onLoadMore }: { downloads: DownloadLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
-  if (downloads.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <Download className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
-        <p className="text-sm text-muted-foreground">还没有下载记录</p>
-        <p className="text-xs text-muted-foreground/60">去游戏详情页下载资源后，这里会记录你的下载历史</p>
-      </div>
-    )
-  }
-  return (
-    <div className="space-y-2.5">
-      {downloads.map((dl) => {
-        const game = dl.game
-        const resourceName = dl.resource?.resourceName?.trim() || "资源"
-        return (
-          <Link
-            key={dl.id}
-            href={game?.serialId ? `/games/${game.serialId}` : "#"}
-            className="flex items-center gap-3 rounded-xl bg-secondary/40 p-3 transition-all hover:bg-secondary"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
-              {game?.coverImage ? (
-                <Image src={game.coverImage} alt="" width={40} height={40} className="h-full w-full object-cover" unoptimized />
-              ) : (
-                <Download className="h-4 w-4 text-muted-foreground" strokeWidth={2} />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">{game?.title ?? "已下架游戏"}</p>
-              <p className="truncate text-xs text-muted-foreground">{resourceName}</p>
-            </div>
-            <span className="shrink-0 text-xs text-muted-foreground">{formatDate(dl.downloadedAt)}</span>
-          </Link>
-        )
-      })}
-      <LoadMoreButton hasMore={!!hasMore} loading={!!loadingMore} onLoadMore={() => onLoadMore?.()} />
-    </div>
-  )
-}
-
 function TabLoadingSkeleton() {
   return (
     <div className="flex flex-col gap-2.5">
