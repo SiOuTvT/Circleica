@@ -30,6 +30,83 @@ export const gameService = {
 
   getRandom(limit = 5) { return gameRepo.findRandom(limit) },
 
+  /**
+   * 游戏详情页动态：按游戏聚合。
+   * 第一条 = 游戏发布（取 game.createdAt + 发布者）；
+   * 后续 = 该游戏下所有资源的添加 / 编辑（updatedAt>createdAt 判为编辑）。
+   * 按时间倒序，纯读、无需鉴权。
+   */
+  async getGameActivities(gameId: string, opts: { limit?: number } = {}) {
+    const limit = Math.min(opts.limit ?? 30, 80)
+    const game = await prisma.game.findUnique({
+      where: { id: gameId },
+      select: {
+        id: true,
+        serialId: true,
+        title: true,
+        coverImage: true,
+        description: true,
+        createdAt: true,
+        publisherId: true,
+        publisher: { select: { id: true, nickname: true, avatar: true } },
+      },
+    })
+    if (!game) throw new NotFoundError("游戏")
+    const resources = await prisma.gameResource.findMany({
+      where: { gameId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        resourceName: true,
+        createdAt: true,
+        updatedAt: true,
+        user: { select: { id: true, nickname: true, avatar: true } },
+      },
+    })
+
+    const items: Array<{
+      id: string
+      kind: "game_published" | "resource_added" | "resource_edited"
+      title: string
+      description?: string
+      href?: string
+      coverImage?: string
+      createdAt: string
+    }> = []
+
+    // 1) 发布游戏（如有发布者）
+    if (game.publisherId && game.publisher) {
+      items.push({
+        id: `game-${game.id}`,
+        kind: "game_published",
+        title: `${game.publisher.nickname || "管理员"} 发布了《${game.title}》`,
+        description: game.description ? game.description.slice(0, 60) : undefined,
+        href: `/games/${game.serialId}`,
+        coverImage: game.coverImage || undefined,
+        createdAt: game.createdAt.toISOString(),
+      })
+    }
+
+    // 2) 资源添加 / 编辑
+    for (const r of resources) {
+      const edited = r.updatedAt > r.createdAt
+      const actor = r.user?.nickname || "用户"
+      items.push({
+        id: `res-${r.id}`,
+        kind: edited ? "resource_edited" : "resource_added",
+        title: `${actor} ${edited ? "编辑了" : "添加了"}资源`,
+        description: r.resourceName || undefined,
+        href: `/games/${game.serialId}?tab=resources`,
+        coverImage: game.coverImage || undefined,
+        createdAt: (r.updatedAt > r.createdAt ? r.updatedAt : r.createdAt).toISOString(),
+      })
+    }
+
+    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    return { items: items.slice(0, limit) }
+  },
+
   incrementView(id: string) { return gameRepo.incrementViewCount(id) },
 
   batchIncrementView(ids: string[]) {

@@ -90,15 +90,3 @@ export function UserActivityTimeline({ items, className }: { items: ActivityItem
     </div>
   )
 }
-
-/** 演示兜底动态：真实数据为空时注入，让你能真实看到时间轴效果（链接为占位） */
-export function buildDemoActivities(username: string): ActivityItemData[] {
-  const now = Date.now()
-  const ago = (h: number) => new Date(now - h * 3600 * 1000).toISOString()
-  return [
-    { id: "demo-1", kind: "game_published", title: `${username} 发布了《星屑协奏曲》`, description: "一款治愈系百合视觉小说", href: "#", createdAt: ago(5), demo: true },
-    { id: "demo-2", kind: "resource_added", title: "在《夜莺挽歌》下添加了资源", description: "汉化补丁 v1.2（全文本）", href: "#", createdAt: ago(30), demo: true },
-    { id: "demo-3", kind: "resource_edited", title: "编辑了《夜莺挽歌》的资源", description: "修正第 3 章 typo", href: "#", createdAt: ago(72), demo: true },
-    { id: "demo-4", kind: "game_published", title: `${username} 发布了《薄荷糖与盛夏》`, description: "短篇校园甜文", href: "#", createdAt: ago(160), demo: true },
-  ]
-}

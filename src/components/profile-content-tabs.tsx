@@ -12,7 +12,7 @@ import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import { Tag } from "@/components/ui/tag"
 import { Badge } from "@/components/ui/badge"
-import { UserActivityTimeline, buildDemoActivities, type ActivityItemData } from "@/components/user-activity-timeline"
+import { UserActivityTimeline, type ActivityItemData } from "@/components/user-activity-timeline"
 import { cn } from "@/lib/utils"
 
 interface GameLite {
@@ -126,10 +126,9 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     try {
       const data = await apiGet<{ success: boolean; data: ActivityItemData[] }>(`/api/profile/${userId}/activities?page=1`)
       const list = Array.isArray(data.data) ? data.data : []
-      // 真实数据为空时注入演示动态，保证时间轴有可见内容
-      setActivities(list.length > 0 ? list : buildDemoActivities("该用户"))
+      setActivities(list)
     } catch {
-      setActivities(buildDemoActivities("该用户"))
+      setActivities([])
     } finally {
       setLoadedActivity(true)
     }
@@ -245,7 +244,7 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
       </section>
 
       {/* 右栏：通高独立动态流区域，中间细分隔竖线由左栏 border-r 提供，无外框 */}
-      <aside className="w-full shrink-0 lg:w-[300px]">
+      <aside className="w-full shrink-0 lg:w-[240px]">
         <div className="flex items-center gap-2 px-4 py-3 sm:px-5">
           <span className="h-2 w-2 rounded-full bg-primary" />
           <h3 className="text-sm font-semibold text-foreground">动态</h3>

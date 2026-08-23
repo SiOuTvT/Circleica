@@ -9,6 +9,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
+import { UserActivityTimeline, type ActivityItemData } from "@/components/user-activity-timeline"
 
 /* ─── 后台配置的下载链接 ─── */
 type DownloadLink = { label: string; url: string }
@@ -360,6 +361,24 @@ export function ResourceTab({
   const [reportOpen, setReportOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
 
+  /* ── 游戏动态（详情页：按游戏聚合，含"发布游戏" + 资源添加/编辑）── */
+  const [gameActivities, setGameActivities] = useState<ActivityItemData[]>([])
+  const [gameActivityReady, setGameActivityReady] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+    setGameActivityReady(false)
+    apiFetchSafe<ActivityItemData[]>(`/api/games/activities/${gameId}`)
+      .then(({ ok, data }) => {
+        if (!alive) return
+        const list = ok ? (unwrapApiData<ActivityItemData[]>(data) ?? []) : []
+        setGameActivities(Array.isArray(list) ? list : [])
+      })
+      .catch(() => { if (alive) setGameActivities([]) })
+      .finally(() => { if (alive) setGameActivityReady(true) })
+    return () => { alive = false }
+  }, [gameId])
+
   /* ── 从API加载资源 ── */
   const fetchResources = useCallback(async () => {
     try {
@@ -609,6 +628,33 @@ export function ResourceTab({
         </>
       )}
 
+      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区 */}
+      <div className="mt-6 grid gap-6 border-t border-border/60 pt-5 lg:grid-cols-[1fr_280px]">
+        {/* 左：游戏动态 */}
+        <section>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
+          <UserActivityTimeline items={gameActivities} />
+        </section>
+
+        {/* 右：后台配置的下载链接 */}
+        {downloadLinks.length > 0 && (
+          <div className="space-y-2">
+            {downloadLinks.map((dl, i) => (
+              <a
+                key={i}
+                href={dl.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground bg-primary hover:opacity-90 transition-opacity"
+              >
+                <Download className="h-4 w-4" strokeWidth={2} />
+                {dl.label || "下载"}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* 空状态 */}
       {!loading && !loadError && resources.length === 0 && downloadLinks.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
@@ -667,24 +713,6 @@ export function ResourceTab({
         onConfirm={handleDeleteConfirm}
         variant="destructive"
       />
-
-      {/* 后台配置的下载链接 */}
-      {downloadLinks.length > 0 && (
-        <div className="space-y-2">
-          {downloadLinks.map((dl, i) => (
-            <a
-              key={i}
-              href={dl.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground bg-primary hover:opacity-90 transition-opacity"
-            >
-              <Download className="h-4 w-4" strokeWidth={2} />
-              {dl.label || "下载"}
-            </a>
-          ))}
-        </div>
-      )}
 
       {/* 制作人员已移至简介 tab */}
     </div>
