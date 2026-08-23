@@ -118,9 +118,9 @@ export default async function GameDetailPage({
 
   const tags = game.tags.map((t) => t.tag)
 
-  // 获取各组颜色（资源标签/详情页信息栏），并行执行。
+  // 资源标签组色（详情页信息栏的资源标签、发现页资源筛选用）。
   // 收藏状态（isFav）属个性化字段，已从服务端移除，由客户端 /api/games/[id]/personalization 拉取。
-  const [resourceTagColor, detailHeaderTagColor] = await Promise.all([
+  const [resourceTagColor] = await Promise.all([
     (async () => {
       try {
         const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
@@ -136,22 +136,6 @@ export default async function GameDetailPage({
         }
       } catch (err) { logger.game.warn("[GameDetailPage] resourceTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
       return "#22c55e"
-    })(),
-    (async () => {
-      try {
-        const cacheKeyDetail = cacheKey("tagGroup", "detail_header", "color")
-        const cachedColor = await cache.get<string>(cacheKeyDetail)
-        if (cachedColor) return cachedColor
-        const group = await prisma.tagGroup.findFirst({
-          where: { id: "preset_detail_header" },
-          select: { color: true },
-        })
-        if (group?.color) {
-          await cache.set(cacheKeyDetail, group.color, 3600)
-          return group.color
-        }
-      } catch (err) { logger.game.warn("[GameDetailPage] detailHeaderTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
-      return "#f472b6"
     })(),
   ])
 
@@ -265,9 +249,9 @@ export default async function GameDetailPage({
                 <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
                 </Tag>
-                {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 详情页信息栏组色 */}
+                {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 用资源标签组色，与后台「资源标签」组一致 */}
                 {resourceTags.map((tag) => (
-                  <Tag key={tag} color={detailHeaderTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
+                  <Tag key={tag} color={resourceTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
                     {tag}
                   </Tag>
                 ))}
@@ -369,7 +353,7 @@ export default async function GameDetailPage({
             }))}
             gameId={resolved.id}
             favCount={game.favoriteCount}
-            gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor, groupName: t.group?.name }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: t.color || "#6b7280", groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
