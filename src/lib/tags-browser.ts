@@ -97,7 +97,7 @@ async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
       id: tag.id,
       name: tag.name,
       slug: tag.slug,
-      color: group.color || tag.color || "#a78bfa",
+      color: tag.color || group.color || "#a78bfa",
       gameCount: countMap.get(tag.id) ?? 0,
     }))
     .filter(t => t.gameCount > 0)
