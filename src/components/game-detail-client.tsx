@@ -12,12 +12,7 @@ import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
 import { GameInfoList } from "./game-detail/game-info-list"
 import { GameRating } from "./game-rating"
 import { ReportDialog } from "./game-detail/report-dialog"
-
-/** 资源 Tab — 懒加载 */
-const ResourceTab = dynamic(() => import("./game-detail/resource-tab").then(m => ({ default: m.ResourceTab })), {
-  loading: () => <div className="mt-4 h-40 animate-pulse rounded-xl bg-muted" />,
-  ssr: false,
-})
+import { ResourceTab } from "./game-detail/resource-tab"
 
 /** 评论 */
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {

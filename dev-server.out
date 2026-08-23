@@ -1,0 +1,1008 @@
+
+> circleica@0.1.0 dev
+> node --max-old-space-size=3072 node_modules/next/dist/bin/next dev --webpack -p 3000 -H 0.0.0.0 --webpack
+
+▲ Next.js 16.3.1 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+- Environments: .env
+✓ Ready in 752ms
+✓ Running next.config.ts took 59ms
+○ Compiling /instrumentation ...
+[90m2026-08-23T23:08:44.706Z[0m [32mINF[0m [90m[System][0m OTEL_EXPORTER_OTLP_ENDPOINT 未配置，跳过 OpenTelemetry 采集（无监控降级模式）
+- Experiments (use with caution):
+  · staleTimes
+
+[90m2026-08-23T23:08:46.393Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"59ea11a1-a927-421e-8e5b-ed815371258d","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.394Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"411dbdab-6fa3-4483-bdc6-78736a1cdd79","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.394Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"48c76580-7614-451f-965e-db182e1416c1","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.395Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8c31ed04-aef6-4691-a3a6-385ee194bebc","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.395Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"43ddf3ea-d76e-4fb2-8c8b-d7aaccb179ee","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.396Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7536a254-00a1-4fc0-bd63-8fd9f382fc20","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.396Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c7e98065-a62d-462c-bd2c-170f78b355bf","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:08:46.397Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e0aec94d-1467-4238-8382-b5eefd1ee347","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.398Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e8ae7785-b9e2-42e6-9bfe-d0cb0e5e6a3f","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.398Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"18721a1a-a38e-4853-8084-039e812c4520","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.399Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"833153fa-7888-4c17-a088-eca519aa1b1f","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.399Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8b80783f-16b0-49a6-a2df-11698bb74493","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.399Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8e8c86d4-9c36-409d-97ca-33508b0e574b","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.399Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"049a1d42-d4ad-4c81-9eae-176efaa89dc1","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.400Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0197148e-9c40-4dcf-920b-b71ff7c652ec","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.400Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"274d748a-e844-422d-b8df-3921a53943b9","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.400Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6d02ac35-2230-463c-a75e-973934c5427d","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.401Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"861a0324-2f8a-476f-b48c-75b77ee204e4","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.401Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1c04b9e5-7ed4-4afa-9fb5-58c1d822dbc1","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.401Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"65410a2d-9281-463a-ae90-f1ffa501bd07","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.402Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"93e4eae0-c7ce-485b-8b64-e5ecb7c8837c","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:46.641Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:08:46.641Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:08:46.641Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /games/[id] ...
+[90m2026-08-23T23:08:57.735Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8a4e09d8-cb47-439d-b439-a0011e2fe789","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:57.736Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"62e6551f-a7cc-4043-9ab5-d1e54d393e6b","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:57.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:08:57.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:08:57.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:08:57.837Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"69553bbc-a42e-4cf4-aaa8-847abf776315","method":"GET","route":"/"}[0m
+[90m2026-08-23T23:08:57.923Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:08:57.924Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:08:57.924Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:08:58.268Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:08:58.269Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:08:58.269Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET / 200 in 1359ms (next.js: 6ms, proxy.ts: 48ms, application-code: 1305ms)
+ GET /games/41 200 in 13.4s (next.js: 11.7s, proxy.ts: 594ms, application-code: 1010ms)
+[90m2026-08-23T23:08:59.200Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"702b68b2-52eb-44b8-9b32-7e2f2a532741","method":"GET","route":"/games/41"}[0m
+ GET /games/41 200 in 351ms (next.js: 77ms, proxy.ts: 9ms, application-code: 265ms)
+[90m2026-08-23T23:08:59.562Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"695e9d74-0d77-4c87-81c6-cee1c244670a","method":"GET","route":"/games/41"}[0m
+ GET /games/41 200 in 277ms (next.js: 19ms, proxy.ts: 14ms, application-code: 244ms)
+[90m2026-08-23T23:09:01.053Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:01.054Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:01.054Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/site-settings ...
+[90m2026-08-23T23:09:11.242Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"0fbe19d1-3153-4788-bde7-937afce94cdd","route":"/api/site-settings","requestId":"0fbe19d1-3153-4788-bde7-937afce94cdd","method":"GET","status":200,"durationMs":203}[0m
+[90m2026-08-23T23:09:11.250Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a6acf7e7-637e-4b6b-b564-d03eb1c74f4c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:11.261Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"42b2ee9e-6e64-43d8-8c3e-65659121542c","route":"/api/emotional-messages","requestId":"42b2ee9e-6e64-43d8-8c3e-65659121542c","method":"GET","status":200,"durationMs":218}[0m
+ GET /api/emotional-messages 200 in 8.4s (next.js: 7.7s, proxy.ts: 15ms, application-code: 690ms)
+[90m2026-08-23T23:09:11.280Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"34227dc2-b861-4545-b182-ac5e5b8a23e4","route":"/api/site-settings","requestId":"34227dc2-b861-4545-b182-ac5e5b8a23e4","method":"GET","status":200,"durationMs":47}[0m
+ GET /api/site-settings 200 in 1161ms (next.js: 83ms, proxy.ts: 1026ms, application-code: 52ms)
+[90m2026-08-23T23:09:13.960Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:13.960Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:13.960Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:14.191Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:14.191Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:14.191Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 3.1s (next.js: 2.6s, proxy.ts: 109ms, application-code: 457ms)
+[90m2026-08-23T23:09:14.899Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:14.899Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:14.899Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 12.2s (next.js: 3.7s, proxy.ts: 8.2s, application-code: 225ms)
+[90m2026-08-23T23:09:15.186Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:15.187Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:15.187Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:18.873Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:18.874Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:18.874Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:18.957Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:18.958Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:18.958Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:19.254Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:19.254Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:19.254Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:19.355Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"21f0a87f-2712-4c0b-9c9b-e5cdfaae7e1e","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"21f0a87f-2712-4c0b-9c9b-e5cdfaae7e1e","method":"GET","status":200,"durationMs":197}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 5.8s (next.js: 4.5s, proxy.ts: 547ms, application-code: 668ms)
+[90m2026-08-23T23:09:19.737Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"1214d70a-a7f7-40d7-9437-dc5506ef0a96","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/rating","requestId":"1214d70a-a7f7-40d7-9437-dc5506ef0a96","method":"GET","status":200,"durationMs":498}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/rating 200 in 6.1s (next.js: 5.0s, proxy.ts: 547ms, application-code: 568ms)
+○ Compiling /api/history ...
+ GET /manifest.webmanifest 200 in 5.9s (next.js: 4.4s, proxy.ts: 100ms, application-code: 1410ms)
+[90m2026-08-23T23:09:22.445Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:22.446Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:22.446Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:22.871Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:22.871Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:22.871Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:22.896Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"42d38944-d94f-4cd1-a467-281f597b4bb3","route":"/api/music","requestId":"42d38944-d94f-4cd1-a467-281f597b4bb3","method":"GET","status":200,"durationMs":87}[0m
+ GET /api/music 200 in 5.9s (next.js: 4.4s, proxy.ts: 100ms, application-code: 1476ms)
+ GET /api/auth/session 200 in 6.0s (next.js: 4.4s, proxy.ts: 100ms, application-code: 1578ms)
+[90m2026-08-23T23:09:23.084Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"46e644d6-f642-4961-b92f-c4b33089a9d8","route":"/api/user/stats","requestId":"46e644d6-f642-4961-b92f-c4b33089a9d8","method":"GET","status":200,"durationMs":277}[0m
+ GET /api/user/stats 200 in 6.1s (next.js: 4.4s, proxy.ts: 100ms, application-code: 1662ms)
+[90m2026-08-23T23:09:23.088Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"bd117b8b-1e17-429e-9af7-0e84c9820526","route":"/api/history","requestId":"bd117b8b-1e17-429e-9af7-0e84c9820526","method":"POST","status":200,"durationMs":275}[0m
+ POST /api/history 200 in 6.1s (next.js: 4.4s, proxy.ts: 101ms, application-code: 1667ms)
+[90m2026-08-23T23:09:23.156Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"209103dd-4fe7-40cb-95d2-30226e498506","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"209103dd-4fe7-40cb-95d2-30226e498506","method":"GET","status":200,"durationMs":173}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 1919ms (next.js: 108ms, proxy.ts: 1630ms, application-code: 181ms)
+ GET /api/auth/session 200 in 120ms (next.js: 38ms, proxy.ts: 31ms, application-code: 50ms)
+[90m2026-08-23T23:09:24.477Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:24.479Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:24.479Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:24.998Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:24.999Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:24.999Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 2.5s (next.js: 29ms, proxy.ts: 26ms, application-code: 2.4s)
+[90m2026-08-23T23:09:26.776Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cd4ae6aa-b01f-4ed6-baa2-1feac4630bc6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 940ms (next.js: 105ms, proxy.ts: 34ms, application-code: 801ms)
+[90m2026-08-23T23:09:27.875Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"98bf53e8-ec0a-4dc2-90be-a7ef3173bf7d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:28.274Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:28.275Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:28.275Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 793ms (next.js: 15ms, proxy.ts: 14ms, application-code: 764ms)
+[90m2026-08-23T23:09:28.804Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b8735c36-4602-4f04-89fc-8ae42ab91e1b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 708ms (next.js: 20ms, proxy.ts: 23ms, application-code: 665ms)
+[90m2026-08-23T23:09:29.668Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"305035de-69c0-44ed-b4de-cc799431b45c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:30.189Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:30.190Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:30.190Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 679ms (next.js: 23ms, proxy.ts: 30ms, application-code: 626ms)
+[90m2026-08-23T23:09:30.458Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e298a8cd-b782-431e-8cf7-cb9ea041ad79","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 739ms (next.js: 27ms, proxy.ts: 13ms, application-code: 698ms)
+[90m2026-08-23T23:09:31.351Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2d766db6-1aad-4b1c-8670-ae8a158e64f7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:31.828Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:31.829Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:31.829Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 658ms (next.js: 14ms, proxy.ts: 9ms, application-code: 634ms)
+[90m2026-08-23T23:09:32.137Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"96448554-6d72-48c1-890b-206a3323e92c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 657ms (next.js: 18ms, proxy.ts: 13ms, application-code: 626ms)
+[90m2026-08-23T23:09:32.929Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"208d692f-e19a-4004-ba88-623c7d68dab9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:33.481Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:33.482Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:33.482Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 16ms (next.js: 4ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /games/41 200 in 666ms (next.js: 25ms, proxy.ts: 11ms, application-code: 630ms)
+[90m2026-08-23T23:09:33.774Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c34e93ce-48e3-49bf-82a8-515a94b8f6a2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 19ms (next.js: 4ms, proxy.ts: 11ms, application-code: 4ms)
+ GET /games/41 200 in 761ms (next.js: 37ms, proxy.ts: 16ms, application-code: 709ms)
+[90m2026-08-23T23:09:34.689Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1337b55f-6d66-4e56-b29c-4362a273f500","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:35.210Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:35.212Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:35.212Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 672ms (next.js: 30ms, proxy.ts: 18ms, application-code: 624ms)
+[90m2026-08-23T23:09:35.487Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"56415f84-ecf8-48dd-bb59-4da923b459fb","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 732ms (next.js: 33ms, proxy.ts: 13ms, application-code: 685ms)
+[90m2026-08-23T23:09:36.331Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ed87a524-de19-4ff7-903c-ba83a8d70bed","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:36.921Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:36.922Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:36.922Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 671ms (next.js: 18ms, proxy.ts: 9ms, application-code: 644ms)
+[90m2026-08-23T23:09:37.801Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b69ea98f-3fc7-440a-8fe3-1a4804f0dd83","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 721ms (next.js: 38ms, proxy.ts: 592ms, application-code: 91ms)
+[90m2026-08-23T23:09:38.053Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9bf6b3ab-c387-4784-b357-5c2e18765654","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 22ms (next.js: 5ms, proxy.ts: 12ms, application-code: 5ms)
+ GET /games/41 200 in 692ms (next.js: 25ms, proxy.ts: 11ms, application-code: 655ms)
+[90m2026-08-23T23:09:38.932Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e98e53a6-b490-433a-a845-6886c9f3970f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:39.282Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:39.283Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:39.283Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 841ms (next.js: 20ms, proxy.ts: 25ms, application-code: 797ms)
+[90m2026-08-23T23:09:39.926Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a0740806-751b-4aa2-8ca6-6b80e1949dd5","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 16ms (next.js: 3ms, proxy.ts: 9ms, application-code: 4ms)
+ GET /games/41 200 in 733ms (next.js: 48ms, proxy.ts: 11ms, application-code: 674ms)
+[90m2026-08-23T23:09:40.798Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e11af088-f432-4694-9df1-192358bb576e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:41.421Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:41.422Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:41.422Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 26ms (next.js: 10ms, proxy.ts: 13ms, application-code: 3ms)
+ GET /games/41 200 in 749ms (next.js: 18ms, proxy.ts: 25ms, application-code: 706ms)
+[90m2026-08-23T23:09:41.683Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"18cb21c5-abf5-4300-960f-e98807329b55","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 680ms (next.js: 547ms, proxy.ts: 14ms, application-code: 119ms)
+[90m2026-08-23T23:09:42.487Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e958861d-f056-48f3-8532-2eba038c8e01","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 607ms (next.js: 17ms, proxy.ts: 6ms, application-code: 585ms)
+[90m2026-08-23T23:09:43.574Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:43.575Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:43.575Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:43.790Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f56b8113-9c39-460d-b411-1efe23533d59","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 5ms, proxy.ts: 9ms, application-code: 4ms)
+ GET /games/41 200 in 149ms (next.js: 44ms, proxy.ts: 9ms, application-code: 95ms)
+[90m2026-08-23T23:09:44.074Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"10009090-c723-46f5-a8e2-3de86ba4993b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 40ms (next.js: 6ms, proxy.ts: 31ms, application-code: 4ms)
+ GET /games/41 200 in 669ms (next.js: 541ms, proxy.ts: 27ms, application-code: 102ms)
+[90m2026-08-23T23:09:44.871Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f2573480-d5b4-4546-aad1-c8cd1e741439","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:45.238Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:45.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:45.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 14ms (next.js: 4ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 693ms (next.js: 18ms, proxy.ts: 14ms, application-code: 661ms)
+[90m2026-08-23T23:09:45.833Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b56ea1ba-4aca-4c94-8130-651c7aec2d04","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 15ms (next.js: 3ms, proxy.ts: 8ms, application-code: 3ms)
+ GET /games/41 200 in 757ms (next.js: 33ms, proxy.ts: 12ms, application-code: 711ms)
+[90m2026-08-23T23:09:47.240Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e99d58f4-ae96-4f28-bc45-56275b833e5c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:47.307Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:47.308Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:47.308Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 111ms (next.js: 25ms, proxy.ts: 10ms, application-code: 76ms)
+[90m2026-08-23T23:09:47.454Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"eecf61bf-6a49-4edb-9334-b3d41e2d2348","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 661ms (next.js: 16ms, proxy.ts: 14ms, application-code: 630ms)
+[90m2026-08-23T23:09:48.614Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:48.614Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:48.614Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:48.812Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f8693ba6-39e3-472b-ae52-4416cff9e4a8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 137ms (next.js: 30ms, proxy.ts: 11ms, application-code: 96ms)
+[90m2026-08-23T23:09:49.065Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e0585d26-9a5c-4e01-8105-6e7a4df8a1eb","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 4ms, proxy.ts: 9ms, application-code: 5ms)
+ GET /games/41 200 in 734ms (next.js: 17ms, proxy.ts: 9ms, application-code: 707ms)
+[90m2026-08-23T23:09:49.925Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2da7f446-be38-4bc9-97d9-422a4a2ab607","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:50.238Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:50.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:50.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 18ms (next.js: 6ms, proxy.ts: 9ms, application-code: 3ms)
+ GET /games/41 200 in 709ms (next.js: 20ms, proxy.ts: 10ms, application-code: 679ms)
+[90m2026-08-23T23:09:51.384Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a1418106-2d5d-4094-9571-0bd6de1f08d7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 33ms (next.js: 15ms, proxy.ts: 13ms, application-code: 5ms)
+ GET /games/41 200 in 222ms (next.js: 32ms, proxy.ts: 22ms, application-code: 168ms)
+[90m2026-08-23T23:09:51.729Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"96192e3d-8689-4337-8bd8-29aa0b3837a1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 19ms (next.js: 4ms, proxy.ts: 11ms, application-code: 4ms)
+ GET /games/41 200 in 779ms (next.js: 29ms, proxy.ts: 19ms, application-code: 731ms)
+[90m2026-08-23T23:09:52.665Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8fb3eb62-84f6-428b-b286-b9523dc62c73","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:52.877Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:52.878Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:52.878Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 20ms (next.js: 5ms, proxy.ts: 12ms, application-code: 3ms)
+ GET /games/41 200 in 798ms (next.js: 34ms, proxy.ts: 9ms, application-code: 755ms)
+[90m2026-08-23T23:09:53.621Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7e64f527-7f14-4263-9f2c-96ee2e873830","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:54.149Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:54.150Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:54.150Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 700ms (next.js: 27ms, proxy.ts: 16ms, application-code: 657ms)
+[90m2026-08-23T23:09:54.444Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"fe5e2769-982a-46b9-81d9-60fd63b958c4","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 720ms (next.js: 21ms, proxy.ts: 12ms, application-code: 687ms)
+[90m2026-08-23T23:09:55.781Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:55.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:55.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:09:55.829Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"46391c24-5895-4cbd-ae60-0793269d4ad7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 22ms (next.js: 6ms, proxy.ts: 13ms, application-code: 4ms)
+ GET /games/41 200 in 686ms (next.js: 39ms, proxy.ts: 535ms, application-code: 111ms)
+[90m2026-08-23T23:09:56.169Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b2625265-26f9-49e1-b472-09dafcfbbd66","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 658ms (next.js: 24ms, proxy.ts: 14ms, application-code: 621ms)
+[90m2026-08-23T23:09:56.958Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1d8c7988-9785-48ad-bf18-2f01fe2b30c2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:57.369Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:57.370Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:57.370Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 25ms (next.js: 3ms, proxy.ts: 19ms, application-code: 3ms)
+ GET /games/41 200 in 691ms (next.js: 552ms, proxy.ts: 18ms, application-code: 121ms)
+[90m2026-08-23T23:09:57.772Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6eb5f19a-ac47-4c65-b00a-71684a746b95","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 40ms (next.js: 20ms, proxy.ts: 15ms, application-code: 5ms)
+ GET /games/41 200 in 748ms (next.js: 19ms, proxy.ts: 9ms, application-code: 719ms)
+[90m2026-08-23T23:09:58.677Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6566fcd8-bf20-4367-9a4f-0ec23004be38","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:09:59.016Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:09:59.017Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:09:59.017Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 716ms (next.js: 19ms, proxy.ts: 13ms, application-code: 683ms)
+[90m2026-08-23T23:09:59.537Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"22f413ce-5998-47d1-8bc6-2adef34bf3ad","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 21ms (next.js: 6ms, proxy.ts: 12ms, application-code: 3ms)
+ GET /games/41 200 in 1011ms (next.js: 830ms, proxy.ts: 14ms, application-code: 167ms)
+[90m2026-08-23T23:10:00.706Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"deb4655c-f005-4c58-ad14-338183f840c2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 21ms (next.js: 8ms, proxy.ts: 9ms, application-code: 3ms)
+ GET /games/41 200 in 765ms (next.js: 34ms, proxy.ts: 16ms, application-code: 714ms)
+[90m2026-08-23T23:10:01.637Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b11d72a9-6dc1-4ba0-91bc-e94eae734f1f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:01.969Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:01.970Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:01.970Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 747ms (next.js: 46ms, proxy.ts: 17ms, application-code: 683ms)
+[90m2026-08-23T23:10:03.084Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6a24e557-dd11-4fa6-9dac-c3eef8e3bbd6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 692ms (next.js: 20ms, proxy.ts: 545ms, application-code: 126ms)
+[90m2026-08-23T23:10:03.370Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"144c4130-5e70-4983-a998-2d8163466cfd","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 767ms (next.js: 37ms, proxy.ts: 27ms, application-code: 703ms)
+[90m2026-08-23T23:10:04.268Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8927c270-49a2-4461-a2f7-1ee7c1fed23a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 35ms (next.js: 10ms, proxy.ts: 20ms, application-code: 6ms)
+[90m2026-08-23T23:10:04.756Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:04.757Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:04.757Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 993ms (next.js: 46ms, proxy.ts: 17ms, application-code: 930ms)
+[90m2026-08-23T23:10:05.413Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c6d1e61e-4596-4736-8cf8-931c40458436","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 729ms (next.js: 24ms, proxy.ts: 15ms, application-code: 691ms)
+[90m2026-08-23T23:10:06.258Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ea4c70bf-e0fd-4611-9c6f-59165da55fc7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:06.805Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:06.806Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:06.806Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 665ms (next.js: 12ms, proxy.ts: 12ms, application-code: 641ms)
+[90m2026-08-23T23:10:07.101Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8ded8239-5d56-423f-8051-54dfac305bd2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 92ms (next.js: 21ms, proxy.ts: 68ms, application-code: 4ms)
+ GET /games/41 200 in 725ms (next.js: 592ms, proxy.ts: 18ms, application-code: 114ms)
+[90m2026-08-23T23:10:07.944Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2e4d262d-5c84-4ea2-85d3-6f6ecb8ae9fc","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 3ms, proxy.ts: 11ms, application-code: 3ms)
+ GET /games/41 200 in 646ms (next.js: 19ms, proxy.ts: 12ms, application-code: 616ms)
+[90m2026-08-23T23:10:08.705Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b2bd21d0-2053-499d-990a-b31b6e6190e9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:09.011Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:09.012Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:09.012Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 702ms (next.js: 15ms, proxy.ts: 15ms, application-code: 672ms)
+[90m2026-08-23T23:10:09.632Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a33fd878-1bdd-496f-a041-564a01470c15","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 820ms (next.js: 612ms, proxy.ts: 33ms, application-code: 175ms)
+[90m2026-08-23T23:10:10.553Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"803417b5-7b01-4306-a973-e55a55f96f10","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 748ms (next.js: 24ms, proxy.ts: 10ms, application-code: 714ms)
+[90m2026-08-23T23:10:11.435Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e29e8ca4-233c-4a6c-b8dc-341b757da701","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:11.824Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:11.825Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:11.825Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 715ms (next.js: 17ms, proxy.ts: 13ms, application-code: 685ms)
+[90m2026-08-23T23:10:12.308Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"04debd0b-ac77-46f0-b787-ffed215274bb","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 740ms (next.js: 606ms, proxy.ts: 22ms, application-code: 112ms)
+[90m2026-08-23T23:10:13.154Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cb1eb1a0-53c5-4799-96da-31a10841866c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 609ms (next.js: 21ms, proxy.ts: 8ms, application-code: 579ms)
+[90m2026-08-23T23:10:14.444Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8e6f3b1f-91f1-4e59-a703-16544bc816cf","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:14.277Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:14.278Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:14.278Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 76ms (next.js: 62ms, proxy.ts: 9ms, application-code: 6ms)
+ GET /games/41 200 in 708ms (next.js: 26ms, proxy.ts: 552ms, application-code: 129ms)
+[90m2026-08-23T23:10:14.764Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b42dab39-7d40-4ce4-b8ef-651e955ea36f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 19ms (next.js: 3ms, proxy.ts: 13ms, application-code: 3ms)
+ GET /games/41 200 in 735ms (next.js: 602ms, proxy.ts: 13ms, application-code: 120ms)
+[90m2026-08-23T23:10:15.607Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"806d4dcb-8bf9-40f1-bfb3-39a36db33b6a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:15.984Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:15.985Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:15.985Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 685ms (next.js: 21ms, proxy.ts: 7ms, application-code: 657ms)
+[90m2026-08-23T23:10:17.000Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"70d2a65f-93c4-4fb3-a7ca-0627d56acbf9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 6ms, proxy.ts: 10ms, application-code: 3ms)
+ GET /games/41 200 in 135ms (next.js: 46ms, proxy.ts: 10ms, application-code: 79ms)
+[90m2026-08-23T23:10:17.288Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"53feeecc-03db-47f7-881b-9d310bddf1fd","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 803ms (next.js: 25ms, proxy.ts: 13ms, application-code: 766ms)
+[90m2026-08-23T23:10:18.266Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cd107b77-5143-4e9e-931a-184675a46538","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:18.482Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:18.483Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:18.483Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 696ms (next.js: 16ms, proxy.ts: 7ms, application-code: 673ms)
+[90m2026-08-23T23:10:19.101Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"3e0b347c-56aa-4f87-b2f3-3cd2bf5b3360","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 14ms (next.js: 3ms, proxy.ts: 7ms, application-code: 4ms)
+ GET /games/41 200 in 697ms (next.js: 29ms, proxy.ts: 18ms, application-code: 650ms)
+[90m2026-08-23T23:10:19.981Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c95a93be-e023-484a-8076-7dd3b8541b0f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:20.457Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:20.458Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:20.458Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 18ms (next.js: 3ms, proxy.ts: 11ms, application-code: 4ms)
+ GET /games/41 200 in 685ms (next.js: 19ms, proxy.ts: 10ms, application-code: 656ms)
+[90m2026-08-23T23:10:21.527Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8da96764-2073-4976-a780-caec764a99db","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 24ms (next.js: 5ms, proxy.ts: 14ms, application-code: 5ms)
+ GET /games/41 200 in 125ms (next.js: 35ms, proxy.ts: 14ms, application-code: 77ms)
+[90m2026-08-23T23:10:21.809Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1e0b50d3-bc30-45b1-b092-b47b2ffb4ebd","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 16ms (next.js: 3ms, proxy.ts: 9ms, application-code: 3ms)
+ GET /games/41 200 in 741ms (next.js: 22ms, proxy.ts: 13ms, application-code: 705ms)
+[90m2026-08-23T23:10:22.668Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"63f79ad5-5c06-48a1-a639-e5da52f0e925","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:23.006Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:23.007Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:23.007Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 684ms (next.js: 22ms, proxy.ts: 11ms, application-code: 652ms)
+[90m2026-08-23T23:10:23.515Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"643c309e-6165-4363-8319-15e7f8e8b548","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 646ms (next.js: 29ms, proxy.ts: 7ms, application-code: 611ms)
+[90m2026-08-23T23:10:24.296Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"91a8f300-4a4b-448c-a0b9-8051c3101da0","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:24.825Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:24.826Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:24.826Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 651ms (next.js: 549ms, proxy.ts: 18ms, application-code: 84ms)
+[90m2026-08-23T23:10:25.083Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"673d5e07-2d74-4b96-8b4a-b0cc25c6ec6f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 38ms (next.js: 18ms, proxy.ts: 15ms, application-code: 5ms)
+ GET /games/41 200 in 707ms (next.js: 13ms, proxy.ts: 16ms, application-code: 677ms)
+[90m2026-08-23T23:10:25.931Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a33a0dd1-5c19-455e-985b-8c51eb5594fd","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:26.294Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:26.295Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:26.295Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 786ms (next.js: 664ms, proxy.ts: 20ms, application-code: 102ms)
+[90m2026-08-23T23:10:26.820Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"3455618f-2ef0-48d5-8d48-64c810a2d85e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 24ms (next.js: 12ms, proxy.ts: 9ms, application-code: 3ms)
+ GET /games/41 200 in 653ms (next.js: 17ms, proxy.ts: 13ms, application-code: 623ms)
+[90m2026-08-23T23:10:27.620Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e6a49c2e-9053-409c-8a0f-968e4b3721b1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:27.963Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:27.964Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:27.964Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 669ms (next.js: 21ms, proxy.ts: 11ms, application-code: 637ms)
+[90m2026-08-23T23:10:28.417Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1be0a41d-1945-40bc-8f6b-a29bde259757","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 627ms (next.js: 20ms, proxy.ts: 12ms, application-code: 595ms)
+[90m2026-08-23T23:10:29.174Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"57207d8a-c0e7-476a-b1ef-29b008ef45a6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:29.801Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:29.802Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:29.802Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 732ms (next.js: 19ms, proxy.ts: 8ms, application-code: 705ms)
+[90m2026-08-23T23:10:30.078Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4b293b1e-139b-46b3-a0c3-23df599f8f39","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 23ms (next.js: 6ms, proxy.ts: 11ms, application-code: 6ms)
+ GET /games/41 200 in 942ms (next.js: 30ms, proxy.ts: 24ms, application-code: 889ms)
+[90m2026-08-23T23:10:31.152Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a091e93c-a3c3-495b-bed4-99af8a46f5d5","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:31.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:31.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:31.643Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 23ms (next.js: 9ms, proxy.ts: 7ms, application-code: 6ms)
+ GET /games/41 200 in 789ms (next.js: 14ms, proxy.ts: 14ms, application-code: 761ms)
+[90m2026-08-23T23:10:32.138Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e7794fb2-cee2-4597-ae94-a9b38280a02f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 50ms (next.js: 4ms, proxy.ts: 41ms, application-code: 5ms)
+ GET /games/41 200 in 705ms (next.js: 543ms, proxy.ts: 17ms, application-code: 145ms)
+[90m2026-08-23T23:10:32.972Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"028c0122-21aa-4e69-aa02-4a62db1404c8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 8ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 656ms (next.js: 15ms, proxy.ts: 18ms, application-code: 623ms)
+[90m2026-08-23T23:10:34.307Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7720432b-153b-497a-9300-6612c3399527","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:34.069Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:34.070Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:34.070Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 20ms (next.js: 4ms, proxy.ts: 11ms, application-code: 5ms)
+ GET /games/41 200 in 670ms (next.js: 27ms, proxy.ts: 536ms, application-code: 106ms)
+[90m2026-08-23T23:10:34.635Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"04b3491a-8670-46f6-b005-5fd2b255211c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 709ms (next.js: 587ms, proxy.ts: 20ms, application-code: 101ms)
+[90m2026-08-23T23:10:35.455Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e0f047d9-1ab5-4485-8fe4-f2dced78ba90","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:35.799Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:35.800Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:35.800Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 637ms (next.js: 16ms, proxy.ts: 6ms, application-code: 614ms)
+[90m2026-08-23T23:10:36.781Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0f980fc2-3817-4dae-8655-d729a89cf21b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 109ms (next.js: 26ms, proxy.ts: 8ms, application-code: 75ms)
+[90m2026-08-23T23:10:37.040Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"671fc973-1ed5-41e8-a8c5-ad9e2197c7fe","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 33ms (next.js: 3ms, proxy.ts: 26ms, application-code: 4ms)
+ GET /games/41 200 in 638ms (next.js: 516ms, proxy.ts: 19ms, application-code: 103ms)
+[90m2026-08-23T23:10:37.795Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d0455531-4cff-4c19-a7ed-0db9c6cf6bbe","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:38.158Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:38.159Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:38.159Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 19ms (next.js: 9ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 678ms (next.js: 26ms, proxy.ts: 9ms, application-code: 642ms)
+[90m2026-08-23T23:10:38.614Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d73074b9-d77a-4c6d-9c07-5869794f4ac1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 632ms (next.js: 529ms, proxy.ts: 21ms, application-code: 81ms)
+[90m2026-08-23T23:10:39.327Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2880f465-5248-4dc6-89c3-13b349edc922","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 682ms (next.js: 18ms, proxy.ts: 4ms, application-code: 660ms)
+[90m2026-08-23T23:10:40.143Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"5e8556cd-56d7-4970-89ac-214aeade639b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:40.549Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:40.550Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:40.550Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 858ms (next.js: 718ms, proxy.ts: 12ms, application-code: 128ms)
+[90m2026-08-23T23:10:41.848Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a46d2cab-cc5b-4dc2-b125-e2cff8e6e22f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 152ms (next.js: 29ms, proxy.ts: 18ms, application-code: 105ms)
+[90m2026-08-23T23:10:42.697Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a845174f-bb32-4336-850b-78f798bb0fbe","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:42.582Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:42.583Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:42.583Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 20ms (next.js: 6ms, proxy.ts: 10ms, application-code: 3ms)
+ GET /games/41 200 in 707ms (next.js: 33ms, proxy.ts: 561ms, application-code: 114ms)
+[90m2026-08-23T23:10:42.996Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"42a876cb-c8a5-4fce-8f6e-1110c50cc57d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 34ms (next.js: 9ms, proxy.ts: 18ms, application-code: 7ms)
+ GET /games/41 200 in 1147ms (next.js: 22ms, proxy.ts: 25ms, application-code: 1101ms)
+[90m2026-08-23T23:10:44.408Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"61f14b57-35cd-4de3-acd0-032d85f54147","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:44.533Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:44.534Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:44.534Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 925ms (next.js: 40ms, proxy.ts: 22ms, application-code: 863ms)
+[90m2026-08-23T23:10:45.528Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e1bfadd3-2ae9-41d0-841a-87f9bc15e83f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:46.094Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:46.094Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:46.094Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 828ms (next.js: 29ms, proxy.ts: 20ms, application-code: 779ms)
+[90m2026-08-23T23:10:47.429Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"90403dcd-bf0b-4a8f-a860-03ac7ff957ea","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 25ms (next.js: 5ms, proxy.ts: 16ms, application-code: 4ms)
+ GET /games/41 200 in 936ms (next.js: 46ms, proxy.ts: 788ms, application-code: 102ms)
+[90m2026-08-23T23:10:47.776Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"544e5319-60c5-43d6-b87d-c14e63e8b322","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 31ms (next.js: 8ms, proxy.ts: 17ms, application-code: 6ms)
+ GET /games/41 200 in 991ms (next.js: 43ms, proxy.ts: 24ms, application-code: 925ms)
+[90m2026-08-23T23:10:48.974Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"086d8553-83d7-480d-b7e0-2c2e5d2a09f1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:49.380Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:49.381Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:49.381Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 29ms (next.js: 6ms, proxy.ts: 15ms, application-code: 9ms)
+ GET /games/41 200 in 824ms (next.js: 50ms, proxy.ts: 16ms, application-code: 758ms)
+[90m2026-08-23T23:10:49.986Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"97fd673a-191d-4e8d-b58b-744722e355ad","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 36ms (next.js: 7ms, proxy.ts: 23ms, application-code: 6ms)
+ GET /games/41 200 in 909ms (next.js: 46ms, proxy.ts: 12ms, application-code: 850ms)
+[90m2026-08-23T23:10:51.083Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"85b4b29a-5cc0-4c69-947b-581f8524813b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:51.688Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:51.688Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:51.688Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 24ms (next.js: 10ms, proxy.ts: 10ms, application-code: 4ms)
+ GET /games/41 200 in 804ms (next.js: 34ms, proxy.ts: 14ms, application-code: 757ms)
+[90m2026-08-23T23:10:52.017Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9b538c94-3326-4bbe-8f03-8565a79acbf0","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 23ms (next.js: 3ms, proxy.ts: 18ms, application-code: 3ms)
+ GET /games/41 200 in 765ms (next.js: 639ms, proxy.ts: 18ms, application-code: 108ms)
+[90m2026-08-23T23:10:52.911Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4645aa09-1b49-4bb0-9b11-5b247a932704","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 29ms (next.js: 5ms, proxy.ts: 18ms, application-code: 6ms)
+ GET /games/41 200 in 709ms (next.js: 36ms, proxy.ts: 15ms, application-code: 658ms)
+[90m2026-08-23T23:10:53.812Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e100c37a-4a60-4441-8648-711c5b06a6d1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:54.156Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:54.157Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:54.157Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 70ms (next.js: 44ms, proxy.ts: 22ms, application-code: 4ms)
+ GET /games/41 200 in 826ms (next.js: 715ms, proxy.ts: 22ms, application-code: 89ms)
+[90m2026-08-23T23:10:55.337Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9bb9da53-caf9-44f3-baed-088cdee43659","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 121ms (next.js: 24ms, proxy.ts: 10ms, application-code: 87ms)
+[90m2026-08-23T23:10:55.590Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"33539031-a7c4-4680-ba86-b81fa2d2a73d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:55.903Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:55.904Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:55.904Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 642ms (next.js: 23ms, proxy.ts: 11ms, application-code: 609ms)
+[90m2026-08-23T23:10:56.387Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ca457a4c-3398-4f0f-b997-e33976f95896","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 746ms (next.js: 27ms, proxy.ts: 9ms, application-code: 710ms)
+[90m2026-08-23T23:10:57.871Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"bc3080d7-fa7e-426b-a7a2-c1686b3dac0e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:57.818Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:57.819Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:57.819Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 739ms (next.js: 25ms, proxy.ts: 595ms, application-code: 119ms)
+[90m2026-08-23T23:10:58.169Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"face15d4-a83a-4727-a518-e4908cda813f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 868ms (next.js: 22ms, proxy.ts: 8ms, application-code: 837ms)
+[90m2026-08-23T23:10:59.196Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a173445d-45f2-43b4-9383-d665edd8169a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:10:59.410Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:10:59.411Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:10:59.411Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 760ms (next.js: 19ms, proxy.ts: 15ms, application-code: 726ms)
+[90m2026-08-23T23:11:00.114Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0203cca1-9035-4053-97ab-c9d79dcca79b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 679ms (next.js: 580ms, proxy.ts: 10ms, application-code: 89ms)
+[90m2026-08-23T23:11:00.965Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"82178518-0636-4ecb-ae1e-0ed8914677a3","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 541ms (next.js: 519ms, proxy.ts: 19ms, application-code: 3ms)
+ GET /games/41 200 in 659ms (next.js: 17ms, proxy.ts: 15ms, application-code: 627ms)
+[90m2026-08-23T23:11:01.773Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9ded95bd-df70-4fc2-b75d-3271f9c2a82d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 582ms (next.js: 562ms, proxy.ts: 17ms, application-code: 3ms)
+[90m2026-08-23T23:11:02.058Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:02.058Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:02.059Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 699ms (next.js: 594ms, proxy.ts: 17ms, application-code: 88ms)
+[90m2026-08-23T23:11:02.590Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"01d117f7-f94e-46bb-92a6-716c9e16b3f5","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 650ms (next.js: 523ms, proxy.ts: 15ms, application-code: 111ms)
+[90m2026-08-23T23:11:03.355Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a26d5fd0-37d2-4a42-8c03-a18ae2055fc4","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:03.711Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:03.712Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:03.712Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 658ms (next.js: 14ms, proxy.ts: 14ms, application-code: 630ms)
+[90m2026-08-23T23:11:04.763Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cab42009-b13e-46c4-a7f9-31dcd35470ca","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 163ms (next.js: 37ms, proxy.ts: 15ms, application-code: 110ms)
+[90m2026-08-23T23:11:05.052Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2b17be1b-b53d-4569-a997-e6894cf4ee26","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 33ms (next.js: 4ms, proxy.ts: 26ms, application-code: 4ms)
+ GET /games/41 200 in 705ms (next.js: 587ms, proxy.ts: 16ms, application-code: 102ms)
+[90m2026-08-23T23:11:05.861Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"874da8e0-0828-4920-be07-df241bbc25ee","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:06.163Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:06.163Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:06.163Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 25ms (next.js: 7ms, proxy.ts: 11ms, application-code: 7ms)
+ GET /games/41 200 in 693ms (next.js: 12ms, proxy.ts: 12ms, application-code: 669ms)
+[90m2026-08-23T23:11:07.331Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"dc84db49-757f-441f-b5df-f7572ba3338b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 7ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 699ms (next.js: 30ms, proxy.ts: 566ms, application-code: 102ms)
+[90m2026-08-23T23:11:07.729Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"40ce2261-382b-4645-9bf5-cef9791eab2b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 68ms (next.js: 20ms, proxy.ts: 42ms, application-code: 6ms)
+ GET /games/41 200 in 849ms (next.js: 707ms, proxy.ts: 31ms, application-code: 110ms)
+[90m2026-08-23T23:11:08.709Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8271830d-4eaa-41f9-9de9-bed66c42c7d6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:08.987Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:08.987Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:08.988Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 610ms (next.js: 504ms, proxy.ts: 13ms, application-code: 93ms)
+[90m2026-08-23T23:11:09.424Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"24eaeeb8-5923-4a53-808a-81c84ae2963f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 706ms (next.js: 15ms, proxy.ts: 14ms, application-code: 676ms)
+[90m2026-08-23T23:11:10.252Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c760ce91-6cea-4fa0-9719-9618772369cf","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:10.597Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:10.598Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:10.598Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 700ms (next.js: 28ms, proxy.ts: 9ms, application-code: 663ms)
+[90m2026-08-23T23:11:11.097Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f65618cd-532c-4ae9-a562-99d8728239a7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 5ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /games/41 200 in 1051ms (next.js: 30ms, proxy.ts: 24ms, application-code: 997ms)
+[90m2026-08-23T23:11:12.295Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"35c5a242-ca17-429b-aa0f-e1aa2d4e6322","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:12.596Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:12.597Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:12.597Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 650ms (next.js: 15ms, proxy.ts: 13ms, application-code: 621ms)
+[90m2026-08-23T23:11:13.072Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"57f7ef6d-6427-46ae-a895-99a90e58f1c6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 24ms (next.js: 5ms, proxy.ts: 15ms, application-code: 4ms)
+ GET /games/41 200 in 677ms (next.js: 28ms, proxy.ts: 10ms, application-code: 639ms)
+[90m2026-08-23T23:11:13.888Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cc83c810-a755-4c9f-ad00-cf3460b7c593","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:14.366Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:14.367Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:14.367Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 52ms (next.js: 18ms, proxy.ts: 31ms, application-code: 4ms)
+ GET /games/41 200 in 686ms (next.js: 16ms, proxy.ts: 13ms, application-code: 656ms)
+[90m2026-08-23T23:11:15.479Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d7fd0010-6e1b-4376-adb0-d0d0b46dcc03","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 24ms (next.js: 5ms, proxy.ts: 15ms, application-code: 3ms)
+ GET /games/41 200 in 153ms (next.js: 36ms, proxy.ts: 15ms, application-code: 101ms)
+[90m2026-08-23T23:11:15.757Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"5d249a27-9e2e-44ae-ae78-a898fda6d031","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 5ms, proxy.ts: 10ms, application-code: 3ms)
+ GET /games/41 200 in 752ms (next.js: 30ms, proxy.ts: 10ms, application-code: 711ms)
+[90m2026-08-23T23:11:16.645Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"46bf8d8c-c22a-4a0f-a2be-64abf6f37a5e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:16.954Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:16.955Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:16.955Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 673ms (next.js: 545ms, proxy.ts: 17ms, application-code: 111ms)
+[90m2026-08-23T23:11:17.494Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b24c015b-2aa6-4d8d-866c-fafae719d35a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 713ms (next.js: 11ms, proxy.ts: 16ms, application-code: 686ms)
+[90m2026-08-23T23:11:18.363Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4a02414b-a1d9-4ed9-8846-bb7989bf95c0","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:18.569Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:18.570Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:18.570Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 642ms (next.js: 540ms, proxy.ts: 18ms, application-code: 84ms)
+[90m2026-08-23T23:11:19.137Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"83e996d8-b4b5-41c5-9137-7c9ab275c7a3","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 48ms (next.js: 4ms, proxy.ts: 40ms, application-code: 3ms)
+ GET /games/41 200 in 775ms (next.js: 634ms, proxy.ts: 19ms, application-code: 121ms)
+[90m2026-08-23T23:11:20.043Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"70834a3d-00dd-410d-b0c2-df66d6892621","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:20.386Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:20.387Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:20.387Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 20ms (next.js: 5ms, proxy.ts: 12ms, application-code: 3ms)
+ GET /games/41 200 in 714ms (next.js: 24ms, proxy.ts: 15ms, application-code: 675ms)
+[90m2026-08-23T23:11:21.450Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"3f007c3d-162d-4472-a442-f35243a31d29","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 127ms (next.js: 29ms, proxy.ts: 8ms, application-code: 90ms)
+[90m2026-08-23T23:11:21.730Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"411b06fc-1932-461a-970a-57527810ecac","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 627ms (next.js: 12ms, proxy.ts: 6ms, application-code: 609ms)
+[90m2026-08-23T23:11:22.497Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2d9ea4d0-4ecd-4efc-a636-e967ab7214a6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:22.764Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:22.765Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:22.765Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 739ms (next.js: 564ms, proxy.ts: 13ms, application-code: 161ms)
+[90m2026-08-23T23:11:23.350Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ee915604-ecb1-4a33-b882-21e9d4a3d6b2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 751ms (next.js: 19ms, proxy.ts: 26ms, application-code: 706ms)
+[90m2026-08-23T23:11:24.328Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c7d705cb-8741-44fd-bb4d-9fcfda4433e3","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:24.568Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:24.569Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:24.569Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 808ms (next.js: 26ms, proxy.ts: 23ms, application-code: 759ms)
+[90m2026-08-23T23:11:25.258Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f4adc616-3c5a-41ef-b00d-5c525ee0e759","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 26ms (next.js: 6ms, proxy.ts: 17ms, application-code: 3ms)
+ GET /games/41 200 in 687ms (next.js: 39ms, proxy.ts: 21ms, application-code: 628ms)
+[90m2026-08-23T23:11:26.115Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0403ad3e-019e-4e92-8a56-24aa10173d02","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:26.663Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:26.664Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:26.664Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 16ms (next.js: 4ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /games/41 200 in 755ms (next.js: 36ms, proxy.ts: 41ms, application-code: 678ms)
+[90m2026-08-23T23:11:26.992Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"5780e232-9a33-427d-b237-871135232076","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 4ms, proxy.ts: 10ms, application-code: 4ms)
+ GET /games/41 200 in 789ms (next.js: 29ms, proxy.ts: 10ms, application-code: 750ms)
+[90m2026-08-23T23:11:27.913Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"910993e6-6c26-4889-b0b3-a0147ba4706a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:28.398Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:28.399Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:28.399Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 673ms (next.js: 17ms, proxy.ts: 26ms, application-code: 631ms)
+[90m2026-08-23T23:11:28.682Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"72ad4ec4-d7f8-438c-ab6b-7fcb700111c9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 672ms (next.js: 27ms, proxy.ts: 16ms, application-code: 630ms)
+ GET /manifest.webmanifest 200 in 28ms (next.js: 15ms, proxy.ts: 9ms, application-code: 4ms)
+[90m2026-08-23T23:11:29.495Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7c486e3c-96eb-4a93-8c8c-cbd12683ad3e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:30.032Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:30.033Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:30.033Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 669ms (next.js: 18ms, proxy.ts: 10ms, application-code: 641ms)
+[90m2026-08-23T23:11:30.298Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"5e37b5c8-0513-428c-b447-2746cb457b4b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 746ms (next.js: 573ms, proxy.ts: 15ms, application-code: 157ms)
+[90m2026-08-23T23:11:31.257Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"fcbff8f5-c85a-41b4-bf03-749e1383acaf","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 852ms (next.js: 62ms, proxy.ts: 45ms, application-code: 745ms)
+[90m2026-08-23T23:11:32.224Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6331723f-e080-43eb-9c9e-ae2404a206cd","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:32.618Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:32.619Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:32.619Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 770ms (next.js: 28ms, proxy.ts: 18ms, application-code: 724ms)
+[90m2026-08-23T23:11:34.078Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"460e3f13-93d1-49f9-9509-20756c3ba1a2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 129ms (next.js: 32ms, proxy.ts: 12ms, application-code: 85ms)
+[90m2026-08-23T23:11:34.309Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"982e0a2e-645b-402a-93e8-f8ba0c211618","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 651ms (next.js: 29ms, proxy.ts: 5ms, application-code: 617ms)
+[90m2026-08-23T23:11:35.076Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a6488171-86fe-44de-9b18-98e896dfef38","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:35.413Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:35.414Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:35.414Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 19ms (next.js: 8ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 694ms (next.js: 21ms, proxy.ts: 8ms, application-code: 664ms)
+[90m2026-08-23T23:11:35.919Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b37ae6ec-3a54-47dd-af2d-3187890a0dc8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 26ms (next.js: 10ms, proxy.ts: 12ms, application-code: 4ms)
+ GET /games/41 200 in 738ms (next.js: 58ms, proxy.ts: 8ms, application-code: 672ms)
+[90m2026-08-23T23:11:36.794Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"59c22777-e7e8-46dc-89a0-93e427d4c305","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:37.428Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:37.429Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:37.429Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 836ms (next.js: 21ms, proxy.ts: 23ms, application-code: 792ms)
+[90m2026-08-23T23:11:37.832Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"89c047fd-3f6b-4cab-95e5-0a9b7aa8a556","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 41ms (next.js: 18ms, proxy.ts: 15ms, application-code: 8ms)
+ GET /games/41 200 in 973ms (next.js: 30ms, proxy.ts: 25ms, application-code: 917ms)
+[90m2026-08-23T23:11:39.116Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"265e9b88-4a81-4615-94f4-0a5c783051f0","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:39.588Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:39.589Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:39.589Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 24ms (next.js: 7ms, proxy.ts: 12ms, application-code: 5ms)
+ GET /games/41 200 in 865ms (next.js: 34ms, proxy.ts: 31ms, application-code: 801ms)
+[90m2026-08-23T23:11:40.217Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"73b52a86-a313-45de-b92c-e6f4e19af412","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 77ms (next.js: 17ms, proxy.ts: 57ms, application-code: 3ms)
+ GET /games/41 200 in 801ms (next.js: 665ms, proxy.ts: 30ms, application-code: 106ms)
+[90m2026-08-23T23:11:41.135Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e5634714-2c96-4288-b580-e282e92b7a97","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 21ms (next.js: 10ms, proxy.ts: 7ms, application-code: 4ms)
+ GET /games/41 200 in 662ms (next.js: 26ms, proxy.ts: 12ms, application-code: 623ms)
+[90m2026-08-23T23:11:41.930Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0d4bbf0c-4682-45ff-90e1-b655f316980e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:42.225Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:42.226Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:42.226Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 29ms (next.js: 13ms, proxy.ts: 12ms, application-code: 4ms)
+ GET /games/41 200 in 704ms (next.js: 27ms, proxy.ts: 20ms, application-code: 657ms)
+[90m2026-08-23T23:11:42.763Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a7ce5230-3fa0-4fc6-8bb2-7a6ff2bd1854","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 20ms (next.js: 5ms, proxy.ts: 12ms, application-code: 4ms)
+ GET /games/41 200 in 818ms (next.js: 32ms, proxy.ts: 14ms, application-code: 771ms)
+[90m2026-08-23T23:11:43.703Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"04400abb-4f05-4fd4-b16c-6b71d6d1db26","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:44.208Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:44.209Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:44.209Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 649ms (next.js: 20ms, proxy.ts: 7ms, application-code: 622ms)
+[90m2026-08-23T23:11:44.492Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"23ea32ff-85e2-4526-9144-e00ee0e28bb3","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 673ms (next.js: 19ms, proxy.ts: 12ms, application-code: 643ms)
+[90m2026-08-23T23:11:45.910Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:45.911Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:45.911Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:11:45.941Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"936f4697-b3c4-41bb-9598-85efcafdffd0","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 131ms (next.js: 24ms, proxy.ts: 6ms, application-code: 100ms)
+[90m2026-08-23T23:11:46.196Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8fa74f8c-83a3-4f89-8df6-7b17597186b7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 745ms (next.js: 30ms, proxy.ts: 17ms, application-code: 698ms)
+[90m2026-08-23T23:11:47.036Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8bf86e88-a434-4c15-b579-49a124857928","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:47.384Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:47.385Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:47.385Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 12ms (next.js: 2ms, proxy.ts: 7ms, application-code: 3ms)
+ GET /games/41 200 in 624ms (next.js: 20ms, proxy.ts: 8ms, application-code: 597ms)
+[90m2026-08-23T23:11:47.852Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7ca2d986-e802-4226-ba31-7caf8cc3022b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 46ms (next.js: 3ms, proxy.ts: 39ms, application-code: 4ms)
+ GET /games/41 200 in 748ms (next.js: 577ms, proxy.ts: 16ms, application-code: 155ms)
+[90m2026-08-23T23:11:48.716Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2eed8ffb-9543-407c-b1e7-9262ffa4214c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 614ms (next.js: 24ms, proxy.ts: 11ms, application-code: 578ms)
+[90m2026-08-23T23:11:49.446Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f8f34492-49be-467f-83b8-0ecfdef0d3f5","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:49.793Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:49.793Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:49.793Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 660ms (next.js: 22ms, proxy.ts: 15ms, application-code: 623ms)
+[90m2026-08-23T23:11:50.270Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4cc96607-d473-4f4f-b404-59d162822401","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 901ms (next.js: 42ms, proxy.ts: 18ms, application-code: 841ms)
+[90m2026-08-23T23:11:51.315Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"37906d6e-5c33-47c4-beae-65630e7e571e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:51.867Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:51.868Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:51.868Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 840ms (next.js: 20ms, proxy.ts: 18ms, application-code: 802ms)
+[90m2026-08-23T23:11:52.985Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9e561622-9f60-4e40-a8a3-3dbee8ce92b6","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 136ms (next.js: 23ms, proxy.ts: 11ms, application-code: 103ms)
+[90m2026-08-23T23:11:53.242Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d8d25c81-3edf-4e7e-bdd1-1a258da0dc7f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 686ms (next.js: 17ms, proxy.ts: 13ms, application-code: 656ms)
+[90m2026-08-23T23:11:54.047Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f26029ea-74e6-4e01-ae59-c31f95284d48","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:54.359Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:54.360Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:54.360Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 745ms (next.js: 24ms, proxy.ts: 9ms, application-code: 711ms)
+[90m2026-08-23T23:11:54.922Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f6d653c6-7628-4d4f-8b60-6424885fe72b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 22ms (next.js: 5ms, proxy.ts: 13ms, application-code: 4ms)
+ GET /games/41 200 in 746ms (next.js: 50ms, proxy.ts: 9ms, application-code: 688ms)
+[90m2026-08-23T23:11:55.822Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f66355fa-74cc-423d-8214-9457d3e56986","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:56.275Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:56.276Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:56.276Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 28ms (next.js: 9ms, proxy.ts: 12ms, application-code: 6ms)
+ GET /games/41 200 in 692ms (next.js: 21ms, proxy.ts: 24ms, application-code: 647ms)
+[90m2026-08-23T23:11:56.624Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e82c1645-b542-4ab1-98eb-29729e78cfd4","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 650ms (next.js: 26ms, proxy.ts: 10ms, application-code: 614ms)
+[90m2026-08-23T23:11:57.387Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"49ff8b62-1939-4094-9721-636e3c4ec728","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:11:57.962Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:11:57.963Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:11:57.963Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 706ms (next.js: 16ms, proxy.ts: 15ms, application-code: 675ms)
+[90m2026-08-23T23:11:58.243Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9289922f-2be4-461c-bd3f-9bf7addafa1a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 548ms (next.js: 524ms, proxy.ts: 17ms, application-code: 7ms)
+ GET /games/41 200 in 740ms (next.js: 569ms, proxy.ts: 14ms, application-code: 157ms)
+[90m2026-08-23T23:11:59.762Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"44798e54-c317-42c5-a328-6cf6218c7d71","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 85ms (next.js: 15ms, proxy.ts: 8ms, application-code: 61ms)
+[90m2026-08-23T23:12:00.572Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"63e9989a-a53e-46a8-8175-4861c11e2d08","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:00.360Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:00.361Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:00.361Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 45ms (next.js: 11ms, proxy.ts: 25ms, application-code: 8ms)
+ GET /games/41 200 in 807ms (next.js: 83ms, proxy.ts: 583ms, application-code: 142ms)
+[90m2026-08-23T23:12:00.920Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8ec3f945-d665-4ced-85a0-74fd2d1afb07","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:01.594Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"46d8748d-d21d-426b-9415-7dea74084c14","method":"GET","route":"/games/41"}[0m
+ GET /manifest.webmanifest 200 in 29ms (next.js: 5ms, proxy.ts: 19ms, application-code: 6ms)
+[90m2026-08-23T23:12:02.088Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:02.089Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:02.089Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 845ms (next.js: 35ms, proxy.ts: 19ms, application-code: 792ms)
+ GET /games/41 200 in 1532ms (next.js: 24ms, proxy.ts: 9ms, application-code: 1499ms)
+ GET /manifest.webmanifest 200 in 33ms (next.js: 7ms, proxy.ts: 17ms, application-code: 9ms)
+[90m2026-08-23T23:12:02.662Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ce4d7cb4-d1f9-4810-a458-2b5384e2359b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 947ms (next.js: 20ms, proxy.ts: 14ms, application-code: 913ms)
+[90m2026-08-23T23:12:03.741Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0d09218f-e28e-4ade-bfe8-d12d5f448d18","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:04.073Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:04.074Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:04.074Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 51ms (next.js: 6ms, proxy.ts: 38ms, application-code: 7ms)
+ GET /games/41 200 in 854ms (next.js: 654ms, proxy.ts: 10ms, application-code: 191ms)
+[90m2026-08-23T23:12:04.778Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"fad30c33-1c09-45f4-813a-48336ac96639","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 29ms (next.js: 7ms, proxy.ts: 15ms, application-code: 7ms)
+ GET /games/41 200 in 1121ms (next.js: 52ms, proxy.ts: 33ms, application-code: 1037ms)
+⨯ Error: Manifest file is empty
+    at ignore-listed frames {
+  page: '/manifest.webmanifest'
+}
+[90m2026-08-23T23:12:06.094Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:06.095Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:06.095Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /_error ...
+[90m2026-08-23T23:12:13.780Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e5ddd073-4de5-4608-b46f-99613d59c484","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:13.788Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:13.788Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:13.788Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+(node:10244) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGTERM listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10244) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+[90m2026-08-23T23:12:14.228Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:14.228Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:14.228Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:12:14.267Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e2d11525-07e2-4401-8619-c4ec03e04e72","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 873ms (next.js: 294ms, proxy.ts: 299ms, application-code: 280ms)
+[90m2026-08-23T23:12:14.458Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"433f5bb2-dc5f-4f67-9fa3-70f5ae2e7b9c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 203ms (next.js: 16ms, proxy.ts: 9ms, application-code: 178ms)
+ GET /manifest.webmanifest 500 in 8.8s (next.js: 8.6s, proxy.ts: 10ms, application-code: 196ms)
+[90m2026-08-23T23:12:14.826Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b0f79824-91b4-4a9b-b8b5-15dcbf10a28c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 468ms (next.js: 10ms, proxy.ts: 12ms, application-code: 446ms)
+ GET /games/41 200 in 113ms (next.js: 30ms, proxy.ts: 10ms, application-code: 73ms)
+ GET /manifest.webmanifest 200 in 28ms (next.js: 7ms, proxy.ts: 6ms, application-code: 15ms)
+[90m2026-08-23T23:12:15.313Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:15.315Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:15.315Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:12:26.659Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"7922595a-8a43-4350-847d-9e2c18c90aaa","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 762ms (next.js: 50ms, proxy.ts: 14ms, application-code: 698ms)
+[90m2026-08-23T23:12:27.587Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"74214268-1f45-4565-9841-c9910c557e7c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 50ms (next.js: 13ms, proxy.ts: 31ms, application-code: 6ms)
+[90m2026-08-23T23:12:28.011Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:28.012Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:28.012Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:12:28.271Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"fabc74e3-524c-43fe-8da3-2b1eeb0291a5","method":"GET","route":"/games/41"}[0m
+ GET /games/41 200 in 902ms (next.js: 29ms, proxy.ts: 12ms, application-code: 860ms)
+ GET /games/41 200 in 1608ms (next.js: 37ms, proxy.ts: 30ms, application-code: 1541ms)
+[90m2026-08-23T23:12:29.187Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a75a51b4-ed4f-4e02-a4f6-dcac7d4e378a","method":"GET","route":"/games/41"}[0m
+ GET /games/41 200 in 288ms (next.js: 12ms, proxy.ts: 11ms, application-code: 265ms)
+[90m2026-08-23T23:12:29.647Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:29.649Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:29.649Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:12:29.662Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"72b52a3f-3517-4528-83bd-256ee0474f47","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 32ms (next.js: 14ms, proxy.ts: 13ms, application-code: 5ms)
+ GET /games/41 200 in 830ms (next.js: 136ms, proxy.ts: 13ms, application-code: 680ms)
+[90m2026-08-23T23:12:30.625Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2c489c8a-ca2c-4986-9a05-43253762c578","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:31.108Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:31.109Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:31.109Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 752ms (next.js: 18ms, proxy.ts: 13ms, application-code: 721ms)
+[90m2026-08-23T23:12:31.523Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d23d99db-55cc-4236-a9e6-7e6d1edbf26f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 639ms (next.js: 25ms, proxy.ts: 5ms, application-code: 608ms)
+[90m2026-08-23T23:12:32.304Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"5358c874-db09-45ef-acd4-85c2520a68ed","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:32.762Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:32.763Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:32.763Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 661ms (next.js: 14ms, proxy.ts: 14ms, application-code: 633ms)
+[90m2026-08-23T23:12:33.825Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"dfca87b3-15aa-4fad-9c72-78c7413c3fea","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 139ms (next.js: 26ms, proxy.ts: 9ms, application-code: 104ms)
+[90m2026-08-23T23:12:34.090Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1586a4e5-4b40-453b-95a7-6c5871de5b08","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 20ms (next.js: 8ms, proxy.ts: 8ms, application-code: 4ms)
+ GET /games/41 200 in 676ms (next.js: 15ms, proxy.ts: 19ms, application-code: 641ms)
+[90m2026-08-23T23:12:34.922Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4febc317-3cb8-43e8-86e3-fee628230e19","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:35.145Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:35.145Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:35.145Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 18ms (next.js: 6ms, proxy.ts: 7ms, application-code: 5ms)
+ GET /games/41 200 in 663ms (next.js: 20ms, proxy.ts: 8ms, application-code: 635ms)
+[90m2026-08-23T23:12:35.722Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"600a50da-18e9-43e2-b4c3-05ee77420d4d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 652ms (next.js: 22ms, proxy.ts: 9ms, application-code: 620ms)
+[90m2026-08-23T23:12:36.552Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"d3dce463-7d42-4a09-ae31-7ca1e653f13e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:37.020Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:37.020Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:37.020Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 716ms (next.js: 28ms, proxy.ts: 21ms, application-code: 666ms)
+[90m2026-08-23T23:12:37.379Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"803887f4-2ed1-4133-b62d-81f299c8dc29","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 649ms (next.js: 18ms, proxy.ts: 13ms, application-code: 618ms)
+[90m2026-08-23T23:12:38.146Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"077f0019-b94d-496f-bbea-2a59a6643d25","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:38.555Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:38.555Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:38.555Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 594ms (next.js: 20ms, proxy.ts: 10ms, application-code: 564ms)
+[90m2026-08-23T23:12:38.899Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a5ee4461-7071-496e-b746-fc65c4c00524","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 44ms (next.js: 5ms, proxy.ts: 33ms, application-code: 6ms)
+ GET /games/41 200 in 761ms (next.js: 625ms, proxy.ts: 10ms, application-code: 126ms)
+[90m2026-08-23T23:12:39.774Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"cb2e8f45-6a8d-48b2-90de-1ced4474d0a2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 640ms (next.js: 21ms, proxy.ts: 10ms, application-code: 610ms)
+[90m2026-08-23T23:12:40.572Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8b9d187f-0e53-4de3-ad85-e56b411ee27e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:40.858Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:40.860Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:40.860Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 792ms (next.js: 36ms, proxy.ts: 27ms, application-code: 730ms)
+[90m2026-08-23T23:12:41.550Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b06d8949-50ec-47f8-ae57-bb920c134dd7","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 856ms (next.js: 15ms, proxy.ts: 12ms, application-code: 829ms)
+[90m2026-08-23T23:12:42.586Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2ecbe664-3368-43f9-b33a-bb36d3a156db","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:42.918Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:42.918Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:42.918Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 647ms (next.js: 13ms, proxy.ts: 15ms, application-code: 619ms)
+[90m2026-08-23T23:12:43.474Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"95b54802-a699-415e-9c63-f8c9862a4e0a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 738ms (next.js: 41ms, proxy.ts: 20ms, application-code: 677ms)
+[90m2026-08-23T23:12:44.407Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"3245aca7-e136-44bc-aaff-b4480512f94d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:44.874Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:44.875Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:44.875Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 649ms (next.js: 23ms, proxy.ts: 17ms, application-code: 609ms)
+[90m2026-08-23T23:12:45.208Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"03ef3650-4716-4a8e-860d-188d0f8fe07a","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 679ms (next.js: 30ms, proxy.ts: 25ms, application-code: 624ms)
+[90m2026-08-23T23:12:46.007Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9a95bf18-27d6-4dd0-8c52-da621a5dc5a2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:46.494Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:46.495Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:46.495Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 26ms (next.js: 6ms, proxy.ts: 15ms, application-code: 5ms)
+ GET /games/41 200 in 767ms (next.js: 26ms, proxy.ts: 9ms, application-code: 733ms)
+[90m2026-08-23T23:12:46.927Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ac88c321-c30c-4374-bbe7-d9c0d4340c0b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 19ms (next.js: 5ms, proxy.ts: 11ms, application-code: 4ms)
+ GET /games/41 200 in 668ms (next.js: 26ms, proxy.ts: 14ms, application-code: 627ms)
+[90m2026-08-23T23:12:47.756Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e421ecbd-f328-424d-8339-ae87cc43f3e4","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:48.222Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:48.223Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:48.223Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 23ms (next.js: 10ms, proxy.ts: 10ms, application-code: 4ms)
+ GET /games/41 200 in 718ms (next.js: 31ms, proxy.ts: 12ms, application-code: 674ms)
+[90m2026-08-23T23:12:48.639Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a1d95dfc-9bc4-4d5a-9df7-ca0cf89b72b4","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 761ms (next.js: 27ms, proxy.ts: 10ms, application-code: 724ms)
+[90m2026-08-23T23:12:49.549Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2a9ea413-3313-40eb-b771-70dc3338c0f8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:50.052Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:50.053Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:50.053Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 717ms (next.js: 21ms, proxy.ts: 19ms, application-code: 677ms)
+[90m2026-08-23T23:12:50.420Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"21225878-715b-4143-a36a-d7dfc31b907d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 672ms (next.js: 26ms, proxy.ts: 14ms, application-code: 633ms)
+[90m2026-08-23T23:12:51.207Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"9a37303a-e3a0-4150-a6ea-fa294f450bea","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:51.655Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:51.656Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:51.656Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 640ms (next.js: 18ms, proxy.ts: 17ms, application-code: 605ms)
+[90m2026-08-23T23:12:51.956Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"764daba0-0235-4092-8b07-94e8b366fc94","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 4ms, proxy.ts: 9ms, application-code: 4ms)
+ GET /games/41 200 in 681ms (next.js: 27ms, proxy.ts: 13ms, application-code: 641ms)
+[90m2026-08-23T23:12:53.324Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:53.325Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:53.325Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:12:53.438Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ad9b45eb-8c0c-4864-923a-60717a0a122c","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 139ms (next.js: 32ms, proxy.ts: 9ms, application-code: 99ms)
+ GET /manifest.webmanifest 200 in 38ms (next.js: 7ms, proxy.ts: 26ms, application-code: 5ms)
+[90m2026-08-23T23:12:53.743Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"3fafe7b4-6599-4b85-a902-81477346cac8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 892ms (next.js: 23ms, proxy.ts: 22ms, application-code: 846ms)
+[90m2026-08-23T23:12:54.856Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"25e00b67-6f3a-4d7e-a8bb-13f8297cfc6d","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:55.077Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:55.078Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:55.078Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 96ms (next.js: 84ms, proxy.ts: 9ms, application-code: 3ms)
+ GET /games/41 200 in 1085ms (next.js: 927ms, proxy.ts: 12ms, application-code: 147ms)
+[90m2026-08-23T23:12:56.102Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"88dc600e-dedc-4432-9f00-244a32152b88","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 20ms (next.js: 4ms, proxy.ts: 12ms, application-code: 4ms)
+ GET /games/41 200 in 805ms (next.js: 41ms, proxy.ts: 12ms, application-code: 753ms)
+[90m2026-08-23T23:12:57.051Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"77a2f35b-cd52-4728-b0cc-04dcec226f81","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:12:57.219Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:57.220Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:57.220Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 25ms (next.js: 11ms, proxy.ts: 11ms, application-code: 3ms)
+ GET /games/41 200 in 711ms (next.js: 26ms, proxy.ts: 7ms, application-code: 677ms)
+[90m2026-08-23T23:12:57.920Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8bfd1bdd-37c9-437a-b7a4-a2ef58330a08","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 27ms (next.js: 6ms, proxy.ts: 18ms, application-code: 4ms)
+[90m2026-08-23T23:12:58.383Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:12:58.384Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:12:58.384Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 763ms (next.js: 30ms, proxy.ts: 9ms, application-code: 724ms)
+[90m2026-08-23T23:12:58.862Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b9fa7951-c760-4006-ae4f-fb67d503ea59","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 26ms (next.js: 4ms, proxy.ts: 19ms, application-code: 3ms)
+ GET /games/41 200 in 827ms (next.js: 659ms, proxy.ts: 21ms, application-code: 148ms)
+[90m2026-08-23T23:12:59.797Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"82a6ffa7-f620-4fc0-89b3-62a03f40ae44","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 20ms (next.js: 5ms, proxy.ts: 11ms, application-code: 4ms)
+ GET /games/41 200 in 717ms (next.js: 23ms, proxy.ts: 8ms, application-code: 686ms)
+[90m2026-08-23T23:13:00.909Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:00.910Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:00.910Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:13:01.428Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c9ef8160-7101-417b-9dde-a4372d16abbf","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 5ms, proxy.ts: 9ms, application-code: 4ms)
+ GET /games/41 200 in 235ms (next.js: 43ms, proxy.ts: 33ms, application-code: 158ms)
+[90m2026-08-23T23:13:02.479Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"58cf3a57-181d-4a41-9cbe-ffaa8c2fc5c2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 47ms (next.js: 36ms, proxy.ts: 7ms, application-code: 4ms)
+ GET /games/41 200 in 812ms (next.js: 19ms, proxy.ts: 679ms, application-code: 114ms)
+[90m2026-08-23T23:13:02.747Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"68137bc8-8cbb-45e1-b7d4-8ba64df9f947","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:13:02.896Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:02.897Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:02.897Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 17ms (next.js: 4ms, proxy.ts: 9ms, application-code: 4ms)
+ GET /games/41 200 in 752ms (next.js: 34ms, proxy.ts: 12ms, application-code: 706ms)
+[90m2026-08-23T23:13:03.679Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"6e5eaffd-d198-444e-872b-e48b4bd993a8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:13:04.168Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:04.169Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:04.169Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 673ms (next.js: 18ms, proxy.ts: 17ms, application-code: 638ms)
+[90m2026-08-23T23:13:04.503Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0008113d-34cd-45be-aa06-25ea821c73c2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 683ms (next.js: 21ms, proxy.ts: 17ms, application-code: 645ms)
+[90m2026-08-23T23:13:05.404Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4aac59a8-32ba-4230-b0f7-dd67bd856c44","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-23T23:13:05.746Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:05.747Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:05.747Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 752ms (next.js: 17ms, proxy.ts: 21ms, application-code: 715ms)
+[90m2026-08-23T23:13:06.270Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"363237e7-6932-46be-bce1-19ebbabe0903","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 21ms (next.js: 3ms, proxy.ts: 12ms, application-code: 5ms)
+ GET /games/41 200 in 693ms (next.js: 54ms, proxy.ts: 9ms, application-code: 630ms)
+[90m2026-08-23T23:13:07.496Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:07.496Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:07.496Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-23T23:13:08.514Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"35562020-dbee-4d13-a6bd-82f4acd75875","method":"GET","route":"/games/41"}[0m
+ GET /games/41 200 in 316ms (next.js: 34ms, proxy.ts: 13ms, application-code: 269ms)
+[90m2026-08-23T23:13:10.053Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-23T23:13:10.054Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-23T23:13:10.054Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
