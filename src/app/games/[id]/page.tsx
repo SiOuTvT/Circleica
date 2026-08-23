@@ -118,9 +118,10 @@ export default async function GameDetailPage({
 
   const tags = game.tags.map((t) => t.tag)
 
-  // 资源标签组色（详情页信息栏的资源标签、发现页资源筛选用）。
+  // 标签组色：资源标签组（绿，详情页资源筛选/资源标签用）与详情页信息栏标签组（粉，游戏题材标签用）。
+  // 两者分别与后台「资源标签」「详情页信息栏标签」分组颜色照应，避免前后台颜色不一致。
   // 收藏状态（isFav）属个性化字段，已从服务端移除，由客户端 /api/games/[id]/personalization 拉取。
-  const [resourceTagColor] = await Promise.all([
+  const [resourceTagColor, detailHeaderTagColor] = await Promise.all([
     (async () => {
       try {
         const cacheKeyResource = cacheKey("tagGroup", "resource", "color")
@@ -136,6 +137,23 @@ export default async function GameDetailPage({
         }
       } catch (err) { logger.game.warn("[GameDetailPage] resourceTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
       return "#22c55e"
+    })(),
+    (async () => {
+      try {
+        const cacheKeyDetail = cacheKey("tagGroup", "detail_header", "color")
+        const cachedColor = await cache.get<string>(cacheKeyDetail)
+        if (cachedColor) return cachedColor
+        const group = await prisma.tagGroup.findFirst({
+          where: { id: "preset_detail_header" },
+          select: { color: true },
+        })
+        if (group?.color) {
+          await cache.set(cacheKeyDetail, group.color, 3600)
+          return group.color
+        }
+      } catch (err) { logger.game.warn("[GameDetailPage] detailHeaderTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
+      // 与后台「详情页信息栏标签」组默认粉色照应
+      return "#f472b6"
     })(),
   ])
 
@@ -353,7 +371,7 @@ export default async function GameDetailPage({
             }))}
             gameId={resolved.id}
             favCount={game.favoriteCount}
-            gameTags={tags.map((t) => ({ name: t.name, color: t.color || "#6b7280", groupName: t.group?.name }))}
+            gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
