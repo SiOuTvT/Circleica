@@ -69,6 +69,7 @@ export default async function TagDetailPage({ params }: { params: Promise<{ slug
           eyebrow="标签"
           title={detail.name}
           lede={detail.description ?? undefined}
+          tagColor={detail.color ?? undefined}
         />
       }
     >

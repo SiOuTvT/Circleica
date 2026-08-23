@@ -16,6 +16,8 @@ interface ArchiveHeroProps {
   /** 浏览页：介绍文案下方的搜索框 / 筛选区（与精选合集功能对齐） */
   search?: ReactNode
   className?: string
+  /** tag 变体专用：标签色（替代默认 primary） */
+  tagColor?: string
 }
 
 const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
@@ -50,6 +52,7 @@ export function ArchiveHero({
   fallbackInitial,
   search,
   className,
+  tagColor,
 }: ArchiveHeroProps) {
   const shape: "rect" | "circle" = variant === "person" ? "circle" : "rect"
   const isTag = variant === "tag"
@@ -86,12 +89,14 @@ export function ArchiveHero({
   }
 
   // 浏览页：放大图标 + 两层文字 + 搜索（统一视觉基因，纯 Server 渲染）
+  // tag 变体用 tagColor 替代 text-primary
+  const iconColor = isTag && tagColor ? `text-[${tagColor}]` : "text-primary"
+
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-start gap-4">
-        {/* 图标为纯矢量、无容器装饰：早期的 rounded-none / bg-transparent / shadow-none / ring-0
-            与 sm:h-12（同值重复）均为去掉灰底框后残留的空声明，已清理 */}
-        <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+        {/* 图标为纯矢量、无容器装饰 */}
+        <div className={cn("flex h-12 w-fit shrink-0 items-center justify-center", iconColor)}>
           <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
         </div>
         {/* 文字列：eyebrow + title + lede + meta 共用图标右侧这一条左基准线，
