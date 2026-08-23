@@ -48,10 +48,10 @@ export default async function AllTagsPage() {
   }
 
   if (!tabs) {
-    const [groups, rawTags, publishedTags] = await Promise.all([
+    const [groups, rawTags, publishedTags, resources] = await Promise.all([
       prisma.tagGroup.findMany({
         orderBy: { name: "asc" },
-        select: { id: true, name: true,  color: true, description: true },
+        select: { id: true, name: true, color: true, description: true },
       }),
       prisma.tag.findMany({
         where: { source: "circleica" },
@@ -80,7 +80,38 @@ export default async function AllTagsPage() {
           _count: { select: { games: true } },
         },
       }),
+      // 资源标签「关联作品数」：统计每个资源选项被多少「已发布游戏」的资源引用（去重到游戏）
+      prisma.gameResource.findMany({
+        where: { game: { isPublished: true } },
+        select: { gameId: true, platform: true, language: true, runType: true, resourceContent: true },
+      }),
     ])
+
+    // 资源选项(SiteSetting key) → GameResource 字段 映射
+    const KEY_FIELD: Record<string, "platform" | "language" | "runType" | "resourceContent"> = {
+      resource_platforms: "platform",
+      resource_languages: "language",
+      resource_run_types: "runType",
+      resource_content_types: "resourceContent",
+    }
+    // 各字段下：选项名 → 关联（已发布）游戏去重集合
+    const resourceGameSets: Record<string, Map<string, Set<string>>> = {}
+    for (const r of resources) {
+      for (const field of Object.values(KEY_FIELD)) {
+        const vals = (r[field] as unknown[] | null) ?? []
+        const m = (resourceGameSets[field] ??= new Map<string, Set<string>>())
+        for (const v of vals) {
+          const name = String(v)
+          let set = m.get(name)
+          if (!set) { set = new Set<string>(); m.set(name, set) }
+          set.add(r.gameId)
+        }
+      }
+    }
+    const resourceCounts: Record<string, Map<string, number>> = {}
+    for (const [field, m] of Object.entries(resourceGameSets)) {
+      resourceCounts[field] = new Map([...m.entries()].map(([k, s]) => [k, s.size]))
+    }
 
     const toItem = (t: RawTag): TagItem => ({
       id: t.id,
@@ -125,7 +156,7 @@ export default async function AllTagsPage() {
             id: `resource:${key}:${opt}`,
             name: opt,
             color: bucket.color,
-            gameCount: 0,
+            gameCount: resourceCounts[KEY_FIELD[key]]?.get(opt) ?? 0,
             isVisible: true,
             description: label,
             groupId: gid,
