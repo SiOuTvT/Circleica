@@ -543,9 +543,8 @@ export function ResourceTab({
 
   return (
     <div className="space-y-5">
-      {/* 添加资源按钮 + 收藏按钮 */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-foreground">下载链接</span>
+      {/* 添加资源按钮 */}
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <AddResourceDialog
             gameId={gameId}
@@ -640,10 +639,11 @@ export function ResourceTab({
           <UserActivityTimeline items={gameActivities} />
         </section>
 
-        {/* 右：后台配置的下载链接 */}
-        {downloadLinks.length > 0 && (
-          <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {downloadLinks.map((dl, i) => (
+        {/* 右：后台配置的下载链接（始终渲染，保证左动态右下载分栏稳定） */}
+        <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }} className="border-l border-border/60 pl-5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">下载链接</h3>
+          {downloadLinks.length > 0 ? (
+            downloadLinks.map((dl, i) => (
               <a
                 key={i}
                 href={dl.url}
@@ -654,9 +654,11 @@ export function ResourceTab({
                 <Download className="h-4 w-4" strokeWidth={2} />
                 {dl.label || "下载"}
               </a>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">暂无下载链接</p>
+          )}
+        </div>
       </div>
 
       {/* 空状态 */}

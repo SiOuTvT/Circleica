@@ -48,7 +48,7 @@ export const gameService = {
         description: true,
         createdAt: true,
         publisherId: true,
-        publisher: { select: { id: true, nickname: true, avatar: true } },
+        publisher: { select: { id: true, username: true, avatar: true } },
       },
     })
     if (!game) throw new NotFoundError("游戏")
@@ -61,7 +61,7 @@ export const gameService = {
         resourceName: true,
         createdAt: true,
         updatedAt: true,
-        user: { select: { id: true, nickname: true, avatar: true } },
+        user: { select: { id: true, username: true, avatar: true } },
       },
     })
 
@@ -80,7 +80,7 @@ export const gameService = {
       items.push({
         id: `game-${game.id}`,
         kind: "game_published",
-        title: `${game.publisher.nickname || "管理员"} 发布了《${game.title}》`,
+        title: `${game.publisher.username || "管理员"} 发布了《${game.title}》`,
         description: game.description ? game.description.slice(0, 60) : undefined,
         href: `/games/${game.serialId}`,
         coverImage: game.coverImage || undefined,
@@ -91,7 +91,7 @@ export const gameService = {
     // 2) 资源添加 / 编辑
     for (const r of resources) {
       const edited = r.updatedAt > r.createdAt
-      const actor = r.user?.nickname || "用户"
+      const actor = r.user?.username || "用户"
       items.push({
         id: `res-${r.id}`,
         kind: edited ? "resource_edited" : "resource_added",
