@@ -4116,3 +4116,42 @@ Unknown field `nickname` for select statement on model `User`. Available options
 [90m2026-08-24T00:23:22.628Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
 [90m2026-08-24T00:23:22.629Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
 [90m2026-08-24T00:23:22.629Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/games/[id]/personalization ...
+[90m2026-08-24T00:23:28.298Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:28.298Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:28.298Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:23:28.368Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"cbaba4c6-9373-4ee5-ab75-5309d9f6c103","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"cbaba4c6-9373-4ee5-ab75-5309d9f6c103","method":"GET","status":200,"durationMs":104}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 6.1s (next.js: 5.5s, proxy.ts: 14ms, application-code: 592ms)
+[90m2026-08-24T00:23:28.372Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"7f5db658-91c6-4c65-9f6a-c26893ed9782","route":"/api/history","requestId":"7f5db658-91c6-4c65-9f6a-c26893ed9782","method":"POST","status":200,"durationMs":110}[0m
+ POST /api/history 200 in 6.1s (next.js: 5.5s, proxy.ts: 22ms, application-code: 611ms)
+[90m2026-08-24T00:23:28.377Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"ef848261-77dd-45a2-897c-1efb21cca4bb","route":"/api/user/stats","requestId":"ef848261-77dd-45a2-897c-1efb21cca4bb","method":"GET","status":200,"durationMs":114}[0m
+ GET /api/user/stats 200 in 6.1s (next.js: 5.5s, proxy.ts: 14ms, application-code: 601ms)
+[90m2026-08-24T00:23:30.002Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:30.004Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:30.004Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/games/[id]/rating ...
+[90m2026-08-24T00:23:31.913Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"da50f052-463a-4817-81c6-e8802505a68d","route":"/api/music","requestId":"da50f052-463a-4817-81c6-e8802505a68d","method":"GET","status":200,"durationMs":3}[0m
+ GET /api/music 200 in 4.4s (next.js: 3.3s, proxy.ts: 784ms, application-code: 381ms)
+[90m2026-08-24T00:23:31.957Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"21362120-0c40-4c4d-93e2-10bb1a86d0e1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:23:31.959Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:31.959Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:31.959Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 4.7s (next.js: 3.3s, proxy.ts: 784ms, application-code: 622ms)
+[90m2026-08-24T00:23:32.248Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"a89bf15c-293f-42d6-9d58-e080d0461ebe","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/rating","requestId":"a89bf15c-293f-42d6-9d58-e080d0461ebe","method":"GET","status":200,"durationMs":339}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/rating 200 in 10.0s (next.js: 3.3s, proxy.ts: 6.0s, application-code: 671ms)
+[90m2026-08-24T00:23:32.251Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"778a46ac-9b57-4515-9b80-b1ad1f7938c0","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"778a46ac-9b57-4515-9b80-b1ad1f7938c0","method":"GET","status":200,"durationMs":172}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 835ms (next.js: 115ms, proxy.ts: 541ms, application-code: 179ms)
+ GET /games/41 200 in 839ms (next.js: 133ms, proxy.ts: 541ms, application-code: 165ms)
+[90m2026-08-24T00:23:32.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:32.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:32.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 19ms (next.js: 5ms, proxy.ts: 6ms, application-code: 7ms)
+[90m2026-08-24T00:23:33.577Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:33.578Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:33.578Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:23:33.629Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:33.630Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:33.630Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:23:34.059Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:23:34.060Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:23:34.060Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
