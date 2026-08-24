@@ -1,9 +1,0 @@
-⚠ Slow filesystem detected. The benchmark took 237ms. If \\?\D:\Circleica\.next-dev\dev is a network drive, consider moving it to a local folder.
-See more: https://nextjs.org/docs/app/guides/local-development
-Unhandled Rejection: Error: UNKNOWN: unknown error, stat 'D:\Circleica\.next-dev\dev\node_modules\require-in-the-middle-2ca7b9c2766f317e'
-    at ignore-listed frames {
-  errno: -4094,
-  code: 'UNKNOWN',
-  syscall: 'stat',
-  path: 'D:\\Circleica\\.next-dev\\dev\\node_modules\\require-in-the-middle-2ca7b9c2766f317e'
-}

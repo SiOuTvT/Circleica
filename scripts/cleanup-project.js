@@ -134,15 +134,33 @@ function getAllFiles(dir, prefix = "") {
   const results = []
   if (!fs.existsSync(dir)) return results
 
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name)
-    const relPath = prefix + entry.name
+  // 跳过 node_modules 和 .git 避免栈溢出和不必要的遍历
+  const skipDirs = new Set(["node_modules", ".git"])
+  const baseName = path.basename(dir)
+  if (skipDirs.has(baseName)) return results
 
-    if (entry.isDirectory()) {
-      results.push({ path: fullPath, relPath, isDir: true })
-      results.push(...getAllFiles(fullPath, relPath + "/"))
-    } else {
-      results.push({ path: fullPath, relPath, isDir: false })
+  const stack = [{ dir, prefix }]
+
+  while (stack.length > 0) {
+    const { dir: currentDir, prefix: currentPrefix } = stack.pop()
+
+    try {
+      for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+        // 跳过 node_modules 和 .git
+        if (skipDirs.has(entry.name)) continue
+
+        const fullPath = path.join(currentDir, entry.name)
+        const relPath = currentPrefix + entry.name
+
+        if (entry.isDirectory()) {
+          results.push({ path: fullPath, relPath, isDir: true })
+          stack.push({ dir: fullPath, prefix: relPath + "/" })
+        } else {
+          results.push({ path: fullPath, relPath, isDir: false })
+        }
+      }
+    } catch (e) {
+      // 忽略权限错误等
     }
   }
   return results
