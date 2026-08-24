@@ -24,7 +24,7 @@ interface CommentLite {
   game: { id: string; serialId?: number; title: string } | null
 }
 interface CollectionData {
-  id: string; name: string; description: string; isDefault: boolean; sortOrder: number; favorites: { game: GameLite }[]
+  id: string; name: string; description: string; isDefault: boolean; sortOrder: number; isPublic: boolean; shareId: string | null; favorites: { game: GameLite }[]
 }
 interface Props {
   userId: string

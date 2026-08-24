@@ -100,6 +100,27 @@ export const collectionRepo = {
     return prisma.collection.update({ where: { id }, data })
   },
 
+  // 按 shareId 查询已公开的收藏夹（含所有者与游戏），供公开分享页使用
+  async findPublicByShareId(shareId: string) {
+    return prisma.collection.findFirst({
+      where: { shareId, isPublic: true },
+      include: {
+        user: { select: { id: true, username: true, avatar: true } },
+        favorites: {
+          include: {
+            game: {
+              select: {
+                id: true, serialId: true, title: true, coverImage: true,
+                viewCount: true, favoriteCount: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    })
+  },
+
   delete(id: string) {
     return prisma.$transaction([
       prisma.favorite.updateMany({ where: { collectionId: id }, data: { collectionId: null } }),

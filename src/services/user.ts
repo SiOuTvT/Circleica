@@ -412,7 +412,14 @@ export const collectionService = {
     const data: Record<string, unknown> = {}
     if (parsed.name !== undefined) data.name = parsed.name.trim()
     if (parsed.description !== undefined) data.description = parsed.description
+    // 公开状态切换不走 Zod 文本校验，单独处理布尔字段
+    if (typeof raw.isPublic === "boolean") data.isPublic = raw.isPublic
     return collectionRepo.update(id, data)
+  },
+
+  // 公开分享页数据源：按 shareId 取已公开的收藏夹（不鉴权）
+  async getPublicByShareId(shareId: string) {
+    return collectionRepo.findPublicByShareId(shareId)
   },
 
   async delete(userId: string, id: string) {

@@ -417,6 +417,8 @@ model Collection {
   description String     @default("")
   isDefault   Boolean    @default(false)
   sortOrder   Int        @default(0)
+  isPublic    Boolean    @default(false)
+  shareId     String?    @unique @default(cuid())
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
