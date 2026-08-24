@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { getTagDetailBySlug } from "@/lib/tags-browser"
@@ -52,9 +53,11 @@ export async function generateMetadata({
   }
 }
 
-export default async function TagDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function TagDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ sort?: string }> }) {
   const { slug } = await params
-  const detail = await getTagDetailBySlug(slug)
+  const { sort } = await searchParams
+  const validSort = sort === "new" || sort === "name" ? sort : "hot"
+  const detail = await getTagDetailBySlug(slug, validSort)
   if (!detail) notFound()
 
   const density = computeDensity(detail.gameCount)
@@ -78,6 +81,18 @@ export default async function TagDetailPage({ params }: { params: Promise<{ slug
           <span className="h-5 w-1 rounded-full bg-primary" />
           作品
         </h2>
+        {detail.games.length > 0 && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">排序</span>
+            {([["hot", "热门"], ["new", "最新"], ["name", "名称"]] as const).map(([k, label]) => (
+              <Link key={k} href={`/credits/tag/${slug}?sort=${k}`}
+                className={cn("rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                  validSort === k ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground")}>
+                {label}
+              </Link>
+            ))}
+          </div>
+        )}
         {detail.games.length === 0 ? (
           <ArchivePlaceholder state="empty" entity="tag" message="该标签暂无已收录的作品" />
         ) : (
@@ -95,6 +110,24 @@ export default async function TagDetailPage({ params }: { params: Promise<{ slug
           </>
         )}
       </section>
+      {detail.relatedTags && detail.relatedTags.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
+            <span className="h-5 w-1 rounded-full bg-primary" />
+            相关标签
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {detail.relatedTags.map((t) => (
+              <Link key={t.id} href={`/credits/tag/${t.slug}`}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-secondary">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: t.color }} />
+                {t.name}
+                <span className="text-muted-foreground tabular-nums">{t.gameCount}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </ArchiveShell>
   )
 }

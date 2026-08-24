@@ -343,7 +343,7 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
 
       {loading ? <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div> : <>
         <CollectionCard name="默认收藏夹" gameCount={defaultFolderGames.length} coverGames={defaultFolderGames}
-          onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
+          onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, isPublic: false, shareId: null, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
         {isSelf && collections.map((col) => (
           <CollectionCard key={col.id} name={col.name} gameCount={col.favorites?.length ?? 0} coverGames={col.favorites?.map(f => f.game) ?? []}
             onOpen={() => onOpenFolder(col)} onDelete={() => onDeleteFolder(col.id)}

@@ -5,6 +5,7 @@
 
 import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@/generated/prisma/client"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { getMainNsfwMode } from "@/lib/nsfw-mode"
@@ -222,7 +223,13 @@ const TAG_GAME_LIMIT = 60
  * 标签详情（按 slug 路由）：标签本身 + 该标签下已发布游戏（全量查询，超安全阈值截断展示）
  * DB 不可达返回 null（绝不注入假数据）。slug 缺失的存量标签在回填前不可达。
  */
-export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null> {
+const SORT_ORDER: Record<"hot" | "new" | "name", Prisma.GameTagOrderByWithRelationInput[]> = {
+  hot: [{ game: { favoriteCount: "desc" } }],
+  new: [{ game: { createdAt: "desc" } }],
+  name: [{ game: { title: "asc" } }],
+}
+
+export async function getTagDetailBySlug(slug: string, sort: "hot" | "new" | "name" = "hot"): Promise<TagDetail | null> {
   try {
     // ⚠️ 标签下游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
     const nsfwMode = await getMainNsfwMode()
@@ -254,7 +261,7 @@ export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null
           },
         },
       },
-      orderBy: [{ game: { favoriteCount: "desc" } }],
+      orderBy: SORT_ORDER[sort] ?? SORT_ORDER.hot,
       take: TAG_GAME_LIMIT + 1,
     })
 
@@ -285,11 +292,60 @@ export async function getTagDetailBySlug(slug: string): Promise<TagDetail | null
       games,
       gameCount: total,
       hasMore,
+      relatedTags: await getRelatedTags(tag.id),
     }
   } catch (error) {
     logger.db.error("[TagsBrowser] getTagDetailBySlug failed", error)
     return null
   }
+}
+
+/**
+ * 相关标签（高级版聚合推荐）：同组其他标签优先，再补高频共现标签，去重截断。
+ */
+async function getRelatedTags(tagId: string, limit = 14): Promise<TagInfo[]> {
+  const tag = await prisma.tag.findUnique({ where: { id: tagId }, select: { groupId: true } })
+  if (!tag) return []
+
+  // 同组其他标签（已关联已发布游戏）
+  const sameGroup = tag.groupId
+    ? await prisma.tag.findMany({
+        where: { groupId: tag.groupId, id: { not: tagId }, source: "circleica", games: { some: { game: { isPublished: true } } } },
+        select: { id: true, name: true, slug: true, color: true, _count: { select: { games: true } } },
+        take: limit,
+      }).then((rows) => rows.map((t) => ({ id: t.id, name: t.name, slug: t.slug, color: t.color, gameCount: t._count.games })))
+    : []
+
+  // 高频共现标签：与该标签共享游戏的其他标签，按共现游戏数排序
+  const co = await prisma.gameTag.findMany({ where: { tagId }, select: { gameId: true }, take: 200 })
+  const gameIds = co.map((r) => r.gameId)
+  let coTags: TagInfo[] = []
+  if (gameIds.length) {
+    const grouped = await prisma.gameTag.groupBy({
+      by: ["tagId"],
+      where: { gameId: { in: gameIds }, tagId: { not: tagId }, game: { isPublished: true } },
+      _count: { tagId: true },
+      orderBy: { _count: { tagId: "desc" } },
+      take: limit,
+    })
+    const ids = grouped.map((g) => g.tagId)
+    const tags = await prisma.tag.findMany({ where: { id: { in: ids }, source: "circleica" }, select: { id: true, name: true, slug: true, color: true } })
+    const map = new Map(tags.map((t) => [t.id, t]))
+    coTags = grouped
+      .map((g) => { const t = map.get(g.tagId); return t ? { ...t, gameCount: g._count.tagId } : null })
+      .filter((t): t is TagInfo => t !== null)
+  }
+
+  // 合并：同组优先，再补共现，去重截断
+  const seen = new Set<string>()
+  const result: TagInfo[] = []
+  for (const t of [...sameGroup, ...coTags]) {
+    if (seen.has(t.id)) continue
+    seen.add(t.id)
+    result.push(t)
+    if (result.length >= limit) break
+  }
+  return result
 }
 
 /**

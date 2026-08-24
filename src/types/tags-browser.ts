@@ -66,4 +66,6 @@ export interface TagDetail {
   gameCount: number
   /** 超过安全阈值被截断展示 */
   hasMore: boolean
+  /** 相关标签（同组 + 高频共现），用于高级版聚合推荐 */
+  relatedTags?: TagInfo[]
 }
