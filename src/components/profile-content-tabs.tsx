@@ -2,9 +2,9 @@
 
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
-import { apiGet, apiPost, apiDelete } from "@/lib/api-client"
+import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api-client"
 import { formatDate } from "@/lib/date"
-import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Trash2, X } from "lucide-react"
+import { Calendar, FolderHeart, Loader2, MessageSquare, Plus, Share2, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -180,6 +180,27 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
     try { await apiDelete(`/api/collections/${id}`); await loadCollections() } catch { toast.error("删除失败，请重试") }
   }
 
+  // 收藏夹公开 / 私有切换
+  async function handleToggleCollectionPublic(col: CollectionData, makePublic: boolean) {
+    try {
+      await apiPut(`/api/collections/${col.id}`, { isPublic: makePublic })
+      setCollections((prev) => prev.map((c) => (c.id === col.id ? { ...c, isPublic: makePublic } : c)))
+      toast.success(makePublic ? "已公开，可分享链接" : "已设为私有")
+    } catch { toast.error("操作失败，请重试") }
+  }
+
+  // 复制收藏夹公开分享链接
+  async function handleShareCollection(col: CollectionData) {
+    if (!col.shareId) return
+    const url = `${window.location.origin}/lists/${col.shareId}`
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success("分享链接已复制到剪贴板")
+    } catch {
+      toast.error("复制失败，请手动复制：" + url)
+    }
+  }
+
   // 使用 Set 缓存已收藏 ID，将复杂度从 O(n*m) 降为 O(n)
   const defaultFolderGames = useMemo(() => {
     if (collections.length === 0) return localFav
@@ -230,6 +251,7 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
               showCreateFolder={showCreateFolder} setShowCreateFolder={setShowCreateFolder}
               newFolderName={newFolderName} setNewFolderName={setNewFolderName}
               onCreateFolder={handleCreateCollection} onDeleteFolder={handleDeleteCollection}
+              onTogglePublic={handleToggleCollectionPublic} onShare={handleShareCollection}
               loading={collectionsLoading ?? false} creating={creating}
               hasMore={favHasMore} loadingMore={favLoadingMore} onLoadMore={loadMoreFavorites} />
           )}
@@ -292,10 +314,10 @@ function LoadMoreButton({ hasMore, loading, onLoadMore, label = "加载更多" }
   )
 }
 
-function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, loading, creating, hasMore, loadingMore, onLoadMore }: {
+function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, showCreateFolder, setShowCreateFolder, newFolderName, setNewFolderName, onCreateFolder, onDeleteFolder, onTogglePublic, onShare, loading, creating, hasMore, loadingMore, onLoadMore }: {
   defaultFolderGames: GameLite[]; collections: CollectionData[]; isSelf: boolean; onOpenFolder: (col: CollectionData) => void
   showCreateFolder: boolean; setShowCreateFolder: (v: boolean) => void; newFolderName: string; setNewFolderName: (v: string) => void
-  onCreateFolder: () => void; onDeleteFolder: (id: string) => void; loading: boolean; creating: boolean
+  onCreateFolder: () => void; onDeleteFolder: (id: string) => void; onTogglePublic: (col: CollectionData, makePublic: boolean) => void; onShare: (col: CollectionData) => void; loading: boolean; creating: boolean
   hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void
 }) {
   const { messages: favMsgs } = useEmotionalMessages(FAV_MSG_KEYS)
@@ -324,7 +346,9 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
           onOpen={() => onOpenFolder({ id: "default", name: "默认收藏夹", description: "", isDefault: true, sortOrder: 0, favorites: defaultFolderGames.map(g => ({ game: g })) })} isDefault />
         {isSelf && collections.map((col) => (
           <CollectionCard key={col.id} name={col.name} gameCount={col.favorites?.length ?? 0} coverGames={col.favorites?.map(f => f.game) ?? []}
-            onOpen={() => onOpenFolder(col)} onDelete={() => onDeleteFolder(col.id)} />
+            onOpen={() => onOpenFolder(col)} onDelete={() => onDeleteFolder(col.id)}
+            isPublic={col.isPublic} shareId={col.shareId} showControls={isSelf}
+            onShare={() => onShare(col)} onTogglePublic={(v) => onTogglePublic(col, v)} />
         ))}
       </>}
 
@@ -341,8 +365,10 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
   )
 }
 
-function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefault }: {
+function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefault, isPublic, shareId, showControls, onShare, onTogglePublic }: {
   name: string; gameCount: number; coverGames: GameLite[]; onOpen: () => void; onDelete?: () => void; isDefault?: boolean
+  isPublic?: boolean; shareId?: string | null; showControls?: boolean
+  onShare?: () => void; onTogglePublic?: (makePublic: boolean) => void
 }) {
   return (
     <div className="group w-full rounded-xl bg-secondary/40 p-4 hover:bg-secondary/60">
@@ -352,11 +378,27 @@ function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefau
           <span className="text-sm font-semibold text-foreground truncate">{name}</span>
           <Tag variant="badge" className="bg-muted text-muted-foreground">{gameCount} 部</Tag>
         </button>
-        {!isDefault && onDelete && (
-          <button onClick={(e) => { e.stopPropagation(); onDelete() }} className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500" title="删除收藏夹">
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {showControls && !isDefault && (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); onTogglePublic?.(!isPublic) }}
+                className={cn("flex items-center rounded-lg px-2 py-1 text-xs font-medium transition-colors",
+                  isPublic ? "text-primary hover:bg-primary/10" : "text-muted-foreground hover:bg-secondary")}
+                title={isPublic ? "已公开 · 点击设为私有" : "点击设为公开"}>
+                {isPublic ? "公开" : "私有"}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); onShare?.() }}
+                className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary" title="复制分享链接">
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
+            </>
+          )}
+          {!isDefault && onDelete && (
+            <button onClick={(e) => { e.stopPropagation(); onDelete() }} className="flex items-center justify-center rounded-lg p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500" title="删除收藏夹">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <button onClick={onOpen} className="w-full text-left">
         {gameCount > 0 ? (
