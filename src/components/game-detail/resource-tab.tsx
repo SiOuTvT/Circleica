@@ -630,17 +630,17 @@ export function ResourceTab({
       {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区。
           用内联 style 强制横排（左动态右下载），与用户主页动态区风格一致；窄屏自动换行降级为竖排。 */}
       <div
-        className="mt-6 border-t border-border/60 pt-5"
-        style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "1.5rem" }}
+        className="mt-6"
+        style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1.5rem" }}
       >
-        {/* 左：游戏动态 */}
-        <section style={{ minWidth: 0, flex: "1 1 0%" }}>
+        {/* 左：游戏动态（固定窄宽，不占大块） */}
+        <section style={{ minWidth: 0, flex: "0 0 320px", maxWidth: "320px" }}>
           <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
           <UserActivityTimeline items={gameActivities} />
         </section>
 
-        {/* 右：后台配置的下载链接（始终渲染，保证左动态右下载分栏稳定） */}
-        <div style={{ width: "260px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }} className="border-l border-border/60 pl-5">
+        {/* 右：后台配置的下载链接（flex 占满剩余放大均衡；左竖线为唯一分隔，无横线） */}
+        <div style={{ flex: "1 1 0%", minWidth: 280, display: "flex", flexDirection: "column", gap: "0.5rem" }} className="border-l border-border/60 pl-5">
           <h3 className="mb-3 text-sm font-semibold text-foreground">下载链接</h3>
           {downloadLinks.length > 0 ? (
             downloadLinks.map((dl, i) => (
