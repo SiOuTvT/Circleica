@@ -4155,3 +4155,297 @@ Unknown field `nickname` for select statement on model `User`. Available options
 [90m2026-08-24T00:23:34.059Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
 [90m2026-08-24T00:23:34.060Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
 [90m2026-08-24T00:23:34.060Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:23:59.128Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ed79aeba-10d1-408a-8b2a-e17b8debea55","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:23:59.578Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"a949ac9f-e45d-4377-8c18-bbca41e5950e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 547ms (next.js: 59ms, proxy.ts: 17ms, application-code: 471ms)
+ GET /games/41 200 in 108ms (next.js: 11ms, proxy.ts: 19ms, application-code: 79ms)
+ GET /manifest.webmanifest 200 in 25ms (next.js: 5ms, proxy.ts: 9ms, application-code: 12ms)
+[90m2026-08-24T00:24:00.763Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:00.765Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:00.765Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:12.405Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"75cb192b-7935-48c8-a546-1263dac0fa63","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 971ms (next.js: 29ms, proxy.ts: 8ms, application-code: 933ms)
+[90m2026-08-24T00:24:13.581Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8052297c-eb4a-4d84-993b-c161cd31fae9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:13.915Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:13.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:13.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 1164ms (next.js: 36ms, proxy.ts: 27ms, application-code: 1101ms)
+ GET /manifest.webmanifest 200 in 29ms (next.js: 5ms, proxy.ts: 19ms, application-code: 5ms)
+ GET /manifest.webmanifest 200 in 87ms (next.js: 7ms, proxy.ts: 69ms, application-code: 11ms)
+[90m2026-08-24T00:24:15.165Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c9e8057d-44b1-4dff-8029-d06ee3948499","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 1037ms (next.js: 51ms, proxy.ts: 21ms, application-code: 965ms)
+[90m2026-08-24T00:24:16.352Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8b0b86b5-c956-4105-a9af-83c3e65c1088","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:16.714Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:16.715Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:16.716Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:17.440Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c5ac6550-3d7d-4a34-93c0-a8976877fafa","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537"}[0m
+ GET /manifest.webmanifest 200 in 27ms (next.js: 6ms, proxy.ts: 16ms, application-code: 4ms)
+ GET /games/41 200 in 1695ms (next.js: 29ms, proxy.ts: 12ms, application-code: 1654ms)
+ GET /games/41 200 in 623ms (next.js: 44ms, proxy.ts: 16ms, application-code: 563ms)
+ GET /manifest.webmanifest 200 in 21ms (next.js: 4ms, proxy.ts: 12ms, application-code: 5ms)
+[90m2026-08-24T00:24:18.239Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"194fdfe7-a143-43ab-8b11-2f111f8c0f7b","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:18.956Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:18.957Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:18.957Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 1348ms (next.js: 28ms, proxy.ts: 20ms, application-code: 1299ms)
+[90m2026-08-24T00:24:19.862Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ad3a69a1-c515-442c-99f0-23768217b20f","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 23ms (next.js: 6ms, proxy.ts: 13ms, application-code: 4ms)
+ GET /games/41 200 in 1424ms (next.js: 35ms, proxy.ts: 22ms, application-code: 1367ms)
+[90m2026-08-24T00:24:21.481Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0904fb7a-da6e-4419-b1bc-68ae0fa6fb27","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:21.571Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:21.572Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:21.572Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 24ms (next.js: 6ms, proxy.ts: 13ms, application-code: 5ms)
+ GET /games/41 200 in 1496ms (next.js: 48ms, proxy.ts: 16ms, application-code: 1433ms)
+[90m2026-08-24T00:24:22.993Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:22.994Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:22.994Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:23.153Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"24a6dd75-56e3-4f0a-a710-d20b6521dc41","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 32ms (next.js: 11ms, proxy.ts: 14ms, application-code: 6ms)
+ GET /games/41 200 in 1875ms (next.js: 52ms, proxy.ts: 18ms, application-code: 1805ms)
+[90m2026-08-24T00:24:25.095Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:25.096Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:25.096Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:26.676Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c8cb98cd-37a9-4e13-ae81-e5d284063e28","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 246ms (next.js: 59ms, proxy.ts: 155ms, application-code: 31ms)
+ GET /games/41 200 in 1146ms (next.js: 428ms, proxy.ts: 155ms, application-code: 562ms)
+[90m2026-08-24T00:24:27.905Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"4fc4c558-61af-44df-b5ab-b719a60152ef","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:28.633Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:28.634Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:28.634Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 36ms (next.js: 8ms, proxy.ts: 21ms, application-code: 7ms)
+ GET /games/41 200 in 1598ms (next.js: 51ms, proxy.ts: 31ms, application-code: 1516ms)
+[90m2026-08-24T00:24:29.736Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"eff508d6-8608-433d-b8d3-1414a25bf740","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 18ms (next.js: 4ms, proxy.ts: 9ms, application-code: 5ms)
+ GET /games/41 200 in 1119ms (next.js: 51ms, proxy.ts: 26ms, application-code: 1042ms)
+[90m2026-08-24T00:24:31.042Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"c2d771f1-c7f0-4915-a5e8-8dc4977b94ee","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:24:31.229Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:31.230Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:31.230Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:32.884Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:32.885Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:32.885Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 2.9s (next.js: 254ms, proxy.ts: 2.5s, application-code: 208ms)
+ GET /games/41 200 in 4.8s (next.js: 35ms, proxy.ts: 17ms, application-code: 4.7s)
+[90m2026-08-24T00:24:36.087Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"1f2c161e-1b62-47fd-89c6-76324f36f192","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 33ms (next.js: 9ms, proxy.ts: 21ms, application-code: 3ms)
+[90m2026-08-24T00:24:37.903Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:37.904Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:37.904Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 1883ms (next.js: 60ms, proxy.ts: 12ms, application-code: 1811ms)
+[90m2026-08-24T00:24:38.041Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b04ba2f4-d848-4128-b05d-957eb08fd60e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 559ms (next.js: 46ms, proxy.ts: 34ms, application-code: 480ms)
+ GET /manifest.webmanifest 200 in 35ms (next.js: 8ms, proxy.ts: 22ms, application-code: 6ms)
+[browser] Can't perform a React state update on a component that hasn't mounted yet. This indicates that you have a side-effect in your render function that asynchronously tries to update the component. Move this work to useEffect instead. 
+[90m2026-08-24T00:24:38.683Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"411749b1-6968-48b4-9cd4-c8ba687b3a1e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537"}[0m
+[90m2026-08-24T00:24:39.782Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:39.783Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:39.783Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 1624ms (next.js: 42ms, proxy.ts: 18ms, application-code: 1564ms)
+[90m2026-08-24T00:24:40.538Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"695d81d4-0ad1-444e-9940-56f9b4f0e1a8","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537"}[0m
+ GET /games/41 200 in 980ms (next.js: 46ms, proxy.ts: 16ms, application-code: 918ms)
+[90m2026-08-24T00:24:41.712Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8679c886-b06a-49bc-8601-6baf969c7af2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537"}[0m
+[90m2026-08-24T00:24:42.324Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:42.324Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:42.324Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 1539ms (next.js: 32ms, proxy.ts: 11ms, application-code: 1496ms)
+[90m2026-08-24T00:24:43.498Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"2668e7d5-c6d7-4c8b-98d7-0796d00046b1","route":"/api/emotional-messages","requestId":"2668e7d5-c6d7-4c8b-98d7-0796d00046b1","method":"GET","status":200,"durationMs":44}[0m
+ GET /api/emotional-messages 200 in 111ms (next.js: 38ms, proxy.ts: 20ms, application-code: 54ms)
+[90m2026-08-24T00:24:43.521Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"2bb98130-4657-4ffe-8e51-dc177ce38323","route":"/api/site-settings","requestId":"2bb98130-4657-4ffe-8e51-dc177ce38323","method":"GET","status":200,"durationMs":2}[0m
+ GET /api/site-settings 200 in 117ms (next.js: 51ms, proxy.ts: 58ms, application-code: 8ms)
+ GET /api/auth/session 200 in 159ms (next.js: 127ms, proxy.ts: 19ms, application-code: 13ms)
+ GET /api/auth/session 200 in 65ms (next.js: 40ms, proxy.ts: 12ms, application-code: 13ms)
+[90m2026-08-24T00:24:44.485Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"c16c21be-b8c8-4830-9f12-97e7f1c4d92c","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"c16c21be-b8c8-4830-9f12-97e7f1c4d92c","method":"GET","status":200,"durationMs":15}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 861ms (next.js: 814ms, proxy.ts: 27ms, application-code: 21ms)
+[90m2026-08-24T00:24:44.535Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"8dd1fcf7-7728-4785-ab3d-a7227d2fe7cb","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537"}[0m
+[90m2026-08-24T00:24:44.544Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"8b2323b8-344c-4836-bedb-63ba72ae0ed0","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/rating","requestId":"8b2323b8-344c-4836-bedb-63ba72ae0ed0","method":"GET","status":200,"durationMs":39}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/rating 200 in 907ms (next.js: 828ms, proxy.ts: 33ms, application-code: 46ms)
+[90m2026-08-24T00:24:44.763Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"4aecb3a0-0fc8-41ab-a914-7f8ca9e3a9c0","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/resources","requestId":"4aecb3a0-0fc8-41ab-a914-7f8ca9e3a9c0","method":"GET","status":200,"durationMs":136}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/resources 200 in 292ms (next.js: 111ms, proxy.ts: 39ms, application-code: 142ms)
+[90m2026-08-24T00:24:44.746Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:44.747Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:44.748Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 206ms (next.js: 162ms, proxy.ts: 34ms, application-code: 10ms)
+[90m2026-08-24T00:24:44.885Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"e5598948-aaa5-4eb9-8297-b6272427a07c","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"e5598948-aaa5-4eb9-8297-b6272427a07c","method":"GET","status":200,"durationMs":16}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 85ms (next.js: 26ms, proxy.ts: 38ms, application-code: 21ms)
+[90m2026-08-24T00:24:44.901Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"dc5e1c69-2b8c-4aac-be7c-a4675f8a755a","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/resources","requestId":"dc5e1c69-2b8c-4aac-be7c-a4675f8a755a","method":"GET","status":200,"durationMs":24}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/resources 200 in 103ms (next.js: 35ms, proxy.ts: 38ms, application-code: 31ms)
+ GET /api/auth/session 200 in 65ms (next.js: 34ms, proxy.ts: 23ms, application-code: 9ms)
+ GET /games/41 200 in 474ms (next.js: 139ms, proxy.ts: 27ms, application-code: 308ms)
+[90m2026-08-24T00:24:44.984Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"b75d5158-efd2-40f2-8beb-76439457035d","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"b75d5158-efd2-40f2-8beb-76439457035d","method":"GET","status":200,"durationMs":7}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 68ms (next.js: 34ms, proxy.ts: 22ms, application-code: 12ms)
+[90m2026-08-24T00:24:45.148Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"046b66b8-0c3f-461a-be05-17ec88cbb842","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"046b66b8-0c3f-461a-be05-17ec88cbb842","method":"GET","status":200,"durationMs":6}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 160ms (next.js: 138ms, proxy.ts: 10ms, application-code: 11ms)
+[90m2026-08-24T00:24:46.502Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:46.503Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:46.503Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:46.916Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:46.917Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:46.917Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/games/activities/[gameId] ...
+[90m2026-08-24T00:24:47.331Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:47.333Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:47.333Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:47.506Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:47.507Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:47.507Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:24:47.700Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:24:47.701Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:24:47.701Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:06.726Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"45e8362a-f94c-45dc-a00e-9519066355c9","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:25:07.176Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:07.177Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:07.177Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 2.1s (next.js: 106ms, proxy.ts: 1558ms, application-code: 392ms)
+[90m2026-08-24T00:25:07.268Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"0e9811b7-3d4b-47f0-976e-d0dab6ff6d77","route":"/api/resource-tags","requestId":"0e9811b7-3d4b-47f0-976e-d0dab6ff6d77","method":"GET","status":200,"durationMs":610}[0m
+[90m2026-08-24T00:25:07.318Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"d772c377-3a07-4791-ab45-1d459d9f2ff1","route":"/api/games/activities/cmt3v91n2005h9ktl1l07ug0j","requestId":"d772c377-3a07-4791-ab45-1d459d9f2ff1","method":"GET","status":200,"durationMs":660}[0m
+ GET /api/auth/session 200 in 104ms (next.js: 17ms, proxy.ts: 10ms, application-code: 78ms)
+ GET /games/41 200 in 626ms (next.js: 282ms, proxy.ts: 17ms, application-code: 327ms)
+ GET /api/auth/session 200 in 34ms (next.js: 10ms, proxy.ts: 9ms, application-code: 15ms)
+[90m2026-08-24T00:25:08.353Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:08.354Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:08.354Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:08.756Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:08.757Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:08.757Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:09.256Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:09.258Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:09.258Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/user/stats ...
+[90m2026-08-24T00:25:13.872Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:13.873Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:13.873Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:14.153Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"b6dfc60b-2bc4-4154-a325-508b09685464","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"b6dfc60b-2bc4-4154-a325-508b09685464","method":"GET","status":200,"durationMs":354}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 6.5s (next.js: 5.3s, proxy.ts: 13ms, application-code: 1134ms)
+[90m2026-08-24T00:25:14.170Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"a754ce82-4ae7-404c-a4e5-90ae97bab3c5","route":"/api/user/stats","requestId":"a754ce82-4ae7-404c-a4e5-90ae97bab3c5","method":"GET","status":200,"durationMs":373}[0m
+ GET /api/user/stats 200 in 6.5s (next.js: 5.3s, proxy.ts: 10ms, application-code: 1157ms)
+[90m2026-08-24T00:25:15.473Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"e345cfd5-ba4b-4076-89ce-f1819845c0f1","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T00:25:15.147Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:15.148Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:15.148Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:15.347Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:15.348Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:15.348Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 2.6s (next.js: 205ms, proxy.ts: 1036ms, application-code: 1398ms)
+[90m2026-08-24T00:25:15.502Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"06c44c40-df5f-44fd-8934-1bc2ba659789","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/rating","requestId":"06c44c40-df5f-44fd-8934-1bc2ba659789","method":"GET","status":200,"durationMs":1490}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/rating 200 in 7.8s (next.js: 174ms, proxy.ts: 6.1s, application-code: 1508ms)
+ GET /manifest.webmanifest 200 in 78ms (next.js: 12ms, proxy.ts: 57ms, application-code: 9ms)
+[90m2026-08-24T00:25:16.099Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"c09cd97e-d2f7-49ca-87b2-255a6a5512a2","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"c09cd97e-d2f7-49ca-87b2-255a6a5512a2","method":"GET","status":200,"durationMs":114}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 602ms (next.js: 313ms, proxy.ts: 169ms, application-code: 120ms)
+ GET /games/41 200 in 1931ms (next.js: 216ms, proxy.ts: 1295ms, application-code: 420ms)
+[90m2026-08-24T00:25:16.172Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:16.173Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:16.173Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /api/music ...
+[90m2026-08-24T00:25:17.437Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:17.438Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:17.438Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:18.187Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:18.188Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:18.188Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:25:27.469Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"35a9def0-5b46-4336-ac75-2510ac866a84","route":"/api/music","requestId":"35a9def0-5b46-4336-ac75-2510ac866a84","method":"GET","status":200,"durationMs":2}[0m
+[90m2026-08-24T00:25:27.493Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:27.493Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:27.493Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 282ms (next.js: 6ms, proxy.ts: 271ms, application-code: 5ms)
+[90m2026-08-24T00:25:27.507Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"04737e57-450f-4823-afdc-e50ea6dd197e","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 614ms (next.js: 125ms, proxy.ts: 18ms, application-code: 471ms)
+[90m2026-08-24T00:25:28.378Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"01fd8262-ae40-4fb4-b326-54ccbd765a99","route":"/api/history","requestId":"01fd8262-ae40-4fb4-b326-54ccbd765a99","method":"POST","status":200,"durationMs":911}[0m
+ POST /api/history 200 in 20.7s (next.js: 13.5s, proxy.ts: 6.1s, application-code: 1100ms)
+ GET /manifest.webmanifest 200 in 9ms (next.js: 1.6ms, proxy.ts: 4ms, application-code: 3ms)
+[90m2026-08-24T00:25:28.797Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:25:28.798Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:25:28.798Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[browser] [90m2026-08-24T00:25:16.332Z[0m [31mERR[0m [90m[System][0m [GlobalError] [90m{"error":"Objects are not valid as a React child (found: object with keys {score}). If you meant to render a collection of children, use an array instead.","stack":"Error: Objects are not valid as a React child (found: object with keys {score}). If you meant to render a collection of children, use an array instead.\n    at throwOnInvalidObjectTypeImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6419:13)\n    at throwOnInvalidObjectType (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6433:11)\n    at updateSlot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6803:11)\n    at reconcileChildrenArray (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6956:26)\n    at reconcileChildFibersImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:7315:20)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:7414:33)\n    at reconcileChildren (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10042:13)\n    at beginWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12420:13)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1028:30)\n    at performUnitOfWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:19066:22)\n    at workLoopSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:18894:41)\n    at renderRootSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:18875:11)\n    at performWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:17977:35)\n    at performWorkOnRootViaSchedulerTask (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:20555:7)\n    at MessagePort.performWorkUntilDeadline (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js:45:48)"}[0m 
+    at Logger.emit (src\lib\logger.ts:163:22)
+    at Logger.error (src\lib\logger.ts:81:10)
+    at GlobalError.useEffect (src\app\error.tsx:17:19)
+  161 |       if (level === "error") {
+  162 |         if (typeof process !== "undefined" && process.stderr) process.stderr.write(line + "\n")
+> 163 |         else console.error(line)
+      |                      ^
+  164 |       } else {
+  165 |         if (typeof process !== "undefined" && process.stdout) process.stdout.write(line + "\n")
+  166 |         else console.log(line) (src\lib\logger.ts:163:22)
+[browser] [90m2026-08-24T00:25:16.343Z[0m [31mERR[0m [90m[System][0m [GlobalError] [90m{"error":"Objects are not valid as a React child (found: object with keys {score}). If you meant to render a collection of children, use an array instead.","stack":"Error: Objects are not valid as a React child (found: object with keys {score}). If you meant to render a collection of children, use an array instead.\n    at throwOnInvalidObjectTypeImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6419:13)\n    at throwOnInvalidObjectType (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6433:11)\n    at updateSlot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6803:11)\n    at reconcileChildrenArray (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:6956:26)\n    at reconcileChildFibersImpl (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:7315:20)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:7414:33)\n    at reconcileChildren (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10042:13)\n    at beginWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12420:13)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1028:30)\n    at performUnitOfWork (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:19066:22)\n    at workLoopSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:18894:41)\n    at renderRootSync (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:18875:11)\n    at performWorkOnRoot (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:17977:35)\n    at performWorkOnRootViaSchedulerTask (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:20555:7)\n    at MessagePort.performWorkUntilDeadline (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js:45:48)"}[0m 
+    at Logger.emit (src\lib\logger.ts:163:22)
+    at Logger.error (src\lib\logger.ts:81:10)
+    at GlobalError.useEffect (src\app\error.tsx:17:19)
+  161 |       if (level === "error") {
+  162 |         if (typeof process !== "undefined" && process.stderr) process.stderr.write(line + "\n")
+> 163 |         else console.error(line)
+      |                      ^
+  164 |       } else {
+  165 |         if (typeof process !== "undefined" && process.stdout) process.stdout.write(line + "\n")
+  166 |         else console.log(line) (src\lib\logger.ts:163:22)
+ GET /api/auth/session 200 in 60ms (next.js: 39ms, proxy.ts: 5ms, application-code: 16ms)
+ GET /api/auth/session 200 in 48ms (next.js: 6ms, proxy.ts: 5ms, application-code: 37ms)
+[90m2026-08-24T00:28:21.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:28:21.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:28:21.833Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:28:21.973Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"5c63ee9b-7430-40d2-8f75-751e0c5cd472","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"5c63ee9b-7430-40d2-8f75-751e0c5cd472","method":"GET","status":200,"durationMs":15}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 77ms (next.js: 51ms, proxy.ts: 6ms, application-code: 20ms)
+[90m2026-08-24T00:28:22.063Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"6b529342-0e63-41e7-92c3-05378089e43b","route":"/api/history","requestId":"6b529342-0e63-41e7-92c3-05378089e43b","method":"POST","status":200,"durationMs":152}[0m
+ POST /api/history 200 in 168ms (next.js: 3ms, proxy.ts: 7ms, application-code: 157ms)
+[90m2026-08-24T00:28:22.094Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"33ce3f8b-ecd1-4d27-84bf-e1b100ce5f7a","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/rating","requestId":"33ce3f8b-ecd1-4d27-84bf-e1b100ce5f7a","method":"GET","status":200,"durationMs":31}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/rating 200 in 118ms (next.js: 26ms, proxy.ts: 4ms, application-code: 88ms)
+[90m2026-08-24T00:28:22.116Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"19c9603b-111a-44f9-b27c-0328636f051b","route":"/api/history","requestId":"19c9603b-111a-44f9-b27c-0328636f051b","method":"POST","status":200,"durationMs":33}[0m
+ POST /api/history 200 in 48ms (next.js: 3ms, proxy.ts: 8ms, application-code: 37ms)
+[90m2026-08-24T00:28:22.130Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"b6d07f54-67ce-48f9-aeda-8109802d527a","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"b6d07f54-67ce-48f9-aeda-8109802d527a","method":"GET","status":200,"durationMs":14}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 33ms (next.js: 9ms, proxy.ts: 7ms, application-code: 18ms)
+[90m2026-08-24T00:28:22.172Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"82c19a64-89e9-492f-aaa3-5b57eb63a973","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"82c19a64-89e9-492f-aaa3-5b57eb63a973","method":"GET","status":200,"durationMs":24}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 39ms (next.js: 6ms, proxy.ts: 6ms, application-code: 27ms)
+[90m2026-08-24T00:28:22.202Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"061ae2bf-3480-46ed-87ef-9bb7d4c74d53","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/personalization","requestId":"061ae2bf-3480-46ed-87ef-9bb7d4c74d53","method":"GET","status":200,"durationMs":16}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/personalization 200 in 28ms (next.js: 4ms, proxy.ts: 5ms, application-code: 19ms)
+[90m2026-08-24T00:28:23.490Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"a7730bed-16e1-4622-b297-450ceda2730b","route":"/api/resource-tags","requestId":"a7730bed-16e1-4622-b297-450ceda2730b","method":"GET","status":200,"durationMs":9}[0m
+ GET /api/resource-tags 200 in 52ms (next.js: 32ms, proxy.ts: 7ms, application-code: 14ms)
+[90m2026-08-24T00:28:23.490Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:28:23.491Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:28:23.491Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:28:23.601Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"9e44167a-60cf-4011-a76d-4c2f1265d59b","route":"/api/resource-tags","requestId":"9e44167a-60cf-4011-a76d-4c2f1265d59b","method":"GET","status":200,"durationMs":3}[0m
+ GET /api/resource-tags 200 in 22ms (next.js: 4ms, proxy.ts: 11ms, application-code: 7ms)
+[90m2026-08-24T00:28:23.599Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:28:23.600Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:28:23.600Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:28:23.625Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"eaa47f71-a601-4119-bd05-1d9972c53ea6","route":"/api/games/activities/cmt3v91n2005h9ktl1l07ug0j","requestId":"eaa47f71-a601-4119-bd05-1d9972c53ea6","method":"GET","status":200,"durationMs":98}[0m
+ GET /api/games/activities/cmt3v91n2005h9ktl1l07ug0j 200 in 187ms (next.js: 77ms, proxy.ts: 7ms, application-code: 104ms)
+[90m2026-08-24T00:28:23.670Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"af3bc5bc-368c-495c-98df-206d6178cea7","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/resources","requestId":"af3bc5bc-368c-495c-98df-206d6178cea7","method":"GET","status":200,"durationMs":97}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/resources 200 in 232ms (next.js: 123ms, proxy.ts: 7ms, application-code: 103ms)
+[90m2026-08-24T00:28:23.683Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"b94db853-de81-49ee-831b-0d1cfaafbc39","route":"/api/games/activities/cmt3v91n2005h9ktl1l07ug0j","requestId":"b94db853-de81-49ee-831b-0d1cfaafbc39","method":"GET","status":200,"durationMs":34}[0m
+ GET /api/games/activities/cmt3v91n2005h9ktl1l07ug0j 200 in 54ms (next.js: 6ms, proxy.ts: 9ms, application-code: 39ms)
+[90m2026-08-24T00:28:23.710Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"5662df14-a151-417f-ab2b-b1dcec978250","route":"/api/resource-tags","requestId":"5662df14-a151-417f-ab2b-b1dcec978250","method":"GET","status":200,"durationMs":8}[0m
+ GET /api/resource-tags 200 in 26ms (next.js: 4ms, proxy.ts: 9ms, application-code: 13ms)
+[90m2026-08-24T00:28:23.728Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"be484b7d-a5ac-47f7-8103-39f8a6a7df18","route":"/api/resource-tags","requestId":"be484b7d-a5ac-47f7-8103-39f8a6a7df18","method":"GET","status":200,"durationMs":2}[0m
+ GET /api/resource-tags 200 in 14ms (next.js: 3ms, proxy.ts: 6ms, application-code: 6ms)
+[90m2026-08-24T00:28:23.738Z[0m [32mINF[0m [90m[API][0m access [90m{"request_id":"d3f7ae64-fda4-46b4-8d50-7bc867dd341e","route":"/api/games/cmt3v91n2005h9ktl1l07ug0j/resources","requestId":"d3f7ae64-fda4-46b4-8d50-7bc867dd341e","method":"GET","status":200,"durationMs":30}[0m
+ GET /api/games/cmt3v91n2005h9ktl1l07ug0j/resources 200 in 61ms (next.js: 18ms, proxy.ts: 10ms, application-code: 33ms)
+[90m2026-08-24T00:28:25.143Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:28:25.144Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:28:25.144Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:28:25.186Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:28:25.187Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:28:25.187Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[browser] Image with src "https://t.vndb.org/sf/93/8693.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/95/8695.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/96/8696.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/00/8700.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/02/8702.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/16/24316.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/17/24317.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/05/226905.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/06/226906.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://t.vndb.org/sf/07/226907.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /api/auth/session 200 in 118ms (next.js: 46ms, proxy.ts: 16ms, application-code: 56ms)
+[90m2026-08-24T00:29:39.068Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:29:39.069Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:29:39.069Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 3.1s (next.js: 3.0s, proxy.ts: 41ms, application-code: 30ms)
+[90m2026-08-24T00:29:40.275Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"ad3f4b5f-395e-4de6-9fb1-f6421ed1cdc5","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 153ms (next.js: 14ms, proxy.ts: 7ms, application-code: 132ms)
+ GET /manifest.webmanifest 200 in 8ms (next.js: 1.5ms, proxy.ts: 4ms, application-code: 3ms)
+[90m2026-08-24T00:29:41.653Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:29:41.655Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:29:41.655Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:29:44.642Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"b61bde88-8159-4c2b-a0ac-1377075ac2cb","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 109ms (next.js: 11ms, proxy.ts: 5ms, application-code: 93ms)
+ GET /manifest.webmanifest 200 in 17ms (next.js: 3ms, proxy.ts: 8ms, application-code: 6ms)
