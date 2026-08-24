@@ -5961,3 +5961,63 @@ Unknown field `nickname` for select statement on model `User`. Available options
 [90m2026-08-24T00:58:39.771Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
 [90m2026-08-24T00:58:39.772Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
 [90m2026-08-24T00:58:39.772Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 12ms (next.js: 2ms, proxy.ts: 6ms, application-code: 4ms)
+[90m2026-08-24T00:58:41.007Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"2b1b34c3-8c47-4930-ac66-ce8d57a1e636","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 85ms (next.js: 15ms, proxy.ts: 6ms, application-code: 65ms)
+[90m2026-08-24T00:58:41.120Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:41.121Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:41.121Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 10ms (next.js: 1.5ms, proxy.ts: 5ms, application-code: 4ms)
+[90m2026-08-24T00:58:42.281Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:42.282Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:42.282Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/auth/session 200 in 150ms (next.js: 24ms, proxy.ts: 16ms, application-code: 109ms)
+ GET /api/auth/session 200 in 35ms (next.js: 8ms, proxy.ts: 11ms, application-code: 17ms)
+ GET /api/auth/session 200 in 18ms (next.js: 4ms, proxy.ts: 6ms, application-code: 8ms)
+ GET /api/auth/session 200 in 23ms (next.js: 5ms, proxy.ts: 6ms, application-code: 12ms)
+[90m2026-08-24T01:02:25.018Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:02:25.019Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:02:25.019Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T01:02:26.896Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"be6f8c60-138d-4822-9fd8-5a79a0893526","method":"GET","route":"/user/1","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+○ Compiling /user/[id] ...
+[90m2026-08-24T01:02:55.765Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:02:55.766Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:02:55.766Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T01:02:55.801Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"0b8d5ffb-1c40-4ad9-b799-9a1048022cec","method":"GET","route":"/user/1","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T01:02:55.883Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:02:55.883Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:02:55.883Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T01:02:55.912Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"fdf3c4ef-429c-4f10-9ade-7824bcc0214d","method":"GET","route":"/user/1","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+[90m2026-08-24T01:02:57.224Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:02:57.225Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:02:57.225Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /user/1 200 in 30.5s (next.js: 28.7s, proxy.ts: 8ms, application-code: 1776ms)
+ GET /user/1 200 in 1493ms (next.js: 15ms, proxy.ts: 10ms, application-code: 1468ms)
+ GET /user/1 200 in 1607ms (next.js: 12ms, proxy.ts: 7ms, application-code: 1589ms)
+ GET /api/auth/session 200 in 511ms (next.js: 330ms, proxy.ts: 154ms, application-code: 28ms)
+ GET /api/auth/session 200 in 75ms (next.js: 20ms, proxy.ts: 16ms, application-code: 39ms)
+[90m2026-08-24T01:02:59.238Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:02:59.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:02:59.239Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+○ Compiling /manifest.webmanifest ...
+ GET /manifest.webmanifest 200 in 5.9s (next.js: 5.8s, proxy.ts: 9ms, application-code: 36ms)
+○ Compiling /api/profile/[id]/follows ...
+ GET /api/collections 200 in 11.6s (next.js: 10.6s, proxy.ts: 222ms, application-code: 784ms)
+ GET /api/profile/cmrzh7w7q0000tl4g2cxnqtjs/favorites?page=1 200 in 11.6s (proxy.ts: 222ms)
+ GET /api/profile/cmrzh7w7q0000tl4g2cxnqtjs/activities?page=1 200 in 11.6s (proxy.ts: 222ms)
+[90m2026-08-24T01:03:15.464Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T01:03:15.464Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T01:03:15.464Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /api/profile/cmrzh7w7q0000tl4g2cxnqtjs/follows?page=1 200 in 12.2s (proxy.ts: 222ms)
+⚠ Server is approaching the used memory threshold, restarting...
+▲ Next.js 16.3.1 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+- Environments: .env
+✓ Ready in 714ms
+✓ Running next.config.ts took 110ms
+Error: [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":500,"threshold":500,"scope":"turn","targets":["d:\\Circleica\\.next-dev\\dev\\trace"],"targetCount":1}
+    at checkBulkDeleteGuard (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:273:19)
+    at tryTrash (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:602:5)
+    at Object.unlinkSync (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:662:9)
+[?25h
