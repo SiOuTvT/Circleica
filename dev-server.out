@@ -5922,3 +5922,42 @@ Unknown field `nickname` for select statement on model `User`. Available options
 [90m2026-08-24T00:58:03.579Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
 [90m2026-08-24T00:58:03.579Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
  GET /games/41 200 in 903ms (next.js: 19ms, proxy.ts: 14ms, application-code: 871ms)
+[90m2026-08-24T00:58:04.616Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:04.617Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:04.617Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:58:05.106Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f3714443-73d2-4b01-b8b1-595313ef5575","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 121ms (next.js: 26ms, proxy.ts: 8ms, application-code: 87ms)
+[90m2026-08-24T00:58:05.326Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"420b72fe-5d62-490b-acce-10210fd47113","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /manifest.webmanifest 200 in 36ms (next.js: 5ms, proxy.ts: 27ms, application-code: 4ms)
+ GET /games/41 200 in 912ms (next.js: 14ms, proxy.ts: 21ms, application-code: 877ms)
+ GET /manifest.webmanifest 200 in 20ms (next.js: 5ms, proxy.ts: 11ms, application-code: 4ms)
+[90m2026-08-24T00:58:06.361Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:06.362Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:06.362Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[browser] Image with src "https://t.vndb.org/sf/06/226906.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+○ Compiling /api/auth/[...nextauth] ...
+[browser] Image with src "https://t.vndb.org/sf/93/8693.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[90m2026-08-24T00:58:31.007Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"79e4834f-a64a-4f70-b54b-7957de861528","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /api/auth/session 200 in 24.9s (next.js: 24.4s, proxy.ts: 10ms, application-code: 418ms)
+[90m2026-08-24T00:58:31.206Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:31.206Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:31.206Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:58:31.233Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:31.233Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:31.233Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /games/41 200 in 439ms (next.js: 98ms, proxy.ts: 131ms, application-code: 209ms)
+ GET /api/auth/session 200 in 21ms (next.js: 5ms, proxy.ts: 6ms, application-code: 10ms)
+[90m2026-08-24T00:58:31.740Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:31.741Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:31.741Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+[90m2026-08-24T00:58:32.349Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:32.351Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:32.351Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
+ GET /manifest.webmanifest 200 in 25ms (next.js: 6ms, proxy.ts: 11ms, application-code: 9ms)
+[90m2026-08-24T00:58:38.449Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"99b097f1-c62a-407b-a5c9-7cc7984dbdb2","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 94ms (next.js: 17ms, proxy.ts: 7ms, application-code: 70ms)
+[90m2026-08-24T00:58:39.641Z[0m [32mINF[0m [90m[System][0m access [90m{"t":"access","requestId":"f9d4d020-4e43-4efa-b5fe-76e2054c4044","method":"GET","route":"/games/41","ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151."}[0m
+ GET /games/41 200 in 77ms (next.js: 16ms, proxy.ts: 6ms, application-code: 55ms)
+[90m2026-08-24T00:58:39.771Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] R2: 未配置（使用本地存储）
+[90m2026-08-24T00:58:39.772Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Redis: 未配置（使用内存缓存）
+[90m2026-08-24T00:58:39.772Z[0m [32mINF[0m [90m[System][0m [ServiceConfig] Email: 未配置（邮件功能不可用）
