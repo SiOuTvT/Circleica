@@ -76,13 +76,14 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       {/* 侧边栏 */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full overflow-hidden transition-transform duration-300 ease-out lg:transition-[width,transform]",
+          "fixed left-0 top-[env(safe-area-inset-top,0px)] z-50 h-[calc(100dvh-env(safe-area-inset-top,0px))] overflow-hidden transition-transform duration-300 ease-out lg:top-0 lg:h-full lg:transition-[width,transform]",
+          // 桌面宽度：收起 60 / 展开 216 / 默认 180；移动端统一 min(82vw,300px)（对齐移动端设计系统 8px 栅格与触控基线）
+          collapsed ? "w-[60px]" : expanded ? "w-[216px]" : "w-[180px] max-lg:w-[min(82vw,300px)]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         style={{
           background: "var(--sidebar)",
           borderRight: "1px solid var(--sidebar-border)",
-          width: collapsed ? 60 : expanded ? 216 : mobileOpen ? 180 : 180,
         }}
       >
         <nav className="flex flex-col gap-1 overflow-y-auto overflow-x-hidden h-full px-2 py-3 lg:py-3">
@@ -141,7 +142,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               <Library className="h-[22px] w-[22px] shrink-0" strokeWidth={2.2} />
               <span className="flex min-w-0 flex-col leading-tight">
                 <span className="truncate text-[15px] tracking-wide">Galvelica</span>
-                <span className="truncate text-[11px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
+                <span className="truncate text-[12px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
               </span>
             </Link>
           )}
