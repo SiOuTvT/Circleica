@@ -76,7 +76,7 @@ function ActivityRow({ item, last }: { item: ActivityItemData; last: boolean }) 
 export function UserActivityTimeline({ items, className }: { items: ActivityItemData[]; className?: string }) {
   if (!items || items.length === 0) {
     return (
-      <div className="flex h-full flex-col items-start px-1 py-8">
+      <div className="flex h-full flex-col items-center justify-center px-1 py-8 text-center">
         <Calendar className="mb-2 h-7 w-7 text-muted-foreground/30" strokeWidth={1.5} />
         <p className="text-sm text-muted-foreground">暂无动态</p>
       </div>

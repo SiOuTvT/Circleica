@@ -634,7 +634,7 @@ export function ResourceTab({
         style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1.5rem" }}
       >
         {/* 左：游戏动态（固定窄宽，不占大块） */}
-        <section style={{ minWidth: 0, flex: "0 0 320px", maxWidth: "320px" }}>
+        <section style={{ minWidth: 0, flex: "0 0 160px", maxWidth: "160px" }}>
           <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
           <UserActivityTimeline items={gameActivities} />
         </section>
@@ -656,29 +656,29 @@ export function ResourceTab({
               </a>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">暂无下载链接</p>
+            <p className="text-center text-sm text-muted-foreground">暂无下载链接</p>
+          )}
+
+          {/* 用户分享资源空态 + 次级添加按钮，归属右栏内部，不跨栏 */}
+          {!loading && !loadError && resources.length === 0 && (
+            <div className="mt-4 flex flex-col items-center gap-3 text-center">
+              <p className="text-sm text-muted-foreground">
+                {isLoggedIn ? "还没有人分享资源，成为第一个分享者吧！" : "还没有人分享资源，等一等~"}
+              </p>
+              {isLoggedIn && (
+                <AddResourceDialog
+                  gameId={gameId}
+                  userId={currentUserId || ""}
+                  username={username || ""}
+                  userAvatar={userAvatar ?? null}
+                  isLoggedIn={isLoggedIn}
+                  onAdd={handleAdd}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>
-
-      {/* 空状态 */}
-      {!loading && !loadError && resources.length === 0 && downloadLinks.length === 0 && (
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            {isLoggedIn ? "还没有人分享资源，成为第一个分享者吧！" : "还没有人分享资源，等一等~"}
-          </p>
-          {isLoggedIn && (
-            <AddResourceDialog
-              gameId={gameId}
-              userId={currentUserId || ""}
-              username={username || ""}
-              userAvatar={userAvatar ?? null}
-              isLoggedIn={isLoggedIn}
-              onAdd={handleAdd}
-            />
-          )}
-        </div>
-      )}
 
       {/* 编辑资源弹窗 */}
       {editingResource && (
