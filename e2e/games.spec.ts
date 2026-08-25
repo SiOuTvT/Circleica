@@ -15,19 +15,13 @@ test.describe("游戏列表", () => {
 
   test("游戏详情页打开", async ({ page }) => {
     // 捕获控制台错误
+    const consoleErrors: string[] = []
+    const pageErrors: string[] = []
     page.on("console", msg => {
-      if (msg.type() === "error") console.log("CONSOLE ERROR:", msg.text())
+      if (msg.type() === "error") consoleErrors.push(msg.text())
     })
     page.on("pageerror", err => {
-      console.log("PAGE ERROR:", err.message)
-    })
-    page.on("requestfailed", request => {
-      console.log("REQUEST FAILED:", request.url(), request.failure()?.errorText)
-    })
-    page.on("response", response => {
-      if (response.status() >= 400) {
-        console.log("RESPONSE ERROR:", response.url(), response.status())
-      }
+      pageErrors.push(err.message)
     })
 
     await page.goto("/games")
@@ -37,8 +31,8 @@ test.describe("游戏列表", () => {
     if (await firstCard.isVisible()) {
       await firstCard.click()
 
-      // 详情页加载
-      await page.waitForLoadState("networkidle")
+      // 详情页加载 - 使用 domcontentloaded 而不是 networkidle（避免图片加载超时）
+      await page.waitForLoadState("domcontentloaded")
 
       // 游戏标题存在
       const title = page.locator("h1")
@@ -55,14 +49,16 @@ test.describe("游戏详情", () => {
     // App Router 自定义 404 页的 HTTP 状态码不保证是 404，故改为从列表页进入首个游戏；
     // 若库中没有游戏则跳过（与项目其它 e2e 用例的空库兜底策略一致）。
     await page.goto("/games")
-    await page.waitForLoadState("networkidle")
+    await page.waitForLoadState("domcontentloaded")
     const firstCard = page.locator('a[href^="/games/"]').first()
     if (!(await firstCard.isVisible())) {
       test.skip()
       return
     }
     await firstCard.click()
-    await page.waitForLoadState("networkidle")
+
+    // 等待详情页标题出现（而不是等待URL变化）
+    await expect(page.locator("h1")).toBeVisible({ timeout: 10000 })
 
     // Tab 导航存在
     await expect(page.getByRole("tab", { name: "简介" })).toBeVisible()
