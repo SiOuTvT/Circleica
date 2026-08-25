@@ -385,7 +385,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
               </div>
             ) : (
               <div className="ml-1">
-                <Link href="/login" className="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
+                <Link href="/login" data-ripple className="inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring text-muted-foreground hover:text-foreground hover:bg-muted">
                   登录
                 </Link>
               </div>
