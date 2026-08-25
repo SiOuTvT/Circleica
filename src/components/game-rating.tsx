@@ -9,7 +9,7 @@ import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 
 interface RatingStats {
   _avg: { score: number | null }
-  _count: number
+  _count: number | { score: number }
 }
 
 interface RatingData {
@@ -41,7 +41,7 @@ export function GameRating({ gameId }: { gameId: string }) {
         if (!inner) return
         setUserScore(inner.userScore ?? null)
         setAvg(inner.stats?._avg?.score ?? null)
-        setCount(inner.stats?._count ?? 0)
+        setCount(typeof inner.stats?._count === "object" ? (inner.stats?._count?.score ?? 0) : (inner.stats?._count ?? 0))
       })
       .catch(() => {})
     return () => { cancelled = true }
@@ -64,7 +64,7 @@ export function GameRating({ gameId }: { gameId: string }) {
       const inner = unwrapApiData<{ stats: RatingStats }>(data)
       if (ok && inner?.stats) {
         setAvg(inner.stats._avg?.score ?? null)
-        setCount(inner.stats._count ?? 0)
+        setCount(typeof inner.stats._count === "object" ? (inner.stats._count?.score ?? 0) : (inner.stats._count ?? 0))
         toast.success(`已评 ${score} 星`)
       } else {
         setUserScore(prev)

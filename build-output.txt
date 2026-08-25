@@ -1,0 +1,11 @@
+
+> circleica@0.1.0 build
+> next build --webpack
+
+▲ Next.js 16.3.1 (webpack)
+- Environments: .env
+✓ Running next.config.ts took 46ms
+- Experiments (use with caution):
+  · staleTimes
+
+  Creating an optimized production build ...

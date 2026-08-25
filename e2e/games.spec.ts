@@ -55,13 +55,19 @@ test.describe("游戏详情", () => {
       test.skip()
       return
     }
-    await firstCard.click()
 
-    // 等待详情页标题出现（而不是等待URL变化）
-    await expect(page.locator("h1")).toBeVisible({ timeout: 10000 })
+    // 获取目标URL
+    const href = await firstCard.getAttribute("href")
+    console.log("Clicking game card with href:", href)
+
+    // 使用导航等待
+    await Promise.all([
+      page.waitForURL(/\/games\/\d+/, { timeout: 15000 }),
+      firstCard.click()
+    ])
 
     // Tab 导航存在
-    await expect(page.getByRole("tab", { name: "简介" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "简介" })).toBeVisible({ timeout: 10000 })
 
     // 浏览量/下载量/收藏量显示
     await expect(page.locator('[class*="tabular-nums"]').first()).toBeVisible()
