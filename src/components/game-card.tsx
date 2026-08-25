@@ -84,16 +84,10 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
   return (
     <Link
       href={`/games/${game.serialId ?? game.id}`}
+      data-ripple
+      data-ripple-target=".game-card-body"
       className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onClick={(e) => {
-        // 设置波纹中心位置
-        try {
-          const rect = e.currentTarget.getBoundingClientRect()
-          const x = ((e.clientX - rect.left) / rect.width * 100)
-          const y = ((e.clientY - rect.top) / rect.height * 100)
-          e.currentTarget.style.setProperty('--ripple-x', `${x}%`)
-          e.currentTarget.style.setProperty('--ripple-y', `${y}%`)
-        } catch {}
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
           pushRecentlyViewed({
@@ -125,7 +119,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
             <img
               src={game.coverImage}
               alt={game.title}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               loading="lazy"
               decoding="async"
               onError={handleImgError}
@@ -135,7 +129,7 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
               src={game.coverImage}
               alt={game.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               sizes={sizes}
               onError={handleNextImageError}
               loading={game.serialId != null && game.serialId <= 4 ? "eager" : "lazy"}

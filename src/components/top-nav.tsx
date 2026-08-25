@@ -243,6 +243,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
             <TooltipTrigger asChild>
               <button
                 onClick={() => router.back()}
+                data-ripple
                 className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
                 aria-label="返回上一页"
               >
@@ -255,7 +256,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link href="/search" aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                <Link href="/search" data-ripple aria-label="搜索" className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
                   <Search className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                 </Link>
               </TooltipTrigger>
@@ -265,7 +266,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
             {user && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Link href="/messages" className="relative flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                  <Link href="/messages" data-ripple className="relative flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
                     <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                   </Link>
                 </TooltipTrigger>
@@ -277,6 +278,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
               <TooltipTrigger asChild>
                 <button
                   onClick={onToggleForum}
+                  data-ripple
                   className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
                   aria-label="论坛"
                 >
@@ -288,7 +290,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <button onClick={toggleTheme} aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
+                <button onClick={toggleTheme} data-ripple aria-label={theme === "dark" ? "切换到浅色模式" : theme === "light" ? "切换到跟随系统" : "切换到深色模式"} className="flex h-11 w-11 items-center justify-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted">
                   {theme === "light" ? <Sun className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                     : theme === "dark" ? <Moon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
                     : <SunMoon className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />}
@@ -301,6 +303,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
               <div ref={userRef} className="relative ml-1">
                 <button
                   onClick={() => setUserOpen(v => !v)}
+                  data-ripple
                   aria-label="用户菜单"
                   aria-haspopup="menu"
                   aria-expanded={userOpen}

@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils"
 import { MessageSquare, X } from "lucide-react"
 import Link from "next/link"
-import { Tag } from "@/components/ui/tag"
 import { useEffect, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
 import { FORUM_CATEGORIES } from "@/lib/forum-categories"
@@ -80,6 +79,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           <Link
             href="/forum"
             onClick={onToggle}
+            data-ripple
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             <MessageSquare className="h-4 w-4" strokeWidth={2} aria-hidden />
@@ -96,6 +96,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
                 key={cat.value}
                 href={`/forum?category=${cat.value}`}
                 onClick={onToggle}
+                data-ripple
                 className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border/60 transition-colors hover:bg-accent hover:text-foreground"
               >
                 <cat.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
@@ -147,16 +148,12 @@ function ForumSidebarPosts() {
         <li key={p.id}>
           <Link
             href={`/forum/${p.id}`}
+            data-ripple
             className="block rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/60"
           >
             <p className="line-clamp-2 text-sm font-medium leading-snug text-foreground">{p.title}</p>
             <div className="mt-1.5 flex items-center gap-2">
               <span className="truncate text-xs text-muted-foreground">{p.user.username}</span>
-              {p.isSolved !== undefined && (
-                <Tag variant="badge" color={p.isSolved ? "var(--success)" : "var(--warning)"}>
-                  {p.isSolved ? "已解决" : "未解决"}
-                </Tag>
-              )}
             </div>
           </Link>
         </li>

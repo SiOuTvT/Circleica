@@ -99,6 +99,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     window.dispatchEvent(event)
                   }
                 }}
+                data-ripple
                 className={cn(
                   "flex items-center rounded-xl transition-all whitespace-nowrap nav-icon-btn",
                   collapsed ? "justify-center mx-auto w-11 h-11" : "gap-3 px-3 py-2.5"
@@ -120,6 +121,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               <TooltipTrigger asChild>
                 <Link
                   href="/galvelica"
+                  data-ripple
                   className="group relative flex items-center justify-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden w-11 h-11 text-[15px] bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
                 >
                   <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
@@ -131,6 +133,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           ) : (
             <Link
               href="/galvelica"
+              data-ripple
               className={cn(
                 "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden gap-3 px-3",
                 isGalvelica
@@ -158,6 +161,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                   <Link
                     key={href}
                     href={href}
+                    data-ripple
                     className={cn(
                       "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap",
                       collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]",
@@ -232,13 +236,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 } finally { setLoading(false) }
               }, [loading, router])
               const creatorBtn = (
-                <button onClick={handleCreator} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                <button onClick={handleCreator} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
                   {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <User className="h-[22px] w-[22px] shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
-                <button onClick={handleCharacter} disabled={loading} className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                <button onClick={handleCharacter} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
                   {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <Sparkles className="h-[22px] w-[22px] shrink-0" strokeWidth={ 2} />}
                   {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
                 </button>
