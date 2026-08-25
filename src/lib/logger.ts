@@ -145,9 +145,16 @@ class Logger {
       if (context && Object.keys(context).length > 0) {
         Object.assign(entry, this.sanitize(context))
       }
-      // 生产环境用 stdout/stderr 分流
-      const out = level === "error" ? process.stderr : process.stdout
-      out.write(JSON.stringify(entry) + "\n")
+      const output = JSON.stringify(entry) + "\n"
+      // 生产环境用 stdout/stderr 分流（仅在服务端有效，客户端降级到 console）
+      if (typeof process !== "undefined" && process.stdout && process.stderr) {
+        const out = level === "error" ? process.stderr : process.stdout
+        out.write(output)
+      } else {
+        // 客户端环境降级
+        if (level === "error") console.error(output)
+        else console.log(output)
+      }
     } else {
       // 开发环境：彩色格式化
       const c = COLORS

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { apiFetchSafe } from "@/lib/api-client"
+import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 
 interface RatingStats {
   _avg: { score: number | null }
@@ -34,10 +34,11 @@ export function GameRating({ gameId }: { gameId: string }) {
     if (fetchedRef.current) return
     fetchedRef.current = true
     let cancelled = false
-    apiFetchSafe<RatingData>(`/api/games/${gameId}/rating`)
+    apiFetchSafe<{ userScore: number | null; stats: RatingStats }>(`/api/games/${gameId}/rating`)
       .then(({ ok, data }) => {
         if (!ok || !data || cancelled) return
-        const inner = (data as unknown as { data?: RatingData })?.data ?? data
+        const inner = unwrapApiData<RatingData>(data)
+        if (!inner) return
         setUserScore(inner.userScore ?? null)
         setAvg(inner.stats?._avg?.score ?? null)
         setCount(inner.stats?._count ?? 0)
@@ -60,7 +61,7 @@ export function GameRating({ gameId }: { gameId: string }) {
         method: "POST",
         body: { score },
       })
-      const inner = (data as unknown as { data?: { stats?: RatingStats } })?.data
+      const inner = unwrapApiData<{ stats: RatingStats }>(data)
       if (ok && inner?.stats) {
         setAvg(inner.stats._avg?.score ?? null)
         setCount(inner.stats._count ?? 0)

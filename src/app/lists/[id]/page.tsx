@@ -7,8 +7,9 @@ import { FolderHeart } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
-export default async function ListSharePage({ params }: { params: { id: string } }) {
-  const collection = await collectionService.getPublicByShareId(params.id)
+export default async function ListSharePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const collection = await collectionService.getPublicByShareId(id)
   if (!collection) notFound()
 
   const games = (collection.favorites ?? []).map((f) => f.game)

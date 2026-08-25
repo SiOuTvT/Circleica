@@ -14,6 +14,22 @@ test.describe("游戏列表", () => {
   })
 
   test("游戏详情页打开", async ({ page }) => {
+    // 捕获控制台错误
+    page.on("console", msg => {
+      if (msg.type() === "error") console.log("CONSOLE ERROR:", msg.text())
+    })
+    page.on("pageerror", err => {
+      console.log("PAGE ERROR:", err.message)
+    })
+    page.on("requestfailed", request => {
+      console.log("REQUEST FAILED:", request.url(), request.failure()?.errorText)
+    })
+    page.on("response", response => {
+      if (response.status() >= 400) {
+        console.log("RESPONSE ERROR:", response.url(), response.status())
+      }
+    })
+
     await page.goto("/games")
 
     // 找到第一个游戏卡片并点击
