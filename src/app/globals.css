@@ -1388,12 +1388,6 @@ a[href]:active {
   border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
 }
 
-/* 点击时不做位移跳动，靠 ripple 反馈；叠加 A+B 的「按压微缩」让手感更扎实 */
-.game-card:active {
-  transition-duration: 0ms;
-  transform: scale(0.985);
-}
-
 .game-card:hover .game-card-title {
   color: var(--primary);
   transition: color var(--duration-normal) ease;
@@ -1406,24 +1400,38 @@ a[href]:active {
   paint-order: stroke fill;
 }
 
-/* ─── 点击水波（中性灰 · 贴控件形状收尾 · 不随主题色变化）─── */
+/* ─── 点击反馈：水波 + 按下下沉 + 松手回弹（中性灰 · 不随主题色变化）─── */
 [data-ripple] {
   position: relative;
   overflow: hidden;
+}
+/* 按下：几乎零延迟下沉到 97% + 表面略变深，按住期间保持 */
+[data-ripple].ripple-pressed {
+  transform: scale(0.97);
+  filter: brightness(0.97);
+  transition: transform 0ms, filter 0ms;
+}
+/* 松手：约 200ms 先快后慢回弹，与水波同步展开；回弹干脆不拖泥 */
+[data-ripple].ripple-release {
+  transform: scale(1);
+  filter: brightness(1);
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms ease;
 }
 .ripple-wave {
   position: absolute;
   border-radius: 9999px;
   /* 中性灰：取文字色低透明度混合，深浅色都稳，且绝不跟随后台主题色 */
-  background: color-mix(in srgb, var(--foreground) 20%, transparent);
-  transform: translate(-50%, -50%) scale(0);
+  background: color-mix(in srgb, var(--foreground) 24%, transparent);
+  transform: translate(-50%, -50%) scale(0.2);
   pointer-events: none;
   z-index: 1;
   /* 先快后慢（decelerate），与卡片上浮/封面放大的缓动一致 */
-  animation: ripple-spread 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: ripple-spread 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 @keyframes ripple-spread {
-  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.45; }
+  /* 先向外撑开一圈，中后段再淡出；起始可见度明显 */
+  0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.55; }
+  65%  { opacity: 0.5; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 /* 游戏卡片内容区作为水波宿主：封面区不显水波，水波只在内容区清晰 */
