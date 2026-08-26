@@ -80,7 +80,7 @@ function ColorEditPopover({
             key={c}
             type="button"
             onClick={() => setValue(c)}
-            className={`h-6 w-6 rounded-full transition-all cursor-pointer ${
+            className={`h-6 w-6 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
               value.toLowerCase() === c.toLowerCase()
                 ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
                 : "hover:scale-110"
@@ -151,7 +151,7 @@ export function TagsOverviewClient({
             tabIndex={0}
             onClick={() => router.push(`/admin/tags/${g.id}`)}
             onKeyDown={(e) => e.key === 'Enter' && router.push(`/admin/tags/${g.id}`)}
-            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2 cursor-pointer"
+            className="group relative flex items-center gap-5 rounded-xl bg-card p-5 ring-1 ring-border transition ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-2 cursor-pointer"
           >
             {/* 序号 */}
             <span className="flex items-center justify-center h-8 w-8 rounded-lg bg-secondary text-xs font-bold text-muted-foreground shrink-0">

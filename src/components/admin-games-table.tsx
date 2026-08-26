@@ -103,7 +103,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
         {games.map((g) => (
           <div
             key={g.id}
-            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2"
+            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-2"
           >
             <div className="flex items-start gap-3">
               <input type="checkbox" checked={selected.has(g.id)} onChange={() => toggle(g.id)}
@@ -134,7 +134,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
             <div className="flex items-center gap-1.5">
               <Link
                 href={`/admin/games/${g.id}`}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
               >
                 <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
               </Link>

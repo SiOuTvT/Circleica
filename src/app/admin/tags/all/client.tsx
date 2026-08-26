@@ -100,7 +100,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
             type="button"
             onClick={() => { setActiveTab(t.id); setEditingTagId(null) }}
             aria-pressed={activeTab === t.id}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium ring-1 transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out cursor-pointer ${
               activeTab === t.id
                 ? "bg-primary text-primary-foreground ring-primary"
                 : "bg-card text-muted-foreground ring-border hover:text-foreground hover:ring-foreground/20"
@@ -121,7 +121,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索当前标签组…" aria-label="搜索标签"
-            className="w-full rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className="w-full rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
           />
         </div>
         <div className="flex overflow-hidden rounded-lg bg-secondary ring-1 ring-border">
@@ -184,7 +184,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
                       type="button"
                       onClick={() => setEditingTagId(tag.id)}
                       title="编辑"
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground cursor-pointer"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground cursor-pointer"
                     >
                       <Pencil className="h-3 w-3" />
                     </button>
@@ -192,7 +192,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
                       type="button"
                       onClick={() => setDeletingTag(tag)}
                       title="删除"
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -288,7 +288,7 @@ function InlineTagEdit({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="block w-40 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className="block w-40 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
           />
         </div>
 
@@ -300,7 +300,7 @@ function InlineTagEdit({
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
-                className={`h-5 w-5 rounded-full transition-all cursor-pointer ${
+                className={`h-5 w-5 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
                   color.toLowerCase() === c.toLowerCase()
                     ? "ring-2 ring-primary ring-offset-1 ring-offset-background scale-110"
                     : "hover:scale-110"
@@ -322,7 +322,7 @@ function InlineTagEdit({
           <select
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}
-            className="block w-36 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className="block w-36 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
           >
             <option value="">未分组</option>
             {groups.map((g) => (

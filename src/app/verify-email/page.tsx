@@ -89,14 +89,14 @@ function ResultCard({
         {showResend && (
           <Link
             href="/login"
-            className="inline-flex items-center justify-center h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-all"
+            className="inline-flex items-center justify-center h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition duration-150 ease-in-out"
           >
             重新发送验证邮件
           </Link>
         )}
         <Link
           href="/"
-          className="inline-flex items-center justify-center h-10 rounded-xl bg-secondary text-foreground text-sm font-medium ring-1 ring-border hover:ring-primary/40 transition-all"
+          className="inline-flex items-center justify-center h-10 rounded-xl bg-secondary text-foreground text-sm font-medium ring-1 ring-border hover:ring-primary/40 transition duration-150 ease-in-out"
         >
           返回首页
         </Link>

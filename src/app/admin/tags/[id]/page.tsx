@@ -155,7 +155,7 @@ export default async function TagGroupDetailPage({
       actions={
         <Link
           href="/admin/tags"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:ring-foreground/10 hover:bg-muted cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition duration-150 ease-in-out hover:ring-foreground/10 hover:bg-muted cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           返回

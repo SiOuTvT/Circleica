@@ -30,7 +30,7 @@ export default async function TagsOverviewPage() {
       actions={
         <Link
           href="/admin/tags/all"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary ring-1 ring-primary/20 transition-all hover:bg-primary/20 cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary ring-1 ring-primary/20 transition duration-150 ease-in-out hover:bg-primary/20 cursor-pointer"
         >
           <List className="h-4 w-4" />
           查看全部标签

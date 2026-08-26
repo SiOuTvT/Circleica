@@ -56,7 +56,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
             key={c}
             type="button"
             onClick={() => { setHexInput(c); onChange(c) }}
-            className={`h-7 w-7 rounded-full transition-all cursor-pointer ${
+            className={`h-7 w-7 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
               value.toLowerCase() === c.toLowerCase()
                 ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
                 : "hover:scale-110"
@@ -67,7 +67,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
       </div>
       <div className="flex items-center gap-3">
         <input type="color" value={value} onChange={(e) => { setHexInput(e.target.value); onChange(e.target.value) }} className="h-8 w-8 rounded-lg cursor-pointer border-0 bg-transparent" />
-        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className="w-28 rounded-lg border-2 border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className="w-28 rounded-lg border-2 border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
         <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} />
       </div>
     </div>
@@ -226,7 +226,7 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
-  const inputCls = "w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+  const inputCls = "w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
   return (
     <div className="space-y-5">
@@ -236,7 +236,7 @@ export function TagGroupDetailClient({
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => setShowCreate(!showCreate)}
-              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 transition duration-150 ease-in-out cursor-pointer"
             >
               {showCreate ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
               {showCreate ? "收起" : "新建标签"}
@@ -251,7 +251,7 @@ export function TagGroupDetailClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…" aria-label="搜索标签"
-            className="rounded-lg border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-full"
+            className="rounded-lg border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary w-full"
           />
         </div>
       </Card>
@@ -277,7 +277,7 @@ export function TagGroupDetailClient({
             <button
               onClick={handleCreateTag}
               disabled={saving || !newTagName.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:opacity-90 transition duration-150 ease-in-out disabled:opacity-50 cursor-pointer"
             >
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
               创建标签
@@ -327,14 +327,14 @@ export function TagGroupDetailClient({
                       <button
                         onClick={(e) => { e.stopPropagation(); openEdit(tag) }}
                         title="编辑"
-                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground cursor-pointer"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground cursor-pointer"
                       >
                         <Pencil className="h-3 w-3" />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeletingTag(tag) }}
                         title="删除"
-                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition-all hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -351,13 +351,13 @@ export function TagGroupDetailClient({
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="标签名称"
-                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                       autoFocus
                     />
                     <select
                       value={editGroupId}
                       onChange={(e) => setEditGroupId(e.target.value)}
-                      className="w-32 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="w-32 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                     >
                       {allGroups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -368,7 +368,7 @@ export function TagGroupDetailClient({
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     placeholder="标签描述（可选）"
-                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                   />
                   <div className="flex items-center gap-2">
                     <input
@@ -376,7 +376,7 @@ export function TagGroupDetailClient({
                       value={editSortOrder}
                       onChange={(e) => setEditSortOrder(Number(e.target.value))}
                       title="排序值"
-                      className="w-16 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="w-16 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                     />
                     <button
                       type="button"
@@ -393,7 +393,7 @@ export function TagGroupDetailClient({
                     <button
                       onClick={handleUpdateTag}
                       disabled={saving || !editName.trim()}
-                      className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition duration-150 ease-in-out disabled:opacity-50 cursor-pointer"
                     >
                       {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       保存

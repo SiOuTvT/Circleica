@@ -58,7 +58,7 @@ export function AdminDeleteButton({
       <button
         onClick={() => setOpen(true)}
         title={buttonTitle}
-        className={buttonClassName ?? "shrink-0 rounded-lg p-2 text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-400"}
+        className={buttonClassName ?? "shrink-0 rounded-lg p-2 text-muted-foreground transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400"}
       >
         <Trash2 className="h-4 w-4" />
       </button>
