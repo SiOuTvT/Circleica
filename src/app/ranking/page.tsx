@@ -185,9 +185,9 @@ async function getRankedCached(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwM
 // 领奖台名次配色（固定色，不随主题切换，深浅色模式表现一致）：
 // 第一金（琥珀）· 第二银（灰）· 第三铜（深橙）。奖杯用该色，名次数字用同色系深一档以保证可读。
 const PODIUM: Record<number, { trophy: string; num: string }> = {
-  1: { trophy: "text-amber-400", num: "text-amber-900" },
-  2: { trophy: "text-slate-300", num: "text-slate-700" },
-  3: { trophy: "text-orange-700", num: "text-orange-900" },
+  1: { trophy: "text-amber-500", num: "text-amber-600" },
+  2: { trophy: "text-slate-400", num: "text-slate-500" },
+  3: { trophy: "text-orange-700", num: "text-orange-800" },
 }
 
 export default async function RankingPage({
@@ -296,9 +296,10 @@ export default async function RankingPage({
                       <Trophy
                         className={cn("h-9 w-9 drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)]", style.trophy)}
                         strokeWidth={2}
+                        fill="currentColor"
                         aria-hidden="true"
                       />
-                      <span className={cn("mt-0.5 text-xs font-bold tabular-nums", style.num)}>{rank}</span>
+                      <span className={cn("mt-0.5 text-sm font-extrabold tabular-nums", style.num)}>{rank}</span>
                     </div>
                     <div className="w-full flex-1">
                       <GameCard game={item.card} />
