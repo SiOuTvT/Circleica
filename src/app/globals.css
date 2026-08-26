@@ -1418,18 +1418,17 @@ a[href]:active {
 .ripple-wave {
   position: absolute;
   border-radius: 9999px;
-  /* 一圈光晕：中心透明、边缘明显，环放在靠中心处(约58%)，从指尖小点慢慢向外撑到边缘都可见（中性灰，不随主题色） */
-  background: radial-gradient(circle, transparent 0 48%, color-mix(in srgb, var(--foreground) 22%, transparent) 58%, transparent 70%);
+  /* 一个很淡、几乎透明的中性灰实心圆：从指尖中心匀速撑满整个控件，同时渐渐隐去 */
+  background: color-mix(in srgb, var(--foreground) 14%, transparent);
   transform: translate(-50%, -50%) scale(0.02);
   pointer-events: none;
   z-index: 1;
-  /* 慢悠悠向外撑开，边撑边淡出 */
-  animation: ripple-spread 700ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  /* 匀速、连续、平滑地撑大，边撑边淡出 */
+  animation: ripple-spread 600ms linear forwards;
 }
 @keyframes ripple-spread {
-  /* 从几乎看不见的小点开始，慢慢撑大，边撑边淡出 */
-  0%   { transform: translate(-50%, -50%) scale(0.02); opacity: 0.7; }
-  30%  { opacity: 0.7; }
+  /* 一个几乎透明的小圆，从指尖中心匀速撑满整个控件，同时渐渐隐去 */
+  0%   { transform: translate(-50%, -50%) scale(0.02); opacity: 0.5; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 /* 游戏卡片内容区作为水波宿主：封面区不显水波，水波只在内容区清晰 */
