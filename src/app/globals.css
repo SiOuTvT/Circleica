@@ -1405,33 +1405,31 @@ a[href]:active {
   position: relative;
   overflow: hidden;
 }
-/* 按下：几乎零延迟下沉到 97% + 表面略变深，按住期间保持 */
+/* 按下：几乎零延迟、仅极轻微下沉（约 1%）——不整卡变暗，封面不跟暗 */
 [data-ripple].ripple-pressed {
-  transform: scale(0.97);
-  filter: brightness(0.97);
-  transition: transform 0ms, filter 0ms;
+  transform: scale(0.99);
+  transition: transform 0ms;
 }
-/* 松手：约 200ms 先快后慢回弹，与水波同步展开；回弹干脆不拖泥 */
+/* 松手：「水晶泥」式扎实慢回弹 ~240ms，带极轻微弹性，不快速弹跳 */
 [data-ripple].ripple-release {
   transform: scale(1);
-  filter: brightness(1);
-  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms ease;
+  transition: transform 240ms cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 .ripple-wave {
   position: absolute;
   border-radius: 9999px;
-  /* 中性灰：取文字色低透明度混合，深浅色都稳，且绝不跟随后台主题色 */
-  background: color-mix(in srgb, var(--foreground) 24%, transparent);
-  transform: translate(-50%, -50%) scale(0.2);
+  /* 一圈光晕：中心透明、边缘明显，从指尖小点慢慢向外撑开（中性灰，不随主题色） */
+  background: radial-gradient(circle, transparent 0 70%, color-mix(in srgb, var(--foreground) 16%, transparent) 88%, transparent 100%);
+  transform: translate(-50%, -50%) scale(0.02);
   pointer-events: none;
   z-index: 1;
-  /* 先快后慢（decelerate），与卡片上浮/封面放大的缓动一致 */
-  animation: ripple-spread 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* 慢悠悠向外撑开，边撑边淡出 */
+  animation: ripple-spread 700ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 @keyframes ripple-spread {
-  /* 先向外撑开一圈，中后段再淡出；起始可见度明显 */
-  0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.55; }
-  65%  { opacity: 0.5; }
+  /* 从几乎看不见的小点开始，慢慢撑大，边撑边淡出 */
+  0%   { transform: translate(-50%, -50%) scale(0.02); opacity: 0.5; }
+  30%  { opacity: 0.5; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 /* 游戏卡片内容区作为水波宿主：封面区不显水波，水波只在内容区清晰 */
