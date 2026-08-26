@@ -599,7 +599,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
       <button
         onClick={openPicker}
         type="button"
-        className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+        className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary"
       >
         {generating ? <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2} /> : <Download className="h-5 w-5 text-muted-foreground" strokeWidth={2} />}
         <span className="text-xs font-medium text-foreground">{generating ? "生成中…" : "生成名片"}</span>

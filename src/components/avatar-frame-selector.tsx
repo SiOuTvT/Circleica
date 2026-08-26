@@ -129,7 +129,7 @@ export function AvatarFrameSelector({
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary"
         >
           <span className="text-xl leading-none">🎭</span>
           <span className="text-xs font-medium text-foreground">头像框</span>
@@ -143,7 +143,7 @@ export function AvatarFrameSelector({
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-accent-foreground"
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-accent-foreground"
         >
           🎭 更换头像框
         </button>
@@ -202,7 +202,7 @@ export function AvatarFrameSelector({
                     onClick={() => handleSelect(null)}
                     disabled={saving}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition-all",
+                      "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition duration-150 ease-in-out",
                       selected === null
                         ? "ring-primary bg-primary/10"
                         : "ring-border bg-secondary/50 hover:bg-accent hover:ring-primary/30",
@@ -227,7 +227,7 @@ export function AvatarFrameSelector({
                         onClick={() => handleSelect(f)}
                         disabled={saving}
                         className={cn(
-                          "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition-all",
+                          "flex flex-col items-center gap-2 rounded-xl p-3 ring-1 transition duration-150 ease-in-out",
                           selected === f.id
                             ? "ring-primary bg-primary/10"
                             : "ring-border bg-secondary/50 hover:bg-accent hover:ring-primary/30",

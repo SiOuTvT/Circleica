@@ -198,7 +198,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              "rounded-2xl bg-card/80 border-2 border-border transition-all overflow-hidden focus-within:rounded-none",
+              "rounded-2xl bg-card/80 border-2 border-border transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-150 ease-in-out overflow-hidden focus-within:rounded-none",
               isDragging ? "border-primary bg-primary/5" : "border-border focus-within:border-primary"
             )}
           >
@@ -296,7 +296,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               <div className="flex-1" />
 
               <button type="submit" disabled={submitting || (!content.trim() && !selectedFile)}
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed">
                 <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
                 {submitting ? "发送中…" : "发送"}
               </button>
@@ -368,7 +368,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
               {c.content && <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">{c.content}</p>}
               {c.imageUrl && (
                 <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-xs">
-                  <Image src={c.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition-all" unoptimized />
+                  <Image src={c.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition duration-150 ease-in-out" unoptimized />
                 </a>
               )}
               <button onClick={() => isLoggedIn && likingId !== c.id && likeComment(c.id)}

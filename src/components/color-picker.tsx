@@ -36,7 +36,7 @@ export function ColorPicker({
             key={c}
             type="button"
             onClick={() => handlePresetClick(c)}
-            className={`h-6 w-6 rounded-full transition-all ${
+            className={`h-6 w-6 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out ${
               value.toLowerCase() === c.toLowerCase()
                 ? "ring-2 ring-violet-500 ring-offset-2 ring-offset-background scale-110"
                 : "hover:scale-110"
@@ -61,7 +61,7 @@ export function ColorPicker({
           value={hexInput}
           onChange={(e) => handleHexChange(e.target.value)}
           placeholder="#000000"
-          className="w-24 rounded-lg border-2 border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+          className="w-24 rounded-lg border-2 border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
         />
         <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} title="当前颜色预览" />
       </div>

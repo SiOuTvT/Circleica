@@ -35,14 +35,14 @@ export function CollectionCard({
     return (
       <Link
         href={href}
-        className="group relative block overflow-hidden rounded-2xl bg-muted transition-all duration-500 hover:shadow-lg"
+        className="group relative block overflow-hidden rounded-2xl bg-muted transition ease-in-out duration-500 hover:shadow-lg"
         style={{ aspectRatio: "21 / 9" }}
       >
         <Image
           src={primary.cover}
           alt={name}
           fill
-          className="object-cover transition-all duration-700 group-hover:scale-105"
+          className="object-cover transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-700 group-hover:scale-105"
           unoptimized
           sizes="(max-width: 1024px) 100vw, 896px"
         />
@@ -70,7 +70,7 @@ export function CollectionCard({
   return (
     <Link
       href={href}
-      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition-all duration-300 hover:ring-foreground/10 hover:shadow-sm"
+      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:ring-foreground/10 hover:shadow-sm"
     >
       {/* 封面区 */}
       <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 sm:w-24">
@@ -79,7 +79,7 @@ export function CollectionCard({
             src={primary.cover}
             alt={name}
             fill
-            className="object-cover transition-all duration-500 group-hover:scale-105"
+            className="object-cover transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-500 group-hover:scale-105"
             unoptimized
             sizes="(max-width: 640px) 80px, 96px"
           />

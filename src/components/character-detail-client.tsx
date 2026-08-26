@@ -177,7 +177,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
               {translated && (
                 <button
                   onClick={() => setShowOriginal(!showOriginal)}
-                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-secondary hover:text-white"
                 >
                   {showOriginal ? "查看翻译" : "查看原文"}
                 </button>
@@ -197,7 +197,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
         <button
           onClick={refresh}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl bg-primary/10 px-6 py-3 text-sm font-medium text-primary ring-1 ring-primary/25 transition-all hover:bg-primary/20 hover:text-primary disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-primary/10 px-6 py-3 text-sm font-medium text-primary ring-1 ring-primary/25 transition duration-150 ease-in-out hover:bg-primary/20 hover:text-primary disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           换一个角色

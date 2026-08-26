@@ -38,7 +38,7 @@ export function ContributorsCard() {
             href={`https://github.com/${c.login}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-1"
+            className="group flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5 transition duration-150 ease-in-out hover:border-primary/40 hover:shadow-1"
           >
             <Image
               src={c.avatar_url}
