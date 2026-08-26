@@ -222,7 +222,7 @@ async function getRanked(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): 
 async function getRankedCached(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): Promise<RankResult> {
   return unstable_cache(
     async () => getRanked(dim, scope, nsfwMode),
-    ["ranking", dim, scope, nsfwMode],
+    ["ranking:v2", dim, scope, nsfwMode],
     { revalidate: 3600, tags: ["ranking"] }
   )()
 }
@@ -254,7 +254,7 @@ export default async function RankingPage({
   } catch {
     result = { items: [], fallback: false }
   }
-  const items = result.items
+  const items = result?.items ?? []
   const top3 = items.slice(0, 3)
   const rest = items.slice(3)
 
