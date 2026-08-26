@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { GameCard, type GameCardData } from "@/components/game-card"
+import styles from "@/components/discover/discover-overrides.module.css"
 
 /**
  * 继续浏览：展示服务端按当前登录用户记录的浏览历史（真正的「每个人各自的浏览历史」）。
@@ -31,13 +32,13 @@ export function RecentlyViewed({ initialCards = [] }: { initialCards?: GameCardD
         </button>
       </div>
       <div
-        className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted-foreground/20"
+        className={`${styles.recRow} flex gap-3 overflow-x-auto pb-2 pr-4 scrollbar-thin scrollbar-thumb-muted-foreground/20`}
         style={{ contain: "layout style" }}
       >
         {initialCards.map((g) => (
-          <div key={g.id} className="w-[140px] sm:w-[160px] shrink-0">
-            {/* 继续浏览只保留封面 + 名称 + 数据行（访问量等），不再堆标签 */}
-            <GameCard game={g} showTags={false} />
+          <div key={g.id} className="w-[160px] shrink-0">
+            {/* 继续浏览只保留封面 + 名称，数据行也隐藏（发现页最小一档） */}
+            <GameCard game={g} showTags={false} showStats={false} />
           </div>
         ))}
       </div>

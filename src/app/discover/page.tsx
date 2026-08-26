@@ -2,9 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { cached, cacheKey } from "@/lib/redis"
 import type { Metadata } from "next"
-import Image from "next/image"
-import Link from "next/link"
-import { CalendarDays, ChevronRight, Clock, History } from "lucide-react"
+import { CalendarDays, Clock, History } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { getRecentViewIds } from "@/lib/view-history"
 import { ArchiveHero } from "@/components/archive/archive-hero"
@@ -13,6 +11,7 @@ import { RecentlyViewed } from "@/components/discover/recently-viewed"
 import { ForYou } from "@/components/discover/for-you"
 import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { GameCard, type GameCardData } from "@/components/game-card"
+import styles from "@/components/discover/discover-overrides.module.css"
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -29,23 +28,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const revalidate = 120
 
-interface CuratedCollectionData {
-  id: string
-  slug: string | null
-  name: string
-  games: { game: { id: string; serialId: number; title: string; coverImage: string | null } }[]
-  _count: { games: number }
-}
-
 interface DiscoveryData {
-  collections: CuratedCollectionData[]
   years: { year: number; count: number }[]
   popular: GameCardData[]
   recent: GameCardData[]
 }
 
 /**
- * 发现页数据：四个板块**各自独立降级**。
+ * 发现页数据：三大板块**各自独立降级**。
  *
  * 此前四个查询共用一个 Promise.all + 整体 catch，任意一个失败就整页返回 null。
  * 尤其年份聚合走的是 $queryRaw —— 它在数据库不可达时的行为是**抛错**
@@ -65,24 +55,9 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
 
   try {
     // 发现页四个板块整体缓存 300s（合集/热门/时间轴数据不常变），single-flight 防并发击穿
-    const [collectionsR, yearsR, popularR, recentR] = await cached(
+    const [yearsR, popularR, recentR] = await cached(
       cacheKey("discover:all"),
       () => Promise.allSettled([
-        prisma.curatedCollection.findMany({
-          where: { published: true },
-          orderBy: { sortOrder: "asc" },
-          take: 8,
-          include: {
-            games: {
-              // 发现页为 SFW-only 入口：合集封面条同样排除 NSFW 游戏
-              where: { game: { isPublished: true, isNsfw: false } },
-              orderBy: { sortOrder: "asc" },
-              take: 4,
-              include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
-            },
-            _count: { select: { games: true } },
-          },
-        }),
         prisma.$queryRaw<{ year: number; count: number }[]>`
           SELECT EXTRACT(YEAR FROM "releaseDate")::int AS year, COUNT(*)::int AS count
           FROM "Game"
@@ -100,20 +75,19 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
         prisma.game.findMany({
           where: { isPublished: true, isNsfw: false, releaseDate: { not: null } },
           orderBy: { releaseDate: "desc" },
-          take: 8,
+          take: 12,
           select: GAME_CARD_SELECT,
         }),
       ]),
       300,
     )
 
-    const collections = settle(collectionsR, [] as CuratedCollectionData[], "精选合集")
     const years = settle(yearsR, [] as { year: number; count: number }[], "发行年份聚合")
     const popular = settle(popularR, [], "热门作品")
     const recent = settle(recentR, [], "最近上新")
 
-    // 四块全空 = 数据库整体不可用，交给上层渲染空态（绝不注入假数据）
-    if (collections.length === 0 && years.length === 0 && popular.length === 0 && recent.length === 0) {
+    // 三块全空 = 数据库整体不可用，交给上层渲染空态（绝不注入假数据）
+    if (years.length === 0 && popular.length === 0 && recent.length === 0) {
       return null
     }
 
@@ -128,7 +102,6 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
     } catch (err) { logger.db.warn("[discover] discoverTagColor query failed", { error: err instanceof Error ? err.message : String(err) }) }
 
     return {
-      collections,
       years: years.map((y) => ({ year: Number(y.year), count: Number(y.count) })),
       popular: popular.map((g) => mapGameToCard(g, { resourceTagColor: discoverTagColor })),
       recent: recent.map((g) => mapGameToCard(g, { resourceTagColor: discoverTagColor })),
@@ -139,56 +112,19 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 }
 
-/** 主编精选：非对称大特稿卡，编辑锚点（平衡权重，不压顶） */
-function EditorFeature({ collection }: { collection: CuratedCollectionData }) {
-  const cover = collection.games.map((g) => g.game.coverImage).find(Boolean) || null
-  const firstTitle = collection.games[0]?.game.title
-
-  return (
-    <section className="group relative overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition-shadow hover:shadow-lg">
-      <div className="grid sm:grid-cols-2">
-        <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[280px]">
-          {cover ? (
-            <Image
-              src={cover}
-              alt={collection.name}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              sizes="(max-width: 640px) 100vw, 50vw"
-              unoptimized
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/40">无封面</div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:bg-gradient-to-r sm:from-black/40 sm:via-transparent sm:to-transparent" />
-        </div>
-        <div className="flex flex-col justify-center gap-4 p-6 sm:p-8">
-          <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            主编精选
-          </span>
-          <div>
-            <h2 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">{collection.name}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {firstTitle ? `收录《${firstTitle}》等 ` : ""}
-              {collection._count.games} 部作品
-            </p>
-          </div>
-          <Link
-            href={collection.slug ? `/credits/collection/${encodeURIComponent(collection.slug)}` : `/collections/${collection.id}`}
-            className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
-          >
-            查看精选合集
-            <ChevronRight className="h-4 w-4" strokeWidth={2} />
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
+/** 发行日期格式化（最近上新板块只保留此一行元信息） */
+function formatReleaseDate(d?: Date | string): string {
+  if (!d) return ""
+  const dt = typeof d === "string" ? new Date(d) : d
+  if (Number.isNaN(dt.getTime())) return ""
+  const y = dt.getFullYear()
+  const m = String(dt.getMonth() + 1).padStart(2, "0")
+  const day = String(dt.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
 }
 
 export default async function DiscoverPage() {
   const data = await getDiscoveryData()
-  const featured = data?.collections?.[0] ?? null
   const years = data?.years ?? []
   const recent = data?.recent ?? []
   const maxYear = years.length ? Math.max(...years.map((y) => y.count)) : 1
@@ -223,19 +159,10 @@ export default async function DiscoverPage() {
         <RecentlyViewed initialCards={historyCards} />
       </DiscoverySection>
 
-      {/* 2. 看点精选（平衡权重，不压顶） */}
-      {featured ? (
-        <EditorFeature collection={featured} />
-      ) : (
-        <div className="rounded-2xl border border-dashed border-border bg-card/40 p-6 sm:p-10 text-center">
-          <p className="text-sm text-muted-foreground">暂无精选合集</p>
-        </div>
-      )}
-
-      {/* 3. 刷推荐（标题由 ForYou 按是否有浏览历史动态决定：为你推荐 / 热门作品） */}
+      {/* 2. 刷推荐（为你推荐） */}
       <ForYou popular={data?.popular ?? []} />
 
-      {/* 4. 发行时间轴（升级为正式板块：自包含年份发行量可视化，不外链别的页面） */}
+      {/* 3. 发行时间轴（自包含年份发行量可视化，不外链别的页面） */}
       <DiscoverySection title="发行时间轴" description="全站作品的年代分布" icon={CalendarDays}>
         {years.length > 0 ? (
           <div className="space-y-2.5">
@@ -257,12 +184,12 @@ export default async function DiscoverPage() {
         )}
       </DiscoverySection>
 
-      {/* 5. 最近上新（真实内容、自包含，与 /games 完整浏览列表区分） */}
-      <DiscoverySection title="最近上新" description="刚刚入库的作品（取最近 8 部）" icon={Clock} actionHref="/games?sort=new" actionLabel="查看全部">
+      {/* 4. 最近上新（真实内容、自包含，与 /games 完整浏览列表区分） */}
+      <DiscoverySection title="最近上新" description="刚刚入库的作品" icon={Clock} actionHref="/games?sort=new" actionLabel="查看全部">
         {recent.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className={cn(styles.recent, "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6")}>
             {recent.map((g) => (
-              <GameCard key={g.id} game={g} />
+              <GameCard key={g.id} game={g} showTags={false} releaseDate={formatReleaseDate(g.createdAt)} />
             ))}
           </div>
         ) : (

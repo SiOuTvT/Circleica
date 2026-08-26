@@ -1,6 +1,6 @@
 "use client"
 
-import { Download, Eye, Heart, ImageOff } from "lucide-react"
+import { CalendarDays, Download, Eye, Heart, ImageOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useCallback, useState, useRef, useEffect } from "react"
@@ -41,7 +41,18 @@ function useStatusBadge(status: string): string | null {
   return null
 }
 
-export const GameCard = memo(function GameCard({ game, showTags = true }: { game: GameCardData; showTags?: boolean }) {
+export const GameCard = memo(function GameCard({
+  game,
+  showTags = true,
+  showStats = true,
+  releaseDate = null,
+}: {
+  game: GameCardData
+  showTags?: boolean
+  showStats?: boolean
+  /** 发现页「最近上新」用：只显示发行日期，取代浏览/下载/收藏计数 */
+  releaseDate?: string | null
+}) {
   const [imgError, setImgError] = useState(false)
   const [imgFallback, setImgFallback] = useState(false)
 
@@ -183,27 +194,34 @@ export const GameCard = memo(function GameCard({ game, showTags = true }: { game
           </div>
         )}
 
-        {/* 数据区：始终贴底 */}
-        <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3 pt-3">
-          {viewStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-              {viewStr}
-            </span>
-          )}
-          {dlStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-              {dlStr}
-            </span>
-          )}
-          {favStr && (
-            <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-              <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-              {favStr}
-            </span>
-          )}
-        </div>
+        {/* 数据区：始终贴底。发现页可传 releaseDate 只显示发行日期，或 showStats=false 隐藏 */}
+        {releaseDate ? (
+          <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-1.5 pt-3 text-xs text-muted-foreground">
+            <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+            <span>{releaseDate}</span>
+          </div>
+        ) : showStats ? (
+          <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3 pt-3">
+            {viewStr && (
+              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                {viewStr}
+              </span>
+            )}
+            {dlStr && (
+              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                {dlStr}
+              </span>
+            )}
+            {favStr && (
+              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                {favStr}
+              </span>
+            )}
+          </div>
+        ) : null}
       </div>
     </Link>
   )
