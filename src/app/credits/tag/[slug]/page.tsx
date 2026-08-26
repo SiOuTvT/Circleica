@@ -38,7 +38,7 @@ export async function generateMetadata({
   const detail = await getTagDetailBySlug(slug)
   if (!detail) {
     return {
-      title: "标签未找到 · Circleica",
+      title: "标签未找到",
       description: "未找到该标签。",
       robots: { index: false, follow: true },
     }
@@ -47,7 +47,7 @@ export async function generateMetadata({
     ? `${detail.description} 共 ${detail.gameCount} 部作品。`
     : `浏览标签「${detail.name}」下的 ${detail.gameCount} 部作品。`
   return {
-    title: `标签：${detail.name} · Circleica`,
+    title: `标签：${detail.name}`,
     description: desc,
     alternates: { canonical: `/credits/tag/${slug}` },
   }

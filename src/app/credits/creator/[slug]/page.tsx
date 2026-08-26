@@ -24,13 +24,13 @@ export async function generateMetadata({
   const detail = await getCreatorDetail(decoded, 1)
   if (!detail) {
     return {
-      title: "创作者未找到 · Circleica",
+      title: "创作者未找到",
       description: "未找到该创作者。",
       robots: { index: false, follow: true },
     }
   }
   return {
-    title: `创作者：${detail.nameJa || detail.name} · Circleica`,
+    title: `创作者：${detail.nameJa || detail.name}`,
     description: `浏览 Circleica 中创作者「${detail.nameJa || detail.name}」的参与作品、所属制作组与职位。`,
     alternates: { canonical: `/credits/creator/${slug}` },
   }

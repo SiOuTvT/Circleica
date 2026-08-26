@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "标签 · 标签图鉴",
+  title: "标签图鉴",
   description: "按标签浏览游戏，发现你感兴趣的作品类型与分类。Circleica 标签图鉴。",
   keywords: ["标签", "游戏标签", "标签浏览", "同人游戏", "Circleica"],
   openGraph: {

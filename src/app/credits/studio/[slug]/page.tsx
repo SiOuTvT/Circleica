@@ -27,13 +27,13 @@ export async function generateMetadata({
   const detail = await getMakerDetail(decoded, 1)
   if (!detail) {
     return {
-      title: "制作组未找到 · Circleica",
+      title: "制作组未找到",
       description: "未找到该制作组。",
       robots: { index: false, follow: true },
     }
   }
   return {
-    title: `制作组：${detail.name} · Circleica`,
+    title: `制作组：${detail.name}`,
     description: `浏览 Circleica 中制作组「${detail.name}」的作品与参与创作者。`,
     alternates: { canonical: `/credits/studio/${slug}` },
   }

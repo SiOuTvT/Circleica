@@ -6,7 +6,7 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { CreatorArchiveClient } from "@/components/archive/creator-archive-client"
 
 export const metadata: Metadata = {
-  title: "创作者图鉴 · Circleica",
+  title: "创作者图鉴",
   description: "浏览 Circleica 中的创作者档案：脚本、原画、音乐、导演，以及他们的参与作品。",
   alternates: { canonical: "/credits/creator" },
 }

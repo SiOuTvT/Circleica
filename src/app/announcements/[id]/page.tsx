@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id, isActive: true },
     select: { title: true, content: true, imageUrl: true },
   })
-  if (!ann) return { title: "公告 · Circleica" }
+  if (!ann) return { title: "公告" }
   return {
     title: `${ann.title} · 公告`,
     description: ann.content.replace(/<[^>]+>/g, "").slice(0, 160),

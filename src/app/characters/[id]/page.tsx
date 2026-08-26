@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     if (character?.name) {
       const description = character.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${character.name} - VNDB 角色详情`
       return {
-        title: `${character.name} · 角色详情 · Circleica`,
+        title: `${character.name} · 角色详情`,
         description,
         openGraph: { title: `${character.name} · 角色详情`, description, images: ["/opengraph-image"] },
         alternates: { canonical: `/characters/${id}` },
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   } catch (err) { logger.db.warn("[CharacterPage] generateMetadata VNDB failed", { error: err instanceof Error ? err.message : String(err) }) }
   return {
-    title: `角色详情 · Circleica`,
+    title: `角色详情`,
     description: "查看 VNDB 角色详细信息",
     openGraph: { title: "角色详情 · Circleica", description: "查看 VNDB 角色详细信息", images: ["/opengraph-image"] },
     alternates: { canonical: `/characters/${id}` },

@@ -6,7 +6,7 @@ import { HeaderSearch } from "@/components/archive/header-search"
 import { StudioArchiveClient } from "@/components/archive/studio-archive-client"
 
 export const metadata: Metadata = {
-  title: "制作组图鉴 · Circleica",
+  title: "制作组图鉴",
   description: "浏览 Circleica 中的同人社团、小型制作组与作者档案，按名称首字索引。",
   alternates: { canonical: "/credits/studio" },
 }

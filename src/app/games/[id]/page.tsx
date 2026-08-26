@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }) : null
   if (!game) return { title: "游戏详情" }
   return {
-    title: `${game.title} · Circleica`,
+    title: `${game.title}`,
     description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
     openGraph: {
       title: game.title,

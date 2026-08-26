@@ -34,7 +34,7 @@ const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ def
   ),
 })
 
-export const metadata = { title: "管理后台 · Circleica" }
+export const metadata = { title: "管理后台" }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const hdrs = await headers()
