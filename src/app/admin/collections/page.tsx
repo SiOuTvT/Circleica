@@ -235,7 +235,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
 
   // 搜索游戏
   useEffect(() => {
-    if (search.trim().length < 2) { setSearchResults([]); return }
+    if (search.trim().length < 1) { setSearchResults([]); return }
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
