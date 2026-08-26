@@ -54,7 +54,7 @@ async function getDiscoveryData(): Promise<DiscoveryData | null> {
   }
 
   try {
-    // 发现页四个板块整体缓存 300s（合集/热门/时间轴数据不常变），single-flight 防并发击穿
+    // 发现页三大板块整体缓存 300s（热门/时间轴/最近上新数据不常变），single-flight 防并发击穿
     const [yearsR, popularR, recentR] = await cached(
       cacheKey("discover:all"),
       () => Promise.allSettled([
@@ -187,7 +187,7 @@ export default async function DiscoverPage() {
       {/* 4. 最近上新（真实内容、自包含，与 /games 完整浏览列表区分） */}
       <DiscoverySection title="最近上新" description="刚刚入库的作品" icon={Clock} actionHref="/games?sort=new" actionLabel="查看全部">
         {recent.length > 0 ? (
-          <div className={cn(styles.recent, "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6")}>
+          <div className={`${styles.recent} grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6`}>
             {recent.map((g) => (
               <GameCard key={g.id} game={g} showTags={false} releaseDate={formatReleaseDate(g.createdAt)} />
             ))}
