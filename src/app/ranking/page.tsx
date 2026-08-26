@@ -11,14 +11,13 @@ import { ArchiveHero } from "@/components/archive/archive-hero"
 
 export const metadata: Metadata = {
   title: "排行榜",
-  description: "按评分、收藏、浏览、评论查看热门作品排行",
+  description: "按收藏、浏览与评论查看热门作品排行",
 }
 
-type DimKey = "rating" | "favorite" | "view" | "comment"
+type DimKey = "favorite" | "view" | "comment"
 type ScopeKey = "month" | "3m" | "6m"
 
 const DIMS: { key: DimKey; label: string }[] = [
-  { key: "rating", label: "评分" },
   { key: "favorite", label: "收藏" },
   { key: "view", label: "浏览" },
   { key: "comment", label: "评论" },
@@ -30,7 +29,7 @@ const SCOPES: { key: ScopeKey; label: string }[] = [
   { key: "6m", label: "近半年" },
 ]
 
-const VALID_DIMS: DimKey[] = ["rating", "favorite", "view", "comment"]
+const VALID_DIMS: DimKey[] = ["favorite", "view", "comment"]
 const VALID_SCOPES: ScopeKey[] = ["month", "3m", "6m"]
 
 /** 时间范围起点（按相对窗口计算，最大不超过近半年） */
@@ -64,42 +63,6 @@ interface RankResult {
   items: RankedItem[]
   /** 当前维度是否因窗口内无数据而回退到了累计榜 */
   fallback: boolean
-}
-
-/** 评分榜：只统计 createdAt 落在窗口内（from 为 undefined 时取全站）的评分记录，窗口内至少 3 条评分才入榜 */
-async function ratingItems(from: Date | undefined, nsfwMode: MainNsfwMode): Promise<RankedItem[]> {
-  const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
-  const grouped = await prisma.gameRating.groupBy({
-    by: ["gameId"],
-    where: from
-      ? { createdAt: { gte: from }, game: { isPublished: true, ...nsfwWhere } }
-      : { game: { isPublished: true, ...nsfwWhere } },
-    _avg: { score: true },
-    _count: { id: true },
-    orderBy: { _avg: { score: "desc" } },
-    take: 200,
-  })
-  const filtered = grouped
-    .filter((g) => g._count.id >= 3)
-    .sort((a, b) => (b._avg.score ?? 0) - (a._avg.score ?? 0))
-    .slice(0, 50)
-  const ids = filtered.map((g) => g.gameId)
-  const rows = await prisma.game.findMany({
-    where: { id: { in: ids }, isPublished: true, ...nsfwWhere },
-    select: GAME_CARD_SELECT,
-  })
-  const byId = new Map(rows.map((r) => [r.id, r]))
-  const items: RankedItem[] = []
-  for (const g of filtered) {
-    const row = byId.get(g.gameId)
-    if (!row) continue
-    items.push({
-      card: mapGameToCard(row),
-      label: (g._avg.score ?? 0).toFixed(1),
-      unit: `分 · ${g._count.id}人评`,
-    })
-  }
-  return items
 }
 
 /** 收藏榜：按 createdAt 落在窗口内（from 为 undefined 时取全站）的新增收藏条数排名 */
@@ -178,14 +141,6 @@ async function getRanked(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwMode): 
     }
   }
 
-  if (dim === "rating") {
-    // 评分榜：筛「评分行为」发生的时间，而非作品发行时间
-    const windowItems = await ratingItems(from, nsfwMode)
-    if (windowItems.length > 0) return { items: windowItems, fallback: false }
-    // 窗口内无足够评分 → 回退全站累计评分榜
-    return { items: await ratingItems(undefined, nsfwMode), fallback: true }
-  }
-
   if (dim === "favorite") {
     // 收藏榜：按新增收藏条数（行为时间）排名，不用 Game.favoriteCount 累计总数
     const windowItems = await favItems(from, nsfwMode)
@@ -227,15 +182,13 @@ async function getRankedCached(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwM
   )()
 }
 
-// 奖章配色：名次是核心信息，前景/背景对比度需满足 WCAG AA（4.5:1）。
-// 金 amber-400(#fbbf24) 配白字仅约 1.65:1，故改用 amber-950(#451a03) ≈ 9.2:1；
-// 银 slate-300 + slate-800 ≈ 9:1、铜 orange-700 + 白字 ≈ 5.1:1，均已达标。
-// 三者均为固定色（不随主题切换），深浅色模式表现一致。
-const MEDALS = [
-  { border: "ring-amber-400/70", bg: "bg-amber-400", fg: "text-amber-950" },
-  { border: "ring-slate-300/70", bg: "bg-slate-300", fg: "text-slate-800" },
-  { border: "ring-orange-600/60", bg: "bg-orange-700", fg: "text-white" },
-]
+// 领奖台名次配色（固定色，不随主题切换，深浅色模式表现一致）：
+// 第一金（琥珀）· 第二银（灰）· 第三铜（深橙）。奖杯用该色，名次数字用同色系深一档以保证可读。
+const PODIUM: Record<number, { trophy: string; num: string }> = {
+  1: { trophy: "text-amber-400", num: "text-amber-900" },
+  2: { trophy: "text-slate-300", num: "text-slate-700" },
+  3: { trophy: "text-orange-700", num: "text-orange-900" },
+}
 
 export default async function RankingPage({
   searchParams,
@@ -243,7 +196,7 @@ export default async function RankingPage({
   searchParams: Promise<{ dim?: string; scope?: string }>
 }) {
   const sp = await searchParams
-  const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "rating"
+  const dim: DimKey = VALID_DIMS.includes(sp.dim as DimKey) ? (sp.dim as DimKey) : "favorite"
   const scope: ScopeKey = VALID_SCOPES.includes(sp.scope as ScopeKey) ? (sp.scope as ScopeKey) : "6m"
   // NSFW 过滤模式：服务端按 cookie 解析（未登录强制 sfw）
   const nsfwMode = await getMainNsfwMode()
@@ -269,7 +222,7 @@ export default async function RankingPage({
         variant="ranking"
         eyebrow="ranking"
         title="排行榜"
-        lede="按评分、收藏、浏览与评论，发现大家都在玩的作品"
+        lede="按收藏、浏览与评论，发现大家都在玩的作品"
         meta={
           items.length > 0 ? (
             <>
@@ -331,27 +284,32 @@ export default async function RankingPage({
           {/* TOP 3 领奖台 */}
           {top3.length > 0 && (
             <section className="mt-2 mx-auto grid max-w-[896px] gap-5 sm:grid-cols-3">
-              {top3.map((item, i) => (
-                <div key={item.card.id} className="relative flex flex-col items-center">
-                  <div
-                    className={cn(
-                      "absolute -top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ring-4 shadow-lg",
-                      MEDALS[i].bg,
-                      MEDALS[i].fg,
-                      MEDALS[i].border,
-                    )}
-                  >
-                    {i + 1}
+              {/* 渲染顺序：第二、第一、第三 —— 第一名居中，名次与颜色绑定真实名次 */}
+              {[1, 0, 2].map((idx) => {
+                const item = top3[idx]
+                if (!item) return null
+                const rank = idx + 1
+                const style = PODIUM[rank]
+                return (
+                  <div key={item.card.id} className="relative flex h-full flex-col items-center">
+                    <div className="absolute -top-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
+                      <Trophy
+                        className={cn("h-9 w-9 drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)]", style.trophy)}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      />
+                      <span className={cn("mt-0.5 text-xs font-bold tabular-nums", style.num)}>{rank}</span>
+                    </div>
+                    <div className="w-full flex-1">
+                      <GameCard game={item.card} />
+                    </div>
+                    <div className="mt-3 text-center">
+                      <span className="text-xl font-bold tabular-nums">{item.label}</span>
+                      <span className="ml-1.5 text-xs text-muted-foreground">{item.unit}</span>
+                    </div>
                   </div>
-                  <div className="w-full">
-                    <GameCard game={item.card} />
-                  </div>
-                  <div className="mt-3 text-center">
-                    <span className="text-xl font-bold tabular-nums">{item.label}</span>
-                    <span className="ml-1.5 text-xs text-muted-foreground">{item.unit}</span>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </section>
           )}
 
