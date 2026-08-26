@@ -34,7 +34,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
         {creators.map((creator) => (
           <div
             key={creator.id}
-            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition-all duration-200 hover:ring-foreground/10 hover:shadow-2"
+            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-2"
           >
             {/* 头像 + 名称（点击查看详情） */}
             <button
@@ -86,7 +86,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
               <button
                 type="button"
                 onClick={() => setSelectedCreator(creator)}
-                className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground cursor-pointer"
+                className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground cursor-pointer"
               >
                 查看
               </button>

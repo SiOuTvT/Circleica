@@ -170,7 +170,7 @@ export default async function AdminDashboard() {
           )
           return href ? (
             <Link key={label} href={href} className="block rounded-xl">
-              <Card size="comfortable" radius="xl" className="!gap-0 transition-all hover:ring-foreground/10 hover:shadow-2">{inner}</Card>
+              <Card size="comfortable" radius="xl" className="!gap-0 transition duration-150 ease-in-out hover:ring-foreground/10 hover:shadow-2">{inner}</Card>
             </Link>
           ) : (
             <Card key={label} size="comfortable" radius="xl" className="!gap-0">{inner}</Card>

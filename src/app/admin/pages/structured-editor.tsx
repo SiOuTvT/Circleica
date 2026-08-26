@@ -238,7 +238,7 @@ function blockToHTML(block: Block): string {
     }
     case "link-card": {
       const data = JSON.parse(block.content)
-      return `<a href="${data.href}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-secondary/80">${data.text}</a>`
+      return `<a href="${data.href}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-secondary/80">${data.text}</a>`
     }
     default:
       return ""
@@ -270,7 +270,7 @@ function BlockEditor({
   const data = isCard || isLinkCard ? JSON.parse(block.content) : null
 
   return (
-    <div className="group relative rounded-xl border border-border bg-card transition-all hover:shadow-1">
+    <div className="group relative rounded-xl border border-border bg-card transition duration-150 ease-in-out hover:shadow-1">
       {/* 工具栏 */}
       <div className="absolute -top-3 right-2 flex items-center gap-1 bg-background border border-border rounded-lg px-1.5 py-1 shadow-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <button

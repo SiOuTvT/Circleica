@@ -90,7 +90,7 @@ export default async function AdminForumPage({
             <a
               key={key}
               href={href}
-              className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition-all ${
+              className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition duration-150 ease-in-out ${
                 isActive
                   ? "text-foreground border-b-2 border-primary"
                   : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"

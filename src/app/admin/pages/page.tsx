@@ -116,7 +116,7 @@ Next.js 16 · React 19 · Prisma ORM · PostgreSQL · NextAuth v5 · Cloudflare 
 如果你发现了 Bug 或有功能建议，也欢迎通过 Issue 反馈。
 </p>
 <div class="mt-3">
-<a href="https://github.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition-all hover:bg-secondary/80">
+<a href="https://github.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm font-medium text-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-secondary/80">
 GitHub 仓库
 </a>
 </div>

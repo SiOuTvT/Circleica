@@ -109,7 +109,7 @@ export default async function GalvelicaAdminDashboard() {
           <Link
             key={href}
             href={href}
-            className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-1"
+            className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition duration-150 ease-in-out hover:border-primary/40 hover:shadow-1"
           >
             <div className="flex items-center justify-between">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">

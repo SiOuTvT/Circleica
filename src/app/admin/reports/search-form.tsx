@@ -24,12 +24,12 @@ export function ReportSearchForm({ initialQ }: { initialQ: string }) {
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="搜索游戏名称…"
-          className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary transition-all w-full sm:w-56"
+          className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] w-full sm:w-56"
         />
       </div>
       <button
         type="submit"
-        className="flex items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
+        className="flex items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 transition duration-150 ease-in-out cursor-pointer"
       >
         搜索
       </button>

@@ -105,7 +105,7 @@ export function GalvelicaFetchClient() {
                 type="button"
                 onClick={() => toggleSource(s.key)}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 text-left transition-all",
+                  "flex items-start gap-3 rounded-lg border p-3 text-left transition duration-150 ease-in-out",
                   on ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/30",
                 )}
               >
@@ -178,7 +178,7 @@ export function GalvelicaFetchClient() {
           type="button"
           onClick={run}
           disabled={loading}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-60"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:bg-primary/90 disabled:opacity-60"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           {loading ? "拉取中…" : "开始拉取"}

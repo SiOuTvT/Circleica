@@ -145,7 +145,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
           ...CATEGORIES.map(c => ({ key: c, label: CATEGORY_META[c].label })),
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${filter === f.key ? "bg-primary text-primary-foreground shadow-1" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition duration-150 ease-in-out ${filter === f.key ? "bg-primary text-primary-foreground shadow-1" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"}`}>
             {f.label}
             {f.key !== "all" && (
               <span className="ml-1 opacity-60">{items.filter(i => i.category === f.key).length}</span>
@@ -155,7 +155,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
         <div className="ml-auto flex gap-2">
           {items.length === 0 && (
             <button onClick={() => setShowSeedConfirm(true)} disabled={pending}
-              className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 transition-all hover:bg-amber-500/20">
+              className="flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-400 transition duration-150 ease-in-out hover:bg-amber-500/20">
               <Sparkles className="h-3.5 w-3.5" /> 初始化预设
             </button>
           )}
@@ -196,7 +196,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
             </Field>
           </div>
           <button onClick={handleCreate} disabled={pending || !newItem.key}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition duration-150 ease-in-out hover:bg-primary/90 disabled:opacity-40">
             <Save className="h-3.5 w-3.5" /> 保存
           </button>
         </div>
@@ -218,7 +218,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
 
             return (
               <div key={item.id}
-                className={`group rounded-xl border bg-card p-4 transition-all ${item.enabled ? "border-border hover:border-primary/30" : "border-dashed border-muted-foreground/20 opacity-60"}`}>
+                className={`group rounded-xl border bg-card p-4 transition duration-150 ease-in-out ${item.enabled ? "border-border hover:border-primary/30" : "border-dashed border-muted-foreground/20 opacity-60"}`}>
                 {isEditing ? (
                   /* ── 编辑模式 ── */
                   <div className="space-y-3">
@@ -274,15 +274,15 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                     {/* 操作按钮 */}
                     <div className="flex items-center gap-1">
                       <button onClick={() => toggleEnabled(item)} title={item.enabled ? "禁用" : "启用"}
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground">
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
                         {item.enabled ? <ToggleRight className="h-4 w-4 text-emerald-400" /> : <ToggleLeft className="h-4 w-4" />}
                       </button>
                       <button onClick={() => setEditing(item)} title="编辑"
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground">
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button onClick={() => setConfirmDeleteId(item.id)} title="删除"
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-400">
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
