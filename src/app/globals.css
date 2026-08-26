@@ -1418,8 +1418,8 @@ a[href]:active {
 .ripple-wave {
   position: absolute;
   border-radius: 9999px;
-  /* 一圈光晕：中心透明、边缘明显，从指尖小点慢慢向外撑开（中性灰，不随主题色） */
-  background: radial-gradient(circle, transparent 0 70%, color-mix(in srgb, var(--foreground) 16%, transparent) 88%, transparent 100%);
+  /* 一圈光晕：中心透明、边缘明显，环放在靠中心处(约58%)，从指尖小点慢慢向外撑到边缘都可见（中性灰，不随主题色） */
+  background: radial-gradient(circle, transparent 0 48%, color-mix(in srgb, var(--foreground) 22%, transparent) 58%, transparent 70%);
   transform: translate(-50%, -50%) scale(0.02);
   pointer-events: none;
   z-index: 1;
@@ -1428,8 +1428,8 @@ a[href]:active {
 }
 @keyframes ripple-spread {
   /* 从几乎看不见的小点开始，慢慢撑大，边撑边淡出 */
-  0%   { transform: translate(-50%, -50%) scale(0.02); opacity: 0.5; }
-  30%  { opacity: 0.5; }
+  0%   { transform: translate(-50%, -50%) scale(0.02); opacity: 0.7; }
+  30%  { opacity: 0.7; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 /* 游戏卡片内容区作为水波宿主：封面区不显水波，水波只在内容区清晰 */
