@@ -38,6 +38,8 @@ interface ResultToolbarProps {
   /** 除 sort/view 外的当前 URL 参数（q/tag/nsfw 等），切换排序/视图时保留 */
   params?: Record<string, string>
   defaultSort?: string
+  /** 排序是否以内联分段按钮呈现（true=三个选项并排可点+选中态；false=下拉菜单） */
+  sortInline?: boolean
   /** 当前视图；传入即启用网格/列表切换 */
   view?: "grid" | "list"
   defaultView?: "grid" | "list"
@@ -70,6 +72,7 @@ export function ResultToolbar({
   basePath,
   params = {},
   defaultSort = "newest",
+  sortInline = false,
   view,
   defaultView = "grid",
   activeFilters = [],
@@ -150,33 +153,53 @@ export function ResultToolbar({
           </div>
         )}
 
-        <div ref={sortRef} className="relative">
-          <button
-            type="button"
-            onClick={() => setSortOpen((o) => !o)}
-            className="flex items-center gap-1 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {currentSortLabel}
-            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", sortOpen && "rotate-180")} strokeWidth={1.5} />
-          </button>
-          {sortOpen && (
-            <div className="absolute right-0 top-full z-50 mt-1 w-36 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-3">
-              {sortOptions.map((o) => (
-                <Link
-                  key={o.key}
-                  href={buildSortHref(o.key)}
-                  onClick={() => setSortOpen(false)}
-                  className={cn(
-                    "block px-3 py-2 text-sm transition-colors",
-                    sort === o.key ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                  )}
-                >
-                  {o.label}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+        {sortInline ? (
+          <div className="flex items-center rounded-lg bg-muted p-0.5">
+            {sortOptions.map((o) => (
+              <Link
+                key={o.key}
+                href={buildSortHref(o.key)}
+                aria-current={sort === o.key ? "true" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm transition-colors",
+                  sort === o.key
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {o.label}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div ref={sortRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setSortOpen((o) => !o)}
+              className="flex items-center gap-1 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {currentSortLabel}
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", sortOpen && "rotate-180")} strokeWidth={1.5} />
+            </button>
+            {sortOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-36 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-3">
+                {sortOptions.map((o) => (
+                  <Link
+                    key={o.key}
+                    href={buildSortHref(o.key)}
+                    onClick={() => setSortOpen(false)}
+                    className={cn(
+                      "block px-3 py-2 text-sm transition-colors",
+                      sort === o.key ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                    )}
+                  >
+                    {o.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

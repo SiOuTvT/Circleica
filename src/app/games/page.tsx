@@ -1,6 +1,7 @@
 import { GameCard, GameCardSkeleton, GameListRow, GameListRowSkeleton, type GameCardData } from "@/components/game-card"
 import { Pagination } from "@/components/ui/pagination"
 import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
+import { ArchiveHero } from "@/components/archive/archive-hero"
 import { prisma } from "@/lib/prisma"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { cached, cacheKey } from "@/lib/redis"
@@ -105,6 +106,7 @@ async function GamesList({ page, sort = "newest", view = "grid", year, nsfwMode 
         resultLabel={year ? `${year} 年作品` : "全部游戏"}
         sort={sort}
         sortOptions={GAME_SORT_OPTIONS}
+        sortInline
         basePath="/games"
         params={{ ...(year ? { year: String(year) } : {}) }}
         view={view}
@@ -163,8 +165,12 @@ export default async function GamesPage({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-foreground">全部游戏</h1>
-        <p className="mt-1 text-sm text-muted-foreground">按最新、最热、收藏数浏览同人游戏作品</p>
+        <ArchiveHero
+          variant="games"
+          eyebrow="games"
+          title="全部游戏"
+          lede="按最新、最热、收藏数浏览同人游戏作品"
+        />
       </div>
       <Suspense fallback={<GridSkeleton view={view} />}>
         <GamesList page={page} sort={sort} view={view} year={year} nsfwMode={nsfwMode} />

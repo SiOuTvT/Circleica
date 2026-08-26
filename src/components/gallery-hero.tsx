@@ -238,7 +238,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       </div>
     )}
 
-    <div className="group relative h-full w-full overflow-hidden"
+    <div className="group relative h-full w-full overflow-hidden cursor-zoom-in"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleSwipeEnd}
     >
@@ -256,7 +256,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         src={displayImage}
         alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
         fill
-        className={`object-cover cursor-pointer ${fading ? 'hero-fade-enter' : ''}`}
+        className={`object-cover cursor-zoom-in ${fading ? 'hero-fade-enter' : ''}`}
         style={fading ? { animation: "heroFadeIn 0.35s ease-out" } : undefined}
         draggable={false}
         priority={activeIndex === 0}
