@@ -62,7 +62,7 @@ const variantStyles: Record<TagVariant, string> = {
     "px-2.5 py-1.5 sm:px-3 sm:py-2 min-h-[36px]",
     "text-xs font-medium",
     "text-break",
-    "transition-all hover:scale-[1.03]",
+    "transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:scale-[1.03]",
   ),
   badge: cn(
     "inline-flex items-center shrink-0",

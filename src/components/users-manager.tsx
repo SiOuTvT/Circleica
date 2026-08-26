@@ -235,7 +235,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                             placeholder="至少6位"
                             type="password"
                             autoFocus
-                            className="flex-1 min-w-0 sm:min-w-[200px] rounded-lg border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                            className="flex-1 min-w-0 sm:min-w-[200px] rounded-lg border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                           />
                           <div className="flex items-center gap-2 shrink-0">
                             <button

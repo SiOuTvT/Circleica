@@ -23,7 +23,7 @@ export function TranslatableDescription({ text, className = "" }: { text: string
         {translated && (
           <button
             onClick={() => setShowOriginal(!showOriginal)}
-            className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium text-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
           >
             {showOriginal ? "查看翻译" : "查看原文"}
           </button>
