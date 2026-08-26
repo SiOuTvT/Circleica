@@ -26,7 +26,7 @@ export function FeaturedGameHero({ game, description: _description }: FeaturedGa
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-2xl bg-card ring-1 ring-border transition-all hover:ring-foreground/10 md:hidden"
+      className="group block overflow-hidden rounded-2xl bg-card ring-1 ring-border transition duration-150 ease-in-out hover:ring-foreground/10 md:hidden"
     >
       <div className="flex flex-col sm:flex-row">
         {/* 封面 */}

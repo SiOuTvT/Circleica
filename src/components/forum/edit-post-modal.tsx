@@ -57,13 +57,13 @@ export function EditPostModal({ post, onClose, onSave }: EditPostModalProps) {
               placeholder="标题"
               maxLength={100}
               required
-              className="w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+              className="w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
             />
             <RichTextEditor content={content} onChange={setContent} placeholder="内容" />
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border transition-all hover:text-foreground"
+                className="flex-1 rounded-xl bg-secondary py-2.5 text-sm font-semibold text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-foreground"
               >
                 取消
               </button>

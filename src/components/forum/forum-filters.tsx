@@ -26,7 +26,7 @@ export function ForumFilters({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="搜索帖子标题或内容…"
-          className="w-full rounded-xl border-2 border-input bg-transparent pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+          className="w-full rounded-xl border-2 border-input bg-transparent pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
         />
       </div>
 
@@ -35,7 +35,7 @@ export function ForumFilters({
         <button
           onClick={() => onCategoryChange("")}
           className={cn(
-            "rounded-xl px-3.5 py-2 text-xs font-medium transition-all ring-1 min-h-[36px]",
+            "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px]",
             !activeCategory
               ? "bg-primary/10 text-primary ring-primary/40"
               : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"
@@ -50,7 +50,7 @@ export function ForumFilters({
             key={cat.value}
             onClick={() => onCategoryChange(cat.value)}
             className={cn(
-              "rounded-xl px-3.5 py-2 text-xs font-medium transition-all ring-1 min-h-[36px] flex items-center gap-1.5",
+              "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px] flex items-center gap-1.5",
               activeCategory === cat.value
                 ? "bg-primary/10 text-primary ring-primary/40"
                 : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"

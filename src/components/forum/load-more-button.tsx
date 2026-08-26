@@ -46,7 +46,7 @@ export function LoadMoreButton({
     <button
       onClick={handleClick}
       disabled={loadingMore}
-      className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      className="w-full rounded-xl bg-card/50 py-3 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       aria-busy={loadingMore}
       aria-label={loadingMore ? "加载中" : `加载更多帖子 (${remainingText})`}
     >

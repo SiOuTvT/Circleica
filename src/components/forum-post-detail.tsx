@@ -285,7 +285,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
               <>
                 <button onClick={toggleSolve}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition-all",
+                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition duration-150 ease-in-out",
                     post.isSolved ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
                   )}>
                   <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -293,7 +293,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                 </button>
                 {!post.isLocked && (
                   <button onClick={() => { setEditing(true); setEditTitle(post.title); setEditContent(post.content) }}
-                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition-all hover:text-foreground hover:bg-secondary">
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-foreground hover:bg-secondary">
                     <Edit3 className="h-3.5 w-3.5" strokeWidth={1.5} />编辑
                   </button>
                 )}
@@ -301,7 +301,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
             )}
             {(isAuthor || isAdmin) && (
               <button onClick={confirmDeletePost}
-                className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20 transition-all hover:bg-red-500/10">
+                className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20 transition duration-150 ease-in-out hover:bg-red-500/10">
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />删除
               </button>
             )}
@@ -336,7 +336,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                   {editingComment === c.id ? (
                     <div className="space-y-2 mt-1">
                       <input value={editCommentText} onChange={e => setEditCommentText(e.target.value)}
-                        className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-sm text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                        className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-sm text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                       <div className="flex gap-2">
                         <button onClick={async () => {
                           if (!editCommentText.trim()) return
@@ -360,7 +360,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                   {c.imageUrl && (
                     <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-[240px]">
                       <NextImage src={c.imageUrl} alt="评论图片" width={240} height={160}
-                        className="rounded-lg object-cover ring-1 ring-border max-h-40 hover:ring-primary/30 transition-all" unoptimized />
+                        className="rounded-lg object-cover ring-1 ring-border max-h-40 hover:ring-primary/30 transition duration-150 ease-in-out" unoptimized />
                     </a>
                   )}
                   <div className="mt-2 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
@@ -466,10 +466,10 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
                 <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)}
                   placeholder="写下你的评论..."
-                  className="flex-1 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/40 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                  className="flex-1 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/40 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
 
                 <button type="submit" disabled={submitting || (!commentText.trim() && !commentImagePreview)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-30 shrink-0">
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-30 shrink-0">
                   <Send className="h-4 w-4" strokeWidth={1.5} />
                 </button>
               </div>
@@ -506,7 +506,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
             <div className="space-y-4">
               <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
                 placeholder="标题" maxLength={100}
-                className="w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                className="w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
               <RichTextEditor content={editContent} onChange={setEditContent} placeholder="内容" />
               <div className="flex gap-3">
                 <button onClick={() => setEditing(false)}

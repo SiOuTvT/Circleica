@@ -27,7 +27,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
       className={cn(
         "block rounded-xl bg-card p-4 sm:p-5",
         "ring-1 ring-border/50",
-        "transition-all duration-200",
+        "transition ease-in-out duration-200",
         "hover:ring-primary/30 hover:bg-accent/30",
         post.isPinned && "ring-amber-500/30"
       )}

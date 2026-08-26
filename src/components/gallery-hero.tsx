@@ -288,7 +288,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
             aria-label="上一张"
           >
             <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -296,7 +296,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-110 active:opacity-100 active:scale-95"
             aria-label="下一张"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -308,7 +308,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); openLightbox() }}
-        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-105 active:opacity-100 active:scale-95"
+        className="absolute left-2 sm:left-3 bottom-2 sm:bottom-3 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 hover:opacity-100 hover:scale-105 active:opacity-100 active:scale-95"
         aria-label="放大查看"
       >
         <Maximize2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -328,7 +328,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
                 return next
               })
             }}
-            className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-all duration-200 sm:hover:scale-105 opacity-70"
+            className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 sm:hover:scale-105 opacity-70"
             aria-label={isPaused ? "继续轮播" : "暂停轮播"}
           >
             {isPaused ? <Play className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <Pause className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
@@ -368,7 +368,7 @@ const ThumbnailButton = memo(function ThumbnailButton({
     <button
       type="button"
       onClick={() => onSelect(index)}
-      className={`relative shrink-0 overflow-hidden transition-all duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg ${
+      className={`relative shrink-0 overflow-hidden transition duration-150 ease-in-out duration-200 h-[48px] w-[85px] sm:h-[60px] sm:w-[106px] lg:h-[72px] lg:w-[128px] rounded-lg ${
         isActive ? "ring-1 sm:ring-2 ring-primary" : "opacity-45 hover:opacity-70"
       }`}
     >

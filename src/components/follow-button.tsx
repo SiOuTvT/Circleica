@@ -47,7 +47,7 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     <button
       onClick={toggle}
       disabled={loading}
-      className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
+      className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition duration-150 ease-in-out ${
         following
           ? "bg-secondary text-muted-foreground hover:bg-rose-500/10 hover:text-rose-400"
           : "bg-primary text-primary-foreground hover:opacity-90"

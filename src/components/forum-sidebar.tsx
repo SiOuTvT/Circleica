@@ -43,7 +43,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
 
       <aside
         className={cn(
-          "fixed z-50 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,transform]",
+          "fixed z-50 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
         )}
@@ -68,7 +68,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           <button
             onClick={onToggle}
             aria-label="关闭论坛侧栏"
-            className="text-muted-foreground transition-all hover:rotate-90 hover:text-foreground"
+            className="text-muted-foreground transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:rotate-90 hover:text-foreground"
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
