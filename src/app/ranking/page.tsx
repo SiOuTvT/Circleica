@@ -196,7 +196,7 @@ export default async function RankingPage({
               key={d.key}
               href={`/ranking?dim=${d.key}&scope=${scope}`}
               className={cn(
-                "flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium transition-all",
+                "flex-1 rounded-lg px-3 py-2 text-center text-sm font-medium transition duration-150 ease-in-out",
                 dim === d.key
                   ? "bg-card text-foreground shadow-sm ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",
@@ -212,7 +212,7 @@ export default async function RankingPage({
               key={s.key}
               href={`/ranking?dim=${dim}&scope=${s.key}`}
               className={cn(
-                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+                "rounded-md px-2.5 py-1.5 text-xs font-medium transition duration-150 ease-in-out",
                 scope === s.key
                   ? "bg-card text-foreground shadow-sm ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",

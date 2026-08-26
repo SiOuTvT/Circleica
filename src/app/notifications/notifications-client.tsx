@@ -197,21 +197,21 @@ export default function NotificationsClient({
         <div className="flex gap-2 mb-4">
           <button
             onClick={markAllRead}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition-all"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <CheckCheck className="h-3.5 w-3.5" />
             全部已读
           </button>
           <button
             onClick={() => setShowReadConfirm(true)}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition-all"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <Trash2 className="h-3.5 w-3.5" />
             删除已读
           </button>
           <button
             onClick={() => setShowClearConfirm(true)}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:text-red-400 hover:ring-red-500/30 transition-all ml-auto"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border hover:text-red-400 hover:ring-red-500/30 transition duration-150 ease-in-out ml-auto"
           >
             清空全部
           </button>
@@ -234,7 +234,7 @@ export default function NotificationsClient({
                 onClick={() => { if (!n.isRead) markRead([n.id]) }}
                 className={cn(
                   "group flex items-center gap-3 rounded-xl bg-card px-4 py-3 cursor-pointer",
-                  "ring-1 ring-border/50 transition-all duration-200",
+                  "ring-1 ring-border/50 transition ease-in-out duration-200",
                   "hover:ring-primary/30 hover:bg-accent/30",
                   !n.isRead && "ring-primary/30 bg-primary/[0.04]"
                 )}
@@ -272,7 +272,7 @@ export default function NotificationsClient({
                 {/* 删除按钮 */}
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSingleDeleteId(n.id) }}
-                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:text-red-400"
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition duration-150 ease-in-out group-hover:opacity-100 hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -288,7 +288,7 @@ export default function NotificationsClient({
           <button
             onClick={fetchMore}
             disabled={loadingMore}
-            className="rounded-lg px-4 py-2 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground disabled:opacity-50 transition-all"
+            className="rounded-lg px-4 py-2 text-sm text-muted-foreground ring-1 ring-border hover:bg-accent hover:text-foreground disabled:opacity-50 transition duration-150 ease-in-out"
           >
             {loadingMore ? "加载中…" : "加载更多"}
           </button>

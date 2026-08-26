@@ -46,7 +46,7 @@ function TabNav({ activeTab, onTabChange }: { activeTab: Tab; onTabChange: (tab:
           key={tab.key}
           onClick={() => onTabChange(tab.key)}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
+            "flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition duration-150 ease-in-out",
             activeTab === tab.key
               ? "bg-primary/10 text-primary ring-1 ring-primary/20"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

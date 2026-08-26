@@ -94,7 +94,7 @@ function LoginContent() {
     { key: "confirm" as const, icon: CheckCircle2, type: "password", placeholder: "确认密码", autoComplete: "new-password" },
   ]
 
-  const inputCls = "flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary"
+  const inputCls = "flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary"
   const inputInnerCls = "flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]"
 
   return (
@@ -110,7 +110,7 @@ function LoginContent() {
           <div className="mb-6 flex rounded-xl bg-secondary/60 p-1">
             <button
               onClick={() => { setTab("login"); setError(""); setSuccess("") }}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition duration-150 ease-in-out ${
                 tab === "login"
                   ? "bg-secondary text-foreground shadow-1"
                   : "text-muted-foreground hover:text-foreground"
@@ -120,7 +120,7 @@ function LoginContent() {
             </button>
             <button
               onClick={() => { setTab("register"); setError(""); setSuccess("") }}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition duration-150 ease-in-out ${
                 tab === "register"
                   ? "bg-secondary text-foreground shadow-1"
                   : "text-muted-foreground hover:text-foreground"
@@ -194,7 +194,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60 min-h-[44px]"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-60 min-h-[44px]"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "登录中…" : "登 录"}
@@ -225,7 +225,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:opacity-60 min-h-[44px]"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-60 min-h-[44px]"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}

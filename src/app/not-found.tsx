@@ -27,7 +27,7 @@ export default function NotFound() {
       <div className="flex items-center gap-3">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition-all hover:opacity-90 btn-spring"
+          className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition duration-150 ease-in-out hover:opacity-90 btn-spring"
         >
           <Home className="h-4 w-4" /> 返回首页
         </Link>

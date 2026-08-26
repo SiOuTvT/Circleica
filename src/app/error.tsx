@@ -31,7 +31,7 @@ export default function GlobalError({
       <div className="flex items-center gap-3">
         <button
           onClick={reset}
-          className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition-all hover:opacity-90"
+          className="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground bg-primary transition duration-150 ease-in-out hover:opacity-90"
         >
           <RefreshCw className="h-4 w-4" /> 重新尝试
         </button>
