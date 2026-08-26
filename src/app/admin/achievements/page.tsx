@@ -50,7 +50,7 @@ const CATEGORIES = [
   { value: "special", label: "特殊" },
 ]
 
-const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
 export default function AdminAchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([])

@@ -122,10 +122,10 @@ export default async function AdminCheckInsPage({
               <input name="q" defaultValue={q} placeholder="搜索用户名…" aria-label="搜索用户名" className={adminSearchInput} />
             </div>
             <input type="date" name="from" defaultValue={from} aria-label="开始日期"
-              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
             <span className="text-xs text-muted-foreground">至</span>
             <input type="date" name="to" defaultValue={to} aria-label="结束日期"
-              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+              className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
             <Button type="submit">筛选</Button>
           </form>
         }
