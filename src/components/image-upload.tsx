@@ -225,7 +225,7 @@ export function ImageUpload({
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-3 border-2 transition-all",
+          "flex cursor-pointer flex-col items-center justify-center gap-3 border-2 transition duration-150 ease-in-out",
           flush ? "border-transparent rounded-none" : "border-dashed",
           shape === "circle" ? "rounded-full" : "rounded-xl",
           isDragging

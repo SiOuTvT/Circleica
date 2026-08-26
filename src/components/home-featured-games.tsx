@@ -73,7 +73,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
             <Link
               key={game.id}
               href={`/games/${game.serialId ?? game.id}`}
-              className="group relative overflow-hidden transition-all duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
+              className="group relative overflow-hidden transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,outline-color] duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
               style={{
                 flex: "1 1 0",
                 height: "140px",
@@ -121,7 +121,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
             <Link
               key={game.id}
               href={`/games/${game.serialId ?? game.id}`}
-              className="group relative overflow-hidden transition-all duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
+              className="group relative overflow-hidden transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,outline-color] duration-500 ease-out focus:outline-none focus-visible:outline-2 focus-visible:outline-primary"
               style={{
                 flex: "1 1 0",
                 height: "130px",
