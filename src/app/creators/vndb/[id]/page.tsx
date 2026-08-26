@@ -109,7 +109,7 @@ export default async function VndbCreatorPage({
                 href={`https://vndb.org/v/${vn.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition-all hover:ring-foreground/10"
+                className="group overflow-hidden rounded-xl bg-card ring-1 ring-border transition duration-150 ease-in-out hover:ring-foreground/10"
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted">
                   {vn.image?.url ? (

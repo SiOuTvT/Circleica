@@ -137,7 +137,7 @@ export function AdminGlobalSearch() {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground ring-1 ring-border transition-all hover:bg-accent hover:text-foreground"
+        className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
         title="全局搜索 (Ctrl+K)"
       >
         <Search className="h-4 w-4" strokeWidth={2} />

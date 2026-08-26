@@ -166,7 +166,7 @@ export default async function MakerDetailPage({
               <Link
                 key={c.slug ?? c.id}
                 href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
-                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
+                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/50">
                   {c.avatar ? (
@@ -205,7 +205,7 @@ export default async function MakerDetailPage({
           {prevHref ? (
             <Link
               href={prevHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               上一页
             </Link>
@@ -220,7 +220,7 @@ export default async function MakerDetailPage({
           {nextHref ? (
             <Link
               href={nextHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition-all hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               下一页
             </Link>

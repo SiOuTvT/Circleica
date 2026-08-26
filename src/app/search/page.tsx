@@ -214,7 +214,7 @@ async function SearchResults({
         {q && (
           <Link
             href={`/galvelica/works?search=${encodeURIComponent(q)}`}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-4 py-2.5 text-sm font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition-all hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-4 py-2.5 text-sm font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
             title="本站在副站资料库中查找该作品"
           >
             <Library className="h-4 w-4" />

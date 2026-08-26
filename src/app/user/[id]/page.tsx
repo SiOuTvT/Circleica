@@ -166,7 +166,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 </div>
                 {isSelf && (
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <Link href="/profile/edit" className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary">
+                    <Link href="/profile/edit" className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary">
                       <Pencil className="h-5 w-5 text-muted-foreground" strokeWidth={2} />
                       <span className="text-xs font-medium text-foreground">编辑资料</span>
                     </Link>

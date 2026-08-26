@@ -256,7 +256,7 @@ export function AdminNav() {
           <button
             onClick={toggleSidebar}
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-accent hover:text-foreground",
+              "flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground",
               collapsed && "mx-auto"
             )}
             title={collapsed ? "展开侧边栏" : "收缩侧边栏"}
@@ -301,7 +301,7 @@ export function AdminNav() {
             href="/"
             title={collapsed ? "返回前台" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
+              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
               collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
             )}
           >
@@ -314,7 +314,7 @@ export function AdminNav() {
             }}
             title={collapsed ? "全局搜索 (Ctrl+K)" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
+              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
               collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
             )}
           >
@@ -350,7 +350,7 @@ export function AdminNav() {
                       href={href}
                       title={collapsed ? label : undefined}
                       className={cn(
-                        "group relative flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200",
+                        "group relative flex items-center gap-3 rounded-lg text-sm font-medium transition ease-in-out duration-200",
                         collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5",
                         isActive
                           ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
@@ -379,7 +379,7 @@ export function AdminNav() {
           <button
             onClick={cycleTheme}
             className={cn(
-              "flex w-full items-center gap-3 rounded-lg text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground",
+              "flex w-full items-center gap-3 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
               collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"
             )}
             title={
@@ -413,7 +413,7 @@ export function AdminNav() {
       <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-lg md:hidden">
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
@@ -423,13 +423,13 @@ export function AdminNav() {
             onClick={() => {
               document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <Search className="h-5 w-5" strokeWidth={2} />
           </button>
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
           <ArrowLeft className="h-5 w-5" strokeWidth={2} />
         </Link>
@@ -457,7 +457,7 @@ export function AdminNav() {
           <span className="text-sm font-semibold text-foreground">管理后台</span>
           <button
             onClick={() => setMobileOpen(false)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
@@ -498,7 +498,7 @@ export function AdminNav() {
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2} />
             <span>返回前台</span>
@@ -524,7 +524,7 @@ export function AdminNav() {
                       href={href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition duration-150 ease-in-out",
                         isActive
                           ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
                           : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
@@ -551,7 +551,7 @@ export function AdminNav() {
         <div className="border-t border-border px-3 py-3">
           <button
             onClick={cycleTheme}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground"
           >
             {mounted && (
               <>

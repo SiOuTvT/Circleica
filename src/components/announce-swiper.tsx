@@ -152,7 +152,7 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
 
           {/* 查看详情（手机端隐藏） */}
           <span
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-all hover:underline hover:text-[var(--primary)]"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition duration-150 ease-in-out hover:underline hover:text-[var(--primary)]"
           >
             查看详情
             <span className="inline-block transition-transform hover:translate-x-1" aria-hidden="true">→</span>
@@ -167,14 +167,14 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); prev() }}
             aria-label="上一条公告"
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition duration-150 ease-in-out hover:bg-black/50 hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); next() }}
             aria-label="下一条公告"
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition-all hover:bg-black/50 hover:text-white"
+            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white/70 backdrop-blur-sm transition duration-150 ease-in-out hover:bg-black/50 hover:text-white"
           >
             <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
           </button>
@@ -187,7 +187,7 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCur(i) }}
                 aria-label={`切换到第 ${i + 1} 条公告`}
                 aria-current={i === cur ? "true" : undefined}
-                className={`rounded-full transition-all ${i === cur ? "h-1.5 w-5 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
+                className={`rounded-full transition duration-150 ease-in-out ${i === cur ? "h-1.5 w-5 bg-white/90" : "h-1.5 w-1.5 bg-white/30 hover:bg-white/50"}`}
               />
             ))}
           </div>
