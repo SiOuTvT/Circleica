@@ -105,7 +105,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                     <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/40" />
                   )}
                   {/* 毛玻璃文字层：覆盖整卡最上层。默认光标（不可点击），仅内容区点击跳详情 */}
-                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-default">
+                  <div className="relative z-[2] flex flex-col justify-end h-full p-5 sm:p-6 cursor-pointer">
                     <Link
                       href={href}
                       target={ann.link ? "_blank" : undefined}
