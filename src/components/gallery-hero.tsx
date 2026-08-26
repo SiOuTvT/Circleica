@@ -4,6 +4,7 @@ import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { ChevronLeft, ChevronRight, Maximize2, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react"
+import { createPortal } from "react-dom"
 
 // 检测是否为触摸设备
 const isTouchDevice = typeof window !== 'undefined' &&
@@ -184,14 +185,25 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   return (
     <>
-    {/* Lightbox 弹层 */}
-    {lightboxOpen && (
+    {/* Lightbox 弹层：portal 到 body，遮罩盖满整屏（含侧栏）；图片居中且超高可滚动 */}
+    {lightboxOpen && typeof document !== "undefined" && createPortal(
       <div
-        className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/90 backdrop-blur-sm"
+        className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 backdrop-blur-md"
         onClick={closeLightbox}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleSwipeEnd}
       >
+        <div className="flex min-h-full items-center justify-center p-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={galleryImages[activeIndex]}
+            alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
+            className="max-h-[92vh] max-w-[92vw] object-contain"
+            onClick={(e) => e.stopPropagation()}
+            draggable={false}
+          />
+        </div>
+
         <button
           type="button"
           onClick={closeLightbox}
@@ -212,15 +224,6 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
           </button>
         )}
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={galleryImages[activeIndex]}
-          alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-          className="max-h-[90vh] max-w-[90vw] object-contain"
-          onClick={(e) => e.stopPropagation()}
-          draggable={false}
-        />
-
         {hasMultipleImages && (
           <button
             type="button"
@@ -235,7 +238,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
         <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 text-sm text-white/70">
           {activeIndex + 1} / {galleryImages.length}
         </div>
-      </div>
+      </div>,
+      document.body
     )}
 
     <div className="group relative h-full w-full overflow-hidden cursor-zoom-in"
@@ -267,10 +271,8 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
             openLightbox()
           }
         }}
-        onDoubleClick={() => {
-          if (!isTouchDevice) {
-            openLightbox()
-          }
+        onClick={() => {
+          if (!didSwipeRef.current) openLightbox()
         }}
       />
 
