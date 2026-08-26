@@ -95,7 +95,7 @@ export async function linkGameStudios(
 // ── 游戏管理 ────────────────────────
 
 export const adminGameService = {
-  getPaginated(page: number, search?: string) { return adminGameRepo.findPaginated(page, 20, search) },
+  getPaginated(page: number, limit?: number, search?: string) { return adminGameRepo.findPaginated(page, limit ?? 20, search) },
 
   async create(data: Record<string, unknown>, publisherId: string) {
     if (!data.title?.toString().trim()) throw new ValidationError("游戏标题不能为空")

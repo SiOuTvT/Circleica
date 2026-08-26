@@ -239,8 +239,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
-        const data = await api.get<{ data?: GameSearchResult[] }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8`)
-        // /api/admin/games 返回 { success, data: [games[], count] }
+        const data = await api.get<{ data?: GameSearchResult[] }>(`/api/admin/games?search=${encodeURIComponent(search.trim())}&limit=8&page=1`)
         const games = Array.isArray(data.data) ? data.data : []
         setSearchResults(games.map((g) => ({ id: g.id, serialId: g.serialId, title: g.title, coverImage: g.coverImage, studios: (g.studios ?? []).map((s) => s.studio.displayName) })))
       } catch { setSearchResults([]) }

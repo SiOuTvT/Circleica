@@ -184,10 +184,11 @@ async function getRankedCached(dim: DimKey, scope: ScopeKey, nsfwMode: MainNsfwM
 
 // 领奖台名次配色（固定色，不随主题切换，深浅色模式表现一致）：
 // 第一金（琥珀）· 第二银（灰）· 第三铜（深橙）。奖杯用该色，名次数字用同色系深一档以保证可读。
-const PODIUM: Record<number, { trophy: string; num: string }> = {
-  1: { trophy: "text-amber-500", num: "text-amber-600" },
-  2: { trophy: "text-slate-400", num: "text-slate-500" },
-  3: { trophy: "text-orange-700", num: "text-orange-800" },
+const PODIUM: Record<number, { grad: string; ring: string }> = {
+  // 金属渐变（固定色，不随主题切换）：左上亮、右下暗，模拟金属反光
+  1: { grad: "linear-gradient(135deg,#fde68a 0%,#fbbf24 45%,#b45309 100%)", ring: "inset 0 0 0 2px rgba(180,83,9,0.55)" },
+  2: { grad: "linear-gradient(135deg,#f8fafc 0%,#cbd5e1 50%,#64748b 100%)", ring: "inset 0 0 0 2px rgba(100,116,139,0.55)" },
+  3: { grad: "linear-gradient(135deg,#fed7aa 0%,#fb923c 50%,#9a3412 100%)", ring: "inset 0 0 0 2px rgba(154,52,18,0.55)" },
 }
 
 export default async function RankingPage({
@@ -293,13 +294,26 @@ export default async function RankingPage({
                 return (
                   <div key={item.card.id} className="relative flex h-full flex-col items-center">
                     <div className="absolute -top-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
-                      <Trophy
-                        className={cn("h-9 w-9 drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)]", style.trophy)}
-                        strokeWidth={2}
-                        fill="currentColor"
-                        aria-hidden="true"
-                      />
-                      <span className={cn("mt-0.5 text-sm font-extrabold tabular-nums", style.num)}>{rank}</span>
+                      {/* 绶带：红/白/蓝三段 */}
+                      <div className="flex h-2 w-7 overflow-hidden rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                        <div className="flex-1 bg-red-500" />
+                        <div className="flex-1 bg-white" />
+                        <div className="flex-1 bg-blue-500" />
+                      </div>
+                      {/* 挂环 */}
+                      <div className="-mt-px h-1.5 w-1.5 rounded-full border border-white/70" />
+                      {/* 奖牌圆盘 */}
+                      <div
+                        className="relative flex h-10 w-10 items-center justify-center rounded-full"
+                        style={{ background: style.grad, boxShadow: `${style.ring}, 0 2px 3px rgba(0,0,0,0.35)` }}
+                      >
+                        <span
+                          className="text-sm font-extrabold tabular-nums text-white"
+                          style={{ textShadow: "0 1px 2px rgba(0,0,0,0.45)" }}
+                        >
+                          {rank}
+                        </span>
+                      </div>
                     </div>
                     <div className="w-full flex-1">
                       <GameCard game={item.card} />
