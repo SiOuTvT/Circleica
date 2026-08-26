@@ -38,7 +38,7 @@ export function PositionCheckboxGroup({
                   type="button"
                   onClick={() => toggle(pos.key)}
                   disabled={disabled}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition-all ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
                     checked
                       ? "bg-primary/15 text-primary ring-primary/30"
                       : "bg-secondary text-muted-foreground ring-border hover:bg-accent hover:text-foreground"

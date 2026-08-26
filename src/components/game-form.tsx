@@ -436,7 +436,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
   }
 
-  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
   const idTitle = useId()
@@ -496,7 +496,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleVndbFetch}
                 disabled={vndbLoading}
-                className="shrink-0 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:opacity-90 disabled:opacity-60"
+                className="shrink-0 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition ease-in-out duration-200 hover:opacity-90 disabled:opacity-60"
               >
                 {vndbLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
@@ -547,7 +547,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 key={key}
                 type="button"
                 onClick={() => setActiveDescLang(key)}
-                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition duration-150 ease-in-out whitespace-nowrap ${
                   activeDescLang === key
                     ? "bg-primary/15 text-primary ring-1 ring-primary/20"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -582,7 +582,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={() => handleTranslate("zh")}
                 disabled={translating || !descLangs[activeDescLang].trim()}
-                className="flex items-center gap-2 rounded-lg bg-amber-500/10 text-amber-400 px-4 py-2 text-xs font-medium ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-amber-500/10 text-amber-400 px-4 py-2 text-xs font-medium ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -601,7 +601,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={() => handleTranslate("en")}
                 disabled={translating || !descLangs.zh.trim()}
-                className="flex items-center gap-2 rounded-lg bg-sky-500/10 text-sky-500 px-4 py-2 text-xs font-medium ring-1 ring-sky-500/20 hover:bg-sky-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-sky-500/10 text-sky-500 px-4 py-2 text-xs font-medium ring-1 ring-sky-500/20 hover:bg-sky-500/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -620,7 +620,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={() => handleTranslate("ja")}
                 disabled={translating || !descLangs[activeDescLang].trim()}
-                className="flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-xs font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-xs font-medium ring-1 ring-primary/20 hover:bg-primary/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -639,7 +639,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.en.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -657,7 +657,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.zh.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -675,7 +675,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleTranslateToBoth}
                 disabled={translating || !descLangs.ja.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-semibold ring-1 ring-emerald-500/20 hover:bg-emerald-500/20 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {translating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
@@ -757,7 +757,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                       key={p.code}
                       type="button"
                       onClick={() => setPlatforms((prev) => (active ? prev.filter((c) => c !== p.code) : [...prev, p.code]))}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
                         active
                           ? "bg-primary/15 text-primary ring-primary/30"
                           : "text-muted-foreground ring-border hover:bg-secondary"
@@ -780,7 +780,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                       key={l.code}
                       type="button"
                       onClick={() => setLanguages((prev) => (active ? prev.filter((c) => c !== l.code) : [...prev, l.code]))}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-all ${
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
                         active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
                       }`}
                     >
@@ -843,7 +843,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             value={tagSearch}
             onChange={(e) => setTagSearch(e.target.value)}
             placeholder="搜索标签…"
-            className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
           />
         </div>
         {/* 已选标签展示 */}
@@ -1029,7 +1029,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>
         <button type="button" onClick={() => router.back()}
-          className="rounded-xl bg-secondary px-6 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition-all duration-200 hover:text-foreground">
+          className="rounded-xl bg-secondary px-6 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition ease-in-out duration-200 hover:text-foreground">
           取消
         </button>
       </div>

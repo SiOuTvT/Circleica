@@ -376,7 +376,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
   const totalGames = groups.reduce((sum, g) => sum + g.tags.reduce((s, t) => s + t.gameCount, 0), 0)
 
   const inputCls =
-    "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+    "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
   return (
     <div className="space-y-4">
@@ -397,12 +397,12 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜索标签…"
-              className="rounded-lg border-2 border-input bg-transparent pl-8 pr-3 py-2 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary w-36"
+              className="rounded-lg border-2 border-input bg-transparent pl-8 pr-3 py-2 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary w-36"
             />
           </div>
           <button
             onClick={() => setShowCreateGroup(!showCreateGroup)}
-            className="flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold ring-1 ring-primary/20 hover:bg-primary/20 transition-all"
+            className="flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold ring-1 ring-primary/20 hover:bg-primary/20 transition duration-150 ease-in-out"
           >
             {showCreateGroup ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             {showCreateGroup ? "收起" : "新建标签组"}
@@ -449,7 +449,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           <button
             type="submit"
             disabled={saving || !newGroupName.trim()}
-            className="flex items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition duration-150 ease-in-out disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             创建标签组
@@ -477,7 +477,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                 key={group.id}
                 size="compact"
                 radius="xl"
-                className="transition-all duration-200 hover:ring-primary/40 hover:shadow-3 hover:shadow-primary/5"
+                className="transition ease-in-out duration-200 hover:ring-primary/40 hover:shadow-3 hover:shadow-primary/5"
               >
               {/* ── 标签组头部 ── */}
               {isEditingGroup ? (
@@ -489,7 +489,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       value={editGroupName}
                       onChange={(e) => setEditGroupName(e.target.value)}
                       placeholder="标签组名称"
-                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                       autoFocus
                     />
                     {group.isPreset && (
@@ -502,7 +502,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                     value={editGroupDesc}
                     onChange={(e) => setEditGroupDesc(e.target.value)}
                     placeholder="描述（可选）"
-                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                   />
                   <div>
                     <p className="text-xs font-medium text-muted-foreground mb-1.5">颜色</p>
@@ -516,7 +516,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                     <button
                       onClick={() => handleUpdateGroup(group.id)}
                       disabled={saving}
-                      className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition duration-150 ease-in-out disabled:opacity-50"
                     >
                       {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       保存
@@ -638,7 +638,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                                 setEditingTag(tag.id)
                               }}
                               title="编辑"
-                              className="opacity-0 group-hover/tag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition-all"
+                              className="opacity-0 group-hover/tag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition duration-150 ease-in-out"
                             >
                               <Pencil className="h-2.5 w-2.5" />
                             </button>
@@ -653,7 +653,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                                 })
                               }}
                               title="删除"
-                              className="opacity-0 group-hover/tag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition-all"
+                              className="opacity-0 group-hover/tag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition duration-150 ease-in-out"
                             >
                               <Trash2 className="h-2.5 w-2.5" />
                             </button>
@@ -685,7 +685,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         value={newTagName}
                         onChange={(e) => setNewTagName(e.target.value)}
                         placeholder="新标签名称"
-                        className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                        className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleCreateTag(group.id)
@@ -714,7 +714,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                         setNewTagColor(group.color)
                         setShowCreateTag(group.id)
                       }}
-                      className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground ring-1 ring-border hover:ring-violet-500/30 transition-all"
+                      className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground ring-1 ring-border hover:ring-violet-500/30 transition duration-150 ease-in-out"
                     >
                       <Plus className="h-3 w-3" />
                       添加标签到「{group.name}」
@@ -747,7 +747,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                   <button
                     onClick={() => setEditingTag(tag.id)}
                     title="编辑并分配到标签组"
-                    className="opacity-0 group-hover/utag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition-all"
+                    className="opacity-0 group-hover/utag:opacity-100 ml-0.5 p-0.5 rounded hover:bg-white/10 transition duration-150 ease-in-out"
                   >
                     <Pencil className="h-2.5 w-2.5" />
                   </button>
@@ -761,7 +761,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       })
                     }
                     title="删除"
-                    className="opacity-0 group-hover/utag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition-all"
+                    className="opacity-0 group-hover/utag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition duration-150 ease-in-out"
                   >
                     <Trash2 className="h-2.5 w-2.5" />
                   </button>

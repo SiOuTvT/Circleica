@@ -125,7 +125,7 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
         type="button"
         onClick={toggle}
         className={cn(
-          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold transition-all",
+          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold transition duration-150 ease-in-out",
           "border border-foreground/15 bg-card hover:bg-muted",
           value.length > 0 ? "text-foreground" : "text-foreground/60"
         )}
@@ -161,7 +161,7 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
                   }
                 }}
                 className={cn(
-                  "w-full text-left px-4 py-3 text-base font-semibold transition-all flex items-center gap-2.5",
+                  "w-full text-left px-4 py-3 text-base font-semibold transition duration-150 ease-in-out flex items-center gap-2.5",
                   "hover:bg-muted",
                   value.includes(opt)
                     ? "text-primary bg-primary/10"
@@ -447,7 +447,7 @@ export function AddResourceDialog({
                     value={entry.url}
                     onChange={(e) => updateEntry(entry.id, "url", e.target.value)}
                     className={cn(
-                      "w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary",
+                      "w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary",
                       submitAttempted && !entry.url.trim() ? "border-red-400" : "border-foreground/15"
                     )}
                   />
@@ -463,7 +463,7 @@ export function AddResourceDialog({
                       placeholder="输入资源链接提取码，没有可留空"
                       value={entry.extractCode}
                       onChange={(e) => updateEntry(entry.id, "extractCode", e.target.value)}
-                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                     />
                   </div>
                   <div>
@@ -475,7 +475,7 @@ export function AddResourceDialog({
                       placeholder="请填写压缩包解压码，没有可留空"
                       value={entry.decompressCode}
                       onChange={(e) => updateEntry(entry.id, "decompressCode", e.target.value)}
-                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                     />
                   </div>
                 </div>
@@ -489,7 +489,7 @@ export function AddResourceDialog({
                     placeholder="请填写资源大小，如 2.5GB"
                     value={entry.fileSize}
                     onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
-                    className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                    className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -579,7 +579,7 @@ export function AddResourceDialog({
                 placeholder="请填写您的资源名称"
                 value={resourceName}
                 onChange={(e) => setResourceName(e.target.value)}
-                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
               />
             </div>
             <div>
@@ -591,7 +591,7 @@ export function AddResourceDialog({
                 placeholder="请按需填写备注信息，如用途、来源等"
                 value={resourceNote}
                 onChange={(e) => setResourceNote(e.target.value)}
-                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
               />
             </div>
           </div>
@@ -602,7 +602,7 @@ export function AddResourceDialog({
             onClick={handleSubmit}
             disabled={!canSubmit}
             className={cn(
-              "w-full rounded-xl py-4 text-base font-bold transition-all",
+              "w-full rounded-xl py-4 text-base font-bold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out",
               canSubmit
                 ? "text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.98]"
                 : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"

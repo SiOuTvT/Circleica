@@ -237,7 +237,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     placeholder="一句话概括公告内容…" rows={3} className={inputCls + " resize-none"} />
                 </Field>
                 <Field label="封面">
-                  <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary bg-muted/40">
+                  <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary bg-muted/40">
                     <ImageUpload value={imageUrl} onChange={setImageUrl} aspectRatio={16 / 9} maxSizeMB={5} placeholder="上传" flush />
                   </div>
                 </Field>
@@ -260,7 +260,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 <label className="flex items-center gap-2 pb-0.5 cursor-pointer select-none group">
                   <span className="relative inline-flex">
                     <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)} className="peer sr-only" />
-                    <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition-all peer-checked:bg-primary peer-checked:ring-primary flex items-center justify-center">
+                    <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition duration-150 ease-in-out peer-checked:bg-primary peer-checked:ring-primary flex items-center justify-center">
                       {isPinned && <Pin className="h-3 w-3 text-primary-foreground" />}
                     </span>
                   </span>
@@ -284,7 +284,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 提交 */}
               <div className="pt-1">
                 <button type="submit" disabled={adding}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-all hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
                     : isEditing
@@ -394,7 +394,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 /* ── 子组件 ── */
 
 const inputCls =
-  "w-full rounded-xl border-2 border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+  "w-full rounded-xl border-2 border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
 function Field({ label, required, hint, children }: {
   label: string; required?: boolean; hint?: string; children: React.ReactNode

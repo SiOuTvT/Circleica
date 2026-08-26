@@ -24,7 +24,7 @@ export function SortTabs({ sort }: { sort: "count" | "name" }) {
       <button
         onClick={() => update("count")}
         className={cn(
-          "rounded-md px-2.5 py-1 transition-all",
+          "rounded-md px-2.5 py-1 transition duration-150 ease-in-out",
           sort === "count" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
         )}
       >
@@ -33,7 +33,7 @@ export function SortTabs({ sort }: { sort: "count" | "name" }) {
       <button
         onClick={() => update("name")}
         className={cn(
-          "rounded-md px-2.5 py-1 transition-all",
+          "rounded-md px-2.5 py-1 transition duration-150 ease-in-out",
           sort === "name" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
         )}
       >

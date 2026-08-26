@@ -63,7 +63,7 @@ export function ReportDialog({ show, onClose, reportSubmitting, onSubmit }: Repo
                     type="button"
                     onClick={() => setSelected(t.value)}
                     className={cn(
-                      "rounded-lg px-3 py-1.5 text-xs font-medium transition-all ring-1",
+                      "rounded-lg px-3 py-1.5 text-xs font-medium transition duration-150 ease-in-out ring-1",
                       isActive
                         ? "bg-primary/15 text-primary ring-primary/30"
                         : "bg-transparent text-muted-foreground ring-border hover:text-foreground hover:ring-foreground/20"

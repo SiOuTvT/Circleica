@@ -146,7 +146,7 @@ const ResourceCard = memo(function ResourceCard({
 
   return (
     <div
-      className={`relative rounded-2xl ring-1 overflow-visible transition-all duration-200 hover:shadow-2 ${
+      className={`relative rounded-2xl ring-1 overflow-visible transition duration-150 ease-in-out duration-200 hover:shadow-2 ${
         resource.isReported
           ? "ring-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10 hover:ring-amber-300/70"
           : "ring-border bg-card hover:ring-foreground/20"
@@ -217,7 +217,7 @@ const ResourceCard = memo(function ResourceCard({
                 <button
                   type="button"
                   onClick={() => toggleEntry(i)}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/15 active:bg-primary/20 transition-all duration-200"
+                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/15 active:bg-primary/20 transition ease-in-out duration-200"
                 >
                   <Download className="h-3.5 w-3.5" />
                   {label}
@@ -282,7 +282,7 @@ const ResourceCard = memo(function ResourceCard({
             type="button"
             onClick={onReport}
             disabled={resource.isReportedByMe}
-            className={`p-2 rounded-lg transition-all duration-200 ${
+            className={`p-2 rounded-lg transition duration-150 ease-in-out duration-200 ${
               resource.isReportedByMe
                 ? "text-amber-400/60 cursor-default"
                 : "text-muted-foreground/40 hover:text-amber-400 hover:bg-amber-500/10"
@@ -298,7 +298,7 @@ const ResourceCard = memo(function ResourceCard({
               <button
                 type="button"
                 onClick={onEdit}
-                className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-all duration-200"
+                className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition ease-in-out duration-200"
                 title="编辑"
               >
                 <Pencil className="h-4 w-4" />
@@ -307,7 +307,7 @@ const ResourceCard = memo(function ResourceCard({
             <button
               type="button"
               onClick={onDelete}
-              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition ease-in-out duration-200"
               title="删除"
             >
               <Trash2 className="h-4 w-4" />

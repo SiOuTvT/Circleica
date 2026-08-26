@@ -198,7 +198,7 @@ export function GameDetailTopClient({
           onClick={handleFavoriteClick}
           disabled={!isLoggedIn || unfavoriting}
           className={cn(
-            "flex items-center justify-center rounded-lg px-3.5 py-2.5 transition-all disabled:opacity-50 border",
+            "flex items-center justify-center rounded-lg px-3.5 py-2.5 transition duration-150 ease-in-out disabled:opacity-50 border",
             fav
               ? "bg-secondary border-border text-rose-500"
               : "bg-secondary border-border/70 text-muted-foreground"

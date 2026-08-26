@@ -89,7 +89,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     setEditIsVisible(tag.isVisible !== false)
   }
 
-  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary"
+  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
   return (
     <div className="space-y-4">
@@ -107,18 +107,18 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
         <div className="flex gap-2">
           <input value={name} onChange={e => setName(e.target.value)} placeholder="新标签名称" className={inputCls} />
           <select value={groupId} onChange={e => { const g = e.target.value; setGroupId(g); const gr = initialGroups.find(x => x.id === g); if (gr) { setColor(gr.color); setColorLocked(true) } else { setColorLocked(false) } }}
-            className="w-36 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary">
+            className="w-36 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary">
             <option value="">未分组</option>
             {initialGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
           <input type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} placeholder="排序" title="排序值（小的在前）"
-            className="w-20 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+            className="w-20 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
           <button type="button" onClick={() => setIsVisible(!isVisible)} title={isVisible ? "可见" : "隐藏"}
             className={`shrink-0 rounded-xl p-2.5 ring-1 ring-border transition-colors ${isVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
             {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
           </button>
           <button type="submit" disabled={saving || !name.trim()}
-            className="shrink-0 flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-4 py-2.5 text-xs font-semibold ring-1 ring-primary/20 hover:bg-primary/20 transition-all disabled:opacity-50">
+            className="shrink-0 flex items-center gap-1.5 rounded-xl bg-primary/10 text-primary px-4 py-2.5 text-xs font-semibold ring-1 ring-primary/20 hover:bg-primary/20 transition duration-150 ease-in-out disabled:opacity-50">
             <Plus className="h-4 w-4" strokeWidth={2} />添加
           </button>
         </div>
@@ -126,7 +126,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
         <div className="flex flex-wrap gap-2">
           {PRESET_COLORS.map(c => (
             <button key={c} type="button" onClick={() => { setColor(c); setColorLocked(false) }}
-              className={`h-7 w-7 rounded-full transition-all ${color === c ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : "hover:scale-110"}`}
+              className={`h-7 w-7 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out ${color === c ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : "hover:scale-110"}`}
               style={{ background: c }} />
           ))}
           {colorLocked && groupId && (
@@ -148,21 +148,21 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                 <div className="flex-1 space-y-2">
                   <div className="flex gap-2">
                     <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="标签名称"
-                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                     <select value={editGroupId} onChange={e => setEditGroupId(e.target.value)}
-                      className="w-28 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary">
+                      className="w-28 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary">
                       <option value="">未分组</option>
                       {initialGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select>
                     <input type="number" value={editSortOrder} onChange={e => setEditSortOrder(Number(e.target.value))} placeholder="排序" title="排序值"
-                      className="w-16 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                      className="w-16 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                     <button type="button" onClick={() => setEditIsVisible(!editIsVisible)} title={editIsVisible ? "可见" : "隐藏"}
                       className={`shrink-0 rounded-lg p-1.5 ring-1 ring-border transition-colors ${editIsVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
                       {editIsVisible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                     </button>
                   </div>
                   <input value={editDescription} onChange={e => setEditDescription(e.target.value)} placeholder="标签描述（可选）"
-                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[border-radius,border-color] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                   <div className="flex flex-wrap gap-1.5">
                     {PRESET_COLORS.map(c => (
                       <button key={c} type="button" onClick={() => setEditColor(c)}
@@ -172,7 +172,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                   </div>
                 </div>
                 <button onClick={() => handleUpdate(tag.id)} disabled={saving}
-                  className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50">
+                  className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition duration-150 ease-in-out disabled:opacity-50">
                   {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "保存"}
                 </button>
                 <button onClick={() => setEditing(null)} title="取消编辑" aria-label="取消编辑"

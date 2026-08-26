@@ -241,7 +241,7 @@ function CreatorsGrid({
         <a
           key={`${c.id}-${c.role}`}
           href={`/creators/${c.id}`}
-          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition-all hover:bg-secondary/70"
+          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition duration-150 ease-in-out hover:bg-secondary/70"
         >
           {c.avatar ? (
             <Image
