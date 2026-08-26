@@ -160,7 +160,7 @@ export function ProfileEditForm({ user }: Props) {
           {/* 个人封面 */}
           <section className="rounded-2xl bg-card border border-border p-5 sm:p-7 lg:p-9">
             <h2 className="mb-5 text-lg font-semibold text-foreground">个人封面</h2>
-            <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+            <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
               <ImageUpload
                 value={bannerData}
                 onChange={setBannerData}
@@ -199,7 +199,7 @@ export function ProfileEditForm({ user }: Props) {
               <label htmlFor={usernameId} className="block mb-2 text-sm font-medium text-muted-foreground">
                 用户名
               </label>
-              <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+              <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
                 <User className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 <input
                   id={usernameId}
@@ -226,7 +226,7 @@ export function ProfileEditForm({ user }: Props) {
               <label htmlFor={bioId} className="block mb-2 text-sm font-medium text-muted-foreground">
                 个人简介
               </label>
-              <div className="rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+              <div className="rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
                 <Textarea
                   id={bioId}
                   variant="ghost"
@@ -252,7 +252,7 @@ export function ProfileEditForm({ user }: Props) {
             <div className="space-y-5">
               <div>
                 <label htmlFor={oldPwId} className="block mb-2 text-sm font-medium text-muted-foreground">当前密码</label>
-                <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+                <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
                   <input
                     id={oldPwId}
                     type={showOld ? "text" : "password"}
@@ -273,7 +273,7 @@ export function ProfileEditForm({ user }: Props) {
               </div>
               <div>
                 <label htmlFor={newPwId} className="block mb-2 text-sm font-medium text-muted-foreground">新密码</label>
-                <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+                <div className="flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-4 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
                   <input
                     id={newPwId}
                     type={showNew ? "text" : "password"}

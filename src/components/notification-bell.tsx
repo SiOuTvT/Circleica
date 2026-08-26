@@ -39,7 +39,7 @@ export function NotificationBell() {
   return (
     <Link
       href="/notifications"
-      className="relative flex h-11 w-11 items-center justify-center rounded-full transition-all lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+      className="relative flex h-11 w-11 items-center justify-center rounded-full transition duration-150 ease-in-out lg:h-11 lg:w-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
     >
       <Bell className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
       {unreadCount > 0 && (

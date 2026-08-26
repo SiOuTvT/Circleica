@@ -76,7 +76,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       {/* 侧边栏 */}
       <aside
         className={cn(
-          "fixed left-0 top-[env(safe-area-inset-top,0px)] z-50 h-[calc(100dvh-env(safe-area-inset-top,0px))] overflow-hidden transition-transform duration-300 ease-out lg:top-0 lg:h-full lg:transition-[width,transform]",
+          "fixed left-0 top-[env(safe-area-inset-top,0px)] z-50 h-[calc(100dvh-env(safe-area-inset-top,0px))] overflow-hidden transition-transform duration-300 ease-out lg:top-0 lg:h-full lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
           // 桌面宽度：收起 60 / 展开 216 / 默认 180；移动端统一 min(82vw,300px)（对齐移动端设计系统 8px 栅格与触控基线）
           collapsed ? "w-[60px]" : expanded ? "w-[216px]" : "w-[180px] max-lg:w-[min(82vw,300px)]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
@@ -122,7 +122,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 <Link
                   href="/galvelica"
                   data-ripple
-                  className="group relative flex items-center justify-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden w-11 h-11 text-[15px] bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
+                  className="group relative flex items-center justify-center rounded-xl py-2.5 font-semibold transition duration-150 ease-in-out whitespace-nowrap overflow-hidden w-11 h-11 text-[15px] bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
                 >
                   <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
                   <Library className="h-[22px] w-[22px] shrink-0" strokeWidth={2.2} />
@@ -135,7 +135,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
               href="/galvelica"
               data-ripple
               className={cn(
-                "group relative flex items-center rounded-xl py-2.5 font-semibold transition-all whitespace-nowrap overflow-hidden gap-3 px-3",
+                "group relative flex items-center rounded-xl py-2.5 font-semibold transition duration-150 ease-in-out whitespace-nowrap overflow-hidden gap-3 px-3",
                 isGalvelica
                   ? "bg-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)]"
                   : "bg-[color-mix(in_srgb,var(--gal-accent)_9%,transparent)] text-[var(--gal-accent)] hover:bg-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)]"
@@ -163,7 +163,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                     href={href}
                     data-ripple
                     className={cn(
-                      "flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap",
+                      "flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap",
                       collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]",
                       isActive
                         ? "bg-accent text-foreground"
@@ -236,13 +236,13 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                 } finally { setLoading(false) }
               }, [loading, router])
               const creatorBtn = (
-                <button onClick={handleCreator} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                <button onClick={handleCreator} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
                   {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <User className="h-[22px] w-[22px] shrink-0" strokeWidth={2} />}
                   {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
-                <button onClick={handleCharacter} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition-all whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                <button onClick={handleCharacter} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
                   {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <Sparkles className="h-[22px] w-[22px] shrink-0" strokeWidth={ 2} />}
                   {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
                 </button>

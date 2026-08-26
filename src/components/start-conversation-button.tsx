@@ -50,7 +50,7 @@ export function StartConversationButton({ targetUserId, username }: { targetUser
     <button
       onClick={start}
       disabled={loading}
-      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-accent disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-5 py-2.5 text-sm font-semibold text-foreground transition duration-150 ease-in-out hover:bg-accent disabled:opacity-50"
       title={`消耗 ${MESSAGE_COST} 印记给 ${username} 发起私聊（签到可得，同一人只扣一次）`}
     >
       {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageCircle className="h-3.5 w-3.5" />}

@@ -51,7 +51,7 @@ export function RandomCreatorBtn({ fullWidth }: { fullWidth?: boolean } = {}) {
     <button
       onClick={go}
       disabled={loading}
-      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-base text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
+      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-base text-foreground/70 ring-1 ring-border transition duration-150 ease-in-out hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
       title="随机发现同人创作者（脚本家、画师、音乐人等）"
     >
       {loading
@@ -103,7 +103,7 @@ export function RandomCharacterBtn({ fullWidth }: { fullWidth?: boolean } = {}) 
     <button
       onClick={go}
       disabled={loading}
-      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-base text-foreground/70 ring-1 ring-border transition-all hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
+      className={`flex items-center justify-center gap-2 rounded-xl bg-card/60 px-4 py-2.5 text-base text-foreground/70 ring-1 ring-border transition duration-150 ease-in-out hover:bg-card hover:text-foreground disabled:opacity-50 group ${fullWidth ? "w-full" : ""}`}
       title="随机查看游戏角色（完整角色设定）"
     >
       {loading

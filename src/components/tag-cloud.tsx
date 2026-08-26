@@ -49,7 +49,7 @@ export function TagCloud({
         <Link
           href={buildHref("")}
           className={[
-            "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all ring-1",
+            "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition duration-150 ease-in-out ring-1",
             !activeTag
               ? "bg-primary/15 text-primary ring-primary/20"
               : "bg-muted text-muted-foreground ring-border hover:bg-accent hover:text-foreground",
@@ -62,7 +62,7 @@ export function TagCloud({
             key={t.id}
             href={buildHref(t.name)}
             className={[
-              "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition-all ring-1",
+              "inline-flex items-center rounded-full px-3 py-2 text-sm font-medium transition duration-150 ease-in-out ring-1",
               activeTag === t.name ? "opacity-100" : "opacity-50 hover:opacity-80",
             ].join(" ")}
             style={getTagStyle(t.color, activeTag === t.name)}

@@ -24,7 +24,7 @@ export function RelatedGames({ games }: { games: RelatedGame[] }) {
             href={`/games/${g.serialId ?? g.id}`}
             className="group shrink-0 w-[140px] sm:w-[160px]"
           >
-            <div className="relative overflow-hidden rounded-xl aspect-[1/1] sm:aspect-[3/2] bg-card ring-1 ring-border transition-all group-hover:ring-foreground/10 group-hover:scale-[1.02]">
+            <div className="relative overflow-hidden rounded-xl aspect-[1/1] sm:aspect-[3/2] bg-card ring-1 ring-border transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out group-hover:ring-foreground/10 group-hover:scale-[1.02]">
               {g.coverImage ? (
                 <SafeImage
                   src={g.coverImage}

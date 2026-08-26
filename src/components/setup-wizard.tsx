@@ -289,8 +289,8 @@ export function SetupWizard() {
             </div>
             <p className={cn("text-xs", "text-muted-foreground")}>接下来你可以配置存储、上传游戏内容、自定义站点页面</p>
             <div className="flex gap-3">
-              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => { window.location.href = "/" }}>查看网站</button>
-              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => { window.location.href = "/admin" }}>进入后台 →</button>
+              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => { window.location.href = "/" }}>查看网站</button>
+              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => { window.location.href = "/admin" }}>进入后台 →</button>
             </div>
           </div>
         </div>
@@ -395,7 +395,7 @@ export function SetupWizard() {
                           className={form.logoMode === "icon" ? "h-11 w-11" : "h-11 w-auto max-w-[200px]"}
                         />
                         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                        <button type="button" disabled={uploading} className={cn("h-9 px-4 rounded-lg text-xs font-medium transition-all active:scale-95", "bg-muted text-foreground border border-border", "disabled:opacity-40")} onClick={() => fileRef.current?.click()}>
+                        <button type="button" disabled={uploading} className={cn("h-9 px-4 rounded-lg text-xs font-medium transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-95", "bg-muted text-foreground border border-border", "disabled:opacity-40")} onClick={() => fileRef.current?.click()}>
                           {uploading ? "上传中..." : "选择图片"}
                         </button>
                         {form.siteLogo && <button type="button" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { update("siteLogo", ""); setLogoPreview("") }}>移除</button>}
@@ -435,7 +435,7 @@ export function SetupWizard() {
                           {THEME_PRESETS.map(p => {
                             const selected = form.themeColor === p.color
                             return (
-                              <button key={p.name} type="button" onClick={() => selectThemeColor(p.color)} className={cn("group relative flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl transition-all", selected ? "bg-[var(--theme-color)]/10 ring-2 ring-[var(--theme-color)]/40 scale-[1.02]" : ("hover:bg-muted"))} title={p.label}>
+                              <button key={p.name} type="button" onClick={() => selectThemeColor(p.color)} className={cn("group relative flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl transition duration-150 ease-in-out", selected ? "bg-[var(--theme-color)]/10 ring-2 ring-[var(--theme-color)]/40 scale-[1.02]" : ("hover:bg-muted"))} title={p.label}>
                                 <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-full transition-all", selected && "ring-2 ring-white/30 scale-110")} style={{ backgroundColor: p.color }}>
                                   {selected && <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold drop-shadow">✓</span>}
                                 </div>
@@ -460,7 +460,7 @@ export function SetupWizard() {
                             const editing = editingTagGroup === g.id
                             return (
                               <div key={g.id}>
-                                <div className={cn("flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all", "bg-muted hover:bg-muted")}>
+                                <div className={cn("flex items-center gap-3 rounded-lg px-3 py-2.5 transition duration-150 ease-in-out", "bg-muted hover:bg-muted")}>
                                   <span className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
                                   <div className="flex-1 min-w-0">
                                     <p className={cn("text-sm font-medium", "text-foreground")}>{g.name}</p>
@@ -473,7 +473,7 @@ export function SetupWizard() {
                                 {editing && (
                                   <div className={cn("flex flex-wrap gap-1.5 px-3 py-2.5", "bg-muted/50")} style={{ animation: "wiz-fade-in 0.2s ease-out" }}>
                                     {TAG_PRESET_COLORS.map(c => (
-                                      <button key={c} type="button" onClick={() => updateTagGroupColor(g.id, c)} className={cn("w-6 h-6 rounded-full transition-all border-2", color === c ? "border-white/50 scale-110" : "border-transparent hover:scale-105")} style={{ backgroundColor: c }} />
+                                      <button key={c} type="button" onClick={() => updateTagGroupColor(g.id, c)} className={cn("w-6 h-6 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out border-2", color === c ? "border-white/50 scale-110" : "border-transparent hover:scale-105")} style={{ backgroundColor: c }} />
                                     ))}
                                     <input type="color" value={color} onChange={e => updateTagGroupColor(g.id, e.target.value)} className="w-6 h-6 rounded-full cursor-pointer border-0 bg-transparent" />
                                   </div>
@@ -596,13 +596,13 @@ export function SetupWizard() {
             {/* 操作按钮 */}
             <div className="flex gap-2 sm:gap-3 mt-5 sm:mt-6">
               {step > 0 && !loading && (
-                <button type="button" className={cn("h-11 px-4 sm:px-6 rounded-xl text-sm font-medium transition-all active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => setStep(s => s - 1)}>← 上一步</button>
+                <button type="button" className={cn("h-11 px-4 sm:px-6 rounded-xl text-sm font-medium transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => setStep(s => s - 1)}>← 上一步</button>
               )}
               <div className="flex-1" />
               {step < 3 ? (
-                <button type="button" className="h-11 px-6 sm:px-8 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)] hover:shadow-[0_6px_30px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.3)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={nextStep}>下一步 →</button>
+                <button type="button" className="h-11 px-6 sm:px-8 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)] hover:shadow-[0_6px_30px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.3)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={nextStep}>下一步 →</button>
               ) : (
-                <button type="button" disabled={loading} className="h-11 px-6 sm:px-8 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)] disabled:opacity-60 disabled:cursor-not-allowed" style={{ backgroundColor: "var(--theme-color)" }} onClick={handleSubmit}>
+                <button type="button" disabled={loading} className="h-11 px-6 sm:px-8 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)] disabled:opacity-60 disabled:cursor-not-allowed" style={{ backgroundColor: "var(--theme-color)" }} onClick={handleSubmit}>
                   {loading ? <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />{SUBMIT_STAGES[submitStage]}</span> : "✨ 确认并初始化"}
                 </button>
               )}

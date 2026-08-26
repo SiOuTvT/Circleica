@@ -177,7 +177,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
       {compact ? (
         <button
           onClick={() => setOpen(true)}
-          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition-all hover:bg-secondary"
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary"
         >
           <Award className="h-5 w-5 text-amber-400" strokeWidth={2} />
           <span className="text-xs font-medium text-foreground">勋章墙</span>
@@ -185,7 +185,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="flex w-full items-center justify-between rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-secondary"
+          className="flex w-full items-center justify-between rounded-xl bg-secondary/60 px-4 py-2.5 text-sm font-medium text-foreground transition duration-150 ease-in-out hover:bg-secondary"
         >
           <div className="flex items-center gap-2.5">
             <Award className="h-4 w-4 text-amber-400" strokeWidth={2} />
@@ -245,7 +245,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                       <div
                         key={medal.id}
                         className={cn(
-                          "group flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 transition-all cursor-default",
+                          "group flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-default",
                           medal.earned
                             ? cn(medal.bgColor, medal.borderColor, "hover:-translate-y-0.5")
                             : "bg-muted/30 ring-border/50 opacity-40"

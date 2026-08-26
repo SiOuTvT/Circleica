@@ -124,7 +124,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
   return (
     <div ref={wrapperRef} className="relative">
       <form onSubmit={handleSubmit}>
-        <div className="flex items-center gap-3 rounded-2xl border-2 border-input bg-transparent px-5 py-4 transition-[border-radius,border-color] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
+        <div className="flex items-center gap-3 rounded-2xl border-2 border-input bg-transparent px-5 py-4 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary">
           <Search className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.5} />
           <input
             ref={inputRef}
@@ -151,7 +151,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
           )}
           <button
             type="submit"
-            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90"
           >
             搜索
           </button>
