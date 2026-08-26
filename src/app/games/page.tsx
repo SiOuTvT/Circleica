@@ -106,7 +106,6 @@ async function GamesList({ page, sort = "newest", view = "grid", year, nsfwMode 
         resultLabel={year ? `${year} 年作品` : "全部游戏"}
         sort={sort}
         sortOptions={GAME_SORT_OPTIONS}
-        sortInline
         basePath="/games"
         params={{ ...(year ? { year: String(year) } : {}) }}
         view={view}
