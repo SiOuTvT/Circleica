@@ -69,3 +69,51 @@ https://nextjs.org/docs/messages/module-not-found
 ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
 ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
 ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <LoadingBoundary name="search/" loading={[...]}>
+      <Suspense name="search/" fallback={<Fragment>}>
+        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+          <RedirectBoundary>
+            <RedirectErrorBoundary router={{...}}>
+              <InnerLayoutRouter url="/search?q=..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+                <SegmentViewNode type="page" pagePath="search/pag...">
+                  <SegmentTrieNode>
+                  <SearchPage>
+                    <div className="space-y-5">
+                      <SearchBar defaultValue="Beyond">
+                        <div ref={{current:null}} className="relative">
+                          <form onSubmit={function handleSubmit}>
+                            <div className="flex items...">
+                              <Search>
+                              <input>
+                              <button>
+                              <button
+                                type="submit"
++                               data-ripple={true}
+-                               data-ripple={null}
+                                disabled={false}
++                               className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-medi..."
+-                               className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground..."
+                              >
++                               搜索
+                      ...
+                ...
+              ...
+ 
+⚠ Server is approaching the used memory threshold, restarting...
+Error: [safe-delete][SAFE_DELETE_BULK_CONFIRM_REQUIRED] {"count":500,"threshold":500,"scope":"turn","targets":["D:\\Circleica\\.next-dev\\dev\\trace"],"targetCount":1}
+    at checkBulkDeleteGuard (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:273:19)
+    at tryTrash (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:602:5)
+    at Object.unlinkSync (D:\Program Files\CodeBuddy CN\resources\app\extensions\genie\out\vendor\shim\node-safe-delete-shim.cjs:662:9)
