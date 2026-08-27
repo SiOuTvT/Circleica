@@ -124,7 +124,7 @@ export default async function CuratedCollectionDetailPage({
                   {/* 有封面：底部半透明黑色渐变 + 游戏名白字叠加 */}
                   {card.coverImage && (
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-3 py-2">
-                      <h3 className="truncate text-[16px] font-semibold text-white transition-colors group-hover:text-primary">
+                      <h3 className="truncate text-[18px] font-semibold text-white transition-colors group-hover:text-primary">
                         {card.title}
                       </h3>
                     </div>

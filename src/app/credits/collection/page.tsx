@@ -42,10 +42,10 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
       className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
     >
       {/* 封面区：宽度固定 358（160 + 66×3），不管实际 1/2/4 张都占这个宽度 */}
-      <div className="relative h-[120px] w-[358px] max-w-full shrink-0 overflow-hidden">
+      <div className="relative h-[140px] w-[358px] max-w-full shrink-0 overflow-hidden">
         {covers.length === 0 ? (
           // 一张封面都没有：占位（首字）
-          <div className="absolute left-0 top-0 flex h-[120px] w-[160px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
+          <div className="absolute left-0 top-0 flex h-[140px] w-[160px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
             <span className="text-xl font-bold text-primary/30">{c.name.charAt(0)}</span>
           </div>
         ) : (
@@ -55,7 +55,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
             return (
               <div
                 key={i}
-                className="absolute top-0 h-[120px] w-[160px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
+                className="absolute top-0 h-[140px] w-[160px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
                 style={{ left: `${i * 66}px`, zIndex: 10 - i }}
               >
                 <Image
@@ -74,8 +74,8 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
 
       {/* 文字区：永远从同一位置开始 */}
       <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <h3 className="truncate text-[15px] font-semibold text-foreground">{c.name}</h3>
-        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+        <h3 className="truncate text-[17px] font-semibold text-foreground">{c.name}</h3>
+        <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
           {c._count.games} 部精选
         </p>
       </div>

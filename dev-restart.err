@@ -17,3 +17,15 @@ Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 [browser] Image with src "https://t.vndb.org/cv/15/88715.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[browser] Image with src "https://t.vndb.org/cv/15/88715.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+⨯ Error: The destination stream closed early.
+    at ignore-listed frames {
+  digest: '4024625481'
+}
+⨯ Error: The destination stream closed early.
+    at ignore-listed frames {
+  digest: '4024625481'
+}
+[browser] Image with src "https://t.vndb.org/cv/15/88715.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
