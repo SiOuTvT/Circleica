@@ -31,7 +31,7 @@ type CollectionSummary = Prisma.CuratedCollectionGetPayload<{
   }
 }>
 
-// 单张横版合集卡：左叠放封面区（固定 304 宽）+ 右文字区
+// 单张横版合集卡：左叠放封面区（固定 358 宽）+ 右文字区
 function CollectionRow({ c }: { c: CollectionSummary }) {
   // 取前 4 部游戏封面（已按 NSFW 过滤），按「有图」的数量决定叠放张数
   const covers = c.games.slice(0, 4).map((g) => g.game.coverImage).filter(Boolean) as string[]
@@ -39,24 +39,24 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
   return (
     <Link
       href={`/credits/collection/${c.slug}`}
-      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-6 ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
+      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
     >
-      {/* 封面区：宽度固定 304（130 + 58×3），不管实际 1/2/4 张都占这个宽度 */}
-      <div className="relative h-[95px] w-[304px] max-w-full shrink-0 overflow-hidden">
+      {/* 封面区：宽度固定 358（160 + 66×3），不管实际 1/2/4 张都占这个宽度 */}
+      <div className="relative h-[120px] w-[358px] max-w-full shrink-0 overflow-hidden">
         {covers.length === 0 ? (
           // 一张封面都没有：占位（首字）
-          <div className="absolute left-0 top-0 flex h-[95px] w-[130px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
-            <span className="text-lg font-bold text-primary/30">{c.name.charAt(0)}</span>
+          <div className="absolute left-0 top-0 flex h-[120px] w-[160px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
+            <span className="text-xl font-bold text-primary/30">{c.name.charAt(0)}</span>
           </div>
         ) : (
-          // 叠放：第一张在最前，后面的向右后错（错位步长 58）；按倒序渲染使第一张置顶
+          // 叠放：第一张在最前，后面的向右后错（错位步长 66）；按倒序渲染使第一张置顶
           covers.slice(0, 4).map((cover, i, arr) => {
             const revIndex = arr.length - 1 - i // 倒序：原第 0 张最后渲染=最前
             return (
               <div
                 key={i}
-                className="absolute top-0 h-[95px] w-[130px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
-                style={{ left: `${i * 58}px`, zIndex: 10 - i }}
+                className="absolute top-0 h-[120px] w-[160px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
+                style={{ left: `${i * 66}px`, zIndex: 10 - i }}
               >
                 <Image
                   src={cover}
@@ -64,7 +64,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
                   fill
                   unoptimized
                   className="object-cover"
-                  sizes="130px"
+                  sizes="160px"
                 />
               </div>
             )
