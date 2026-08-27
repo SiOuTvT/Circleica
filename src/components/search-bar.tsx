@@ -1,10 +1,10 @@
 "use client"
 
-import { Search, X } from "lucide-react"
+import { Loader2, Search, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -35,6 +35,7 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   // Click outside to close suggestions
   useEffect(() => {
@@ -97,11 +98,13 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // 用户按回车时立即发送建议请求，然后跳转
     fetchSuggestionsImmediately()
     setShowSuggestions(false)
     const q = value.trim()
-    router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search")
+    // 用 startTransition 包裹导航：isPending 在结果返回前为 true，驱动按钮「搜索中…」+ 禁用
+    startTransition(() => {
+      router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search")
+    })
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -151,9 +154,18 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
           )}
           <button
             type="submit"
-            className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90"
+            data-ripple
+            disabled={isPending}
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            搜索
+            {isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                搜索中…
+              </>
+            ) : (
+              "搜索"
+            )}
           </button>
         </div>
       </form>

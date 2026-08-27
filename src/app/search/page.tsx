@@ -36,7 +36,7 @@ import { Prisma } from "@/generated/prisma/client"
 import { unstable_cache } from "next/cache"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { getGameNsfwModeFilter } from "@/lib/filters"
-import { Flame, Library, Search } from "lucide-react"
+import { Library, Search } from "lucide-react"
 import { Suspense } from "react"
 
 interface GameWithTag {
@@ -110,34 +110,23 @@ const getCachedSearchResults = unstable_cache(
   { revalidate: 120 } // 2 分钟缓存
 )
 
-// 缓存推荐游戏查询（10 分钟）
-const getCachedRecommendedGames = unstable_cache(
-  async (mode: MainNsfwMode) => {
-    const rawRecommended = await prisma.game.findMany({
-      where: { isPublished: true, ...getGameNsfwModeFilter(mode) },
-      orderBy: { viewCount: "desc" },
-      take: 8,
-      select: {
-        id: true, serialId: true, title: true, coverImage: true, status: true,
-        isNsfw: true, favoriteCount: true, viewCount: true,
-        downloadCount: true, downloadLinks: true,
-        updatedAt: true, createdAt: true,
-        tags: { select: { tag: { select: { name: true, color: true } } } },
-      },
-    })
-    return rawRecommended
-  },
-  ["recommended-games"],
-  { revalidate: 600 } // 10 分钟缓存
-)
-
 async function SearchResults({
   q, tag, sort, nsfwMode, view, page = 1,
 }: {
   q: string; tag: string; sort: SortKey; nsfwMode: MainNsfwMode; view?: ViewKey; page?: number
 }) {
-  // 没有搜索词和标签时不展示任何内容（直接打开搜索页只保留搜索框，符合全站空状态）
-  if (!q && !tag) return null
+  // 没有搜索词和标签时，显示一个小巧的引导空状态（不展示任何推荐 / 卡片）
+  if (!q && !tag) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-12 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <Search className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} aria-hidden />
+        </div>
+        <p className="text-sm font-medium text-foreground">输入关键词，开始搜索</p>
+        <p className="text-xs text-muted-foreground">支持按游戏名、原作、英文名、别名、标签搜索</p>
+      </div>
+    )
+  }
 
   const limit = 24
   let rawGames: GameWithTag[] = []
@@ -158,22 +147,8 @@ async function SearchResults({
     tags: g.tags.map((t) => t.tag),
   }))
 
-  // 无结果时推荐热门游戏
+  // 无结果空状态（不再附带热门推荐）
   if (!games.length) {
-    let rawRecommended: GameWithTag[] = []
-    try {
-      rawRecommended = await getCachedRecommendedGames(nsfwMode)
-    } catch (error) {
-      logger.db.error("[SearchResults] Recommended games query failed", error)
-    }
-
-    const recommended = rawRecommended.map((g) => ({
-      ...g,
-      coverImage: g.coverImage ?? "",
-      downloadLinks: parseDlLinks(g.downloadLinks),
-      tags: g.tags.map((t) => t.tag),
-    }))
-
     return (
       <div className="py-8 sm:py-12 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -183,7 +158,7 @@ async function SearchResults({
           {q ? `没有找到与「${q}」相关的游戏` : "没有符合条件的游戏"}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          试试换个关键词，或浏览下方推荐
+          试试换个关键词
         </p>
         {q && (
           <Link href="/search" className="mt-3 inline-flex items-center rounded-lg px-4 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20">
@@ -199,16 +174,6 @@ async function SearchResults({
             <Library className="h-4 w-4" />
             在副站资料库中查找
           </Link>
-        )}
-        {recommended.length > 0 && (
-          <div className="mt-8 text-left">
-            <h3 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-1.5"><Flame className="h-4 w-4" strokeWidth={2} /> 热门推荐</h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
-              {recommended.map((game) => (
-                <GameCard key={game.id} game={game} />
-              ))}
-            </div>
-          </div>
         )}
       </div>
     )

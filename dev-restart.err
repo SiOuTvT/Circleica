@@ -29,3 +29,5 @@ Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 }
 [browser] Image with src "https://t.vndb.org/cv/15/88715.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[90m2026-08-27T20:24:34.606Z[0m [31mERR[0m [90m[DB][0m [SearchResults] Recommended games query failed [90m{"error":"getCachedRecommendedGames is not defined","stack":"ReferenceError: getCachedRecommendedGames is not defined\n    at SearchResults (webpack-internal:///(rsc)/./src/app/search/page.tsx:221:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"}[0m
+(node:34804) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 drain listeners added to [Gzip]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
