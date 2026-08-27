@@ -1,6 +1,7 @@
 import { GameCard, GameCardSkeleton, GameListRow, GameListRowSkeleton } from "@/components/game-card"
 import { ResultToolbar, GAME_SORT_OPTIONS } from "@/components/result-toolbar"
 import { Pagination } from "@/components/ui/pagination"
+import { EmptyState } from "@/components/ui/empty-state"
 import { SearchBar } from "@/components/search-bar"
 import Link from "next/link"
 import { logger } from "@/lib/logger"
@@ -115,16 +116,14 @@ async function SearchResults({
 }: {
   q: string; tag: string; sort: SortKey; nsfwMode: MainNsfwMode; view?: ViewKey; page?: number
 }) {
-  // 没有搜索词和标签时，显示一个小巧的引导空状态（不展示任何推荐 / 卡片）
+  // 未搜索时显示与全站一致的正式空状态（复用 EmptyState 组件，不展示任何推荐 / 卡片）
   if (!q && !tag) {
     return (
-      <div className="flex flex-col items-center gap-3 py-12 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <Search className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} aria-hidden />
-        </div>
-        <p className="text-sm font-medium text-foreground">输入关键词，开始搜索</p>
-        <p className="text-xs text-muted-foreground">支持按游戏名、原作、英文名、别名、标签搜索</p>
-      </div>
+      <EmptyState
+        icon={Search}
+        title="输入关键词，开始搜索"
+        description="支持按游戏名、原作、英文名、别名、标签搜索"
+      />
     )
   }
 

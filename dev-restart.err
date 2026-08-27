@@ -31,3 +31,41 @@ Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 [90m2026-08-27T20:24:34.606Z[0m [31mERR[0m [90m[DB][0m [SearchResults] Recommended games query failed [90m{"error":"getCachedRecommendedGames is not defined","stack":"ReferenceError: getCachedRecommendedGames is not defined\n    at SearchResults (webpack-internal:///(rsc)/./src/app/search/page.tsx:221:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"}[0m
 (node:34804) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 drain listeners added to [Gzip]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+⨯ ./src/app/search/page.tsx:5:1
+Module not found: Can't resolve '@/,components/search-bar'
+  3 | import { Pagination } from "@/components/ui/pagination"
+  4 | import { EmptyState } from "@/components/ui/empty-state"
+> 5 | import { SearchBar } from "@/,components/search-bar"
+    | ^
+  6 | import Link from "next/link"
+  7 | import { logger } from "@/lib/logger"
+  8 | import { buildGameTextSearchOr } from "@/lib/search-variant"
+
+https://nextjs.org/docs/messages/module-not-found
+⨯ ./src/app/search/page.tsx:5:1
+Module not found: Can't resolve '@/,components/search-bar'
+  3 | import { Pagination } from "@/components/ui/pagination"
+  4 | import { EmptyState } from "@/components/ui/empty-state"
+> 5 | import { SearchBar } from "@/,components/search-bar"
+    | ^
+  6 | import Link from "next/link"
+  7 | import { logger } from "@/lib/logger"
+  8 | import { buildGameTextSearchOr } from "@/lib/search-variant"
+
+https://nextjs.org/docs/messages/module-not-found
+[browser] Uncaught Error: Module not found: Can't resolve '@/,components/search-bar'
+  3 | import { Pagination } from "@/components/ui/pagination"
+  4 | import { EmptyState } from "@/components/ui/empty-state"
+> 5 | import { SearchBar } from "@/,components/search-bar"
+    | ^
+  6 | import Link from "next/link"
+  7 | import { logger } from "@/lib/logger"
+  8 | import { buildGameTextSearchOr } from "@/lib/search-variant"
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload

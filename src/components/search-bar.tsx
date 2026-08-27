@@ -3,7 +3,7 @@
 import { Loader2, Search, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -35,7 +35,16 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
+  // submitting：提交瞬间同步置位，保证按钮立即进入「搜索中」；导航完成后复位（见下方 effect）
+  const [submitting, setSubmitting] = useState(false)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // 导航提交后 URL 切换到新搜索，关闭 loading，恢复正常按钮状态
+  useEffect(() => {
+    setSubmitting(false)
+  }, [pathname, searchParams])
 
   // Click outside to close suggestions
   useEffect(() => {
@@ -80,30 +89,18 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
     }
   }
 
-  // 立即发送当前建议请求（用户按回车时）
-  const fetchSuggestionsImmediately = useCallback(() => {
-    const q = value.trim()
-    if (!q) return
-    if (abortRef.current) abortRef.current.abort()
-    const controller = new AbortController()
-    abortRef.current = controller
-    apiFetchSafe<unknown[] | { data?: unknown[] }>(`/api/search/suggestions?q=${encodeURIComponent(q)}`, { signal: controller.signal })
-      .then(({ data }) => {
-        const arr = Array.isArray(data) ? data : data?.data ?? []
-        setSuggestions(arr as Suggestion[])
-        setShowSuggestions(arr.length > 0)
-      })
-      .catch(() => {})
-  }, [value])
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    fetchSuggestionsImmediately()
     setShowSuggestions(false)
     const q = value.trim()
-    // 用 startTransition 包裹导航：isPending 在结果返回前为 true，驱动按钮「搜索中…」+ 禁用
+    const target = q ? `/search?q=${encodeURIComponent(q)}` : "/search"
+    const current = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")
+    // 目标与当前搜索一致时无需重新加载，避免卡在 loading
+    if (target === current) return
+    // 同步进入 loading：点击/回车后立刻让用户看到「搜索中…」+ 禁用，不依赖导航时序
+    setSubmitting(true)
     startTransition(() => {
-      router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search")
+      router.push(target)
     })
   }
 
@@ -155,10 +152,10 @@ export function SearchBar({ defaultValue = "" }: { defaultValue?: string }) {
           <button
             type="submit"
             data-ripple
-            disabled={isPending}
+            disabled={submitting}
             className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isPending ? (
+            {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 搜索中…
