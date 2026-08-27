@@ -30,37 +30,55 @@ export function CollectionCard({
     ? `/credits/collection/${encodeURIComponent(slug)}`
     : `/collections/${id}`
 
-  // featured 模式：首条合集放大型封面卡
-  if (featured && primary?.cover) {
+  // featured 模式：封面错位叠放 + 右侧信息（竖版封面完整展示，不再横裁）
+  if (featured && covers.length > 0) {
+    const tiles = covers.slice(0, 4)
     return (
       <Link
         href={href}
-        className="group relative block overflow-hidden rounded-2xl bg-muted transition ease-in-out duration-500 hover:shadow-lg"
-        style={{ aspectRatio: "21 / 9" }}
+        className="group flex items-center gap-6 rounded-2xl bg-card p-5 ring-1 ring-border/50 transition ease-in-out duration- 300 hover:-translate-y-0.5 hover:shadow-lg sm:gap-8"
+        style={{ minHeight: 230 }}
       >
-        <Image
-          src={primary.cover}
-          alt={name}
-          fill
-          className="object-cover transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-700 group-hover:scale-105"
-          unoptimized
-          sizes="(max-width: 1024px) 100vw, 896px"
-        />
-        {/* 渐变遮罩 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          <span className="inline-block rounded-full bg-primary/80 px-3 py-0.5 text-caption font-medium uppercase tracking-wider text-primary-foreground mb-2">
+        {/* 封面错位叠放：前 4 张竖版封面依次向右后错、露出边缘，第一张在最前 */}
+        <div
+          className="relative shrink-0"
+          style={{ width: 150 + (tiles.length - 1) * 26, height: 210 }}
+        >
+          {tiles.map((c, i) => (
+            <div
+              key={`${c.title}-${i}`}
+              className="absolute overflow-hidden rounded-xl bg-muted ring-1 ring-border shadow-sm"
+              style={{ width: 150, height: 210, left: i * 26, zIndex: tiles.length - i }}
+            >
+              {c.cover ? (
+                <Image
+                  src={c.cover}
+                  alt={c.title}
+                  fill
+                  unoptimized
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                  <span className="text-base font-bold text-primary/30">?</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 信息区 */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+          <span className="inline-block w-fit rounded-full bg-primary/80 px-3 py-0.5 text-caption font-medium uppercase tracking-wider text-primary-foreground">
             编辑精选
           </span>
-          <h2 className="text-xl font-heading font-semibold text-white sm:text-2xl">
+          <h2 className="text-xl font-heading font-semibold text-foreground sm:text-2xl">
             {name}
           </h2>
           {description && (
-            <p className="mt-1 max-w-lg text-sm text-white/70 line-clamp-1">
-              {description}
-            </p>
+            <p className="max-w-xl text-sm text-muted-foreground line-clamp-1">{description}</p>
           )}
-          <p className="mt-2 text-xs text-white/50">{count} 部精选</p>
+          <p className="text-xs tabular-nums text-muted-foreground/70">{count} 部精选</p>
         </div>
       </Link>
     )

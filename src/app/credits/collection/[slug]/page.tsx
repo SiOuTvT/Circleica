@@ -67,29 +67,12 @@ export default async function CuratedCollectionDetailPage({
   if (!collection) notFound()
 
   const games = collection.games
-  const heroCover = games.find((g) => g.game.coverImage)?.game.coverImage ?? null
   const gameCount = collection._count.games
 
   return (
     <div className="space-y-8 pt-4">
       {/* ── 顶部区域：封面 + 信息 ── */}
       <div className="space-y-6">
-        {/* 封面 hero（首部游戏的封面放大，有料才展示） */}
-        {heroCover ? (
-          <div className="relative overflow-hidden rounded-2xl bg-muted" style={{ aspectRatio: "21 / 9" }}>
-            <Image
-              src={heroCover}
-              alt={collection.name}
-              fill
-              className="object-cover"
-              unoptimized
-              priority
-              sizes="(max-width: 1024px) 100vw, 896px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          </div>
-        ) : null}
-
         {/* 合集信息 */}
         <div className="space-y-2">
           <h1 className="text-2xl font-heading font-bold text-foreground sm:text-3xl">
