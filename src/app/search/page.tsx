@@ -74,7 +74,12 @@ const getCachedSearchResults = unstable_cache(
       ...getGameNsfwModeFilter(mode),
       ...(q && {
         OR: [
-          { searchVector: { search: q } },
+          // 直接对文本字段做不区分大小写的包含匹配（与搜索建议下拉口径一致，对中文友好、无需 tsvector）。
+          // 原 searchVector: { search: q } 因 schema 把 tsvector 声明成 String 导致 Prisma 不支持 search 过滤器而抛错被吞，结果永远为空。
+          { title: { contains: q, mode: "insensitive" as const } },
+          { originalWork: { contains: q, mode: "insensitive" as const } },
+          { englishName: { contains: q, mode: "insensitive" as const } },
+          { aliases: { contains: q, mode: "insensitive" as const } },
           { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
         ],
       }),
