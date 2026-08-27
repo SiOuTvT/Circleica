@@ -5,7 +5,7 @@ import { GAME_CARD_SELECT, mapGameToCard } from "@/lib/game-card-map"
 import { getMainNsfwMode } from "@/lib/nsfw-mode"
 import Image from "next/image"
 import Link from "next/link"
-import { Eye, Heart } from "lucide-react"
+import { ImageOff } from "lucide-react"
 
 type CollectionDetail = Prisma.CuratedCollectionGetPayload<{
   include: {
@@ -93,61 +93,42 @@ export default async function CuratedCollectionDetailPage({
         </div>
       </div>
 
-      {/* ── 游戏游廊 ── */}
+      {/* ── 游戏海报墙 ── */}
       {games.length > 0 ? (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {games.map(({ game }, index) => {
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {games.map(({ game }) => {
             const card = mapGameToCard(game)
             return (
               <Link
                 key={game.id}
                 href={`/games/${game.serialId}`}
-                className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:ring-foreground/10 hover:shadow-sm sm:p-5"
+                className="group relative block overflow-hidden rounded-2xl bg-card ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                {/* 排名 */}
-                <div className="flex shrink-0 items-start pt-1">
-                  <span className="text-sm font-bold tabular-nums text-muted-foreground/30 transition-colors group-hover:text-primary/50">
-                    #{String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-
-                {/* 封面 */}
-                <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 transition ease-in-out duration-300 group-hover:ring-foreground/10 group-hover:shadow-md sm:w-24">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                   {card.coverImage ? (
                     <Image
                       src={card.coverImage}
                       alt={card.title}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                       unoptimized
-                      sizes="(max-width: 640px) 80px, 96px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 285px"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                      <span className="text-lg font-bold text-primary/30">?</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-muted to-muted/60 px-2 text-center text-muted-foreground">
+                      <ImageOff className="h-6 w-6" strokeWidth={1.5} />
+                      <span className="text-xs font-medium leading-tight">{card.title}</span>
                     </div>
                   )}
-                </div>
 
-                {/* 信息 */}
-                <div className="flex flex-col justify-center min-w-0 flex-1">
-                  <h3 className="text-sm font-heading font-semibold text-foreground transition-colors group-hover:text-primary sm:text-base">
-                    {card.title}
-                  </h3>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground/60">
-                    {card.viewCount != null && card.viewCount > 0 && (
-                      <span className="flex items-center gap-1 tabular-nums">
-                        <Eye className="h-3 w-3" strokeWidth={1.5} />
-                        {card.viewCount}
-                      </span>
-                    )}
-                    {card.favoriteCount > 0 && (
-                      <span className="flex items-center gap-1 tabular-nums">
-                        <Heart className="h-3 w-3" strokeWidth={1.5} />
-                        {card.favoriteCount}
-                      </span>
-                    )}
-                  </div>
+                  {/* 有封面：底部半透明黑色渐变 + 游戏名白字叠加 */}
+                  {card.coverImage && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-3 py-2">
+                      <h3 className="truncate text-[14px] font-semibold text-white">
+                        {card.title}
+                      </h3>
+                    </div>
+                  )}
                 </div>
               </Link>
             )

@@ -5,11 +5,10 @@ import type { Metadata } from "next"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
-import { CollectionShowcaseCard } from "@/components/archive/collection-showcase-card"
-import { CollectionCard } from "@/components/collection-card"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
-import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
-import { cn } from "@/lib/utils"
+import { computeDensity, computeArchiveState } from "@/components/archive/density"
+import Image from "next/image"
+import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "精选合集",
@@ -31,6 +30,58 @@ type CollectionSummary = Prisma.CuratedCollectionGetPayload<{
     _count: { select: { games: true } }
   }
 }>
+
+// 单张横版合集卡：左叠放封面区（固定 304 宽）+ 右文字区
+function CollectionRow({ c }: { c: CollectionSummary }) {
+  // 取前 4 部游戏封面（已按 NSFW 过滤），按「有图」的数量决定叠放张数
+  const covers = c.games.slice(0, 4).map((g) => g.game.coverImage).filter(Boolean) as string[]
+
+  return (
+    <Link
+      href={`/credits/collection/${c.slug}`}
+      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-6 ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
+    >
+      {/* 封面区：宽度固定 304（130 + 58×3），不管实际 1/2/4 张都占这个宽度 */}
+      <div className="relative h-[95px] w-[304px] max-w-full shrink-0 overflow-hidden">
+        {covers.length === 0 ? (
+          // 一张封面都没有：占位（首字）
+          <div className="absolute left-0 top-0 flex h-[95px] w-[130px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
+            <span className="text-lg font-bold text-primary/30">{c.name.charAt(0)}</span>
+          </div>
+        ) : (
+          // 叠放：第一张在最前，后面的向右后错（错位步长 58）；按倒序渲染使第一张置顶
+          covers.slice(0, 4).map((cover, i, arr) => {
+            const revIndex = arr.length - 1 - i // 倒序：原第 0 张最后渲染=最前
+            return (
+              <div
+                key={i}
+                className="absolute top-0 h-[95px] w-[130px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
+                style={{ left: `${i * 58}px`, zIndex: 10 - i }}
+              >
+                <Image
+                  src={cover}
+                  alt={c.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="130px"
+                />
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* 文字区：永远从同一位置开始 */}
+      <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <h3 className="truncate text-[15px] font-semibold text-foreground">{c.name}</h3>
+        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+          {c._count.games} 部精选
+        </p>
+      </div>
+    </Link>
+  )
+}
 
 export default async function CuratedCollectionsPage({
   searchParams,
@@ -105,13 +156,6 @@ export default async function CuratedCollectionsPage({
     )
   }
 
-  const minSortOrder = collections.reduce(
-    (min, c) => (c.sortOrder < min ? c.sortOrder : min),
-    Number.POSITIVE_INFINITY,
-  )
-  const featured = collections.find((c) => c.sortOrder === minSortOrder) ?? null
-  const rest = featured ? collections.filter((c) => c !== featured) : collections
-
   return (
     <ArchiveShell
       entity="collection"
@@ -132,33 +176,12 @@ export default async function CuratedCollectionsPage({
         />
       }
     >
-      {featured && (
-        <CollectionCard
-          id={featured.id}
-          slug={featured.slug}
-          name={featured.name}
-          description={featured.description}
-          count={featured._count.games}
-          covers={featured.games.map((g) => ({ title: g.game.title, cover: g.game.coverImage }))}
-          featured
-        />
-      )}
-
-      {rest.length > 0 && (
-        <div className={cn("grid gap-4", DENSITY_GRID[density])}>
-          {rest.map((c) => (
-            <CollectionShowcaseCard
-              key={c.id}
-              id={c.id}
-              slug={c.slug}
-              name={c.name}
-              gameCount={c._count.games}
-              covers={c.games.slice(0, 4).map((g) => g.game.coverImage)}
-              description={c.description}
-            />
-          ))}
-        </div>
-      )}
+      {/* 整页统一一种横版小卡，一行 2 个 */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {collections.map((c) => (
+          <CollectionRow key={c.id} c={c} />
+        ))}
+      </div>
     </ArchiveShell>
   )
 }
