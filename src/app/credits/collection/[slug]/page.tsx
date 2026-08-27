@@ -18,9 +18,11 @@ type CollectionDetail = Prisma.CuratedCollectionGetPayload<{
 }>
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  // Next 16 动态段参数不做自动解码，slug 可能仍是 URL 编码串，需手动解码才能匹配库内数据
   const { slug } = await params
+  const decodedSlug = decodeURIComponent(slug)
   const c = await prisma.curatedCollection.findUnique({
-    where: { slug, published: true },
+    where: { slug: decodedSlug, published: true },
     select: { name: true, description: true },
   })
   if (!c) return { title: "合集不存在" }
@@ -40,7 +42,9 @@ export default async function CuratedCollectionDetailPage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  // Next 16 动态段参数不做自动解码，slug 可能仍是 URL 编码串，需手动解码才能匹配库内数据
   const { slug } = await params
+  const decodedSlug = decodeURIComponent(slug)
 
   // NSFW 过滤模式：服务端按 cookie 解析（未登录强制 sfw）
   const nsfwMode = await getMainNsfwMode()
@@ -50,7 +54,7 @@ export default async function CuratedCollectionDetailPage({
     // ⚠️ 合集内游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
     const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
     collection = await prisma.curatedCollection.findUnique({
-      where: { slug, published: true },
+      where: { slug: decodedSlug, published: true },
       include: {
         games: {
           where: { game: { isPublished: true, ...nsfwWhere } },
@@ -71,7 +75,7 @@ export default async function CuratedCollectionDetailPage({
 
   return (
     <div className="space-y-8 pt-4">
-      {/* ── 顶部区域：封面 + 信息 ── */}
+      {/* ── 顶部区域：信息 ── */}
       <div className="space-y-6">
         {/* 合集信息 */}
         <div className="space-y-2">
