@@ -5,6 +5,7 @@
 import { prisma } from "@/lib/prisma"
 import type { Prisma, UserRole, NotificationTypeEnum, NotificationTargetTypeEnum } from "@/generated/prisma/client"
 import { toShanghaiDate } from "@/lib/date"
+import { buildGameTextSearchOr, buildTitleSearchOr } from "@/lib/search-variant"
 
 // ── 用户 ────────────────────────────
 
@@ -236,7 +237,7 @@ export const searchRepo = {
     const skip = (page - 1) * limit
     const where = {
       isPublished: true,
-      title: { contains: query, mode: "insensitive" as const },
+      OR: buildGameTextSearchOr(query),
     }
     return Promise.all([
       prisma.game.findMany({
@@ -253,7 +254,7 @@ export const searchRepo = {
 
   async suggestions(query: string) {
     const games = await prisma.game.findMany({
-      where: { isPublished: true, title: { contains: query, mode: "insensitive" } },
+      where: { isPublished: true, OR: buildTitleSearchOr(query) },
       take: 8,
       select: { id: true, serialId: true, title: true, coverImage: true },
     })

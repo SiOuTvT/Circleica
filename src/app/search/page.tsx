@@ -4,6 +4,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { SearchBar } from "@/components/search-bar"
 import Link from "next/link"
 import { logger } from "@/lib/logger"
+import { buildGameTextSearchOr } from "@/lib/search-variant"
 import type { Metadata } from "next"
 
 export async function generateMetadata({
@@ -73,15 +74,7 @@ const getCachedSearchResults = unstable_cache(
       isPublished: true,
       ...getGameNsfwModeFilter(mode),
       ...(q && {
-        OR: [
-          // 直接对文本字段做不区分大小写的包含匹配（与搜索建议下拉口径一致，对中文友好、无需 tsvector）。
-          // 原 searchVector: { search: q } 因 schema 把 tsvector 声明成 String 导致 Prisma 不支持 search 过滤器而抛错被吞，结果永远为空。
-          { title: { contains: q, mode: "insensitive" as const } },
-          { originalWork: { contains: q, mode: "insensitive" as const } },
-          { englishName: { contains: q, mode: "insensitive" as const } },
-          { aliases: { contains: q, mode: "insensitive" as const } },
-          { tags: { some: { tag: { name: { contains: q, mode: "insensitive" as const } } } } },
-        ],
+        OR: buildGameTextSearchOr(q),
       }),
       ...(tag && { tags: { some: { tag: { name: { contains: tag, mode: "insensitive" as const } } } } }),
     } as Prisma.GameWhereInput
@@ -143,27 +136,8 @@ async function SearchResults({
 }: {
   q: string; tag: string; sort: SortKey; nsfwMode: MainNsfwMode; view?: ViewKey; page?: number
 }) {
-  // 没有搜索词和标签时显示推荐游戏
-  if (!q && !tag) {
-    const recommended = await getCachedRecommendedGames(nsfwMode)
-    if (!recommended.length) return null
-    const games = recommended.map((g) => ({
-      ...g,
-      coverImage: g.coverImage ?? "",
-      downloadLinks: parseDlLinks(g.downloadLinks),
-      tags: g.tags.map((t) => t.tag),
-    }))
-    return (
-      <>
-        <p className="mb-4 text-xs text-muted-foreground flex items-center gap-1.5"><Flame className="h-3.5 w-3.5" strokeWidth={2} /> 热门推荐</p>
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
-          {games.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
-      </>
-    )
-  }
+  // 没有搜索词和标签时不展示任何内容（直接打开搜索页只保留搜索框，符合全站空状态）
+  if (!q && !tag) return null
 
   const limit = 24
   let rawGames: GameWithTag[] = []
