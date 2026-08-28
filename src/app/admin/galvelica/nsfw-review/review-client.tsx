@@ -83,7 +83,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
                   {it.title}
                 </a>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  {it.vndbRating ? `VNDB ${it.vndbRating.toFixed(2)}` : "无评分"} · {it.viewCount} 浏览
+                  {it.vndbRating ? `VNDB ${it.vndbRating.toFixed(2)}` : "无评分"}，{it.viewCount} 浏览
                 </p>
               </div>
               {/* 两级裁决：SFW 安全 / NSFW 露骨（对应写库 0 / 2） */}

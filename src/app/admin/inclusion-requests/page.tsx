@@ -74,7 +74,7 @@ export default async function InclusionRequestsAdmin() {
   return (
     <AdminPageContainer
       eyebrow="INCLUSION REQUESTS"
-      title="收录申请 · 待发布草稿"
+      title="收录申请：待发布草稿"
       description="用户提交收录申请后，系统已自动用融合字段建好未发布资源草稿。你在这里批量发布或删除即可——无需逐条调研。"
       actions={
         <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-600 ring-1 ring-violet-500/20">
@@ -107,7 +107,7 @@ export default async function InclusionRequestsAdmin() {
                   </Link>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {toShanghaiDate(r.createdAt)}
-                    {r.note && ` · 备注：${r.note}`}
+                    {r.note && ` 备注：${r.note}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

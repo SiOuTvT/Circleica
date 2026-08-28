@@ -99,7 +99,7 @@ export default async function AdminGameResourcesPage({
                     )}
                   </div>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    《{r.game.title}》 · 提交者 {r.user.username} · {timeAgo(r.createdAt)}
+                    《{r.game.title}》，提交者 {r.user.username}，{timeAgo(r.createdAt)}
                   </p>
                   {(platforms.length > 0 || languages.length > 0) && (
                     <div className="mt-1 flex flex-wrap items-center gap-1">

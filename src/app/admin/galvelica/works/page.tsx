@@ -92,7 +92,7 @@ export default async function GalvelicaWorksPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · WORKS"
+      eyebrow="GALVELICA WORKS"
       title="作品管理"
       description={`共 ${total} 部同人作品（Galvelica 资料馆，商业系列已排除）`}
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索作品标题…" aria-label="搜索作品" />}

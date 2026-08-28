@@ -14,7 +14,7 @@ const SOURCES: { key: SourceKey; label: string; note: string }[] = [
   { key: "DLSITE", label: "DLsite", note: "抓取型（手动补查，R-18 注意）" },
   { key: "GETCHU", label: "Getchu", note: "抓取型（手动补查）" },
   { key: "FUWANOVEL", label: "Fuwanovel", note: "抓取型（手动补查）" },
-  { key: "BOOTH", label: "Pixiv BOOTH", note: "抓取型·需 Pixiv token" },
+  { key: "BOOTH", label: "Pixiv BOOTH", note: "抓取型，需 Pixiv token" },
 ]
 
 interface FetchResult {

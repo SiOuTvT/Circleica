@@ -69,7 +69,7 @@ export default async function InclusionEditPage({ params }: { params: Promise<{ 
 
   return (
     <div className="w-full space-y-6">
-      <AdminPageHeader eyebrow="GALVELICA · INCLUSION EDIT" title="收录补全与编辑" />
+      <AdminPageHeader eyebrow="GALVELICA INCLUSION EDIT" title="收录补全与编辑" />
       <p className="rounded-xl bg-violet-500/10 px-4 py-3 text-sm text-violet-700 ring-1 ring-violet-500/20 dark:text-violet-300">
         此界面与主站「新增游戏」结构一致。可点「VNDB 数据拉取」一键补全缺失字段（所有字段均可手动修改）。
         补全后两种发布方式：勾选底部「立即发布」保存即发布至主站；或保存草稿后回到审核列表点「发布」。

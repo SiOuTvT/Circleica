@@ -64,7 +64,7 @@ export default async function GalvelicaInclusionPage() {
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · INCLUSION"
+      eyebrow="GALVELICA INCLUSION"
       title="收录审核"
       description="用户提交收录申请后，系统已自动用融合字段建好未发布草稿。在此批量发布或删除——仅操作 Galvelica 自身数据。"
       actions={
@@ -94,7 +94,7 @@ export default async function GalvelicaInclusionPage() {
                   </a>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {toShanghaiDate(r.createdAt)}
-                    {r.note && ` · 备注：${r.note}`}
+                    {r.note && ` 备注：${r.note}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

@@ -159,9 +159,9 @@ export default async function AdminReportsPage({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground break-all">
-                  举报IP: <span className="font-mono">{report.ip}</span> · {formatDateTime(report.createdAt)}
+                  举报IP: <span className="font-mono">{report.ip}</span>，{formatDateTime(report.createdAt)}
                   {report.reason && (
-                    <> · <span className="text-destructive break-words">{report.reason}</span></>
+                    <> <span className="text-destructive break-words">{report.reason}</span></>
                   )}
                 </p>
               </div>

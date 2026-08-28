@@ -72,7 +72,7 @@ export default async function GalvelicaNsfwReviewPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · NSFW REVIEW"
+      eyebrow="GALVELICA NSFW REVIEW"
       title="封面 NSFW 审核"
       description="人工裁决作品封面的成人内容分级（SFW 安全 / NSFW 露骨）。分级决定该作品在「只显示 SFW / 只显示 NSFW」单显模式下的可见性：标为 NSFW 的作品在 SFW 模式下直接不显示（不再是封面占位）。VNDB 未评级且自动识别低置信的封面留在此待审。"
       actions={<NsfwReviewFilter filter={filter} />}
@@ -81,7 +81,7 @@ export default async function GalvelicaNsfwReviewPage({
 
       <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-xs text-muted-foreground">
-          共 {total} 部 · 第 {page}/{totalPages} 页
+          共 {total} 部，第 {page}/{totalPages} 页
         </p>
         <Pagination currentPage={page} totalPages={totalPages} baseUrl="/admin/galvelica/nsfw-review" extraParams={{ filter }} />
       </div>

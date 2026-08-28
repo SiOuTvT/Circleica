@@ -47,7 +47,7 @@ export default async function GalvelicaGovernancePage() {
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · GOVERNANCE"
+      eyebrow="GALVELICA GOVERNANCE"
       title="数据治理"
       description="检测「本属副站、却被误标为 circleica」的创作者 / 标签。仅当该记录无主站游戏关联时才可安全纠正为 galvelica，避免破坏主站数据。"
     >
@@ -66,7 +66,7 @@ export default async function GalvelicaGovernancePage() {
                 <span className="font-medium text-foreground">{s.name}</span>
                 <span className="ml-2">
                   <AdminStatusBadge>
-                    {s.type === "creator" ? "创作者" : "标签"} · source=circleica
+                    {s.type === "creator" ? "创作者" : "标签"}，source=circleica
                   </AdminStatusBadge>
                 </span>
                 {s.hasGameLink && (

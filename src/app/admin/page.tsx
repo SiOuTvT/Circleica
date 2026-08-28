@@ -146,7 +146,7 @@ export default async function AdminDashboard() {
   }
 
   const stats = [
-    { icon: Gamepad2, label: "游戏总数", value: totalGames, sub: `${published} 已发布 · ${totalGames - published} 待审核`, href: "/admin/games" },
+    { icon: Gamepad2, label: "游戏总数", value: totalGames, sub: `${published} 已发布，${totalGames - published} 待审核`, href: "/admin/games" },
     { icon: Users, label: "注册用户", value: totalUsers, sub: todayNewUsers > 0 ? `今日 +${todayNewUsers}` : "今日无新增", href: "/admin/users" },
     { icon: Tag, label: "游戏标签", value: totalGameTags, sub: `${totalResourceTags} 资源标签`, href: "/admin/tags" },
     { icon: Eye, label: "总浏览量", value: totalViews, sub: "所有游戏累计", href: undefined },

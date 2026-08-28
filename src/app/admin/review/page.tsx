@@ -113,7 +113,7 @@ export default async function AdminReviewPage({
                   {game.title}
                 </Link>
                 <p className="text-xs text-muted-foreground">
-                  {game.publisher?.username ?? "未知"} · {formatDate(game.createdAt)}
+                  {game.publisher?.username ?? "未知"}，{formatDate(game.createdAt)}
                   {game.isNsfw && <span className="ml-1.5 text-rose-400">NSFW</span>}
                 </p>
                 {game.rejectReason && (

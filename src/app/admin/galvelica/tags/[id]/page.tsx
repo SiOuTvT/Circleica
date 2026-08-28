@@ -59,7 +59,7 @@ export default async function GalvelicaTagDetailPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · TAG"
+      eyebrow="GALVELICA TAG"
       title={tag.name}
       description={tag.description || "Galvelica 副站标签"}
       actions={

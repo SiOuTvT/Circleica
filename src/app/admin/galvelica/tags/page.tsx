@@ -94,7 +94,7 @@ export default async function GalvelicaTagsPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · TAGS"
+      eyebrow="GALVELICA TAGS"
       title="标签管理"
       description={`Galvelica 副站共 ${total} 个标签（source=galvelica）`}
       actions={

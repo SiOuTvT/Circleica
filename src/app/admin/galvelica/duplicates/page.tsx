@@ -132,7 +132,7 @@ export default async function GalvelicaDuplicatesPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · DEDUPE"
+      eyebrow="GALVELICA DEDUPE"
       title="重复检测"
       description="按名称 / 归一化标题找出副站内的重复创作者与作品，便于合并治理。已分页，避免一次性加载全量数据。"
     >
