@@ -4,7 +4,7 @@ import { computeDensity, computeArchiveState } from "@/components/archive/densit
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { CreatorArchiveClient } from "@/components/archive/creator-archive-client"
-import type { ArchiveView } from "@/components/archive/view-tabs"
+import { ViewTabs, type ArchiveView } from "@/components/archive/view-tabs"
 
 export const metadata: Metadata = {
   title: "创作者图鉴",
@@ -63,7 +63,10 @@ export default async function CreatorArchivePage({
             )
           }
           search={
-            <HeaderSearch q={query} placeholder="搜索创作者名称..." />
+            <div className="flex flex-wrap items-center gap-3">
+              <HeaderSearch q={query} placeholder="搜索创作者名称..." />
+              <ViewTabs view={view} />
+            </div>
           }
         />
       }

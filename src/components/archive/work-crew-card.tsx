@@ -95,7 +95,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
         <Link
           href={`/games/${data.serialId}`}
           data-ripple
-          className="truncate text-[18px] font-semibold leading-snug text-foreground transition-colors hover:text-primary"
+          className="truncate text-[18px] font-semibold leading-snug text-foreground transition-colors after:absolute after:inset-0 after:content-[''] hover:text-primary"
         >
           {data.title}
         </Link>
@@ -113,7 +113,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
               <Link
                 href={`/credits/studio/${encodeURIComponent(data.studioSlug ?? data.studioName)}`}
                 data-ripple
-                className="truncate transition-colors hover:text-primary hover:underline"
+                className="relative z-10 truncate transition-colors hover:text-primary hover:underline"
               >
                 {data.studioName}
               </Link>
@@ -136,7 +136,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
                       key={m.id}
                       href={`/credits/creator/${encodeURIComponent(m.slug)}`}
                       data-ripple
-                      className="whitespace-nowrap text-[13px] text-foreground/80 transition-colors hover:text-primary hover:underline"
+                      className="relative z-10 whitespace-nowrap text-[13px] text-foreground/80 transition-colors hover:text-primary hover:underline"
                     >
                       {m.displayName}
                     </Link>

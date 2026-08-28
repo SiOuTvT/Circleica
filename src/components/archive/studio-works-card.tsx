@@ -63,8 +63,14 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition duration-300 ease-in-out hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg"
     >
       {/* 卡头 */}
-      <div className="flex items-baseline justify-between gap-3 px-4 pb-3 pt-4">
-        <h3 className="truncate text-[18px] font-semibold text-foreground">{data.name}</h3>
+      <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-3">
+        <Link
+          href={`/credits/studio/${encodeURIComponent(data.slug)}`}
+          data-ripple
+          className="min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline"
+        >
+          {data.name}
+        </Link>
         <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
           {data.gameCount} 部作品
         </span>
@@ -82,11 +88,11 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
               <Link
                 href={`/games/${g.serialId}`}
                 data-ripple
-                className="group/row flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/40"
+                className="group/row flex items-center gap-3 px-4 py-1.5 transition-colors hover:bg-muted/40"
               >
                 <Thumb src={g.coverImage} title={g.title} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[15px] font-medium text-foreground transition-colors group-hover/row:text-primary">
+                  <p className="truncate text-[14px] font-medium text-foreground transition-colors group-hover/row:text-primary">
                     {g.title}
                   </p>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -118,13 +124,13 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
 export function StudioWorksCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60">
-      <div className="flex items-center justify-between gap-3 px-4 pb-3 pt-4">
+      <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-3">
         <div className="h-5 w-1/2 rounded skeleton-shimmer" />
         <div className="h-3.5 w-16 rounded skeleton-shimmer" />
       </div>
       <div className="flex flex-col pb-1">
         {[0, 1].map((i) => (
-          <div key={i} className="flex items-center gap-3 px-4 py-2.5">
+          <div key={i} className="flex items-center gap-3 px-4 py-1.5">
             <div className="h-[85px] w-16 shrink-0 rounded-md skeleton-shimmer" />
             <div className="min-w-0 flex-1 space-y-2">
               <div className="h-4 w-2/3 rounded skeleton-shimmer" />

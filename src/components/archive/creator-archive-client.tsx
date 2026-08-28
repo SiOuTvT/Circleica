@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { api } from "@/lib/api-client"
 import { parseApiResponse } from "@/lib/api-handler-client"
 import { ArchiveShell } from "./archive-shell"
-import { ViewTabs, type ArchiveView } from "./view-tabs"
+import type { ArchiveView } from "./view-tabs"
 import { EntityCard } from "./entity-card"
 import { WorkCrewCard, WorkCrewCardSkeleton } from "./work-crew-card"
 import { AZIndex } from "./az-index"
@@ -27,7 +27,7 @@ const ANCHOR_PREFIX = "archive-letter-"
  *
  * 两个视图：
  *  - 「按作品」（默认）：以游戏为单元，卡片带该作品的班底名单，两列大卡。
- *  - 「按名称」：首字分区 + 吸顶索引条 + 搜索 + 加载更多（原样保留，不做改动）。
+ *  - 「按首字」：首字分区 + 吸顶索引条 + 搜索 + 加载更多（原样保留，不做改动）。
  *
  * 页头(header)由 Server Component 在 page.tsx 渲染后作为 prop 传入；视图切换胶囊走
  * ArchiveShell 的 toolbar 槽位，状态由 URL ?view= 驱动（Client 侧 router.replace 软切换）。
@@ -140,7 +140,7 @@ export function CreatorArchiveClient({
   const hasMore = !loading && !error && creators.length > 0 && total > creators.length
   const worksHasMore = !loading && !error && works.length > 0 && worksTotal > works.length
 
-  // scroll-spy：高亮当前可见首字分区（仅「按名称」视图挂载索引条时有意义）
+  // scroll-spy：高亮当前可见首字分区（仅「按首字」视图挂载索引条时有意义）
   useEffect(() => {
     if (isWorks) return
     if (loading || error || creators.length === 0) return
@@ -169,7 +169,6 @@ export function CreatorArchiveClient({
       density={density}
       state={state}
       header={header}
-      toolbar={<ViewTabs view={view} />}
       index={!isWorks && !loading && !error ? <AZIndex available={availableLetters} active={activeLetter} anchorPrefix={ANCHOR_PREFIX} /> : undefined}
     >
       {isWorks ? (

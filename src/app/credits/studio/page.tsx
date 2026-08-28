@@ -4,7 +4,7 @@ import { computeDensity, computeArchiveState } from "@/components/archive/densit
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { StudioArchiveClient } from "@/components/archive/studio-archive-client"
-import type { ArchiveView } from "@/components/archive/view-tabs"
+import { ViewTabs, type ArchiveView } from "@/components/archive/view-tabs"
 
 export const metadata: Metadata = {
   title: "制作组图鉴",
@@ -51,7 +51,7 @@ export default async function StudioArchivePage({
           variant="org"
           eyebrow="studios"
           title="制作组图鉴"
-          lede="这里收录同人社团、小型制作组与个人作者，按名称首字浏览全部档案。"
+          lede="这里收录同人社团与小型制作组，按作品浏览；也可以切到按首字逐个查看。"
           meta={
             query ? (
               <span>
@@ -64,7 +64,10 @@ export default async function StudioArchivePage({
             )
           }
           search={
-            <HeaderSearch q={query} placeholder="搜索制作组名称..." />
+            <div className="flex flex-wrap items-center gap-3">
+              <HeaderSearch q={query} placeholder="搜索制作组名称..." />
+              <ViewTabs view={view} />
+            </div>
           }
         />
       }

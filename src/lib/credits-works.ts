@@ -143,7 +143,8 @@ export async function getWorkCrewWorks(opts: {
     ;[games, total] = await Promise.all([
       prisma.game.findMany({
         where,
-        orderBy: [{ favoriteCount: "desc" }, { title: "asc" }],
+        // 「按作品」视图固定口径：按作品发布日期倒序，最新在前；缺日期者排最后，同日期按标题兜底
+        orderBy: [{ releaseDate: { sort: "desc", nulls: "last" } }, { title: "asc" }],
         skip: (pageNum - 1) * size,
         take: size,
         select: {
@@ -252,6 +253,18 @@ export const STUDIO_WORKS_PAGE_SIZE = 24
 /** 单卡内作品行上限（卡片是概览，不做无限展开；绝大多数组只有 1 部作品） */
 const STUDIO_GAMES_LIMIT = 12
 
+/** 一组作品里最新的发布日期（时间戳）；全部缺日期时返回 null */
+function latestReleaseTs(games: { releaseDate: string | null }[]): number | null {
+  let max: number | null = null
+  for (const g of games) {
+    if (!g.releaseDate) continue
+    const t = new Date(g.releaseDate).getTime()
+    if (isNaN(t)) continue
+    if (max == null || t > max) max = t
+  }
+  return max
+}
+
 /**
  * 「按作品」视图（制作组页）：以制作组为单元，组内按作品逐行。
  *
@@ -330,7 +343,11 @@ export async function getStudioWorks(opts: {
                 },
               },
             },
-            orderBy: { game: { favoriteCount: "desc" } },
+            // 组内作品同口径：发布日期倒序，缺日期者排最后，收藏数兜底
+            orderBy: [
+              { game: { releaseDate: { sort: "desc", nulls: "last" } } },
+              { game: { favoriteCount: "desc" } },
+            ],
             take: STUDIO_GAMES_LIMIT,
           },
         },
@@ -357,6 +374,20 @@ export async function getStudioWorks(opts: {
       favoriteCount: gs.game.favoriteCount,
     })),
   }))
+
+  // 「按作品」视图两页同一口径：按作品发布日期倒序，最新在前，缺日期者排最后。
+  // 制作组的排序键 = 该组旗下最新作品的发布日期（组内作品已按日期倒序，取最大时间戳即可）；
+  // 全部作品都缺日期的组排最后，同键按组名兜底。
+  // 注：这是对当前分页内结果的排序。本站制作组数量远小于单页容量（STUDIO_WORKS_PAGE_SIZE），
+  // 一页即覆盖全部，故排序等价于全局；若将来组数超过单页，需把排序键下沉到 SQL。
+  items.sort((a, b) => {
+    const at = latestReleaseTs(a.games)
+    const bt = latestReleaseTs(b.games)
+    if (at == null && bt == null) return a.name.localeCompare(b.name, "zh-Hans-CN")
+    if (at == null) return 1
+    if (bt == null) return -1
+    return bt - at || a.name.localeCompare(b.name, "zh-Hans-CN")
+  })
 
   return { studios: items, total, totalPages: Math.max(1, Math.ceil(total / size)), page: pageNum }
 }
