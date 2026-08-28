@@ -34,6 +34,7 @@ export function ForumFilters({
       <div className="flex flex-wrap gap-1.5">
         <button
           onClick={() => onCategoryChange("")}
+          data-ripple
           className={cn(
             "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px]",
             !activeCategory
@@ -49,6 +50,7 @@ export function ForumFilters({
           <button
             key={cat.value}
             onClick={() => onCategoryChange(cat.value)}
+            data-ripple
             className={cn(
               "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px] flex items-center gap-1.5",
               activeCategory === cat.value

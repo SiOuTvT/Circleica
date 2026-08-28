@@ -49,6 +49,8 @@ export function ForumClient({
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(initialTotalPages || 1)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const requestSeqRef = useRef(0)
 
   // 筛选状态
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
@@ -79,6 +81,8 @@ export function ForumClient({
 
   // 获取帖子（带筛选）
   const fetchPosts = useCallback(async (page: number, reset: boolean, category?: string, search?: string) => {
+    const seq = ++requestSeqRef.current
+    if (reset) setLoading(true)
     const params = new URLSearchParams()
     params.set("page", String(page))
     params.set("limit", "20")
@@ -87,6 +91,7 @@ export function ForumClient({
 
     try {
       const { ok, data } = await apiFetchSafe<ForumListData>(`/api/forum/posts?${params}`)
+      if (seq !== requestSeqRef.current) return
       if (ok) {
         const d = unwrapApiData<ForumListData>(data)
         if (reset) {
@@ -99,6 +104,8 @@ export function ForumClient({
       }
     } catch (error) {
       logger.forum.error("Failed to fetch posts", error)
+    } finally {
+      if (seq === requestSeqRef.current) setLoading(false)
     }
   }, [])
 
@@ -110,6 +117,7 @@ export function ForumClient({
   // 加载更多
   const loadMore = useCallback(async () => {
     if (loadingMore || currentPage >= totalPages) return
+    const seq = ++requestSeqRef.current
     setLoadingMore(true)
     try {
       const nextPage = currentPage + 1
@@ -119,6 +127,7 @@ export function ForumClient({
       if (activeCategory) params.set("category", activeCategory)
       if (debouncedSearch) params.set("search", debouncedSearch)
       const { ok, data } = await apiFetchSafe<ForumListData>(`/api/forum/posts?${params}`)
+      if (seq !== requestSeqRef.current) return
       if (ok) {
         const d = unwrapApiData<ForumListData>(data)
         if (d?.posts && d?.posts.length > 0) {
@@ -204,6 +213,7 @@ export function ForumClient({
           {isLoggedIn && (
             <button
               onClick={() => setShowNewPost(true)}
+              data-ripple
               className="flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />发帖
@@ -221,11 +231,14 @@ export function ForumClient({
       />
 
       {/* 帖子列表 */}
-      <div className="space-y-3">
-        {posts.length === 0 && !loadingMore && (
+      <div className={"relative h-1 w-full overflow-hidden rounded-full" + (loading ? " bg-border/40" : " bg-transparent")} aria-hidden="true">
+        {loading && <div className="absolute inset-y-0 left-0 w-1/3 animate-pulse rounded-full bg-primary/70" />}
+      </div>
+      <div className={"space-y-3 transition-opacity duration-150" + (loading ? " opacity-50" : "")}>
+        {posts.length === 0 && !loadingMore && !loading && (
           <EmptyState
             icon={MessageSquare}
-            title={activeCategory ? "该分类下暂无帖子" : "暂无帖子，来发布第一篇吧"}
+            title={debouncedSearch ? "没有找到相关帖子" : activeCategory ? "该分类下暂无帖子" : "暂无帖子，来发布第一篇吧"}
           />
         )}
         {posts.map(post => (
@@ -275,16 +288,7 @@ export function ForumClient({
             })
             .finally(() => { likingPostIds.current.delete(id) })
         }}
-        onToggleSolve={async (id) => {
-          try {
-            const { ok, data } = await apiFetchSafe<{ isSolved?: boolean }>(`/api/forum/posts/${id}/solve`, { method: "POST" })
-            const d = unwrapApiData<{ isSolved?: boolean }>(data)
-            if (ok) {
-              setPosts(p => p.map(x => x.id === id ? { ...x, isSolved: d?.isSolved ?? x.isSolved } : x))
-              setActivePost(p => p && { ...p, isSolved: d?.isSolved ?? p.isSolved })
-            }
-          } catch (err) { logger.forum.warn("[ForumClient] toggle solve failed", { error: err instanceof Error ? err.message : String(err) }) }
-        }}
+
         onStartEdit={setEditingPost}
         onDelete={handleDeletePost}
         setImageError={setImageError}

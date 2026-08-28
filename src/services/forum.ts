@@ -11,8 +11,8 @@ import { sanitizeUrl } from "@/lib/sanitize"
 import type { ForumPostCategory } from "@/generated/prisma/client"
 
 export const forumService = {
-  getPosts(page: number, category?: string, solved?: string) {
-    return forumRepo.findPostsPaginated(page, FORUM.POSTS_PER_PAGE, category, solved)
+  getPosts(page: number, category?: string, search?: string) {
+    return forumRepo.findPostsPaginated(page, FORUM.POSTS_PER_PAGE, category, search)
   },
 
   async getPost(id: string) {
@@ -85,13 +85,6 @@ export const forumService = {
       }).catch(() => {})
     }
     return result
-  },
-
-  async solve(userId: string, postId: string) {
-    const post = await forumRepo.findPostById(postId)
-    if (!post) throw new NotFoundError("帖子")
-    if (post.userId !== userId) throw new ForbiddenError("只有作者可以标记已解决")
-    return forumRepo.markSolved(postId)
   },
 
   // ── 评论 ────────────────────────────

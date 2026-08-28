@@ -8,12 +8,16 @@ import type { Prisma, ForumPostCategory } from "@/generated/prisma/client"
 export const forumRepo = {
   // ── 帖子 ────────────────────────────
 
-  findPostsPaginated(page: number, limit: number, category?: string, solved?: string) {
+  findPostsPaginated(page: number, limit: number, category?: string, search?: string) {
     const skip = (page - 1) * limit
     const where: Prisma.ForumPostWhereInput = {}
     if (category) where.category = category as ForumPostCategory
-    if (solved === "true") where.isSolved = true
-    if (solved === "false") where.isSolved = false
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+      ]
+    }
 
     return Promise.all([
       prisma.forumPost.findMany({
@@ -76,10 +80,6 @@ export const forumRepo = {
         return { liked: true }
       }
     })
-  },
-
-  markSolved(id: string) {
-    return prisma.forumPost.update({ where: { id }, data: { isSolved: true } })
   },
 
   // ── 评论 ────────────────────────────

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { CheckCircle2, Edit3, Heart, Image as ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
+import { Edit3, Heart, Image as ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import NextImage from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
@@ -97,15 +97,6 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
       setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
     finally { setLikingCommentId(null) }
-  }
-
-  // ── 标记已解决 ──
-  async function toggleSolve() {
-    try {
-      const j = await api.post<{ isSolved?: boolean; data?: { isSolved?: boolean } }>(`/api/forum/posts/${post.id}/solve`)
-      const d = j?.data ?? j
-      setPost(p => ({ ...p, isSolved: d.isSolved ?? p.isSolved }))
-    } catch (err) { logger.forum.warn("[ForumPostDetail] toggleSolve failed", { error: err instanceof Error ? err.message : String(err) }) }
   }
 
   // ── 删除帖子 ──
@@ -243,11 +234,6 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                 {formatZhDateTime(post.createdAt)} · 浏览 {post.viewCount ?? 0}
               </p>
             </div>
-            {post.isSolved && (
-              <Tag color="#10b981" className="gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} />已解决
-              </Tag>
-            )}
             {post.isLocked && (
               <Tag color="#f43f5e" className="gap-1">
                 <Lock className="h-3.5 w-3.5" strokeWidth={2} /> 已锁定
@@ -283,14 +269,6 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
           <div className="ml-auto flex flex-wrap items-center gap-1">
             {isAuthor && (
               <>
-                <button onClick={toggleSolve}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition duration-150 ease-in-out",
-                    post.isSolved ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
-                  )}>
-                  <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                  {post.isSolved ? "已解决" : "标记解决"}
-                </button>
                 {!post.isLocked && (
                   <button onClick={() => { setEditing(true); setEditTitle(post.title); setEditContent(post.content) }}
                     className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-foreground hover:bg-secondary">

@@ -24,6 +24,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
   return (
     <Link
       href={`/forum/${post.id}`}
+      data-ripple
       className={cn(
         "block rounded-xl bg-card p-4 sm:p-5",
         "ring-1 ring-border/50",

@@ -11,7 +11,6 @@ jest.mock("@/repositories/forum", () => ({
     updatePost: jest.fn(),
     deletePost: jest.fn(),
     togglePostLike: jest.fn(),
-    markSolved: jest.fn(),
     findComments: jest.fn(),
     findCommentById: jest.fn(),
     createComment: jest.fn(),

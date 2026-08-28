@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, memo } from "react"
 import Image from "next/image"
-import { CheckCircle2, ChevronLeft, Edit3, Heart, ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
+import { ChevronLeft, Edit3, Heart, ImageIcon, Lock, MessageSquare, Send, Share2, Smile, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
@@ -55,7 +55,6 @@ interface PostDetailModalProps {
   currentUserId?: string
   isAdmin?: boolean
   onLikePost: (id: string) => void
-  onToggleSolve: (id: string) => void
   onStartEdit: (post: Post) => void
   onDelete: (id: string) => void
   setImageError: (msg: string | null) => void
@@ -76,7 +75,6 @@ function PostDetailModalInner({
   currentUserId,
   isAdmin,
   onLikePost,
-  onToggleSolve,
   onStartEdit,
   onDelete,
   setImageError,
@@ -250,7 +248,6 @@ function PostDetailModalInner({
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
         </button>
         <span className="flex-1 text-sm font-medium text-foreground line-clamp-1">{post.title}</span>
-        {post.isSolved && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} />}
       </div>
 
       {/* 内容区 */}
@@ -268,11 +265,6 @@ function PostDetailModalInner({
                   {post.viewCount != null && ` · 浏览 ${post.viewCount}`}
                 </p>
               </div>
-              {post.isSolved && (
-                <Tag color="#10b981" className="gap-1">
-                  <CheckCircle2 className="h-3 w-3" strokeWidth={2} />已解决
-                </Tag>
-              )}
               {post.isLocked && (
                 <Tag color="#f59e0b" className="gap-1">
                   <Lock className="h-3 w-3" strokeWidth={2} />已锁定
@@ -298,16 +290,6 @@ function PostDetailModalInner({
               </button>
               {isAuthor && (
                 <>
-                  <button onClick={() => onToggleSolve(post.id)}
-                    className={cn(
-                      "flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 py-2 text-xs ring-1 transition duration-150 ease-in-out",
-                      post.isSolved
-                        ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 hover:bg-emerald-500/20"
-                        : "bg-secondary text-muted-foreground ring-border hover:text-foreground"
-                    )}>
-                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    {post.isSolved ? "取消已解决" : "标记已解决"}
-                  </button>
                   {!post.isLocked && (
                     <button onClick={() => onStartEdit(post)}
                       className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-foreground">
