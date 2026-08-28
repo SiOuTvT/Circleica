@@ -13,17 +13,28 @@ export function HeroCover({
   initial,
   shape,
   alt,
+  size = "default",
 }: {
   cover: string | null | undefined
   initial: string
   shape: "rect" | "circle"
   alt?: string
+  /**
+   * 尺寸档位（opt-in，默认保持既有行为）：
+   *  - default：circle 96 / rect 128（其余页面沿用）
+   *  - detail：两种形状统一 128×128（主站制作组 / 创作者详情页）
+   */
+  size?: "default" | "detail"
 }) {
   const [errored, setErrored] = useState(false)
   const shapeCls =
-    shape === "circle"
-      ? "h-20 w-20 shrink-0 rounded-full sm:h-24 sm:w-24"
-      : "h-28 w-28 shrink-0 rounded-2xl sm:h-32 sm:w-32"
+    size === "detail"
+      ? shape === "circle"
+        ? "h-28 w-28 shrink-0 rounded-full sm:h-32 sm:w-32"
+        : "h-28 w-28 shrink-0 rounded-2xl sm:h-32 sm:w-32"
+      : shape === "circle"
+        ? "h-20 w-20 shrink-0 rounded-full sm:h-24 sm:w-24"
+        : "h-28 w-28 shrink-0 rounded-2xl sm:h-32 sm:w-32"
   if (cover && !errored) {
     return (
       <div className={cn("relative overflow-hidden bg-muted ring-1 ring-border/60", shapeCls)}>

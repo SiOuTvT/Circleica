@@ -12,7 +12,7 @@ import { StudioWorksCard, StudioWorksCardSkeleton } from "./studio-works-card"
 import { AZIndex } from "./az-index"
 import { ArchiveLoadMore } from "./load-more"
 import { ArchivePlaceholder } from "./archive-placeholder"
-import { groupByFirstChar, DENSITY_GRID } from "./density"
+import { groupByLatinFirstChar, DENSITY_GRID } from "./density"
 import type { ArchiveDensity, ArchiveState } from "./density"
 import type { MakerSummary, MakerListResult } from "@/lib/makers"
 import type { StudioWorksItem, StudioWorksResult } from "@/lib/credits-works"
@@ -21,6 +21,11 @@ import type { StudioWorksItem, StudioWorksResult } from "@/lib/credits-works"
 const PAGE_SIZE = 96
 const WORKS_PAGE_SIZE = 24
 const ANCHOR_PREFIX = "archive-letter-"
+
+/** 合并卡的稳定 key（一张卡可能包含多个组） */
+function studioCardKey(item: StudioWorksItem): string {
+  return item.studios.map((s) => s.slug).join("+")
+}
 
 /**
  * Studio Archive 列表（M1 首个落地页面，列表交互层）。
@@ -114,8 +119,8 @@ export function StudioArchiveClient({
         const nextPage = Math.floor(studios.length / WORKS_PAGE_SIZE) + 1
         const d = await fetchWorks(nextPage)
         setStudios((prev) => {
-          const seen = new Set(prev.map((s) => s.slug))
-          const fresh = (d.studios || []).filter((s) => !seen.has(s.slug))
+          const seen = new Set(prev.map(studioCardKey))
+          const fresh = (d.studios || []).filter((s) => !seen.has(studioCardKey(s)))
           return fresh.length ? [...prev, ...fresh] : prev
         })
       } else {
@@ -134,7 +139,7 @@ export function StudioArchiveClient({
     }
   }, [isWorks, fetchWorks, fetchMakers, studios.length, makers.length, loadingMore])
 
-  const groups = groupByFirstChar(makers, (m) => m.name)
+  const groups = groupByLatinFirstChar(makers, (m) => m.name)
   const availableLetters = groups.map((g) => g.key)
   const hasMore = !loading && !error && makers.length > 0 && total > makers.length
   const worksHasMore = !loading && !error && studios.length > 0 && worksTotal > studios.length
@@ -143,7 +148,7 @@ export function StudioArchiveClient({
   useEffect(() => {
     if (isWorks) return
     if (loading || error || makers.length === 0) return
-    const grps = groupByFirstChar(makers, (m) => m.name)
+    const grps = groupByLatinFirstChar(makers, (m) => m.name)
     const els = grps
       .map((g) => document.getElementById(`${ANCHOR_PREFIX}${encodeURIComponent(g.key)}`))
       .filter((el): el is HTMLElement => el !== null)
@@ -196,9 +201,10 @@ export function StudioArchiveClient({
               message={q ? "没有匹配的制作组" : "暂无收录的制作组"}
             />
           ) : (
-            <div className="grid grid-cols-1 items-start gap-4 min-[900px]:grid-cols-2 min-[1200px]:grid-cols-3">
+            // 同一行强制等高（网格 stretch）：作品多的卡撑高后，少的卡保持同高，多出的是底部留白
+            <div className="grid grid-cols-1 gap-4 min-[900px]:grid-cols-2 min-[1200px]:grid-cols-3">
               {studios.map((s) => (
-                <StudioWorksCard key={s.slug} data={s} />
+                <StudioWorksCard key={studioCardKey(s)} data={s} />
               ))}
             </div>
           )}

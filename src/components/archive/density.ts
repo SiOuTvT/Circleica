@@ -96,3 +96,57 @@ export function groupByFirstChar<T>(items: T[], getName: (item: T) => string): L
   })
   return keys.map((key) => ({ key, items: map.get(key)! }))
 }
+
+/**
+ * 「其他」分区键：凡首字符不是 A–Z 的条目（汉字、假名、数字、符号）全部并入这一区。
+ * 索引条与分区标题上显示成「其他」两个字，不显示 # 符号。
+ */
+export const OTHER_KEY = "其他"
+
+/**
+ * 拉丁首字分组键：先去变音符号再归位（É → E），非 A–Z 一律归到「其他」。
+ *
+ * 这是独立函数（不是改 firstCharKey 的默认行为）：仅主站制作组 / 创作者图鉴
+ * 「按首字」档调用，副站 Galvelica、标签页等其它复用方继续走原逻辑。
+ */
+export function latinFirstCharKey(name: string): string {
+  const s = (name || "").trim()
+  if (!s) return OTHER_KEY
+  const ch = Array.from(s)[0]
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+  return /^[A-Z]$/.test(ch) ? ch : OTHER_KEY
+}
+
+/**
+ * 按拉丁首字分组：只列确实有内容的 A–Z 字母，最后固定加一格「其他」。
+ *
+ * 汉字 / 假名 / 数字 / 符号开头的条目全部并入「其他」一区，不再按首字拆成一格一人。
+ * 组内条目按名称排序（与字母区一致），「其他」排在最后。
+ * 索引条格子总数因此 ≤27，且不出现 # 符号。
+ */
+export function groupByLatinFirstChar<T>(
+  items: T[],
+  getName: (item: T) => string,
+): LetterGroup<T>[] {
+  const map = new Map<string, T[]>()
+  for (const it of items) {
+    const key = latinFirstCharKey(getName(it))
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(it)
+  }
+  const keys = Array.from(map.keys())
+  keys.sort((a, b) => {
+    if (a === OTHER_KEY) return 1
+    if (b === OTHER_KEY) return -1
+    return a.localeCompare(b)
+  })
+  return keys.map((key) => ({
+    key,
+    items: map
+      .get(key)!
+      .slice()
+      .sort((x, y) => getName(x).localeCompare(getName(y), "zh-Hans-CN")),
+  }))
+}

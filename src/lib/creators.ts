@@ -159,6 +159,8 @@ export interface CreatorGameItem {
   releaseDate: string | null
   favoriteCount: number
   role: string
+  /** 该创作者在这部作品里的全部职位（一人兼多职时多项），用于卡片上的职位小字行 */
+  roles: string[]
 }
 
 export interface CreatorStudioItem {
@@ -293,6 +295,27 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
   const totalGames = creator._count.games
   const totalPages = Math.max(1, Math.ceil(totalGames / DETAIL_PAGE_SIZE))
 
+  // 同一部作品把该创作者的所有职位聚合成 roles：一人兼多职时卡片上写「原画、脚本」，
+  // 同时避免同一部作品因多个职位而重复出现多张卡。
+  const gamesById = new Map<string, CreatorGameItem>()
+  for (const g of creator.games) {
+    const hit = gamesById.get(g.game.id)
+    if (hit) {
+      if (!hit.roles.includes(g.role)) hit.roles.push(g.role)
+      continue
+    }
+    gamesById.set(g.game.id, {
+      id: g.game.id,
+      serialId: g.game.serialId,
+      title: g.game.title,
+      coverImage: g.game.coverImage,
+      releaseDate: g.game.releaseDate ? g.game.releaseDate.toISOString() : null,
+      favoriteCount: g.game.favoriteCount,
+      role: g.role,
+      roles: [g.role],
+    })
+  }
+
   return {
     id: creator.id,
     slug: creator.slug ?? null,
@@ -306,15 +329,7 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     wikipediaUrl: creator.wikipediaUrl || "",
     gameCount: totalGames,
     roles,
-    games: creator.games.map((g) => ({
-      id: g.game.id,
-      serialId: g.game.serialId,
-      title: g.game.title,
-      coverImage: g.game.coverImage,
-      releaseDate: g.game.releaseDate ? g.game.releaseDate.toISOString() : null,
-      favoriteCount: g.game.favoriteCount,
-      role: g.role,
-    })),
+    games: [...gamesById.values()],
     studios,
     totalPages,
     page: safePage,

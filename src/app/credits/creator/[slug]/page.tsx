@@ -7,8 +7,8 @@ import { getCreatorDetail, type CreatorGameItem } from "@/lib/creators"
 import { GameCard, type GameCardData } from "@/components/game-card"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
-import { StatsBar } from "@/components/archive/stats-bar"
 import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
+import { roleLabel } from "@/lib/role-labels"
 
 export const dynamic = "force-dynamic"
 
@@ -75,7 +75,14 @@ export default async function CreatorDetailPage({
   const prevHref = detail.page > 1 ? `${base}?page=${detail.page - 1}` : null
   const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
 
-  const totalFav = detail.games.reduce((s, g) => s + (g.favoriteCount || 0), 0)
+  // 统计行：形如「原画、脚本，参与 3 部作品」；某项为 0 时那一项不写，整行仍要成立
+  const roleLabelList = detail.roles.map(roleLabel)
+  const statsParts: string[] = []
+  if (roleLabelList.length > 0) statsParts.push(roleLabelList.join("、"))
+  if (detail.gameCount > 0) statsParts.push(`参与 ${detail.gameCount} 部作品`)
+  const statsLine = statsParts.join("，")
+  // 主标题用的是日文名；仅当两个名字都存在且不同时才多显示一行另一个名字
+  const secondaryName = detail.nameJa && detail.nameJa !== detail.name ? detail.name : ""
 
   const density = computeDensity(detail.gameCount)
 
@@ -103,43 +110,21 @@ export default async function CreatorDetailPage({
           title={detail.nameJa || detail.name}
           cover={detail.avatar}
           fallbackInitial={detail.name}
+          detailSpec
           meta={
-            <>
-              <span>
-                共 <span className="tabular-nums text-foreground">{detail.gameCount}</span> 部参与作品
-              </span>
-              {detail.roles.length > 0 && (
-                <>
-                  <span>
-                    <span className="tabular-nums text-foreground">{detail.roles.length}</span> 类职位
-                  </span>
-                </>
+            <div className="flex w-full flex-col gap-1">
+              {secondaryName && <p className="text-xs text-muted-foreground">{secondaryName}</p>}
+              {statsLine && <p className="text-xs text-muted-foreground">{statsLine}</p>}
+              {detail.bio && (
+                <p className="mt-1 max-w-prose whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                  {detail.bio}
+                </p>
               )}
-            </>
+            </div>
           }
         />
       }
     >
-      <StatsBar
-        items={[
-          { label: "参与作品", value: detail.gameCount },
-          { label: "所属制作组", value: detail.studios.length },
-          { label: "职位种类", value: detail.roles.length },
-          { label: "收藏总数", value: totalFav.toLocaleString() },
-        ]}
-      />
-
-      {detail.bio && (
-        <section>
-          <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
-            <span className="h-5 w-1 rounded-full bg-primary" />
-            简介
-          </h2>
-          <p className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-            {detail.bio}
-          </p>
-        </section>
-      )}
 
       <section>
         <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
@@ -151,7 +136,15 @@ export default async function CreatorDetailPage({
         ) : (
           <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
             {detail.games.map((g) => (
-              <GameCard key={g.id} game={toGameCardData(g)} />
+              <div key={g.id}>
+                <GameCard game={toGameCardData(g)} />
+                {/* TA 在这部作品里的职位（沿用现有作品卡，只在其下方加一行小字） */}
+                {g.roles.length > 0 && (
+                  <p className="mt-1.5 truncate text-xs text-muted-foreground">
+                    {g.roles.map(roleLabel).join("、")}
+                  </p>
+                )}
+              </div>
             ))}
           </div>
         )}

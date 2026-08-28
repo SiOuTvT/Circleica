@@ -6,6 +6,7 @@ import { ChevronDown, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { GameInfoList, type GameInfoData } from "./game-info-list"
+import { roleLabel } from "@/lib/role-labels"
 
 /* ═══════════════════════════════════════════════
    语言优先级：中文 > English > 日本語 > 其他
@@ -162,14 +163,7 @@ export function IntroTab({
         )}
         {creators.length > 0 && (
           <div className="mt-5">
-            <CollapsibleCard
-              icon={<Users className="h-4 w-4 opacity-60" />}
-              label="制作人员"
-              count={creators.length}
-              defaultOpen={creators.length <= 5}
-            >
-              <CreatorsGrid creators={creators} />
-            </CollapsibleCard>
+            <CreatorsSection creators={creators} />
           </div>
         )}
       </div>
@@ -213,19 +207,30 @@ export function IntroTab({
    CreatorsGrid — 制作人员网格
    ═══════════════════════════════════════════════ */
 
+/** 收起状态下显示的人数（一行 4 个、两行） */
+const CREATORS_COLLAPSE_AT = 8
+
 function CreatorsSection({
   creators,
 }: {
   creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
+  // 默认展开；总人数超过 8 才出现折叠按钮（一行 4 个，收起时正好两行）
+  const needToggle = creators.length > CREATORS_COLLAPSE_AT
+  const [open, setOpen] = useState(true)
+  const shown = !needToggle || open ? creators : creators.slice(0, CREATORS_COLLAPSE_AT)
+
   return (
     <CollapsibleCard
       icon={<Users className="h-4 w-4 opacity-60" />}
       label="制作人员"
       count={creators.length}
-      defaultOpen={true}
+      collapsible={needToggle}
+      isOpen={open}
+      onToggle={() => setOpen((v) => !v)}
+      action={needToggle ? (open ? "收起" : `展开全部 ${creators.length} 位`) : undefined}
     >
-      <CreatorsGrid creators={creators} />
+      <CreatorsGrid creators={shown} />
     </CollapsibleCard>
   )
 }
@@ -260,7 +265,7 @@ function CreatorsGrid({
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
             <p className="truncate text-xs text-muted-foreground">
-              {{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }[c.role] ?? c.role}
+              {roleLabel(c.role)}
             </p>
           </div>
         </a>
@@ -309,6 +314,10 @@ function CollapsibleCard({
   isOpen: controlledOpen,
   onToggle: controlledToggle,
   defaultOpen = false,
+  /** 是否可折叠：false 时表头不做成按钮、不显示箭头，内容常驻（人数少时不需要折叠） */
+  collapsible = true,
+  /** 折叠按钮右侧的操作文案（如「展开全部 N 位」/「收起」） */
+  action,
   children,
 }: {
   icon: React.ReactNode
@@ -317,31 +326,51 @@ function CollapsibleCard({
   isOpen?: boolean
   onToggle?: () => void
   defaultOpen?: boolean
+  collapsible?: boolean
+  action?: string
   children: React.ReactNode
 }) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen)
   const isOpen = controlledOpen ?? internalOpen
   const toggle = controlledToggle ?? (() => setInternalOpen((v) => !v))
+  const expanded = collapsible ? isOpen : true
+
+  const headInner = (
+    <>
+      {icon}
+      <span className="text-base font-semibold text-foreground">{label}</span>
+      {count != null && (
+        <span className="text-xs font-medium text-muted-foreground">({count})</span>
+      )}
+      {action && <span className="ml-auto text-xs font-medium text-primary">{action}</span>}
+      {collapsible && (
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform duration-300 ease-out shrink-0",
+            !action && "ml-auto",
+          )}
+          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+        />
+      )}
+    </>
+  )
 
   return (
     <div className="rounded-2xl bg-card border border-border overflow-hidden">
-      <button
-        type="button"
-        onClick={toggle}
-        className="flex w-full items-center gap-2 px-4 py-3 hover:bg-secondary/30 transition-colors"
-      >
-        {icon}
-        <span className="text-base font-semibold text-foreground">{label}</span>
-        {count != null && (
-          <span className="text-xs font-medium text-muted-foreground">({count})</span>
-        )}
-        <ChevronDown
-          className="ml-auto h-4 w-4 text-muted-foreground transition-transform duration-300 ease-out shrink-0"
-          style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-        />
-      </button>
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={expanded}
+          className="flex w-full items-center gap-2 px-4 py-3 hover:bg-secondary/30 transition-colors"
+        >
+          {headInner}
+        </button>
+      ) : (
+        <div className="flex w-full items-center gap-2 px-4 py-3">{headInner}</div>
+      )}
 
-      {isOpen && (
+      {expanded && (
         <div className="border-t border-border px-4 py-3 animate-fade-in-up">
           {children}
         </div>

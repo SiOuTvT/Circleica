@@ -18,6 +18,12 @@ interface ArchiveHeroProps {
   className?: string
   /** tag 变体专用：标签色（替代默认 primary） */
   tagColor?: string
+  /**
+   * 详情页规格（opt-in，仅主站制作组 / 创作者详情页开启；默认 false 不改变其它页面）：
+   *  - 无封面时仍走详情页版式（不退化成浏览页小标题）；
+   *  - 头像 / 方块统一到 128×128（与制作组详情页现有规格一致）。
+   */
+  detailSpec?: boolean
 }
 
 const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
@@ -54,6 +60,7 @@ export function ArchiveHero({
   search,
   className,
   tagColor,
+  detailSpec = false,
 }: ArchiveHeroProps) {
   const shape: "rect" | "circle" = variant === "person" ? "circle" : "rect"
   const isTag = variant === "tag"
@@ -61,7 +68,7 @@ export function ArchiveHero({
   const Icon = ICON_MAP[variant] ?? Layers
 
   // 详情页：实体真封面（由 client 子组件 HeroCover 渲染，保留 onError 兜底）
-  if (cover) {
+  if (cover || detailSpec) {
     return (
       <header
         className={cn(
@@ -70,7 +77,13 @@ export function ArchiveHero({
           className,
         )}
       >
-        <HeroCover cover={cover} initial={initial} shape={shape} alt={title} />
+        <HeroCover
+          cover={cover}
+          initial={initial}
+          shape={shape}
+          alt={title}
+          size={detailSpec ? "detail" : "default"}
+        />
         <div className="min-w-0 flex-1">
           {eyebrow && (
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

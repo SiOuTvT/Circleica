@@ -60,6 +60,10 @@ export interface MakerDetail {
   slug: string | null
   gameCount: number
   coverImage: string | null
+  /** 别名（去重后）；展示时多于一项才渲染，只有一项与规范名重复 */
+  aliases: string[]
+  /** 简介。Studio 表暂无该列，恒为 null → 简介段整段不渲染 */
+  bio: string | null
   games: MakerGameItem[]
   totalPages: number
   page: number
@@ -222,6 +226,20 @@ export async function getMakers(opts: {
 /**
  * 详情：查单 Studio（按 slug），附已发布作品（含关联创作者）+ 代表封面。
  */
+/** 解析 Studio.aliases（JSON 字符串数组）；非法 JSON 或非数组时降级为空数组 */
+function parseAliases(raw: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(raw || "[]")
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((x): x is string => typeof x === "string")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
 export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetail | null> {
   const key = slug.trim()
   if (!key) return null
@@ -230,6 +248,7 @@ export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetai
     displayName: string
     normalizedName: string
     slug: string | null
+    aliases: string
     games: {
       game: {
         id: string
@@ -337,6 +356,8 @@ export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetai
     slug: studio.slug ?? null,
     gameCount: total,
     coverImage: cover,
+    aliases: parseAliases(studio.aliases),
+    bio: null,
     games: pagedGames,
     totalPages,
     page: safePage,

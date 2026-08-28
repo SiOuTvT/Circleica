@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { ROLE_LABELS } from "@/lib/role-labels"
 import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
 import { GameInfoList } from "./game-detail/game-info-list"
 import { GameRating } from "./game-rating"
@@ -307,7 +308,7 @@ export default function GameDetailClient({
                   isFav={fav}
                   favCount={favCnt}
                   onToggleFav={toggleFav}
-                  roleLabels={{ scenario: "脚本", art: "原画", chardesign: "角色设计", director: "导演", music: "音乐", songs: "主题曲" }}
+                  roleLabels={ROLE_LABELS}
                   gameId={gameId}
                   currentUserId={currentUserId}
                   username={username}

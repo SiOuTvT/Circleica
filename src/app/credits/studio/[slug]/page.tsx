@@ -9,9 +9,9 @@ import { GameCard, type GameCardData } from "@/components/game-card"
 
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
-import { StatsBar } from "@/components/archive/stats-bar"
+
 import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
-import { ROLE_LABELS } from "@/lib/role-labels"
+import { roleLabel, ROLE_ROW_ORDER } from "@/lib/role-labels"
 
 export const dynamic = "force-dynamic"
 
@@ -80,11 +80,38 @@ export default async function MakerDetailPage({
   const prevHref = detail.page > 1 ? `${base}?page=${detail.page - 1}` : null
   const nextHref = detail.page < detail.totalPages ? `${base}?page=${detail.page + 1}` : null
 
-  const totalFav = detail.games.reduce((s, g) => s + (g.favoriteCount || 0), 0)
   const years = detail.games
     .map((g) => (g.releaseDate ? new Date(g.releaseDate).getFullYear() : null))
     .filter((y): y is number => y !== null)
   const yearSpan = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : "—"
+
+  // 别名行：去重（并排除与规范名相同的写法）后多于一项才显示，只有一项时与组名重复
+  const aliasList = Array.from(new Set(detail.aliases.map((a) => a.trim()).filter(Boolean))).filter(
+    (a) => a !== detail.name,
+  )
+
+  // 统计行：某项为 0 或算不出时那一项不写，整行仍要成立（多项之间用逗号，不用中点等符号）
+  const statsParts: string[] = []
+  if (yearSpan !== "—") statsParts.push(yearSpan)
+  if (detail.gameCount > 0) statsParts.push(`${detail.gameCount} 部作品`)
+  if (detail.creators.length > 0) statsParts.push(`${detail.creators.length} 位参与创作者`)
+  const statsLine = statsParts.join("，")
+
+  // 参与创作者按职位分组：一个职位一行，同一个人兼多职时在每行都出现一次
+  const explicitRoles = ROLE_ROW_ORDER.filter((r) => r !== "other")
+  const crewRows = [
+    ...explicitRoles.map((role) => ({
+      role,
+      label: roleLabel(role),
+      members: detail.creators.filter((c) => c.roles.includes(role)),
+    })),
+    {
+      role: "other" as const,
+      label: "其他",
+      // 其余角色（主题曲、staff、未收录的值…）全部并入这一行
+      members: detail.creators.filter((c) => c.roles.some((r) => !explicitRoles.includes(r as never))),
+    },
+  ].filter((row) => row.members.length > 0)
 
   const density = computeDensity(detail.gameCount)
 
@@ -112,31 +139,23 @@ export default async function MakerDetailPage({
           title={detail.name}
           cover={detail.coverImage}
           fallbackInitial={detail.name}
+          detailSpec
           meta={
-            <>
-              <span>
-                共 <span className="tabular-nums text-foreground">{detail.gameCount}</span> 部作品
-              </span>
-              {detail.creators.length > 0 && (
-                <>
-                  <span>
-                    <span className="tabular-nums text-foreground">{detail.creators.length}</span> 位参与创作者
-                  </span>
-                </>
+            <div className="flex w-full flex-col gap-1">
+              {aliasList.length > 1 && (
+                <p className="text-xs text-muted-foreground">{aliasList.join("、")}</p>
               )}
-            </>
+              {statsLine && <p className="text-xs text-muted-foreground">{statsLine}</p>}
+              {detail.bio && (
+                <p className="mt-1 max-w-prose whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                  {detail.bio}
+                </p>
+              )}
+            </div>
           }
         />
       }
     >
-      <StatsBar
-        items={[
-          { label: "作品数", value: detail.gameCount },
-          { label: "参与创作者", value: detail.creators.length },
-          { label: "收藏总数", value: totalFav.toLocaleString() },
-          { label: "活动年份", value: yearSpan },
-        ]}
-      />
 
       <section>
         <h2 className="mb-4 flex items-center gap-2.5 text-base font-semibold text-foreground">
@@ -160,40 +179,22 @@ export default async function MakerDetailPage({
             <span className="h-5 w-1 rounded-full bg-primary" />
             参与创作者
           </h2>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-            {detail.creators.map((c) => (
-              <Link
-                key={c.slug ?? c.id}
-                href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
-                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
-              >
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted ring-1 ring-border/50">
-                  {c.avatar ? (
-                    <Image
-                      src={c.avatar}
-                      alt={c.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      unoptimized
-                      sizes="44px"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
-                      <span className="text-sm font-bold text-primary/40">{(c.nameJa || c.name).slice(0, 1)}</span>
-                    </div>
-                  )}
+          <div className="flex flex-col gap-2">
+            {crewRows.map((row) => (
+              <div key={row.role} className="flex items-start gap-3">
+                <span className="w-14 shrink-0 text-xs leading-5 text-muted-foreground">{row.label}</span>
+                <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
+                  {row.members.map((c) => (
+                    <Link
+                      key={`${row.role}-${c.id}`}
+                      href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
+                      className="whitespace-nowrap text-[13px] text-foreground/80 transition-colors hover:text-primary hover:underline"
+                    >
+                      {c.nameJa || c.name}
+                    </Link>
+                  ))}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-heading text-sm font-medium text-foreground transition-colors group-hover:text-primary">
-                    {c.nameJa || c.name}
-                  </p>
-                  {c.roles.length > 0 && (
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
-                      {c.roles.slice(0, 4).map((r) => ROLE_LABELS[r] || r).join("、")}
-                    </p>
-                  )}
-                </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>

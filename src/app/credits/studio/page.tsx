@@ -64,7 +64,7 @@ export default async function StudioArchivePage({
             )
           }
           search={
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <HeaderSearch q={query} placeholder="搜索制作组名称..." />
               <ViewTabs view={view} />
             </div>

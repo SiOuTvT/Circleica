@@ -12,7 +12,7 @@ import { WorkCrewCard, WorkCrewCardSkeleton } from "./work-crew-card"
 import { AZIndex } from "./az-index"
 import { ArchiveLoadMore } from "./load-more"
 import { ArchivePlaceholder } from "./archive-placeholder"
-import { groupByFirstChar, DENSITY_GRID } from "./density"
+import { groupByLatinFirstChar, DENSITY_GRID } from "./density"
 import type { ArchiveDensity, ArchiveState } from "./density"
 import type { CreatorSummary, CreatorListResult } from "@/lib/creators"
 import type { WorkCrewItem, WorkCrewResult } from "@/lib/credits-works"
@@ -135,7 +135,7 @@ export function CreatorArchiveClient({
   }, [isWorks, fetchWorks, fetchCreators, works.length, creators.length, loadingMore])
 
   const groupName = (c: CreatorSummary) => c.nameJa || c.name
-  const groups = groupByFirstChar(creators, groupName)
+  const groups = groupByLatinFirstChar(creators, groupName)
   const availableLetters = groups.map((g) => g.key)
   const hasMore = !loading && !error && creators.length > 0 && total > creators.length
   const worksHasMore = !loading && !error && works.length > 0 && worksTotal > works.length
@@ -144,7 +144,7 @@ export function CreatorArchiveClient({
   useEffect(() => {
     if (isWorks) return
     if (loading || error || creators.length === 0) return
-    const grps = groupByFirstChar(creators, groupName)
+    const grps = groupByLatinFirstChar(creators, groupName)
     const els = grps
       .map((g) => document.getElementById(`${ANCHOR_PREFIX}${encodeURIComponent(g.key)}`))
       .filter((el): el is HTMLElement => el !== null)

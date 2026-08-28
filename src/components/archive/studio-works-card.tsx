@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Eye, Heart } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { StudioWorksItem } from "@/lib/credits-works"
 
 /** 数值格式化：空 / 0 返回空串，由调用方真值判断决定是否渲染（0 不渲染） */
@@ -50,11 +51,16 @@ function Thumb({ src, title }: { src: string | null; title: string }) {
 /**
  * StudioWorksCard — 制作组图鉴「按作品」视图的制作组卡。
  *
- * 卡头：组名（18px/600）+ 右端「N 部作品」（1 也照实显示）。
- * 卡头下方按作品逐行：64px 竖版封面 + 游戏名（15px/500）+ 发行年份 + 非零的浏览/收藏小灰。
+ * 卡头：作品集合相同的组已合并进同一张卡 —— 每个组名独占一行纵向排列，
+ * 各自可点进自己的详情页；右端「N 部作品」（1 也照实显示）。
+ * 卡头下方按作品逐行：64px 竖版封面 + 游戏名（14px/500）+ 发行年份 + 非零的浏览/收藏小灰。
  * 行与行之间 1px 分隔线；整行是一个链接，进游戏详情页。
  *
- * 卡片高度随内容自适应，不强制等高 —— 绝大多数组只有 1 部作品，窄卡是真实数据形态。
+ * 点击热区：第一个组名的链接铺一层透明覆盖层（stretched-link），
+ * 点卡头与卡内空白都进该组详情页；每条作品行抬到覆盖层之上（relative z-10），
+ * 点行进那部游戏的详情页。整卡不包成大 <a>（卡内已有小链接，嵌套 <a> 是非法 DOM）。
+ *
+ * 高度：不强制等高，由外层网格 stretch 决定；卡内不加大留白去填高度。
  */
 export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
   return (
@@ -62,21 +68,30 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
       data-ripple
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition duration-300 ease-in-out hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg"
     >
-      {/* 卡头 */}
-      <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-3">
-        <Link
-          href={`/credits/studio/${encodeURIComponent(data.slug)}`}
-          data-ripple
-          className="min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline"
-        >
-          {data.name}
-        </Link>
+      {/* 卡头：每个组名独占一行 */}
+      <div className="flex items-start justify-between gap-3 px-4 pb-2 pt-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          {data.studios.map((s, i) => (
+            <Link
+              key={s.slug}
+              href={`/credits/studio/${encodeURIComponent(s.slug)}`}
+              data-ripple
+              className={cn(
+                "min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline",
+                // 首行铺透明覆盖层：整卡可点进该组详情页
+                i === 0 && "after:absolute after:inset-0 after:content-['']",
+              )}
+            >
+              {s.name}
+            </Link>
+          ))}
+        </div>
         <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
           {data.gameCount} 部作品
         </span>
       </div>
 
-      {/* 作品行 */}
+      {/* 作品行：每条整行是一个链接，抬到覆盖层之上 */}
       <div className="flex flex-col pb-1">
         {data.games.map((g, i) => {
           const year = yearOf(g.releaseDate)
@@ -88,7 +103,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
               <Link
                 href={`/games/${g.serialId}`}
                 data-ripple
-                className="group/row flex items-center gap-3 px-4 py-1.5 transition-colors hover:bg-muted/40"
+                className="group/row relative z-10 flex items-center gap-3 px-4 py-1.5 transition-colors hover:bg-muted/40"
               >
                 <Thumb src={g.coverImage} title={g.title} />
                 <div className="min-w-0 flex-1">
@@ -120,7 +135,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
   )
 }
 
-/** 加载态骨架：形状对齐 StudioWorksCard（两列卡，卡头 + 两行作品） */
+/** 加载态骨架：形状对齐 StudioWorksCard（卡头 + 两行作品） */
 export function StudioWorksCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60">

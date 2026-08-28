@@ -63,7 +63,7 @@ export default async function CreatorArchivePage({
             )
           }
           search={
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <HeaderSearch q={query} placeholder="搜索创作者名称..." />
               <ViewTabs view={view} />
             </div>

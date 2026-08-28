@@ -234,10 +234,19 @@ export interface StudioWorkGame {
   favoriteCount: number
 }
 
-export interface StudioWorksItem {
+/** 合并卡里的一个制作组（各自保留 slug，卡头里各自可点进自己的详情页） */
+export interface StudioWorksGroup {
   slug: string
   normalized: string
   name: string
+}
+
+export interface StudioWorksItem {
+  /**
+   * 作品集合完全相同的几个组会被合并进同一张卡（全站统一规则，不给单个对象开特例）。
+   * 卡头里每个组名独占一行、纵向排列，各自可点进各自的详情页。
+   */
+  studios: StudioWorksGroup[]
   gameCount: number
   games: StudioWorkGame[]
 }
@@ -268,7 +277,10 @@ function latestReleaseTs(games: { releaseDate: string | null }[]): number | null
 /**
  * 「按作品」视图（制作组页）：以制作组为单元，组内按作品逐行。
  *
- * 组内作品排序沿用站内既有口径（收藏数降序），与制作组详情页的作品列表一致。
+ * 排序：两页同一口径 —— 按作品发布日期倒序，最新在前，缺日期者排最后。
+ * 组内作品行同样按发布日期倒序。
+ *
+ * 作品集合完全相同的几个组会合并成一张卡（合并只作用于本视图，「按首字」档保持独立记录）。
  */
 export async function getStudioWorks(opts: {
   search?: string
@@ -359,12 +371,15 @@ export async function getStudioWorks(opts: {
     return { studios: [], total: 0, totalPages: 1, page: pageNum }
   }
 
-  const items: StudioWorksItem[] = studios.map((s) => ({
-    name: s.displayName,
-    normalized: s.normalizedName,
-    slug: s.slug,
-    gameCount: s._count.games,
-    games: s.games.map((gs) => ({
+  // 合并：作品集合完全相同的制作组合并成一张卡。
+  // 例：《水仙1》同时挂在 Stage-nana 与 Regista Co.,Ltd. 下，两者作品集合相同 → 合并为一张卡；
+  // 其余组作品集合互不相同，各自单独成卡。不做去重、不做「只归第一个组」、不加说明文字。
+  const merged = new Map<
+    string,
+    { groups: StudioWorksGroup[]; games: StudioWorkGame[]; gameCount: number }
+  >()
+  for (const s of studios) {
+    const games: StudioWorkGame[] = s.games.map((gs) => ({
       id: gs.game.id,
       serialId: gs.game.serialId,
       title: gs.game.title,
@@ -372,7 +387,25 @@ export async function getStudioWorks(opts: {
       releaseDate: gs.game.releaseDate ? gs.game.releaseDate.toISOString() : null,
       viewCount: gs.game.viewCount,
       favoriteCount: gs.game.favoriteCount,
-    })),
+    }))
+    // 作品集合签名：游戏 id 排序后拼接（集合相同即签名相同）
+    const signature = games
+      .map((g) => g.id)
+      .sort()
+      .join(",")
+    const group: StudioWorksGroup = { name: s.displayName, normalized: s.normalizedName, slug: s.slug }
+    const bucket = merged.get(signature)
+    if (bucket) {
+      bucket.groups.push(group)
+    } else {
+      merged.set(signature, { groups: [group], games, gameCount: s._count.games })
+    }
+  }
+
+  const items: StudioWorksItem[] = [...merged.values()].map((m) => ({
+    studios: m.groups.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN")),
+    gameCount: m.gameCount,
+    games: m.games,
   }))
 
   // 「按作品」视图两页同一口径：按作品发布日期倒序，最新在前，缺日期者排最后。
@@ -383,11 +416,23 @@ export async function getStudioWorks(opts: {
   items.sort((a, b) => {
     const at = latestReleaseTs(a.games)
     const bt = latestReleaseTs(b.games)
-    if (at == null && bt == null) return a.name.localeCompare(b.name, "zh-Hans-CN")
+    const an = a.studios[0]?.name ?? ""
+    const bn = b.studios[0]?.name ?? ""
+    if (at == null && bt == null) return an.localeCompare(bn, "zh-Hans-CN")
     if (at == null) return 1
     if (bt == null) return -1
-    return bt - at || a.name.localeCompare(b.name, "zh-Hans-CN")
+    return bt - at || an.localeCompare(bn, "zh-Hans-CN")
   })
 
-  return { studios: items, total, totalPages: Math.max(1, Math.ceil(total / size)), page: pageNum }
+  // 合并会减少卡片数：本页已是最后一页时，把被合并掉的记录数从总数里扣掉，
+  // 避免出现「已加载 6 / 共 7」却再也加载不出第 7 张卡的矛盾。
+  const removed = studios.length - items.length
+  const adjustedTotal = studios.length < size ? Math.max(items.length, total - removed) : total
+
+  return {
+    studios: items,
+    total: adjustedTotal,
+    totalPages: Math.max(1, Math.ceil(adjustedTotal / size)),
+    page: pageNum,
+  }
 }
