@@ -103,7 +103,7 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
             )}
             {vndbId && (
               <Tag href={`https://vndb.org/${vndbId}`}>
-                <Database className="h-3 w-3" strokeWidth={2} />VNDB · {vndbId}
+                <Database className="h-3 w-3" strokeWidth={2} />VNDB {vndbId}
               </Tag>
             )}
           </TagGroup>

@@ -69,7 +69,7 @@ function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
 
       <div className="flex min-w-0 flex-col justify-center gap-3">
         <p className="text-caption font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
-          编辑精选 · Editor&rsquo;s Pick
+          编辑精选 Editor&rsquo;s Pick
         </p>
         <h3 className="galvelica-serif text-2xl font-semibold leading-tight text-foreground transition-colors group-hover:text-[var(--gal-accent)] sm:text-3xl">
           {work.title}
@@ -81,8 +81,8 @@ function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
         )}
         <p className="text-sm text-muted-foreground">
           {work.studioName || "未知社团"}
-          {work.releaseYear ? ` · ${work.releaseYear}` : ""}
-          {work.originalWork ? ` · 原作 ${work.originalWork}` : ""}
+          {work.releaseYear ? ` ${work.releaseYear}` : ""}
+          {work.originalWork ? ` 原作 ${work.originalWork}` : ""}
         </p>
         <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[var(--gal-accent)]">
           阅读档案
@@ -120,7 +120,7 @@ function EditorCompact({ work }: { work: GalvelicaWorkCard }) {
         )}
         <p className="truncate text-xs text-muted-foreground">
           {work.studioName || "未知社团"}
-          {work.releaseYear ? ` · ${work.releaseYear}` : ""}
+          {work.releaseYear ? ` ${work.releaseYear}` : ""}
         </p>
       </div>
     </Link>

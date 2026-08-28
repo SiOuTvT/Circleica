@@ -18,7 +18,7 @@ export async function GalvelicaHeader() {
             Galvelica
           </span>
           <span className="mt-0.5 hidden text-micro font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)] sm:block sm:text-caption">
-            同人视觉小说资料库 · Archive
+            同人视觉小说资料库 Archive
           </span>
         </Link>
 

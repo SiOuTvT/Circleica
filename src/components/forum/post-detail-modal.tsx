@@ -259,10 +259,10 @@ function PostDetailModalInner({
               <UserAvatar user={post.user} size={32} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{post.user.username}</p>
-                <p className="text-micro text-muted-foreground">
-                  {timeAgo(post.createdAt)}
-                  {post.updatedAt !== post.createdAt && " · 已编辑"}
-                  {post.viewCount != null && ` · 浏览 ${post.viewCount}`}
+                <p className="text-micro text-muted-foreground flex flex-wrap items-center gap-x-3">
+                  <span>{timeAgo(post.createdAt)}</span>
+                  {post.updatedAt !== post.createdAt && <span>(已编辑)</span>}
+                  {post.viewCount != null && <span>浏览 {post.viewCount}</span>}
                 </p>
               </div>
               {post.isLocked && (

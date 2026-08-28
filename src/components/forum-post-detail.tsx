@@ -247,8 +247,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
             <UserAvatar user={post.user} size={40} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground">{post.user.username}</p>
-              <p className="text-xs text-muted-foreground/60 mt-0.5">
-                {formatZhDateTime(post.createdAt)} · 浏览 {post.viewCount ?? 0}
+              <p className="text-xs text-muted-foreground/60 mt-0.5 flex flex-wrap items-center gap-x-3">
+                <span>{formatZhDateTime(post.createdAt)}</span>
+                <span>浏览 {post.viewCount ?? 0}</span>
               </p>
             </div>
             {post.isLocked && (
@@ -316,9 +317,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
         <div className="p-6 md:p-8">
           <h2 className="text-sm font-semibold text-foreground mb-5 flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            评论 · {totalCommentCount != null && totalCommentCount > comments.length
-              ? `显示 ${comments.length} / ${totalCommentCount} 条`
-              : comments.length}
+            {totalCommentCount != null && totalCommentCount > comments.length
+              ? `显示 ${comments.length} / ${totalCommentCount} 条评论`
+              : `${comments.length} 条评论`}
           </h2>
 
           {comments.length === 0 && (

@@ -65,7 +65,7 @@ export async function GalvelicaShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
             <span className="galvelica-wordmark text-base font-semibold text-foreground">Galvelica</span>
-            <span className="ml-2">· Circleica 旗下同人视觉小说资料库</span>
+            <span className="ml-2">Circleica 旗下同人视觉小说资料库</span>
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/" className="transition-colors hover:text-foreground">返回 Circleica</Link>

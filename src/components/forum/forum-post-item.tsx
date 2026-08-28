@@ -36,8 +36,7 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
       <div className="flex items-center gap-2.5 min-w-0">
         <UserAvatar user={post.user} size={28} />
         <span className="text-sm text-foreground/80 truncate">{post.user.username}</span>
-        <span className="text-xs text-muted-foreground/60 shrink-0">·</span>
-        <span className="text-xs text-muted-foreground/60 shrink-0">{timeAgo(post.createdAt)}</span>
+        <span className="text-xs text-muted-foreground/60 shrink-0 ml-3">{timeAgo(post.createdAt)}</span>
         {post.updatedAt !== post.createdAt && (
           <span className="text-caption text-muted-foreground/50 shrink-0">(已编辑)</span>
         )}

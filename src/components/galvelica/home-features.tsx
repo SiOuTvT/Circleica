@@ -46,7 +46,7 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
 
       <div className="flex min-w-0 flex-col gap-1.5">
         <p className="text-caption font-medium uppercase tracking-[0.24em] text-[var(--gal-accent)]">
-          今日偶遇 · {today}
+          今日偶遇 {today}
         </p>
         <h3 className="text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-[var(--gal-accent)] sm:text-xl">
           {work.title}
@@ -56,8 +56,8 @@ export function DailyPick({ work }: { work: GalvelicaWorkCard | null }) {
         )}
         <p className="text-xs text-muted-foreground">
           {work.studioName || "未知社团"}
-          {work.releaseYear ? ` · ${work.releaseYear}` : ""}
-          {work.originalWork ? ` · 原作 ${work.originalWork}` : ""}
+          {work.releaseYear ? ` ${work.releaseYear}` : ""}
+          {work.originalWork ? ` 原作 ${work.originalWork}` : ""}
         </p>
       </div>
       <span className="mt-auto inline-flex items-center gap-1 pt-1 text-sm font-medium text-[var(--gal-accent)]">

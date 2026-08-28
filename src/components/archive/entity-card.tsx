@@ -151,7 +151,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
           </h3>
           {data.roles.length > 0 && (
             <p className="mt-1 truncate text-xs text-muted-foreground">
-              {data.roles.slice(0, 4).map(roleLabel).join(" · ")}
+              {data.roles.slice(0, 4).map(roleLabel).join("、")}
             </p>
           )}
         </div>

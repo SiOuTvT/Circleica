@@ -14,7 +14,7 @@ export function TagPill({ tag, showCount, color }: TagPillProps) {
       variant="cloud"
       color={tag.color || color}
       href={`/galvelica/tags/${tag.id}`}
-      title={tag.groupName ? `${tag.groupName} · ${tag.name}` : tag.name}
+      title={tag.groupName ? `${tag.groupName}：${tag.name}` : tag.name}
     >
       {tag.name}
       {showCount && typeof tag.count === "number" && (

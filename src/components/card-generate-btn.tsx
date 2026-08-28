@@ -344,7 +344,6 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
           </div>
           <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 8, color: "rgba(40,50,70,0.40)", fontSize: 10 }}>
             <span>ID {data.uid}</span>
-            <span>·</span>
             <span>SINCE {sinceYear}</span>
           </div>
           {/* Bio（一行） */}
@@ -528,7 +527,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
         {/* CHECK-IN 热力条 */}
         {hasCheckin && (
           <div style={{ marginTop: 10 }}>
-            <ModuleLabel text="CHECK-IN · LAST 30 DAYS" />
+            <ModuleLabel text="CHECK-IN LAST 30 DAYS" />
             <div style={{ marginTop: 8, display: "flex", gap: 2 }}>
               {heat.map((v, i) => {
                 const level = v === 0 ? 0 : v >= 8 ? 4 : v >= 5 ? 3 : v >= 2 ? 2 : 1
