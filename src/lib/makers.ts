@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { cached, cacheKey } from "@/lib/redis"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+import { buildWorkTextOr } from "@/lib/credits-works"
 
 /** Game 体系 NSFW 模式过滤片段（归档页封面用）：sfw 排除 isNsfw / nsfw 只留 isNsfw / all 不过滤 */
 async function makersNsfwWhere(): Promise<Record<string, boolean>> {
@@ -82,14 +83,21 @@ const DETAIL_PAGE_SIZE = 24
 /** 列表检索条件（getMakers / countMakers 共用，避免两处口径漂移） */
 function buildMakerWhere(search: string) {
   const q = search.trim()
-  return q
-    ? {
-        OR: [
-          { displayName: { contains: q, mode: "insensitive" as const } },
-          { aliases: { contains: q } },
-        ],
-      }
-    : {}
+  if (!q) return {}
+  return {
+    OR: [
+      { displayName: { contains: q, mode: "insensitive" as const } },
+      { aliases: { contains: q } },
+      // 作品名命中：该组名下任一已发布作品的标题 / 英文名 / 别名（简繁变体 + 忽略大小写）
+      {
+        games: {
+          some: {
+            game: { isPublished: true, OR: buildWorkTextOr(q) },
+          },
+        },
+      },
+    ],
+  }
 }
 
 /**

@@ -4,6 +4,7 @@ import { computeDensity, computeArchiveState } from "@/components/archive/densit
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { CreatorArchiveClient } from "@/components/archive/creator-archive-client"
+import type { ArchiveView } from "@/components/archive/view-tabs"
 
 export const metadata: Metadata = {
   title: "创作者图鉴",
@@ -18,10 +19,12 @@ export const metadata: Metadata = {
 export default async function CreatorArchivePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; sort?: string }>
+  searchParams: Promise<{ q?: string; sort?: string; view?: string }>
 }) {
-  const { q, sort: sortRaw } = await searchParams
+  const { q, sort: sortRaw, view: viewRaw } = await searchParams
   const sort = sortRaw === "count" ? "count" : "name"
+  // 默认「按作品」：不带 view 参数或值非法时都落在 works
+  const view: ArchiveView = viewRaw === "name" ? "name" : "works"
   const query = q?.trim() || ""
 
   let total = 0
@@ -38,6 +41,7 @@ export default async function CreatorArchivePage({
     <CreatorArchiveClient
       q={query}
       sort={sort}
+      view={view}
       total={total}
       density={density}
       state={state}
@@ -46,7 +50,7 @@ export default async function CreatorArchivePage({
           variant="person"
           eyebrow="creators"
           title="创作者图鉴"
-          lede="这里收录脚本、原画、音乐、导演等创作者，按名称首字浏览档案与参与作品。"
+          lede="这里收录脚本、原画、音乐、导演等创作者，按作品浏览他们的参与名单。"
           meta={
             query ? (
               <span>

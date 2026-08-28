@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
+import { buildWorkTextOr } from "@/lib/credits-works"
 
 /** Game 体系 NSFW 模式过滤片段（归档页封面用）：sfw 排除 isNsfw / nsfw 只留 isNsfw / all 不过滤 */
 async function creatorsNsfwWhere(): Promise<Record<string, boolean>> {
@@ -45,15 +46,22 @@ function buildCreatorWhere(search: string) {
   const q = search.trim()
   // 主站隔离：仅列出关联「主站已发布游戏」的创作者，杜绝串入副站(VNDB 摄入)数据。
   const publishedGameFilter = { games: { some: { game: { isPublished: true } } }, source: "circleica" }
-  return q
-    ? {
-        OR: [
-          { name: { contains: q, mode: "insensitive" as const } },
-          { nameJa: { contains: q, mode: "insensitive" as const } },
-        ],
-        ...publishedGameFilter,
-      }
-    : publishedGameFilter
+  if (!q) return publishedGameFilter
+  return {
+    OR: [
+      { name: { contains: q, mode: "insensitive" as const } },
+      { nameJa: { contains: q, mode: "insensitive" as const } },
+      // 作品名命中：该创作者参与过的任一已发布作品的标题 / 英文名 / 别名
+      {
+        games: {
+          some: {
+            game: { isPublished: true, OR: buildWorkTextOr(q) },
+          },
+        },
+      },
+    ],
+    ...publishedGameFilter,
+  }
 }
 
 /**

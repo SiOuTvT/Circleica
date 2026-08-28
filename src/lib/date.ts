@@ -62,6 +62,11 @@ export function formatZhDate(input: DateInput): string {
   return fmtZh(input, { year: "numeric", month: "long", day: "numeric" })
 }
 
+/** YYYY年M月（年 + 月，用于作品卡的发行日期，无日） */
+export function formatZhYearMonth(input: DateInput): string {
+  return fmtZh(input, { year: "numeric", month: "long" })
+}
+
 /** YYYY年M月D日 HH:mm（用户友好的完整日期时间） */
 export function formatZhDateTime(input: DateInput): string {
   return fmtZh(input, { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
