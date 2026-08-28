@@ -102,7 +102,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
                       color: tag.color || tag.group.color,
                       border: `1px solid ${tag.color || tag.group.color}30`,
                     }}
-                    title={`${tag.group.name} · ${tag.gameCount} 个游戏`}
+                    title={`${tag.group.name}：${tag.gameCount} 个游戏`}
                   >
                     {tag.name}
                     <span className="ml-1.5 text-micro opacity-60">

@@ -88,7 +88,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
         </div>
 
         <div className="min-w-0">
-          <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 作品</p>
+          <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 作品</p>
           <h1 className="galvelica-h1 mt-2 sm:text-3xl">
             {work.title}
           </h1>
@@ -135,7 +135,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                 href={`/games/${work.serialId}`}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90 sm:w-auto"
               >
-                查看资源 · 前往下载页
+                查看资源 前往下载页
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             ) : (

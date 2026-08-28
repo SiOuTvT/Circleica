@@ -117,8 +117,7 @@ export function ResultToolbar({
         ))}
         {total != null && (
           <span className="truncate text-sm text-muted-foreground tabular-nums">
-            {resultLabel ? `${resultLabel} · ` : ""}
-            {total} 个
+            {total} 个{resultLabel}
           </span>
         )}
       </div>

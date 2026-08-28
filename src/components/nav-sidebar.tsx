@@ -128,7 +128,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
                   <Library className="h-[22px] w-[22px] shrink-0" strokeWidth={2.2} />
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Galvelica · 同人视觉小说资料库</TooltipContent>
+              <TooltipContent side="right">Galvelica：同人视觉小说资料库</TooltipContent>
             </Tooltip>
           ) : (
             <Link

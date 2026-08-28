@@ -386,7 +386,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
           <span className="inline-block h-2 w-2 rounded-full bg-primary" />
           标签管理
           <span className="text-xs font-normal text-muted-foreground">
-            {groups.length} 个组 · {totalTags} 个标签 · {totalGames} 次关联
+            {groups.length} 个组、{totalTags} 个标签、{totalGames} 次关联
           </span>
         </h2>
         <div className="flex items-center gap-2">

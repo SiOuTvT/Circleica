@@ -384,7 +384,7 @@ function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefau
               <button onClick={(e) => { e.stopPropagation(); onTogglePublic?.(!isPublic) }}
                 className={cn("flex items-center rounded-lg px-2 py-1 text-xs font-medium transition-colors",
                   isPublic ? "text-primary hover:bg-primary/10" : "text-muted-foreground hover:bg-secondary")}
-                title={isPublic ? "已公开 · 点击设为私有" : "点击设为公开"}>
+                title={isPublic ? "已公开：点击设为私有" : "点击设为公开"}>
                 {isPublic ? "公开" : "私有"}
               </button>
               <button onClick={(e) => { e.stopPropagation(); onShare?.() }}
@@ -411,7 +411,7 @@ function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefau
             ))}
             {gameCount > 5 && <div className="flex h-16 w-12 shrink-0 items-center justify-center rounded-md bg-muted text-micro font-bold text-muted-foreground">+{gameCount - 5}</div>}
           </div>
-        ) : <p className="text-xs text-muted-foreground">空收藏夹 · 点击查看详情</p>}
+        ) : <p className="text-xs text-muted-foreground">空收藏夹，点击查看详情</p>}
       </button>
     </div>
   )
@@ -459,7 +459,7 @@ function CommentsTab({ comments, hasMore, loadingMore, onLoadMore }: { comments:
         const body = (
           <>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
-              <span className="font-medium text-foreground group-hover:text-primary">{game ? game.title : "已删除的游戏"}</span><span>·</span><Calendar className="h-3 w-3" /><span>{formatDate(c.createdAt)}</span>
+              <span className="font-medium text-foreground group-hover:text-primary">{game ? game.title : "已删除的游戏"}</span><Calendar className="h-3 w-3 ml-3" /><span>{formatDate(c.createdAt)}</span>
             </div>
             <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
           </>

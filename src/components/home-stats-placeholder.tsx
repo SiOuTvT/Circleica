@@ -10,7 +10,6 @@ export function HomeStatsPlaceholder() {
       <div className="flex items-center justify-center gap-6 sm:gap-10 text-muted-foreground/20">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-medium uppercase tracking-[0.2em]">Stats</span>
-          <span className="text-[10px]">·</span>
         </div>
         {/* 此处未来放置统计数据占位 */}
       </div>

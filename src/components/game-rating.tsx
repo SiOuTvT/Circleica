@@ -108,7 +108,7 @@ export function GameRating({ gameId }: { gameId: string }) {
           })}
         </div>
         <span className="text-xs text-muted-foreground">
-          {avg ? avg.toFixed(1) : "—"} 分 · {count} 人评分
+          {avg ? avg.toFixed(1) : "—"} 分，{count} 人评分
         </span>
       </div>
       {status === "authenticated" && userScore != null && (

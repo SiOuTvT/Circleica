@@ -85,7 +85,7 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
         </h3>
         <p className="truncate text-[11px] text-muted-foreground">
           <Cjk>{work.studioName || "未知社团"}</Cjk>
-          {work.releaseYear ? ` · ${work.releaseYear}` : ""}
+          {work.releaseYear ? ` ${work.releaseYear}` : ""}
         </p>
         {work.viewCount > 0 && (
           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">

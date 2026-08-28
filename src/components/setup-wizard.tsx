@@ -691,7 +691,7 @@ function PreviewPanel({ form, logoPreview }: {
               )
             })}
           </div>
-          <p className={cn("text-micro", "text-muted-foreground")}>首页卡片 · 详情页 · 发现页 · 资源</p>
+          <p className={cn("text-micro", "text-muted-foreground")}>首页卡片、详情页、发现页、资源</p>
         </div>
       </div>
       <div className={cn("flex items-center justify-center h-6 border-t text-micro", "text-muted-foreground border border-border")}>
