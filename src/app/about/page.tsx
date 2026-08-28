@@ -46,7 +46,7 @@ Circleica 是面向 Galgame / 视觉小说爱好者的资源站。
 
 <h2 class="text-lg font-semibold text-foreground mb-2">技术栈</h2>
 <p class="text-sm text-muted-foreground leading-relaxed">
-Next.js 16 · React 19 · Prisma ORM · PostgreSQL · NextAuth v5 · Cloudflare R2 · Upstash Redis · TipTap 富文本编辑器 · shadcn/ui · Tailwind CSS
+Next.js 16、React 19、Prisma ORM、PostgreSQL、NextAuth v5、Cloudflare R2、Upstash Redis、TipTap 富文本编辑器、shadcn/ui、Tailwind CSS
 </p>`
 
 export default async function AboutPage() {

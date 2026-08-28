@@ -132,13 +132,10 @@ export default async function AdminForumPage({
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>发布者：{post.user.username}</span>
-                  <span>·</span>
                   <span>{formatDate(post.createdAt)}</span>
-                  <span>·</span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" /> {post._count.comments} 评论
                   </span>
-                  <span>·</span>
                   <span>❤ {post.likeCount}</span>
                 </div>
               </div>

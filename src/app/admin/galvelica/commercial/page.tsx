@@ -102,7 +102,7 @@ export default async function GalvelicaCommercialPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · COMMERCIAL ARCHIVE"
+      eyebrow="GALVELICA COMMERCIAL ARCHIVE"
       title="商业作品归档"
       description={`共 ${total} 部商业系列作品（同人馆不变式：仅归档审计，不参与副站展示与收录；数据仍存库，可用作核对/重新判定）。`}
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索商业作品标题…" aria-label="搜索商业作品" />}

@@ -152,7 +152,7 @@ export default async function AdminCheckInsPage({
                   {ci.user.username}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  签到日期：{formatDate(ci.date)} · 创建时间：{formatDateTime(ci.createdAt)}
+                  签到日期：{formatDate(ci.date)}，创建时间：{formatDateTime(ci.createdAt)}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">

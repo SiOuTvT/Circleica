@@ -246,7 +246,7 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-5 sm:gap-7 pt-4">
-      <h1 className="sr-only">{siteName} · 资源大厅</h1>
+      <h1 className="sr-only">{siteName} 资源大厅</h1>
 
       {/* ── Announcement + Activity + 数据行 ── */}
       <HomeAnnounceBar

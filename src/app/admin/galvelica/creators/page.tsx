@@ -91,7 +91,7 @@ export default async function GalvelicaCreatorsPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · CREATORS"
+      eyebrow="GALVELICA CREATORS"
       title="创作者管理"
       description={`Galvelica 副站共 ${total} 位创作者（source=galvelica）`}
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" />}

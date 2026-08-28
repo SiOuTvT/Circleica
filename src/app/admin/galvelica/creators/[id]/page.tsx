@@ -52,7 +52,7 @@ export default async function GalvelicaCreatorDetailPage({
   return (
     <AdminPageContainer
       galvelica
-      eyebrow="GALVELICA · CREATOR"
+      eyebrow="GALVELICA CREATOR"
       title={creator.name}
       description={creator.nameJa || "Galvelica 副站创作者"}
       actions={
