@@ -13,6 +13,7 @@ export interface Comment {
   createdAt: string
   updatedAt?: string
   user: User
+  liked?: boolean
 }
 
 export interface Post {
@@ -23,6 +24,7 @@ export interface Post {
   likeCount: number
   commentCount: number
   isSolved: boolean
+  liked?: boolean
   isPinned: boolean
   isLocked: boolean
   category: string

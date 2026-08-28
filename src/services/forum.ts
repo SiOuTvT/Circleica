@@ -15,8 +15,8 @@ export const forumService = {
     return forumRepo.findPostsPaginated(page, FORUM.POSTS_PER_PAGE, category, search)
   },
 
-  async getPost(id: string) {
-    const post = await forumRepo.findPostById(id)
+  async getPost(id: string, userId?: string) {
+    const post = await forumRepo.findPostById(id, userId)
     if (!post) throw new NotFoundError("帖子")
     return post
   },
