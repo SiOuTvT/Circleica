@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { forumRepo } from "@/repositories/forum"
 
 const COOKIE = "fv"

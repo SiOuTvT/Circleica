@@ -268,23 +268,34 @@ export function ForumClient({
         currentUserId={currentUser?.id}
         isAdmin={isAdmin}
         onLikePost={(id) => {
+          if (!isLoggedIn) { toast.error("请先登录后再点赞"); return }
           if (likingPostIds.current.has(id)) return
           likingPostIds.current.add(id)
-          const prev = posts.find(p => p.id === id)?.likeCount ?? 0
-          setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: x.likeCount + 1 } : x))
-          setActivePost(p => p && { ...p, likeCount: p.likeCount + 1 })
-          // apiFetchSafe 返回完整响应体 { success, data: { likeCount } }，需解 data.data
-          apiFetchSafe<{ likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
+          const prevPost = posts.find(p => p.id === id)
+          const prevLiked = prevPost?.liked ?? false
+          const prevCount = prevPost?.likeCount ?? 0
+          // 乐观切换
+          setPosts(p => p.map(x => x.id === id ? { ...x, liked: !x.liked, likeCount: x.likeCount + (x.liked ? -1 : 1) } : x))
+          setActivePost(p => p && { ...p, liked: !p.liked, likeCount: p.likeCount + (p.liked ? -1 : 1) })
+          apiFetchSafe<{ liked?: boolean; likeCount?: number }>(`/api/forum/posts/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
               if (ok) {
-                const inner = unwrapApiData<{ likeCount?: number }>(data)
-                setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: inner?.likeCount ?? x.likeCount } : x))
-                setActivePost(p => p && { ...p, likeCount: inner?.likeCount ?? p.likeCount })
+                const inner = unwrapApiData<{ liked?: boolean; likeCount?: number }>(data)
+                if (inner?.liked !== undefined && inner?.likeCount !== undefined) {
+                  setPosts(p => p.map(x => x.id === id ? { ...x, liked: inner.liked!, likeCount: inner.likeCount! } : x))
+                  setActivePost(p => p && { ...p, liked: inner.liked!, likeCount: inner.likeCount! })
+                  return
+                }
               }
+              // 失败回滚
+              setPosts(p => p.map(x => x.id === id ? { ...x, liked: prevLiked, likeCount: prevCount } : x))
+              setActivePost(p => p && { ...p, liked: prevLiked, likeCount: prevCount })
+              if (!ok) toast.error("点赞失败，请稍后再试")
             })
             .catch(() => {
-              setPosts(p => p.map(x => x.id === id ? { ...x, likeCount: prev } : x))
-              setActivePost(p => p && { ...p, likeCount: prev })
+              setPosts(p => p.map(x => x.id === id ? { ...x, liked: prevLiked, likeCount: prevCount } : x))
+              setActivePost(p => p && { ...p, liked: prevLiked, likeCount: prevCount })
+              toast.error("网络错误，请稍后再试")
             })
             .finally(() => { likingPostIds.current.delete(id) })
         }}
@@ -294,15 +305,29 @@ export function ForumClient({
         setImageError={setImageError}
         commentInputRef={commentInputRef}
         onLikeComment={(id) => {
-          if (!isLoggedIn || likingCommentIds.current.has(id)) return
+          if (!isLoggedIn) { toast.error("请先登录后再点赞"); return }
+          if (likingCommentIds.current.has(id)) return
           likingCommentIds.current.add(id)
-          apiFetchSafe<{ likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
+          const c = activePost?.comments.find(x => x.id === id)
+          const prevLiked = c?.liked ?? false
+          const prevCount = c?.likeCount ?? 0
+          // 乐观切换
+          setActivePost(p => p && { ...p, comments: p.comments.map(x => x.id === id ? { ...x, liked: !x.liked, likeCount: x.likeCount + (x.liked ? -1 : 1) } : x) })
+          apiFetchSafe<{ liked?: boolean; likeCount?: number }>(`/api/forum/comments/${id}/like`, { method: "POST" })
             .then(({ ok, data }) => {
-              if (ok) {
-                setActivePost(p => p && { ...p, comments: p.comments.map(c => c.id === id ? { ...c, likeCount: unwrapApiData<{ likeCount?: number }>(data)?.likeCount ?? c.likeCount } : c) })
+              const inner = unwrapApiData<{ liked?: boolean; likeCount?: number }>(data)
+              if (ok && inner?.liked !== undefined && inner?.likeCount !== undefined) {
+                setActivePost(p => p && { ...p, comments: p.comments.map(x => x.id === id ? { ...x, liked: inner.liked!, likeCount: inner.likeCount! } : x) })
+                return
               }
+              // 失败回滚
+              setActivePost(p => p && { ...p, comments: p.comments.map(x => x.id === id ? { ...x, liked: prevLiked, likeCount: prevCount } : x) })
+              if (!ok) toast.error("点赞失败，请稍后再试")
             })
-            .catch(() => {})
+            .catch(() => {
+              setActivePost(p => p && { ...p, comments: p.comments.map(x => x.id === id ? { ...x, liked: prevLiked, likeCount: prevCount } : x) })
+              toast.error("网络错误，请稍后再试")
+            })
             .finally(() => { likingCommentIds.current.delete(id) })
         }}
         onDeleteComment={(id) => {

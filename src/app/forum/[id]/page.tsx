@@ -1,6 +1,9 @@
 import { ForumPostDetail } from "@/components/forum-post-detail"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { forumService } from "@/services/forum"
+import { recordForumView, FORUM_VIEW_COOKIE } from "@/lib/forum-view"
+import { cookies } from "next/headers"
 import type { Metadata } from "next"
 import { hasRole } from "@/lib/permissions"
 import type { UserRole } from "@/generated/prisma/client"
@@ -28,24 +31,25 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
   const session = await auth()
 
   async function fetchPost() {
-    return prisma.forumPost.findUnique({
-      where: { id },
-      include: {
-        user: { select: { id: true, username: true, avatar: true } },
-        _count: { select: { comments: true } },
-        comments: {
-          orderBy: { createdAt: "asc" },
-          take: 50, // 初始仅加载第一页，更多评论由前端「加载更多」按需拉取
-          include: { user: { select: { id: true, username: true, avatar: true } } },
-        },
-      },
-    })
+    return forumService.getPost(id, session?.user?.id)
   }
 
   type PostData = NonNullable<Awaited<ReturnType<typeof fetchPost>>>
   const postResult = await fetchPost()
   if (!postResult) notFound()
   const post: PostData = postResult
+
+  // 浏览量：进入详情页即计入（含未登录访客），同一浏览器 30 分钟内去重
+  const cookieStore = await cookies()
+  const cookieRaw = cookieStore.get(FORUM_VIEW_COOKIE)?.value ?? null
+  const { viewCount, cookieValue } = await recordForumView(id, cookieRaw)
+  if (cookieValue) {
+    try {
+      cookieStore.set(FORUM_VIEW_COOKIE, cookieValue, { maxAge: 60 * 60 * 24 * 365, path: "/" })
+    } catch {
+      // 服务端组件内写入 Cookie 受框架限制时降级为仅计数、不持久化去重标记
+    }
+  }
 
   const isAdmin = hasRole(session?.user?.role as UserRole, "ADMIN")
 
@@ -55,6 +59,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
     content: c.content,
     imageUrl: c.imageUrl ?? "",
     likeCount: c.likeCount,
+    liked: (c as { liked?: boolean }).liked ?? false,
     createdAt: c.createdAt.toISOString(),
     user: { id: c.user.id, username: c.user.username, avatar: c.user.avatar ?? "" },
   }))
@@ -66,7 +71,8 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
     imageUrl: post.imageUrl ?? "",
     likeCount: post.likeCount,
     commentCount: post._count?.comments ?? post.comments.length,
-    viewCount: post.viewCount,
+    viewCount: viewCount,
+    liked: (post as { liked?: boolean }).liked ?? false,
     isSolved: post.isSolved,
     isLocked: post.isLocked,
     createdAt: post.createdAt.toISOString(),

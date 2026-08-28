@@ -8,7 +8,7 @@ import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 export const metadata = {
-  title: "通知中心",
+  title: "消息通知",
 }
 
 export default async function NotificationsPage() {

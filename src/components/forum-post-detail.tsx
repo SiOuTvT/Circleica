@@ -18,10 +18,10 @@ import { formatZhDateTime } from "@/lib/date"
 import { UserAvatar } from "@/components/user-avatar"
 
 interface User { id: string; username: string; avatar: string }
-interface Comment { id: string; content: string; imageUrl: string; likeCount: number; createdAt: string; updatedAt?: string; user: User }
+interface Comment { id: string; content: string; imageUrl: string; likeCount: number; liked?: boolean; createdAt: string; updatedAt?: string; user: User }
 interface PostData {
   id: string; title: string; content: string; imageUrl: string
-  likeCount: number; commentCount: number; viewCount?: number; isSolved: boolean; isLocked?: boolean
+  likeCount: number; commentCount: number; viewCount?: number; liked?: boolean; isSolved: boolean; isLocked?: boolean
   createdAt: string; user: User
 }
 
@@ -73,15 +73,22 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
   // ── 点赞帖子 ──
   async function likePost() {
     if (likingPost) return
+    if (!isLoggedIn) { toast.error("请先登录后再点赞"); return }
     setLikingPost(true)
-    const prev = post.likeCount
-    setPost(p => ({ ...p, likeCount: p.likeCount + 1 }))
+    const prevLiked = post.liked ?? false
+    const prevCount = post.likeCount
+    // 乐观切换
+    setPost(p => ({ ...p, liked: !p.liked, likeCount: p.likeCount + (p.liked ? -1 : 1) }))
     try {
-      const j = await api.post<{ likeCount?: number; data?: { likeCount?: number } }>(`/api/forum/posts/${post.id}/like`)
+      const j = await api.post<{ liked?: boolean; likeCount?: number; data?: { liked?: boolean; likeCount?: number } }>(`/api/forum/posts/${post.id}/like`)
       const d = j?.data ?? j
-      setPost(p => ({ ...p, likeCount: d.likeCount ?? p.likeCount }))
+      if (d?.liked !== undefined && d?.likeCount !== undefined) {
+        setPost(p => ({ ...p, liked: d.liked ?? p.liked, likeCount: d.likeCount ?? p.likeCount }))
+      } else {
+        setPost(p => ({ ...p, liked: prevLiked, likeCount: prevCount }))
+      }
     } catch {
-      setPost(p => ({ ...p, likeCount: prev }))
+      setPost(p => ({ ...p, liked: prevLiked, likeCount: prevCount }))
     } finally {
       setLikingPost(false)
     }
@@ -89,12 +96,22 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
   // ── 点赞评论 ──
   async function likeComment(id: string) {
-    if (!isLoggedIn || likingCommentId === id) return
+    if (likingCommentId === id) return
+    if (!isLoggedIn) { toast.error("请先登录后再点赞"); return }
     setLikingCommentId(id)
+    const prev = comments.find(c => c.id === id)
+    const prevLiked = prev?.liked ?? false
+    const prevCount = prev?.likeCount ?? 0
+    // 乐观切换
+    setComments(cs => cs.map(c => c.id === id ? { ...c, liked: !c.liked, likeCount: c.likeCount + (c.liked ? -1 : 1) } : c))
     try {
-      const j = await api.post<{ likeCount?: number; data?: { likeCount?: number } }>(`/api/forum/comments/${id}/like`)
+      const j = await api.post<{ liked?: boolean; likeCount?: number; data?: { liked?: boolean; likeCount?: number } }>(`/api/forum/comments/${id}/like`)
       const d = j?.data ?? j
-      setComments(cs => cs.map(c => c.id === id ? { ...c, likeCount: d.likeCount ?? c.likeCount } : c))
+      if (d?.liked !== undefined && d?.likeCount !== undefined) {
+        setComments(cs => cs.map(c => c.id === id ? { ...c, liked: d.liked ?? c.liked, likeCount: d.likeCount ?? c.likeCount } : c))
+      } else {
+        setComments(cs => cs.map(c => c.id === id ? { ...c, liked: prevLiked, likeCount: prevCount } : c))
+      }
     } catch (err) { logger.forum.warn("[ForumPostDetail] likeComment failed", { error: err instanceof Error ? err.message : String(err) }) }
     finally { setLikingCommentId(null) }
   }
@@ -255,9 +272,16 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
         {/* 操作栏 */}
         <div className="border-t border-border px-4 py-3 sm:px-6 md:px-8 flex flex-wrap items-center gap-1">
-          <button onClick={likePost} disabled={!isLoggedIn || likingPost}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-red-400 hover:bg-red-500/5 disabled:opacity-40">
-            <Heart className="h-4 w-4" strokeWidth={1.5} />{post.likeCount}
+          <button onClick={likePost} disabled={likingPost}
+            aria-pressed={post.liked}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-colors",
+              post.liked
+                ? "text-red-400 hover:bg-red-500/5"
+                : "text-muted-foreground hover:text-red-400 hover:bg-red-500/5",
+              likingPost && "opacity-60"
+            )}>
+            <Heart className={cn("h-4 w-4", post.liked && "fill-current")} strokeWidth={1.5} />{post.likeCount}
           </button>
           <span className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground">
             <MessageSquare className="h-4 w-4" strokeWidth={1.5} />{post.commentCount}
@@ -346,9 +370,13 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                       className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors hover:bg-secondary">
                       回复
                     </button>
-                    <button onClick={() => likeComment(c.id)} disabled={!isLoggedIn || likingCommentId === c.id}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-400 px-2 py-1 rounded transition-colors hover:bg-red-500/5 disabled:opacity-40">
-                      <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
+                    <button onClick={() => likeComment(c.id)} disabled={likingCommentId === c.id}
+                      aria-pressed={c.liked}
+                      className={cn(
+                        "flex items-center gap-1 text-xs transition-colors px-2 py-1 rounded",
+                        c.liked ? "text-red-400 hover:bg-red-500/5" : "text-muted-foreground hover:text-red-400 hover:bg-red-500/5"
+                      )}>
+                      <Heart className={cn("h-3 w-3", c.liked && "fill-current")} strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                     </button>
                     {currentUserId === c.user.id && (
                       <button onClick={() => { setEditingComment(c.id); setEditCommentText(c.content) }}

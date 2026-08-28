@@ -21,9 +21,9 @@ export const forumService = {
     return post
   },
 
-  async viewPost(id: string) {
+  async viewPost(id: string, userId?: string) {
     await forumRepo.incrementPostView(id)
-    return this.getPost(id)
+    return this.getPost(id, userId)
   },
 
   async createPost(userId: string, raw: Record<string, unknown>) {

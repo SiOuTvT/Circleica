@@ -68,7 +68,7 @@ const variantStyles: Record<TagVariant, string> = {
     "inline-flex items-center shrink-0",
     "rounded-full",
     "px-1.5 py-px",
-    "text-micro font-bold leading-none",
+    "badge-micro font-bold leading-none",
     "truncate",
   ),
 }

@@ -33,12 +33,43 @@ export const forumRepo = {
     ])
   },
 
-  findPostById(id: string) {
+  findPostById(id: string, userId?: string) {
     return prisma.forumPost.findUnique({
       where: { id },
       include: {
         user: { select: { id: true, username: true, avatar: true, avatarFrameId: true, serialId: true } },
+        comments: {
+          orderBy: { createdAt: "asc" },
+          take: 50,
+          include: { user: { select: { id: true, username: true, avatar: true, avatarFrameId: true } } },
+        },
+        _count: { select: { comments: true } },
       },
+    }).then(async (post) => {
+      if (!post) return null
+      if (!userId) {
+        return {
+          ...post,
+          liked: false,
+          comments: post.comments.map((c) => ({ ...c, liked: false })),
+        }
+      }
+      const postLike = await prisma.forumPostLike.findUnique({
+        where: { userId_postId: { userId, postId: id } },
+      })
+      const commentIds = post.comments.map((c) => c.id)
+      const commentLikes = commentIds.length
+        ? await prisma.forumCommentLike.findMany({
+            where: { userId, commentId: { in: commentIds } },
+            select: { commentId: true },
+          })
+        : []
+      const likedSet = new Set(commentLikes.map((l) => l.commentId))
+      return {
+        ...post,
+        liked: !!postLike,
+        comments: post.comments.map((c) => ({ ...c, liked: likedSet.has(c.id) })),
+      }
     })
   },
 

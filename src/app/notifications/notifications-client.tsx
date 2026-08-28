@@ -9,7 +9,7 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 import { api } from "@/lib/api-client"
 
 interface NotificationItem {
@@ -107,18 +107,6 @@ export default function NotificationsClient({
   const [showReadConfirm, setShowReadConfirm] = useState(false)
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null)
 
-  // 进入页面时标记所有为已读（使用 ref 保证仅执行一次，同时读取最新的 unreadCount）
-  const hasMarkedAllRead = useRef(false)
-  useEffect(() => {
-    if (!hasMarkedAllRead.current && unreadCount > 0) {
-      hasMarkedAllRead.current = true
-      api.put("/api/notifications").then(() => {
-        setUnreadCount(0)
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-      }).catch(() => {})
-    }
-  }, [unreadCount])
-
   const fetchMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return
     setLoadingMore(true)
@@ -161,8 +149,13 @@ export default function NotificationsClient({
   }
 
   async function deleteRead() {
-    const readIds = notifications.filter(n => n.isRead).map(n => n.id)
-    if (readIds.length > 0) await deleteNotifications(readIds)
+    try {
+      // 删除全部已读（含未加载的分页），由后端按 isRead 过滤
+      await api.delete("/api/notifications", { body: {} })
+      setNotifications((prev) => prev.filter((n) => !n.isRead))
+    } catch {
+      toast.error("清除已读通知失败，请稍后再试")
+    }
   }
 
   async function deleteAll() {
@@ -272,7 +265,8 @@ export default function NotificationsClient({
                 {/* 删除按钮 */}
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSingleDeleteId(n.id) }}
-                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition duration-150 ease-in-out group-hover:opacity-100 hover:text-red-400"
+                  aria-label="删除通知"
+                  className="shrink-0 rounded-lg p-2 text-muted-foreground transition duration-150 ease-in-out hover:bg-red-500/5 hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

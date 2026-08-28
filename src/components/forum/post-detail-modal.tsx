@@ -280,9 +280,13 @@ function PostDetailModalInner({
 
             {/* 帖子操作 */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button onClick={() => onLikePost(post.id)} disabled={!isLoggedIn}
-                className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-primary disabled:opacity-40">
-                <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />{post.likeCount}
+              <button onClick={() => onLikePost(post.id)}
+                aria-pressed={post.liked}
+                className={cn(
+                  "flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs ring-1 ring-border transition duration-150 ease-in-out",
+                  post.liked ? "text-red-400" : "text-muted-foreground hover:text-primary"
+                )}>
+                <Heart className={cn("h-3.5 w-3.5", post.liked && "fill-current")} strokeWidth={1.5} />{post.likeCount}
               </button>
               <button onClick={() => { const url = window.location.href; if (navigator.clipboard) { navigator.clipboard.writeText(url); toast.success("链接已复制") } }}
                 className="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:text-foreground">
@@ -341,9 +345,13 @@ function PostDetailModalInner({
                       </a>
                     )}
                     <div className="mt-1 flex items-center gap-2">
-                      <button onClick={() => handleLikeComment(c.id)} disabled={!isLoggedIn}
-                        className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-primary disabled:opacity-40">
-                        <Heart className="h-3 w-3" strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
+                      <button onClick={() => handleLikeComment(c.id)}
+                        aria-pressed={c.liked}
+                        className={cn(
+                          "flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs transition-colors",
+                          c.liked ? "text-red-400" : "text-muted-foreground hover:text-primary"
+                        )}>
+                        <Heart className={cn("h-3 w-3", c.liked && "fill-current")} strokeWidth={1.5} />{c.likeCount > 0 && c.likeCount}
                       </button>
                       <button onClick={() => { setReplyTo(`@${c.user.username} `); commentInputRef.current?.focus() }}
                         className="flex min-h-[44px] items-center gap-1 px-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
