@@ -119,7 +119,6 @@ export default async function MakerDetailPage({
               </span>
               {detail.creators.length > 0 && (
                 <>
-                  <span className="text-muted-foreground/30">·</span>
                   <span>
                     <span className="tabular-nums text-foreground">{detail.creators.length}</span> 位参与创作者
                   </span>
@@ -190,7 +189,7 @@ export default async function MakerDetailPage({
                   </p>
                   {c.roles.length > 0 && (
                     <p className="mt-1 truncate text-xs text-muted-foreground">
-                      {c.roles.slice(0, 4).map((r) => ROLE_LABELS[r] || r).join(" · ")}
+                      {c.roles.slice(0, 4).map((r) => ROLE_LABELS[r] || r).join("、")}
                     </p>
                   )}
                 </div>

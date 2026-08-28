@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!post) return { title: "帖子不存在" }
   const desc = post.content.replace(/<[^>]*>/g, "").slice(0, 160)
   return {
-    title: `${post.title} · 求档区`,
+    title: `${post.title}（求档区）`,
     description: desc || `${post.title} - Circleica求档区讨论帖`,
     openGraph: { title: post.title, description: desc, images: ["/opengraph-image"] },
     alternates: { canonical: `/forum/${id}` },

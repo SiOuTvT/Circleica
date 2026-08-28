@@ -110,7 +110,6 @@ export default async function CreatorDetailPage({
               </span>
               {detail.roles.length > 0 && (
                 <>
-                  <span className="text-muted-foreground/30">·</span>
                   <span>
                     <span className="tabular-nums text-foreground">{detail.roles.length}</span> 类职位
                   </span>

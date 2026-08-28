@@ -6,7 +6,7 @@ import Link from "next/link"
 import type { UserRole } from "@/generated/prisma/client"
 
 export const dynamic = "force-dynamic"
-export const metadata = { title: "Galgame 品味名片", description: "Circleica · Galvelica 个人品味档案" }
+export const metadata = { title: "Galgame 品味名片", description: "Circleica、Galvelica 个人品味档案" }
 
 const CARD_W = 720
 const SAFE = 44
@@ -79,7 +79,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
       <div style={{ width: "100%", maxWidth: 400, marginBottom: 24, textAlign: "center" }}>
         <h1 style={{ fontSize: 18, fontWeight: 800, color: "#232830", margin: 0 }}>{data.username} 的 Galgame 品味名片</h1>
         <p style={{ fontSize: 12, color: "#8a93a5", marginTop: 6 }}>
-          Circleica · Galvelica · 名片 ID {data.serialId}
+          Circleica Galvelica 名片 ID {data.serialId}
         </p>
       </div>
 
@@ -104,7 +104,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
               {roleLabel && <span style={{ padding: "2px 10px", borderRadius: 10, background: "rgba(95,168,160,0.12)", border: "1px solid rgba(95,168,160,0.28)", color: "rgba(60,120,110,0.9)", fontSize: 10, fontWeight: 700 }}>{roleLabel}</span>}
             </div>
             <div style={{ marginTop: 4, display: "flex", gap: 8, color: "rgba(40,50,70,0.40)", fontSize: 10 }}>
-              <span>ID {data.uid}</span><span>·</span><span>SINCE {sinceYear}</span>
+              <span>ID {data.uid}</span><span>SINCE {sinceYear}</span>
             </div>
             {data.bio && <div style={{ marginTop: 8, color: "rgba(40,50,70,0.58)", fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.bio.slice(0, 48)}</div>}
           </div>
@@ -225,7 +225,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
           <div style={{ height: 1, background: "rgba(40,50,70,0.08)" }} />
           {hasCheckin && (
             <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: "rgba(40,50,70,0.45)" }}>CHECK-IN · LAST 30 DAYS</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: "rgba(40,50,70,0.45)" }}>CHECK-IN LAST 30 DAYS</div>
               <div style={{ marginTop: 8, display: "flex", gap: 2 }}>
                 {heat.map((v, i) => {
                   const level = v === 0 ? 0 : v >= 8 ? 4 : v >= 5 ? 3 : v >= 2 ? 2 : 1
@@ -287,7 +287,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
       </div></div>
 
       <div style={{ width: "100%", maxWidth: 400, marginTop: 20, textAlign: "center", fontSize: 12, color: "#8a93a5" }}>
-        由 Circleica 生成 · <Link href="/" style={{ color: "#5FA8A0" }}>去主站看看</Link> · <Link href="/galvelica" style={{ color: "#8f6fd8" }}>浏览资料馆</Link>
+        由 Circleica 生成 <Link href="/" style={{ color: "#5FA8A0" }}>去主站看看</Link> <Link href="/galvelica" style={{ color: "#8f6fd8" }}>浏览资料馆</Link>
       </div>
     </main>
   )
