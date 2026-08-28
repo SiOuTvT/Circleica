@@ -214,7 +214,7 @@ export default async function RankingPage({
 
   // 浏览榜不按时间筛选：隐藏右侧时间范围按钮，改在页头标注「按累计」
   const cumulativeNote =
-    dim === "view" ? "按累计" : result.fallback ? "窗口内暂无数据 · 已按累计展示" : null
+    dim === "view" ? "按累计" : result.fallback ? "窗口内暂无数据，已按累计展示" : null
 
   return (
     <div className="space-y-5 sm:space-y-6">

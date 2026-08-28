@@ -5,7 +5,7 @@ import path from "node:path"
 // 构建期跳过 prerender — 无需 fetch 字体（用系统字体），emblem 由运行时从本地磁盘读取
 export const dynamic = "force-dynamic"
 
-export const alt = "Circleica · 资源大厅"
+export const alt = "Circleica 资源大厅"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -51,7 +51,7 @@ export default function OGImage() {
           Circleica
         </div>
         <div style={{ fontSize: 24, color: "#4C7E96", marginTop: 12 }}>
-          资源大厅 · 下载 · 评论 · 收藏
+          资源大厅 下载 评论 收藏
         </div>
       </div>
     ),

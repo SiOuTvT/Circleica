@@ -40,7 +40,7 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 社团</p>
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 社团</p>
         <h1 className="galvelica-h1 mt-2">社团索引</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {total} 个社团，第 {page}/{totalPages} 页。</p>
       </div>

@@ -124,7 +124,7 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
               </div>
             )}
             <span className="text-sm font-medium text-white/90">{ann.authorName || siteName}</span>
-            <span className="text-xs text-white/50" suppressHydrationWarning>· {timeAgo(ann.createdAt)}</span>
+            <span className="text-xs text-white/50" suppressHydrationWarning> {timeAgo(ann.createdAt)}</span>
           </div>
 
           {/* 标题 + NEW */}

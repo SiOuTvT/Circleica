@@ -30,7 +30,7 @@ export default async function GalvelicaYears() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA · 年份</p>
+        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 年份</p>
         <h1 className="galvelica-h1 mt-2">年份索引</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           沿时间轴回看同人视觉小说的创作脉络，共 {years.length} 个年份。

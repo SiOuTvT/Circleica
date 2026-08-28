@@ -252,7 +252,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
                   />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">作品卡片预览</p>
-                    <p className="text-xs text-muted-foreground">圆角 {draft.themeRadius}px · 阴影 {draft.themeShadowIntensity}% · 着色 {draft.themeAlpha}%</p>
+                    <p className="text-xs text-muted-foreground">圆角 {draft.themeRadius}px、阴影 {draft.themeShadowIntensity}%、着色 {draft.themeAlpha}%</p>
                     <div className="mt-2 flex gap-1.5">
                       <Badge variant="secondary" className="text-micro" style={{ borderRadius: Math.max(2, Math.round(draft.themeRadius * 0.4)) }}>ADV</Badge>
                       <Badge variant="secondary" className="text-micro" style={{ borderRadius: Math.max(2, Math.round(draft.themeRadius * 0.4)) }}>恋爱</Badge>
