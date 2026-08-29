@@ -58,11 +58,13 @@ function Cover({
  * WorkCrewCard — 创作者图鉴「按作品」视图的作品卡（横向大卡）。
  *
  * 左封面（168px 竖版，高度跟随卡片拉伸）+ 右信息区：
- * 游戏名（链接）→ 英文名（有才渲染）→ 发行日期 + 制作组（12px 间距，无分隔符）
+ * 游戏名（卡上标题文字）→ 英文名（有才渲染）→ 发行日期 + 制作组（12px 间距，无分隔符）
  * → 1px 分隔线 → 班底按角色分行 → 底部浏览/下载/收藏（0 不渲染）。
  *
- * ⚠️ 整卡不包成大链接：卡内已有游戏名、封面、制作组、人名等多个链接，
- * 嵌套 <a> 会产生非法 DOM。卡片根是普通 div（只挂 data-ripple 做点击反馈）。
+ * 整卡一个目的地：卡内有一个真实的绝对定位整卡链接（铺满整卡、z-0），
+ * 点卡内除人名外的任何位置都进「这部作品的参与者」名单页；封面与游戏名不再进游戏详情页。
+ * 人名链接 z-10 高于整卡热区，点人名进创作者详情页。卡片根只挂 data-ripple 做点击反馈，
+ * 不包成大 <a>（卡内已有小链接，嵌套 <a> 是非法 DOM）。
  *
  * 空值策略：英文名 / 制作组 / 日期 / 各计数为空或 0 时整段不渲染，
  * 不留空位、不显示 0、不显示占位符。
@@ -80,27 +82,18 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
       data-ripple
       className="group relative flex overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition duration-300 ease-in-out hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg"
     >
-      {/* 封面：竖版原图，宽 168px、高度跟随卡片拉伸（至少保 3:4），溢出隐藏 */}
-      <Link
-        href={`/games/${data.serialId}`}
-        data-ripple
-        aria-label={data.title}
-        className="relative w-[168px] min-h-[224px] shrink-0 self-stretch overflow-hidden bg-muted"
-      >
+      {/* 封面：竖版原图，宽 168px、高度跟随卡片拉伸（至少保 3:4），溢出隐藏。
+          不再是链接（整卡一个目的地，进作品参与者名单页）。 */}
+      <div className="relative w-[168px] min-h-[224px] shrink-0 self-stretch overflow-hidden bg-muted">
         <Cover src={data.coverImage} title={data.title} className="absolute inset-0" />
-      </Link>
+      </div>
 
       {/* 信息区 */}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4">
-        {/* 1) 游戏名：单行截断，进游戏详情。此链接不挂 data-ripple（其 CSS 会
-            position:relative+overflow:hidden，把铺满整卡的 ::after 覆盖层裁成标题大小）；
-            覆盖层必须逃到卡片根才能铺满整卡。 */}
-        <Link
-          href={`/games/${data.serialId}`}
-          className="block min-w-0 text-[18px] font-semibold leading-snug text-foreground transition-colors after:absolute after:inset-0 after:content-[''] hover:text-primary"
-        >
-          <span className="block truncate">{data.title}</span>
-        </Link>
+        {/* 1) 游戏名：退回成卡上的标题文字（整卡点击进名单页，不再进游戏详情） */}
+        <span className="block min-w-0 truncate text-[18px] font-semibold leading-snug text-foreground">
+          {data.title}
+        </span>
 
         {/* 2) 英文名：非空才渲染 */}
         {data.englishName && (
@@ -111,22 +104,15 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
         {hasMeta && (
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             {dateLabel && <span className="tabular-nums">{dateLabel}</span>}
-            {data.studioName && (
-              <Link
-                href={`/credits/studio/${encodeURIComponent(data.studioSlug ?? data.studioName)}`}
-                data-ripple
-                className="relative z-10 truncate transition-colors hover:text-primary hover:underline"
-              >
-                {data.studioName}
-              </Link>
-            )}
+            {data.studioName && <span className="truncate">{data.studioName}</span>}
           </div>
         )}
 
         {/* 4) 分隔线：仅在有班底时渲染（无事可分隔时不留空线） */}
         {data.crew.length > 0 && <div className="h-px bg-border/60" />}
 
-        {/* 5) 班底：按角色分行，人名之间 12px 间距、可换行、单个人名不拆行 */}
+        {/* 5) 班底：按角色分行，人名之间 12px 间距、可换行、单个人名不拆行。
+            人名链接 z-10，高于整卡热区，点人名进创作者详情页。 */}
         {data.crew.length > 0 && (
           <div className="flex flex-col gap-1.5">
             {data.crew.map((row) => (
@@ -172,6 +158,16 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
           </div>
         )}
       </div>
+
+      {/* 整卡热区：真实存在的绝对定位链接，铺满整卡、z 序高于普通内容、低于人名链接。
+          置于末尾（z-0）确保压在封面与信息区之上；点卡内除人名外的任何位置都进
+          「这部作品的参与者」名单页。 */}
+      <Link
+        href={`/credits/game/${data.serialId}`}
+        aria-label={`《${data.title}》的参与者`}
+        tabIndex={-1}
+        className="absolute inset-0 z-0"
+      />
     </div>
   )
 }

@@ -38,3 +38,19 @@ export const ROLE_ROW_ORDER = [
   "qa",
   "other",
 ] as const
+
+/**
+ * 制作组 / 作品关联身份标签映射（GameStudio.role）。
+ * 站内统一取值：developer=制作方、publisher=发行方、cooperation=合作。
+ * 库里出现映射外的值时原样返回，空值返回空串（调用方据此整项不渲染）。
+ */
+export const STUDIO_ROLE_LABELS: Record<string, string> = {
+  developer: "制作",
+  publisher: "发行",
+  cooperation: "合作",
+}
+
+export function studioRoleLabel(role: string | null | undefined): string {
+  if (!role) return ""
+  return STUDIO_ROLE_LABELS[role] || role
+}

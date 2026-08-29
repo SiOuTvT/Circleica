@@ -74,8 +74,11 @@ export async function linkGameStudios(
   if (!Array.isArray(studios)) return
   const links: { gameId: string; studioId: string; role: string | null }[] = []
   for (const raw of studios as unknown[]) {
-    const name = typeof raw === "string" ? raw.trim() : ""
+    // 兼容两种写法：旧式字符串数组（仅名称，身份留空）；新式 { name, role } 对象。
+    const name = typeof raw === "string" ? raw.trim() : raw && typeof raw === "object" && "name" in raw ? String((raw as { name: unknown }).name ?? "").trim() : ""
     if (!name) continue
+    const role =
+      raw && typeof raw === "object" && "role" in raw ? (typeof (raw as { role: unknown }).role === "string" ? ((raw as { role: unknown }).role as string) : null) : null
     const normalized = name.toLowerCase()
     const studio = await tx.studio.upsert({
       where: { normalizedName: normalized },
@@ -83,9 +86,9 @@ export async function linkGameStudios(
       create: { normalizedName: normalized, displayName: name, aliases: JSON.stringify([name]), slug: slugify(name) },
       select: { id: true },
     })
-    links.push({ gameId, studioId: studio.id, role: null })
+    links.push({ gameId, studioId: studio.id, role })
   }
-  // 全量替换该游戏的制组关联，保证与本次提交完全一致
+  // 全量替换该游戏的制组关联，保证与本次提交完全一致（含身份）
   await tx.gameStudio.deleteMany({ where: { gameId } })
   if (links.length > 0) {
     await tx.gameStudio.createMany({ data: links, skipDuplicates: true })

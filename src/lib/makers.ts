@@ -41,6 +41,11 @@ export interface MakerGameItem {
   coverImage: string
   releaseDate: string | null
   favoriteCount: number
+  /**
+   * 该作品关联的全部制作组（含身份）。仅当作品挂了多个组时详情页才据此渲染身份行；
+   * 单组作品此数组长度为 1，页面不去渲染。role 为 null 时表示库里未填身份。
+   */
+  coStudios: { name: string; slug: string | null; role: string | null }[]
 }
 
 export interface MakerCreatorItem {
@@ -341,13 +346,41 @@ export async function getMakerDetail(slug: string, page = 1): Promise<MakerDetai
   const totalPages = Math.max(1, Math.ceil(total / DETAIL_PAGE_SIZE))
   const safePage = Math.min(Math.max(1, page), totalPages)
   const start = (safePage - 1) * DETAIL_PAGE_SIZE
-  const pagedGames: MakerGameItem[] = sortedGames.slice(start, start + DETAIL_PAGE_SIZE).map((g) => ({
+  const pagedGamesRaw = sortedGames.slice(start, start + DETAIL_PAGE_SIZE)
+  const pagedGameIds = pagedGamesRaw.map((g) => g.id)
+
+  // 该页作品各自的关联制作组（含身份），供详情页对多组作品渲染身份行。
+  // 一次 in 查询，避免 N+1；单组作品数组长度为 1，页面不去渲染。
+  const coStudiosByGame = new Map<string, { name: string; slug: string | null; role: string | null }[]>()
+  if (pagedGameIds.length) {
+    try {
+      const gsRows = await prisma.gameStudio.findMany({
+        where: { gameId: { in: pagedGameIds } },
+        select: {
+          gameId: true,
+          role: true,
+          studio: { select: { displayName: true, slug: true } },
+        },
+        orderBy: { studio: { displayName: "asc" } },
+      })
+      for (const r of gsRows) {
+        const arr = coStudiosByGame.get(r.gameId) ?? []
+        arr.push({ name: r.studio.displayName, slug: r.studio.slug, role: r.role })
+        coStudiosByGame.set(r.gameId, arr)
+      }
+    } catch (e) {
+      logger.db.error("[getMakerDetail] 拉取作品关联制作组失败", e)
+    }
+  }
+
+  const pagedGames: MakerGameItem[] = pagedGamesRaw.map((g) => ({
     id: g.id,
     serialId: g.serialId,
     title: g.title,
     coverImage: g.coverImage,
     releaseDate: g.releaseDate ? g.releaseDate.toISOString() : null,
     favoriteCount: g.favoriteCount,
+    coStudios: coStudiosByGame.get(g.id) ?? [],
   }))
 
   return {

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { toVariants } from "@/lib/search-variant"
-import { roleLabel } from "@/lib/role-labels"
+import { roleLabel, ROLE_ROW_ORDER } from "@/lib/role-labels"
 import type { Prisma } from "@/generated/prisma/client"
 
 /**
@@ -434,5 +434,103 @@ export async function getStudioWorks(opts: {
     total: adjustedTotal,
     totalPages: Math.max(1, Math.ceil(adjustedTotal / size)),
     page: pageNum,
+  }
+}
+
+/* ─────────────── 作品参与者名单页（图鉴内部） ─────────────── */
+
+export interface GameParticipantMember {
+  /** 稳定 id：优先用 vndbId 前缀，缺失回退 creator.id */
+  id: string
+  slug: string | null
+  name: string
+  nameJa: string | null
+  avatar: string | null
+}
+
+export interface GameParticipantRow {
+  role: string
+  label: string
+  members: GameParticipantMember[]
+}
+
+export interface GameParticipants {
+  serialId: number
+  title: string
+  /** 发行年份；缺日期时为 null（页面据此整项不显示年份） */
+  releaseYear: number | null
+  crew: GameParticipantRow[]
+  total: number
+}
+
+/**
+ * 取某一部游戏的参与创作者（按职位分组）。
+ * 仅在图鉴内部「这部作品的参与者」名单页使用；不返回封面 / 简介 / 资源等游戏详情字段。
+ * DB 不可达或游戏不存在时返回 null，由页面层决定走 404 还是空状态。
+ */
+export async function getGameParticipants(serialId: number): Promise<GameParticipants | null> {
+  let game: {
+    title: string
+    releaseDate: Date | null
+    creators: {
+      role: string
+      creator: { id: string; vndbId: string | null; slug: string | null; name: string; nameJa: string | null; avatar: string | null }
+    }[]
+  } | null
+  try {
+    game = await prisma.game.findUnique({
+      where: { serialId },
+      select: {
+        title: true,
+        releaseDate: true,
+        creators: {
+          select: {
+            role: true,
+            creator: { select: { id: true, vndbId: true, slug: true, name: true, nameJa: true, avatar: true } },
+          },
+        },
+      },
+    })
+  } catch (e) {
+    logger.db.error("[getGameParticipants] 拉取作品参与者失败", e)
+    return null
+  }
+
+  if (!game) return null
+
+  const releaseYear = game.releaseDate ? new Date(game.releaseDate).getFullYear() : null
+
+  const byRole = new Map<string, GameParticipantMember[]>()
+  const others: GameParticipantMember[] = []
+  for (const c of game.creators) {
+    const member: GameParticipantMember = {
+      id: c.creator.vndbId ? `s${c.creator.vndbId}` : c.creator.id,
+      slug: c.creator.slug,
+      name: c.creator.name,
+      nameJa: c.creator.nameJa,
+      avatar: c.creator.avatar,
+    }
+    if ((ROLE_ROW_ORDER as readonly string[]).includes(c.role)) {
+      const bucket = byRole.get(c.role)
+      if (bucket) bucket.push(member)
+      else byRole.set(c.role, [member])
+    } else {
+      others.push(member)
+    }
+  }
+
+  const crew: GameParticipantRow[] = []
+  for (const role of ROLE_ROW_ORDER) {
+    const members = byRole.get(role)
+    if (members && members.length > 0) crew.push({ role, label: roleLabel(role), members })
+  }
+  if (others.length > 0) crew.push({ role: "other", label: "其他", members: others })
+
+  return {
+    serialId,
+    title: game.title,
+    releaseYear,
+    crew,
+    total: game.creators.length,
   }
 }

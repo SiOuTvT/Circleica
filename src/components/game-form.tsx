@@ -31,6 +31,17 @@ const LANGUAGE_OPTIONS: { code: string; label: string }[] = LANGUAGE_ORDER.map((
   label: LANGUAGE_LABELS[code] ?? code.toUpperCase(),
 }))
 
+/** 制作组关联输入项：名称 + 身份（GameStudio.role）。库里身份栏位为空时 role 为 undefined。 */
+export type StudioInput = { name: string; role?: string | null }
+
+/** 制作组身份可选项（与站内 STUDIO_ROLE_LABELS 一致：developer=制作 / publisher=发行 / cooperation=合作） */
+const STUDIO_ROLE_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "（未设定）" },
+  { value: "developer", label: "制作" },
+  { value: "publisher", label: "发行" },
+  { value: "cooperation", label: "合作" },
+]
+
 interface Props {
   tags: Tag[]
   tagGroups?: TagGroup[]
@@ -42,7 +53,7 @@ interface Props {
     coverImage: string; screenshots: string[]
     status: string; isNsfw: boolean; vndbId: string; isPublished: boolean
     tagIds: string[]
-    releaseDate?: string; gameDuration?: string; studios?: string[]
+    releaseDate?: string; gameDuration?: string; studios?: StudioInput[]
     englishName?: string; aliases?: string
     platforms?: string[]
     officialWebsite?: string
@@ -117,7 +128,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   // 新增字段
   const [releaseDate, setReleaseDate] = useState(initialData?.releaseDate ?? "")
   const [gameDuration, setGameDuration] = useState(initialData?.gameDuration ?? "")
-  const [studios, setStudios] = useState<string[]>(initialData?.studios ?? [])
+  const [studios, setStudios] = useState<StudioInput[]>(initialData?.studios ?? [])
   const [englishName, setEnglishName] = useState(initialData?.englishName ?? "")
   const [aliases, setAliases] = useState(initialData?.aliases ?? "")
   const [platforms, setPlatforms] = useState<string[]>(initialData?.platforms ?? [])
@@ -150,7 +161,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     defaultValue: {
       title: "", originalWork: "", englishName: "", aliases: "",
       descLangs: { zh: "", en: "", ja: "", other: "" },
-      vndbId: "", releaseDate: "", studios: [] as string[], gameDuration: "",
+      vndbId: "", releaseDate: "", studios: [] as StudioInput[], gameDuration: "",
       platforms: [] as string[], officialWebsite: "",
       languages: [] as string[], originalLanguage: "", ageRating: "", status: "FINISHED",
       isNsfw: false, isPublished: true, selectedTags: [] as string[], draftTagNames: [] as string[],
@@ -331,7 +342,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         setDescLangs(prev => ({ ...prev, [lang]: d.description as string }))
         setActiveDescLang(lang)
       }
-      if (Array.isArray(d?.studios) && d.studios.length) setStudios(d.studios as string[])
+      if (Array.isArray(d?.studios) && d.studios.length) setStudios(d.studios as StudioInput[])
 
       // 发售日期
       if (d?.releaseDate) {
@@ -445,7 +456,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   const idAliases = useId()
   const idVndb = useId()
   const idRelease = useId()
-  const idStudio = useId()
   const idDuration = useId()
   const idWebsite = useId()
   const idPlatforms = useId()
@@ -727,14 +737,52 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
               </div>
               <div>
-                <label htmlFor={idStudio} className={labelCls}>制作会社（多个用逗号分隔）</label>
-                <input
-                  id={idStudio}
-                  value={studios.join(", ")}
-                  onChange={(e) => setStudios(e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-                  placeholder="如：Key, Type-Moon"
-                  className={inputCls}
-                />
+                <label className={labelCls}>制作会社与身份</label>
+                <div className="space-y-2">
+                  {studios.map((s, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <input
+                        value={s.name}
+                        onChange={(e) =>
+                          setStudios((prev) => prev.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))
+                        }
+                        placeholder="制作组名称，如：Key"
+                        className={inputCls}
+                      />
+                      <select
+                        value={s.role ?? ""}
+                        onChange={(e) =>
+                          setStudios((prev) =>
+                            prev.map((p, j) => (j === i ? { ...p, role: e.target.value || null } : p)),
+                          )
+                        }
+                        className={`${inputCls} w-[120px] shrink-0`}
+                      >
+                        {STUDIO_ROLE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setStudios((prev) => prev.filter((_, j) => j !== i))}
+                        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        aria-label="移除制作组"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setStudios((prev) => [...prev, { name: "" }])}
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-foreground/80 transition-colors hover:text-primary"
+                  >
+                    <Plus className="h-4 w-4" />
+                    添加制作组
+                  </button>
+                </div>
               </div>
               <div>
                 <label htmlFor={idDuration} className={labelCls}>游戏时长</label>

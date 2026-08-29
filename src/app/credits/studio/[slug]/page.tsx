@@ -11,7 +11,7 @@ import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 
 import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
-import { roleLabel, ROLE_ROW_ORDER } from "@/lib/role-labels"
+import { roleLabel, ROLE_ROW_ORDER, studioRoleLabel } from "@/lib/role-labels"
 import { PersonLink } from "@/components/archive/person-link"
 
 export const dynamic = "force-dynamic"
@@ -167,9 +167,36 @@ export default async function MakerDetailPage({
           <p className="py-10 text-center text-sm text-muted-foreground">该制作组暂无已收录的作品</p>
         ) : (
           <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
-            {detail.games.map((g) => (
-              <GameCard key={g.id} game={toGameCardData(g)} hideZeroStats />
-            ))}
+            {detail.games.map((g) => {
+              // 多组作品：在作品卡下方把每个关联方的身份标出来。
+              // 只渲染库里确实填了身份的一方（栏位为空则整项不显示）；
+              // 当前制作组名不另作链接（点它等于回本页），其余方各自可点进详情页。
+              const labeledCo = g.coStudios.filter((c) => !!c.role)
+              return (
+                <div key={g.id}>
+                  <GameCard game={toGameCardData(g)} hideZeroStats />
+                  {g.coStudios.length > 1 && labeledCo.length > 0 && (
+                    <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {labeledCo.map((c) => (
+                        <span key={c.name} className="inline-flex items-center gap-1">
+                          <span>{studioRoleLabel(c.role)}：</span>
+                          {c.slug && c.slug !== detail.slug ? (
+                            <Link
+                              href={`/credits/studio/${encodeURIComponent(c.slug)}`}
+                              className="text-foreground/80 transition-colors hover:text-primary hover:underline"
+                            >
+                              {c.name}
+                            </Link>
+                          ) : (
+                            <span className="text-foreground/80">{c.name}</span>
+                          )}
+                        </span>
+                      ))}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </section>
