@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Eye, Heart } from "lucide-react"
+import { ChevronRight, Eye, Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { StudioWorksItem } from "@/lib/credits-works"
 
@@ -68,21 +68,25 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
       data-ripple
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition duration-300 ease-in-out hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg"
     >
-      {/* 卡头：每个组名独占一行 */}
-      <div className="flex items-start justify-between gap-3 px-4 pb-2 pt-3">
+      {/* 卡头：每个组名独占一行；整块高度在窄屏也 ≥44px（不靠放大字号） */}
+      <div className="flex min-h-[44px] items-start justify-between gap-3 px-4 pb-2 pt-3">
         <div className="flex min-w-0 flex-col gap-0.5">
           {data.studios.map((s, i) => (
             <Link
               key={s.slug}
               href={`/credits/studio/${encodeURIComponent(s.slug)}`}
-              data-ripple
+              // 此链接不挂 data-ripple：其 CSS 会 position:relative+overflow:hidden，
+              // 会把下面铺满整卡的 ::after 覆盖层裁成标题大小。卡级 data-ripple 仍提供点击反馈。
               className={cn(
-                "min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline",
-                // 首行铺透明覆盖层：整卡可点进该组详情页
-                i === 0 && "after:absolute after:inset-0 after:content-['']",
+                "block min-w-0 text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline",
+                // 首行铺透明覆盖层：整卡可点进该组详情页（链接自身不 relative/overflow，覆盖层才逃到卡片根）
+                // 其余组名各自抬到覆盖层之上，点哪个进哪个组的详情页
+                i === 0
+                  ? "after:absolute after:inset-0 after:content-['']"
+                  : "relative z-10",
               )}
             >
-              {s.name}
+              <span className="block truncate">{s.name}</span>
             </Link>
           ))}
         </div>
@@ -126,6 +130,8 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
                     )}
                   </div>
                 </div>
+                {/* 行尾右箭头：提示整行可点（桌面/手机同款，沿用站内灰色档） */}
+                <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               </Link>
             </div>
           )

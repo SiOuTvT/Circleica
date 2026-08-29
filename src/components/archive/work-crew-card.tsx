@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Download, Eye, Heart } from "lucide-react"
 import { formatZhYearMonth } from "@/lib/date"
+import { PersonLink } from "./person-link"
 import type { WorkCrewItem } from "@/lib/credits-works"
 
 /**
@@ -91,13 +92,14 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
 
       {/* 信息区 */}
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4">
-        {/* 1) 游戏名：单行截断，进游戏详情 */}
+        {/* 1) 游戏名：单行截断，进游戏详情。此链接不挂 data-ripple（其 CSS 会
+            position:relative+overflow:hidden，把铺满整卡的 ::after 覆盖层裁成标题大小）；
+            覆盖层必须逃到卡片根才能铺满整卡。 */}
         <Link
           href={`/games/${data.serialId}`}
-          data-ripple
-          className="truncate text-[18px] font-semibold leading-snug text-foreground transition-colors after:absolute after:inset-0 after:content-[''] hover:text-primary"
+          className="block min-w-0 text-[18px] font-semibold leading-snug text-foreground transition-colors after:absolute after:inset-0 after:content-[''] hover:text-primary"
         >
-          {data.title}
+          <span className="block truncate">{data.title}</span>
         </Link>
 
         {/* 2) 英文名：非空才渲染 */}
@@ -132,14 +134,13 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
                 <span className="w-12 shrink-0 text-xs leading-5 text-muted-foreground">{row.label}</span>
                 <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
                   {row.members.map((m) => (
-                    <Link
+                    <PersonLink
                       key={m.id}
                       href={`/credits/creator/${encodeURIComponent(m.slug)}`}
-                      data-ripple
-                      className="relative z-10 whitespace-nowrap text-[13px] text-foreground/80 transition-colors hover:text-primary hover:underline"
+                      className="relative z-10 whitespace-nowrap"
                     >
                       {m.displayName}
-                    </Link>
+                    </PersonLink>
                   ))}
                 </div>
               </div>

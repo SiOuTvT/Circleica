@@ -12,6 +12,7 @@ import { ArchiveHero } from "@/components/archive/archive-hero"
 
 import { computeDensity, DENSITY_GRID } from "@/components/archive/density"
 import { roleLabel, ROLE_ROW_ORDER } from "@/lib/role-labels"
+import { PersonLink } from "@/components/archive/person-link"
 
 export const dynamic = "force-dynamic"
 
@@ -167,7 +168,7 @@ export default async function MakerDetailPage({
         ) : (
           <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
             {detail.games.map((g) => (
-              <GameCard key={g.id} game={toGameCardData(g)} />
+              <GameCard key={g.id} game={toGameCardData(g)} hideZeroStats />
             ))}
           </div>
         )}
@@ -185,13 +186,13 @@ export default async function MakerDetailPage({
                 <span className="w-14 shrink-0 text-xs leading-5 text-muted-foreground">{row.label}</span>
                 <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
                   {row.members.map((c) => (
-                    <Link
+                    <PersonLink
                       key={`${row.role}-${c.id}`}
                       href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
-                      className="whitespace-nowrap text-[13px] text-foreground/80 transition-colors hover:text-primary hover:underline"
+                      className="whitespace-nowrap"
                     >
                       {c.nameJa || c.name}
-                    </Link>
+                    </PersonLink>
                   ))}
                 </div>
               </div>

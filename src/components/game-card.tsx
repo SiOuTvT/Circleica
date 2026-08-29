@@ -46,12 +46,17 @@ export const GameCard = memo(function GameCard({
   showTags = true,
   showStats = true,
   releaseDate = null,
+  /** 仅制作组/创作者详情页开启：统计原始值为 0 的项整项不渲染，全为 0 时整行不渲染。
+   *  默认 false，保持全站游戏卡的既有行为（0 仍显示）。 */
+  hideZeroStats = false,
 }: {
   game: GameCardData
   showTags?: boolean
   showStats?: boolean
   /** 发现页「最近上新」用：只显示发行日期，取代浏览/下载/收藏计数 */
   releaseDate?: string | null
+  /** 详情页专用：统计值为 0 不渲染 */
+  hideZeroStats?: boolean
 }) {
   const [imgError, setImgError] = useState(false)
   const [imgFallback, setImgFallback] = useState(false)
@@ -76,6 +81,10 @@ export const GameCard = memo(function GameCard({
   const viewStr = fmtNum(game.viewCount)
   const dlStr = fmtNum(game.downloadCount)
   const favStr = fmtNum(game.favoriteCount)
+  // 详情页 hideZeroStats：原始值为 0 的那一项整项不渲染；否则沿用真值判断（0 仍显示）
+  const showView = !hideZeroStats || (game.viewCount ?? 0) > 0
+  const showDl = !hideZeroStats || (game.downloadCount ?? 0) > 0
+  const showFav = !hideZeroStats || (game.favoriteCount ?? 0) > 0
   // 资源标签（首页卡片标签组：语言/运行方式/内容类型）：全部显示 + 按名称去重。
   // 兼容纯字符串数组（历史）与 { name, color } 数组（mapGameToCard 输出，color=首页卡片组色）。
   const seenTag = new Set<string>()
@@ -201,26 +210,28 @@ export const GameCard = memo(function GameCard({
             <span>{releaseDate}</span>
           </div>
         ) : showStats ? (
-          <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3 pt-3">
-            {viewStr && (
-              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-                <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                {viewStr}
-              </span>
-            )}
-            {dlStr && (
-              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-                <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                {dlStr}
-              </span>
-            )}
-            {favStr && (
-              <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
-                <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                {favStr}
-              </span>
-            )}
-          </div>
+          (showView && viewStr) || (showDl && dlStr) || (showFav && favStr) ? (
+            <div className="game-card-stats mt-auto flex flex-shrink-0 items-center gap-3 pt-3">
+              {showView && viewStr && (
+                <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                  <Eye className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                  {viewStr}
+                </span>
+              )}
+              {showDl && dlStr && (
+                <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                  <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                  {dlStr}
+                </span>
+              )}
+              {showFav && favStr && (
+                <span className="game-card-stat flex items-center gap-1 text-xs font-normal">
+                  <Heart className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                  {favStr}
+                </span>
+              )}
+            </div>
+          ) : null
         ) : null}
       </div>
     </Link>

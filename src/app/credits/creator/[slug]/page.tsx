@@ -137,7 +137,7 @@ export default async function CreatorDetailPage({
           <div className={cn(GAME_GRID_CLASS, DENSITY_GRID[density])}>
             {detail.games.map((g) => (
               <div key={g.id}>
-                <GameCard game={toGameCardData(g)} />
+                <GameCard game={toGameCardData(g)} hideZeroStats />
                 {/* TA 在这部作品里的职位（沿用现有作品卡，只在其下方加一行小字） */}
                 {g.roles.length > 0 && (
                   <p className="mt-1.5 truncate text-xs text-muted-foreground">
