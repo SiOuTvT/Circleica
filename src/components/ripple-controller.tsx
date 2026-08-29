@@ -25,7 +25,7 @@ export function RippleController() {
 
     const spawnRipple = (host: HTMLElement, e: PointerEvent) => {
       const rect = host.getBoundingClientRect()
-      let x = e.clientX - rect.left
+      const x = e.clientX - rect.left
       let y = e.clientY - rect.top
 
       // 点击落在宿主上方（如游戏卡片封面区）：水波从内容区顶部进入，封面区不显

@@ -47,7 +47,8 @@ interface NavSidebarProps {
 
 export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, mobileOpen = false, onMobileToggle }: NavSidebarProps) {
   const pathname = usePathname()
-  const [randomLoading] = useState(false)
+  const [randomLoading, setRandomLoading] = useState(false)
+  const router = useRouter()
 
   const isGalvelica = pathname === "/galvelica" || pathname.startsWith("/galvelica/")
 
@@ -61,6 +62,55 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       }
     }
   }, [pathname, mobileOpen, onMobileToggle])
+
+  const handleCreator = useCallback(async () => {
+    if (randomLoading) return
+    setRandomLoading(true)
+    try {
+      // 快速尝试 VNDB（10秒总超时）
+      const creator = await Promise.race([
+        getRandomStaff(),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+      ])
+      if (creator?.vndbId) {
+        router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
+        return
+      }
+      // 降级：随机游戏（本地DB，快速）
+      const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } catch {
+      // VNDB 失败：降级随机游戏
+      const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } finally { setRandomLoading(false) }
+  }, [randomLoading, router])
+
+  const handleCharacter = useCallback(async () => {
+    if (randomLoading) return
+    setRandomLoading(true)
+    try {
+      const { getRandomCharacter } = await import("@/lib/vndb-client")
+      const character = await Promise.race([
+        getRandomCharacter(),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+      ])
+      if (character?.vndbId) {
+        router.push(`/characters/${character.vndbId}`)
+        return
+      }
+      // 降级：随机游戏
+      const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } catch {
+      const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
+      if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
+      else toast.error("暂无可推荐的内容")
+    } finally { setRandomLoading(false) }
+  }, [randomLoading, router])
 
   return (
     <>
@@ -186,65 +236,16 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
           {/* ── 随机发现（排行榜下方）── */}
           <div className="flex flex-col gap-0.5">
             {(() => {
-              const [loading, setLoading] = useState(false)
-              const router = useRouter()
-              const handleCreator = useCallback(async () => {
-                if (loading) return
-                setLoading(true)
-                try {
-                  // 快速尝试 VNDB（10秒总超时）
-                  const creator = await Promise.race([
-                    getRandomStaff(),
-                    new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-                  ])
-                  if (creator?.vndbId) {
-                    router.push(`/creators/vndb/${encodeURIComponent(creator.vndbId)}`)
-                    return
-                  }
-                  // 降级：随机游戏（本地DB，快速）
-                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
-                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
-                  else toast.error("暂无可推荐的内容")
-                } catch {
-                  // VNDB 失败：降级随机游戏
-                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
-                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
-                  else toast.error("暂无可推荐的内容")
-                } finally { setLoading(false) }
-              }, [loading, router])
-              const handleCharacter = useCallback(async () => {
-                if (loading) return
-                setLoading(true)
-                try {
-                  const { getRandomCharacter } = await import("@/lib/vndb-client")
-                  const character = await Promise.race([
-                    getRandomCharacter(),
-                    new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-                  ])
-                  if (character?.vndbId) {
-                    router.push(`/characters/${character.vndbId}`)
-                    return
-                  }
-                  // 降级：随机游戏
-                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
-                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
-                  else toast.error("暂无可推荐的内容")
-                } catch {
-                  const { ok, data } = await apiFetchSafe<{ data?: Array<{ serialId?: number }> }>("/api/games/random", { cache: "no-store" })
-                  if (ok && data?.data?.[0]?.serialId) router.push(`/games/${data.data[0].serialId}`)
-                  else toast.error("暂无可推荐的内容")
-                } finally { setLoading(false) }
-              }, [loading, router])
               const creatorBtn = (
-                <button onClick={handleCreator} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <User className="h-[22px] w-[22px] shrink-0" strokeWidth={2} />}
-                  {!collapsed && <span>{loading ? "..." : "随机创作者"}</span>}
+                <button onClick={handleCreator} disabled={randomLoading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {randomLoading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <User className="h-[22px] w-[22px] shrink-0" strokeWidth={2} />}
+                  {!collapsed && <span>{randomLoading ? "..." : "随机创作者"}</span>}
                 </button>
               )
               const characterBtn = (
-                <button onClick={handleCharacter} disabled={loading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
-                  {loading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <Sparkles className="h-[22px] w-[22px] shrink-0" strokeWidth={ 2} />}
-                  {!collapsed && <span>{loading ? "..." : "随机角色"}</span>}
+                <button onClick={handleCharacter} disabled={randomLoading} data-ripple className={cn("flex items-center rounded-xl py-2.5 font-medium transition duration-150 ease-in-out whitespace-nowrap w-full", collapsed ? "justify-center px-0 mx-auto w-11 h-11 text-[15px]" : "gap-3 px-3 text-[15px]", "text-muted-foreground hover:bg-accent/60 hover:text-foreground disabled:opacity-50")}>
+                  {randomLoading ? <Loader2 className="h-[22px] w-[22px] animate-spin" strokeWidth={2} /> : <Sparkles className="h-[22px] w-[22px] shrink-0" strokeWidth={2} />}
+                  {!collapsed && <span>{randomLoading ? "..." : "随机角色"}</span>}
                 </button>
               )
               return (
