@@ -141,8 +141,27 @@ function CreatorAvatar({ avatar, initial }: { avatar: string | null | undefined;
 
 function CreatorCard({ data }: { data: CreatorCardData }) {
   const display = data.nameJa || data.name
+  // 无 slug（主站无详情页）时不拼 id 当 slug，降级为不可点卡片
+  const href = data.slug ? `/credits/creator/${encodeURIComponent(data.slug)}` : null
+  if (!href) {
+    return (
+      <div className="group flex flex-row overflow-hidden rounded-2xl bg-card ring-1 ring-border/60">
+        <div className="flex items-center gap-3 p-3.5">
+          <CreatorAvatar avatar={data.avatar} initial={display} />
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-heading text-sm font-semibold text-foreground">{display}</h3>
+            {data.roles.length > 0 && (
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                {data.roles.slice(0, 4).map(roleLabel).join("、")}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
-    <CardShell href={`/credits/creator/${encodeURIComponent(data.slug ?? data.id)}`} className="flex-row">
+    <CardShell href={href} className="flex-row">
       <div className="flex items-center gap-3 p-3.5">
         <CreatorAvatar avatar={data.avatar} initial={display} />
         <div className="min-w-0 flex-1">

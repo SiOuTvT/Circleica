@@ -212,15 +212,21 @@ export default async function MakerDetailPage({
               <div key={row.role} className="flex items-start gap-3">
                 <span className="w-14 shrink-0 text-xs leading-5 text-muted-foreground">{row.label}</span>
                 <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
-                  {row.members.map((c) => (
-                    <PersonLink
-                      key={`${row.role}-${c.id}`}
-                      href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : "#"}
-                      className="whitespace-nowrap"
-                    >
-                      {c.nameJa || c.name}
-                    </PersonLink>
-                  ))}
+                  {row.members.map((c) =>
+                    c.slug ? (
+                      <PersonLink
+                        key={`${row.role}-${c.id}`}
+                        href={`/credits/creator/${encodeURIComponent(c.slug)}`}
+                        className="whitespace-nowrap"
+                      >
+                        {c.nameJa || c.name}
+                      </PersonLink>
+                    ) : (
+                      <span key={`${row.role}-${c.id}`} className="whitespace-nowrap text-foreground/80">
+                        {c.nameJa || c.name}
+                      </span>
+                    ),
+                  )}
                 </div>
               </div>
             ))}

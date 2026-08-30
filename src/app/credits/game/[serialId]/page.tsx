@@ -69,6 +69,8 @@ export default async function GameParticipantsPage({
           variant="org"
           eyebrow="作品参与者"
           title={`《${data.title}》的参与者`}
+          cover={data.coverImage}
+          fallbackInitial={data.title}
           detailSpec
           meta={
             <p className="text-xs text-muted-foreground">{metaLine}</p>

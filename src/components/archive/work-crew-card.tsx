@@ -119,15 +119,21 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
               <div key={row.role} className="flex items-start gap-3">
                 <span className="w-12 shrink-0 text-xs leading-5 text-muted-foreground">{row.label}</span>
                 <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1">
-                  {row.members.map((m) => (
-                    <PersonLink
-                      key={m.id}
-                      href={`/credits/creator/${encodeURIComponent(m.slug)}`}
-                      className="relative z-10 whitespace-nowrap"
-                    >
-                      {m.displayName}
-                    </PersonLink>
-                  ))}
+                  {row.members.map((m) =>
+                    m.slug ? (
+                      <PersonLink
+                        key={m.id}
+                        href={`/credits/creator/${encodeURIComponent(m.slug)}`}
+                        className="relative z-10 whitespace-nowrap"
+                      >
+                        {m.displayName}
+                      </PersonLink>
+                    ) : (
+                      <span key={m.id} className="relative z-10 whitespace-nowrap text-foreground/80">
+                        {m.displayName}
+                      </span>
+                    ),
+                  )}
                 </div>
               </div>
             ))}

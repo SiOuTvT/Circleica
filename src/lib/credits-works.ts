@@ -459,6 +459,8 @@ export interface GameParticipants {
   title: string
   /** 发行年份；缺日期时为 null（页面据此整项不显示年份） */
   releaseYear: number | null
+  /** 该作品封面（用于页头 128×128 方框；无封面时为 null，走首字母兜底） */
+  coverImage: string | null
   crew: GameParticipantRow[]
   total: number
 }
@@ -472,6 +474,7 @@ export async function getGameParticipants(serialId: number): Promise<GamePartici
   let game: {
     title: string
     releaseDate: Date | null
+    coverImage: string
     creators: {
       role: string
       creator: { id: string; vndbId: string | null; slug: string | null; name: string; nameJa: string | null; avatar: string | null }
@@ -483,6 +486,7 @@ export async function getGameParticipants(serialId: number): Promise<GamePartici
       select: {
         title: true,
         releaseDate: true,
+        coverImage: true,
         creators: {
           select: {
             role: true,
@@ -530,6 +534,7 @@ export async function getGameParticipants(serialId: number): Promise<GamePartici
     serialId,
     title: game.title,
     releaseYear,
+    coverImage: game.coverImage || null,
     crew,
     total: game.creators.length,
   }

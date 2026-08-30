@@ -373,7 +373,7 @@ export async function getCreatorSlugById(id: string): Promise<string | null> {
   if (!id) return null
   try {
     const c = await prisma.creator.findUnique({
-      where: { id },
+      where: { id, source: "circleica" },
       select: { slug: true },
     })
     return c?.slug ?? null
