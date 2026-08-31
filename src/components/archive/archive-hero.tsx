@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import Link from "next/link"
 import { Layers, Users, User, Tag as TagIcon, Compass, Trophy, Gamepad2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroCover } from "./hero-cover"
@@ -18,6 +19,11 @@ interface ArchiveHeroProps {
   className?: string
   /** tag 变体专用：标签色（替代默认 primary） */
   tagColor?: string
+  /**
+   * 可选入口：传入后整块页头（封面 + 标题）合并为一个真实链接，跳转到该作品详情页。
+   * 仅作品参与者名单页使用；其余图鉴页不传，保持无跳转。
+   */
+  href?: string
   /**
    * 详情页规格（opt-in，仅主站制作组 / 创作者详情页开启；默认 false 不改变其它页面）：
    *  - 无封面时仍走详情页版式（不退化成浏览页小标题）；
@@ -60,6 +66,7 @@ export function ArchiveHero({
   search,
   className,
   tagColor,
+  href,
   detailSpec = false,
 }: ArchiveHeroProps) {
   const shape: "rect" | "circle" = variant === "person" ? "circle" : "rect"
@@ -69,14 +76,14 @@ export function ArchiveHero({
 
   // 详情页：实体真封面（由 client 子组件 HeroCover 渲染，保留 onError 兜底）
   if (cover || detailSpec) {
-    return (
-      <header
-        className={cn(
-          "flex flex-col gap-5",
-          variant === "person" && "sm:flex-row sm:items-center",
-          className,
-        )}
-      >
+    const wrapperCls = cn(
+      "flex flex-col gap-5",
+      variant === "person" && "sm:flex-row sm:items-center",
+      href && "group",
+      className,
+    )
+    const inner = (
+      <>
         <HeroCover
           cover={cover}
           initial={initial}
@@ -90,7 +97,14 @@ export function ArchiveHero({
               {eyebrow}
             </p>
           )}
-          <h1 className="break-words font-heading text-2xl font-bold text-foreground sm:text-3xl">{title}</h1>
+          <h1
+            className={cn(
+              "break-words font-heading text-2xl font-bold text-foreground sm:text-3xl",
+              href && "group-hover:underline",
+            )}
+          >
+            {title}
+          </h1>
           {lede && <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">{lede}</p>}
           {meta && (
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
@@ -98,8 +112,16 @@ export function ArchiveHero({
             </div>
           )}
         </div>
-      </header>
+      </>
     )
+    if (href) {
+      return (
+        <Link href={href} className={wrapperCls}>
+          {inner}
+        </Link>
+      )
+    }
+    return <header className={wrapperCls}>{inner}</header>
   }
 
   // 浏览页：放大图标 + 两层文字 + 搜索（统一视觉基因，纯 Server 渲染）

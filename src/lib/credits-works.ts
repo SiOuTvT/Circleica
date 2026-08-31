@@ -185,7 +185,12 @@ export async function getWorkCrewWorks(opts: {
         displayName: c.creator.nameJa || c.creator.name,
         slug: c.creator.slug,
       }
-      if ((CREW_ROW_ORDER as readonly string[]).includes(c.role)) {
+      // staff 单独成「工作人员」一组（roleLabel 已映射为「工作人员」），不再并入末尾「其他」
+      if (c.role === "staff") {
+        const bucket = byRole.get("staff")
+        if (bucket) bucket.push(member)
+        else byRole.set("staff", [member])
+      } else if ((CREW_ROW_ORDER as readonly string[]).includes(c.role)) {
         const bucket = byRole.get(c.role)
         if (bucket) bucket.push(member)
         else byRole.set(c.role, [member])
@@ -198,6 +203,10 @@ export async function getWorkCrewWorks(opts: {
     for (const role of CREW_ROW_ORDER) {
       const members = dedupeMembers(byRole.get(role) ?? [])
       if (members.length > 0) crew.push({ role, label: roleLabel(role), members })
+    }
+    // staff 单列「工作人员」一组，与末尾「其他」分组并列在最后
+    if (byRole.has("staff")) {
+      crew.push({ role: "staff", label: roleLabel("staff"), members: dedupeMembers(byRole.get("staff")!) })
     }
     const otherMembers = dedupeMembers(others)
     if (otherMembers.length > 0) crew.push({ role: "other", label: "其他", members: otherMembers })
@@ -514,7 +523,12 @@ export async function getGameParticipants(serialId: number): Promise<GamePartici
       nameJa: c.creator.nameJa,
       avatar: c.creator.avatar,
     }
-    if ((ROLE_ROW_ORDER as readonly string[]).includes(c.role)) {
+    // staff 单独成「工作人员」一组（roleLabel 已映射为「工作人员」），不再并入末尾「其他」
+    if (c.role === "staff") {
+      const bucket = byRole.get("staff")
+      if (bucket) bucket.push(member)
+      else byRole.set("staff", [member])
+    } else if ((ROLE_ROW_ORDER as readonly string[]).includes(c.role)) {
       const bucket = byRole.get(c.role)
       if (bucket) bucket.push(member)
       else byRole.set(c.role, [member])
@@ -527,6 +541,10 @@ export async function getGameParticipants(serialId: number): Promise<GamePartici
   for (const role of ROLE_ROW_ORDER) {
     const members = byRole.get(role)
     if (members && members.length > 0) crew.push({ role, label: roleLabel(role), members })
+  }
+  // staff 单列「工作人员」一组，与末尾「其他」分组并列在最后
+  if (byRole.has("staff")) {
+    crew.push({ role: "staff", label: roleLabel("staff"), members: byRole.get("staff")! })
   }
   if (others.length > 0) crew.push({ role: "other", label: "其他", members: others })
 

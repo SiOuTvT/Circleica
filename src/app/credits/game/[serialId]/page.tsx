@@ -72,6 +72,7 @@ export default async function GameParticipantsPage({
           cover={data.coverImage}
           fallbackInitial={data.title}
           detailSpec
+          href={`/games/${data.serialId}`}
           meta={
             <p className="text-xs text-muted-foreground">{metaLine}</p>
           }

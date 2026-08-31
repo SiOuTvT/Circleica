@@ -15,7 +15,7 @@ export const ROLE_LABELS: Record<string, string> = {
   translator: "翻译",
   editor: "编辑",
   qa: "校对",
-  staff: "其他",
+  staff: "工作人员",
   other: "其他",
 }
 

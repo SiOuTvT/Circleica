@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma, Prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { getMainNsfwMode, type MainNsfwMode } from "@/lib/nsfw-mode"
 import { buildWorkTextOr } from "@/lib/credits-works"
@@ -97,39 +97,13 @@ export async function getCreators(opts: {
 
   const where = buildCreatorWhere(search)
 
-  // 分页下沉到 SQL（只拉当前页 + 计数），排序以 SQL 为准（跨页稳定）：
-  // count = 已发布作品数降序 + 名称兜底；name = 日文名优先（无日文名者按名称排在段尾）。
-  // 注：orderBy 的 _count 统计关联表全量（未过滤 isPublished），与展示口径存在理论差异，未发布草稿极少时影响可忽略。
-  const orderBy = sort === "name"
-    ? [{ nameJa: "asc" as const }, { name: "asc" as const }]
-    : [{ games: { _count: "desc" as const } }, { name: "asc" as const }]
-
-  let creators: Array<{
-    id: string
-    name: string
-    nameJa: string
-    avatar: string
-    slug: string | null
-    _count: { games: number }
-    games: { role: string }[]
-  }> = []
+  // 命中创作者（仅取 id + 展示名，开销极小）：排序与计数在内存完成，
+  // 以保证「参与 N 部作品」按「去重后的已发布作品数」口径一致（一人多职位只算一部）。
+  let matched: Array<{ id: string; name: string; nameJa: string | null }> = []
   let total = 0
   try {
-    ;[creators, total] = await Promise.all([
-      prisma.creator.findMany({
-        where,
-        orderBy,
-        skip: (pageNum - 1) * size,
-        take: size,
-        include: {
-          _count: { select: { games: { where: { game: { isPublished: true } } } } },
-          games: {
-            where: { game: { isPublished: true } },
-            select: { role: true },
-            take: 12,
-          },
-        },
-      }),
+    ;[matched, total] = await Promise.all([
+      prisma.creator.findMany({ where, select: { id: true, name: true, nameJa: true } }),
       prisma.creator.count({ where }),
     ])
   } catch (e) {
@@ -137,17 +111,66 @@ export async function getCreators(opts: {
     return { creators: [], total: 0, totalPages: 1, page: pageNum }
   }
 
-  const summaries: CreatorSummary[] = creators.map((c) => ({
-    id: c.id,
-    name: c.name,
-    nameJa: c.nameJa || null,
-    avatar: c.avatar || null,
-    slug: c.slug ?? null,
-    gameCount: c._count.games,
-    roles: Array.from(new Set(c.games.map((g) => g.role))),
-  }))
+  // 一次聚合：每个创作者「去重后的已发布作品数」（替代旧 _count.games 的关联行计数，
+  // 避免一人多职位被数成多部作品）。
+  const cntMap = new Map<string, number>()
+  if (matched.length) {
+    const rows = await prisma.$queryRaw<{ creatorId: string; cnt: number }[]>`
+      SELECT gc."creatorId" AS "creatorId", COUNT(DISTINCT gc."gameId")::int AS cnt
+      FROM "GameCreator" gc
+      JOIN "Game" g ON g.id = gc."gameId"
+      WHERE g."isPublished" = true AND gc."creatorId" IN (${Prisma.join(matched.map((c) => c.id))})
+      GROUP BY gc."creatorId"
+    `
+    for (const r of rows) cntMap.set(r.creatorId, r.cnt)
+  }
+
+  const sortKey = (c: { name: string; nameJa: string | null }) => c.nameJa || c.name
+  const ranked = matched
+    .map((c) => ({ ...c, gameCount: cntMap.get(c.id) ?? 0 }))
+    .sort(
+      sort === "name"
+        ? (a, b) => sortKey(a).localeCompare(sortKey(b), "zh-Hans-CN")
+        : (a, b) => b.gameCount - a.gameCount || a.name.localeCompare(b.name, "zh-Hans-CN"),
+    )
 
   const totalPages = Math.max(1, Math.ceil(total / size))
+  const pageItems = ranked.slice((pageNum - 1) * size, pageNum * size)
+
+  let pageCreators: Array<{
+    id: string
+    name: string
+    nameJa: string | null
+    avatar: string | null
+    slug: string | null
+    games: { role: string }[]
+  }> = []
+  if (pageItems.length) {
+    try {
+      pageCreators = await prisma.creator.findMany({
+        where: { id: { in: pageItems.map((p) => p.id) } },
+        include: {
+          games: { where: { game: { isPublished: true } }, select: { role: true }, take: 12 },
+        },
+      })
+    } catch (e) {
+      logger.db.error("[getCreators] 拉取本页角色失败", e)
+    }
+  }
+  const pageMap = new Map(pageCreators.map((c) => [c.id, c]))
+  const summaries: CreatorSummary[] = pageItems.map((p) => {
+    const c = pageMap.get(p.id)!
+    return {
+      id: c.id,
+      name: c.name,
+      nameJa: c.nameJa || null,
+      avatar: c.avatar || null,
+      slug: c.slug ?? null,
+      gameCount: p.gameCount,
+      roles: Array.from(new Set(c.games.map((g) => g.role))),
+    }
+  })
+
   return { creators: summaries, total, totalPages, page: pageNum }
 }
 
@@ -214,7 +237,6 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     vndbId: string
     twitterUrl: string
     wikipediaUrl: string
-    _count: { games: number }
     games: Array<{
       role: string
       game: {
@@ -252,7 +274,6 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
           skip: (safePage - 1) * DETAIL_PAGE_SIZE,
           take: DETAIL_PAGE_SIZE,
         },
-        _count: { select: { games: { where: { game: { isPublished: true } } } } },
       },
     })
   } catch (e) {
@@ -266,8 +287,10 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
   // 所属制作组：一次聚合，避免 N+1
   let studios: CreatorStudioItem[] = []
   try {
+    // 口径与 makers.ts 的 COUNT(DISTINCT …) 对齐：统计「该人参与的去重游戏数」，
+    // 而非 GameCreator 关联行数（一人多职位会被数成多部作品）。TYPE-MOON 对 Ryuusoul 例：4 → 2。
     const rows = await prisma.$queryRaw<{ studioId: string; cnt: number }[]>`
-      SELECT gs."studioId" AS "studioId", COUNT(*)::int AS cnt
+      SELECT gs."studioId" AS "studioId", COUNT(DISTINCT gc."gameId")::int AS cnt
       FROM "GameCreator" gc
       JOIN "GameStudio" gs ON gs."gameId" = gc."gameId"
       JOIN "Game" g ON g.id = gc."gameId"
@@ -292,7 +315,19 @@ export async function getCreatorDetail(slug: string, page = 1): Promise<CreatorD
     logger.db.error("[getCreatorDetail] 统计所属制作组失败", e)
   }
 
-  const totalGames = creator._count.games
+  // 去重后的已发布作品数（替代旧 _count.games 的关联行计数，一人多职位只算一部）
+  let totalGames = 0
+  try {
+    const gameCountRow = await prisma.$queryRaw<{ cnt: number }[]>`
+      SELECT COUNT(DISTINCT gc."gameId")::int AS cnt
+      FROM "GameCreator" gc
+      JOIN "Game" g ON g.id = gc."gameId"
+      WHERE gc."creatorId" = ${creator.id} AND g."isPublished" = true
+    `
+    totalGames = gameCountRow[0]?.cnt ?? 0
+  } catch (e) {
+    logger.db.error("[getCreatorDetail] 统计去重作品数失败", e)
+  }
   const totalPages = Math.max(1, Math.ceil(totalGames / DETAIL_PAGE_SIZE))
 
   // 同一部作品把该创作者的所有职位聚合成 roles：一人兼多职时卡片上写「原画、脚本」，

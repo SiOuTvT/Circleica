@@ -134,8 +134,11 @@ export function CreatorArchiveClient({
     }
   }, [isWorks, fetchWorks, fetchCreators, works.length, creators.length, loadingMore])
 
-  const groupName = (c: CreatorSummary) => c.nameJa || c.name
-  const groups = groupByLatinFirstChar(creators, groupName)
+  // 分区键改用拉丁名（Creator.name）首字母，使日文名优先显示的创作者归位到正确字母区；
+  // 组内排序仍按展示名（日文名优先）。
+  const groupByName = (c: CreatorSummary) => c.name
+  const groupSortName = (c: CreatorSummary) => c.nameJa || c.name
+  const groups = groupByLatinFirstChar(creators, groupByName, groupSortName)
   const availableLetters = groups.map((g) => g.key)
   const hasMore = !loading && !error && creators.length > 0 && total > creators.length
   const worksHasMore = !loading && !error && works.length > 0 && worksTotal > works.length
@@ -144,7 +147,7 @@ export function CreatorArchiveClient({
   useEffect(() => {
     if (isWorks) return
     if (loading || error || creators.length === 0) return
-    const grps = groupByLatinFirstChar(creators, groupName)
+    const grps = groupByLatinFirstChar(creators, groupByName, groupSortName)
     const els = grps
       .map((g) => document.getElementById(`${ANCHOR_PREFIX}${encodeURIComponent(g.key)}`))
       .filter((el): el is HTMLElement => el !== null)

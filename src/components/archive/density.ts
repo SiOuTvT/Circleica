@@ -129,6 +129,7 @@ export function latinFirstCharKey(name: string): string {
 export function groupByLatinFirstChar<T>(
   items: T[],
   getName: (item: T) => string,
+  getSortName: (item: T) => string = getName,
 ): LetterGroup<T>[] {
   const map = new Map<string, T[]>()
   for (const it of items) {
@@ -147,6 +148,6 @@ export function groupByLatinFirstChar<T>(
     items: map
       .get(key)!
       .slice()
-      .sort((x, y) => getName(x).localeCompare(getName(y), "zh-Hans-CN")),
+      .sort((x, y) => getSortName(x).localeCompare(getSortName(y), "zh-Hans-CN")),
   }))
 }
