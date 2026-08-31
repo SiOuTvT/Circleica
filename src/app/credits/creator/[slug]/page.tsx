@@ -49,7 +49,7 @@ function toGameCardData(g: CreatorGameItem): GameCardData {
   }
 }
 
-const GAME_GRID_CLASS = "grid gap-3"
+const GAME_GRID_CLASS = "grid gap-3 items-start"
 
 /**
  * Creator 详情页（M2，/credits/creator/[slug]）。

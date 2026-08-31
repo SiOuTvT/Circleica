@@ -53,7 +53,7 @@ function toGameCardData(g: MakerGameItem): GameCardData {
   }
 }
 
-const GAME_GRID_CLASS = "grid gap-3"
+const GAME_GRID_CLASS = "grid gap-3 items-start"
 
 export default async function MakerDetailPage({
   params,
