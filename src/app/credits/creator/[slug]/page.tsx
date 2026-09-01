@@ -167,7 +167,7 @@ export default async function CreatorDetailPage({
                   <p className="truncate font-heading text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                     {s.name}
                   </p>
-                  <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
                     <span className="tabular-nums text-foreground/80">{s.gameCount}</span>
                     <span>部作品</span>
                   </div>
