@@ -39,7 +39,7 @@ export default async function MyFollowsPage() {
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
           <p className="text-sm text-muted-foreground">还没有关注任何人</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            去 <Link href="/discover" className="text-primary hover:underline">发现</Link> 看看感兴趣的用户吧
+            去 <Link href="/discover" className="text-primary hover:underline underline-offset-4 decoration-1 decoration-primary transition-colors duration-200">发现</Link> 看看感兴趣的用户吧
           </p>
         </div>
       ) : (

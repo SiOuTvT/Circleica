@@ -65,7 +65,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
                   {act.username && <span className="text-[15px] font-semibold text-foreground truncate">{act.username}</span>}
                   <span className="text-[15px] text-foreground/80 truncate">{act.title}</span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex items-center gap-1.5 mt-1.5">
                   {typeLabel[act.type] && <span className="text-xs px-1.5 py-0.5 rounded bg-muted/80 text-foreground/60 font-medium">{typeLabel[act.type]}</span>}
                   <Clock className="h-3 w-3 text-muted-foreground/40" strokeWidth={1.5} />
                   <span className="text-xs text-muted-foreground/55">{timeAgo(act.time)}</span>
@@ -149,7 +149,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
             {stats.map((stat, i) => (
               <div key={i} className="flex-1 rounded-xl bg-card border border-border px-3.5 py-3 text-center shadow-sm">
                 <span className="text-2xl font-bold text-foreground tabular-nums">{typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}</span>
-                <p className="text-xs text-muted-foreground mt-1 font-medium">{stat.label}</p>
+                <p className="text-xs text-muted-foreground mt-2.5 font-medium">{stat.label}</p>
               </div>
             ))}
             <div key="reserved" className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-3 text-center">

@@ -41,7 +41,7 @@ export function TagCard({ tag, className }: TagCardProps) {
             {tag.gameCount}
           </span>
         </div>
-        <p className="truncate text-caption text-muted-foreground/60">{tag.group.name}</p>
+        <p className="mt-1.5 truncate text-caption text-muted-foreground/60">{tag.group.name}</p>
       </div>
     </Link>
   )

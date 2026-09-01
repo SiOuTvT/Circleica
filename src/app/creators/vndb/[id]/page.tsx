@@ -81,7 +81,7 @@ export default async function VndbCreatorPage({
               href={`https://vndb.org/p/${id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary transition-colors hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-primary transition-colors duration-200 hover:underline underline-offset-4 decoration-1 decoration-primary"
             >
               在 VNDB 查看 <ExternalLink className="h-3.5 w-3.5" />
             </a>

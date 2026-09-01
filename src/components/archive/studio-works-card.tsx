@@ -78,7 +78,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
               <Link
                 key={s.slug}
                 href={`/credits/studio/${encodeURIComponent(s.slug)}`}
-                className="relative z-10 block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors hover:text-primary hover:underline"
+                className="relative z-10 block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors duration-200 hover:text-primary hover:underline underline-offset-4 decoration-1 decoration-primary"
               >
                 {s.name}
               </Link>
@@ -111,7 +111,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
                 <Thumb src={g.coverImage} title={g.title} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[14px] font-medium text-foreground">{g.title}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                     {year && <span className="tabular-nums">{year}</span>}
                     {viewStr && (
                       <span className="flex items-center gap-1">

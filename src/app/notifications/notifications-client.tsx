@@ -178,7 +178,7 @@ export default function NotificationsClient({
           <div className="min-w-0 flex-1">
             <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">NOTIFICATIONS</p>
             <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">消息通知</h1>
-            <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+            <p className="mt-2.5 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
               {unreadCount > 0 ? `${unreadCount} 条未读消息` : "暂无未读消息"}
             </p>
           </div>

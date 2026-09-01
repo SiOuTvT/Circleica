@@ -89,7 +89,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
       </div>
 
       {/* 信息区 */}
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
         {/* 1) 游戏名：退回成卡上的标题文字（整卡点击进名单页，不再进游戏详情） */}
         <span className="block min-w-0 truncate text-[18px] font-semibold leading-snug text-foreground">
           {data.title}

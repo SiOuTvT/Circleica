@@ -92,7 +92,7 @@ export async function getCreators(opts: {
   pageSize?: number
 }): Promise<CreatorListResult> {
   const { search = "", sort = "count", page = 1, pageSize } = opts
-  const size = Math.min(Math.max(pageSize ?? CREATOR_LIST_PAGE_SIZE, 1), 1000)
+  const size = Math.min(Math.max(pageSize ?? CREATOR_LIST_PAGE_SIZE, 1), 500)
   const pageNum = Math.max(1, page)
 
   const where = buildCreatorWhere(search)

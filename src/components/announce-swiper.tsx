@@ -152,7 +152,7 @@ export function AnnounceSwiper({ announcements, siteName = "Circleica" }: { anno
 
           {/* 查看详情（手机端隐藏） */}
           <span
-            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition duration-150 ease-in-out hover:underline hover:text-[var(--primary)]"
+            className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-white transition-colors duration-200 hover:text-primary hover:underline underline-offset-4 decoration-1 decoration-primary"
           >
             查看详情
             <span className="inline-block transition-transform hover:translate-x-1" aria-hidden="true">→</span>

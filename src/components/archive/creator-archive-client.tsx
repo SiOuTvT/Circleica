@@ -61,11 +61,11 @@ export function CreatorArchiveClient({
   const reqId = useRef(0)
 
   const fetchCreators = useCallback(async (page: number): Promise<CreatorListResult> => {
-    const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE), page: String(page) })
+    const params = new URLSearchParams({ sort, pageSize: String(isWorks ? PAGE_SIZE : total), page: String(page) })
     if (q) params.set("search", q)
     const res = await api.get<{ data: CreatorListResult }>(`/api/creators?${params}`, { timeout: 30000 })
     return parseApiResponse<CreatorListResult>(res)
-  }, [sort, q])
+  }, [sort, q, isWorks, total])
 
   const fetchWorks = useCallback(async (page: number): Promise<WorkCrewResult> => {
     const params = new URLSearchParams({ pageSize: String(WORKS_PAGE_SIZE), page: String(page) })
@@ -140,7 +140,8 @@ export function CreatorArchiveClient({
   const groupSortName = (c: CreatorSummary) => c.nameJa || c.name
   const groups = groupByLatinFirstChar(creators, groupByName, groupSortName)
   const availableLetters = groups.map((g) => g.key)
-  const hasMore = !loading && !error && creators.length > 0 && total > creators.length
+  // 「按首字」档已一次性取全，不再分页，故永不渲染加载更多控件与收尾文案
+  const hasMore = false
   const worksHasMore = !loading && !error && works.length > 0 && worksTotal > works.length
 
   // scroll-spy：高亮当前可见首字分区（仅「按首字」视图挂载索引条时有意义）

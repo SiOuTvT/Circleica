@@ -66,11 +66,11 @@ export function StudioArchiveClient({
   const reqId = useRef(0)
 
   const fetchMakers = useCallback(async (page: number): Promise<MakerListResult> => {
-    const params = new URLSearchParams({ sort, pageSize: String(PAGE_SIZE), page: String(page) })
+    const params = new URLSearchParams({ sort, pageSize: String(isWorks ? PAGE_SIZE : total), page: String(page) })
     if (q) params.set("search", q)
     const res = await api.get<{ data: MakerListResult }>(`/api/credits/studios?${params}`, { timeout: 30000 })
     return parseApiResponse<MakerListResult>(res)
-  }, [sort, q])
+  }, [sort, q, isWorks, total])
 
   const fetchWorks = useCallback(async (page: number): Promise<StudioWorksResult> => {
     const params = new URLSearchParams({ sort, pageSize: String(WORKS_PAGE_SIZE), page: String(page) })
@@ -141,7 +141,8 @@ export function StudioArchiveClient({
 
   const groups = groupByLatinFirstChar(makers, (m) => m.name)
   const availableLetters = groups.map((g) => g.key)
-  const hasMore = !loading && !error && makers.length > 0 && total > makers.length
+  // 「按首字」档已一次性取全，不再分页，故永不渲染加载更多控件与收尾文案
+  const hasMore = false
   const worksHasMore = !loading && !error && studios.length > 0 && worksTotal > studios.length
 
   // scroll-spy：高亮当前可见首字分区（仅「按首字」视图挂载索引条时有意义）

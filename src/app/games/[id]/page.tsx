@@ -257,7 +257,7 @@ export default async function GameDetailPage({
                   {game.title}
                 </h1>
                 {game.originalWork && (
-                  <p className="mt-0.5 sm:mt-1 text-xs text-foreground">原作：{game.originalWork}</p>
+                  <p className="mt-2.5 text-xs text-foreground">原作：{game.originalWork}</p>
                 )}
               </div>
 

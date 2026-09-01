@@ -28,7 +28,7 @@ export function DiscoverySection({
           <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
           <div className="min-w-0">
             <h2 className="truncate text-base font-heading font-semibold text-foreground">{title}</h2>
-            {description && <p className="truncate text-xs text-muted-foreground">{description}</p>}
+            {description && <p className="mt-2 truncate text-xs text-muted-foreground">{description}</p>}
           </div>
         </div>
         {actionHref && (

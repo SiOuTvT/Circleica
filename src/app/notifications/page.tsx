@@ -58,7 +58,7 @@ export default async function NotificationsPage() {
     return (
       <div className="flex flex-col items-center gap-3 py-16">
         <p className="text-sm text-muted-foreground">加载通知失败，请稍后重试</p>
-        <Link href="/" className="text-sm text-primary hover:underline">返回首页</Link>
+        <Link href="/" className="text-sm text-primary hover:underline underline-offset-4 decoration-1 decoration-primary transition-colors duration-200">返回首页</Link>
       </div>
     )
   }

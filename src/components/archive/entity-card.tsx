@@ -95,7 +95,7 @@ function StudioCard({ data }: { data: StudioCardData }) {
   return (
     <CardShell href={`/credits/studio/${encodeURIComponent(data.slug ?? data.normalized)}`}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
-      <div className="flex flex-1 flex-col gap-1 p-3.5">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
           {data.name}
         </h3>
@@ -151,7 +151,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
           <div className="min-w-0 flex-1">
             <h3 className="truncate font-heading text-sm font-semibold text-foreground">{display}</h3>
             {data.roles.length > 0 && (
-              <p className="mt-1 truncate text-xs text-muted-foreground">
+              <p className="mt-2 truncate text-xs text-muted-foreground">
                 {data.roles.slice(0, 4).map(roleLabel).join("、")}
               </p>
             )}
@@ -169,7 +169,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
             {display}
           </h3>
           {data.roles.length > 0 && (
-            <p className="mt-1 truncate text-xs text-muted-foreground">
+            <p className="mt-2 truncate text-xs text-muted-foreground">
               {data.roles.slice(0, 4).map(roleLabel).join("、")}
             </p>
           )}
@@ -186,7 +186,7 @@ function CollectionCard({ data }: { data: CollectionCardData }) {
   return (
     <CardShell href={href}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
-      <div className="flex flex-1 flex-col gap-1 p-3.5">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
           {data.name}
         </h3>

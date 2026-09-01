@@ -139,7 +139,7 @@ export async function getMakers(opts: {
   pageSize?: number
 }): Promise<MakerListResult> {
   const { search = "", sort = "count", page = 1, pageSize } = opts
-  const size = Math.min(Math.max(pageSize ?? LIST_PAGE_SIZE, 1), 1000)
+  const size = Math.min(Math.max(pageSize ?? LIST_PAGE_SIZE, 1), 500)
   const pageNum = Math.max(1, page)
 
   // 分页下沉到 SQL：只拉当前页 + 计数，杜绝全表加载后在内存排序切片（大库下每次请求全表扫描是性能黑洞）。
