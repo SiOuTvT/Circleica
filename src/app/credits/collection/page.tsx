@@ -75,7 +75,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
       {/* 文字区：永远从同一位置开始 */}
       <div className="flex min-w-0 flex-1 flex-col justify-center">
         <h3 className="truncate text-[17px] font-semibold text-foreground">{c.name}</h3>
-        <p className="mt-1 text-[13px] tabular-nums text-muted-foreground">
+        <p className="mt-2 text-[13px] tabular-nums text-muted-foreground">
           {c._count.games} 部精选
         </p>
       </div>

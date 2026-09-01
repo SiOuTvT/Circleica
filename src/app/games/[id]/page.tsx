@@ -298,7 +298,7 @@ export default async function GameDetailPage({
                   <p className="text-xs sm:text-sm font-semibold text-foreground/80 sm:text-foreground truncate">
                     {game.publisher ? game.publisher.username : "本站发布"}
                   </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
                 </div>
                 <div className="ml-auto shrink-0">
                   <GameDetailTopClient

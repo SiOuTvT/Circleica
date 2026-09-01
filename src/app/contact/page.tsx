@@ -15,7 +15,7 @@ const DEFAULT_CONTACT_HTML = `<h2>反馈渠道</h2>
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1">论坛反馈</h3>
 <p class="text-xs text-muted-foreground">
-访问 <a href="/forum" class="text-primary hover:underline underline-offset-4 decoration-1 decoration-primary transition-colors duration-200">社区论坛</a> 发帖，选择对应分类（求档 / 讨论 / 资源），
+访问 <a href="/forum" class="text-primary hover:underline underline-offset-4 decoration-1 transition-colors duration-200">社区论坛</a> 发帖，选择对应分类（求档 / 讨论 / 资源），
 其他用户和管理员都能看到并回复。
 </p>
 </div>

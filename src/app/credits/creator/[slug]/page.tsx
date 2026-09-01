@@ -164,7 +164,7 @@ export default async function CreatorDetailPage({
                 className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-heading text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                  <p className="truncate font-heading text-sm font-medium text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
                     {s.name}
                   </p>
                   <div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
