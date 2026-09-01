@@ -134,7 +134,7 @@ function LoginContent() {
             <h1 className="text-xl font-bold text-foreground">
               {tab === "login" ? "欢迎回来" : "创建账号"}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               {tab === "login" ? "登录以继续探索" : "加入同人游戏世界"}
             </p>
           </div>

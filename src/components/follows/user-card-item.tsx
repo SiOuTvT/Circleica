@@ -29,7 +29,7 @@ export function UserCardItem({ user, createdAt, action }: { user: UserItem; crea
         </div>
       </Link>
       <div className="min-w-0 flex-1">
-        <Link href={`/user/${user.serialId}`} className="block truncate text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 decoration-1 decoration-primary transition-colors duration-200">
+        <Link href={`/user/${user.serialId}`} className="block truncate text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 decoration-1 transition-colors duration-200">
           {user.username}
         </Link>
         {user.bio ? (

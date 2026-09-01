@@ -99,8 +99,8 @@ export function ArchiveHero({
           )}
           <h1
             className={cn(
-              "break-words font-heading text-2xl font-bold text-foreground sm:text-3xl transition-colors duration-200",
-              href && "group-hover:underline group-hover:underline-offset-4 group-hover:decoration-1 group-hover:decoration-primary",
+              "break-words font-heading text-2xl font-bold text-foreground sm:text-3xl transition-colors duration-200 underline-offset-4 decoration-1",
+              href && "group-hover:underline group-hover:text-primary",
             )}
           >
             {title}

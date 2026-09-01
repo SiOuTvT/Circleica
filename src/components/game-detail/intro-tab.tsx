@@ -246,7 +246,7 @@ function CreatorsGrid({
         <a
           key={`${c.id}-${c.role}`}
           href={`/creators/${c.id}`}
-          className="flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition duration-150 ease-in-out hover:bg-secondary/70"
+          className="group flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition duration-150 ease-in-out hover:bg-secondary/70"
         >
           {c.avatar ? (
             <Image
@@ -263,8 +263,8 @@ function CreatorsGrid({
             </div>
           )}
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">{c.nameJa || c.name}</p>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-sm font-medium text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">{c.nameJa || c.name}</p>
+            <p className="mt-2 truncate text-xs text-muted-foreground">
               {roleLabel(c.role)}
             </p>
           </div>

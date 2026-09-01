@@ -178,7 +178,7 @@ const ResourceCard = memo(function ResourceCard({
           <p className="text-sm font-semibold text-foreground truncate">
             {resource.username || "热心网友"}
           </p>
-          <p className="text-sm text-muted-foreground/80">
+          <p className="mt-1 text-sm text-muted-foreground/80">
             {timeAgo(resource.createdAt)}
             {resource.userResourceCount > 0 && (
               <span className="ml-2">已发布 {resource.userResourceCount} 条资源</span>

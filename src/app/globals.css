@@ -1071,7 +1071,7 @@ main > * {
 
 /* ── 链接下划线 - 精致渐变 ── */
 a {
-  text-decoration-color: transparent;
+  text-decoration-color: currentColor;
   transition: text-decoration-color var(--duration-normal) ease, color var(--duration-normal) ease;
 }
 

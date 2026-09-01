@@ -193,7 +193,7 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
             >
               <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--gal-accent)]" aria-hidden />
               <Library className="h-[22px] w-[22px] shrink-0" strokeWidth={2.2} />
-              <span className="flex min-w-0 flex-col leading-tight">
+              <span className="flex min-w-0 flex-col gap-0.5 leading-tight">
                 <span className="truncate text-[15px] tracking-wide">Galvelica</span>
                 <span className="truncate text-[12px] font-normal text-muted-foreground/70">同人视觉小说资料库</span>
               </span>

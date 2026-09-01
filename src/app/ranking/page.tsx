@@ -346,7 +346,7 @@ export default async function RankingPage({
                     </div>
                     <div className="hidden w-24 shrink-0 text-right sm:block">
                       <div className="text-sm font-semibold tabular-nums">{item.label}</div>
-                      <div className="text-xs text-muted-foreground/60">{item.unit}</div>
+                      <div className="mt-1 text-xs text-muted-foreground/60">{item.unit}</div>
                     </div>
                   </div>
                 )

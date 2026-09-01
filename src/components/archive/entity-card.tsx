@@ -96,7 +96,7 @@ function StudioCard({ data }: { data: StudioCardData }) {
     <CardShell href={`/credits/studio/${encodeURIComponent(data.slug ?? data.normalized)}`}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
-        <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+        <h3 className="truncate font-heading text-sm font-semibold text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
           {data.name}
         </h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -165,7 +165,7 @@ function CreatorCard({ data }: { data: CreatorCardData }) {
       <div className="flex items-center gap-3 p-3.5">
         <CreatorAvatar avatar={data.avatar} initial={display} />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+          <h3 className="truncate font-heading text-sm font-semibold text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
             {display}
           </h3>
           {data.roles.length > 0 && (
@@ -187,7 +187,7 @@ function CollectionCard({ data }: { data: CollectionCardData }) {
     <CardShell href={href}>
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
-        <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+        <h3 className="truncate font-heading text-sm font-semibold text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
           {data.name}
         </h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
