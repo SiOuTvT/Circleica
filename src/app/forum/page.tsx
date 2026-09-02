@@ -11,9 +11,9 @@ import type { UserRole } from "@/generated/prisma/client"
 export const revalidate = 30
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "求档区",
+    title: "社区论坛",
     description: "同人游戏社区论坛，交流讨论、求档求助、分享资源",
-    openGraph: { title: "求档区 · Circleica", description: "交流讨论、求档求助、分享资源", images: ["/opengraph-image"] },
+    openGraph: { title: "社区论坛 · Circleica", description: "交流讨论、求档求助、分享资源", images: ["/opengraph-image"] },
     alternates: { canonical: "/forum" },
   }
 }

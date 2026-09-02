@@ -711,6 +711,14 @@ main > * {
   .border-input {
     transition: border-color var(--duration-slow) ease;
   }
+
+  /* 链接颜色/下划线过渡：置于 base 层，优先级低于 @layer utilities，
+     避免未分层规则覆盖卡片 <a> 的 transition 工具类（见文件下方未分层 a 规则） */
+  a {
+    transition-property: color, text-decoration-color;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: ease;
+  }
 }
 
 /* ── 毛玻璃工具类 - 温润高级质感 ── */
@@ -1072,7 +1080,6 @@ main > * {
 /* ── 链接下划线 - 精致渐变 ── */
 a {
   text-decoration-color: currentColor;
-  transition: text-decoration-color var(--duration-normal) ease, color var(--duration-normal) ease;
 }
 
 /* ── 全局链接颜色 — 跟随主题色 ── */

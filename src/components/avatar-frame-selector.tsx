@@ -4,7 +4,7 @@ import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { logger } from "@/lib/logger"
 import { cn } from "@/lib/utils"
 import { Tag } from "@/components/ui/tag"
-import { Sparkles, X } from "lucide-react"
+import { Palette, Sparkles, X } from "lucide-react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { useCallback, useEffect, useState } from "react"
@@ -129,9 +129,11 @@ export function AvatarFrameSelector({
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary"
-        >
-          <span className="text-xl leading-none">🎭</span>
+          className="group flex flex-col items-center justify-center gap-1.5 rounded-xl bg-secondary/60 px-3 py-3 transition duration-150 ease-in-out hover:bg-secondary"
+          >
+          <span className="flex h-5 w-5 items-center justify-center text-muted-foreground transition-colors group-hover:text-foreground">
+            <Palette className="h-4 w-4" strokeWidth={1.5} />
+          </span>
           <span className="text-xs font-medium text-foreground">头像框</span>
           {frames.length > 0 && (
             <Tag variant="badge" color="#a855f7">
@@ -143,9 +145,10 @@ export function AvatarFrameSelector({
         <button
           type="button"
           onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-accent-foreground"
+          className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-medium leading-5 text-secondary-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-accent-foreground"
         >
-          🎭 更换头像框
+          <Palette className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+          更换头像框
         </button>
       )}
 

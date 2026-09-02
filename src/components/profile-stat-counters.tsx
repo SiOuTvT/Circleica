@@ -45,11 +45,11 @@ export function ProfileStatCounters({ userId, following, followers }: {
       <div className="mt-4 sm:mt-6 flex items-center justify-center gap-8 sm:gap-12">
         <button onClick={() => openModal("following")} className="flex flex-col items-center transition-opacity hover:opacity-70">
           <span className="text-lg font-bold text-foreground">{following}</span>
-          <span className="text-xs text-muted-foreground mt-0.5">关注</span>
+          <span className="text-xs text-muted-foreground mt-2">关注</span>
         </button>
         <button onClick={() => openModal("followers")} className="flex flex-col items-center transition-opacity hover:opacity-70">
           <span className="text-lg font-bold text-foreground">{followers}</span>
-          <span className="text-xs text-muted-foreground mt-0.5">粉丝</span>
+          <span className="text-xs text-muted-foreground mt-2">粉丝</span>
         </button>
       </div>
 

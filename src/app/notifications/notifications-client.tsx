@@ -229,7 +229,7 @@ export default function NotificationsClient({
                   "group flex items-center gap-3 rounded-xl bg-card px-4 py-3 cursor-pointer",
                   "ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                   "hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px",
-                  !n.isRead && "ring-primary/30 bg-primary/[0.04]"
+                  !n.isRead && "ring-primary/30 bg-[color-mix(in_srgb,var(--primary)_4%,var(--card))]"
                 )}
               >
                 {/* 头像 */}
@@ -257,7 +257,7 @@ export default function NotificationsClient({
                 <div className="min-w-0 flex-1">
                   <p className={cn("text-sm leading-relaxed", !n.isRead ? "text-foreground" : "text-foreground/80")}>{config.text(n.actor.username, n.targetGame?.title)}</p>
                   {config.subtitle && (
-                    <p className="mt-0.5 text-xs text-muted-foreground">{config.subtitle(n.actor.username, n.targetGame?.title)}</p>
+                    <p className="mt-1.5 text-xs text-muted-foreground">{config.subtitle(n.actor.username, n.targetGame?.title)}</p>
                   )}
                   <p className="mt-0.5 text-xs text-muted-foreground/70">{timeAgo(n.createdAt)}</p>
                 </div>

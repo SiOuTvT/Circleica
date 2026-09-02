@@ -1,6 +1,6 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { prisma } from "@/lib/prisma"
-import { ArrowLeft, Clock } from "lucide-react"
+import { ArrowLeft, Clock, Pin } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -187,7 +187,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
-                    {a.isPinned && <span className="text-primary mr-1">📌</span>}
+                    {a.isPinned && <Pin className="mr-1 inline h-4 w-4 align-[-0.125em] text-primary" strokeWidth={1.5} />}
                     {a.title}
                   </Link>
                 ))
@@ -224,7 +224,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
                   a.id === id ? "text-foreground font-medium bg-primary/10" : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/50"
                 }`}
               >
-                {a.isPinned && <span className="text-primary mr-1">📌</span>}
+                {a.isPinned && <Pin className="mr-1 inline h-4 w-4 align-[-0.125em] text-primary" strokeWidth={1.5} />}
                 {a.title}
               </Link>
             ))}

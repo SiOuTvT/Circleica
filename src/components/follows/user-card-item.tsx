@@ -32,9 +32,9 @@ export function UserCardItem({ user, createdAt, action }: { user: UserItem; crea
           {user.username}
         </Link>
         {user.bio ? (
-          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{user.bio}</p>
+          <p className="mt-1.5 line-clamp-1 text-xs text-muted-foreground">{user.bio}</p>
         ) : createdAt ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(createdAt)}</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{timeAgo(createdAt)}</p>
         ) : null}
       </div>
       {action}

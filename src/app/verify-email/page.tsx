@@ -1,5 +1,6 @@
 import { authService } from "@/services/user"
 import Link from "next/link"
+import { CircleCheck, CircleX } from "lucide-react"
 
 export const metadata = {
   title: "邮箱验证",
@@ -82,7 +83,11 @@ function ResultCard({
 }) {
   return (
     <div className="w-full max-w-md rounded-2xl bg-card border border-border p-8 text-center space-y-4 shadow-3">
-      <div className="text-4xl">{status === "success" ? "✅" : "❌"}</div>
+      <div className="flex justify-center">
+        {status === "success"
+          ? <CircleCheck className="h-10 w-10 text-[var(--success)]" strokeWidth={1.5} />
+          : <CircleX className="h-10 w-10 text-[var(--error)]" strokeWidth={1.5} />}
+      </div>
       <h1 className="text-xl font-bold text-foreground">{title}</h1>
       <p className="text-sm text-muted-foreground">{desc}</p>
       <div className="flex flex-col gap-2 pt-2">
