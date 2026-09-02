@@ -1,0 +1,21 @@
+﻿{
+  "forum": {
+    "h1": "社区论坛",
+    "desc": "发帖求档、分享资源、聊攻略，社区互助"
+  },
+  "postHref": "/forum/cmt3mv0ke002kkgtlop2o9u91",
+  "postDetail": {
+    "docTitle": "新发现的一个宝藏社团，作品质量很高 · Circleica",
+    "backBtn": "返回论坛",
+    "breadcrumbHasForum": false
+  },
+  "contact": {
+    "faq": "A: 注册后联系管理员申请发布权限，或通过论坛求档区反馈。"
+  },
+  "cssScale": {
+    "mt-0.5": "2px",
+    "mt-1": "4px",
+    "mt-1.5": "6px",
+    "mt-2": "8px"
+  }
+}
