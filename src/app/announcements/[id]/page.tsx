@@ -109,10 +109,10 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
               <img
                 src={author.avatar}
                 alt={author.name}
-                className="h-10 w-10 rounded-full object-cover ring-1 ring-border/50"
+                className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
               />
             ) : (
-              <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center ring-1 ring-border/30">
+              <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center ring-1 ring-border">
                 <span className="text-sm font-bold text-primary/70">{(author.name || "C")[0]}</span>
               </div>
             )}

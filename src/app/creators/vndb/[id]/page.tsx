@@ -116,7 +116,7 @@ export default async function VndbCreatorPage({
                     <img
                       src={vn.image.url}
                       alt={vn.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      className="h-full w-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       loading="lazy"
                     />
                   ) : (

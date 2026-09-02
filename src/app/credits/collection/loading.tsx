@@ -15,7 +15,7 @@ export default function CuratedCollectionsLoading() {
         <div className="h-64 w-full animate-pulse rounded-2xl bg-muted/40 sm:h-72" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="space-y-3 rounded-2xl bg-card p-4 ring-1 ring-border/50">
+            <div key={i} className="space-y-3 rounded-2xl bg-card p-4 ring-1 ring-border">
               <div className="h-40 w-full animate-pulse rounded-xl bg-muted/40" />
               <div className="h-5 w-3/4 animate-pulse rounded bg-muted/40" />
               <div className="h-4 w-1/2 animate-pulse rounded bg-muted/40" />

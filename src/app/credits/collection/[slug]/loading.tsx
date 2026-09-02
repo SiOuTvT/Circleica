@@ -19,7 +19,7 @@ export default function CuratedCollectionDetailLoading() {
       {/* 游戏游廊 */}
       <div className="grid gap-5 sm:grid-cols-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 sm:p-5">
+          <div key={i} className="flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border sm:p-5">
             <Skeleton className="w-20 shrink-0 rounded-xl sm:w-24" style={{ aspectRatio: "3 / 4" }} />
             <div className="flex flex-1 flex-col justify-center gap-2">
               <Skeleton className="h-4 w-3/4 rounded" />

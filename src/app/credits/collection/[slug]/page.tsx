@@ -102,7 +102,7 @@ export default async function CuratedCollectionDetailPage({
               <Link
                 key={game.id}
                 href={`/games/${game.serialId}`}
-                className="group relative block overflow-hidden rounded-2xl bg-card ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                className="group relative block overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                   {card.coverImage ? (
@@ -111,7 +111,7 @@ export default async function CuratedCollectionDetailPage({
                       alt={card.title}
                       fill
                       unoptimized
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 285px"
                     />
                   ) : (

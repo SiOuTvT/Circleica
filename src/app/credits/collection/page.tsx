@@ -39,13 +39,13 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
   return (
     <Link
       href={`/credits/collection/${c.slug}`}
-      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
+      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px sm:flex-row sm:items-center sm:gap-4"
     >
       {/* 封面区：宽度固定 358（160 + 66×3），不管实际 1/2/4 张都占这个宽度 */}
       <div className="relative h-[140px] w-[358px] max-w-full shrink-0 overflow-hidden">
         {covers.length === 0 ? (
           // 一张封面都没有：占位（首字）
-          <div className="absolute left-0 top-0 flex h-[140px] w-[160px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border/40">
+          <div className="absolute left-0 top-0 flex h-[140px] w-[160px] items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-border">
             <span className="text-xl font-bold text-primary/30">{c.name.charAt(0)}</span>
           </div>
         ) : (
@@ -55,7 +55,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
             return (
               <div
                 key={i}
-                className="absolute top-0 h-[140px] w-[160px] overflow-hidden rounded-lg bg-muted ring-1 ring-border/40 transition-transform duration-300 group-hover:scale-[1.03]"
+                className="absolute top-0 h-[140px] w-[160px] overflow-hidden rounded-lg bg-muted ring-1 ring-border transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 style={{ left: `${i * 66}px`, zIndex: 10 - i }}
               >
                 <Image
