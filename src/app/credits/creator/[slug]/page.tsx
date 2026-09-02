@@ -161,7 +161,7 @@ export default async function CreatorDetailPage({
               <Link
                 key={s.slug ?? s.name}
                 href={s.slug ? `/credits/studio/${encodeURIComponent(s.slug)}` : "#"}
-                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
+                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-heading text-sm font-medium text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
@@ -183,12 +183,12 @@ export default async function CreatorDetailPage({
           {prevHref ? (
             <Link
               href={prevHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               上一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">上一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">上一页</span>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
             <span className="tabular-nums text-foreground/90">{detail.page}</span>
@@ -198,12 +198,12 @@ export default async function CreatorDetailPage({
           {nextHref ? (
             <Link
               href={nextHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               下一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">下一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">下一页</span>
           )}
         </div>
       )}

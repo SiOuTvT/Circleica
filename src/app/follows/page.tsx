@@ -2,10 +2,9 @@ import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
-import { UserCardItem } from "@/components/follows/user-card-item"
+import { FollowsList } from "@/components/follows/follows-list"
 import { Users } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -33,22 +32,11 @@ export default async function MyFollowsPage() {
       <div className="mb-4 flex items-center gap-2">
         <Users className="h-5 w-5 text-muted-foreground" />
         <h1 className="text-lg font-semibold">我的关注</h1>
-        <span className="text-sm text-muted-foreground">共 {total} 人</span>
       </div>
-      {follows.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
-          <p className="text-sm text-muted-foreground">还没有关注任何人</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            去 <Link href="/discover" className="text-primary hover:underline underline-offset-4 decoration-1 transition-colors duration-200">发现</Link> 看看感兴趣的用户吧
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-2 sm:gap-3">
-          {follows.map((f) => (
-            <UserCardItem key={f.id} user={f.following} createdAt={f.createdAt.toISOString()} />
-          ))}
-        </div>
-      )}
+      <FollowsList
+        initialItems={follows.map((f) => ({ id: f.id, user: f.following, createdAt: f.createdAt.toISOString() }))}
+        initialTotal={total}
+      />
     </div>
   )
 

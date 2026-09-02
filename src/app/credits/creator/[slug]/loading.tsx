@@ -10,7 +10,7 @@ export default function CreatorDetailLoading() {
           <div className="h-4 w-1/2 rounded skeleton-shimmer" />
         </div>
       </div>
-      <div className="flex flex-wrap gap-x-6 gap-y-3 rounded-2xl bg-muted/40 px-5 py-3.5 ring-1 ring-border/50">
+      <div className="flex flex-wrap gap-x-6 gap-y-3 rounded-2xl bg-muted/40 px-5 py-3.5 ring-1 ring-border">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-10 w-20 rounded skeleton-shimmer" />
         ))}

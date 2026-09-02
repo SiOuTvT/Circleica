@@ -198,7 +198,7 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="truncate text-sm font-medium text-foreground">{other.username}</span>
-                    <span className="shrink-0 text-[10px] text-muted-foreground/70">{formatTime(conv.lastMessageAt)}</span>
+                    <span className="shrink-0 text-[11px] text-muted-foreground/70">{formatTime(conv.lastMessageAt)}</span>
                   </div>
                   <p className="truncate text-xs text-muted-foreground">
                     {lastMsg ? (lastMsg.senderId === me?.id ? "我: " : "") + lastMsg.content : "发条消息打个招呼吧"}
@@ -234,7 +234,7 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
                 <div className="text-sm font-semibold text-foreground">
                   {otherUser(activeConv, me?.id ?? "").username}
                 </div>
-                <div className="text-[10px] text-muted-foreground/70">
+                <div className="text-[11px] text-muted-foreground/70">
                   {activeConv.initiatorId === me?.id ? "我发起的会话" : "对方发起的会话"}
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function MessagesContent({ tabNav }: { tabNav?: React.ReactNode }
                         : "bg-muted text-foreground rounded-bl-sm"
                     )}>
                       <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                      <div className={cn("mt-1 text-right text-[10px]", mine ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                      <div className={cn("mt-1 text-right text-[11px]", mine ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                         {formatTime(msg.createdAt)}
                       </div>
                     </div>

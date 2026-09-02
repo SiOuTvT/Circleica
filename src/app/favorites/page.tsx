@@ -6,7 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
-import { Heart, Star } from "lucide-react"
+import { Heart } from "lucide-react"
 import { timeAgo } from "@/lib/time-ago"
 
 export const dynamic = "force-dynamic"
@@ -49,8 +49,8 @@ export default async function MyFavoritesPage() {
             <Link
               key={f.id}
               href={`/games/${f.game.id}`}
-              className="group flex flex-col overflow-hidden rounded-xl bg-card ring-1 ring-border/60 transition-shadow hover:ring-border"
-            >
+              className="group flex flex-col overflow-hidden rounded-xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
+              >
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted">
                 {f.game.coverImage ? (
                   <Image
@@ -58,7 +58,7 @@ export default async function MyFavoritesPage() {
                     alt={f.game.title}
                     fill
                     sizes="(max-width: 640px) 50vw, 33vw"
-                    className="object-cover transition-transform group-hover:scale-105"
+                    className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                     unoptimized
                   />
                 ) : (
@@ -69,10 +69,7 @@ export default async function MyFavoritesPage() {
               </div>
               <div className="p-2.5">
                 <p className="line-clamp-2 text-sm font-medium leading-tight">{f.game.title}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <Star className="h-3 w-3" />
-                  {timeAgo(f.createdAt)}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{timeAgo(f.createdAt)}</p>
               </div>
             </Link>
           ))}

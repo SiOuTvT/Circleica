@@ -239,12 +239,12 @@ export default async function MakerDetailPage({
           {prevHref ? (
             <Link
               href={prevHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               上一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">上一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">上一页</span>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
             <span className="tabular-nums text-foreground/90">{detail.page}</span>
@@ -254,12 +254,12 @@ export default async function MakerDetailPage({
           {nextHref ? (
             <Link
               href={nextHref}
-              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+              className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
             >
               下一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border/50">下一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">下一页</span>
           )}
         </div>
       )}
