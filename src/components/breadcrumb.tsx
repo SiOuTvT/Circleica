@@ -10,7 +10,7 @@ import { useBreadcrumb } from "./breadcrumb-context"
  * ⚠️ 不要把没有独立页面的路由（如 games, profile, creators, announcements, characters）加进来
  */
 const ROUTE_NAMES: Record<string, string> = {
-  forum: "求档区",
+  forum: "社区论坛",
   discover: "发现",
   collections: "精选合集",
   ranking: "排行榜",

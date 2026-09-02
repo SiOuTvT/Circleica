@@ -259,7 +259,7 @@ export default function NotificationsClient({
                   {config.subtitle && (
                     <p className="mt-1.5 text-xs text-muted-foreground">{config.subtitle(n.actor.username, n.targetGame?.title)}</p>
                   )}
-                  <p className="mt-0.5 text-xs text-muted-foreground/70">{timeAgo(n.createdAt)}</p>
+                  <p className="mt-1.5 text-xs text-muted-foreground/70">{timeAgo(n.createdAt)}</p>
                 </div>
 
                 {/* 删除按钮 */}

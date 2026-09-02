@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!post) return { title: "帖子不存在" }
   const desc = post.content.replace(/<[^>]*>/g, "").slice(0, 160)
   return {
-    title: `${post.title}（求档区）`,
-    description: desc || `${post.title} - Circleica求档区讨论帖`,
+    title: post.title,
+    description: desc || `${post.title} - Circleica 社区论坛讨论帖`,
     openGraph: { title: post.title, description: desc, images: ["/opengraph-image"] },
     alternates: { canonical: `/forum/${id}` },
   }
@@ -83,7 +83,7 @@ export default async function ForumPostPage({ params }: { params: Promise<{ id: 
     <div>
       <Link href="/forum" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
-        返回求档区
+        返回论坛
       </Link>
       <ForumPostDetail
         post={postData}

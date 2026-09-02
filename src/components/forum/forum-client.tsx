@@ -204,9 +204,9 @@ export function ForumClient({
             {/* 文字列：eyebrow + 标题 + 描述共用图标右侧这一条左基准线（与 ArchiveHero 同源） */}
             <div className="min-w-0">
               <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">FORUM</p>
-              <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">求档区</h1>
+              <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">社区论坛</h1>
               <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-                找不到资源？发帖求档，社区互助
+                发帖求档、分享资源、聊攻略，社区互助
               </p>
             </div>
           </div>

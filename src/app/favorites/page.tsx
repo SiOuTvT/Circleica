@@ -69,7 +69,7 @@ export default async function MyFavoritesPage() {
               </div>
               <div className="p-2.5">
                 <p className="line-clamp-2 text-sm font-medium leading-tight">{f.game.title}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{timeAgo(f.createdAt)}</p>
+                <p className="mt-1.5 text-xs text-muted-foreground">{timeAgo(f.createdAt)}</p>
               </div>
             </Link>
           ))}

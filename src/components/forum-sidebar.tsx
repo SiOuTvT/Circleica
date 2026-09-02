@@ -74,7 +74,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           </button>
         </div>
 
-        {/* 主操作：进入求档区 */}
+        {/* 主操作：进入论坛 */}
         <div className="border-b border-border p-3 lg:px-4 lg:py-3">
           <Link
             href="/forum"
@@ -83,7 +83,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             <MessageSquare className="h-4 w-4" strokeWidth={2} aria-hidden />
-            进入求档区
+            进入论坛
           </Link>
         </div>
 
