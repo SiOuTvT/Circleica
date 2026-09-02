@@ -24,7 +24,6 @@ export default function UnifiedMessagesPage() {
           <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">MESSAGES</p>
           <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">私信与通知</h1>
           <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
             与圈内同好私聊，查看站内通知。

@@ -194,21 +194,14 @@ export function ForumClient({
 
   return (
     <div>
-      {/* 页头（ArchiveHero 设计语言：主题色图标无灰底 + 英文 eyebrow + 大字标题） */}
-      <header className="mb-4 sm:mb-6 flex flex-col gap-4">
+      {/* 页头（与 credits/studio ArchiveHero 浏览页同款：无眉标、无图标、24px 标题 + 15px 副标） */}
+      <header className="mb-4 sm:mb-6">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-4">
-            <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
-              <MessageSquare className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} aria-hidden />
-            </div>
-            {/* 文字列：eyebrow + 标题 + 描述共用图标右侧这一条左基准线（与 ArchiveHero 同源） */}
-            <div className="min-w-0">
-              <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">FORUM</p>
-              <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">社区论坛</h1>
-              <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-                发帖求档、分享资源、聊攻略，社区互助
-              </p>
-            </div>
+          <div className="min-w-0">
+            <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">社区论坛</h1>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+              发帖求档、分享资源、聊攻略，社区互助
+            </p>
           </div>
           {isLoggedIn && (
             <button

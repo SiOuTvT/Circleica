@@ -5,7 +5,6 @@ import { redirect } from "next/navigation"
 import { Breadcrumb } from "@/components/breadcrumb"
 import { BreadcrumbSetter } from "@/components/breadcrumb-setter"
 import { FollowsList } from "@/components/follows/follows-list"
-import { Users } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "我的关注" }
@@ -29,10 +28,12 @@ export default async function MyFollowsPage() {
     <div className="container mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-6">
       <BreadcrumbSetter segment="follows" label="我的关注" />
       <Breadcrumb />
-      <div className="mb-4 flex items-center gap-2">
-        <Users className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-lg font-semibold">我的关注</h1>
-      </div>
+      <header className="mb-4 sm:mb-6">
+        <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的关注</h1>
+        <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+          {total > 0 ? `你关注的创作者共 ${total} 人` : "还没有关注任何人"}
+        </p>
+      </header>
       <FollowsList
         initialItems={follows.map((f) => ({ id: f.id, user: f.following, createdAt: f.createdAt.toISOString() }))}
         initialTotal={total}

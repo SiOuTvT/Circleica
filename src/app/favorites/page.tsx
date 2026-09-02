@@ -31,11 +31,12 @@ export default async function MyFavoritesPage() {
     <div className="container mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-6">
       <BreadcrumbSetter segment="favorites" label="我的收藏" />
       <Breadcrumb />
-      <div className="mb-4 flex items-center gap-2">
-        <Heart className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-lg font-semibold">我的收藏</h1>
-        <span className="text-sm text-muted-foreground">共 {total} 个</span>
-      </div>
+      <header className="mb-4 sm:mb-6">
+        <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的收藏</h1>
+        <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+          {total > 0 ? `收藏的同人游戏共 ${total} 部，按收藏时间倒序` : "还没有收藏任何游戏"}
+        </p>
+      </header>
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
           <p className="text-sm text-muted-foreground">还没有收藏任何游戏</p>
