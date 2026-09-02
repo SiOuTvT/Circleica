@@ -26,13 +26,13 @@ export default function SearchError({
       <div className="flex items-center gap-3">
         <button
           onClick={reset}
-          className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+          className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
         >
           重试
         </button>
         <Link
           href="/"
-          className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border/50 transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+          className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
         >
           返回首页
         </Link>

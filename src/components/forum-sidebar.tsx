@@ -97,7 +97,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
                 href={`/forum?category=${cat.value}`}
                 onClick={onToggle}
                 data-ripple
-                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border/60 transition-colors hover:bg-accent hover:text-foreground"
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:bg-accent hover:text-foreground"
               >
                 <cat.icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
                 {cat.label}

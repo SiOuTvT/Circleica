@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Heart } from "lucide-react"
 import { timeAgo } from "@/lib/time-ago"
 
 interface UserItem {
@@ -16,7 +15,7 @@ interface UserItem {
  */
 export function UserCardItem({ user, createdAt, action }: { user: UserItem; createdAt?: string; action?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-border/60 transition-shadow hover:ring-border">
+    <div className="flex items-center gap-3 rounded-xl bg-card p-3 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px">
       <Link href={`/user/${user.serialId}`} className="shrink-0">
         <div className="h-12 w-12 overflow-hidden rounded-full bg-muted">
           {user.avatar ? (
@@ -35,9 +34,7 @@ export function UserCardItem({ user, createdAt, action }: { user: UserItem; crea
         {user.bio ? (
           <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{user.bio}</p>
         ) : createdAt ? (
-          <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-            <Heart className="h-3 w-3" /> {timeAgo(createdAt)}
-          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(createdAt)}</p>
         ) : null}
       </div>
       {action}

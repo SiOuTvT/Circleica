@@ -19,7 +19,7 @@ export function ForumFilters({
 }: ForumFiltersProps) {
   return (
     <div className="mb-4 space-y-3">
-      {/* 搜索框（Archive 设计语言：rounded-xl + ring-border/50） */}
+      {/* 搜索框（Archive 设计语言：rounded-xl + ring-border） */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
         <input
@@ -39,7 +39,7 @@ export function ForumFilters({
             "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px]",
             !activeCategory
               ? "bg-primary/10 text-primary ring-primary/40"
-              : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"
+              : "bg-card text-muted-foreground ring-border hover:text-foreground hover:ring-border"
           )}
         >
           全部
@@ -55,7 +55,7 @@ export function ForumFilters({
               "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px] flex items-center gap-1.5",
               activeCategory === cat.value
                 ? "bg-primary/10 text-primary ring-primary/40"
-                : "bg-card text-muted-foreground ring-border/50 hover:text-foreground hover:ring-border"
+                : "bg-card text-muted-foreground ring-border hover:text-foreground hover:ring-border"
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {cat.label}

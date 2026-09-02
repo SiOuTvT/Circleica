@@ -36,7 +36,7 @@ export function FeaturedGameHero({ game, description: _description }: FeaturedGa
               src={game.coverImage}
               alt={game.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               sizes="(max-width: 640px) 100vw, 30vw"
               priority
               quality={80}

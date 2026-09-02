@@ -248,7 +248,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
                           "group flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-default",
                           medal.earned
                             ? cn(medal.bgColor, medal.borderColor, "hover:-translate-y-0.5")
-                            : "bg-muted/30 ring-border/50 opacity-40"
+                            : "bg-muted/30 ring-border opacity-40"
                         )}
                       >
                         <div className={cn(

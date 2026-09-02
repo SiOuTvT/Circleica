@@ -156,7 +156,7 @@ export default function NotificationsContent({ tabNav }: { tabNav?: React.ReactN
                     <div className="text-xs text-muted-foreground mt-0.5">{n.targetGame.title}</div>
                   )}
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
+                    <span className="text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
                     {!n.isRead && <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />}
                   </div>
                 </div>

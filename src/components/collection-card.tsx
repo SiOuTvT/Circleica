@@ -36,7 +36,7 @@ export function CollectionCard({
     return (
       <Link
         href={href}
-        className="group flex items-center gap-6 rounded-2xl bg-card p-5 ring-1 ring-border/50 transition ease-in-out duration- 300 hover:-translate-y-0.5 hover:shadow-lg sm:gap-8"
+        className="group flex items-center gap-6 rounded-2xl bg-card p-5 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px sm:gap-8"
         style={{ minHeight: 230 }}
       >
         {/* 封面错位叠放：前 4 张竖版封面依次向右后错、露出边缘，第一张在最前 */}
@@ -56,7 +56,7 @@ export function CollectionCard({
                   alt={c.title}
                   fill
                   unoptimized
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
@@ -88,16 +88,16 @@ export function CollectionCard({
   return (
     <Link
       href={href}
-      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/50 transition ease-in-out duration-300 hover:ring-foreground/10 hover:shadow-sm"
+      className="group flex gap-4 rounded-2xl bg-card p-4 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
     >
       {/* 封面区 */}
-      <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border/50 sm:w-24">
+      <div className="relative w-20 shrink-0 aspect-[3/4] rounded-xl overflow-hidden bg-muted ring-1 ring-border sm:w-24">
         {primary?.cover ? (
           <Image
             src={primary.cover}
             alt={name}
             fill
-            className="object-cover transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
             unoptimized
             sizes="(max-width: 640px) 80px, 96px"
           />

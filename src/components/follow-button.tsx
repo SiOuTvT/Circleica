@@ -10,11 +10,13 @@ import { apiFetchSafe } from "@/lib/api-client"
 interface Props {
   targetUserId: string
   initialFollowing: boolean
+  size?: "sm" | "md"
+  onChange?: (following: boolean) => void
 }
 
 const followMsgKeys = ["follow_success", "unfollow_success"]
 
-export function FollowButton({ targetUserId, initialFollowing }: Props) {
+export function FollowButton({ targetUserId, initialFollowing, size = "md", onChange }: Props) {
   const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
   const { messages: followMsgs } = useEmotionalMessages(followMsgKeys)
@@ -25,7 +27,9 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     try {
       const { ok } = await apiFetchSafe(`/api/follow/${targetUserId}`, { method: "POST" })
       if (ok) {
-        setFollowing(!following)
+        const next = !following
+        setFollowing(next)
+        onChange?.(next)
         toast.success(following
           ? (followMsgs.unfollow_success ? followMsgs.unfollow_success.title : "已取消关注")
           : (followMsgs.follow_success ? followMsgs.follow_success.title : "关注成功"), {
@@ -43,11 +47,13 @@ export function FollowButton({ targetUserId, initialFollowing }: Props) {
     }
   }
 
+  const sizeCls = size === "sm" ? "px-3 py-1 text-xs" : "px-5 py-2.5 text-sm"
+
   return (
     <button
       onClick={toggle}
       disabled={loading}
-      className={`inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition duration-150 ease-in-out ${
+      className={`inline-flex items-center gap-1.5 rounded-full font-semibold transition duration-150 ease-in-out ${sizeCls} ${
         following
           ? "bg-secondary text-muted-foreground hover:bg-rose-500/10 hover:text-rose-400"
           : "bg-primary text-primary-foreground hover:opacity-90"

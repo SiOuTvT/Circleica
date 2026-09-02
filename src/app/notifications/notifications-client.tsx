@@ -227,8 +227,8 @@ export default function NotificationsClient({
                 onClick={() => { if (!n.isRead) markRead([n.id]) }}
                 className={cn(
                   "group flex items-center gap-3 rounded-xl bg-card px-4 py-3 cursor-pointer",
-                  "ring-1 ring-border/50 transition ease-in-out duration-200",
-                  "hover:ring-primary/30 hover:bg-accent/30",
+                  "ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  "hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px",
                   !n.isRead && "ring-primary/30 bg-primary/[0.04]"
                 )}
               >
@@ -240,7 +240,7 @@ export default function NotificationsClient({
                       alt=""
                       width={40}
                       height={40}
-                      className="rounded-full object-cover ring-1 ring-border/50"
+                      className="rounded-full object-cover ring-1 ring-border"
                       unoptimized
                     />
                   ) : (

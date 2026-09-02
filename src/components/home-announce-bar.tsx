@@ -54,7 +54,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
           {activities.map((act) => (
             <div key={act.id} className="flex items-start gap-3">
               {act.avatar ? (
-                <Image src={act.avatar} alt={act.username || ""} width={32} height={32} className="rounded-full object-cover shrink-0 ring-1 ring-border/50" />
+                <Image src={act.avatar} alt={act.username || ""} width={32} height={32} className="rounded-full object-cover shrink-0 ring-1 ring-border" />
               ) : (
                 <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-primary/70">{(act.username || act.title || "?")[0]}</span>

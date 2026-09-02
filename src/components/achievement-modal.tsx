@@ -138,7 +138,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                   {locked.map((ach) => (
                     <div
                       key={ach.id}
-                      className="flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 bg-muted/20 ring-border/30 opacity-40"
+                      className="flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 bg-muted/20 ring-border opacity-40"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/40">
                         <Lock className="h-5 w-5 text-muted-foreground" strokeWidth={2} />

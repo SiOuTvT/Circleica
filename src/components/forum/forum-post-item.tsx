@@ -19,7 +19,7 @@ interface ForumPostItemProps {
   post: Omit<Post, "comments">
 }
 
-// 帖子列表项（Archive 设计语言：rounded-xl + ring-border/50 + 轻柔 hover；不使用 game-card 专用 hover）
+// 帖子列表项（Archive 设计语言：rounded-xl + ring-border + 轻柔 hover；不使用 game-card 专用 hover）
 export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItemProps) {
   return (
     <Link
@@ -27,9 +27,9 @@ export const ForumPostItem = memo(function ForumPostItem({ post }: ForumPostItem
       data-ripple
       className={cn(
         "block rounded-xl bg-card p-4 sm:p-5",
-        "ring-1 ring-border/50",
-        "transition ease-in-out duration-200",
-        "hover:ring-primary/30 hover:bg-accent/30",
+        "ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)]",
+        "transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        "hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px",
         post.isPinned && "ring-amber-500/30"
       )}
     >
