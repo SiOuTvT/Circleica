@@ -23,7 +23,7 @@ export function StatsBar({ items, density: _density = "standard", className }: S
   return (
     <div
       className={cn(
-        "flex flex-wrap items-stretch gap-x-6 gap-y-3 rounded-2xl bg-muted/40 px-5 py-3.5 ring-1 ring-border/50",
+        "flex flex-wrap items-stretch gap-x-6 gap-y-3 rounded-2xl bg-muted/40 px-5 py-3.5 ring-1 ring-border",
         className,
       )}
     >

@@ -47,7 +47,7 @@ export function CollectionShowcaseCard({
   return (
     <Link
       href={href}
-      className="group flex h-[180px] items-stretch overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-300 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm"
+      className="group flex h-[180px] items-stretch overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
     >
       {/* 左：封面横向错位叠放，体现精选集合感 */}
       <div className="relative shrink-0" style={{ width: stackWidth }}>
@@ -107,7 +107,7 @@ function CoverTile({
           src={cover}
           alt=""
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
           unoptimized
           sizes="120px"
           onError={() => setErrored(true)}

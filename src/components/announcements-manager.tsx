@@ -340,7 +340,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                   <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 group-hover/item:text-muted-foreground transition-colors">
                     <GripVertical className="h-4 w-4" />
                   </div>
-                  <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border/50">
+                  <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border">
                     {ann.imageUrl
                       ? <Image src={ann.imageUrl} alt="" width={56} height={32} className="w-full h-full object-cover" unoptimized />
                       : <div className="w-full h-full flex items-center justify-center text-micro text-muted-foreground/40">🎮</div>}
@@ -433,7 +433,7 @@ function IconBtn({ children, onClick, title, active, variant }: {
 function PreviewCard({ ann }: { ann: { title: string; summary: string; content: string; imageUrl: string; isPinned: boolean } }) {
   const summary = ann.summary || stripHtml(ann.content).slice(0, 80)
   return (
-    <div className="relative rounded-xl overflow-hidden ring-1 ring-border/50">
+    <div className="relative rounded-xl overflow-hidden ring-1 ring-border">
       {/* 封面 */}
       <div className="relative aspect-video bg-muted/60">
         {ann.imageUrl ? (

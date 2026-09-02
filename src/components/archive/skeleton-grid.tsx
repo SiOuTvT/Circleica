@@ -11,7 +11,7 @@ interface SkeletonGridProps {
 function SkeletonCard({ variant }: { variant: "studio" | "creator" | "collection" | "tag" }) {
   if (variant === "creator") {
     return (
-      <div className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border/60">
+      <div className="flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border">
         <div className="h-12 w-12 shrink-0 rounded-full skeleton-shimmer" />
         <div className="flex-1 space-y-2">
           <div className="h-3.5 w-1/2 rounded skeleton-shimmer" />
@@ -21,7 +21,7 @@ function SkeletonCard({ variant }: { variant: "studio" | "creator" | "collection
     )
   }
   return (
-    <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border/60">
+    <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
       <div className="aspect-[16/10] skeleton-shimmer" />
       <div className="space-y-2 p-3.5">
         <div className="h-3.5 w-2/3 rounded skeleton-shimmer" />

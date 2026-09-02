@@ -66,7 +66,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
   return (
     <div
       data-ripple
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 transition duration-300 ease-in-out hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-lg"
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
     >
       {/* 卡头：每个组名独占一行；整块高度在窄屏也 ≥44px（不靠放大字号）。
           多组合并卡里每个组名各自可点进自己的详情页（z-10，高于整卡热区）；
@@ -149,7 +149,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
 /** 加载态骨架：形状对齐 StudioWorksCard（卡头 + 两行作品） */
 export function StudioWorksCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60">
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border">
       <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-3">
         <div className="h-5 w-1/2 rounded skeleton-shimmer" />
         <div className="h-3.5 w-16 rounded skeleton-shimmer" />
