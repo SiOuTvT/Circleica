@@ -143,7 +143,7 @@ preview-layouts/
 # dev server 临时日志
 dev-*.log
 # 本批自检时启动的开发服务器日志（物理文件，禁止提交）
-dev_verify.out
+dev_verify.*
 
 # 临时 / 系统文件
 tmp/

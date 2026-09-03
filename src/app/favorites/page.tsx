@@ -32,10 +32,20 @@ export default async function MyFavoritesPage() {
       <BreadcrumbSetter segment="favorites" label="我的收藏" />
       <Breadcrumb />
       <header className="mb-4 sm:mb-6">
-        <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的收藏</h1>
-        <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-          {total > 0 ? `收藏的同人游戏共 ${total} 部，按收藏时间倒序` : "还没有收藏任何游戏"}
-        </p>
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-fit shrink-0 items-center justify-center text-primary">
+            <Heart className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Favorites</p>
+            <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的收藏</h1>
+            {total > 0 && (
+              <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                收藏的同人游戏共 ${total} 部，按收藏时间倒序
+              </p>
+            )}
+          </div>
+        </div>
       </header>
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">

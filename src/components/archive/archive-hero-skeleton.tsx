@@ -8,7 +8,7 @@
  * 且四页都漏了 meta 行（「共 N 个制作组」），换成真实页头时会抖一下。
  *
  * 每个占位块都对齐 archive-hero.tsx 浏览页分支的真实节点：
- *   图标    div.flex.h-12.w-fit  >  Icon.h-6.w-6.sm:h-7.sm:w-7
+ *   图标    div.flex.h-12.w-fit  >  Icon.h-7.w-7.sm:h-8.sm:w-8
  *   文字列  div.min-w-0.flex-1（图标右侧，与真实页头共用同一条左基准线）
  *     eyebrow p.text-xs.mb-1.5                    → 行高 16px
  *     标题    h1.text-xl.sm:text-2xl.leading-tight → 25px / 30px
@@ -23,9 +23,9 @@ export function ArchiveHeroSkeleton() {
   return (
     <div className="flex flex-col gap-4" aria-hidden>
       <div className="flex items-start gap-4">
-        {/* 图标位：容器高 h-12，内部矢量图标 h-6 w-6 sm:h-7 sm:w-7，无灰底框 */}
+        {/* 图标位：容器高 h-12，内部矢量图标 h-7 w-7 sm:h-8 sm:w-8，无灰底框 */}
         <div className="flex h-12 w-fit shrink-0 items-center justify-center">
-          <div className="h-6 w-6 animate-pulse rounded bg-muted/60 sm:h-7 sm:w-7" />
+          <div className="h-7 w-7 animate-pulse rounded bg-muted/60 sm:h-8 sm:w-8" />
         </div>
         {/* 文字列：eyebrow + 标题 + lede + meta 与真实页头一致，共用图标右侧这一条左基准线 */}
         <div className="min-w-0 flex-1">

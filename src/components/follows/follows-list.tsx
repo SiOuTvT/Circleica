@@ -17,9 +17,6 @@ export function FollowsList({ initialItems, initialTotal }: { initialItems: Foll
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">共 {total} 人</span>
-      </div>
       <div className="grid gap-2 sm:gap-3">
         {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
