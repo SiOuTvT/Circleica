@@ -41,7 +41,7 @@ export default async function MyFavoritesPage() {
             <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的收藏</h1>
             {total > 0 && (
               <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-                收藏的同人游戏共 ${total} 部，按收藏时间倒序
+                收藏的同人游戏共 {total} 部，按收藏时间倒序
               </p>
             )}
           </div>

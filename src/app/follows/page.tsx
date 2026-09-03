@@ -39,7 +39,7 @@ export default async function MyFollowsPage() {
             <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">我的关注</h1>
             {total > 0 && (
               <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-                你关注的创作者共 ${total} 人
+                你关注的创作者共 {total} 人
               </p>
             )}
           </div>
