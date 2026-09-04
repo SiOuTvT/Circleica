@@ -211,3 +211,6 @@ audit_*.err
 # agent 调试临时产物（验证脚本/截图/日志，物理文件保留在磁盘但禁止提交）
 scripts/_tmp_*
 scripts/_trace_archive/
+
+# 本机排查脚本（与网站无关的本地诊断用 PowerShell，一律不落仓库；物理文件移出项目保留在磁盘）
+scripts/*.ps1

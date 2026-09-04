@@ -1662,6 +1662,13 @@ a[href]:active {
   margin-top: 6px;
 }
 
+/* 正文小标题（含库里 page_contact 那 1987 字符）惯用 mb-1 顶着下方说明，
+   Tailwind mb-1 仅 4px；全站行距要求 14–15px 小标题到 12px 说明至少 6px。
+   刻意留在 @layer 之外以压过工具类，勿移入任何 layer。 */
+.rich-text-content :is(h3, h4, p).mb-1 {
+  margin-bottom: 6px;
+}
+
 /* ═══ P2-11: SVG 图标抗锯齿 — 小尺寸图标在高 DPI 屏幕上可能出现模糊 ═══ */
 svg {
   shape-rendering: geometricPrecision;
