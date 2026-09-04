@@ -1644,13 +1644,14 @@ a[href]:active {
 .rich-text-content > * + * {
   margin-top: 8px;
 }
-.rich-text-content > h2 {
+/* 首个子元素不叠顶部外边距（块本身已有 padding，避免标题离顶太空） */
+.rich-text-content > h2:not(:first-child) {
   margin-top: 24px;
 }
 .rich-text-content > h2 + * {
   margin-top: 8px;
 }
-.rich-text-content > h3 {
+.rich-text-content > h3:not(:first-child) {
   margin-top: 20px;
 }
 .rich-text-content > h3 + * {
