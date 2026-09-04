@@ -78,7 +78,7 @@ export default async function CardPage({ params }: { params: Promise<{ uid: stri
     <main style={{ minHeight: "100vh", background: "#e8eaef", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 16px", fontFamily: "'Noto Sans SC','Segoe UI','Microsoft YaHei',sans-serif" }}>
       <div style={{ width: "100%", maxWidth: 400, marginBottom: 24, textAlign: "center" }}>
         <h1 style={{ fontSize: 18, fontWeight: 800, color: "#232830", margin: 0 }}>{data.username} 的 Galgame 品味名片</h1>
-        <p style={{ fontSize: 12, color: "#8a93a5", marginTop: 6 }}>
+        <p style={{ fontSize: 12, color: "#8a93a5", marginTop: 8 }}>
           Circleica Galvelica 名片 ID {data.serialId}
         </p>
       </div>

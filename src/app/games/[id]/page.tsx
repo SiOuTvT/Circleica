@@ -95,7 +95,7 @@ export default async function GameDetailPage({
           include: { user: { select: { id: true, username: true, avatar: true } } },
         },
         creators: {
-          include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true } } },
+          include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true, slug: true } } },
         },
         studios: {
           include: { studio: { select: { displayName: true, normalizedName: true } } },
@@ -176,6 +176,7 @@ export default async function GameDetailPage({
 
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
+    slug: gc.creator.slug,
     name: gc.creator.name,
     nameJa: gc.creator.nameJa,
     avatar: gc.creator.avatar,

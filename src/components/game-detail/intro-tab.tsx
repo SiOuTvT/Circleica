@@ -126,6 +126,7 @@ export function IntroTab({
   allDescriptions?: { lang: string; label: string; text: string }[]
   creators: {
     id: string
+    slug?: string | null
     role: string
     name: string
     avatar?: string | null
@@ -213,7 +214,7 @@ const CREATORS_COLLAPSE_AT = 8
 function CreatorsSection({
   creators,
 }: {
-  creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
+  creators: { id: string; slug?: string | null; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
   // 默认展开；总人数超过 8 才出现折叠按钮（一行 4 个，收起时正好两行）
   const needToggle = creators.length > CREATORS_COLLAPSE_AT
@@ -238,14 +239,15 @@ function CreatorsSection({
 function CreatorsGrid({
   creators,
 }: {
-  creators: { id: string; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
+  creators: { id: string; slug?: string | null; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
       {creators.map((c) => (
         <a
           key={`${c.id}-${c.role}`}
-          href={`/creators/${c.id}`}
+          // slug 优先走新路由，缺失才回退旧兼容路由 /creators/{id}
+          href={c.slug ? `/credits/creator/${encodeURIComponent(c.slug)}` : `/creators/${c.id}`}
           className="group flex items-center gap-2.5 rounded-xl bg-secondary/40 p-3 transition duration-150 ease-in-out hover:bg-secondary/70"
         >
           {c.avatar ? (

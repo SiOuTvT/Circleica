@@ -47,7 +47,7 @@ export default async function VndbCreatorPage({
   return (
     <div className="mx-auto max-w-[1100px] px-3 py-6 sm:px-4">
       <Link
-        href="/credits"
+        href="/credits/studio"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" /> 返回创作者

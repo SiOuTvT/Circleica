@@ -23,6 +23,7 @@ const CommentSection = dynamic(() => import("./comment-section").then(m => ({ de
 
 type Creator = {
   id: string
+  slug?: string | null
   name: string
   nameJa: string | null
   avatar: string | null

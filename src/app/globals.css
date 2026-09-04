@@ -1637,6 +1637,30 @@ a[href]:active {
   min-width: 0;
 }
 
+/* ═══ 富文本正文统一排版（一处修全站 rich-text-content） ═══
+   只管「直接子元素之间」的间距，不写后代选择器、不污染嵌套卡片；
+   不改字号 / 颜色 / line-height（行高由各页自带，如公告外层 leading-[1.9]）。
+   刻意不进 @layer：正文 HTML 自带 mt-1 这类工具类，进 layer 会被工具类压掉。 */
+.rich-text-content > * + * {
+  margin-top: 8px;
+}
+.rich-text-content > h2 {
+  margin-top: 24px;
+}
+.rich-text-content > h2 + * {
+  margin-top: 8px;
+}
+.rich-text-content > h3 {
+  margin-top: 20px;
+}
+.rich-text-content > h3 + * {
+  margin-top: 6px;
+}
+.rich-text-content > ul > li + li,
+.rich-text-content > ol > li + li {
+  margin-top: 6px;
+}
+
 /* ═══ P2-11: SVG 图标抗锯齿 — 小尺寸图标在高 DPI 屏幕上可能出现模糊 ═══ */
 svg {
   shape-rendering: geometricPrecision;
