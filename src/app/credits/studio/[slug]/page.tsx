@@ -183,7 +183,7 @@ export default async function MakerDetailPage({
                           {c.slug && c.slug !== detail.slug ? (
                             <Link
                               href={`/credits/studio/${encodeURIComponent(c.slug)}`}
-                              className="text-foreground/80 transition-colors duration-200 hover:text-primary hover:underline underline-offset-4 decoration-1"
+                              className="text-foreground/80 transition-colors duration-200 hover:text-primary"
                             >
                               {c.name}
                             </Link>

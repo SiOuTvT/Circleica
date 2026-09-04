@@ -459,7 +459,7 @@ function CommentsTab({ comments, hasMore, loadingMore, onLoadMore }: { comments:
         const body = (
           <>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1.5">
-              <span className="font-medium text-foreground group-hover:text-primary">{game ? game.title : "已删除的游戏"}</span><Calendar className="h-3 w-3 ml-3" /><span>{formatDate(c.createdAt)}</span>
+              <span className="font-medium text-foreground transition-colors duration-200 group-hover:text-primary">{game ? game.title : "已删除的游戏"}</span><Calendar className="h-3 w-3 ml-3" /><span>{formatDate(c.createdAt)}</span>
             </div>
             <p className="text-sm text-foreground/80 line-clamp-2">{c.content}</p>
           </>

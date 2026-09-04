@@ -23,7 +23,7 @@ export function TagCard({ tag, className }: TagCardProps) {
     <Link
       href={href}
       className={cn(
-        "group flex items-center gap-2.5 rounded-xl bg-card px-3 py-2.5 ring-1 ring-border transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 hover:-translate-y-0.5 hover:ring-foreground/10 hover:shadow-sm",
+        "group flex items-center gap-2.5 rounded-xl bg-card px-3 py-2.5 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)]",
         className,
       )}
     >

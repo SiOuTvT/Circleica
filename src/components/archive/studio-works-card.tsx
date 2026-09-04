@@ -31,7 +31,7 @@ function Thumb({ src, title }: { src: string | null; title: string }) {
           src={src}
           alt=""
           fill
-          className="object-cover"
+          className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
           unoptimized
           sizes="64px"
           onError={() => setErrored(true)}
@@ -66,7 +66,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
   return (
     <div
       data-ripple
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] "
     >
       {/* 卡头：每个组名独占一行；整块高度在窄屏也 ≥44px（不靠放大字号）。
           多组合并卡里每个组名各自可点进自己的详情页（z-10，高于整卡热区）；
@@ -78,14 +78,14 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
               <Link
                 key={s.slug}
                 href={`/credits/studio/${encodeURIComponent(s.slug)}`}
-                className="relative z-10 block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors duration-200 hover:text-primary hover:underline underline-offset-4 decoration-1"
+                className="relative z-10 block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors duration-200 hover:text-primary"
               >
                 {s.name}
               </Link>
             ) : (
               <span
                 key={s.slug}
-                className="block min-w-0 truncate text-[16px] font-semibold text-foreground"
+                className="block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors duration-200 group-hover:text-primary"
               >
                 {s.name}
               </span>

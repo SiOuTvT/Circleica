@@ -1390,7 +1390,6 @@ a[href]:active {
 }
 
 .game-card:hover {
-  transform: translateY(-1px);
   box-shadow: var(--shadow-card-hover);
   border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
 }
@@ -1667,6 +1666,17 @@ a[href]:active {
    刻意留在 @layer 之外以压过工具类，勿移入任何 layer。 */
 .rich-text-content :is(h3, h4, p).mb-1 {
   margin-bottom: 6px;
+}
+
+/* 正文段落内链接：跟随 currentColor（不打断正文色），仅保留下划线与 200ms 过渡；
+   公告/关于/联系/规范/帖子/游戏简介等富文本里的 <a> 自动统一，无需每页挂工具类。 */
+.rich-text-content a {
+  color: currentColor;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color 200ms, text-decoration-color 200ms;
 }
 
 /* ═══ P2-11: SVG 图标抗锯齿 — 小尺寸图标在高 DPI 屏幕上可能出现模糊 ═══ */

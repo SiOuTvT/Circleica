@@ -49,7 +49,7 @@ export function ContributorsCard() {
               unoptimized
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">
+              <p className="truncate text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-primary">
                 {c.login}
               </p>
               <p className="text-xs text-muted-foreground">

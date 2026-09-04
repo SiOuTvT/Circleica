@@ -39,7 +39,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
   return (
     <Link
       href={`/credits/collection/${c.slug}`}
-      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px sm:flex-row sm:items-center sm:gap-4"
+      className="group flex flex-col gap-3 rounded-2xl bg-card px-4 py-4 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)]  sm:flex-row sm:items-center sm:gap-4"
     >
       {/* 封面区：宽度固定 358（160 + 66×3），不管实际 1/2/4 张都占这个宽度 */}
       <div className="relative h-[140px] w-[358px] max-w-full shrink-0 overflow-hidden">
@@ -74,7 +74,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
 
       {/* 文字区：永远从同一位置开始 */}
       <div className="flex min-w-0 flex-1 flex-col justify-center">
-        <h3 className="truncate text-[17px] font-semibold text-foreground">{c.name}</h3>
+        <h3 className="truncate text-[17px] font-semibold text-foreground transition-colors duration-200 group-hover:text-primary">{c.name}</h3>
         <p className="mt-2 text-[13px] tabular-nums text-muted-foreground">
           {c._count.games} 部精选
         </p>

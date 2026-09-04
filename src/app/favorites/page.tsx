@@ -51,7 +51,7 @@ export default async function MyFavoritesPage() {
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
           <p className="text-sm text-muted-foreground">还没有收藏任何游戏</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            去 <Link href="/discover" className="text-primary hover:underline underline-offset-4 decoration-1 transition-colors duration-200">发现</Link> 看看感兴趣的游戏吧
+            去 <Link href="/discover" className="text-primary transition-colors duration-200">发现</Link> 看看感兴趣的游戏吧
           </p>
         </div>
       ) : (
@@ -60,7 +60,7 @@ export default async function MyFavoritesPage() {
             <Link
               key={f.id}
               href={`/games/${f.game.id}`}
-              className="group flex flex-col overflow-hidden rounded-xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
+              className="group flex flex-col overflow-hidden rounded-xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] "
               >
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted">
                 {f.game.coverImage ? (

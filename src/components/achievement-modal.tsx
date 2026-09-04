@@ -117,7 +117,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                       onClick={() => setSelected(ach)}
                       className={cn(
                         "group flex flex-col items-center gap-2 rounded-2xl p-3 ring-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out",
-                        "bg-amber-500/5 ring-amber-500/15 hover:-translate-y-0.5 hover:ring-amber-500/30"
+                        "bg-amber-500/5 ring-amber-500/15  hover:ring-amber-500/30"
                       )}
                     >
                       {ach.icon ? (

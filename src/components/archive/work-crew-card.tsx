@@ -80,7 +80,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
   return (
     <div
       data-ripple
-      className="group relative flex overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
+      className="group relative flex overflow-hidden rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] "
     >
       {/* 封面：竖版原图，宽 168px、高度跟随卡片拉伸（至少保 3:4），溢出隐藏。
           不再是链接（整卡一个目的地，进作品参与者名单页）。 */}
@@ -91,7 +91,7 @@ export function WorkCrewCard({ data }: { data: WorkCrewItem }) {
       {/* 信息区 */}
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
         {/* 1) 游戏名：退回成卡上的标题文字（整卡点击进名单页，不再进游戏详情） */}
-        <span className="block min-w-0 truncate text-[18px] font-semibold leading-snug text-foreground">
+        <span className="block min-w-0 truncate text-[18px] font-semibold leading-snug text-foreground transition-colors duration-200 group-hover:text-primary">
           {data.title}
         </span>
 

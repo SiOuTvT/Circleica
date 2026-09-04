@@ -144,6 +144,7 @@ preview-layouts/
 dev-*.log
 # 本批自检时启动的开发服务器日志（物理文件，禁止提交）
 dev_verify.*
+dev_measure.*
 
 # 临时 / 系统文件
 tmp/

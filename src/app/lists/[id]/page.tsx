@@ -62,7 +62,7 @@ export default async function ListSharePage({ params }: { params: Promise<{ id: 
                     </div>
                   )}
                 </div>
-                <p className="mt-1.5 truncate text-xs font-medium text-foreground group-hover:text-primary">{g.title}</p>
+                <p className="mt-1.5 truncate text-xs font-medium text-foreground transition-colors duration-200 group-hover:text-primary">{g.title}</p>
               </Link>
             ))}
           </div>

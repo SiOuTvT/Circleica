@@ -265,7 +265,7 @@ function CreatorsGrid({
             </div>
           )}
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">{c.nameJa || c.name}</p>
+            <p className="truncate text-sm font-medium text-foreground transition-colors group-hover:text-primary">{c.nameJa || c.name}</p>
             <p className="mt-2 truncate text-xs text-muted-foreground">
               {roleLabel(c.role)}
             </p>

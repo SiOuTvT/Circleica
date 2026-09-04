@@ -161,10 +161,10 @@ export default async function CreatorDetailPage({
               <Link
                 key={s.slug ?? s.name}
                 href={s.slug ? `/credits/studio/${encodeURIComponent(s.slug)}` : "#"}
-                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] hover:-translate-y-px"
+                className="group flex items-center gap-3 rounded-2xl bg-card p-3 ring-1 ring-border shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:ring-foreground/10 hover:shadow-[0_3px_8px_rgba(0,0,0,0.08)] "
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-heading text-sm font-medium text-foreground underline-offset-4 decoration-1 transition-colors group-hover:text-primary group-hover:underline">
+                  <p className="truncate font-heading text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                     {s.name}
                   </p>
                   <div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
