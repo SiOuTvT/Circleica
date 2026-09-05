@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { TranslateBtn } from "./translate-btn"
-import { api } from "@/lib/api-client"
+import { api, unwrapApiData } from "@/lib/api-client"
 
 interface CharacterData {
   id: string
@@ -55,8 +55,9 @@ export function CharacterDetailClient({ character, vndbId }: { character: Charac
   async function refresh() {
     setLoading(true)
     try {
-      const data = await api.get<{ id?: string }>("/api/characters/random", { cache: "no-store" })
-      if (data.id) {
+      const res = await api.get<{ success?: boolean; data?: { id?: string } }>("/api/characters/random", { cache: "no-store" })
+      const data = unwrapApiData<{ id?: string }>(res)
+      if (data?.id) {
         router.push(`/characters/${data.id}`)
       } else {
         toast.error("暂无角色数据，请稍后重试")

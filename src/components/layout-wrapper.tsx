@@ -35,7 +35,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   useOnlineStatus()
   useKeyboardShortcuts()
   const isAdminRoute = pathname.startsWith("/admin")
-  const isFullscreenRoute = pathname === "/login" || pathname === "/register"
+  const isFullscreenRoute = pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/verify-email"
   const isNormalRoute = !isAdminRoute && !isFullscreenRoute
   const isGalvelica = pathname.startsWith("/galvelica")
 

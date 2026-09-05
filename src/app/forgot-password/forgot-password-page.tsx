@@ -25,14 +25,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
       <div className="w-full max-w-sm">
         <Link href="/login" className="mb-8 flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           返回登录
         </Link>
 
-        <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10">
+        <div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10 shadow-1">
           {sent ? (
             <div className="text-center">
               <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />
@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
                 如果这个邮箱注册过，你应该很快就能收到邮件了。
               </p>
               <p className="mt-3 text-xs text-muted-foreground">
-                没收到？看看垃圾箱，或者联系我们帮忙~
+                没收到？看看垃圾箱，或者<Link href="/contact" className="text-primary hover:text-primary/80 transition-colors">联系我们</Link>帮忙~
               </p>
               <Link href="/login" className="mt-6 block text-sm text-primary hover:text-primary/80 transition-colors">
                 返回登录
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
             <>
               <div className="mb-6">
                 <h1 className="text-xl font-bold text-foreground">忘记密码</h1>
-                <p className="mt-1 text-sm text-muted-foreground">输入注册邮箱，我们马上发到你邮箱~</p>
+                <p className="mt-2 text-sm text-muted-foreground">输入注册邮箱，我们马上发到你邮箱~</p>
               </div>
 
               {error && (
@@ -68,11 +68,11 @@ export default function ForgotPasswordPage() {
                     placeholder="注册邮箱"
                     aria-label="注册邮箱"
                     required
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                    className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]"
                   />
                 </div>
                 <button type="submit" disabled={loading}
-                  className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-60 min-h-[44px]">
                   {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                   {loading ? "发送中…" : "发送重置链接"}
                 </button>

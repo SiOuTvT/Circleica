@@ -76,6 +76,12 @@ kill_dev*.cmd
 .next-bak*/
 .next-partial*
 .next-partial*/
+# 调试时生成的多余 .next 副本（.next-dirty-<ts> 等），禁止提交；应移出项目或清理
+.next-dirty*
+.next-dirty*/
+# 构建进程 pid 跟踪临时文件（排查用，禁止提交）
+build_pid*.txt
+*_pid*.txt
 # Windows 保留名误生成文件（重定向 > nul 偶发），禁止提交
 /nul
 .next-verify

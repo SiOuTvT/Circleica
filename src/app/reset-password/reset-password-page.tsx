@@ -4,7 +4,7 @@ import { CheckCircle2, Eye, EyeOff, Loader2, Lock, XCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
-import { api, apiFetchSafe } from "@/lib/api-client"
+import { api, apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 
 function ResetForm() {
   const searchParams  = useSearchParams()
@@ -22,8 +22,11 @@ function ResetForm() {
 
   useEffect(() => {
     if (!token) { setStatus("invalid"); return }
-    api.get<{ valid?: boolean; email?: string }>(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
-      .then(d => { if (d.valid) { setStatus("valid"); setEmail(d.email ?? "") } else setStatus("invalid") })
+    api.get<{ success?: boolean; data?: { valid?: boolean; email?: string } }>(`/api/auth/reset-password?token=${encodeURIComponent(token)}`)
+      .then(res => {
+        const d = unwrapApiData<{ valid?: boolean; email?: string }>(res)
+        if (d?.valid) { setStatus("valid"); setEmail(d.email ?? "") } else setStatus("invalid")
+      })
       .catch(() => setStatus("invalid"))
   }, [token])
 
@@ -46,7 +49,7 @@ function ResetForm() {
   const fieldCls = "flex items-center gap-3 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary"
 
   return (
-    <div className="rounded-2xl bg-card p-5 sm:p-8 ring-1 ring-foreground/10">
+    <div className="rounded-2xl bg-card p-5 sm:p-8 ring-1 ring-foreground/10 shadow-1">
       {status === "loading" && (
         <div className="flex flex-col items-center gap-3 py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" strokeWidth={1.5} />
@@ -56,7 +59,7 @@ function ResetForm() {
       {status === "invalid" && (
         <div className="text-center">
           <XCircle className="mx-auto mb-4 h-12 w-12 text-red-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-foreground">链接过期啦</h1>
+          <h1 className="text-xl font-bold text-foreground">链接过期啦</h1>
           <p className="mt-2 text-sm text-muted-foreground">重新申请一个吧~</p>
           <Link href="/forgot-password" className="mt-6 block text-sm text-primary hover:text-primary/80 transition-colors">重新申请</Link>
         </div>
@@ -65,23 +68,23 @@ function ResetForm() {
         <>
           <div className="mb-6">
             <h1 className="text-xl font-bold text-foreground">重置密码</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{email}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{email}</p>
           </div>
           {error && <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" aria-label="新密码" required className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none" />
-              <button type="button" onClick={() => setShowPwd(v => !v)} className="text-muted-foreground hover:text-foreground">
+              <input type={showPwd ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="新密码（至少6位）" aria-label="新密码" required className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]" />
+              <button type="button" onClick={() => setShowPwd(v => !v)} className="p-2 -m-2 text-muted-foreground hover:text-foreground transition-colors duration-200">
                 {showPwd ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
               </button>
             </div>
             <div className={fieldCls}>
               <Lock className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" aria-label="确认新密码" required className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none" />
+              <input type={showPwd ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="确认新密码" aria-label="确认新密码" required className="flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground outline-none min-h-[44px]" />
             </div>
             <button type="submit" disabled={saving}
-              className="gradient-accent flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-60 min-h-[44px]">
               {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
               {saving ? "重置中…" : "确认重置"}
             </button>
@@ -91,7 +94,7 @@ function ResetForm() {
       {done && (
         <div className="text-center">
           <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" strokeWidth={1.5} />
-          <h1 className="text-lg font-bold text-foreground">密码重置成功！</h1>
+          <h1 className="text-xl font-bold text-foreground">密码重置成功！</h1>
           <p className="mt-2 text-sm text-muted-foreground">正在跳转到登录页…</p>
         </div>
       )}
@@ -101,9 +104,9 @@ function ResetForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
       <div className="w-full max-w-sm">
-        <Suspense fallback={<div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10"><Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" strokeWidth={1.5} /></div>}>
+        <Suspense fallback={<div className="rounded-2xl bg-card p-8 ring-1 ring-foreground/10 shadow-1"><Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" strokeWidth={1.5} /></div>}>
           <ResetForm />
         </Suspense>
       </div>

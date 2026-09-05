@@ -6,7 +6,7 @@ import NextImage from "next/image"
 import { Tag } from "@/components/ui/tag"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { api, apiFetchSafe } from "@/lib/api-client"
+import { api, apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import { useBreadcrumb } from "./breadcrumb-context"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { RichTextContent } from "./rich-text-content-wrapper"
@@ -225,8 +225,9 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     const next = commentPage + 1
     setLoadingMoreComments(true)
     try {
-      const data = await api.get<{ items?: Comment[] }>(`/api/forum/comments?postId=${post.id}&page=${next}`)
-      setComments(prev => [...prev, ...(data.items ?? [])])
+      const res = await api.get<{ success?: boolean; data?: { items?: Comment[] } }>(`/api/forum/comments?postId=${post.id}&page=${next}`)
+      const data = unwrapApiData<{ items?: Comment[] }>(res)
+      setComments(prev => [...prev, ...(data?.items ?? [])])
       setCommentPage(next)
     } catch {
       toast.error("评论加载失败")

@@ -18,7 +18,7 @@ export default async function VerifyEmailPage({
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
         <ResultCard
           status="error"
           title="验证链接无效"
@@ -44,7 +44,7 @@ export default async function VerifyEmailPage({
 
   if (failed) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
         <ResultCard
           status="error"
           title="验证失败"
@@ -56,7 +56,7 @@ export default async function VerifyEmailPage({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex min-h-[100dvh] items-start justify-center px-4 pt-12 pb-12 sm:items-center sm:pt-0 sm:pb-0">
       <ResultCard
         status="success"
         title={type === "change_email" ? "邮箱变更成功" : "邮箱验证成功"}
@@ -82,11 +82,11 @@ function ResultCard({
   showResend?: boolean
 }) {
   return (
-    <div className="w-full max-w-md rounded-2xl bg-card border border-border p-8 text-center space-y-4 shadow-3">
+    <div className="w-full max-w-sm rounded-2xl bg-card p-8 text-center space-y-4 ring-1 ring-foreground/10 shadow-1">
       <div className="flex justify-center">
         {status === "success"
-          ? <CircleCheck className="h-10 w-10 text-[var(--success)]" strokeWidth={1.5} />
-          : <CircleX className="h-10 w-10 text-[var(--error)]" strokeWidth={1.5} />}
+          ? <CircleCheck className="h-12 w-12 text-[var(--success)]" strokeWidth={1.5} />
+          : <CircleX className="h-12 w-12 text-[var(--error)]" strokeWidth={1.5} />}
       </div>
       <h1 className="text-xl font-bold text-foreground">{title}</h1>
       <p className="text-sm text-muted-foreground">{desc}</p>

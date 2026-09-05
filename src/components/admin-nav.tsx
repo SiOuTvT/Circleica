@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { ROLE_META } from "@/lib/permissions"
 import type { UserRole } from "@/lib/admin"
 import { cn } from "@/lib/utils"
-import { api } from "@/lib/api-client"
+import { api, unwrapApiData } from "@/lib/api-client"
 import Image from "next/image"
 import {
   ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
@@ -133,8 +133,9 @@ export function AdminNav() {
 
   // 获取待办数量
   useEffect(() => {
-    api.get<{ reports?: number; unpublishedGames?: number; inclusionDrafts?: number }>("/api/admin/counts")
-      .then((data) => {
+    api.get<{ success?: boolean; data?: { reports?: number; unpublishedGames?: number; inclusionDrafts?: number } }>("/api/admin/counts")
+      .then((res) => {
+        const data = unwrapApiData<{ reports?: number; unpublishedGames?: number; inclusionDrafts?: number }>(res) ?? {}
         setBadgeCounts({ reports: data.reports ?? 0, unpublishedGames: data.unpublishedGames ?? 0, inclusionDrafts: data.inclusionDrafts ?? 0 })
       })
       .catch(() => {})
