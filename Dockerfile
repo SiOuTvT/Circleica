@@ -49,6 +49,10 @@ COPY . .
 
 # Set build-time environment
 ENV NEXT_TELEMETRY_DISABLED=1
+# 产出 standalone 产物：runner 阶段 `COPY --from=builder /app/.next/standalone` 依赖它。
+# 本地/CI 不设此变量时走普通 next start（见 next.config.ts 的 output 开关）。
+# 只加在 builder 阶段——runtime 阶段仅拷贝产物，不需要它。
+ENV NEXT_BUILD_STANDALONE=1
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-http-header-size=1048576"
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
