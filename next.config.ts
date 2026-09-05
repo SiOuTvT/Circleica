@@ -46,7 +46,12 @@ const nextConfig: NextConfig = {
     qualities: [50, 60, 70, 75, 80, 85],
   },
   poweredByHeader: false,
-  output: "standalone",
+  // standalone 产物只在容器镜像里需要：Dockerfile 的 builder 阶段设置了 NEXT_BUILD_STANDALONE=1，
+  // 镜像构建才会产出 .next/standalone 供 runner 阶段 COPY。本地/裸机不设置该变量 -> undefined，
+  // 不产出 standalone，直接 next start 即可；否则 next start 会打印 "does not work with output: standalone" 警告，
+  // 且必须手动把 .next/static 拷进 .next/standalone 才能跑，否则 CSS/JS 全部 404。
+  // 注意：关闭时必须取 undefined，空字符串或 false 会被 Next 判为非法值导致构建校验失败。
+  output: process.env.NEXT_BUILD_STANDALONE === "1" ? "standalone" : undefined,
   // uploadthing / @uploadthing/shared 是纯服务端依赖，需外部化：由 Node 运行时 require 解析，
   // webpack 不打包其内部。注意不要在此加 effect / @effect/schema——它们会被 Next 自动加进
   // transpilePackages，与 serverExternalPackages 重名会触发构建校验冲突（build 直接失败）。
