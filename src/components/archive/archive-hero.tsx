@@ -125,14 +125,16 @@ export function ArchiveHero({
   }
 
   // 浏览页：放大图标 + 两层文字 + 搜索（统一视觉基因，纯 Server 渲染）
-  // tag 变体用 tagColor 替代 text-primary
-  const iconColor = isTag && tagColor ? `text-[${tagColor}]` : "text-primary"
-
+  // tag 变体用 tagColor 替代默认 text-primary：运行时色值无法被 Tailwind 编译期扫描生成
+  // 任意值类，故改用内联 style 着色；className 仅保留 text-primary 作为无 tagColor 时的默认色
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-start gap-4">
         {/* 图标为纯矢量、无容器装饰 */}
-        <div className={cn("flex h-12 w-fit shrink-0 items-center justify-center", iconColor)}>
+        <div
+          className={cn("flex h-12 w-fit shrink-0 items-center justify-center", "text-primary")}
+          style={isTag && tagColor ? { color: tagColor } : undefined}
+        >
           <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
         </div>
         {/* 文字列：eyebrow + title + lede + meta 共用图标右侧这一条左基准线，

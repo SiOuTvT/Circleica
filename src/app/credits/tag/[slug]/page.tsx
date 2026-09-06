@@ -69,7 +69,7 @@ export default async function TagDetailPage({ params, searchParams }: { params: 
       header={
         <ArchiveHero
           variant="tag"
-          eyebrow="标签"
+          eyebrow="TAG"
           title={detail.name}
           lede={detail.description ?? undefined}
           tagColor={detail.color ?? undefined}
