@@ -7,7 +7,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "关于",
   description: "了解 Circleica —— 面向 Galgame / 视觉小说爱好者的资源站，可以下载游戏、发表评论、收藏作品",
-  openGraph: { title: "关于 · Circleica", description: "面向 Galgame / 视觉小说爱好者的资源站", images: ["/opengraph-image"] },
+  openGraph: { siteName: "Circleica", title: "关于", description: "面向 Galgame / 视觉小说爱好者的资源站", images: ["/opengraph-image"] },
   alternates: { canonical: "/about" },
 }
 
@@ -59,7 +59,6 @@ export default async function AboutPage() {
         variant="about"
         eyebrow="ABOUT"
         title="关于"
-        lede="了解 Circleica —— 面向 Galgame / 视觉小说爱好者的资源站，可以下载游戏、发表评论、收藏作品"
         className="mb-6"
       />
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">

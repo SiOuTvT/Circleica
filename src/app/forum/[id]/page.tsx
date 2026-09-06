@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: post.title,
     description: desc || `${post.title} - Circleica 社区论坛讨论帖`,
-    openGraph: { title: post.title, description: desc, images: ["/opengraph-image"] },
+    openGraph: { siteName: "Circleica", title: post.title, description: desc, images: ["/opengraph-image"] },
     alternates: { canonical: `/forum/${id}` },
   }
 }

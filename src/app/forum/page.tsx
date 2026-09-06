@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "社区论坛",
     description: "同人游戏社区论坛，交流讨论、求档求助、分享资源",
-    openGraph: { title: "社区论坛 · Circleica", description: "交流讨论、求档求助、分享资源", images: ["/opengraph-image"] },
+    openGraph: { siteName: "Circleica", title: "社区论坛", description: "交流讨论、求档求助、分享资源", images: ["/opengraph-image"] },
     alternates: { canonical: "/forum" },
   }
 }

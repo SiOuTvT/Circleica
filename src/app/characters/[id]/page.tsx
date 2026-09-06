@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       return {
         title: character.original || character.name,
         description,
-        openGraph: { title: `${character.original || character.name} · Circleica`, description, images: ["/opengraph-image"] },
+        openGraph: { siteName: "Circleica", title: `${character.original || character.name}`, description, images: ["/opengraph-image"] },
         alternates: { canonical: `/characters/${id}` },
       }
     }
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `角色详情`,
     description: "查看 VNDB 角色详细信息",
-    openGraph: { title: "角色详情 · Circleica", description: "查看 VNDB 角色详细信息", images: ["/opengraph-image"] },
+    openGraph: { siteName: "Circleica", title: "角色详情", description: "查看 VNDB 角色详细信息", images: ["/opengraph-image"] },
     alternates: { canonical: `/characters/${id}` },
   }
 }

@@ -28,7 +28,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: { title: `${title} · Circleica`, description, images: ["/opengraph-image"] },
+    openGraph: { siteName: "Circleica", title, description, images: ["/opengraph-image"] },
     alternates: { canonical },
   }
 }

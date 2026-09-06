@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   title: "精选合集",
   description: "编辑挑选的同人游戏合集",
   openGraph: {
-    title: "精选合集 · Circleica",
+    siteName: "Circleica",
+    title: "精选合集",
     description: "编辑挑选的同人游戏合集",
     images: ["/opengraph-image"],
   },

@@ -18,7 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "发现",
     description: "接着看、看点精选、刷刷推荐——找到下一部想玩的作品",
     openGraph: {
-      title: "发现 · Circleica",
+      siteName: "Circleica",
+      title: "发现",
       description: "探索同人游戏，发现更多好作品",
       images: ["/opengraph-image"],
     },

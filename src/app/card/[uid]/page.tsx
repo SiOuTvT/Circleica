@@ -32,7 +32,8 @@ export async function generateMetadata({
   return {
     ...staticMeta,
     openGraph: {
-      title: `${data.username} 的 Galgame 品味名片 · Circleica`,
+      siteName: "Circleica",
+      title: `${data.username} 的 Galgame 品味名片`,
       description: "Circleica、Galvelica 个人品味档案",
       images: ["/opengraph-image"],
     },

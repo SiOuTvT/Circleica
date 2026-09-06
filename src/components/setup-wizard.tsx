@@ -695,7 +695,7 @@ function PreviewPanel({ form, logoPreview }: {
         </div>
       </div>
       <div className={cn("flex items-center justify-center h-6 border-t text-micro", "text-muted-foreground border border-border")}>
-        {form.siteName || "Circleica"} · 资源大厅
+        {form.siteName || "Circleica"}
       </div>
     </div>
   )

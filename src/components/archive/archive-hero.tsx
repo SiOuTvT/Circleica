@@ -104,7 +104,7 @@ export function ArchiveHero({
         />
         <div className="min-w-0 flex-1">
           {eyebrow && (
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               {eyebrow}
             </p>
           )}

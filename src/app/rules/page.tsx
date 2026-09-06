@@ -7,7 +7,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "社区规则",
   description: "Circleica社区规则与行为准则，维护良好的社区环境",
-  openGraph: { title: "社区规则 · Circleica", description: "社区规则与行为准则", images: ["/opengraph-image"] },
+  openGraph: { siteName: "Circleica", title: "社区规则", description: "社区规则与行为准则", images: ["/opengraph-image"] },
   alternates: { canonical: "/rules" },
 }
 
@@ -61,7 +61,6 @@ export default async function RulesPage() {
         variant="rules"
         eyebrow="RULES"
         title="社区规则"
-        lede="Circleica社区规则与行为准则，维护良好的社区环境"
         className="mb-6"
       />
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">

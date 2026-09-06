@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title: `${game.title}`,
     description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
     openGraph: {
+      siteName: "Circleica",
       title: game.title,
       description: getDescriptionText(game.description)?.slice(0, 160) || "",
       images: game.coverImage ? [{ url: game.coverImage, width: 800, height: 1000 }] : [{ url: "/opengraph-image", width: 1200, height: 630 }],

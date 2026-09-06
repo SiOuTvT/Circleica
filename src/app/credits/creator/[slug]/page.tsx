@@ -30,10 +30,11 @@ export async function generateMetadata({
     }
   }
   return {
-    title: `创作者：${detail.nameJa || detail.name}`,
+    title: `${detail.nameJa || detail.name}`,
     description: `浏览 Circleica 中创作者「${detail.nameJa || detail.name}」的参与作品、所属制作组与职位。`,
     openGraph: {
-      title: `${detail.nameJa || detail.name} · Circleica`,
+      siteName: "Circleica",
+      title: `${detail.nameJa || detail.name}`,
       description: `浏览 Circleica 中创作者「${detail.nameJa || detail.name}」的参与作品、所属制作组与职位。`,
       images: ["/opengraph-image"],
     },

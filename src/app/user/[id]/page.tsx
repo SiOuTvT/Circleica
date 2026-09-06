@@ -39,14 +39,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     return {
       title: `${user.username}`,
       description,
-      openGraph: { title: `${user.username} · Circleica`, description, images: ["/opengraph-image"] },
+      openGraph: { siteName: "Circleica", title: `${user.username}`, description, images: ["/opengraph-image"] },
       alternates: { canonical: `/user/${user.serialId}` },
     }
   }
   return {
     title: "用户主页",
     description: "查看用户主页",
-    openGraph: { title: "用户主页 · Circleica", description: "查看用户主页", images: ["/opengraph-image"] },
+    openGraph: { siteName: "Circleica", title: "用户主页", description: "查看用户主页", images: ["/opengraph-image"] },
     alternates: { canonical: `/user/${id}` },
   }
 }

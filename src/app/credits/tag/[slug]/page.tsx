@@ -47,10 +47,11 @@ export async function generateMetadata({
     ? `${detail.description} 共 ${detail.gameCount} 部作品。`
     : `浏览标签「${detail.name}」下的 ${detail.gameCount} 部作品。`
   return {
-    title: `标签：${detail.name}`,
+    title: `${detail.name}`,
     description: desc,
     openGraph: {
-      title: `${detail.name} · Circleica`,
+      siteName: "Circleica",
+      title: `${detail.name}`,
       description: desc,
       images: ["/opengraph-image"],
     },

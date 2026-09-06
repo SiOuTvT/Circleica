@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   title: "排行榜",
   description: "按收藏、浏览与评论查看热门作品排行",
   openGraph: {
-    title: "排行榜 · Circleica",
+    siteName: "Circleica",
+    title: "排行榜",
     description: "按收藏、浏览与评论查看热门作品排行",
     images: ["/opengraph-image"],
   },

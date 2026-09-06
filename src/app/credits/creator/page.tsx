@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   title: "创作者图鉴",
   description: "浏览 Circleica 中的创作者档案：脚本、原画、音乐、导演，以及他们的参与作品。",
   openGraph: {
-    title: "创作者图鉴 · Circleica",
+    siteName: "Circleica",
+    title: "创作者图鉴",
     description: "浏览 Circleica 中的创作者档案：脚本、原画、音乐、导演，以及他们的参与作品。",
     images: ["/opengraph-image"],
   },
