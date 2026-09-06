@@ -88,7 +88,7 @@ export default async function GalvelicaHome() {
           aria-hidden
         />
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">
-          ARCHIVE 可以随手逛
+          GALVELICA
         </p>
         <h1 className="galvelica-h1--hero mt-3">同人视觉小说资料库</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">

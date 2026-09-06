@@ -35,7 +35,7 @@ function Cover({ work, className }: { work: GalvelicaWorkCard; className?: strin
         alt={work.title}
         fill
         priority
-        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
         sizes="(max-width: 640px) 40vw, 260px"
         quality={80}
       />
@@ -55,7 +55,7 @@ function EditorFeature({ work }: { work: GalvelicaWorkCard }) {
   return (
     <Link
       href={work.href}
-      className="group grid gap-5 rounded-2xl border border-border bg-card p-4 transition-colors duration-300 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:grid-cols-[260px_1fr] sm:p-5"
+      className="group grid gap-5 rounded-2xl galvelica-card p-4 hover:border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] sm:grid-cols-[260px_1fr] sm:p-5"
       title={work.title}
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-muted sm:aspect-auto">

@@ -1993,13 +1993,12 @@ body[data-has-bottom-nav="true"] {
   border-radius: var(--gal-radius, 1rem);
   box-shadow: 0 1px 2px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.08)),
     0 4px 12px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.1));
-  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease, transform var(--duration-slow) ease, border-radius var(--duration-slow) ease;
+  transition: border-color var(--duration-slow) ease, box-shadow var(--duration-slow) ease, background-color var(--duration-slow) ease, border-radius var(--duration-slow) ease;
 }
 .galvelica-card:hover {
   border-color: color-mix(in srgb, var(--gal-accent) 45%, var(--border));
   box-shadow: 0 2px 4px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.1)),
     0 8px 20px rgba(0, 0, 0, calc(var(--gal-shadow-alpha, 0.5) * 0.14));
-  transform: translateY(-2px);
 }
 
 /* Galvelica 标签云：默认跟随铜绿主色；若设置了 --gal-tag-color（真实标签的 Tag.color）则沿用其色，自动适配明暗 */

@@ -22,6 +22,15 @@ const statusLabel: Record<string, string> = {
   CANCELLED: "已取消",
 }
 
+/** 标题比较：去首尾空白 + 转小写 + NFKC 全角转半角，忽略大小写与全/半角差异 */
+function normalizeForCompare(s: string): string {
+  return s.trim().toLowerCase().normalize("NFKC")
+}
+function isSameTitle(a?: string | null, b?: string | null): boolean {
+  if (!a || !b) return false
+  return normalizeForCompare(a) === normalizeForCompare(b)
+}
+
 /* 平台/语言代码 → 可读标签（VNDB 代码） */
 const PLATFORM_LABELS: Record<string, string> = {
   win: "Windows", lin: "Linux", mac: "macOS", ios: "iOS", and: "Android",
@@ -92,11 +101,11 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
           <h1 className="galvelica-h1 mt-2 sm:text-3xl">
             {work.title}
           </h1>
-          {work.originalWork && (
-            <p className="mt-1 text-sm text-foreground">原作：{work.originalWork}</p>
+          {work.originalWork && !isSameTitle(work.originalWork, work.title) && (
+            <p className="mt-1.5 text-sm text-foreground">原作：{work.originalWork}</p>
           )}
           {work.englishName && (
-            <p className="mt-0.5 text-xs text-foreground">{work.englishName}</p>
+            <p className="mt-1.5 text-xs text-foreground">{work.englishName}</p>
           )}
           {work.doujinCategory && (
             <span
@@ -166,7 +175,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
           label="发布时间"
           value={work.releaseDate ? formatZhDate(work.releaseDate) : work.releaseYear ? `${work.releaseYear} 年` : "未知"}
         />
-        <Meta label="状态" value={statusLabel[work.status] ?? work.status} />
+        {work.status && <Meta label="状态" value={statusLabel[work.status] ?? work.status} />}
         {work.gameDuration && <Meta label="时长" value={work.gameDuration} />}
         {work.aliases && <Meta label="别名" value={work.aliases} />}
         {work.platforms.length > 0 && <Meta label="平台" value={fmtCodes(work.platforms, PLATFORM_LABELS)} />}
@@ -225,7 +234,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                     src={url}
                     alt={`${work.title} 截图 ${i + 1}`}
                     fill
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                     sizes="(max-width: 640px) 45vw, 280px"
                     loading="lazy"
                   />
@@ -285,7 +294,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                       src={s.coverImage}
                       alt={s.title}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       sizes="(max-width: 640px) 30vw, 160px"
                       loading="lazy"
                     />

@@ -526,7 +526,12 @@ export async function getYears(): Promise<{ year: number; count: number }[]> {
     const y = r.releaseDate.getFullYear()
     map.set(y, (map.get(y) ?? 0) + 1)
   }
-  const years = [...map.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year)
+  const sorted = [...map.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year)
+  const thisYear = new Date().getFullYear()
+  // 发布时间在今天之后的年份（未来年份）整体沉到列表末尾，其余保持倒序，避免未发布年份占第一屏
+  const future = sorted.filter((y) => y.year > thisYear)
+  const past = sorted.filter((y) => y.year <= thisYear)
+  const years = [...past, ...future]
   await cache.set(key, years, GAL_CACHE_TTL)
   return years
 }
@@ -925,7 +930,12 @@ async function getYearsFromGame(): Promise<{ year: number; count: number }[]> {
     const y = r.releaseDate ? r.releaseDate.getFullYear() : r.publishedAt ? r.publishedAt.getFullYear() : null
     if (y) map.set(y, (map.get(y) ?? 0) + 1)
   }
-  const years = [...map.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year)
+  const sorted = [...map.entries()].map(([year, count]) => ({ year, count })).sort((a, b) => b.year - a.year)
+  const thisYear = new Date().getFullYear()
+  // 发布时间在今天之后的年份（未来年份）整体沉到列表末尾，其余保持倒序，避免未发布年份占第一屏
+  const future = sorted.filter((y) => y.year > thisYear)
+  const past = sorted.filter((y) => y.year <= thisYear)
+  const years = [...past, ...future]
   await cache.set(key, years, GAL_CACHE_TTL)
   return years
 }
