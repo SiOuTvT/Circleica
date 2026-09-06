@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   })
   if (!ann) return { title: "公告" }
   return {
-    title: `${ann.title}（公告）`,
+    title: ann.title,
     description: ann.content.replace(/<[^>]+>/g, "").slice(0, 160),
     openGraph: {
       title: ann.title,

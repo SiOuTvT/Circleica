@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: c.name,
     description: c.description || `精选合集：${c.name}`,
     openGraph: {
-      title: `${c.name}（精选合集）`,
+      title: `${c.name} · Circleica`,
       description: c.description,
       images: ["/opengraph-image"],
     },

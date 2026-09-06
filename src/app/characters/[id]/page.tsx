@@ -12,11 +12,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     const character = await vndbClient.getCharacterDetail(id)
     if (character?.name) {
-      const description = character.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${character.name} - VNDB 角色详情`
+      const description = character.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `角色详情`
       return {
-        title: `${character.name} （角色详情）`,
+        title: character.original || character.name,
         description,
-        openGraph: { title: `${character.name} （角色详情）`, description, images: ["/opengraph-image"] },
+        openGraph: { title: `${character.original || character.name} · Circleica`, description, images: ["/opengraph-image"] },
         alternates: { canonical: `/characters/${id}` },
       }
     }
