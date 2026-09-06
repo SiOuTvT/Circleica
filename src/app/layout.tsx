@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: "Circleica",
-    description: siteDesc,
+    description: siteDesc || "专注同人视觉小说资源收录",
     keywords: ["同人游戏", "东方Project", "月姬", "Fate", "同人", "二次元游戏", "Galgame"],
     authors: [{ name: siteName }],
     creator: siteName,
@@ -50,14 +50,12 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "zh_CN",
       siteName,
-      title: siteName,
-      description: siteDesc,
+      description: siteDesc || "专注同人视觉小说资源收录",
       images: ogImages,
     },
     twitter: {
       card: "summary_large_image",
-      title: siteName,
-      description: siteDesc,
+      description: siteDesc || "专注同人视觉小说资源收录",
       images: ogImages,
     },
     robots: {

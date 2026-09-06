@@ -12,10 +12,11 @@ type RawSP = Record<string, string | string[] | undefined>
 
 export async function generateMetadata({ params }: { params: Promise<{ year: string }> }): Promise<Metadata> {
   const { year } = await params
-  if (!/^\d{4}$/.test(year)) return { title: "年份 · Galvelica" }
+  if (!/^\d{4}$/.test(year)) return { title: "年份" }
   return {
-    title: `${year} 年 · Galvelica`,
+    title: `${year} 年`,
     description: `浏览 Galvelica 中发布于 ${year} 年的同人视觉小说作品。`,
+    openGraph: { siteName: "Galvelica" },
     alternates: { canonical: `/galvelica/years/${year}` },
   }
 }

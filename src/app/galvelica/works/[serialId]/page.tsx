@@ -35,22 +35,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { serialId } = await params
   const work = await resolveWork(serialId)
-  if (!work) return { title: "作品 · Galvelica" }
+  if (!work) return { title: "作品" }
   return {
-    title: `${work.title} · Galvelica 资料库`,
+    title: work.title,
     description: work.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${work.originalWork ? work.originalWork + "，" : ""}${work.title} 的同人视觉小说资料`,
     alternates: { canonical: work.href },
     openGraph: {
       type: "website",
       locale: "zh_CN",
       siteName: "Galvelica",
-      title: `${work.title} · Galvelica 资料库`,
+      title: work.title,
       description: work.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${work.originalWork ? work.originalWork + "，" : ""}${work.title} 的同人视觉小说资料`,
       images: work.coverImage ? [work.coverImage] : ["/opengraph-image"],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${work.title} · Galvelica 资料库`,
+      title: work.title,
       description: work.description?.replace(/<[^>]+>/g, "").slice(0, 160) || `${work.originalWork ? work.originalWork + "，" : ""}${work.title} 的同人视觉小说资料`,
       images: work.coverImage ? [work.coverImage] : ["/opengraph-image"],
     },

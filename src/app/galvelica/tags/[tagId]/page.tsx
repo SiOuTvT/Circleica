@@ -13,10 +13,11 @@ type RawSP = Record<string, string | string[] | undefined>
 export async function generateMetadata({ params }: { params: Promise<{ tagId: string }> }): Promise<Metadata> {
   const { tagId } = await params
   const tag = await getTagById(tagId)
-  if (!tag) return { title: "标签 · Galvelica" }
+  if (!tag) return { title: "标签" }
   return {
-    title: `标签：${tag.name} · Galvelica`,
+    title: tag.name,
     description: `浏览 Galvelica 中标签为「${tag.name}」的同人视觉小说作品${tag.count ? `，共 ${tag.count} 部` : ""}。`,
+    openGraph: { siteName: "Galvelica" },
     alternates: { canonical: `/galvelica/tags/${tagId}` },
   }
 }

@@ -14,8 +14,9 @@ export async function generateMetadata({ params }: { params: Promise<{ studio: s
   const { studio } = await params
   const name = decodeURIComponent(studio)
   return {
-    title: `社团：${name} · Galvelica`,
+    title: name,
     description: `浏览 Galvelica 中社团「${name}」的同人视觉小说作品。`,
+    openGraph: { siteName: "Galvelica" },
     alternates: { canonical: `/galvelica/studios/${studio}` },
   }
 }

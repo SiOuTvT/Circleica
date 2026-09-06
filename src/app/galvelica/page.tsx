@@ -16,7 +16,7 @@ import { getGalvelicaTagColor } from "@/lib/site-settings"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Galvelica · 同人视觉小说资料库",
+  title: "同人视觉小说资料库",
   description:
     "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
   alternates: { canonical: "/galvelica" },
@@ -24,14 +24,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_CN",
     siteName: "Galvelica",
-    title: "Galvelica · 同人视觉小说资料库",
+    title: "同人视觉小说资料库",
     description:
       "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
     images: ["/opengraph-image"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Galvelica · 同人视觉小说资料库",
+    title: "同人视觉小说资料库",
     description:
       "Galvelica 是 Circleica 旗下的同人视觉小说资料库。安静地浏览、收藏与发现作品，而非下载。",
     images: ["/opengraph-image"],
