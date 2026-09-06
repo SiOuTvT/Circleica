@@ -230,3 +230,4 @@ scripts/_*.ts
 scripts/_*.mjs
 /_*.log
 /_*.sql
+/_*.txt

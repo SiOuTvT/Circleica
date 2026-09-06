@@ -21,7 +21,7 @@ export async function generateMetadata({
     /* ignore */
   }
   return {
-    title: `创作者：${name}`,
+    title: name,
     description: `来自 VNDB 的创作者「${name}」与其开发作品。`,
   }
 }
