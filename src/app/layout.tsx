@@ -40,9 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImages = siteLogo ? [siteLogo] : ["/opengraph-image"]
 
   return {
-    title: {
-      default: "Circleica",
-    },
+    title: "Circleica",
     description: siteDesc,
     keywords: ["同人游戏", "东方Project", "月姬", "Fate", "同人", "二次元游戏", "Galgame"],
     authors: [{ name: siteName }],
