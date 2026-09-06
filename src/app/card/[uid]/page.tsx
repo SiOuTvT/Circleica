@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { getCardData, serverProxyImg } from "@/lib/card-data"
 import { prisma } from "@/lib/prisma"
 import { ROLE_META } from "@/lib/permissions"
@@ -6,7 +7,37 @@ import Link from "next/link"
 import type { UserRole } from "@/generated/prisma/client"
 
 export const dynamic = "force-dynamic"
-export const metadata = { title: "Galgame 品味名片", description: "Circleica、Galvelica 个人品味档案" }
+// Next.js 不允许同文件同时 export 静态 metadata 与 generateMetadata，故统一用 generateMetadata；
+// 顶层 title 文本「Galgame 品味名片」保持不变（仍由根布局 template 补 · Circleica 后缀）。
+// 分享卡 og:title 需带用户名以与页内 h1 一致，故在 generateMetadata 解析用户名后注入；
+// notFound 分支不补 og，仅回退到静态标题/描述。
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ uid: string }>
+}): Promise<Metadata> {
+  const staticMeta = {
+    title: "Galgame 品味名片",
+    description: "Circleica、Galvelica 个人品味档案",
+  }
+  const { uid } = await params
+  const uidVal = String(uid)
+  const isNumeric = /^\d+$/.test(uidVal)
+  const user = isNumeric
+    ? await prisma.user.findUnique({ where: { serialId: Number(uidVal) }, select: { id: true } })
+    : await prisma.user.findFirst({ where: { uid: uidVal }, select: { id: true } })
+  if (!user) return staticMeta
+  const data = await getCardData(user.id)
+  if (!data) return staticMeta
+  return {
+    ...staticMeta,
+    openGraph: {
+      title: `${data.username} 的 Galgame 品味名片 · Circleica`,
+      description: "Circleica、Galvelica 个人品味档案",
+      images: ["/opengraph-image"],
+    },
+  }
+}
 
 const CARD_W = 720
 const SAFE = 44

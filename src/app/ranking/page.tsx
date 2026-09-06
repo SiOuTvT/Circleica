@@ -12,6 +12,11 @@ import { ArchiveHero } from "@/components/archive/archive-hero"
 export const metadata: Metadata = {
   title: "排行榜",
   description: "按收藏、浏览与评论查看热门作品排行",
+  openGraph: {
+    title: "排行榜 · Circleica",
+    description: "按收藏、浏览与评论查看热门作品排行",
+    images: ["/opengraph-image"],
+  },
 }
 
 type DimKey = "favorite" | "view" | "comment"

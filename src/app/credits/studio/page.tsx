@@ -9,6 +9,11 @@ import { ViewTabs, type ArchiveView } from "@/components/archive/view-tabs"
 export const metadata: Metadata = {
   title: "制作组图鉴",
   description: "浏览 Circleica 中的同人社团与小型制作组，按作品查看各组的名下档案。",
+  openGraph: {
+    title: "制作组图鉴 · Circleica",
+    description: "浏览 Circleica 中的同人社团与小型制作组，按作品查看各组的名下档案。",
+    images: ["/opengraph-image"],
+  },
   alternates: { canonical: "/credits/studio" },
 }
 

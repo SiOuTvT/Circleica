@@ -29,6 +29,11 @@ export async function generateMetadata({
   return {
     title: `《${data.title}》的参与者`,
     description: `浏览 Circleica 中作品《${data.title}》的参与创作者名单。`,
+    openGraph: {
+      title: `《${data.title}》的参与者 · Circleica`,
+      description: `浏览 Circleica 中作品《${data.title}》的参与创作者名单。`,
+      images: ["/opengraph-image"],
+    },
     alternates: { canonical: `/credits/game/${serialId}` },
   }
 }

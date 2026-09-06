@@ -36,6 +36,11 @@ export async function generateMetadata({
   return {
     title: `制作组：${detail.name}`,
     description: `浏览 Circleica 中制作组「${detail.name}」的作品与参与创作者。`,
+    openGraph: {
+      title: `${detail.name} · Circleica`,
+      description: `浏览 Circleica 中制作组「${detail.name}」的作品与参与创作者。`,
+      images: ["/opengraph-image"],
+    },
     alternates: { canonical: `/credits/studio/${slug}` },
   }
 }

@@ -49,6 +49,11 @@ export async function generateMetadata({
   return {
     title: `标签：${detail.name}`,
     description: desc,
+    openGraph: {
+      title: `${detail.name} · Circleica`,
+      description: desc,
+      images: ["/opengraph-image"],
+    },
     alternates: { canonical: `/credits/tag/${slug}` },
   }
 }
