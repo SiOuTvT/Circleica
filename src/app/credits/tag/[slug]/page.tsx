@@ -72,7 +72,6 @@ export default async function TagDetailPage({ params, searchParams }: { params: 
           eyebrow="TAG"
           title={detail.name}
           lede={detail.description ?? undefined}
-          tagColor={detail.color ?? undefined}
         />
       }
     >

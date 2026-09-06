@@ -17,8 +17,6 @@ interface ArchiveHeroProps {
   /** 浏览页：介绍文案下方的搜索框 / 筛选区（与精选合集功能对齐） */
   search?: ReactNode
   className?: string
-  /** tag 变体专用：标签色（替代默认 primary） */
-  tagColor?: string
   /**
    * 可选入口：传入后整块页头（封面 + 标题）合并为一个真实链接，跳转到该作品详情页。
    * 仅作品参与者名单页使用；其余图鉴页不传，保持无跳转。
@@ -65,7 +63,6 @@ export function ArchiveHero({
   fallbackInitial,
   search,
   className,
-  tagColor,
   href,
   detailSpec = false,
 }: ArchiveHeroProps) {
@@ -125,16 +122,12 @@ export function ArchiveHero({
   }
 
   // 浏览页：放大图标 + 两层文字 + 搜索（统一视觉基因，纯 Server 渲染）
-  // tag 变体用 tagColor 替代默认 text-primary：运行时色值无法被 Tailwind 编译期扫描生成
-  // 任意值类，故改用内联 style 着色；className 仅保留 text-primary 作为无 tagColor 时的默认色
+  // 页头图标固定用 text-primary，不按标签色上色（全站 90 个标签里 89 个色值相同，无区分作用，且与其余页面的主题色页头不一致）
   return (
     <header className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-start gap-4">
         {/* 图标为纯矢量、无容器装饰 */}
-        <div
-          className={cn("flex h-12 w-fit shrink-0 items-center justify-center", "text-primary")}
-          style={isTag && tagColor ? { color: tagColor } : undefined}
-        >
+        <div className={cn("flex h-12 w-fit shrink-0 items-center justify-center", "text-primary")}>
           <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2} aria-hidden />
         </div>
         {/* 文字列：eyebrow + title + lede + meta 共用图标右侧这一条左基准线，
