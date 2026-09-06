@@ -19,6 +19,20 @@ import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 
+/**
+ * 邮件发送结果。
+ * 失败时带 message，供路由返回 4xx + 文案 —— 不能再用 200 {success:true}，
+ * 否则 apiFetchSafe 判定 ok，前端会弹「已发送」，而用户一封邮件都收不到。
+ * 用可辨别联合（success 取字面量类型）才能让路由侧 `if (!result.success)` 后拿到 message。
+ */
+export type EmailSendOutcome = { success: true } | { success: false; message: string }
+
+/**
+ * 邮件实际没发出去时给用户的统一文案。
+ * 发送失败时 lib/email.ts 是 return false（不抛异常），调用方必须接住这个布尔值。
+ */
+const EMAIL_SEND_FAILED_MESSAGE = "邮件没能发出去，请稍后再试或联系管理员（后台邮件服务可能未配置）"
+
 // ── Token 工具 ──────────────────────
 
 function generateToken(): { raw: string; hash: string } {
@@ -101,7 +115,7 @@ export const authService = {
 
   // ── 邮箱验证 ──────────────────────
 
-  async sendVerificationEmail(userId: string, email?: string) {
+  async sendVerificationEmail(userId: string, email?: string): Promise<EmailSendOutcome> {
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, username: true } })
     if (!user) throw new NotFoundError("用户")
     if (user.email !== (email || user.email)) throw new ValidationError("邮箱不匹配")
@@ -129,7 +143,14 @@ export const authService = {
       data: { userId, email: email || user.email, tokenHash: hash, type: "verify", expiresAt: new Date(Date.now() + 24 * 3600 * 1000) },
     })
 
-    await sendVerificationEmail(email || user.email, raw, user.username)
+    const sent = await sendVerificationEmail(email || user.email, raw, user.username).catch((e: unknown) => {
+      logger.system.error("[ResendVerification] 验证邮件发送失败", e)
+      return false
+    })
+    if (!sent) {
+      logger.system.error("[ResendVerification] 验证邮件未发出", { userId })
+      return { success: false, message: EMAIL_SEND_FAILED_MESSAGE }
+    }
     return { success: true }
   },
 
@@ -158,7 +179,7 @@ export const authService = {
 
   // ── 修改邮箱 ──────────────────────
 
-  async requestEmailChange(userId: string, newEmail: string, currentPassword: string) {
+  async requestEmailChange(userId: string, newEmail: string, currentPassword: string): Promise<EmailSendOutcome> {
     if (!newEmail || !newEmail.includes("@")) throw new ValidationError("邮箱格式不正确")
     if (!currentPassword) throw new ValidationError("请输入当前密码")
 
@@ -197,9 +218,14 @@ export const authService = {
       data: { userId, email: normalizedEmail, tokenHash: hash, type: "change_email", expiresAt: new Date(Date.now() + 3600 * 1000) },
     })
 
-    await sendEmailChangeEmail(normalizedEmail, raw).catch(e =>
+    const sent = await sendEmailChangeEmail(normalizedEmail, raw).catch((e: unknown) => {
       logger.system.error("[ChangeEmail] 变更邮件发送失败", e)
-    )
+      return false
+    })
+    if (!sent) {
+      logger.system.error("[ChangeEmail] 变更邮件未发出", { userId })
+      return { success: false, message: EMAIL_SEND_FAILED_MESSAGE }
+    }
     return { success: true }
   },
 
@@ -227,7 +253,7 @@ export const authService = {
     return { success: true, email: record.email }
   },
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<EmailSendOutcome> {
     if (!email) throw new ValidationError("邮箱不能为空")
     const user = await userRepo.findByEmail(email.toLowerCase().trim())
     if (!user) return { success: true }
@@ -238,9 +264,14 @@ export const authService = {
     const { raw, hash } = generateToken()
     const expiresAt = new Date(Date.now() + 3600000)
     await prisma.passwordResetToken.create({ data: { userId: user.id, token: hash, expiresAt } })
-    await sendPasswordResetEmail(email.toLowerCase().trim(), raw).catch(e =>
+    const sent = await sendPasswordResetEmail(email.toLowerCase().trim(), raw).catch((e: unknown) => {
       logger.system.error("[ForgotPassword] 重置邮件发送失败", e)
-    )
+      return false
+    })
+    if (!sent) {
+      logger.system.error("[ForgotPassword] 重置邮件未发出", { userId: user.id })
+      return { success: false, message: EMAIL_SEND_FAILED_MESSAGE }
+    }
     return { success: true }
   },
 

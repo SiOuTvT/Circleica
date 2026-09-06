@@ -61,6 +61,29 @@ async function sendEmail(to: string, subject: string, html: string): Promise<boo
   return false
 }
 
+/* ── 站点基址 ──────────────────────── */
+
+/**
+ * 邮件里所有链接的基址。
+ *
+ * 绝不能用 localhost 兜底：一旦线上忘配环境变量，用户收到的「重置密码 / 验证邮箱」
+ * 链接会指向 localhost:3000，点了必死，而且代码不报错、日志不吭声。
+ * 取不到就返回 null，由调用方跳过发送并记 error 日志。
+ */
+export function resolveSiteBaseUrl(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL
+  if (!raw || !raw.trim()) return null
+  return raw.trim().replace(/\/+$/, "")
+}
+
+/** 基址未配置时的统一处理：记一条 error 日志（调用方随即 return false） */
+function logMissingBaseUrl(subject: string, to: string): void {
+  logger.system.error(
+    "[Email] 站点基址未配置（NEXTAUTH_URL / NEXT_PUBLIC_SITE_URL 都没有），邮件里的链接会失效，已跳过发送",
+    { subject, to: to.replace(/(.{2}).*(@.*)/, "$1***$2") },
+  )
+}
+
 /* ── 模板 ──────────────────────────── */
 
 const BTN_STYLE = "display:inline-block;padding:10px 20px;background:#E0A87C;color:#fff;text-decoration:none;border-radius:8px;font-weight:500"
@@ -81,7 +104,12 @@ function footer(note: string): string {
  * 发送密码重置邮件
  */
 export async function sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  const baseUrl = resolveSiteBaseUrl()
+  if (!baseUrl) {
+    logMissingBaseUrl("重置你的密码", email)
+    return false
+  }
+
   const url = `${baseUrl}/reset-password?token=${token}`
 
   return sendEmail(email, "重置你的密码", [
@@ -98,7 +126,12 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
  * 发送邮箱验证邮件（注册验证 / 重发验证）
  */
 export async function sendVerificationEmail(email: string, token: string, username: string): Promise<boolean> {
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  const baseUrl = resolveSiteBaseUrl()
+  if (!baseUrl) {
+    logMissingBaseUrl("验证你的邮箱", email)
+    return false
+  }
+
   const url = `${baseUrl}/verify-email?token=${token}`
 
   return sendEmail(email, "验证你的邮箱", [
@@ -115,7 +148,12 @@ export async function sendVerificationEmail(email: string, token: string, userna
  * 发送修改邮箱验证邮件
  */
 export async function sendEmailChangeEmail(newEmail: string, token: string): Promise<boolean> {
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  const baseUrl = resolveSiteBaseUrl()
+  if (!baseUrl) {
+    logMissingBaseUrl("验证你的新邮箱", newEmail)
+    return false
+  }
+
   const url = `${baseUrl}/verify-email?token=${token}&type=change_email`
 
   return sendEmail(newEmail, "验证你的新邮箱", [

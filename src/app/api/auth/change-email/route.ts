@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server'
 import { withHandler, json, safeParseJson } from '@/lib/api-handler'
 import { authService } from '@/services/user'
 import { auth } from '@/lib/auth'
@@ -14,6 +15,11 @@ export const POST = withHandler(async (req) => {
 
   const { newEmail, currentPassword } = await safeParseJson(req)
   const result = await authService.requestEmailChange(session.user.id, newEmail, currentPassword)
+  // 邮件实际没发出去时必须给出非 2xx：apiFetchSafe 只看 HTTP 状态码，
+  // 用 200 {success:false} 会被判成 ok，前端照旧提示「已发送」。
+  if (!result.success) {
+    return NextResponse.json({ success: false, error: result.message }, { status: 400 })
+  }
   return json(result)
 })
 

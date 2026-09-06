@@ -169,11 +169,19 @@ function loadProviderConfigs(db: Record<string, string>): Map<string, Record<str
   return configs
 }
 
+/**
+ * 后台未指定优先级时的尝试顺序。
+ * 不能写死单个 provider：管理员在后台只填 SMTP（host/username/password）而不填 order
+ * 是最自然的填法，写死 ["resend"] 会让整条 SMTP 配置被无视 —— 后台「测试连接」
+ * 走的是另一条路径（直接拿表单 config 调 testEmail），于是测试成功、真实发送却发不出。
+ */
+const DEFAULT_EMAIL_PROVIDER_PRIORITY = ["smtp", "resend", "brevo"]
+
 /** 根据 providerOrder + configs 构建有序 provider 列表 */
 function buildEmailProviders(orderStr: string, configs: Map<string, Record<string, string>>): EmailProviderEntry[] {
   const order = orderStr
     ? orderStr.split(",").map(s => s.trim()).filter(Boolean)
-    : ["resend"] // 缺省向后兼容
+    : DEFAULT_EMAIL_PROVIDER_PRIORITY // 未指定顺序：按固定优先级纳入所有「配置完整」的 provider
 
   const result: EmailProviderEntry[] = []
   for (const id of order) {

@@ -189,13 +189,19 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
     }
 
     const { name: fromName, email: fromEmail } = parseFrom(payload.from)
+    // 465 = 隐式 TLS（SMTPS）：服务器一接通就讲加密，必须一开始就用 tls.connect 建加密连接。
+    // 587/25 = 明文起步，连接后由 STARTTLS 升级（case 2）。
     const isImplicitTLS = port === 465
 
     let socket: import("net").Socket
     let responseBuffer = ""
+    /** 多行响应（形如 250-xxx）的中间行正文，用于读取 EHLO 通告的能力列表 */
+    let multilineBuffer: string[] = []
     let step = 0
     let messageId = ""
     let finished = false
+    /** STARTTLS 升级是否已成功。为 true 时后续的 EHLO 250 不能再发第二次 STARTTLS。 */
+    let tlsUpgraded = false
 
     const finish = (result: SendResult) => {
       if (finished) return
@@ -208,11 +214,14 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
       socket.write(data + CRLF)
     }
 
-    const handleResponse = (line: string) => {
-      // 多行响应（220-xxx）等待最后一行
-      if (line.length >= 4 && line[3] === "-") return
-
+    /**
+     * @param line 响应的末行（含 3 位状态码）
+     * @param multiline 同一响应的多行中间行正文（已去掉状态码），用于能力协商
+     */
+    const handleResponse = (line: string, multiline: string) => {
       const code = parseInt(line.slice(0, 3), 10)
+      // 末行正文 + 所有中间行 = 服务器通告的完整能力文本
+      const responseText = multiline ? `${multiline}\n${line.slice(4)}` : line.slice(4)
 
       switch (step) {
         case 0: // 连接成功
@@ -222,20 +231,26 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
           break
         case 1: // EHLO 响应
           if (code !== 250) { finish({ ok: false, error: `SMTP EHLO 失败: ${line}`, retryable: true }); return }
-          if (!isImplicitTLS) {
-            send("STARTTLS")
-            step = 2
-          } else {
+          // 已经在加密通道里（465 直连 TLS / STARTTLS 已升级）→ 直接认证，
+          // 不能再看 !isImplicitTLS 就发 STARTTLS：否则升级后重发会拿到 503 并被判失败。
+          if (isImplicitTLS || tlsUpgraded) {
             send("AUTH LOGIN")
             step = 3
+            break
           }
+          // 服务器没通告 STARTTLS 就别盲发，直接把原因说清楚
+          if (!/STARTTLS/i.test(responseText)) {
+            finish({ ok: false, error: "SMTP 服务器不支持 STARTTLS（EHLO 响应未通告该能力）", retryable: false })
+            return
+          }
+          send("STARTTLS")
+          step = 2
           break
         case 2: // STARTTLS 响应
           if (code !== 220) { finish({ ok: false, error: `SMTP STARTTLS 失败: ${line}`, retryable: true }); return }
-          // 升级到 TLS
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const tls = require("tls") as typeof import("tls")
+          // 在既有明文 socket 之上升级到 TLS
           const tlsSocket = tls.connect({ socket: socket as import("net").Socket, servername: host }, () => {
+            tlsUpgraded = true
             socket = tlsSocket as unknown as import("net").Socket
             socket.on("data", onData)
             send("EHLO localhost")
@@ -243,6 +258,9 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
           })
           socket.removeAllListeners("data")
           tlsSocket.on("error", (e: Error) => finish({ ok: false, error: `SMTP TLS 错误: ${e.message}`, retryable: true }))
+          tlsSocket.on("timeout", () => finish({ ok: false, error: "SMTP 连接超时", retryable: true }))
+          // 升级后的 socket 也必须设超时：否则服务器挂起时连接会一直吊着不释放
+          tlsSocket.setTimeout(15000)
           return
         case 3: // AUTH LOGIN 响应
           if (code !== 334) { finish({ ok: false, error: `SMTP AUTH 失败: ${line}`, retryable: false }); return }
@@ -272,8 +290,15 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
         case 8: // DATA
           if (code !== 354) { finish({ ok: false, error: `SMTP DATA 失败: ${line}`, retryable: true }); return }
           const encodedSubject = `=?UTF-8?B?${Buffer.from(payload.subject).toString("base64")}?=`
+          // 发件人显示名同样做 RFC 2047 编码：中文名裸写在头部会乱码，部分服务器直接拒收。
+          // 名为空时只留 <邮箱>，不要留下一个光秃秃的空格加尖括号。
+          const encodedFromName = fromName
+            ? `=?UTF-8?B?${Buffer.from(fromName).toString("base64")}?=`
+            : ""
           const headers = [
-            `From: ${fromName} <${fromEmail}>`,
+            encodedFromName
+              ? `From: ${encodedFromName} <${fromEmail}>`
+              : `From: <${fromEmail}>`,
             `To: ${payload.to}`,
             `Subject: ${encodedSubject}`,
             `MIME-Version: 1.0`,
@@ -304,13 +329,31 @@ function smtpSend(config: Record<string, string>, payload: EmailPayload): Promis
       const lines = responseBuffer.split(CRLF)
       responseBuffer = lines.pop() || ""
       for (const line of lines) {
-        if (line) handleResponse(line)
+        if (!line) continue
+        // 多行响应的中间行（250-xxx）：累积起来，等末行到了连同能力列表一起交给状态机
+        if (line.length >= 4 && line[3] === "-") {
+          multilineBuffer.push(line.slice(4))
+          continue
+        }
+        const multiline = multilineBuffer.join("\n")
+        multilineBuffer = []
+        handleResponse(line, multiline)
       }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const net = require("net") as typeof import("net")
-    socket = net.createConnection({ host, port })
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const tls = require("tls") as typeof import("tls")
+
+    // 创建初始连接：
+    // - 465（隐式 TLS）必须直接建 TLS 连接 —— 用明文 TCP 连过去，读到的第一段字节
+    //   是 TLS 握手而非 ASCII 状态码，parseInt 得 NaN，会被误判成「SMTP 连接失败」。
+    // - 其余端口（587/25）先建明文连接，稍后由 STARTTLS 升级。
+    // rejectUnauthorized 保持默认 true：不关证书校验，否则中间人可静默降级发信通道。
+    socket = isImplicitTLS
+      ? (tls.connect({ host, port, servername: host }) as unknown as import("net").Socket)
+      : net.createConnection({ host, port })
 
     socket.on("data", onData)
     socket.on("error", (e: Error) => finish({ ok: false, error: `SMTP 连接错误: ${e.message}`, retryable: true }))

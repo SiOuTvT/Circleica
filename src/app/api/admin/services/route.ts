@@ -21,6 +21,16 @@ const EMAIL_PROVIDER_KEY_PREFIX = "email_provider_"
 // secret 字段名（GET 返回时脱敏）
 const SECRET_FIELDS = new Set(["apiKey", "password"])
 
+// 「只写」字段：GET 一律回传空串（密钥不落前端，见下方 GET 处理），
+// 因此保存时收到的空串代表「用户没动这个框」而不是「要清空」。
+// 若照原样写库，管理员第二次改任何一项都会把上一次填好的密钥抹掉。
+// 其余四个非密钥字段（r2_account_id / r2_bucket_name / r2_public_url / redis_url）保持可清空。
+const WRITE_ONLY_KEYS = new Set(["r2_access_key_id", "r2_secret_access_key", "redis_token"])
+
+// maskSecrets 产出的脱敏占位串形如 abcd****wxyz（含连续四个及以上星号）。
+// 前端会把 GET 拿到的这份值原样提交回来，写库就等于把真密码替换成星号串。
+const MASKED_SECRET_RE = /\*{4,}/
+
 // GET — 读取服务配置
 export const GET = withHandler(async () => {
   await requireAdminRole("SUPER_ADMIN")
@@ -79,7 +89,11 @@ export const POST = withHandler(async (req) => {
 
   // R2 / Redis（平铺 key）
   for (const key of SERVICE_KEYS) {
-    if (key in body) toSave[key] = String(body[key] || "")
+    if (!(key in body)) continue
+    const value = String(body[key] || "")
+    // 只写字段：空串 = 不修改，跳过不写（保留库里已有的密钥）
+    if (WRITE_ONLY_KEYS.has(key) && !value) continue
+    toSave[key] = value
   }
 
   // Email providers（JSON key）
@@ -166,14 +180,16 @@ function maskSecrets(config: Record<string, string>): Record<string, string> {
 }
 
 /**
- * 移除空 secret 字段（空字符串 = "不修改"）
+ * 移除「未修改」的 secret 字段（保留旧值）
+ * - 空字符串 = 没填，视为不修改
+ * - 脱敏占位串（abcd****wxyz）= 前端把 GET 的掩码原样提交了回来，同样视为不修改
  * 非 secret 的空字段保留（允许清空 fromName 等）
  */
 function stripEmptySecrets(config: Record<string, string>): Record<string, string> {
   const result: Record<string, string> = {}
   for (const [key, value] of Object.entries(config)) {
-    if (SECRET_FIELDS.has(key) && !value) {
-      continue // 跳过空 secret（保留旧值）
+    if (SECRET_FIELDS.has(key) && (!value || MASKED_SECRET_RE.test(value))) {
+      continue // 跳过空 secret 与脱敏串（保留旧值）
     }
     result[key] = value
   }
