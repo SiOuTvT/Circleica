@@ -48,6 +48,25 @@
    `migrate` 服务跑的是 `prisma migrate deploy`。
 4. 等待 `healthcheck` 通过（应用 `start_period` 约 7 分钟，防止误判）。
 
+## 构建产物形态（standalone 开关）
+
+`next.config.ts` 的 `output` 由环境变量 `NEXT_BUILD_STANDALONE` 控制：
+
+- **Docker 镜像（推荐路径）**：`Dockerfile` 的 builder 阶段已写入 `ENV NEXT_BUILD_STANDALONE=1`，构建产出 `.next/standalone`，runner 阶段把它 COPY 到 `/app`，由 `docker-entrypoint.sh` 执行 `node server.js` 启动。
+- **本地 / 裸机**：不设置该变量时 `output` 为 `undefined`，产物是常规 `.next`，直接 `npm run build && npm start`（即 `next start -p 3000`）。
+
+为什么本地不默认开 standalone：开启后每次 `next build` 都会先整目录重建 `.next/standalone`（数百个文件），既拖慢构建，也会让仍在运行的旧进程持有已被删除的文件句柄，出现 `Invariant: The client reference manifest for route ... does not exist` 之类的运行时 500。standalone 只对「镜像里只带最小产物」有意义，本地没有这个需求。
+
+如需在本机复现容器运行形态（验证 standalone 产物本身）：
+
+```bash
+NEXT_BUILD_STANDALONE=1 npm run build
+npm run start:standalone          # = node .next/standalone/server.js
+```
+
+Windows（PowerShell）先执行 `$env:NEXT_BUILD_STANDALONE=1` 再 `npm run build`。
+注意：跑 standalone 前必须先停掉 `next start`——两者会争抢 3000 端口，且旧进程占用 `.next` 会导致下一次构建清理失败。
+
 ## 健康检查
 
 `/api/health` 同时检查数据库与缓存；任一不通会返回非 200，编排器据此不把流量切到该实例。
