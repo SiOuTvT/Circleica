@@ -1,5 +1,6 @@
 import { getSiteSetting } from "@/lib/site-settings"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
+import { ArchiveHero } from "@/components/archive/archive-hero"
 
 import type { Metadata } from "next"
 
@@ -56,7 +57,13 @@ export default async function RulesPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-6 sm:py-8 px-4">
-      <h1 className="text-2xl font-bold text-foreground mb-6">社区规则</h1>
+      <ArchiveHero
+        variant="rules"
+        eyebrow="RULES"
+        title="社区规则"
+        lede="Circleica社区规则与行为准则，维护良好的社区环境"
+        className="mb-6"
+      />
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">
         {custom ? <RichTextContent html={custom} /> : <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: DEFAULT_RULES_HTML }} />}
       </div>

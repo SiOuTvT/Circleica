@@ -1,10 +1,21 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { Layers, Users, User, Tag as TagIcon, Compass, Trophy, Gamepad2 } from "lucide-react"
+import { Layers, Users, User, Tag as TagIcon, Compass, Trophy, Gamepad2, Info, Mail, ScrollText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroCover } from "./hero-cover"
 
-export type ArchiveHeroVariant = "org" | "person" | "series" | "detail" | "tag" | "discover" | "ranking" | "games"
+export type ArchiveHeroVariant =
+  | "org"
+  | "person"
+  | "series"
+  | "detail"
+  | "tag"
+  | "discover"
+  | "ranking"
+  | "games"
+  | "about"
+  | "contact"
+  | "rules"
 
 interface ArchiveHeroProps {
   variant: ArchiveHeroVariant
@@ -39,6 +50,9 @@ const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
   discover: Compass,
   ranking: Trophy,
   games: Gamepad2,
+  about: Info,
+  contact: Mail,
+  rules: ScrollText,
 }
 
 /**

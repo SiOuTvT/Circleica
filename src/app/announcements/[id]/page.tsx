@@ -19,7 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title: ann.title,
     description: ann.content.replace(/<[^>]+>/g, "").slice(0, 160),
     openGraph: {
-      title: ann.title,
+      // openGraph 不走根布局 template，站名必须自己写全
+      title: `${ann.title} · Circleica`,
       ...(ann.imageUrl && { images: [{ url: ann.imageUrl }] }),
     },
   }

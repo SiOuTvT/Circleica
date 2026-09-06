@@ -1,5 +1,6 @@
 import { getSiteSetting } from "@/lib/site-settings"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
+import { ArchiveHero } from "@/components/archive/archive-hero"
 
 import type { Metadata } from "next"
 
@@ -65,7 +66,13 @@ export default async function ContactPage() {
 
   return (
     <div className="mx-auto max-w-3xl py-6 sm:py-8 px-4">
-      <h1 className="text-2xl font-bold text-foreground mb-6">联系我们</h1>
+      <ArchiveHero
+        variant="contact"
+        eyebrow="CONTACT"
+        title="联系我们"
+        lede="Circleica联系方式与反馈渠道，欢迎提出建议和反馈问题"
+        className="mb-6"
+      />
       <div className="rounded-2xl bg-card ring-1 ring-border p-6">
         {custom ? <RichTextContent html={custom} /> : <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: DEFAULT_CONTACT_HTML }} />}
       </div>

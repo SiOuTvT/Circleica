@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: `Circleica - 专注同人视觉小说资源收录`,
+      default: `Circleica · 专注同人视觉小说资源收录`,
       template: `%s · Circleica`,
     },
     description: siteDesc,

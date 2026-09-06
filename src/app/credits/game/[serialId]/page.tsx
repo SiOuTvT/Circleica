@@ -72,7 +72,7 @@ export default async function GameParticipantsPage({
       header={
         <ArchiveHero
           variant="org"
-          eyebrow="作品参与者"
+          eyebrow="CREW"
           title={`《${data.title}》的参与者`}
           cover={data.coverImage}
           fallbackInitial={data.title}
