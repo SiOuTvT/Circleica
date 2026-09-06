@@ -229,16 +229,53 @@ const SORT_ORDER: Record<"hot" | "new" | "name", Prisma.GameTagOrderByWithRelati
   name: [{ game: { title: "asc" } }],
 }
 
-export async function getTagDetailBySlug(slug: string, sort: "hot" | "new" | "name" = "hot"): Promise<TagDetail | null> {
+/**
+ * 路由段容错解码（用于 slug 这类可能含非 ASCII 的路由参数）。
+ *
+ * 背景：Archive 路由是「CJK 直出」——库里存的是中文原文，而浏览器把中文 slug 放进 URL 时
+ * 会 percent-encode（如「男主角」→ %E7%94%B7%E4%B8%BB%E8%A7%92）。Next 交给页面的 params 仍是编码串，
+ * 直接拿去查库必然 miss；英文 slug 编码前后一致所以看起来没事。
+ *
+ * 规则（按指令）：
+ *  - v 不含 % 直接返回；
+ *  - 含 % 则尝试 decodeURIComponent，解码后若仍含 %（双重编码）再解一次，最多两轮；
+ *  - 任何一步抛错（畸形 % 序列）退回上一次的值，绝不让请求因解码失败而 500。
+ */
+function decodeSlug(v: string): string {
+  if (!v.includes("%")) return v
+  const tryDecode = (s: string): string => {
+    try {
+      const once = decodeURIComponent(s)
+      if (once.includes("%")) {
+        try {
+          return decodeURIComponent(once)
+        } catch {
+          return once
+        }
+      }
+      return once
+    } catch {
+      return s
+    }
+  }
+  return tryDecode(v)
+}
+
+export async function getTagDetailBySlug(rawSlug: string, sort: "hot" | "new" | "name" = "hot"): Promise<TagDetail | null> {
+  // 函数体内从第一行起统一使用「解码后」的 slug，不再触碰原始参数。
+  const slug = decodeSlug(rawSlug)
   try {
     // ⚠️ 标签下游戏卡片（含封面）按 NSFW 模式过滤：SFW 用户不看到露骨封面
     const nsfwMode = await getMainNsfwMode()
     const nsfwWhere = nsfwMode === "sfw" ? { isNsfw: false } : nsfwMode === "nsfw" ? { isNsfw: true } : {}
     const tag = await prisma.tag.findUnique({
-      where: { slug, source: "circleica" },
+      where: { slug },
       include: { group: { select: { id: true, name: true, color: true } } },
     })
     if (!tag) return null
+    // 主站恒过滤副站数据：slug 命中但来源不是 circleica（即 galvelica 标签）一律视为不存在，
+    // 杜绝副站标签窜入主站详情页。
+    if (tag.source !== "circleica") return null
 
     const total = await prisma.gameTag.count({
       where: { tagId: tag.id, game: { isPublished: true, ...nsfwWhere } },
