@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ChevronRight } from "lucide-react"
 import type { GalvelicaWorkCard } from "@/lib/galvelica"
 import { GalvelicaCover } from "./galvelica-cover"
 
@@ -38,6 +39,7 @@ export function GalvelicaEntryRow({
       <span className="galvelica-entry-side">
         <span className="galvelica-entry-year">{work.releaseYear ?? ""}</span>
         {showTags && <span className="galvelica-entry-tagcount">{work.tags.length} 个标签</span>}
+        <ChevronRight className="galvelica-entry-chevron" size={14} aria-hidden />
       </span>
     </Link>
   )

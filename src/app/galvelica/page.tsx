@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { ChevronRight } from "lucide-react"
 import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { GalvelicaCover } from "@/components/galvelica/galvelica-cover"
 import { GalvelicaEntryRow } from "@/components/galvelica/galvelica-entry-row"
@@ -86,6 +87,7 @@ export default async function GalvelicaHome() {
             <span className="galvelica-daily-side">
               <span className="galvelica-daily-year">{daily.releaseYear ?? ""}</span>
               <span className="galvelica-entry-tagcount">{daily.tags.length} 个标签</span>
+              <ChevronRight className="galvelica-entry-chevron" size={14} aria-hidden />
             </span>
           </a>
         )}

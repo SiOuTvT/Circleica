@@ -2261,6 +2261,25 @@ body[data-has-bottom-nav="true"] {
   color: var(--muted-foreground);
 }
 
+/* 条目右端 chevron：触屏没有 hover，靠它表达「这行能点」。
+   只允许 color 过渡，禁止 transform / 位移 / 缩放。 */
+.galvelica-entry-chevron {
+  display: block;
+  margin-left: auto;
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  transition: color 0.16s ease;
+}
+.galvelica-entry:hover .galvelica-entry-chevron,
+.galvelica-daily:hover .galvelica-entry-chevron {
+  color: var(--gal-accent);
+}
+@media (max-width: 1023px) {
+  .galvelica-entry-chevron {
+    color: color-mix(in srgb, var(--foreground) 55%, transparent);
+  }
+}
+
 /* 区块头 */
 .galvelica-section-head {
   display: flex;
@@ -2421,7 +2440,8 @@ body[data-has-bottom-nav="true"] {
   background: none;
   border: 0;
   border-bottom: 1px solid transparent;
-  padding: 0;
+  /* 指尖热区：视觉仍是纯文字，只是可点范围撑到 44px 以上 */
+  padding: 11px 6px;
   white-space: nowrap;
   transition: color 0.16s ease, border-color 0.16s ease;
 }
@@ -2439,6 +2459,12 @@ a.galvelica-pager-nav:hover {
 .galvelica-pager-disabled {
   opacity: 0.45;
   color: var(--muted-foreground);
+}
+@media (max-width: 1023px) {
+  /* 窄屏收窄间距，避免三段挤成两行 */
+  .galvelica-pager {
+    gap: 10px;
+  }
 }
 
 /* 字号档位工具类 */
