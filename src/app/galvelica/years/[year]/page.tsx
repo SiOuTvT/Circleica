@@ -5,7 +5,6 @@ import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { listWorks } from "@/lib/galvelica"
-import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -36,7 +35,7 @@ export default async function GalvelicaYearDetail({
   const sp = await searchParams
   const page = Math.max(1, parseInt((Array.isArray(sp.page) ? sp.page[0] : sp.page) || "1", 10) || 1)
 
-  const [result, tagColor] = await Promise.all([listWorks({ year: y, page }), getGalvelicaTagColor()])
+  const result = await listWorks({ year: y, page })
 
   return (
     <div className="space-y-8">
@@ -47,7 +46,7 @@ export default async function GalvelicaYearDetail({
         <p className="mt-1 text-sm text-muted-foreground">共 {result.total} 部作品</p>
       </div>
 
-      <WorkGrid works={result.items} priorityCount={5} tagColor={tagColor} />
+      <WorkGrid works={result.items} priorityCount={5} />
       <Pager basePath={`/galvelica/years/${year}`} page={result.page} totalPages={result.totalPages} />
     </div>
   )

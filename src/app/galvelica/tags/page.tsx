@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { Tags } from "lucide-react"
-import { TagCloud } from "@/components/galvelica/tag-pill"
+import Link from "next/link"
 import { getPopularTags } from "@/lib/galvelica"
+import { GalvelicaSectionHead } from "@/components/galvelica/galvelica-section-head"
 
 export const dynamic = "force-dynamic"
 
@@ -45,17 +46,31 @@ export default async function GalvelicaTags() {
           <Tags className="h-4 w-4 text-muted-foreground" />
           标签浏览
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 galvelica-fs-meta text-muted-foreground">
           共 {tags.length} 个标签。沿题材、世界观、社团、作者、角色属性、CP、年份与平台自由探索。
         </p>
       </div>
 
-      {ordered.map(([group, list]) => (
-        <section key={group}>
-          <h2 className="galvelica-h3 mb-3">{group}</h2>
-          <TagCloud tags={list} />
-        </section>
-      ))}
+      <div className="galvelica-tagindex space-y-[var(--gal-gap-section)]">
+        {ordered.map(([group, list]) => (
+          <section key={group}>
+            <GalvelicaSectionHead title={group} count={`${list.length} 个标签`} />
+            <div className="galvelica-strip">
+              {list.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/galvelica/tags/${t.id}`}
+                  className="galvelica-strip-item"
+                  title={t.groupName ? `${t.groupName}：${t.name}` : t.name}
+                >
+                  <b>{t.name}</b>
+                  {typeof t.count === "number" && <i>{t.count}</i>}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   )
 }

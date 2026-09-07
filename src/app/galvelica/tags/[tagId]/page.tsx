@@ -5,7 +5,6 @@ import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { getTagById, listWorks } from "@/lib/galvelica"
-import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -34,7 +33,7 @@ export default async function GalvelicaTagDetail({
   const sp = await searchParams
   const page = Math.max(1, parseInt((Array.isArray(sp.page) ? sp.page[0] : sp.page) || "1", 10) || 1)
 
-  const [tag, result, tagColor] = await Promise.all([getTagById(tagId), listWorks({ tags: [tagId], page }), getGalvelicaTagColor()])
+  const [tag, result] = await Promise.all([getTagById(tagId), listWorks({ tags: [tagId], page })])
   if (!tag) notFound()
 
   return (
@@ -51,7 +50,7 @@ export default async function GalvelicaTagDetail({
         </p>
       </div>
 
-      <WorkGrid works={result.items} priorityCount={5} tagColor={tagColor} />
+      <WorkGrid works={result.items} priorityCount={5} />
       <Pager basePath={`/galvelica/tags/${tagId}`} page={result.page} totalPages={result.totalPages} />
     </div>
   )

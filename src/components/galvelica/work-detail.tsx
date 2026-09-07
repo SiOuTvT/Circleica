@@ -64,9 +64,8 @@ function ExtLink({ href, text }: { href: string; text: string }) {
  * Galvelica 作品详情视图。
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
  * 已收录 → 显示「查看资源」；未收录 → 显示「申请收录到 Circleica」。
- * 注：tagColor 仅为兼容调用点保留，内部不再消费（副站标签统一不上色）。
  */
-export function WorkDetailView({ work }: { work: GalvelicaWorkDetail; tagColor?: string }) {
+export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
   const byRole = new Map<string, typeof work.staff>()
   for (const s of work.staff) {
     if (!byRole.has(s.role)) byRole.set(s.role, [])

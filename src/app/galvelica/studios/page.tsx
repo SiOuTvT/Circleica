@@ -45,23 +45,24 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
           <Building2 className="h-4 w-4 text-muted-foreground" />
           社团索引
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">共 {total} 个社团，第 {page}/{totalPages} 页。</p>
+        <p className="mt-1 galvelica-fs-meta text-muted-foreground">共 {total} 个社团，第 {page}/{totalPages} 页。</p>
       </div>
 
       {studios.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的社团。</p>
       ) : (
-        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="galvelica-studios-grid">
           {studios.map(({ name, count }) => (
             <Link
               key={name}
               href={`/galvelica/studios/${encodeURIComponent(name)}`}
-              className="galvelica-index-card group flex items-center justify-between gap-3 px-4 py-3.5"
+              className="galvelica-entry galvelica-entry-text"
             >
-              <span className="min-w-0 truncate font-medium text-foreground group-hover:text-[var(--gal-accent)]">
-                {name}
+              <span className="galvelica-entry-spine" aria-hidden />
+              <span className="galvelica-entry-title">{name}</span>
+              <span className="galvelica-entry-side">
+                <span className="galvelica-fs-meta text-muted-foreground tabular-nums">{count} 部</span>
               </span>
-              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{count} 部</span>
             </Link>
           ))}
         </div>

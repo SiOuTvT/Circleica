@@ -36,7 +36,7 @@ export default async function GalvelicaYears() {
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
           年份索引
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 galvelica-fs-meta text-muted-foreground">
           沿时间轴回看同人视觉小说的创作脉络，共 {years.length} 个年份。
         </p>
       </div>
@@ -44,17 +44,15 @@ export default async function GalvelicaYears() {
       {years.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的作品。</p>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
+        <div className="galvelica-year-grid">
           {years.map(({ year, count }) => (
             <Link
               key={year}
               href={`/galvelica/years/${year}`}
-              className="galvelica-index-card group flex flex-col items-center justify-center py-6 transition-colors"
+              className="galvelica-index-card galvelica-year-cell"
             >
-              <span className="galvelica-serif text-2xl font-semibold text-foreground tabular-nums group-hover:text-[var(--gal-accent)]">
-                {year}
-              </span>
-              <span className="mt-1 text-xs text-muted-foreground tabular-nums">{count} 部</span>
+              <span className="galvelica-year-year">{year}</span>
+              <span className="galvelica-year-count">{count} 部</span>
             </Link>
           ))}
         </div>
