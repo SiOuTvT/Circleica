@@ -356,7 +356,7 @@ const _gameCountCache = unstable_cache(
 export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaListResult> {
   if (!(await archiveReady())) return listWorksFromGame(query)
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
-  const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
+  const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? 24))
   const where = await workWhere(query)
 
   const total = await _workCountCache(JSON.stringify(where))
@@ -844,7 +844,7 @@ function sortToOrderByGame(sort: GalvelicaSort): Prisma.GameOrderByWithRelationI
 
 async function listWorksFromGame(query: GalvelicaListQuery): Promise<GalvelicaListResult> {
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
-  const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
+  const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? 24))
   const where = await publishedWhere(query)
   const total = await _gameCountCache(JSON.stringify(where))
   const totalPages = Math.max(1, Math.ceil(total / pageSize))

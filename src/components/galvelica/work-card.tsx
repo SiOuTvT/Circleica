@@ -7,6 +7,7 @@ import { Tag, TagGroup } from "@/components/ui/tag"
 import type { GalvelicaWorkCard, GalvelicaTag } from "@/lib/galvelica"
 import { GAME } from "@/lib/config"
 import { Cjk } from "@/components/cjk-text"
+import { GalvelicaEntryRow } from "./galvelica-entry-row"
 
 interface WorkCardProps {
   work: GalvelicaWorkCard
@@ -107,14 +108,14 @@ export function WorkCard({ work, priority, showTags = true, tagColor }: WorkCard
   )
 }
 
-export function WorkGrid({ works, priorityCount = 0, showTags = true, tagColor }: { works: GalvelicaWorkCard[]; priorityCount?: number; showTags?: boolean; tagColor?: string }) {
+export function WorkGrid({ works, priorityCount = 0, showTags = true, desc = false }: { works: GalvelicaWorkCard[]; priorityCount?: number; showTags?: boolean; tagColor?: string; desc?: boolean }) {
   if (!works.length) {
     return <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的作品。</p>
   }
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+    <div className="galvelica-grid-2">
       {works.map((w, i) => (
-        <WorkCard key={w.id} work={w} priority={i < priorityCount} showTags={showTags} tagColor={tagColor} />
+        <GalvelicaEntryRow key={w.id} work={w} priority={i < priorityCount} showTags={showTags} desc={desc} />
       ))}
     </div>
   )

@@ -10,14 +10,20 @@ import { GalvelicaCover } from "./galvelica-cover"
 export function GalvelicaEntryRow({
   work,
   desc,
+  priority,
+  showTags = true,
 }: {
   work: GalvelicaWorkCard
   desc?: boolean
+  /** 前 N 张封面用 priority 加载（来自 WorkGrid 的 priorityCount） */
+  priority?: boolean
+  /** 右端「N 个标签」行是否渲染；默认渲染 */
+  showTags?: boolean
 }) {
   return (
     <Link href={work.href} className="galvelica-entry">
       <span className="galvelica-entry-spine" aria-hidden />
-      <GalvelicaCover src={work.coverImage} alt={work.title} size="sm" />
+      <GalvelicaCover src={work.coverImage} alt={work.title} size="sm" priority={priority} />
       <span className="galvelica-entry-body">
         <span className="galvelica-entry-title">{work.title}</span>
         <span className="galvelica-entry-meta">
@@ -31,7 +37,7 @@ export function GalvelicaEntryRow({
       </span>
       <span className="galvelica-entry-side">
         <span className="galvelica-entry-year">{work.releaseYear ?? ""}</span>
-        <span className="galvelica-entry-tagcount">{work.tags.length} 个标签</span>
+        {showTags && <span className="galvelica-entry-tagcount">{work.tags.length} 个标签</span>}
       </span>
     </Link>
   )

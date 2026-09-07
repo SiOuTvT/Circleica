@@ -11,11 +11,13 @@ export function GalvelicaCover({
   alt,
   size = "sm",
   className,
+  priority,
 }: {
   src?: string
   alt: string
   size?: "sm" | "lg"
   className?: string
+  priority?: boolean
 }) {
   const w = size === "lg" ? 132 : 62
   const glyphSize = size === "lg" ? 30 : 19
@@ -26,6 +28,7 @@ export function GalvelicaCover({
           src={src}
           alt={alt}
           fill
+          priority={priority}
           className="object-cover"
           sizes={size === "lg" ? "132px" : "62px"}
         />

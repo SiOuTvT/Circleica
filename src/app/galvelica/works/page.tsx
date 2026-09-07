@@ -1,12 +1,10 @@
 import type { Metadata } from "next"
-import type { CSSProperties } from "react"
 import Link from "next/link"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
 import { listWorks, getPopularTags, getNsfwMode, type GalvelicaSort } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
-import { getGalvelicaTagColor } from "@/lib/site-settings"
 
 export const dynamic = "force-dynamic"
 
@@ -71,11 +69,8 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
       () => listWorks({ tags, year, studio, search, sort, page }),
       60,
     ),
-    cached(cacheKey("galvelica:popularTags", 24), () => getPopularTags(24), 300),
+    cached(cacheKey("galvelica:popularTags", 12), () => getPopularTags(12), 300),
   ])
-
-  // 副站统一标签色：直查（实时，不经 300s 长缓存），后台保存后立即在前台生效。
-  const tagColor = await getGalvelicaTagColor()
 
   // 当前筛选状态（用于构造链接）
   const state: Record<string, string | undefined> = {
@@ -108,14 +103,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
       <div>
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 作品库</p>
         <h1 className="galvelica-h1 mt-2">作品库</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          共收录 {result.total} 部作品
-          {hasFilters && (
-            <Link href="/galvelica/works" className="ml-2 text-[var(--gal-accent)] hover:underline">
-              清除筛选
-            </Link>
-          )}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">共收录 {result.total} 部作品</p>
       </div>
 
       {/* 搜索 */}
@@ -126,83 +114,63 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
         submitLabel="检索"
       />
 
-      {/* 排序 */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* 排序 + 当前筛选（同一横条） */}
+      <div className="galvelica-strip">
         {SORTS.map((s) => (
           <Link
             key={s.key}
             href={makeHref({ sort: s.key, page: undefined })}
             data-active={sort === s.key}
-            className="galvelica-navlink rounded-lg px-3 py-1.5 text-sm font-medium"
+            className="galvelica-strip-item"
           >
-            {s.label}
+            <b>{s.label}</b>
           </Link>
         ))}
+        {search && (
+          <Link href={makeHref({ search: undefined, page: undefined })} className="galvelica-strip-item">
+            <b>关键词：{search} ✕</b>
+          </Link>
+        )}
+        {year && (
+          <Link href={makeHref({ year: undefined, page: undefined })} className="galvelica-strip-item">
+            <b>{year} 年 ✕</b>
+          </Link>
+        )}
+        {studio && (
+          <Link href={makeHref({ studio: undefined, page: undefined })} className="galvelica-strip-item">
+            <b>社团：{studio} ✕</b>
+          </Link>
+        )}
+        {tags.map((id) => {
+          const t = popularTags.find((p) => p.id === id)
+          return (
+            <Link key={id} href={toggleTag(id)} className="galvelica-strip-item">
+              <b>#{t?.name ?? id} ✕</b>
+            </Link>
+          )
+        })}
+        {hasFilters && (
+          <Link href="/galvelica/works" className="galvelica-strip-item">
+            <b>清除筛选</b>
+          </Link>
+        )}
       </div>
 
-      {/* 标签组合筛选 */}
-      <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">标签组合（可多选）</p>
-        <div className="flex flex-wrap gap-2">
-          {popularTags.map((t) => {
-            const active = tags.includes(t.id)
-            return (
-              <Link
-                key={t.id}
-                href={toggleTag(t.id)}
-                data-active={active}
-                style={{ "--gal-tag-color": tagColor } as CSSProperties}
-                className={
-                  active
-                    ? "inline-flex items-center gap-1 rounded-md border border-[color-mix(in_srgb,var(--gal-accent)_45%,transparent)] bg-[var(--gal-accent-soft)] px-2.5 py-1.5 text-xs font-medium text-[var(--gal-accent)]"
-                    : "galvelica-tag inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium"
-                }
-              >
-                {t.name}
-                {typeof t.count === "number" && <span className="opacity-60 tabular-nums">{t.count}</span>}
-              </Link>
-            )
-          })}
-        </div>
+      {/* 热门标签（12 个，作为可叠加筛选，不上色） */}
+      <div className="galvelica-strip">
+        {popularTags.map((t) => {
+          const active = tags.includes(t.id)
+          return (
+            <Link key={t.id} href={toggleTag(t.id)} data-active={active} className="galvelica-strip-item">
+              <b>{t.name}</b>
+              {typeof t.count === "number" && <i>{t.count}</i>}
+            </Link>
+          )
+        })}
       </div>
-
-      {/* 当前筛选摘要 */}
-      {hasFilters && (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-muted-foreground">当前筛选：</span>
-          {search && (
-            <Link href={makeHref({ search: undefined, page: undefined })} className="galvelica-tag rounded-md px-2 py-1">
-              关键词：{search} ✕
-            </Link>
-          )}
-          {year && (
-            <Link href={makeHref({ year: undefined, page: undefined })} className="galvelica-tag rounded-md px-2 py-1">
-              {year} 年 ✕
-            </Link>
-          )}
-          {studio && (
-            <Link href={makeHref({ studio: undefined, page: undefined })} className="galvelica-tag rounded-md px-2 py-1">
-              社团：{studio} ✕
-            </Link>
-          )}
-          {tags.map((id) => {
-            const t = popularTags.find((p) => p.id === id)
-            return (
-              <Link
-                key={id}
-                href={toggleTag(id)}
-                className="galvelica-tag rounded-md px-2 py-1"
-                style={{ "--gal-tag-color": tagColor } as CSSProperties}
-              >
-                #{t?.name ?? id} ✕
-              </Link>
-            )
-          })}
-        </div>
-      )}
 
       {/* 结果 */}
-      <WorkGrid works={result.items} priorityCount={5} tagColor={tagColor} />
+      <WorkGrid works={result.items} priorityCount={5} desc />
 
       {/* 分页 */}
       <Pager

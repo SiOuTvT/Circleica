@@ -22,24 +22,22 @@ export function Pager({ basePath, query = {}, page, totalPages }: PagerProps) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-3 pt-2">
+    <nav className="galvelica-pager" aria-label="分页">
       {page > 1 ? (
-        <Link href={hrefFor(page - 1)} className="galvelica-navlink rounded-lg px-4 py-2 text-sm font-medium">
+        <Link href={hrefFor(page - 1)} className="galvelica-pager-nav galvelica-pager-prev">
           ← 上一页
         </Link>
       ) : (
-        <span className="rounded-lg px-4 py-2 text-sm text-muted-foreground/40">← 上一页</span>
+        <span className="galvelica-pager-nav galvelica-pager-disabled">← 上一页</span>
       )}
-      <span className="text-sm tabular-nums text-muted-foreground">
-        {page} / {totalPages}
-      </span>
+      <span className="galvelica-pager-count">第 {page} / {totalPages} 页</span>
       {page < totalPages ? (
-        <Link href={hrefFor(page + 1)} className="galvelica-navlink rounded-lg px-4 py-2 text-sm font-medium">
+        <Link href={hrefFor(page + 1)} className="galvelica-pager-nav galvelica-pager-next">
           下一页 →
         </Link>
       ) : (
-        <span className="rounded-lg px-4 py-2 text-sm text-muted-foreground/40">下一页 →</span>
+        <span className="galvelica-pager-nav galvelica-pager-disabled">下一页 →</span>
       )}
-    </div>
+    </nav>
   )
 }
