@@ -29,18 +29,20 @@ export function GalvelicaIndexFilter({
   placeholder,
   variant,
   numericPrefix = false,
-  scopeNote,
   listClassName,
+  paged,
 }: {
   items: GalvelicaFilterItem[]
   placeholder: string
   variant: "strip" | "year" | "studio"
   /** 年份页：额外支持数字前缀匹配（如输入 201 命中 2010 起所有年份） */
   numericPrefix?: boolean
-  /** 分页页专用提示：过滤只作用于当前页 */
-  scopeNote?: string
   /** 列表容器附加类名（供页面做作用域样式） */
   listClassName?: string
+  /** 分页页专用：过滤只作用于当前页。仅由"总页数 > 1"的页面传入；
+   *  传入后空态文案改为"本页 N 项中没有匹配项"、命中文案带"（仅筛选本页）"，
+   *  并在框下方常驻一行作用域说明。标签 / 年份页不分页，不传。 */
+  paged?: { page: number; perPage: number }
 }) {
   const [q, setQ] = useState("")
 
@@ -56,8 +58,12 @@ export function GalvelicaIndexFilter({
 
   const hint = q.trim()
     ? filtered.length === 0
-      ? `没有匹配项 当前 ${items.length} 项中筛出 0 项${scopeNote ? ` ${scopeNote}` : ""}`
-      : `当前 ${items.length} 项中筛出 ${filtered.length} 项`
+      ? paged
+        ? `本页 ${paged.perPage} 项中没有匹配项`
+        : `没有匹配项 当前 ${items.length} 项中筛出 0 项`
+      : paged
+        ? `当前 ${items.length} 项中筛出 ${filtered.length} 项（仅筛选本页）`
+        : `当前 ${items.length} 项中筛出 ${filtered.length} 项`
     : null
 
   return (
@@ -77,6 +83,11 @@ export function GalvelicaIndexFilter({
             className="w-full min-w-0 min-h-[40px] rounded-none border border-input bg-card py-2 pl-8 pr-3 galvelica-fs-meta text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
           />
         </div>
+        {paged && (
+          <p className="mt-2 galvelica-fs-meta text-muted-foreground">
+            仅筛选本页（第 {paged.page} 页 {paged.perPage} 项）
+          </p>
+        )}
         {hint && (
           <p className="mt-2 galvelica-fs-meta text-muted-foreground" aria-live="polite">
             {hint}

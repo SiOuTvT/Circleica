@@ -55,7 +55,7 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
           <GalvelicaIndexFilter
             variant="studio"
             placeholder="筛选社团"
-            scopeNote="仅筛选本页"
+            paged={totalPages > 1 ? { page, perPage: STUDIOS_PER_PAGE } : undefined}
             items={studios.map(({ name, count }) => ({
               href: `/galvelica/studios/${encodeURIComponent(name)}`,
               label: name,

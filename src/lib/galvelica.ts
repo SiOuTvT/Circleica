@@ -631,7 +631,27 @@ export async function getWorksByIds(ids: string[]): Promise<GalvelicaWorkCard[]>
   return ids.map((id) => map.get(id)).filter(Boolean) as GalvelicaWorkCard[]
 }
 
+/**
+ * 取一个随机作品的跳转目标（serialId 或 slug）。
+ * 真正的跳转由页面用客户端 router.replace 完成（见 random-redirect.tsx）——服务端
+ * redirect() 在异步 Server Component 里偶发会退化成 200 + 空 body（流式响应已 flush
+ * 后再调用 redirect 发不出 307），故这里只负责"可靠地取到候选"。
+ * 取候选本身也做了重试：第一次查不到（archiveReady / nsfwModeWhere 偶发失败被 catch，
+ * 或首屏 count 抖动）会在同一次请求内再试，最多 3 次，仍取不到才返回 null。
+ */
 export async function getRandomWorkSerialId(): Promise<string | null> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const id = await pickRandomWorkOnce()
+      if (id) return id
+    } catch {
+      // 偶发失败（DB 抖动 / archiveReady / nsfwModeWhere 抛错）→ 重试一次再判失败
+    }
+  }
+  return null
+}
+
+async function pickRandomWorkOnce(): Promise<string | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
   const where = { isCommercial: false, ...(await nsfwModeWhere()) }
   const count = await prisma.work.count({ where })
