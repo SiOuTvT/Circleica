@@ -137,18 +137,8 @@ export interface GalvelicaListQuery {
   sort?: GalvelicaSort
   page?: number
   pageSize?: number
-}
-
-export interface FeaturedTheme {
-  key: string
-  kicker: string
-  title: string
-  blurb: string
-  tagId: string
-  tagName: string
-  /** 主题所对应标签的颜色（用于首页专题策划 chip 与副站统一的取色渲染） */
-  tagColor?: string | null
-  href: string
+  /** 制作人员筛选：Creator.id —— 与详情页 staff[].id 同源（同一份 work.creators 关系） */
+  staff?: string
 }
 
 /* ── 归档就绪判定（一次性缓存） ───────────────────── */
@@ -307,6 +297,8 @@ async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> 
     and.push({ releaseDate: { gte: from, lt: to } })
   }
   if (q.studio) and.push({ studioName: q.studio })
+  // 制作人员：与详情页 staff[].id 同源，都是 WorkCreator.creatorId
+  if (q.staff) and.push({ creators: { some: { creatorId: q.staff } } })
   if (q.search && q.search.trim()) {
     const s = q.search.trim()
     and.push({
@@ -473,18 +465,6 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
   }
 }
 
-export async function getRelatedWorks(id: string, tagNames: string[], limit = 8): Promise<GalvelicaWorkCard[]> {
-  if (!(await archiveReady())) return getRelatedWorksFromGame(id, tagNames, limit)
-  if (!tagNames.length) return []
-  const rows = await prisma.work.findMany({
-    where: { id: { not: id }, isCommercial: false, ...(await nsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
-    select: workCardSelect(),
-    orderBy: { favoriteCount: "desc" },
-    take: limit,
-  })
-  return rows.map(mapWorkCard)
-}
-
 export async function getPopularTags(limit = 300): Promise<GalvelicaTag[]> {
   // 副站标签必须只来自副站作品，绝不回退到主站标签（否则会把主站标签混进「其他」分组）
   if (!(await archiveReady())) return []
@@ -556,15 +536,53 @@ export async function getStudios(): Promise<{ name: string; count: number }[]> {
   return studios
 }
 
-export async function getRecentWorks(limit = 10): Promise<GalvelicaWorkCard[]> {
-  if (!(await archiveReady())) return getRecentWorksFromGame(limit)
-  const key = cacheKey("galvelica", "recent", await getNsfwMode(), String(limit))
-  const cached = await cache.get<GalvelicaWorkCard[]>(key)
-  if (cached) return cached
-  const rows = await prisma.work.findMany({ where: { isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect(), orderBy: { createdAt: "desc" }, take: limit })
-  const items = rows.map(mapWorkCard)
-  await cache.set(key, items, GAL_CACHE_TTL)
-  return items
+export interface GalvelicaStaffBrief {
+  id: string
+  name: string
+  /** 该人在本站参与的作品数（用于「只有 1 部就不给链接」的判断） */
+  workCount: number
+}
+
+/**
+ * 制作人员概览：一次取人 + 一次按人聚合计数，不为每个人单独发查询。
+ * 匹配键 = Creator.id，与详情页 work.staff[].id 完全同源（都来自 work.creators
+ * 关系的 creator.id），所以点人名必然能查到同一个人。
+ */
+export async function getStaffBrief(ids: string[]): Promise<GalvelicaStaffBrief[]> {
+  const uniq = [...new Set(ids)].filter(Boolean)
+  if (!uniq.length) return []
+  const archive = await archiveReady()
+  const [people, counted] = await Promise.all([
+    prisma.creator.findMany({ where: { id: { in: uniq } }, select: { id: true, name: true } }),
+    archive
+      ? prisma.workCreator.groupBy({
+          by: ["creatorId"],
+          where: { creatorId: { in: uniq }, work: { isCommercial: false } },
+          _count: { _all: true },
+        })
+      : prisma.gameCreator.groupBy({
+          by: ["creatorId"],
+          where: { creatorId: { in: uniq }, game: { isPublished: true } },
+          _count: { _all: true },
+        }),
+  ])
+  const counts = new Map(counted.map((r) => [r.creatorId, r._count._all]))
+  return people.map((p) => ({ id: p.id, name: p.name, workCount: counts.get(p.id) ?? 0 }))
+}
+
+/** 一批标签各自的站内作品数（一次聚合，用于挑「最不通用」的那个标签） */
+export async function getTagWorkCounts(tagIds: string[]): Promise<Record<string, number>> {
+  const uniq = [...new Set(tagIds)].filter(Boolean)
+  if (!uniq.length) return {}
+  if (!(await archiveReady())) return {}
+  const rows = await prisma.workTag.groupBy({
+    by: ["tagId"],
+    where: { tagId: { in: uniq }, work: { isCommercial: false } },
+    _count: { _all: true },
+  })
+  const out: Record<string, number> = {}
+  for (const r of rows) out[r.tagId] = r._count._all
+  return out
 }
 
 export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
@@ -668,50 +686,6 @@ export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
   return item
 }
 
-export async function getTagByName(name: string): Promise<GalvelicaTag | null> {
-  if (!(await archiveReady())) return getTagByNameFromGame(name)
-  const t = await prisma.tag.findFirst({
-    where: { name: { equals: name, mode: "insensitive" }, isVisible: true },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
-  })
-  if (!t) return null
-  return {
-    id: t.id,
-    name: t.name,
-    color: t.color,
-    groupName: t.group?.name ?? null,
-    groupColor: t.group?.color ?? null,
-    count: t._count.works,
-  }
-}
-
-const THEME_DEFS: { key: string; kicker: string; title: string; blurb: string; tagName: string }[] = [
-  { key: "love", kicker: "专栏 01", title: "恋爱物语", blurb: "青涩、纠结与心动，同人创作者最钟情的题材之一。", tagName: "恋爱" },
-  { key: "multiline", kicker: "专栏 02", title: "多线叙事", blurb: "分支、选择与多重结局——结构本身即是乐趣。", tagName: "多结局" },
-  { key: "adv", kicker: "专栏 03", title: "ADV 巡礼", blurb: "文字冒险的原点与流变，从一部经典读起。", tagName: "ADV" },
-]
-
-export async function getFeaturedThemes(): Promise<FeaturedTheme[]> {
-  const key = cacheKey("galvelica", "featured-themes", await getNsfwMode())
-  const cached = await cache.get<FeaturedTheme[]>(key)
-  if (cached) return cached
-
-  const themes: FeaturedTheme[] = []
-  for (const def of THEME_DEFS) {
-    const tag = await getTagByName(def.tagName)
-    if (!tag) continue
-    themes.push({
-      ...def,
-      tagId: tag.id,
-      tagName: tag.name,
-      tagColor: tag.color,
-      href: `/galvelica/works?tags=${encodeURIComponent(tag.id)}`,
-    })
-  }
-  await cache.set(key, themes, GAL_CACHE_TTL)
-  return themes
-}
-
 /* =========================================================================
  *  旧 Game 实现（回退路径：Work 表尚未回填时使用）
  * ========================================================================= */
@@ -810,6 +784,8 @@ async function publishedWhere(q: GalvelicaListQuery): Promise<Prisma.GameWhereIn
     })
   }
   if (q.studio) and.push({ studios: { some: { studio: { displayName: { equals: q.studio, mode: "insensitive" } } } } })
+  // 制作人员：Game 回退路径同样按 Creator.id 匹配（GameCreator.creatorId）
+  if (q.staff) and.push({ creators: { some: { creatorId: q.staff } } })
   if (q.search && q.search.trim()) {
     const s = q.search.trim()
     and.push({
@@ -912,17 +888,6 @@ async function getWorkBySerialIdFromGame(serialId: number): Promise<GalvelicaWor
   }
 }
 
-async function getRelatedWorksFromGame(id: string, tagNames: string[], limit = 8): Promise<GalvelicaWorkCard[]> {
-  if (!tagNames.length) return []
-  const rows = await prisma.game.findMany({
-    where: { id: { not: id }, isPublished: true, tags: { some: { tag: { name: { in: tagNames } } } } },
-    select: workCardSelectGame(),
-    orderBy: { favoriteCount: "desc" },
-    take: limit,
-  })
-  return rows.map(mapCardGame)
-}
-
 async function getYearsFromGame(): Promise<{ year: number; count: number }[]> {
   const key = cacheKey("galvelica", "years")
   const cached = await cache.get<{ year: number; count: number }[]>(key)
@@ -960,16 +925,6 @@ async function getStudiosFromGame(): Promise<{ name: string; count: number }[]> 
   const studios = [...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "zh-Hans-CN"))
   await cache.set(key, studios, GAL_CACHE_TTL)
   return studios
-}
-
-async function getRecentWorksFromGame(limit = 10): Promise<GalvelicaWorkCard[]> {
-  const key = cacheKey("galvelica", "recent", await getNsfwMode(), String(limit))
-  const cached = await cache.get<GalvelicaWorkCard[]>(key)
-  if (cached) return cached
-  const rows = await prisma.game.findMany({ where: { isPublished: true, ...(await gameNsfwModeWhere()) }, select: workCardSelectGame(), orderBy: { createdAt: "desc" }, take: limit })
-  const items = rows.map(mapCardGame)
-  await cache.set(key, items, GAL_CACHE_TTL)
-  return items
 }
 
 async function getEditorPicksFromGame(limit = 8): Promise<GalvelicaWorkCard[]> {
@@ -1035,15 +990,6 @@ async function getDailyPickFromGame(): Promise<GalvelicaWorkCard | null> {
   const item = g ? mapCardGame(g) : null
   await cache.set(key, item, GAL_CACHE_TTL)
   return item
-}
-
-async function getTagByNameFromGame(name: string): Promise<GalvelicaTag | null> {
-  const t = await prisma.tag.findFirst({
-    where: { name: { equals: name, mode: "insensitive" }, isVisible: true },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { games: true } } },
-  })
-  if (!t) return null
-  return { id: t.id, name: t.name, color: t.color, groupName: t.group?.name ?? null, groupColor: t.group?.color ?? null, count: t._count.games }
 }
 
 // 副站标签预设色板已迁至 @/lib/galvelica-palette（客户端安全模块，避免引入 next/headers 破坏后台编辑组件构建）。

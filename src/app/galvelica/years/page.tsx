@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { CalendarDays } from "lucide-react"
 import { getYears } from "@/lib/galvelica"
+import { GalvelicaIndexFilter } from "@/components/galvelica/galvelica-index-filter"
 
 export const dynamic = "force-dynamic"
 
@@ -27,10 +27,11 @@ export const metadata: Metadata = {
 
 export default async function GalvelicaYears() {
   const years = await getYears()
+  const thisYear = new Date().getFullYear()
 
   return (
-    <div className="space-y-8">
-      <div>
+    <div className="galvelica-index-page">
+      <div className="galvelica-index-title">
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 年份</p>
         <h1 className="galvelica-h1 mt-2 flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -42,20 +43,19 @@ export default async function GalvelicaYears() {
       </div>
 
       {years.length === 0 ? (
-        <p className="py-10 text-center galvelica-fs-meta text-muted-foreground">暂无收录的作品。</p>
+        <p className="galvelica-index-empty py-10 text-center galvelica-fs-meta text-muted-foreground">暂无收录的作品。</p>
       ) : (
-        <div className="galvelica-year-grid">
-          {years.map(({ year, count }) => (
-            <Link
-              key={year}
-              href={`/galvelica/years/${year}`}
-              className="galvelica-index-card galvelica-year-cell"
-            >
-              <span className="galvelica-year-year">{year}</span>
-              <span className="galvelica-year-count">{count} 部</span>
-            </Link>
-          ))}
-        </div>
+        <GalvelicaIndexFilter
+          variant="year"
+          numericPrefix
+          placeholder="筛选年份"
+          items={years.map(({ year, count }) => ({
+            href: `/galvelica/years/${year}`,
+            label: String(year),
+            count,
+            alt: year > thisYear ? "预定" : "",
+          }))}
+        />
       )}
     </div>
   )

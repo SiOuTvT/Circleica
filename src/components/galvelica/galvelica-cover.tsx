@@ -20,7 +20,8 @@ export function GalvelicaCover({
   priority?: boolean
 }) {
   const w = size === "xl" ? 208 : size === "lg" ? 132 : 62
-  const glyphSize = size === "xl" ? 44 : size === "lg" ? 30 : 19
+  // 兜底首字也走字号档位：26 / 22 / 18（xl / lg / sm）
+  const glyphSize = size === "xl" ? 26 : size === "lg" ? 22 : 18
   return (
     <div className={`galvelica-cover${className ? ` ${className}` : ""}`} style={{ width: w }}>
       {src ? (

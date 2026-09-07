@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Tags } from "lucide-react"
-import Link from "next/link"
 import { getPopularTags } from "@/lib/galvelica"
+import { GalvelicaIndexFilter } from "@/components/galvelica/galvelica-index-filter"
 
 export const dynamic = "force-dynamic"
 
@@ -29,8 +29,8 @@ export default async function GalvelicaTags() {
   const tags = await getPopularTags(500)
 
   return (
-    <div className="space-y-8">
-      <div>
+    <div className="galvelica-index-page">
+      <div className="galvelica-index-title">
         <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 标签</p>
         <h1 className="galvelica-h1 mt-2 flex items-center gap-2">
           <Tags className="h-4 w-4 text-muted-foreground" />
@@ -42,16 +42,16 @@ export default async function GalvelicaTags() {
       </div>
 
       {/* 一条完整列表：不按后台内部分组切块，内部组名也不出现在前台文案 */}
-      <div className="galvelica-tagindex">
-        <div className="galvelica-strip">
-          {tags.map((t) => (
-            <Link key={t.id} href={`/galvelica/tags/${t.id}`} className="galvelica-strip-item">
-              <b>{t.name}</b>
-              {typeof t.count === "number" && <i>{t.count}</i>}
-            </Link>
-          ))}
-        </div>
-      </div>
+      {tags.length === 0 ? (
+        <p className="galvelica-index-empty py-10 text-center galvelica-fs-meta text-muted-foreground">暂无收录的标签。</p>
+      ) : (
+        <GalvelicaIndexFilter
+          variant="strip"
+          placeholder="筛选标签"
+          listClassName="galvelica-tagindex"
+          items={tags.map((t) => ({ href: `/galvelica/tags/${t.id}`, label: t.name, count: t.count }))}
+        />
+      )}
     </div>
   )
 }

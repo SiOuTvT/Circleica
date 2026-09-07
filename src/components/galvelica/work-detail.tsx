@@ -8,8 +8,10 @@ import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { SectionTitle } from "@/components/galvelica/section-title"
 import { GalvelicaWorkDescription } from "@/components/galvelica/work-description"
 import { GalvelicaCover } from "@/components/galvelica/galvelica-cover"
+import { GalvelicaEntryRow } from "@/components/galvelica/galvelica-entry-row"
 import { GalvelicaCategoryNote } from "@/components/galvelica/galvelica-category-note"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
+import { getStaffBrief, getTagWorkCounts, listWorks } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
 import { Star, ArrowUpRight } from "lucide-react"
@@ -66,7 +68,7 @@ function ExtLink({ href, text }: { href: string; text: string }) {
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
  * 已收录 → 显示「查看资源」；未收录 → 显示「申请收录到 Circleica」。
  */
-export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
+export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
   const byRole = new Map<string, typeof work.staff>()
   for (const s of work.staff) {
     if (!byRole.has(s.role)) byRole.set(s.role, [])
@@ -77,6 +79,26 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
     ...[...byRole.keys()].filter((r) => !ROLE_ORDER.includes(r)),
   ]
   const lede = work.description ? toPlainText(work.description) : ""
+
+  // 制作人员：一次聚合出每人的站内作品数（服务端判断，只有 1 部作品就不给链接）
+  const staffBrief = await getStaffBrief(work.staff.map((s) => s.id))
+  const staffCount = new Map(staffBrief.map((b) => [b.id, b.workCount]))
+
+  // 相关作品：全部复用 listWorks，不新增查询函数
+  // 同标签取「站内作品数最少且至少还有别的作品」的那个标签，避免命中几千部的大标签
+  const tagCounts = await getTagWorkCounts(work.tags.map((t) => t.id))
+  const rarestTag = work.tags
+    .map((t) => ({ tag: t, count: tagCounts[t.id] ?? 0 }))
+    .filter((x) => x.count >= 2)
+    .sort((a, b) => a.count - b.count)[0]
+
+  const [studioRes, tagRes] = await Promise.all([
+    work.studioName ? listWorks({ studio: work.studioName, sort: "year", pageSize: 7 }) : Promise.resolve(null),
+    rarestTag ? listWorks({ tags: [rarestTag.tag.id], sort: "year", pageSize: 7 }) : Promise.resolve(null),
+  ])
+  // 排除当前作品自身；不足 3 条整块不渲染
+  const studioOthers = (studioRes?.items ?? []).filter((w) => w.id !== work.id).slice(0, 6)
+  const tagOthers = (tagRes?.items ?? []).filter((w) => w.id !== work.id).slice(0, 6)
 
   return (
     <div>
@@ -178,6 +200,30 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         {work.vndbId && <Meta label="VNDB" value={<ExtLink href={`https://vndb.org/${work.vndbId}`} text={work.vndbId} />} />}
       </div>
 
+      {/* ── 同社团其它作品（不足 3 条整块不渲染） ── */}
+      {studioOthers.length >= 3 && (
+        <section className="galvelica-detail-section">
+          <SectionTitle>同社团其它作品</SectionTitle>
+          <div className="galvelica-grid-2">
+            {studioOthers.map((w) => (
+              <GalvelicaEntryRow key={w.id} work={w} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 同标签作品（取站内作品数最少的非通用标签；不足 3 条整块不渲染） ── */}
+      {tagOthers.length >= 3 && rarestTag && (
+        <section className="galvelica-detail-section">
+          <SectionTitle>同标签作品</SectionTitle>
+          <div className="galvelica-grid-2">
+            {tagOthers.map((w) => (
+              <GalvelicaEntryRow key={w.id} work={w} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── 截图 ── */}
       {work.screenshots.length > 0 && (
         <section className="galvelica-detail-section">
@@ -215,16 +261,27 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             {roles.map((role) => (
               <div key={role} className="galvelica-staff-group">
                 <h3 className="galvelica-staff-title">{CREATOR_ROLE_LABELS[role] ?? role}</h3>
-                {byRole.get(role)!.map((s) => (
-                  <div key={s.id} className="galvelica-staff-row">
-                    <span className="galvelica-staff-left">
-                      <Link href={`/creators/${s.id}`} className="galvelica-staff-name">
-                        {s.name}
-                      </Link>
-                    </span>
-                    {s.nameJa && <span className="galvelica-staff-note">{s.nameJa}</span>}
-                  </div>
-                ))}
+                {byRole.get(role)!.map((s) => {
+                  // 只在站内还有别的作品时才做成链接（判断在服务端，用按人聚合的计数）
+                  const linkable = (staffCount.get(s.id) ?? 0) > 1
+                  return (
+                    <div key={s.id} className="galvelica-staff-row">
+                      <span className="galvelica-staff-left">
+                        {linkable ? (
+                          <Link
+                            href={`/galvelica/works?staff=${encodeURIComponent(s.id)}`}
+                            className="galvelica-staff-name"
+                          >
+                            {s.name}
+                          </Link>
+                        ) : (
+                          <span className="galvelica-staff-name">{s.name}</span>
+                        )}
+                      </span>
+                      {s.nameJa && <span className="galvelica-staff-note">{s.nameJa}</span>}
+                    </div>
+                  )
+                })}
               </div>
             ))}
           </div>

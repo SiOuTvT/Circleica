@@ -2123,6 +2123,27 @@ body[data-has-bottom-nav="true"] {
   text-transform: uppercase;
   color: var(--gal-accent);
 }
+/* 随机按钮：独立动作，不是导航项，hover 只变文字色（无底色块 / 无圆角 / 无阴影） */
+.galvelica-rail-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 0;
+  font-size: var(--gal-fs-count);
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.galvelica-rail-action:hover {
+  color: var(--gal-accent);
+  background: transparent;
+}
 .galvelica-rail-search { min-width: 0; }
 .galvelica-rail-nav {
   display: flex;
@@ -2447,6 +2468,28 @@ body[data-has-bottom-nav="true"] {
 .galvelica-strip-item:hover { color: var(--gal-accent); }
 /* 标签索引分组内标签名用衬线（仅本页作用域，不影响作品库筛选条） */
 .galvelica-tagindex .galvelica-strip-item b { font-family: var(--font-display); }
+
+/* 索引页：页头（左） + 页内过滤框（右，与页头同一行）；过滤框与列表属于同一个客户端组件，
+   这里用 display:contents 把它拆到网格的两行上，页面本身保持 server component。 */
+.galvelica-index-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  column-gap: 24px;
+  row-gap: 16px;
+  align-items: end;
+}
+.galvelica-index-page > .galvelica-index-title { grid-column: 1; grid-row: 1; }
+.galvelica-index-filter { display: contents; }
+.galvelica-index-filter > .field { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
+.galvelica-index-filter > .list { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+.galvelica-index-empty { grid-column: 1 / -1; grid-row: 2; }
+@media (max-width: 1023px) {
+  .galvelica-index-page { grid-template-columns: minmax(0, 1fr); }
+  .galvelica-index-page > .galvelica-index-title { grid-column: 1; grid-row: 1; }
+  .galvelica-index-filter > .field { grid-column: 1; grid-row: 2; }
+  .galvelica-index-filter > .list { grid-column: 1; grid-row: 3; }
+  .galvelica-index-empty { grid-column: 1; grid-row: 2; }
+}
 
 /* 副站内复用的主站「翻译」按钮：并入 13px 档 + 去圆角（主站组件本身不改） */
 .galvelica-translate-slot button {

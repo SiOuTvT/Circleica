@@ -33,12 +33,15 @@ export function GalvelicaRail({ counts }: { counts: RailCounts }) {
         <span className="sub">ARCHIVE</span>
       </div>
 
-      {/* ② 检索（只要输入框，不要按钮） */}
+      {/* ② 随机：独立动作按钮（与开关区同族：无圆角无阴影，hover 只变色、不带底色块） */}
+      <GalvelicaRandomLink label="随机翻开一部" className="galvelica-rail-action" />
+
+      {/* ③ 检索（只要输入框，不要按钮） */}
       <div className="galvelica-rail-search">
         <GalvelicaSearch placeholder="检索作品、社团、原名" />
       </div>
 
-      {/* ③ 导航 */}
+      {/* ③ 导航：只留五个页面入口，随机是动作不是页面，已移到品牌行下方 */}
       <nav className="galvelica-rail-nav">
         {NAV_ITEMS.map((item) => {
           const active =
@@ -53,7 +56,6 @@ export function GalvelicaRail({ counts }: { counts: RailCounts }) {
             </Link>
           )
         })}
-        <GalvelicaRandomLink label="随机翻开一部" className="galvelica-rail-random" />
       </nav>
 
       {/* ④ 底部开关区 */}
