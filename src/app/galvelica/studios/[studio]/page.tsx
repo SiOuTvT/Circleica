@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
+import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { listWorks } from "@/lib/galvelica"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
@@ -41,7 +42,7 @@ export default async function GalvelicaStudioDetail({
     <div className="space-y-8">
       <div>
         <GalvelicaBackLink href="/galvelica/studios" label="社团索引" />
-        <p className="mt-3 text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 社团</p>
+        <GalvelicaEyebrow text="GALVELICA 社团" className="mt-3" />
         <h1 className="galvelica-h1 mt-2">{name}</h1>
         <p className="mt-1 text-sm text-muted-foreground">共 {result.total} 部作品</p>
       </div>

@@ -6,6 +6,7 @@ import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
+import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { SectionTitle } from "@/components/galvelica/section-title"
 import { GalvelicaWorkDescription } from "@/components/galvelica/work-description"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
@@ -97,7 +98,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
         </div>
 
         <div className="min-w-0">
-          <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 作品</p>
+          <GalvelicaEyebrow text="GALVELICA 作品" />
           <h1 className="galvelica-h1 mt-2 sm:text-3xl">
             {work.title}
           </h1>

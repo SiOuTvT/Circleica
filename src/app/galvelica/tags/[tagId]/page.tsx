@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaBackLink } from "@/components/galvelica/back-link"
+import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { getTagById, listWorks } from "@/lib/galvelica"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 
@@ -40,7 +41,8 @@ export default async function GalvelicaTagDetail({
     <div className="space-y-8">
       <div>
         <GalvelicaBackLink href="/galvelica/tags" label="标签索引" />
-        <h1 className="galvelica-h1 mt-3">
+        <GalvelicaEyebrow text="GALVELICA 标签" className="mt-3" />
+        <h1 className="galvelica-h1 mt-2">
           {tag.name}
           {tag.groupName && <span className="ml-2 text-base font-normal text-muted-foreground">（{tag.groupName}）</span>}
         </h1>

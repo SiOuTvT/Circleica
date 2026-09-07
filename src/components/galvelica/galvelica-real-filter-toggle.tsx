@@ -40,7 +40,7 @@ export function GalvelicaRealFilterToggle({ className }: { className?: string })
       onClick={toggle}
       aria-pressed={enabled}
       aria-label={`切换真人实拍/写实3D作品显示（当前${label}）`}
-      title={`真人实拍/写实 3D 过滤（默认隐藏）：${label}`}
+      title="真人实拍/写实 3D 作品过滤：默认隐藏，点击可切换显示或隐藏（无需登录）"
       data-active={enabled}
       className={
         className ??

@@ -359,23 +359,24 @@ export async function listWorks(query: GalvelicaListQuery): Promise<GalvelicaLis
   const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
   const where = await workWhere(query)
 
-  const [total, rows] = await Promise.all([
-    _workCountCache(JSON.stringify(where)),
-    prisma.work.findMany({
-      where,
-      select: workCardSelect(),
-      orderBy: workSortToOrderBy(query.sort ?? "recommended"),
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    }),
-  ])
+  const total = await _workCountCache(JSON.stringify(where))
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  // 越界回落：page 超出总页数时按最后一页返回，避免空列表（副站规则）
+  const safePage = Math.min(page, totalPages)
+  const rows = await prisma.work.findMany({
+    where,
+    select: workCardSelect(),
+    orderBy: workSortToOrderBy(query.sort ?? "recommended"),
+    skip: (safePage - 1) * pageSize,
+    take: pageSize,
+  })
 
   return {
     items: rows.map(mapWorkCard),
     total,
-    page,
+    page: safePage,
     pageSize,
-    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    totalPages,
   }
 }
 
@@ -612,20 +613,22 @@ export async function getWorksByIds(ids: string[]): Promise<GalvelicaWorkCard[]>
   return ids.map((id) => map.get(id)).filter(Boolean) as GalvelicaWorkCard[]
 }
 
-export async function getRandomWorkSerialId(): Promise<number | null> {
+export async function getRandomWorkSerialId(): Promise<string | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
-  const modeWhere = await nsfwModeWhere()
-  const count = await prisma.work.count({ where: { NOT: { gameId: null }, isCommercial: false, ...modeWhere } })
+  const where = { isCommercial: false, ...(await nsfwModeWhere()) }
+  const count = await prisma.work.count({ where })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
   const w = await prisma.work.findFirst({
-    where: { NOT: { gameId: null }, isCommercial: false, ...modeWhere },
-    select: { game: { select: { serialId: true } } },
+    where,
+    select: { slug: true, gameId: true, game: { select: { serialId: true } } },
     orderBy: { createdAt: "asc" },
     skip,
     take: 1,
   })
-  return w?.game?.serialId ?? null
+  if (!w) return null
+  // 已收录（有 Game 锚点）→ 用作品 serialId；否则用 slug（详情路由两者都解析）
+  return w.gameId && w.game ? String(w.game.serialId) : w.slug
 }
 
 export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
@@ -843,17 +846,17 @@ async function listWorksFromGame(query: GalvelicaListQuery): Promise<GalvelicaLi
   const page = Math.max(1, query.page ?? PAGINATION.DEFAULT_PAGE)
   const pageSize = Math.min(PAGINATION.MAX_PAGE_SIZE, Math.max(1, query.pageSize ?? PAGINATION.DEFAULT_PAGE_SIZE))
   const where = await publishedWhere(query)
-  const [total, rows] = await Promise.all([
-    _gameCountCache(JSON.stringify(where)),
-    prisma.game.findMany({
-      where,
-      select: workCardSelectGame(),
-      orderBy: sortToOrderByGame(query.sort ?? "recommended"),
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    }),
-  ])
-  return { items: rows.map(mapCardGame), total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) }
+  const total = await _gameCountCache(JSON.stringify(where))
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const safePage = Math.min(page, totalPages)
+  const rows = await prisma.game.findMany({
+    where,
+    select: workCardSelectGame(),
+    orderBy: sortToOrderByGame(query.sort ?? "recommended"),
+    skip: (safePage - 1) * pageSize,
+    take: pageSize,
+  })
+  return { items: rows.map(mapCardGame), total, page: safePage, pageSize, totalPages }
 }
 
 async function getWorkBySerialIdFromGame(serialId: number): Promise<GalvelicaWorkDetail | null> {
@@ -999,13 +1002,13 @@ async function getEditorPicksFromGame(limit = 8): Promise<GalvelicaWorkCard[]> {
   return items
 }
 
-async function getRandomWorkSerialIdFromGame(): Promise<number | null> {
+async function getRandomWorkSerialIdFromGame(): Promise<string | null> {
   const modeWhere = await gameNsfwModeWhere()
   const count = await prisma.game.count({ where: { isPublished: true, ...modeWhere } })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
   const g = await prisma.game.findFirst({ where: { isPublished: true, ...modeWhere }, select: { serialId: true }, skip, take: 1 })
-  return g?.serialId ?? null
+  return g ? String(g.serialId) : null
 }
 
 async function getTagByIdFromGame(tagId: string): Promise<GalvelicaTag | null> {

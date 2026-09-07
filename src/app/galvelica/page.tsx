@@ -44,7 +44,7 @@ const INDEX_LINKS = [
   { href: "/galvelica/tags", label: "标签索引" },
   { href: "/galvelica/studios", label: "社团" },
   { href: "/galvelica/years", label: "年份" },
-  { href: "/galvelica/random", label: "随机翻开" },
+  { href: "/galvelica/random", label: "随机" },
 ]
 
 export default async function GalvelicaHome() {
@@ -157,7 +157,7 @@ export default async function GalvelicaHome() {
             className="flex flex-1 flex-col"
             action={
               <GalvelicaRandomLink
-                label="随机一部 →"
+                label="随机 →"
                 showIcon={false}
                 className="galvelica-navlink shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium"
               />
