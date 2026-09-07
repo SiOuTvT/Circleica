@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Building2 } from "lucide-react"
 import { getStudios } from "@/lib/galvelica"
+import { Pager } from "@/components/galvelica/pager"
 
 export const dynamic = "force-dynamic"
 
@@ -36,8 +37,6 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
   const start = (page - 1) * STUDIOS_PER_PAGE
   const studios = all.slice(start, start + STUDIOS_PER_PAGE)
 
-  const mkPage = (p: number) => `/galvelica/studios${p > 1 ? `?page=${p}` : ""}`
-
   return (
     <div className="space-y-8">
       <div>
@@ -68,25 +67,7 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <Link
-            href={mkPage(page - 1)}
-            aria-disabled={page <= 1}
-            className={`rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
-          >
-            上一页
-          </Link>
-          <span className="text-sm tabular-nums text-muted-foreground">{page} / {totalPages}</span>
-          <Link
-            href={mkPage(page + 1)}
-            aria-disabled={page >= totalPages}
-            className={`rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-muted"}`}
-          >
-            下一页
-          </Link>
-        </div>
-      )}
+      <Pager basePath="/galvelica/studios" page={page} totalPages={totalPages} />
     </div>
   )
 }

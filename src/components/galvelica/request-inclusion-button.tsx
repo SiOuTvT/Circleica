@@ -47,7 +47,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
 
   if (done) {
     return (
-      <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground">
+      <span className="galvelica-cta galvelica-cta-done">
         <Inbox className="h-4 w-4" />
         已提交收录申请
       </span>
@@ -59,7 +59,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
       type="button"
       onClick={submit}
       disabled={loading}
-      className="inline-flex items-center gap-2 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90 disabled:opacity-60"
+      className="galvelica-cta galvelica-cta-primary disabled:opacity-60"
     >
       <Inbox className="h-4 w-4" />
       {loading ? "提交中…" : "申请收录到 Circleica"}

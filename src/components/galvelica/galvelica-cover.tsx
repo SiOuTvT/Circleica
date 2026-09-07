@@ -15,12 +15,12 @@ export function GalvelicaCover({
 }: {
   src?: string
   alt: string
-  size?: "sm" | "lg"
+  size?: "sm" | "lg" | "xl"
   className?: string
   priority?: boolean
 }) {
-  const w = size === "lg" ? 132 : 62
-  const glyphSize = size === "lg" ? 30 : 19
+  const w = size === "xl" ? 208 : size === "lg" ? 132 : 62
+  const glyphSize = size === "xl" ? 44 : size === "lg" ? 30 : 19
   return (
     <div className={`galvelica-cover${className ? ` ${className}` : ""}`} style={{ width: w }}>
       {src ? (
@@ -30,7 +30,7 @@ export function GalvelicaCover({
           fill
           priority={priority}
           className="object-cover"
-          sizes={size === "lg" ? "132px" : "62px"}
+          sizes={size === "xl" ? "208px" : size === "lg" ? "132px" : "62px"}
         />
       ) : (
         <div className="galvelica-cover-empty">

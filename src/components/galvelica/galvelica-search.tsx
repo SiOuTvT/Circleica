@@ -32,8 +32,8 @@ export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitL
           placeholder={placeholder}
           className={
             fullWidth
-              ? "w-full min-w-0 border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
-              : "w-full min-w-0 border border-input bg-card py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
+              ? "w-full min-w-0 border border-input bg-card py-2 pl-8 pr-3 galvelica-fs-body text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
+              : "w-full min-w-0 border border-input bg-card py-2 pl-8 pr-3 galvelica-fs-body text-foreground placeholder:text-muted-foreground/70 focus:border-[var(--gal-accent)] focus:outline-none"
           }
           aria-label="检索"
         />
@@ -45,7 +45,7 @@ export function GalvelicaSearch({ className, defaultValue, hiddenFields, submitL
       {submitLabel && (
         <button
           type="submit"
-          className="bg-[var(--gal-accent)] px-4 py-2 text-sm font-medium text-[var(--theme-fg)] transition-opacity hover:opacity-90"
+          className="bg-[var(--gal-accent)] px-4 py-2 galvelica-fs-body font-medium text-[var(--theme-fg)] transition-opacity hover:opacity-90"
         >
           {submitLabel}
         </button>

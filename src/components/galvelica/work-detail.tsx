@@ -1,27 +1,19 @@
 import Link from "next/link"
 import { SafeImage } from "@/components/safe-image"
-import { Tag, TagGroup } from "@/components/ui/tag"
 import { WorkViewCounter } from "@/components/view-counter"
 import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { GalvelicaWorkBreadcrumb } from "@/components/galvelica/work-breadcrumb"
 import { RequestInclusionButton } from "@/components/galvelica/request-inclusion-button"
-import { GalvelicaBackLink } from "@/components/galvelica/back-link"
 import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { SectionTitle } from "@/components/galvelica/section-title"
 import { GalvelicaWorkDescription } from "@/components/galvelica/work-description"
+import { GalvelicaCover } from "@/components/galvelica/galvelica-cover"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
 import { Star, ArrowUpRight } from "lucide-react"
 
 const ROLE_ORDER = ["director", "scenario", "art", "chardesign", "music", "songs"]
-
-const statusLabel: Record<string, string> = {
-  FINISHED: "已完结",
-  ONGOING: "连载中",
-  HIATUS: "搁置",
-  CANCELLED: "已取消",
-}
 
 /** 标题比较：去首尾空白 + 转小写 + NFKC 全角转半角，忽略大小写与全/半角差异 */
 function normalizeForCompare(s: string): string {
@@ -30,6 +22,15 @@ function normalizeForCompare(s: string): string {
 function isSameTitle(a?: string | null, b?: string | null): boolean {
   if (!a || !b) return false
   return normalizeForCompare(a) === normalizeForCompare(b)
+}
+
+/** 详情简介是 HTML，头部「一句简介」只取纯文本 */
+function toPlainText(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 /* 平台/语言代码 → 可读标签（VNDB 代码） */
@@ -49,12 +50,23 @@ const fmtCodes = (codes: string[], labels: Record<string, string>) =>
     .map((c) => labels[c] ?? c.toUpperCase())
     .join(" / ")
 
+/** 站外链接：结尾用 ArrowUpRight（12px）替代「↗」字符，避免不同字体基线漂移 */
+function ExtLink({ href, text }: { href: string; text: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="galvelica-ext">
+      {text}
+      <ArrowUpRight size={12} className="galvelica-ext-icon" aria-hidden />
+    </a>
+  )
+}
+
 /**
- * Galvelica 作品详情视图（Stage E）。
+ * Galvelica 作品详情视图。
  * 同时供「已收录（/galvelica/works/<serialId>）」与「未收录（/galvelica/works/<slug>）」两条路由复用。
- * 已收录 → 显示「前往下载页」；未收录 → 显示「申请收录到 Circleica」。
+ * 已收录 → 显示「查看资源」；未收录 → 显示「申请收录到 Circleica」。
+ * 注：tagColor 仅为兼容调用点保留，内部不再消费（副站标签统一不上色）。
  */
-export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; tagColor?: string }) {
+export function WorkDetailView({ work }: { work: GalvelicaWorkDetail; tagColor?: string }) {
   const byRole = new Map<string, typeof work.staff>()
   for (const s of work.staff) {
     if (!byRole.has(s.role)) byRole.set(s.role, [])
@@ -64,57 +76,48 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
     ...ROLE_ORDER.filter((r) => byRole.has(r)),
     ...[...byRole.keys()].filter((r) => !ROLE_ORDER.includes(r)),
   ]
+  const lede = work.description ? toPlainText(work.description) : ""
 
   return (
     <div className="galvelica-root">
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
 
-      <GalvelicaBackLink href="/galvelica" label="Galvelica" className="mb-4" />
+      {/* ── 头部：左索引卡 + 右文献区 ── */}
+      <div className="galvelica-detail-head">
+        <div className="galvelica-detail-card">
+          <GalvelicaCover src={work.coverImage} alt={work.title} size="xl" priority />
 
-      {/* ── 头部：封面 + 摘要 ── */}
-      <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
-        <div className="galvelica-card overflow-hidden rounded-2xl">
-          <div className="relative aspect-[3/4] w-full bg-muted">
-            {work.coverImage ? (
-              <SafeImage
-                src={work.coverImage}
-                alt={work.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 320px"
-                priority
-                quality={85}
-              />
-            ) : (
-              /* 品牌化占位：标题首字 + 副站主题色渐变（无封面时） */
-              <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-[color-mix(in_srgb,var(--gal-accent)_16%,transparent)] to-[color-mix(in_srgb,var(--gal-accent)_4%,transparent)]">
-                <span className="galvelica-serif text-5xl font-semibold text-[color-mix(in_srgb,var(--gal-accent)_38%,transparent)]">
-                  {(work.title || "?").trim().charAt(0).toUpperCase()}
-                </span>
-                <span className="text-sm text-muted-foreground/60">暂无封面</span>
+          <div className="galvelica-archive">
+            {work.vndbId && (
+              <div className="galvelica-archive-row">
+                <span className="galvelica-archive-label">VNDB 编号</span>
+                <span className="galvelica-archive-value">{work.vndbId}</span>
               </div>
             )}
+            <div className="galvelica-archive-row">
+              <span className="galvelica-archive-label">收藏</span>
+              <span className="galvelica-archive-value">{work.favoriteCount}</span>
+            </div>
+            <div className="galvelica-archive-row">
+              <span className="galvelica-archive-label">浏览</span>
+              <span className="galvelica-archive-value">
+                <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="galvelica-archive-counter" />
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="galvelica-detail-main">
           <GalvelicaEyebrow text="GALVELICA 作品" />
-          <h1 className="galvelica-h1 mt-2 sm:text-3xl">
-            {work.title}
-          </h1>
+          <h1 className="galvelica-detail-title">{work.title}</h1>
+
           {work.originalWork && !isSameTitle(work.originalWork, work.title) && (
-            <p className="mt-1.5 text-sm text-foreground">原作：{work.originalWork}</p>
+            <p className="galvelica-detail-alt">{work.originalWork}</p>
           )}
-          {work.englishName && (
-            <p className="mt-1.5 text-xs text-foreground">{work.englishName}</p>
-          )}
+          {work.englishName && <p className="galvelica-detail-alt">{work.englishName}</p>}
           {work.doujinCategory && (
-            <span
-              className={`mt-2 inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${
-                work.doujinCategory === "PURE"
-                  ? "bg-[color-mix(in_srgb,var(--gal-accent)_14%,transparent)] text-[var(--gal-accent)]"
-                  : "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]"
-              }`}
+            <p
+              className="galvelica-detail-alt galvelica-detail-category"
               title={
                 work.doujinCategory === "PURE"
                   ? "纯正同人：个人或无注册社团自主制作，仅同人渠道分发"
@@ -122,61 +125,54 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
               }
             >
               {work.doujinCategory === "PURE" ? "纯正同人" : "同人系公司商业作"}
-            </span>
+            </p>
           )}
+          {lede && <p className="galvelica-detail-lede">{lede}</p>}
 
-          <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
+          <div className="galvelica-detail-stats">
             {work.ratingAvg != null && (
-              <span className="inline-flex items-center gap-1.5">
-                <Star className="h-4 w-4 text-[var(--gal-accent)]" fill="currentColor" strokeWidth={0} />
-                <span className="font-semibold text-foreground tabular-nums">{work.ratingAvg}</span>
+              <span className="galvelica-detail-rating">
+                <Star className="h-3.5 w-3.5 text-[var(--gal-accent)]" fill="currentColor" strokeWidth={0} />
+                <span className="galvelica-detail-rating-num">{work.ratingAvg}</span>
                 {work.ratingCount > 0 && <span className="opacity-70">({work.ratingCount})</span>}
               </span>
             )}
-            <WorkViewCounter workId={work.id} initialCount={work.viewCount} className="inline-flex items-center gap-1.5" />
             <ViewHistoryRecorder targetType="WORK" targetId={work.id} />
           </div>
 
-          {/* 联动 CTA：已收录→前往下载页；未收录→申请收录。
-              窄屏堆叠为整宽按钮，避免按钮内文字被挤压换行 */}
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+          {/* 联动 CTA：已收录→查看资源；未收录→申请收录。窄屏保持整宽堆叠 */}
+          <div className="galvelica-detail-cta">
             {work.included ? (
-              <Link
-                href={`/games/${work.serialId}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--gal-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--theme-fg)] transition-opacity hover:opacity-90 sm:w-auto"
-              >
-                查看资源 前往下载页
+              <Link href={`/games/${work.serialId}`} className="galvelica-cta galvelica-cta-primary">
+                查看资源
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             ) : (
               <RequestInclusionButton workId={work.id} title={work.title} />
             )}
-            <GalvelicaBackLink site className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:w-auto" />
           </div>
 
-          {/* 标签 */}
+          {/* 标签：与首页同一条索引横条，一律不上色 */}
           {work.tags.length > 0 && (
-            <div className="mt-5">
-              <TagGroup>
-                {work.tags.map((t) => (
-                  <Tag key={t.id} color={t.color || tagColor} href={`/galvelica/tags/${t.id}`} title={t.name}>
-                    {t.name}
-                  </Tag>
-                ))}
-              </TagGroup>
+            <div className="galvelica-strip galvelica-detail-tags">
+              {work.tags.map((t) => (
+                <Link key={t.id} href={`/galvelica/tags/${t.id}`} className="galvelica-strip-item" title={t.name}>
+                  <b>{t.name}</b>
+                  {typeof t.count === "number" && <i>{t.count}</i>}
+                </Link>
+              ))}
             </div>
           )}
         </div>
       </div>
 
       {/* ── 资料表 ── */}
-      <div className="mt-8 grid gap-x-8 gap-y-3 rounded-2xl border border-border bg-card/40 p-5 sm:grid-cols-2">
+      <div className="galvelica-meta">
         <Meta label="社团" value={work.studioName || "未知"} />
         <Meta
           label="发布时间"
           value={work.releaseDate ? formatZhDate(work.releaseDate) : work.releaseYear ? `${work.releaseYear} 年` : "未知"}
         />
-        {work.status && <Meta label="状态" value={statusLabel[work.status] ?? work.status} />}
         {work.gameDuration && <Meta label="时长" value={work.gameDuration} />}
         {work.aliases && <Meta label="别名" value={work.aliases} />}
         {work.platforms.length > 0 && <Meta label="平台" value={fmtCodes(work.platforms, PLATFORM_LABELS)} />}
@@ -187,47 +183,24 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
         {work.officialWebsite && (
           <Meta
             label="官网"
-            value={
-              <a
-                href={work.officialWebsite}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--gal-accent)] hover:underline"
-              >
-                {work.officialWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")} ↗
-              </a>
-            }
+            value={<ExtLink href={work.officialWebsite} text={work.officialWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")} />}
           />
         )}
-        {work.vndbId && (
-          <Meta
-            label="VNDB"
-            value={
-              <a
-                href={`https://vndb.org/${work.vndbId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--gal-accent)] hover:underline"
-              >
-                {work.vndbId} ↗
-              </a>
-            }
-          />
-        )}
+        {work.vndbId && <Meta label="VNDB" value={<ExtLink href={`https://vndb.org/${work.vndbId}`} text={work.vndbId} />} />}
       </div>
 
-      {/* ── 截图画廊（方案B） ── */}
+      {/* ── 截图 ── */}
       {work.screenshots.length > 0 && (
-        <section className="mt-8">
+        <section className="galvelica-detail-section">
           <SectionTitle>截图</SectionTitle>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="galvelica-shots">
             {work.screenshots.slice(0, 8).map((url, i) => (
               <a
                 key={`${url}-${i}`}
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="galvelica-card group block overflow-hidden rounded-xl"
+                className="galvelica-shot"
                 title={`查看原图 ${i + 1}`}
               >
                 <div className="relative aspect-[16/9] w-full bg-muted">
@@ -235,7 +208,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
                     src={url}
                     alt={`${work.title} 截图 ${i + 1}`}
                     fill
-                    className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                    className="object-cover"
                     sizes="(max-width: 640px) 45vw, 280px"
                     loading="lazy"
                   />
@@ -248,26 +221,22 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
 
       {/* ── 制作人员 ── */}
       {roles.length > 0 && (
-        <section className="mt-8">
+        <section className="galvelica-detail-section">
           <SectionTitle>制作人员</SectionTitle>
-          <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+          <div className="galvelica-staff">
             {roles.map((role) => (
-              <div key={role} className="flex gap-3">
-                <span className="w-16 shrink-0 pt-0.5 text-sm font-medium text-[var(--gal-accent)]">
-                  {CREATOR_ROLE_LABELS[role] ?? role}
-                </span>
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-                  {byRole.get(role)!.map((s) => (
-                    <Link
-                      key={s.id}
-                      href={`/creators/${s.id}`}
-                      className="text-foreground transition-colors hover:text-[var(--gal-accent)]"
-                    >
-                      {s.name}
-                      {s.nameJa && <span className="text-muted-foreground">（{s.nameJa}）</span>}
-                    </Link>
-                  ))}
-                </div>
+              <div key={role} className="galvelica-staff-group">
+                <h3 className="galvelica-staff-title">{CREATOR_ROLE_LABELS[role] ?? role}</h3>
+                {byRole.get(role)!.map((s) => (
+                  <div key={s.id} className="galvelica-staff-row">
+                    <span className="galvelica-staff-left">
+                      <Link href={`/creators/${s.id}`} className="galvelica-staff-name">
+                        {s.name}
+                      </Link>
+                    </span>
+                    {s.nameJa && <span className="galvelica-staff-note">{s.nameJa}</span>}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -276,7 +245,7 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
 
       {/* ── 简介 ── */}
       {work.description && (
-        <section className="mt-8">
+        <section className="galvelica-detail-section">
           <SectionTitle>简介</SectionTitle>
           <GalvelicaWorkDescription html={work.description} />
         </section>
@@ -284,30 +253,19 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
 
       {/* ── 系列 / 相似作品 ── */}
       {work.siblings.length > 0 && (
-        <section className="mt-8">
+        <section className="galvelica-detail-section">
           <SectionTitle>同系列 / 相似作品</SectionTitle>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-6">
+          <div className="galvelica-siblings">
             {work.siblings.map((s) => (
-              <Link key={s.id} href={s.href} className="galvelica-card group block overflow-hidden rounded-2xl">
-                <div className="relative aspect-[3/4] w-full bg-muted">
+              <Link key={s.id} href={s.href} className="galvelica-sibling">
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted">
                   {s.coverImage ? (
-                    <SafeImage
-                      src={s.coverImage}
-                      alt={s.title}
-                      fill
-                      className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
-                      sizes="(max-width: 640px) 30vw, 160px"
-                      loading="lazy"
-                    />
+                    <SafeImage src={s.coverImage} alt={s.title} fill className="object-cover" sizes="160px" loading="lazy" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-secondary text-muted-foreground/40 text-xs">
-                      无封面
-                    </div>
+                    <div className="galvelica-sibling-empty">无封面</div>
                   )}
                 </div>
-                <p className="line-clamp-2 p-2 text-xs font-medium leading-snug text-foreground group-hover:text-[var(--gal-accent)]">
-                  {s.title}
-                </p>
+                <p className="galvelica-sibling-title">{s.title}</p>
               </Link>
             ))}
           </div>
@@ -319,9 +277,9 @@ export function WorkDetailView({ work, tagColor }: { work: GalvelicaWorkDetail; 
 
 function Meta({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex gap-3 text-sm">
-      <span className="w-16 shrink-0 text-muted-foreground">{label}</span>
-      <span className="min-w-0 text-foreground">{value}</span>
+    <div className="galvelica-meta-item">
+      <span className="galvelica-meta-label">{label}</span>
+      <span className="galvelica-meta-value">{value}</span>
     </div>
   )
 }
