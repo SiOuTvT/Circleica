@@ -49,7 +49,7 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
       </div>
 
       {studios.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的社团。</p>
+        <p className="py-10 text-center galvelica-fs-meta text-muted-foreground">暂无收录的社团。</p>
       ) : (
         <div className="galvelica-studios-grid">
           {studios.map(({ name, count }) => (

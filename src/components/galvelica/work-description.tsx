@@ -29,13 +29,13 @@ export function GalvelicaWorkDescription({ html }: { html: string }) {
     <div>
       <RichTextContent html={html} className="max-w-3xl text-[15px] leading-relaxed text-foreground/90" />
       {showBtn && !translated && (
-        <div className="mt-3">
+        <div className="galvelica-translate-slot mt-3">
           <TranslateBtn text={plain} onTranslated={setTranslated} />
         </div>
       )}
       {translated && (
-        <div className="mt-4 rounded-xl border border-border bg-card/50 p-4">
-          <div className="mb-1.5 text-xs font-semibold text-muted-foreground">中文翻译</div>
+        <div className="mt-4 border-l-2 border-[var(--gal-accent)] p-4">
+          <div className="mb-1.5 galvelica-fs-meta font-semibold text-muted-foreground">中文翻译</div>
           <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{translated}</p>
         </div>
       )}

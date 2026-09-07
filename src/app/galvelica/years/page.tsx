@@ -42,7 +42,7 @@ export default async function GalvelicaYears() {
       </div>
 
       {years.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">暂无收录的作品。</p>
+        <p className="py-10 text-center galvelica-fs-meta text-muted-foreground">暂无收录的作品。</p>
       ) : (
         <div className="galvelica-year-grid">
           {years.map(({ year, count }) => (

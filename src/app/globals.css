@@ -1951,6 +1951,8 @@ body[data-has-bottom-nav="true"] {
   --gal-fs-h2: 18px;
   --gal-fs-body: 15px;
   --gal-fs-meta: 13px;
+  /* 承载数据的计数专用档：11px 只留给 uppercase 眉标与纯装饰位 */
+  --gal-fs-count: 13px;
   --gal-fs-eyebrow: 11px;
   --gal-gap-section: 34px;
   --gal-gap-row: 2px;
@@ -2103,9 +2105,9 @@ body[data-has-bottom-nav="true"] {
 }
 .galvelica-rail-brand {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 .galvelica-rail-brand .name {
   font-family: var(--font-display);
@@ -2157,18 +2159,28 @@ body[data-has-bottom-nav="true"] {
   padding-left: 7px;
 }
 .galvelica-rail-nav .num {
-  font-size: var(--gal-fs-eyebrow);
+  font-size: var(--gal-fs-count);
   font-variant-numeric: tabular-nums;
   color: var(--muted-foreground);
 }
 .galvelica-rail-switches {
-  margin-top: auto;
+  /* 顶部对齐：不再用 margin-top:auto 把开关区顶到栏底（那样中间会空出整段） */
+  margin-top: 0;
   padding-top: 18px;
   border-top: 1px solid var(--gal-line);
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: flex-start;
+}
+/* 开关区控件热区：统一 ≥40px 高 + 13px 数据档字号，无圆角 / 无阴影 / 无背景块 */
+.galvelica-rail-switches button,
+.galvelica-rail-switches a {
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: var(--gal-fs-count);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* 斜切封面（3:4，右上斜切口） */
@@ -2228,15 +2240,16 @@ body[data-has-bottom-nav="true"] {
 }
 .galvelica-entry:hover .galvelica-entry-spine { background: var(--gal-accent); }
 .galvelica-entry-title {
-  display: block;
+  /* 两行截断：长标题宁可占两行，也不要单行截掉一大截 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   font-family: var(--font-display);
   font-size: var(--gal-fs-body);
   font-weight: 600;
   line-height: 1.2;
   min-width: 0;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   transition: color 0.2s ease;
 }
 .galvelica-entry:hover .galvelica-entry-title { color: var(--gal-accent); }
@@ -2268,7 +2281,7 @@ body[data-has-bottom-nav="true"] {
   font-variant-numeric: tabular-nums;
 }
 .galvelica-entry-tagcount {
-  font-size: var(--gal-fs-eyebrow);
+  font-size: var(--gal-fs-count);
   color: var(--muted-foreground);
 }
 
@@ -2427,13 +2440,28 @@ body[data-has-bottom-nav="true"] {
 .galvelica-strip-item[data-active="true"] b { border-bottom-color: var(--gal-accent); }
 .galvelica-strip-item i {
   font-style: normal;
-  font-size: var(--gal-fs-eyebrow);
+  font-size: var(--gal-fs-count);
   color: var(--muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .galvelica-strip-item:hover { color: var(--gal-accent); }
 /* 标签索引分组内标签名用衬线（仅本页作用域，不影响作品库筛选条） */
 .galvelica-tagindex .galvelica-strip-item b { font-family: var(--font-display); }
+
+/* 副站内复用的主站「翻译」按钮：并入 13px 档 + 去圆角（主站组件本身不改） */
+.galvelica-translate-slot button {
+  font-size: var(--gal-fs-meta);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* NSFW 三段菜单：宽度不超过左栏内宽，向下展开并贴左栏内侧对齐 */
+.galvelica-nsfw-panel {
+  width: 100%;
+  max-width: 100%;
+  left: 0;
+  right: auto;
+}
 
 /* 分页文字带：无按钮感、无圆角、无背景；hover 仅变色 + 下划线 */
 .galvelica-pager {
@@ -2510,7 +2538,7 @@ a.galvelica-pager-nav:hover {
   color: var(--muted-foreground);
 }
 .galvelica-archive-value {
-  font-size: var(--gal-fs-meta);
+  font-size: var(--gal-fs-count);
   font-variant-numeric: tabular-nums;
   color: var(--foreground);
 }
@@ -2614,6 +2642,10 @@ a.galvelica-pager-nav:hover {
   padding: 9px 0;
   border-bottom: 1px solid var(--gal-line);
 }
+/* 项数为奇数时最后一项跨满整行，避免末行右侧半空（值仍右对齐） */
+.galvelica-meta-item:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 .galvelica-meta-label {
   flex-shrink: 0;
   font-size: var(--gal-fs-eyebrow);
@@ -2656,12 +2688,16 @@ a.galvelica-pager-nav:hover {
 
 /* 截图墙：无卡片，只有 1px 边框网格；封面不缩放 */
 .galvelica-shots {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 换行弹性布局：数量不是列数整数倍时，最后一整行自动居中（不出现半空行） */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 .galvelica-shot {
   display: block;
+  flex: 0 0 auto;
+  width: calc((100% - 3 * 12px) / 4);
   border: 1px solid var(--gal-line);
   background: transparent;
   border-radius: 0;
@@ -2741,7 +2777,7 @@ a.galvelica-pager-nav:hover {
 @media (max-width: 1023px) {
   .galvelica-detail-head { grid-template-columns: minmax(0, 1fr); }
   .galvelica-meta { grid-template-columns: minmax(0, 1fr); }
-  .galvelica-shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .galvelica-shot { width: calc((100% - 12px) / 2); }
   .galvelica-staff { grid-template-columns: minmax(0, 1fr); }
   .galvelica-siblings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -2777,7 +2813,7 @@ a.galvelica-pager-nav:hover {
   font-variant-numeric: tabular-nums;
 }
 .galvelica-year-count {
-  font-size: var(--gal-fs-eyebrow);
+  font-size: var(--gal-fs-count);
   color: var(--muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

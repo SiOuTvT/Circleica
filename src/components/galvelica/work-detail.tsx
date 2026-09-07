@@ -8,6 +8,7 @@ import { GalvelicaEyebrow } from "@/components/galvelica/galvelica-eyebrow"
 import { SectionTitle } from "@/components/galvelica/section-title"
 import { GalvelicaWorkDescription } from "@/components/galvelica/work-description"
 import { GalvelicaCover } from "@/components/galvelica/galvelica-cover"
+import { GalvelicaCategoryNote } from "@/components/galvelica/galvelica-category-note"
 import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
@@ -114,18 +115,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             <p className="galvelica-detail-alt">{work.originalWork}</p>
           )}
           {work.englishName && <p className="galvelica-detail-alt">{work.englishName}</p>}
-          {work.doujinCategory && (
-            <p
-              className="galvelica-detail-alt galvelica-detail-category"
-              title={
-                work.doujinCategory === "PURE"
-                  ? "纯正同人：个人或无注册社团自主制作，仅同人渠道分发"
-                  : "同人系公司：早年为同人社团、后期注册公司的厂商作品（同人衍生商业作）"
-              }
-            >
-              {work.doujinCategory === "PURE" ? "纯正同人" : "同人系公司商业作"}
-            </p>
-          )}
+          {work.doujinCategory && <GalvelicaCategoryNote category={work.doujinCategory} />}
           {lede && <p className="galvelica-detail-lede">{lede}</p>}
 
           <div className="galvelica-detail-stats">
@@ -155,7 +145,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
           {work.tags.length > 0 && (
             <div className="galvelica-strip galvelica-detail-tags">
               {work.tags.map((t) => (
-                <Link key={t.id} href={`/galvelica/tags/${t.id}`} className="galvelica-strip-item" title={t.name}>
+                <Link key={t.id} href={`/galvelica/tags/${t.id}`} className="galvelica-strip-item">
                   <b>{t.name}</b>
                   {typeof t.count === "number" && <i>{t.count}</i>}
                 </Link>
@@ -200,7 +190,6 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="galvelica-shot"
-                title={`查看原图 ${i + 1}`}
               >
                 <div className="relative aspect-[16/9] w-full bg-muted">
                   <SafeImage

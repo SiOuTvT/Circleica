@@ -41,11 +41,8 @@ export default async function GalvelicaTagDetail({
       <div>
         <GalvelicaBackLink href="/galvelica/tags" label="标签索引" />
         <GalvelicaEyebrow text="GALVELICA 标签" className="mt-3" />
-        <h1 className="galvelica-h1 mt-2">
-          {tag.name}
-          {tag.groupName && <span className="ml-2 text-base font-normal text-muted-foreground">（{tag.groupName}）</span>}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="galvelica-detail-title">{tag.name}</h1>
+        <p className="mt-1 galvelica-fs-meta text-muted-foreground">
           共 {result.total} 部作品
         </p>
       </div>

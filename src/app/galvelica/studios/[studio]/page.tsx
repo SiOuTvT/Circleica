@@ -42,8 +42,8 @@ export default async function GalvelicaStudioDetail({
       <div>
         <GalvelicaBackLink href="/galvelica/studios" label="社团索引" />
         <GalvelicaEyebrow text="GALVELICA 社团" className="mt-3" />
-        <h1 className="galvelica-h1 mt-2">{name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">共 {result.total} 部作品</p>
+        <h1 className="galvelica-detail-title">{name}</h1>
+        <p className="mt-1 galvelica-fs-meta text-muted-foreground">共 {result.total} 部作品</p>
       </div>
 
       <WorkGrid works={result.items} priorityCount={5} />

@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Tags } from "lucide-react"
 import Link from "next/link"
 import { getPopularTags } from "@/lib/galvelica"
-import { GalvelicaSectionHead } from "@/components/galvelica/galvelica-section-head"
 
 export const dynamic = "force-dynamic"
 
@@ -29,15 +28,6 @@ export const metadata: Metadata = {
 export default async function GalvelicaTags() {
   const tags = await getPopularTags(500)
 
-  // 按分组归类（无分组的归入「其他」）
-  const groups = new Map<string, typeof tags>()
-  for (const t of tags) {
-    const g = t.groupName || "其他"
-    if (!groups.has(g)) groups.set(g, [])
-    groups.get(g)!.push(t)
-  }
-  const ordered = [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0], "zh-Hans-CN"))
-
   return (
     <div className="space-y-8">
       <div>
@@ -51,25 +41,16 @@ export default async function GalvelicaTags() {
         </p>
       </div>
 
-      <div className="galvelica-tagindex space-y-[var(--gal-gap-section)]">
-        {ordered.map(([group, list]) => (
-          <section key={group}>
-            <GalvelicaSectionHead title={group} count={`${list.length} 个标签`} />
-            <div className="galvelica-strip">
-              {list.map((t) => (
-                <Link
-                  key={t.id}
-                  href={`/galvelica/tags/${t.id}`}
-                  className="galvelica-strip-item"
-                  title={t.groupName ? `${t.groupName}：${t.name}` : t.name}
-                >
-                  <b>{t.name}</b>
-                  {typeof t.count === "number" && <i>{t.count}</i>}
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
+      {/* 一条完整列表：不按后台内部分组切块，内部组名也不出现在前台文案 */}
+      <div className="galvelica-tagindex">
+        <div className="galvelica-strip">
+          {tags.map((t) => (
+            <Link key={t.id} href={`/galvelica/tags/${t.id}`} className="galvelica-strip-item">
+              <b>{t.name}</b>
+              {typeof t.count === "number" && <i>{t.count}</i>}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

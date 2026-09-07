@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Moon, Sun, SunMoon } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 type ThemeMode = "dark" | "light" | "system"
 
@@ -58,17 +59,21 @@ export function ThemeModeToggle({ className }: { className?: string }) {
     : "主题"
 
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      aria-label={`切换主题（当前${label}）`}
-      title={`主题：${label}`}
-      className={
-        className ??
-        "galvelica-navlink inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-medium"
-      }
-    >
-      <Icon className="h-5 w-5" strokeWidth={2} />
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={`切换主题（当前${label}）`}
+          className={
+            className ??
+            "galvelica-navlink inline-flex h-9 w-9 shrink-0 items-center justify-center text-sm font-medium"
+          }
+        >
+          <Icon className="h-5 w-5" strokeWidth={2} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{`主题：${label}`}</TooltipContent>
+    </Tooltip>
   )
 }

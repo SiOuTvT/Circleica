@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Eye, EyeOff, ChevronDown, Lock } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 /**
  * 副站 NSFW 过滤开关（三段式弹出菜单）：只显示 SFW / 只显示 NSFW / 两个都显示。
@@ -60,29 +61,33 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
   const cur = MODE_META[mode]
 
   return (
-    <div ref={wrapRef} className="relative">
-      <button
-        type="button"
-        onClick={() => (status !== "authenticated" ? select(mode) : setOpen((o) => !o))}
-        aria-pressed={open}
-        aria-label={`NSFW 过滤（当前 ${cur.label}）`}
-        title={`NSFW 过滤：${cur.desc}（切换需登录）`}
-        className={
-          className ??
-          "galvelica-navlink inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium whitespace-nowrap"
-        }
-      >
-        {mode === "sfw" ? <EyeOff className="h-4 w-4" strokeWidth={2} /> : <Eye className="h-4 w-4" strokeWidth={2} />}
-        <span className="hidden sm:inline">{cur.label}</span>
-        {status === "authenticated" ? (
-          <ChevronDown className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
-        ) : (
-          <Lock className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
-        )}
-      </button>
+    <div ref={wrapRef} className="relative w-full">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={() => (status !== "authenticated" ? select(mode) : setOpen((o) => !o))}
+            aria-pressed={open}
+            aria-label={`NSFW 过滤（当前 ${cur.label}）`}
+            className={
+              className ??
+              "galvelica-navlink inline-flex h-9 items-center gap-1.5 px-2.5 text-sm font-medium whitespace-nowrap"
+            }
+          >
+            {mode === "sfw" ? <EyeOff className="h-4 w-4" strokeWidth={2} /> : <Eye className="h-4 w-4" strokeWidth={2} />}
+            <span className="hidden sm:inline">{cur.label}</span>
+            {status === "authenticated" ? (
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
+            ) : (
+              <Lock className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{`NSFW 过滤：${cur.desc}（切换需登录）`}</TooltipContent>
+      </Tooltip>
 
       {open && status === "authenticated" && (
-        <div className="galvelica-card absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden p-1">
+        <div className="galvelica-card galvelica-nsfw-panel absolute top-full z-50 mt-2 overflow-hidden p-1">
           {(["sfw", "nsfw", "all"] as const).map((k) => (
             <button
               key={k}
