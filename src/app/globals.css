@@ -1938,6 +1938,23 @@ body[data-has-bottom-nav="true"] {
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #06201d;
+  /* ── 批1 设计令牌（仅副站作用域，主站不读）── */
+  --gal-sheet: color-mix(in srgb, var(--card) 100%, transparent);
+  --gal-line: color-mix(in srgb, var(--border) 100%, transparent);
+  --gal-rail-w: 236px;
+  --gal-content-max: 1460px;
+  --gal-pad-x: 40px;
+  --gal-spine-w: 6px;
+  --gal-notch: 13px;
+  --gal-fs-hero: 26px;
+  --gal-fs-h1: 22px;
+  --gal-fs-h2: 18px;
+  --gal-fs-body: 15px;
+  --gal-fs-meta: 13px;
+  --gal-fs-eyebrow: 11px;
+  --gal-gap-section: 34px;
+  --gal-gap-row: 2px;
+  --gal-gap-col: 30px;
 }
 .light .galvelica-root {
   --primary: #6fb4ac;
@@ -1951,6 +1968,9 @@ body[data-has-bottom-nav="true"] {
   --theme-color-hover: var(--primary-hover);
   --theme-color-active: var(--primary-active);
   --theme-fg: #ffffff;
+  /* ── 批1 设计令牌：浅色用背景派生，禁止写死字面量 ── */
+  --gal-sheet: color-mix(in srgb, var(--background) 92%, #ffffff);
+  --gal-line: color-mix(in srgb, var(--border) 100%, transparent);
 }
 
 /* Galvelica 衬线标题：营造文献 / 档案气质 */
@@ -2048,7 +2068,392 @@ body[data-has-bottom-nav="true"] {
 }
 
 /* ═══════════════════════════════════════════════════════
-   常驻空槽位 (Persistent Empty Slots)
+  Galvelica 批1 组件（左栏 / 条目行 / 斜切封面 / 区块头 / 首页）
+   约束：无 border-radius、无 box-shadow、无 transform/scale；
+   过渡仅 color / background-color / border-color。
+   ═══════════════════════════════════════════════════════ */
+
+/* 布局壳：左栏 + 右内容 */
+.galvelica-layout {
+  display: grid;
+  grid-template-columns: var(--gal-rail-w) minmax(0, 1fr);
+  max-width: var(--gal-content-max);
+  margin: 0 auto;
+}
+.galvelica-content {
+  padding: 34px var(--gal-pad-x) 60px;
+  min-width: 0;
+}
+
+/* 左栏 */
+.galvelica-rail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  border-right: 1px solid var(--gal-line);
+  padding: 34px 26px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.galvelica-rail-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.galvelica-rail-brand .name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+.galvelica-rail-brand .sub {
+  font-size: var(--gal-fs-eyebrow);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gal-accent);
+}
+.galvelica-rail-search { min-width: 0; }
+.galvelica-rail-nav {
+  display: flex;
+  flex-direction: column;
+}
+.galvelica-rail-nav a,
+.galvelica-rail-nav .galvelica-rail-random {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 10px;
+  font-size: var(--gal-fs-body);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+.galvelica-rail-nav a:hover,
+.galvelica-rail-nav .galvelica-rail-random:hover {
+  background: var(--gal-accent-softer);
+  color: var(--foreground);
+}
+.galvelica-rail-nav a[data-active="true"] {
+  color: var(--gal-accent);
+  background: var(--gal-accent-soft);
+  border-left: 3px solid var(--gal-accent);
+  padding-left: 7px;
+}
+.galvelica-rail-nav .num {
+  font-size: var(--gal-fs-eyebrow);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+.galvelica-rail-switches {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--gal-line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* 斜切封面（3:4，右上斜切口） */
+.galvelica-cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gal-accent) 14%, transparent), color-mix(in srgb, var(--gal-accent) 4%, transparent));
+  clip-path: polygon(0 0, calc(100% - var(--gal-notch)) 0, 100% var(--gal-notch), 100% 100%, 0 100%);
+}
+.galvelica-cover img { display: block; }
+.galvelica-cover-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gal-accent) 14%, transparent), color-mix(in srgb, var(--gal-accent) 4%, transparent));
+}
+.galvelica-cover-empty .initial {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1;
+  color: color-mix(in srgb, var(--gal-accent) 38%, transparent);
+}
+.galvelica-cover-empty .label {
+  font-size: var(--gal-fs-eyebrow);
+  color: var(--muted-foreground);
+}
+
+/* 条目行 */
+.galvelica-entry {
+  display: grid;
+  grid-template-columns: var(--gal-spine-w) 62px minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: center;
+  padding: 13px 12px 13px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+.galvelica-entry:hover { background: var(--gal-sheet); }
+.galvelica-entry-spine {
+  align-self: stretch;
+  min-height: 72px;
+  width: var(--gal-spine-w);
+  background: var(--gal-line);
+  transition: background-color 0.2s ease;
+}
+.galvelica-entry:hover .galvelica-entry-spine { background: var(--gal-accent); }
+.galvelica-entry-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--gal-fs-body);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+.galvelica-entry:hover .galvelica-entry-title { color: var(--gal-accent); }
+.galvelica-entry-meta {
+  display: flex;
+  gap: 13px;
+  margin-top: 4px;
+  font-size: var(--gal-fs-meta);
+  color: var(--muted-foreground);
+}
+.galvelica-entry-studio { color: var(--foreground); }
+.galvelica-entry-desc {
+  margin-top: 4px;
+  font-size: var(--gal-fs-meta);
+  color: var(--muted-foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.galvelica-entry-side {
+  text-align: right;
+  white-space: nowrap;
+}
+.galvelica-entry-year {
+  display: block;
+  font-size: var(--gal-fs-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.galvelica-entry-tagcount {
+  font-size: var(--gal-fs-eyebrow);
+  color: var(--muted-foreground);
+}
+
+/* 区块头 */
+.galvelica-section-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.galvelica-section-head h2 {
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: var(--gal-fs-h2);
+  font-weight: 600;
+  color: var(--foreground);
+}
+.galvelica-section-count {
+  font-size: var(--gal-fs-meta);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.galvelica-sechead-line {
+  flex: 1;
+  height: 1px;
+  background: var(--gal-line);
+}
+.galvelica-section-more {
+  font-size: var(--gal-fs-meta);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.18s ease;
+}
+.galvelica-section-more:hover { color: var(--gal-accent); }
+
+/* 双列条目网格 */
+.galvelica-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--gal-gap-col);
+  row-gap: var(--gal-gap-row);
+}
+
+/* 首页容器 */
+.galvelica-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gal-gap-section);
+}
+
+/* 今日偶遇 */
+.galvelica-daily {
+  display: grid;
+  grid-template-columns: var(--gal-spine-w) 132px minmax(0, 1fr) auto;
+  column-gap: 22px;
+  align-items: center;
+  padding: 20px 18px 20px 0;
+  background: var(--gal-sheet);
+  border-top: 1px solid var(--gal-accent);
+  border-bottom: 1px solid var(--gal-line);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+.galvelica-daily:hover .galvelica-daily-title { color: var(--gal-accent); }
+.galvelica-daily-spine {
+  align-self: stretch;
+  min-height: 72px;
+  width: var(--gal-spine-w);
+  background: var(--gal-accent);
+}
+.galvelica-daily-body { min-width: 0; }
+.galvelica-daily-title {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: var(--gal-fs-hero);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+.galvelica-daily-desc {
+  margin-top: 6px;
+  max-width: 60ch;
+  font-size: var(--gal-fs-body);
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.galvelica-daily-side {
+  text-align: right;
+  white-space: nowrap;
+}
+.galvelica-daily-year {
+  display: block;
+  font-size: var(--gal-fs-h2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 横条（年份 / 标签） */
+.galvelica-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  border-top: 1px solid var(--gal-line);
+  padding-top: 14px;
+}
+.galvelica-strip-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 13px 6px 0;
+  margin-right: 13px;
+  border-right: 1px solid var(--gal-line);
+  font-size: var(--gal-fs-meta);
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+.galvelica-strip-item:last-child {
+  border-right: 0;
+  margin-right: 0;
+}
+.galvelica-strip-item b {
+  font-size: var(--gal-fs-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.galvelica-strip-item i {
+  font-style: normal;
+  font-size: var(--gal-fs-eyebrow);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.galvelica-strip-item:hover { color: var(--gal-accent); }
+
+/* 字号档位工具类 */
+.galvelica-fs-hero { font-size: var(--gal-fs-hero); }
+.galvelica-fs-h1 { font-size: var(--gal-fs-h1); }
+.galvelica-fs-h2 { font-size: var(--gal-fs-h2); }
+.galvelica-fs-body { font-size: var(--gal-fs-body); }
+.galvelica-fs-meta { font-size: var(--gal-fs-meta); }
+.galvelica-fs-eyebrow { font-size: var(--gal-fs-eyebrow); }
+
+/* 焦点可达性：条目行 / 左栏链接 / 横条 / 区块链接 */
+.galvelica-entry:focus-visible,
+.galvelica-daily:focus-visible,
+.galvelica-rail-nav a:focus-visible,
+.galvelica-rail-nav .galvelica-rail-random:focus-visible,
+.galvelica-strip-item:focus-visible,
+.galvelica-section-more:focus-visible {
+  outline: 2px solid var(--gal-accent);
+  outline-offset: 2px;
+}
+
+/* 窄屏（≤1023px）：单栏，左栏转静态横排导航 */
+@media (max-width: 1023px) {
+  .galvelica-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .galvelica-rail {
+    position: static;
+    height: auto;
+    min-width: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--gal-line);
+    padding: 20px;
+  }
+  .galvelica-rail-nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 4px 0;
+  }
+  .galvelica-rail-nav a,
+  .galvelica-rail-nav .galvelica-rail-random {
+    white-space: nowrap;
+    border-left: 0;
+    padding: 9px 10px;
+  }
+  .galvelica-rail-nav a[data-active="true"] {
+    border-left: 0;
+    padding-left: 10px;
+  }
+  .galvelica-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 常驻空槽位 (Persistent Empty Slots)
    ───────────────────────────────────────────────────────
    语义：该位置未来会有内容，但当前确实没有数据。
    与 .skeleton-shimmer（loading 骨架 = 内容马上到达）严格区分：

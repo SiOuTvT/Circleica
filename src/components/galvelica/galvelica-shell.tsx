@@ -1,21 +1,15 @@
 import type { ReactNode } from "react"
-import Link from "next/link"
-
-import { GalvelicaHeader } from "./galvelica-header"
+import { GalvelicaRail } from "./galvelica-rail"
 import { getGalvelicaThemeSettings } from "@/lib/site-settings"
 import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
+import { getYears, getStudios, getPopularTags, listWorks } from "@/lib/galvelica"
 
 /**
- * Galvelica 子站外壳：独立的页面框架。
- * 主站 LayoutWrapper 已对 /galvelica 短路掉主站框架（侧边栏 / 顶栏 / 面包屑），
- * 这里承载子站自己的品牌头、内部导航、页面主体与极简页脚，
- * 让用户明显感到进入了另一个产品（仍属 Circleica）。
- *
- * 主题隔离（绝对严谨）：读取 SiteSetting[galvelica:themeColor / themeRadius /
- * themeShadowIntensity / themeAlpha]（全部 galvelica: 独立命名空间），以 inline
- * style 注入 .galvelica-root 作用域（--gal-accent / --primary / --theme-* /
- * --gal-radius / --gal-shadow / --gal-alpha），只影响副站页面；
- * 主站 :root 的 themeColor/themeRadius/themeShadowIntensity/themeAlpha 不受任何影响。
+ * Galvelica 子站外壳：左栏（品牌 / 检索 / 导航 / 开关区）+ 右内容两栏。
+ * 副站不再渲染顶部横向 header 与 nav（原 galvelica-header / galvelica-nav 已删除）。
+ * 主题隔离：读取 SiteSetting[galvelica:*] 命名空间，以 inline style 注入 .galvelica-root
+ * 作用域（--gal-accent / --primary / --theme-* / --gal-radius / --gal-shadow /
+ * --gal-alpha），只影响副站页面；主站 :root 不动。
  */
 export async function GalvelicaShell({ children }: { children: ReactNode }) {
   const s = await getGalvelicaThemeSettings()
@@ -34,11 +28,25 @@ export async function GalvelicaShell({ children }: { children: ReactNode }) {
     "--theme-b": String(tb),
     "--theme-color": s.themeColor,
     "--theme-fg": fg,
-    // 副站专属圆角/阴影/着色（只注入本作用域，主站全局 --theme-* 不动）
     "--gal-radius": `${s.themeRadius}px`,
     "--gal-shadow-alpha": String(s.themeShadowIntensity / 100),
     "--gal-alpha": `${s.themeAlpha}%`,
   } as React.CSSProperties
+
+  // 左栏导航计数：复用现有聚合（getYears / getStudios / getPopularTags / listWorks），
+  // 不新增任何查询语义，仅取真实计数用于导航右侧 <small>。
+  const [years, studios, tags, worksRes] = await Promise.all([
+    getYears(),
+    getStudios(),
+    getPopularTags(500),
+    listWorks({ pageSize: 1 }),
+  ])
+  const counts = {
+    works: worksRes.total,
+    tags: tags.length,
+    years: years.length,
+    studios: studios.length,
+  }
 
   return (
     <div
@@ -52,29 +60,12 @@ export async function GalvelicaShell({ children }: { children: ReactNode }) {
         跳到主内容
       </a>
 
-      {/* ── 独立子站 Header（档案刊头）── */}
-      <GalvelicaHeader />
-
-      {/* ── 页面主体 ── */}
-      <main id="galvelica-main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
-        {children}
-      </main>
-
-      {/* ── 极简页脚（与主站的联系点之一）── */}
-      <footer className="mt-12 border-t border-[color-mix(in_srgb,var(--gal-accent)_14%,transparent)] py-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>
-            <span className="galvelica-wordmark text-base font-semibold text-foreground">Galvelica</span>
-            <span className="ml-2">Circleica 旗下同人视觉小说资料库</span>
-          </p>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/" className="transition-colors hover:text-foreground">返回 Circleica</Link>
-            <Link href="/galvelica/works" className="transition-colors hover:text-foreground">浏览全部作品</Link>
-            <Link href="/galvelica/tags" className="transition-colors hover:text-foreground">标签索引</Link>
-            <Link href="/galvelica/years" className="transition-colors hover:text-foreground">年份索引</Link>
-          </div>
-        </div>
-      </footer>
+      <div className="galvelica-layout">
+        <GalvelicaRail counts={counts} />
+        <main id="galvelica-main" className="galvelica-content">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
