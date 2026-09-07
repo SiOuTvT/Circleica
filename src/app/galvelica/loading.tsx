@@ -22,7 +22,7 @@ export default function GalvelicaLoading() {
   const count = narrow ? 5 : 8
 
   return (
-    <div className="galvelica-root mx-auto max-w-6xl px-4 sm:px-6">
+    <div>
       <div>
         {/* 区块标题占位 */}
         <div className="h-5 w-40 animate-pulse bg-muted" />

@@ -79,7 +79,7 @@ export function WorkDetailView({ work }: { work: GalvelicaWorkDetail; tagColor?:
   const lede = work.description ? toPlainText(work.description) : ""
 
   return (
-    <div className="galvelica-root">
+    <div>
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
 
       {/* ── 头部：左索引卡 + 右文献区 ── */}

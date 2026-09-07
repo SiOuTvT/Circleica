@@ -2077,8 +2077,10 @@ body[data-has-bottom-nav="true"] {
 .galvelica-layout {
   display: grid;
   grid-template-columns: var(--gal-rail-w) minmax(0, 1fr);
+  /* 显式定宽：父级 .galvelica-root 是 flex column，缺 width 会按内容收缩导致各页宽度不齐 */
+  width: 100%;
   max-width: var(--gal-content-max);
-  margin: 0 auto;
+  margin-inline: auto;
 }
 .galvelica-content {
   padding: 34px var(--gal-pad-x) 60px;
@@ -2731,6 +2733,43 @@ a.galvelica-pager-nav:hover {
   .galvelica-shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .galvelica-staff { grid-template-columns: minmax(0, 1fr); }
   .galvelica-siblings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* 索引页扁平卡片（年份 / 社团）：去圆角去阴影，仅 1px 发丝线 + 悬停变色 */
+.galvelica-index-card {
+  border: 1px solid var(--gal-line);
+  background: transparent;
+  border-radius: 0;
+  transition: border-color 0.18s ease;
+}
+.galvelica-index-card:hover {
+  border-color: var(--gal-accent);
+}
+
+/* 标签云：扁平文字标签（去 pill 圆角与位移，统一副站语言） */
+.galvelica-tagcloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.galvelica-tagflat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: var(--gal-fs-body);
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+.galvelica-tagflat:hover {
+  color: var(--gal-accent);
+}
+.galvelica-tagflat i {
+  font-style: normal;
+  font-size: var(--gal-fs-eyebrow);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 字号档位工具类 */

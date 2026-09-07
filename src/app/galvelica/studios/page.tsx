@@ -56,7 +56,7 @@ export default async function GalvelicaStudios({ searchParams }: { searchParams:
             <Link
               key={name}
               href={`/galvelica/studios/${encodeURIComponent(name)}`}
-              className="galvelica-card group flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5"
+              className="galvelica-index-card group flex items-center justify-between gap-3 px-4 py-3.5"
             >
               <span className="min-w-0 truncate font-medium text-foreground group-hover:text-[var(--gal-accent)]">
                 {name}

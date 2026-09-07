@@ -49,7 +49,7 @@ export default async function GalvelicaYears() {
             <Link
               key={year}
               href={`/galvelica/years/${year}`}
-              className="galvelica-card group flex flex-col items-center justify-center rounded-2xl py-6 transition-colors"
+              className="galvelica-index-card group flex flex-col items-center justify-center py-6 transition-colors"
             >
               <span className="galvelica-serif text-2xl font-semibold text-foreground tabular-nums group-hover:text-[var(--gal-accent)]">
                 {year}
