@@ -49,7 +49,7 @@ export function GalvelicaRail({ counts }: { counts: RailCounts }) {
           return (
             <Link key={item.href} href={item.href} data-active={active}>
               <span>{item.label}</span>
-              {c != null && <small className="num">{c.toLocaleString("zh-CN")}</small>}
+              {c != null && <small className="num">{c}</small>}
             </Link>
           )
         })}

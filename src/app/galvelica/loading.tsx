@@ -1,29 +1,44 @@
+"use client"
+
+import { useEffect, useState } from "react"
+
+/**
+ * 站点级加载骨架（作品库/首页共用）。
+ * 画成「区块标题占位 + 细线 + 双列条目形占位」，与新版双列条目页面对齐，
+ * 切回首页时不再从五列卡片网格跳到两列条目（避免抖一下）。
+ * 列表页（作品库仍是旧卡片网格）加载瞬间会先看到条目形骨架，批 2 改成双列条目后即完全吻合。
+ */
 export default function GalvelicaLoading() {
+  const [narrow, setNarrow] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)")
+    const apply = () => setNarrow(mq.matches)
+    apply()
+    mq.addEventListener("change", apply)
+    return () => mq.removeEventListener("change", apply)
+  }, [])
+
+  const count = narrow ? 5 : 8
+
   return (
     <div className="galvelica-root mx-auto max-w-6xl px-4 sm:px-6">
-      {/* 头部骨架 */}
-      <div
-        className="space-y-3 border-b border-[color-mix(in_srgb,var(--gal-accent)_18%,transparent)] pb-6"
-        style={{ background: "var(--gal-sheet)" }}
-      >
-        <div className="h-3 w-32 animate-pulse bg-muted" />
-        <div className="h-8 w-2/3 animate-pulse bg-muted" />
-        <div className="h-4 w-full max-w-2xl animate-pulse bg-muted" />
-        <div className="h-11 w-full max-w-md animate-pulse bg-muted" />
-      </div>
-
-      {/* 卡片网格骨架 */}
       <div>
-        <div className="mt-6 h-6 w-40 animate-pulse bg-muted" />
+        {/* 区块标题占位 */}
+        <div className="h-5 w-40 animate-pulse bg-muted" />
+        {/* 细线 */}
         <div className="mb-4 mt-2 h-px w-full bg-border" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="overflow-hidden border border-border">
-              <div className="aspect-[3/4] w-full animate-pulse bg-muted" />
-              <div className="space-y-2 p-3">
-                <div className="h-4 w-4/5 animate-pulse bg-muted" />
-                <div className="h-3 w-1/2 animate-pulse bg-muted" />
+        {/* 双列条目形骨架 */}
+        <div className="galvelica-grid-2">
+          {Array.from({ length: count }).map((_, i) => (
+            <div key={i} className="galvelica-entry">
+              <div className="min-h-[72px] animate-pulse bg-muted" />
+              <div className="aspect-[3/4] w-[62px] animate-pulse bg-muted" />
+              <div>
+                <div className="h-4 w-3/5 animate-pulse bg-muted" />
+                <div className="mt-2 h-3 w-2/5 animate-pulse bg-muted" />
               </div>
+              <div className="h-4 w-10 animate-pulse bg-muted" />
             </div>
           ))}
         </div>
