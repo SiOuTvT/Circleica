@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { CopyCheck, Users, Layers, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-export const metadata = { title: "Galvelica 重复检测" }
+export const metadata = { title: "重复检测" }
 export const dynamic = "force-dynamic"
 
 const PAGE_SIZE = 20
@@ -152,7 +152,7 @@ export default async function GalvelicaDuplicatesPage({
                     <Link
                       key={it.id}
                       href={it.href}
-                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
                     >
                       {it.label}
                       <ArrowRight className="h-3 w-3 text-muted-foreground" />
@@ -190,7 +190,7 @@ export default async function GalvelicaDuplicatesPage({
                     <Link
                       key={it.id}
                       href={it.href}
-                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
+                      className="inline-flex items-center gap-1 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-foreground ring-1 ring-border hover:bg-accent/30"
                     >
                       {it.label}
                       <ArrowRight className="h-3 w-3 text-muted-foreground" />

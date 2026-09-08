@@ -300,7 +300,7 @@ function InlineTagEdit({
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
-                className={`h-5 w-5 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
+                className={`h-7 w-7 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
                   color.toLowerCase() === c.toLowerCase()
                     ? "ring-2 ring-primary ring-offset-1 ring-offset-background scale-110"
                     : "hover:scale-110"
@@ -312,7 +312,7 @@ function InlineTagEdit({
               type="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}
-              className="h-5 w-5 rounded-full cursor-pointer border-0 bg-transparent"
+              className="h-7 w-7 rounded-full cursor-pointer border-0 bg-transparent"
             />
           </div>
         </div>

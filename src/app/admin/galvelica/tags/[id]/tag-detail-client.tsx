@@ -97,7 +97,7 @@ export function TagDetailClient({ tag, candidates, unifiedColor }: { tag: TagDet
                     onClick={() => setColor(c)}
                     aria-label={`设为 ${c}`}
                     title={c}
-                    className="h-6 w-6 rounded-md ring-1 ring-border transition-transform hover:scale-110"
+                    className="h-7 w-7 rounded-md ring-1 ring-border transition-transform hover:scale-110"
                     style={{
                       backgroundColor: c,
                       outline: c.toLowerCase() === color.toLowerCase() ? "2px solid var(--foreground)" : "none",

@@ -362,7 +362,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       <span>{formatMonthDay(ann.createdAt)}</span>
                       {ann.content.length > 100 && (
                         <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
-                          className="flex items-center gap-0.5 hover:text-foreground transition-colors">
+                          className="inline-flex h-7 items-center gap-0.5 px-2 hover:text-foreground transition-colors">
                           {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                           {expandedId === ann.id ? "收起" : "展开"}
                         </button>

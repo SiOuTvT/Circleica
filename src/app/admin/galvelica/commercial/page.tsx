@@ -22,7 +22,7 @@ interface CommercialWorkRow {
   game: { serialId: number } | null
 }
 
-export const metadata = { title: "Galvelica 商业作品归档" }
+export const metadata = { title: "商业作品归档" }
 export const dynamic = "force-dynamic"
 
 /**

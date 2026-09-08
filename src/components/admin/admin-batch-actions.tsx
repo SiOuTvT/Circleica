@@ -32,7 +32,7 @@ export function AdminBatchActions({
         <button
           type="button"
           onClick={onClear}
-          className="text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-[color:var(--admin-accent,var(--primary))] hover:underline"
+          className="inline-flex h-7 items-center px-2 text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-[color:var(--admin-accent,var(--primary))] hover:underline"
         >
           清除
         </button>

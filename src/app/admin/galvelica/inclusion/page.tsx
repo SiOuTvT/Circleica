@@ -11,7 +11,7 @@ import Link from "next/link"
 import { Inbox, Upload, Trash2, Pencil } from "lucide-react"
 import { publishInclusionGalvelica, deleteInclusionGalvelica } from "./actions"
 
-export const metadata = { title: "Galvelica 收录审核" }
+export const metadata = { title: "收录审核" }
 export const dynamic = "force-dynamic"
 
 export default async function GalvelicaInclusionPage() {

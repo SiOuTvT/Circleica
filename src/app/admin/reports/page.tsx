@@ -25,7 +25,7 @@ const ReportSearchForm = dynamic(() => import("./search-form").then(m => ({ defa
   loading: () => <div className="h-10 w-64 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "举报管理 · 管理后台" }
+export const metadata = { title: "举报管理" }
 
 export default async function AdminReportsPage({
   searchParams,

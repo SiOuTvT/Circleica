@@ -63,7 +63,7 @@ export function PagesManager({ initial }: Props) {
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-foreground">{page.label}</h3>
               <a href={page.href} target="_blank" rel="noopener noreferrer"
-                className="text-micro text-muted-foreground hover:text-primary transition-colors font-mono">
+                className="inline-flex h-7 items-center px-2 text-micro text-muted-foreground hover:text-primary transition-colors font-mono">
                 {page.href} ↗
               </a>
             </div>

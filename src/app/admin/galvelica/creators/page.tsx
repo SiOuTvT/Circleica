@@ -10,7 +10,7 @@ import { PenTool } from "lucide-react"
 import Link from "next/link"
 import { CreatorRowActions } from "./creator-actions"
 
-export const metadata = { title: "Galvelica 创作者管理" }
+export const metadata = { title: "创作者管理" }
 
 export default async function GalvelicaCreatorsPage({
   searchParams,

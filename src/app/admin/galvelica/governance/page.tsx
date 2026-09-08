@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { ShieldAlert, Users, Tag as TagIcon, CheckCircle2 } from "lucide-react"
 import { fixSourceMismatch } from "./actions"
 
-export const metadata = { title: "Galvelica 数据治理" }
+export const metadata = { title: "数据治理" }
 export const dynamic = "force-dynamic"
 
 export default async function GalvelicaGovernancePage() {

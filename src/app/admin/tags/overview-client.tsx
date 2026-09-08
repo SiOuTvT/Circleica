@@ -80,7 +80,7 @@ function ColorEditPopover({
             key={c}
             type="button"
             onClick={() => setValue(c)}
-            className={`h-6 w-6 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
+            className={`h-7 w-7 rounded-full transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out cursor-pointer ${
               value.toLowerCase() === c.toLowerCase()
                 ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110"
                 : "hover:scale-110"
@@ -92,7 +92,7 @@ function ColorEditPopover({
           type="color"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="h-6 w-6 rounded-full cursor-pointer border-0 bg-transparent"
+          className="h-7 w-7 rounded-full cursor-pointer border-0 bg-transparent"
         />
       </div>
       <div className="flex items-center gap-2">

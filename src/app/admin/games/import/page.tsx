@@ -9,7 +9,7 @@ const VNDBImportManager = dynamic(() => import("@/components/vndb-import-manager
   loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "VNDB 导入" }
+export const metadata = { title: "VNDB 批量导入" }
 
 export default async function VNDBImportPage() {
   await requireAdmin()
@@ -18,7 +18,7 @@ export default async function VNDBImportPage() {
     <div className="space-y-6">
       <Link
         href="/admin/games"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex h-8 items-center gap-1.5 px-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
         返回游戏管理

@@ -9,7 +9,7 @@ import {
   Inbox, MessageSquare, Flag, CalendarCheck, Heart, UserPlus, CheckCircle2,
 } from "lucide-react"
 
-export const metadata = { title: "主站概览" }
+export const metadata = { title: "主站管理" }
 
 export default async function CircleicaAdminOverview() {
   await requireAdmin()
