@@ -173,7 +173,7 @@ export function ServicesClient() {
   if (loading) {
     return (
       <AdminPageContainer title="服务配置" eyebrow="SERVICES">
-        {[1, 2, 3].map(i => <div key={i} className="h-64 bg-muted animate-pulse rounded-2xl" />)}
+        {[1, 2, 3].map(i => <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />)}
       </AdminPageContainer>
     )
   }
