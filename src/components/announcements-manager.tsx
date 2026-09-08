@@ -415,7 +415,7 @@ function IconBtn({ children, onClick, title, active, variant }: {
   return (
     <button onClick={onClick} title={title}
       className={cn(
-        "rounded-lg p-1.5 transition-colors",
+        "rounded-lg h-7 w-7 flex items-center justify-center transition-colors",
         variant === "danger"
           ? cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")
           : active

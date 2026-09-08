@@ -581,7 +581,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 onChange={(e) => setDescLang(key, e.target.value)}
                 placeholder={`输入${label}…`}
                 rows={4}
-                className="resize-none px-4 py-2.5 text-[15px] leading-6 placeholder:text-muted-foreground/50"
+                className="resize-none px-4 py-2.5 text-[15px] md:text-[15px] leading-6 placeholder:text-muted-foreground/50"
               />
             )
           ))}

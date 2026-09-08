@@ -248,7 +248,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（或直接上传文件）" className={cn(adminInput, "flex-1")} />
             <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
             <button type="button" onClick={() => fileInputRef.current?.click()}
-              className={cn("flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium ring-1 transition duration-150 ease-in-out shrink-0",
+              className={cn("flex items-center gap-1.5 rounded-xl h-10 px-3 py-2.5 text-xs font-medium ring-1 transition duration-150 ease-in-out shrink-0",
                 file ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground")}>
               <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
               {file ? file.name.slice(0, 15) + (file.name.length > 15 ? "…" : "") : "选择文件"}
