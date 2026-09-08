@@ -42,7 +42,7 @@ export const achievementService = {
       points: parsed.points ?? 10,
       hidden: parsed.hidden !== false,
     })
-    await logAudit({ userId: "ADMIN", action: "achievement.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "achievement.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -56,7 +56,7 @@ export const achievementService = {
     for (const f of fields) { if (f in parsed) data[f] = parsed[f as keyof typeof parsed] }
     if (Object.keys(data).length === 0) throw new ValidationError("没有有效的更新字段")
     const result = await achievementRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -64,7 +64,7 @@ export const achievementService = {
     const existing = await achievementRepo.findById(id)
     if (!existing) throw new NotFoundError("成就")
     const result = await achievementRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "achievement.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "achievement.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -103,7 +103,7 @@ export const avatarFrameService = {
       sort: Number(raw.sort) || 0,
       price: Math.max(0, Math.floor(Number(raw.price) || 0)),
     })
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -116,7 +116,7 @@ export const avatarFrameService = {
     }
     if ("price" in data) data.price = Math.max(0, Math.floor(Number(data.price) || 0))
     const result = await avatarFrameRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -137,7 +137,7 @@ export const avatarFrameService = {
       } catch (e) { logger.system.warn("[Cleanup] 旧文件清理失败", { error: e instanceof Error ? e.message : String(e) }) }
     }
     const result = await avatarFrameRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -168,7 +168,7 @@ export const creatorService = {
       twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
       wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
     })
-    await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -189,7 +189,7 @@ export const creatorService = {
     })
     await cache.delByPrefix("circleica:admin:creators:")
     revalidatePath("/admin/creators")
-    await logAudit({ userId: "ADMIN", action: "creator.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "creator.update", target: id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -200,7 +200,7 @@ export const creatorService = {
     const result = await creatorRepo.delete(id)
     await cache.delByPrefix("circleica:admin:creators:")
     revalidatePath("/admin/creators")
-    await logAudit({ userId: "ADMIN", action: "creator.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "creator.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -266,7 +266,7 @@ export const emotionalMessageService = {
       imageUrl: raw.imageUrl ? (sanitizeUrl(String(raw.imageUrl)) ?? "") : "", emoji: raw.emoji ? String(raw.emoji) : "",
       enabled: raw.enabled !== false,
     })
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.create", target: result.id, detail: `《${result.title || result.key}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -278,7 +278,7 @@ export const emotionalMessageService = {
       if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
     const result = await emotionalMessageRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id, detail: `《${result.title || result.key}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -286,7 +286,7 @@ export const emotionalMessageService = {
     const existing = await emotionalMessageRepo.findById(id)
     if (!existing) throw new NotFoundError("情感消息")
     const result = await emotionalMessageRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.delete", target: id, detail: `《${existing.title || existing.key}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }

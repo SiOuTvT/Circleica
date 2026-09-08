@@ -10,11 +10,65 @@ import { FileText } from "lucide-react"
 
 export const metadata = { title: "审计日志" }
 
+// 审计日志 action → 中文标签。覆盖 src/services/admin/*.ts 与 /api/admin/services 的全部 action。
+// 未被此表收录的 action 会原样显示英文 key（不会误翻）。
 const ACTION_LABELS: Record<string, string> = {
+  // ── 历史键（保留，旧数据仍在用，勿删）──
   approve_game: "通过审核",
   reject_game: "拒回游戏",
   delete_forum_post: "删除论坛帖",
   update_user: "修改用户",
+
+  // ── 游戏 ──
+  "game.create": "新增游戏",
+  "game.update": "修改游戏",
+  "game.delete": "删除游戏",
+  "game.batchDelete": "批量删除游戏",
+  "review.approve": "审核通过",
+  "review.reject": "审核驳回",
+
+  // ── 用户 ──
+  "user.updateRole": "修改用户角色",
+  "user.delete": "删除用户",
+
+  // ── 标签 ──
+  "tagGroup.create": "新增标签组",
+  "tagGroup.update": "修改标签组",
+  "tagGroup.delete": "删除标签组",
+  "tag.create": "新增标签",
+  "tag.update": "修改标签",
+  "tag.delete": "删除标签",
+  "tag.assignGroup": "分配标签分组",
+
+  // ── 音乐 / 歌单 ──
+  "music.create": "新增音乐",
+  "music.update": "修改音乐",
+  "music.delete": "删除音乐",
+  "playlist.create": "新增歌单",
+  "playlist.update": "修改歌单",
+  "playlist.delete": "删除歌单",
+
+  // ── 内容 ──
+  "achievement.create": "新增成就",
+  "achievement.update": "修改成就",
+  "achievement.delete": "删除成就",
+  "avatarFrame.create": "新增头像框",
+  "avatarFrame.update": "修改头像框",
+  "avatarFrame.delete": "删除头像框",
+  "creator.create": "新增创作者",
+  "creator.update": "修改创作者",
+  "creator.delete": "删除创作者",
+  "emotionalMessage.create": "新增情感文案",
+  "emotionalMessage.update": "修改情感文案",
+  "emotionalMessage.delete": "删除情感文案",
+
+  // ── 社区 ──
+  "forum.deletePost": "删除论坛帖子",
+  "favorite.delete": "删除收藏",
+  "follow.delete": "删除关注",
+
+  // ── 运维 ──
+  ADMIN_SERVICE_CONFIG_SAVE: "保存服务配置",
 }
 
 export default async function AdminAuditLogsPage({

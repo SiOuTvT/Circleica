@@ -33,7 +33,7 @@ export const tagGroupService = {
       positions: raw.positions ? String(raw.positions) : "[]",
       isPreset: Boolean(raw.isPreset),
     })
-    await logAudit({ userId: "ADMIN", action: "tagGroup.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tagGroup.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -53,7 +53,7 @@ export const tagGroupService = {
     await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/games")
-    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -61,7 +61,7 @@ export const tagGroupService = {
     const existing = await tagGroupRepo.findById(id)
     if (!existing) throw new NotFoundError("标签组")
     const result = await tagGroupRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -101,7 +101,7 @@ export const tagService = {
     await cache.delByPrefix("circleica:admin:tags:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
-    await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -134,7 +134,7 @@ export const tagService = {
     await cache.delByPrefix("circleica:admin:tags:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
-    await logAudit({ userId: "ADMIN", action: "tag.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tag.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -145,7 +145,7 @@ export const tagService = {
     const result = await tagRepo.delete(id)
     await cache.delByPrefix("circleica:admin:tags:")
     revalidatePath("/admin/tags")
-    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -164,7 +164,7 @@ export const tagService = {
     await cache.delByPrefix("circleica:admin:tags:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
-    await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id, detail: `《${existing.name}》groupId=${groupId ?? "无"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }

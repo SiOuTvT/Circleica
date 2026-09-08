@@ -442,7 +442,7 @@ export const adminUserRepo = {
     })
   },
   findBasic(id: string) {
-    return prisma.user.findUnique({ where: { id }, select: { id: true, role: true } })
+    return prisma.user.findUnique({ where: { id }, select: { id: true, role: true, username: true } })
   },
   updateRole(id: string, role: Prisma.UserUpdateInput["role"]) {
     return prisma.user.update({ where: { id }, data: { role } })

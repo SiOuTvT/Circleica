@@ -29,7 +29,7 @@ export const adminMusicService = {
       url: raw.url.trim(),
       playlist: playlistId ? { connect: { id: playlistId } } : undefined,
     })
-    await logAudit({ userId: "ADMIN", action: "music.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "music.create", target: result.id, detail: `《${result.title}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -40,7 +40,7 @@ export const adminMusicService = {
     if (typeof raw.url === "string" && raw.url.trim()) { data.url = raw.url.trim(); data.filename = raw.url.trim() }
     if (Object.keys(data).length === 0) throw new ValidationError("没有要更新的字段")
     const result = await musicRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "music.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "music.update", target: id, detail: `《${result.title}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -52,7 +52,7 @@ export const adminMusicService = {
     if (music.filename || music.url) {
       await deleteByUrl(music.filename || music.url).catch((e) => logger.system.error("[Media] 删除音频文件失败", e))
     }
-    await logAudit({ userId: "ADMIN", action: "music.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "music.delete", target: id, detail: `《${music.title}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -71,7 +71,7 @@ export const adminPlaylistService = {
   async create(name: string) {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
     const result = await playlistRepo.create({ name: name.trim() })
-    await logAudit({ userId: "ADMIN", action: "playlist.create", target: result.id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "playlist.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -79,14 +79,16 @@ export const adminPlaylistService = {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
     await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
     const result = await playlistRepo.update(id, { name: name.trim() })
-    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
-    await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
+    // 删除前取名称供审计 detail 使用（playlistRepo.delete 走 $transaction 返回数组，取不到名称）
+    const pl = await playlistRepo.findById(id)
+    if (!pl) throw new NotFoundError("播放列表")
     const result = await playlistRepo.delete(id)
-    await logAudit({ userId: "ADMIN", action: "playlist.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "playlist.delete", target: id, detail: `《${pl.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }

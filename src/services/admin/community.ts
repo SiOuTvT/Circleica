@@ -18,7 +18,7 @@ export const adminForumService = {
     const post = await prisma.forumPost.findUnique({ where: { id } })
     if (!post) throw new NotFoundError("帖子")
     const result = await adminForumRepo.deletePost(id)
-    await logAudit({ userId: "ADMIN", action: "forum.deletePost", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "forum.deletePost", target: id, detail: `《${post.title}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -44,7 +44,7 @@ export const adminFavoriteService = {
 
   async delete(id: string) {
     // 先取 gameId，删除收藏后同步递减游戏的 denormalized favoriteCount（M4 计数器对账）
-    const favorite = await prisma.favorite.findUnique({ where: { id }, select: { gameId: true } })
+    const favorite = await prisma.favorite.findUnique({ where: { id }, select: { gameId: true, game: { select: { title: true } } } })
     if (!favorite) throw new NotFoundError("收藏")
     const result = await prisma.$transaction(async (tx) => {
       const deleted = await tx.favorite.delete({ where: { id } })
@@ -54,7 +54,7 @@ export const adminFavoriteService = {
       })
       return deleted
     })
-    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id, detail: `《${favorite.game?.title ?? ""}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
@@ -79,8 +79,13 @@ export const adminFollowService = {
   },
 
   async delete(id: string) {
+    // 删除前取双方用户名，供审计 detail 显示「谁 关注 谁」
+    const follow = await prisma.follow.findUnique({
+      where: { id },
+      select: { follower: { select: { username: true } }, following: { select: { username: true } } },
+    })
     const result = await prisma.follow.delete({ where: { id } })
-    await logAudit({ userId: "ADMIN", action: "follow.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "follow.delete", target: id, detail: follow ? `${follow.follower.username} 关注 ${follow.following.username}` : "" }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }

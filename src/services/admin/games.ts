@@ -184,7 +184,7 @@ export const adminGameService = {
       return created
     })
 
-    await logAudit({ userId: publisherId, action: "game.create", target: game.id })
+    await logAudit({ userId: publisherId, action: "game.create", target: game.id, detail: `《${game.title}》` })
     return game
   },
 
@@ -199,6 +199,9 @@ export const adminGameService = {
     // 预创建预设标签组（幂等，仅确保预设分组存在）
     await ensurePresetTagGroups()
 
+    // 记录本次白名单过滤后真正写入的字段名，供审计日志 detail 使用
+    let changedFields = ""
+
     const result = await prisma.$transaction(async (tx) => {
       // 字段白名单，防止 mass assignment
       const ALLOWED = ["title", "originalWork", "description", "coverImage", "screenshots",
@@ -211,6 +214,7 @@ export const adminGameService = {
       if (typeof safe.releaseDate === "string" && safe.releaseDate) {
         safe.releaseDate = new Date(safe.releaseDate + "T00:00:00.000Z")
       }
+      changedFields = Object.keys(safe).join(",")
       const updated = await tx.game.update({ where: { id }, data: safe })
 
       // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
@@ -270,13 +274,13 @@ export const adminGameService = {
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
-    await logAudit({ userId: "ADMIN", action: "game.update", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "game.update", target: id, detail: `《${result.title}》fields=${changedFields}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
     if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
-    const target = await prisma.game.findUnique({ where: { id }, select: { serialId: true } }).catch(() => null)
+    const target = await prisma.game.findUnique({ where: { id }, select: { serialId: true, title: true } }).catch(() => null)
     const result = await adminGameRepo.delete(id)
     // 删除后使管理后台列表缓存立即失效，并刷新前台列表/详情/首页网格/相关推荐，确保实时刷新。
     await cache.delByPrefix("circleica:admin:games:")
@@ -289,7 +293,7 @@ export const adminGameService = {
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
-    await logAudit({ userId: "ADMIN", action: "game.delete", target: id }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "game.delete", target: id, detail: target?.title ? `《${target.title}》` : "" }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
