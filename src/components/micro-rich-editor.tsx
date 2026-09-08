@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { adminBtnDanger } from "@/lib/admin-styles"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
 import { EditorContent, useEditor } from "@tiptap/react"
@@ -181,10 +182,7 @@ export function MicroRichEditor({
           <button
             type="button"
             onClick={removeLink}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
-              "text-red-400 hover:bg-red-500/10 hover:text-red-600"
-            )}
+            className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
             title="移除链接"
           >
             <LinkIcon className="h-3.5 w-3.5" strokeWidth={2} />

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
 
 interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
@@ -216,7 +217,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 </button>
               )}
               <button onClick={() => setEditingPlaylist(pl.id)} className="text-muted-foreground hover:text-foreground"><Pencil className="h-2.5 w-2.5" /></button>
-              <button onClick={() => setPlaylistDeleteId(pl.id)} className="text-muted-foreground hover:text-red-400"><X className="h-2.5 w-2.5" /></button>
+              <button onClick={() => setPlaylistDeleteId(pl.id)} className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}><X className="h-2.5 w-2.5" /></button>
             </div>
           ))}
         </div>
@@ -256,7 +257,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             </button>
             {file && (
               <button type="button" onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = "" }}
-                className="rounded-lg p-2 text-muted-foreground hover:text-red-400 transition-colors">
+                className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
                 <X className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             )}
@@ -312,7 +313,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="编辑">
                 <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
-              <button onClick={() => setDeleteId(m.id)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-400">
+              <button onClick={() => setDeleteId(m.id)} className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             </div>

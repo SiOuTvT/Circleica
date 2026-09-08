@@ -7,6 +7,8 @@ import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "luc
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 import type { TagGroup, AdminTagApiResponse } from "./tag-groups-manager"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 
@@ -203,7 +205,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
                 <button onClick={() => setDeleteConfirm({ id: tag.id, name: tag.name, gameCount: tag.gameCount })} title="删除标签" aria-label="删除标签"
-                  className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors">
+                  className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </>

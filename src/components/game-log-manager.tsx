@@ -8,6 +8,8 @@ import { logger } from "@/lib/logger"
 import { formatDate } from "@/lib/date"
 import { apiFetchSafe, apiDeleteSafe } from "@/lib/api-client"
 import { parseApiResponse } from "@/lib/api-handler-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 
 interface Log { id: string; content: string; createdAt: string }
 
@@ -72,7 +74,7 @@ export function GameLogManager({ gameId }: { gameId: string }) {
             </span>
             <p className="flex-1 text-xs text-muted-foreground">{log.content}</p>
             <button onClick={() => setLogToDelete(log.id)}
-              className="shrink-0 text-muted-foreground transition-colors hover:text-red-400">
+              className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </div>

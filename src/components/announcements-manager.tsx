@@ -13,8 +13,9 @@ import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, Loader2, Megaphone, 
 import { useCallback, useEffect, useRef, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
 import { stripHtml } from "@/lib/sanitize"
-import { withLabelableId } from "@/lib/utils"
+import { cn, withLabelableId } from "@/lib/utils"
 import { toast } from "sonner"
 
 // 去除 HTML 标签统一使用 @/lib/sanitize 的 stripHtml（XSS 安全）
@@ -227,14 +228,14 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 标题 — 全宽 */}
               <Field label="标题" required>
                 <input value={title} onChange={e => setTitle(e.target.value)}
-                  placeholder="输入公告标题…" required className={inputCls} />
+                  placeholder="输入公告标题…" required className={adminInput} />
               </Field>
 
               {/* 摘要 + 封面图 — 左右并排 */}
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px] gap-4 items-start">
                 <Field label="摘要" hint="不填则自动截取正文">
                   <textarea value={summary} onChange={e => setSummary(e.target.value)}
-                    placeholder="一句话概括公告内容…" rows={3} className={inputCls + " resize-none"} />
+                    placeholder="一句话概括公告内容…" rows={3} className={cn(adminInput, "resize-none")} />
                 </Field>
                 <Field label="封面">
                   <div className="relative w-full overflow-hidden rounded-xl border-2 border-input transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus-within:rounded-none focus-within:border-primary bg-muted/40">
@@ -251,7 +252,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 状态 + 置顶 + 链接 — 一行 */}
               <div className="grid grid-cols-1 sm:grid-cols-[140px_auto_1fr] gap-3 items-end">
                 <Field label="状态">
-                  <select value={status} onChange={e => setStatus(e.target.value)} className={inputCls + " cursor-pointer"}>
+                  <select value={status} onChange={e => setStatus(e.target.value)} className={cn(adminInput, "cursor-pointer")}>
                     <option value="draft">草稿</option>
                     <option value="published">已发布</option>
                     <option value="hidden">已隐藏</option>
@@ -267,17 +268,17 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                   <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">置顶</span>
                 </label>
                 <Field label="外部链接">
-                  <input value={link} onChange={e => setLink(e.target.value)} placeholder="https://…（选填）" className={inputCls} />
+                  <input value={link} onChange={e => setLink(e.target.value)} placeholder="https://…（选填）" className={adminInput} />
                 </Field>
               </div>
 
               {/* 定时 — 两列 */}
               <div className="grid grid-cols-2 gap-3">
                 <Field label="定时上线">
-                  <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={inputCls} />
+                  <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={adminInput} />
                 </Field>
                 <Field label="定时下线">
-                  <input type="datetime-local" value={endAt} onChange={e => setEndAt(e.target.value)} className={inputCls} />
+                  <input type="datetime-local" value={endAt} onChange={e => setEndAt(e.target.value)} className={adminInput} />
                 </Field>
               </div>
 
@@ -393,9 +394,6 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
 /* ── 子组件 ── */
 
-const inputCls =
-  "w-full rounded-xl border-2 border-input bg-transparent px-3.5 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-
 function Field({ label, required, hint, children }: {
   label: string; required?: boolean; hint?: string; children: React.ReactNode
 }) {
@@ -416,13 +414,14 @@ function IconBtn({ children, onClick, title, active, variant }: {
 }) {
   return (
     <button onClick={onClick} title={title}
-      className={`rounded-lg p-1.5 transition-colors ${
+      className={cn(
+        "rounded-lg p-1.5 transition-colors",
         variant === "danger"
-          ? "text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+          ? cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")
           : active
             ? "text-primary bg-primary/10"
             : "text-muted-foreground hover:bg-accent hover:text-foreground"
-      }`}>
+      )}>
       {children}
     </button>
   )

@@ -11,6 +11,8 @@ import { memo, useEffect, useRef, useState, useId } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
+import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 import {
   PLATFORM_LABELS, PLATFORM_ORDER, LANGUAGE_LABELS, LANGUAGE_ORDER,
   GAME_STATUS_LABELS, GAME_STATUS_ORDER, AGE_RATING_LABELS, AGE_RATING_ORDER,
@@ -447,7 +449,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
   }
 
-  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
   const idTitle = useId()
@@ -499,7 +500,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 ref={vndbInputRef}
                 defaultValue={vndbId}
                 placeholder="输入 VNDB 编号，如：v12345 或 12345"
-                className={inputCls}
+                className={adminInput}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleVndbFetch() } }}
               />
               <button
@@ -533,19 +534,19 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor={idTitle} className={labelCls}>主推名称（前台卡片展示） *</label>
-            <input id={idTitle} value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={inputCls} />
+            <input id={idTitle} value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="前台首页唯一展示的游戏名称" required className={adminInput} />
           </div>
           <div>
             <label htmlFor={idOriginal} className={labelCls}>日文官方原名</label>
-            <input id={idOriginal} value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={inputCls} />
+            <input id={idOriginal} value={originalWork} onChange={(e) => setOriginalWork(e.target.value)} placeholder="日文原名" className={adminInput} />
           </div>
           <div>
             <label htmlFor={idEnglish} className={labelCls}>英文官方名称</label>
-            <input id={idEnglish} value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={inputCls} />
+            <input id={idEnglish} value={englishName} onChange={(e) => setEnglishName(e.target.value)} placeholder="英文名称" className={adminInput} />
           </div>
           <div>
             <label htmlFor={idAliases} className={labelCls}>搜索别名（逗号分隔）</label>
-            <input id={idAliases} value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称…" className={inputCls} />
+            <input id={idAliases} value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder="民间别称、其他语言名称…" className={adminInput} />
           </div>
         </div>
         {/* 多语言简介 Tab 切换 */}
@@ -730,11 +731,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor={idVndb} className={labelCls}>VNDB ID</label>
-                <input id={idVndb} value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={inputCls} />
+                <input id={idVndb} value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={adminInput} />
               </div>
               <div>
                 <label htmlFor={idRelease} className={labelCls}>发售日期</label>
-                <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={inputCls} />
+                <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={adminInput} />
               </div>
               <div>
                 <label className={labelCls}>制作会社与身份</label>
@@ -747,7 +748,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                           setStudios((prev) => prev.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))
                         }
                         placeholder="制作组名称，如：Key"
-                        className={inputCls}
+                        className={adminInput}
                       />
                       <select
                         value={s.role ?? ""}
@@ -756,7 +757,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                             prev.map((p, j) => (j === i ? { ...p, role: e.target.value || null } : p)),
                           )
                         }
-                        className={`${inputCls} w-[120px] shrink-0`}
+                        className={cn(adminInput, "w-[120px] shrink-0")}
                       >
                         {STUDIO_ROLE_OPTIONS.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -786,11 +787,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
               <div>
                 <label htmlFor={idDuration} className={labelCls}>游戏时长</label>
-                <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={inputCls} />
+                <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={adminInput} />
               </div>
               <div>
                 <label htmlFor={idWebsite} className={labelCls}>官方网站</label>
-                <input id={idWebsite} value={officialWebsite} onChange={(e) => setOfficialWebsite(e.target.value)} placeholder="https://…" className={inputCls} />
+                <input id={idWebsite} value={officialWebsite} onChange={(e) => setOfficialWebsite(e.target.value)} placeholder="https://…" className={adminInput} />
               </div>
             </div>
 
@@ -843,7 +844,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             <div className="grid grid-cols-1 gap-3 pt-3 border-t border-border sm:grid-cols-3">
               <div>
                 <label htmlFor={idOriginalLanguage} className={labelCls}>原始语言</label>
-                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={inputCls}>
+                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={adminInput}>
                   <option value="">未设置</option>
                   {LANGUAGE_ORDER.map((code) => (
                     <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>
@@ -852,7 +853,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
               <div>
                 <label htmlFor={idAge} className={labelCls}>年龄分级</label>
-                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={inputCls}>
+                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={adminInput}>
                   {AGE_RATING_ORDER.map((v) => (
                     <option key={v} value={v}>{AGE_RATING_LABELS[v]}</option>
                   ))}
@@ -860,7 +861,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
               <div>
                 <label htmlFor={idStatus} className={labelCls}>制作状态</label>
-                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
+                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={adminInput}>
                   {GAME_STATUS_ORDER.map((v) => (
                     <option key={v} value={v}>{GAME_STATUS_LABELS[v]}</option>
                   ))}
@@ -891,7 +892,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             value={tagSearch}
             onChange={(e) => setTagSearch(e.target.value)}
             placeholder="搜索标签…"
-            className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className={adminInput}
           />
         </div>
         {/* 已选标签展示 */}
@@ -904,7 +905,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <Tag key={id} color={tag.color} className="gap-1">
                   {tag.name}
                   <button type="button" onClick={() => toggleTag(id)}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-red-400 transition-colors cursor-pointer">
+                    className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center cursor-pointer")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Tag>
@@ -921,7 +922,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <Tag key={name} color="#6b7280" className="gap-1">
                   {name}
                   <button type="button" onClick={() => removeDraftTag(name)}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-red-400 transition-colors cursor-pointer">
+                    className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center cursor-pointer")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Tag>
@@ -1033,7 +1034,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <button
                   type="button"
                   onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
-                  className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-red-400 transition-colors"
+                  className={cn(adminBtnDanger, "ml-1 h-7 w-7 !p-0 justify-center")}
                 >
                   <X className="h-3 w-3" />
                 </button>

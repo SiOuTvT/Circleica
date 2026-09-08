@@ -8,6 +8,8 @@ import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Lock, Pencil, Plus, 
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 import { ColorPicker } from "./color-picker"
 import { TagInlineEditor } from "./tag-inline-editor"
 import { PositionCheckboxGroup } from "./tag-position-checkbox"
@@ -579,7 +581,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                           })
                         }
                         title="删除标签组"
-                        className="shrink-0 rounded-lg bg-secondary p-1.5 text-muted-foreground hover:text-red-400 transition-colors"
+                        className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -653,7 +655,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                                 })
                               }}
                               title="删除"
-                              className="opacity-0 group-hover/tag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition duration-150 ease-in-out"
+                              className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center opacity-0 group-hover/tag:opacity-100")}
                             >
                               <Trash2 className="h-2.5 w-2.5" />
                             </button>
@@ -761,7 +763,7 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
                       })
                     }
                     title="删除"
-                    className="opacity-0 group-hover/utag:opacity-100 p-0.5 rounded hover:bg-red-500/20 hover:!text-red-400 transition duration-150 ease-in-out"
+                    className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center opacity-0 group-hover/utag:opacity-100")}
                   >
                     <Trash2 className="h-2.5 w-2.5" />
                   </button>
