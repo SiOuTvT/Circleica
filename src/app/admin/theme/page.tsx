@@ -1,36 +1,9 @@
-"use client"
+import { requireSuperAdmin } from "@/lib/admin"
+import { ThemeSettingsClient } from "./theme-client"
 
-import { DocumentTitle } from "@/components/document-title"
-import { ThemeEditor } from "@/components/theme-editor"
-import { useThemeSettings, type FullThemeSettings } from "@/components/theme-provider"
-import { useCallback, useEffect, useState } from "react"
-import { toast } from "sonner"
-import { apiFetchSafe } from "@/lib/api-client"
+export const metadata = { title: "主题设置" }
 
-export default function ThemeSettingsPage() {
-  const { settings: ctxSettings, applyAll } = useThemeSettings()
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-
-  const handleSave = useCallback(async (settingsToSave: FullThemeSettings) => {
-    const { ok } = await apiFetchSafe("/api/admin/site-settings", {
-      method: "POST",
-      body: settingsToSave,
-    })
-    if (ok) {
-      applyAll(settingsToSave)
-      toast.success("主题已保存")
-    } else {
-      throw new Error("Save failed")
-    }
-  }, [applyAll])
-
-  if (!mounted) return <div className="h-96 animate-pulse rounded-xl bg-muted" />
-
-  return (
-    <>
-      <DocumentTitle title="主题设置" />
-      <ThemeEditor initialSettings={ctxSettings} onSave={handleSave} />
-    </>
-  )
+export default async function AdminThemePage() {
+  await requireSuperAdmin()
+  return <ThemeSettingsClient />
 }

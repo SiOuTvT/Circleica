@@ -3,6 +3,10 @@
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+/**
+ * AdminBackButton — 用途：返回「浏览器上一页」（router.back() 走浏览历史），
+ * 用于没有明确上级路由的页面；与 AdminBackLink（跳指定 href）不是同一功能，勿互相替换。
+ */
 export function AdminBackButton() {
   const router = useRouter()
 

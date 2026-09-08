@@ -477,11 +477,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           <span>检测到未保存的草稿「{draft.title || "无标题"}」，是否恢复？</span>
           <div className="flex shrink-0 gap-2">
             <button type="button" onClick={restoreDraft}
-              className="rounded-lg bg-amber-500/20 px-3 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors">
+              className="rounded-lg bg-amber-500/20 px-3 py-2 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors">
               恢复
             </button>
             <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }}
-              className="rounded-lg px-3 py-1 text-xs font-medium text-amber-400/60 hover:text-amber-300 transition-colors">
+              className="rounded-lg px-3 py-2 text-xs font-medium text-amber-400/60 hover:text-amber-300 transition-colors">
               丢弃
             </button>
           </div>
@@ -904,7 +904,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <Tag key={id} color={tag.color} className="gap-1">
                   {tag.name}
                   <button type="button" onClick={() => toggleTag(id)}
-                    className="hover:text-red-400 transition-colors cursor-pointer">
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-red-400 transition-colors cursor-pointer">
                     <X className="h-3 w-3" />
                   </button>
                 </Tag>
@@ -921,7 +921,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <Tag key={name} color="#6b7280" className="gap-1">
                   {name}
                   <button type="button" onClick={() => removeDraftTag(name)}
-                    className="hover:text-red-400 transition-colors cursor-pointer">
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:text-red-400 transition-colors cursor-pointer">
                     <X className="h-3 w-3" />
                   </button>
                 </Tag>
@@ -1033,7 +1033,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <button
                   type="button"
                   onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
-                  className="ml-1 text-muted-foreground hover:text-red-400 transition-colors"
+                  className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-red-400 transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -1064,7 +1064,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           ))}
         </div>
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
+          className="inline-flex h-8 items-center gap-1.5 px-2.5 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加截图
         </button>
       </div>
