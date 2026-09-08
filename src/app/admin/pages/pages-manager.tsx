@@ -90,7 +90,7 @@ export function PagesManager({ initial }: Props) {
             {editingKey === page.key ? (
               <StructuredEditor html={draft} onChange={setDraft} />
             ) : (
-              <div className="rounded-2xl bg-card ring-1 ring-border p-6">
+              <div className="rounded-xl bg-card ring-1 ring-border p-6">
                 {contents[page.key] ? (
                   <RichTextContent html={contents[page.key]} />
                 ) : (

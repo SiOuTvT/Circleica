@@ -10,6 +10,7 @@ import { BRANDING, resolveLogo } from "@/lib/branding"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { AdminSwitch } from "@/components/admin/admin-switch"
 
 export function SiteSettingsClient() {
   const [placeholderUrl, setPlaceholderUrl] = useState("")
@@ -142,7 +143,7 @@ export function SiteSettingsClient() {
 
   if (loading) {
     return (
-      <AdminPageContainer>
+      <AdminPageContainer title="站点设置" eyebrow="SETTINGS">
         <div className="flex items-center gap-3">
           <div className="h-6 w-6 animate-pulse rounded bg-muted" />
           <div className="h-7 w-24 animate-pulse rounded bg-muted" />
@@ -344,21 +345,7 @@ export function SiteSettingsClient() {
             <p className="text-sm font-medium">开放注册</p>
             <p className="text-xs text-muted-foreground">关闭后新用户将无法注册账号</p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={registrationEnabled}
-            onClick={() => setRegistrationEnabled(!registrationEnabled)}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
-              registrationEnabled ? "bg-primary" : "bg-muted-foreground/30"
-            }`}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${
-                registrationEnabled ? "translate-x-5" : "translate-x-0.5"
-              } mt-0.5`}
-            />
-          </button>
+          <AdminSwitch checked={registrationEnabled} onChange={setRegistrationEnabled} label="开放注册" />
         </div>
         </Card>
 
@@ -484,21 +471,7 @@ function ToggleRow({ label, desc, checked, onChange }: {
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
-          checked ? "bg-primary" : "bg-muted-foreground/30"
-        }`}
-      >
-        <span
-          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${
-            checked ? "translate-x-5" : "translate-x-0.5"
-          } mt-0.5`}
-        />
-      </button>
+      <AdminSwitch checked={checked} onChange={onChange} label={label} />
     </div>
   )
 }

@@ -19,7 +19,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { apiFetchSafe } from "@/lib/api-client";
+import { apiFetchSafe } from "@/lib/api-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils";
 
 interface EmMsg {
   id: string; key: string; category: string; title: string
@@ -282,7 +284,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button onClick={() => setConfirmDeleteId(item.id)} title="删除"
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400">
+                        className={cn(adminBtnDanger, "h-11 w-11 !p-0 justify-center")}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

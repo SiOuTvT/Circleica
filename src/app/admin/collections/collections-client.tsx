@@ -12,6 +12,8 @@ import Image from "next/image"
 import { useCallback, useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
+import { AdminSwitch } from "@/components/admin/admin-switch"
 
 interface CollectionItem {
   id: string
@@ -125,10 +127,15 @@ export function CollectionsClient() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-48 bg-muted animate-pulse rounded-lg" />
-        {[1, 2].map(i => <div key={i} className="h-32 bg-muted animate-pulse rounded-2xl" />)}
-      </div>
+      <AdminPageContainer
+        eyebrow="COLLECTIONS"
+        title="精选合集"
+        description="管理前台展示的精选游戏合集"
+      >
+        <div className="space-y-3">
+          {[1, 2].map(i => <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />)}
+        </div>
+      </AdminPageContainer>
     )
   }
 
@@ -322,11 +329,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
               <p className="text-sm font-medium">发布状态</p>
               <p className="text-xs text-muted-foreground">关闭后前台不显示此合集</p>
             </div>
-            <button type="button" role="switch" aria-checked={published}
-              onClick={() => setPublished(!published)}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${published ? "bg-primary" : "bg-muted-foreground/30"}`}>
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${published ? "translate-x-5" : "translate-x-0.5"} mt-0.5`} />
-            </button>
+            <AdminSwitch checked={published} onChange={setPublished} label="发布状态" />
           </div>
 
           {/* 选择游戏 */}
@@ -388,7 +391,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
                         <ArrowDown className="h-3.5 w-3.5" />
                       </button>
                       <button onClick={() => removeGame(g.id)}
-                        className="p-1 rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
+                        className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>

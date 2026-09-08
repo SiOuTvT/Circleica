@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 
 /* ──────────────────── 类型 ──────────────────── */
 
@@ -121,7 +123,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索当前标签组…" aria-label="搜索标签"
-            className="w-full rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className={adminSearchInput}
           />
         </div>
         <div className="flex overflow-hidden rounded-lg bg-secondary ring-1 ring-border">
@@ -192,7 +194,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
                       type="button"
                       onClick={() => setDeletingTag(tag)}
                       title="删除"
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                      className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -288,7 +290,7 @@ function InlineTagEdit({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="block w-40 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className={cn(adminInput, "w-40")}
           />
         </div>
 
@@ -322,7 +324,7 @@ function InlineTagEdit({
           <select
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}
-            className="block w-36 rounded-lg border-2 border-input bg-transparent px-2.5 py-2 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+            className={cn(adminInput, "w-36")}
           >
             <option value="">未分组</option>
             {groups.map((g) => (

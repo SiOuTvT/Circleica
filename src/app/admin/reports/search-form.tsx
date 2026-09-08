@@ -3,6 +3,7 @@
 import { Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { adminSearchInput } from "@/lib/admin-styles"
 
 export function ReportSearchForm({ initialQ }: { initialQ: string }) {
   const router = useRouter()
@@ -24,7 +25,7 @@ export function ReportSearchForm({ initialQ }: { initialQ: string }) {
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="搜索游戏名称…"
-          className="rounded-xl border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] w-full sm:w-56"
+          className={adminSearchInput}
         />
       </div>
       <button

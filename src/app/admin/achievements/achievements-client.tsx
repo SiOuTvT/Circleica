@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { AdminTable, type AdminTableColumn } from "@/components/admin/admin-table"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
+import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
 import { Award, Edit2, Loader2, Plus, Save, Search, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState, useId, useRef } from "react"
@@ -49,8 +50,6 @@ const CATEGORIES = [
   { value: "loyalty", label: "忠诚" },
   { value: "special", label: "特殊" },
 ]
-
-const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
 export function AchievementsClient() {
   const [achievements, setAchievements] = useState<Achievement[]>([])
@@ -194,7 +193,7 @@ export function AchievementsClient() {
           </button>
           <button
             onClick={() => setDeleteTarget(ach.id)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"
+            className={cn(adminBtnDanger, "h-8 w-8 !p-0 justify-center")}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -269,11 +268,11 @@ export function AchievementsClient() {
             {/* 右侧：表单 */}
             <div className="flex-1 space-y-3 min-w-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Field label="名称"><input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className={inputCls} placeholder="成就名称" /></Field>
-                <Field label="分类"><select value={editing.category ?? "general"} onChange={(e) => setEditing({ ...editing, category: e.target.value })} className={inputCls}>{CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
-                <Field label="条件类型"><select value={editing.conditionType ?? "favorite_count"} onChange={(e) => setEditing({ ...editing, conditionType: e.target.value })} className={inputCls}>{CONDITION_TYPES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
-                <Field label="目标值"><input type="number" value={editing.conditionTarget ?? 1} onChange={(e) => setEditing({ ...editing, conditionTarget: Number(e.target.value) })} className={inputCls} min={1} /></Field>
-                <Field label="积分"><input type="number" value={editing.points ?? 10} onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })} className={inputCls} min={1} /></Field>
+                <Field label="名称"><input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className={adminInput} placeholder="成就名称" /></Field>
+                <Field label="分类"><select value={editing.category ?? "general"} onChange={(e) => setEditing({ ...editing, category: e.target.value })} className={adminInput}>{CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
+                <Field label="条件类型"><select value={editing.conditionType ?? "favorite_count"} onChange={(e) => setEditing({ ...editing, conditionType: e.target.value })} className={adminInput}>{CONDITION_TYPES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}</select></Field>
+                <Field label="目标值"><input type="number" value={editing.conditionTarget ?? 1} onChange={(e) => setEditing({ ...editing, conditionTarget: Number(e.target.value) })} className={adminInput} min={1} /></Field>
+                <Field label="积分"><input type="number" value={editing.points ?? 10} onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })} className={adminInput} min={1} /></Field>
                 <div className="col-span-2"><Field label="描述"><Textarea variant="filled" value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="min-h-[56px] resize-y text-sm" placeholder="成就描述" /></Field></div>
               </div>
 
@@ -303,7 +302,7 @@ export function AchievementsClient() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="搜索成就名称…"
-              className="w-full rounded-xl border-2 border-input bg-transparent py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+              className={adminSearchInput}
             />
           </div>
           {total > 0 && <span className="text-xs text-muted-foreground">共 {total} 条</span>}

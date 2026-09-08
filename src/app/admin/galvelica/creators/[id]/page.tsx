@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
-import { Layers, ExternalLink } from "lucide-react"
+import { Layers, ExternalLink, User } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { CreatorDetailClient } from "./creator-detail-client"
 
 export const metadata = { title: "Galvelica 创作者详情" }
@@ -111,7 +112,7 @@ export default async function GalvelicaCreatorDetailPage({
           <div className="rounded-xl border border-border bg-card p-5">
             <AdminSectionHeading galvelica icon={Layers}>关联作品（{works.length}）</AdminSectionHeading>
             {works.length === 0 ? (
-              <p className="text-sm text-muted-foreground">该创作者暂无关联作品。</p>
+              <EmptyState icon={User} title="该创作者暂无关联作品" />
             ) : (
               <ul className="divide-y divide-border">
                 {works.map((w) => (

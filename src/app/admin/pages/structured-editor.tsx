@@ -2,7 +2,8 @@
 
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/empty-state"
-import { adminBtnSubtle } from "@/lib/admin-styles"
+import { adminBtnSubtle, adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 
 import dynamic from "next/dynamic"
 import { useRef } from "react"
@@ -292,7 +293,7 @@ function BlockEditor({
         <div className="w-px h-4 bg-border mx-0.5" />
         <button
           onClick={onRemove}
-          className="p-1.5 hover:bg-red-500/10 rounded-md text-muted-foreground hover:text-red-400"
+          className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
           title="删除"
         >
           <X className="h-3.5 w-3.5" />
@@ -373,7 +374,7 @@ function BlockEditor({
                       const newItems = block.items?.filter((_, idx) => idx !== i)
                       if (newItems?.length) onUpdate({ items: newItems })
                     }}
-                    className="p-1 hover:bg-red-500/10 rounded text-muted-foreground hover:text-red-400 opacity-0 hover:opacity-100"
+                    className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center opacity-0 hover:opacity-100")}
                     title="删除此项"
                   >
                     <X className="h-3 w-3" />

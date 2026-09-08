@@ -104,7 +104,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
         {/* 左侧：控件 */}
         <div className="flex flex-col gap-5 sm:gap-6">
           {/* 主题色预设（副站铜绿 + 主站 10 套，仅读取色值，数据仍写 galvelica: 命名空间） */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">🎨 主题颜色</CardTitle>
             </CardHeader>
@@ -158,7 +158,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
           </Card>
 
           {/* 圆角 */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">📐 圆角大小</CardTitle>
             </CardHeader>
@@ -178,7 +178,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
           </Card>
 
           {/* 阴影强度 */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">🌫️ 阴影强度</CardTitle>
             </CardHeader>
@@ -198,7 +198,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
           </Card>
 
           {/* 背景着色透明度 */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">💧 背景着色</CardTitle>
             </CardHeader>
@@ -221,7 +221,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
         {/* 右侧：预览（副站风格） */}
         <div className="flex flex-col gap-5 sm:gap-6">
           {/* 实时预览 */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">👁️ 副站实时预览</CardTitle>
             </CardHeader>
@@ -277,7 +277,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
           </Card>
 
           {/* 当前生效主题 */}
-          <Card>
+          <Card radius="xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2"><Database className="h-4 w-4" strokeWidth={2} /> 当前生效副站主题</CardTitle>
             </CardHeader>
@@ -302,7 +302,7 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
 
           {/* 待保存变更 */}
           {hasChanges && (
-            <Card className="border-amber-500/30">
+            <Card radius="xl" className="border-amber-500/30">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" strokeWidth={2} /> 待保存变更</CardTitle>
               </CardHeader>

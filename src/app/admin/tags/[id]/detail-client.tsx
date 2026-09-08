@@ -9,6 +9,8 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { AdminTagApiResponse } from "@/components/tag-groups-manager"
+import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 
 /* ──────────────────── 类型 ──────────────────── */
 
@@ -67,7 +69,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
       </div>
       <div className="flex items-center gap-3">
         <input type="color" value={value} onChange={(e) => { setHexInput(e.target.value); onChange(e.target.value) }} className="h-8 w-8 rounded-lg cursor-pointer border-0 bg-transparent" />
-        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className="w-28 rounded-lg border-2 border-input bg-transparent px-3 py-2 text-xs text-foreground font-mono outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
+        <input type="text" value={hexInput} onChange={(e) => handleHexChange(e.target.value)} placeholder="#000000" className={cn(adminInput, "w-28 text-xs font-mono")} />
         <div className="h-6 w-6 rounded-full ring-1 ring-border" style={{ background: value }} />
       </div>
     </div>
@@ -226,8 +228,6 @@ export function TagGroupDetailClient({
     setSaving(false)
   }
 
-  const inputCls = "w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-
   return (
     <div className="space-y-5">
       {/* ── 顶部卡片 ── */}
@@ -251,7 +251,7 @@ export function TagGroupDetailClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索标签…" aria-label="搜索标签"
-            className="rounded-lg border-2 border-input bg-transparent pl-9 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary w-full"
+            className={adminSearchInput}
           />
         </div>
       </Card>
@@ -268,7 +268,7 @@ export function TagGroupDetailClient({
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
             placeholder="输入标签名称"
-            className={inputCls}
+            className={adminInput}
             autoFocus
             onKeyDown={(e) => { if (e.key === "Enter") handleCreateTag(); if (e.key === "Escape") setShowCreate(false) }}
           />
@@ -334,7 +334,7 @@ export function TagGroupDetailClient({
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeletingTag(tag) }}
                         title="删除"
-                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                        className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -351,13 +351,13 @@ export function TagGroupDetailClient({
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="标签名称"
-                      className="flex-1 rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className={cn(adminInput, "flex-1 text-xs")}
                       autoFocus
                     />
                     <select
                       value={editGroupId}
                       onChange={(e) => setEditGroupId(e.target.value)}
-                      className="w-32 shrink-0 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className={cn(adminInput, "w-32 shrink-0 text-xs")}
                     >
                       {allGroups.map((g) => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -368,7 +368,7 @@ export function TagGroupDetailClient({
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     placeholder="标签描述（可选）"
-                    className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                    className={cn(adminInput, "text-xs")}
                   />
                   <div className="flex items-center gap-2">
                     <input
@@ -376,7 +376,7 @@ export function TagGroupDetailClient({
                       value={editSortOrder}
                       onChange={(e) => setEditSortOrder(Number(e.target.value))}
                       title="排序值"
-                      className="w-16 rounded-lg border-2 border-input bg-transparent px-2 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className={cn(adminInput, "w-16 text-xs")}
                     />
                     <button
                       type="button"

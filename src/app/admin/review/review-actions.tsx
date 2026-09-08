@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
+import { adminInput, adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 
 export function ReviewActions({ gameId }: { gameId: string }) {
   const router = useRouter()
@@ -48,17 +50,17 @@ export function ReviewActions({ gameId }: { gameId: string }) {
             autoFocus
             value={rejectReason}
             onChange={e => setRejectReason(e.target.value)}
-            placeholder="拒回原因…" className="w-32 rounded-lg border-2 border-input bg-transparent px-2 py-2 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+            placeholder="拒回原因…" className={cn(adminInput, "w-32 text-xs")}
             onKeyDown={e => { if (e.key === "Escape") setShowReject(false) }}
           />
           <button onClick={reject} disabled={rejecting}
-            className="rounded-lg bg-rose-500/10 px-2 py-1.5 text-xs font-medium text-rose-400 ring-1 ring-rose-500/20 hover:bg-rose-500/20">
+            className={cn(adminBtnDanger, "px-2 text-xs")}>
             {rejecting ? <Loader2 className="h-3 w-3 animate-spin" /> : "确认"}
           </button>
         </div>
       ) : (
         <button onClick={() => setShowReject(true)} disabled={approving}
-          className="flex items-center gap-1 rounded-lg bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-400 ring-1 ring-rose-500/20 hover:bg-rose-500/20 disabled:opacity-50">
+          className={cn(adminBtnDanger, "text-xs disabled:opacity-50")}>
           <XCircle className="h-3 w-3" />
           拒回
         </button>

@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { api } from "@/lib/api-client"
+import { adminBtnDanger } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -221,15 +223,14 @@ export function AvatarFramesClient() {
                 >
                   编辑
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1 text-xs border-red-500/30 text-red-400 hover:bg-red-500/10"
+                <button
+                  type="button"
+                  className={cn(adminBtnDanger, "flex-1 justify-center text-xs")}
                   onClick={() => setDeleteTargetId(frame.id)}
                   disabled={deleting === frame.id}
                 >
                   {deleting === frame.id ? "..." : "删除"}
-                </Button>
+                </button>
               </div>
             </div>
           ))}

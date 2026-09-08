@@ -191,7 +191,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       <div className="flex-1 min-w-0 w-full space-y-5">
 
         {/* 表单卡片 */}
-        <section className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+        <section className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
           {/* 卡片头部 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
             <h2 className="text-sm font-semibold text-foreground tracking-tight">
@@ -304,7 +304,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       {/* ── 右侧：实时预览 + 公告列表 ── */}
       <aside className="w-full xl:w-[460px] shrink-0 space-y-5">
         {/* 预览 */}
-        <div className="rounded-2xl bg-card ring-1 ring-border overflow-hidden xl:sticky xl:top-4 xl:self-start">
+        <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden xl:sticky xl:top-4 xl:self-start">
           <div className="px-4 py-2.5 border-b border-border bg-muted/20">
             <p className="text-xs font-medium text-muted-foreground">前台效果预览</p>
           </div>
@@ -314,7 +314,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
         </div>
 
         {/* 公告列表（从左侧移过来） */}
-        <section className="rounded-2xl bg-card ring-1 ring-border overflow-hidden">
+        <section className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
             <p className="text-xs text-muted-foreground font-medium">
               共 {anns.length} 条公告

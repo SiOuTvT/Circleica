@@ -5,6 +5,7 @@ import { ExternalLink, Loader2, User } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface CreatorInfo {
   id: string
@@ -133,10 +134,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center py-6 text-center">
-              <p className="text-sm text-muted-foreground">暂无作品</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">通过 VNDB 导入游戏时会自动关联</p>
-            </div>
+            <EmptyState icon={User} title="暂无作品" description="通过 VNDB 导入游戏时会自动关联" />
           )}
         </div>
       </DialogContent>

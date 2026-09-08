@@ -6,6 +6,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Tag as TagIcon } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 import { TagDetailClient } from "./tag-detail-client"
 
@@ -92,7 +93,7 @@ export default async function GalvelicaTagDetailPage({
           <div className="rounded-xl border border-border bg-card p-5">
             <AdminSectionHeading galvelica icon={TagIcon}>关联作品（{workCount}）</AdminSectionHeading>
             {related.length === 0 ? (
-              <p className="text-sm text-muted-foreground">该标签暂无关联作品。</p>
+              <EmptyState icon={TagIcon} title="该标签暂无关联作品" />
             ) : (
               <ul className="divide-y divide-border">
                 {related.map((r) => (
