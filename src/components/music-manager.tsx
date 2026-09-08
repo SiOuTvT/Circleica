@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminBtnDanger } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
 
 interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
@@ -73,8 +73,6 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     audio.onended = () => setPlayingId(null)
     audio.onerror = () => setPlayingId(null)
   }, [playingId])
-
-  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
   // 文件上传
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -223,7 +221,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
         </div>
         <div className="flex items-center gap-2">
           <input value={newPlaylistName} onChange={e => setNewPlaylistName(e.target.value)}
-            placeholder="新建播放列表" className={cn(inputCls, "flex-1 text-xs")}
+            placeholder="新建播放列表" className={cn(adminInput, "flex-1")}
             onKeyDown={e => { if (e.key === "Enter") createPlaylist() }}
           />
           <button onClick={createPlaylist} disabled={!newPlaylistName.trim()}
@@ -238,7 +236,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
         <p className="text-xs text-muted-foreground">上传音频文件（最大 32MB）或填入直链 URL</p>
         {error && <p className="text-xs text-red-400">{error}</p>}
         <form onSubmit={add} className="space-y-2">
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="曲目名称" required className={inputCls} />
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="曲目名称" required className={adminInput} />
           <div className="flex items-center gap-2">
             <SelectPlaylist
               playlists={playlists}
@@ -247,7 +245,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             />
           </div>
           <div className="flex gap-2">
-            <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（或直接上传文件）" className={cn(inputCls, "flex-1")} />
+            <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（或直接上传文件）" className={cn(adminInput, "flex-1")} />
             <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
             <button type="button" onClick={() => fileInputRef.current?.click()}
               className={cn("flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium ring-1 transition duration-150 ease-in-out shrink-0",
@@ -347,7 +345,7 @@ function SelectPlaylist({ playlists, value, onChange }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)}
-      className="rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary">
+      className={cn(adminInput)}>
       <option value="">未分类</option>
       {playlists.map(pl => (
         <option key={pl.id} value={pl.id}>{pl.name}</option>

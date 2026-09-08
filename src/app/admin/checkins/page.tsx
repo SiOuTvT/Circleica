@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
-import { adminInput, adminSearchInput } from "@/lib/admin-styles"
+import { adminInput, adminSearchInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { CalendarCheck, Search } from "lucide-react"
@@ -127,7 +127,7 @@ export default async function AdminCheckInsPage({
             <span className="text-xs text-muted-foreground">至</span>
             <input type="date" name="to" defaultValue={to} aria-label="结束日期"
               className={cn(adminInput, "w-44")} />
-            <Button type="submit">筛选</Button>
+            <Button type="submit" className={cn(adminBtnPrimary, "h-10 min-h-[40px]")}>筛选</Button>
           </form>
         }
       >

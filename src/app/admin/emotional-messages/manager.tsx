@@ -276,15 +276,15 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
                     {/* 操作按钮 */}
                     <div className="flex items-center gap-1">
                       <button onClick={() => toggleEnabled(item)} title={item.enabled ? "禁用" : "启用"}
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
                         {item.enabled ? <ToggleRight className="h-4 w-4 text-emerald-400" /> : <ToggleLeft className="h-4 w-4" />}
                       </button>
                       <button onClick={() => setEditing(item)} title="编辑"
-                        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button onClick={() => setConfirmDeleteId(item.id)} title="删除"
-                        className={cn(adminBtnDanger, "h-11 w-11 !p-0 justify-center")}>
+                        className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

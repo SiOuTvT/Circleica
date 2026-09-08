@@ -11,7 +11,7 @@ import { memo, useEffect, useRef, useState, useId } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
-import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import {
   PLATFORM_LABELS, PLATFORM_ORDER, LANGUAGE_LABELS, LANGUAGE_ORDER,
@@ -581,7 +581,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 onChange={(e) => setDescLang(key, e.target.value)}
                 placeholder={`输入${label}…`}
                 rows={4}
-                className="resize-none px-4 py-2.5 text-sm placeholder:text-muted-foreground/50"
+                className="resize-none px-4 py-2.5 text-[15px] leading-6 placeholder:text-muted-foreground/50"
               />
             )
           ))}
@@ -1073,7 +1073,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
       {/* 提交 */}
       <div className="flex gap-3">
         <button type="submit" disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity duration-200 hover:opacity-90 disabled:opacity-60">
+          className={cn(adminBtnPrimary, "h-10")}>
           {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>

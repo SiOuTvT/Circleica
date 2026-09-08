@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { api } from "@/lib/api-client"
-import { adminBtnDanger } from "@/lib/admin-styles"
+import { adminBtnDanger, adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { useCallback, useEffect, useState } from "react"
@@ -134,7 +134,7 @@ export function AvatarFramesClient() {
       eyebrow="AVATAR FRAMES"
       title="头像框管理"
       description="管理用户可选择的头像框，图片应为透明背景的 PNG"
-      actions={<Button onClick={openCreate}>+ 新建头像框</Button>}
+      actions={<Button className={cn(adminBtnPrimary, "h-10 min-h-[40px]")} onClick={openCreate}>+ 新建头像框</Button>}
     >
 
       {loading ? (
@@ -363,7 +363,7 @@ export function AvatarFramesClient() {
                 取消
               </Button>
               <Button
-                className="flex-1 bg-primary hover:opacity-90"
+                className={cn(adminBtnPrimary, "h-10 min-h-[40px] flex-1")}
                 onClick={handleSave}
                 disabled={saving}
               >

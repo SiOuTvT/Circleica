@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { adminBtnDanger, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
+import { adminBtnDanger, adminBtnSecondary, adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -145,7 +145,7 @@ export function CollectionsClient() {
       title="精选合集"
       description="管理前台展示的精选游戏合集"
       actions={
-        <Button onClick={handleCreate}>
+        <Button className={cn(adminBtnPrimary, "h-10 min-h-[40px]")} onClick={handleCreate}>
           <Plus className="h-4 w-4" /> 新建合集
         </Button>
       }
@@ -404,7 +404,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
 
         <DialogFooter>
           <Button variant="outline" size="sm" onClick={onClose}>取消</Button>
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button className={cn(adminBtnPrimary, "h-10 min-h-[40px]")} onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {saving ? "保存中..." : "保存"}
           </Button>

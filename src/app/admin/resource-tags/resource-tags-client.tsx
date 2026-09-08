@@ -8,7 +8,8 @@ import { ChevronUp, Loader2, Plus, Save, Tags, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminInput } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
+import { adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 
 interface TagGroup {
   group: string
@@ -164,7 +165,7 @@ export function ResourceTagsClient() {
                 placeholder="输入新标签…"
                 className={`flex-1 ${adminInput}`}
               />
-              <Button onClick={() => handleAdd(g.group)} disabled={!newValues[g.group]?.trim()}>
+              <Button className={cn(adminBtnPrimary, "h-10 min-h-[40px]")} onClick={() => handleAdd(g.group)} disabled={!newValues[g.group]?.trim()}>
                 <Plus className="h-4 w-4 mr-1.5" /> 添加
               </Button>
             </div>

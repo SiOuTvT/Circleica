@@ -4,7 +4,8 @@ import { ImageIcon, Loader2, Upload, X } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -110,7 +111,7 @@ export function CheckInConfigEditor() {
             value={config.title ?? ""}
             onChange={(e) => setConfig({ ...config, title: e.target.value })}
             placeholder="签到成功"
-            className="mt-1"
+            className={cn(adminInput, "mt-1")}
           />
         </div>
 
@@ -121,7 +122,7 @@ export function CheckInConfigEditor() {
             value={config.subtitle ?? ""}
             onChange={(e) => setConfig({ ...config, subtitle: e.target.value })}
             placeholder="获得 {marks} 印记"
-            className="mt-1"
+            className={cn(adminInput, "mt-1")}
           />
           <p className="text-xs text-muted-foreground mt-1">
             使用 {"{marks}"} 作为印记数量的占位符
@@ -210,9 +211,9 @@ export function CheckInConfigEditor() {
       )}
 
       <div className="pt-2">
-        <Button onClick={handleSave} disabled={loading} className="w-full sm:w-auto">
+        <button onClick={handleSave} disabled={loading} className={cn(adminBtnPrimary, "h-10 w-full sm:w-auto")}>
           {loading ? <span className="inline-flex items-center gap-1.5"><Loader2 className="h-4 w-4 animate-spin" />保存中...</span> : "保存配置"}
-        </Button>
+        </button>
       </div>
     </Card>
   )

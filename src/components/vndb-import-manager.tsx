@@ -75,7 +75,7 @@ export function VNDBImportManager() {
         onChange={(e) => setVndbIds(e.target.value)}
         placeholder="输入 VNDB ID..."
         rows={4}
-        className="resize-none px-4 py-3 text-sm"
+        className="resize-none px-4 py-3 text-[15px] leading-6"
       />
 
       <button

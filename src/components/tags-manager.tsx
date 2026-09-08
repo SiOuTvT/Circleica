@@ -7,7 +7,7 @@ import { Eye, EyeOff, GripVertical, Loader2, Pencil, Plus, Trash2, X } from "luc
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminBtnDanger } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import type { TagGroup, AdminTagApiResponse } from "./tag-groups-manager"
 import { ConfirmDialog } from "./ui/confirm-dialog"
@@ -91,8 +91,6 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
     setEditIsVisible(tag.isVisible !== false)
   }
 
-  const inputCls = "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-
   return (
     <div className="space-y-4">
       <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
@@ -107,14 +105,14 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
       {/* 新建标签 */}
       <Card size="comfortable" radius="xl" className="space-y-3">
         <div className="flex gap-2">
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="新标签名称" className={inputCls} />
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="新标签名称" className={adminInput} />
           <select value={groupId} onChange={e => { const g = e.target.value; setGroupId(g); const gr = initialGroups.find(x => x.id === g); if (gr) { setColor(gr.color); setColorLocked(true) } else { setColorLocked(false) } }}
-            className="w-36 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary">
+            className={cn(adminInput, "w-36 shrink-0")}>
             <option value="">未分组</option>
             {initialGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
           </select>
           <input type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} placeholder="排序" title="排序值（小的在前）"
-            className="w-20 shrink-0 rounded-xl border-2 border-input bg-transparent px-3 py-3 text-[15px] text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
+            className={cn(adminInput, "w-20 shrink-0")} />
           <button type="button" onClick={() => setIsVisible(!isVisible)} title={isVisible ? "可见" : "隐藏"}
             className={`shrink-0 rounded-xl p-2.5 ring-1 ring-border transition-colors ${isVisible ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
             {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -124,7 +122,7 @@ export function TagsManager({ initialTags, initialGroups }: { initialTags: Tag[]
             <Plus className="h-4 w-4" strokeWidth={2} />添加
           </button>
         </div>
-        <input value={description} onChange={e => setDescription(e.target.value)} placeholder="标签描述（可选）" className={inputCls + " text-xs"} />
+        <input value={description} onChange={e => setDescription(e.target.value)} placeholder="标签描述（可选）" className={adminInput} />
         <div className="flex flex-wrap gap-2">
           {PRESET_COLORS.map(c => (
             <button key={c} type="button" onClick={() => { setColor(c); setColorLocked(false) }}

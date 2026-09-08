@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PROVIDER_FIELDS, PROVIDER_LABELS } from "@/lib/email-providers-meta"
-import { adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
+import { adminBtnPrimary, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -184,7 +185,7 @@ export function ServicesClient() {
       eyebrow="SERVICES"
       description="配置可选的外部服务，未配置时使用默认行为"
       actions={
-        <button onClick={handleSave} disabled={saving} className={adminBtnPrimary}>
+        <button onClick={handleSave} disabled={saving} className={cn(adminBtnPrimary, "h-10")}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           保存配置
         </button>
@@ -295,7 +296,7 @@ export function ServicesClient() {
                               if (v !== (providerConfig.mode || "api")) updateProviderField(providerId, "mode", v)
                             }}
                           >
-                            <SelectTrigger className="w-full min-h-[44px] rounded-xl">
+                            <SelectTrigger className="w-full h-12 text-[15px] leading-6 rounded-xl">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -324,6 +325,7 @@ export function ServicesClient() {
                             onChange={e => updateProviderField(providerId, field.key, e.target.value)}
                             placeholder={field.placeholder}
                             autoComplete="off"
+                            className={cn(adminInput)}
                           />
                         )}
                       </div>
@@ -392,7 +394,7 @@ function Field({ label, value, onChange, placeholder, disabled, className, requi
         {label}{required && <span className="text-destructive ml-0.5">*</span>}
       </label>
       <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        disabled={disabled} autoComplete="off" />
+        disabled={disabled} autoComplete="off" className={cn(adminInput)} />
     </div>
   )
 }
@@ -410,7 +412,7 @@ function SecretField({ label, value, onChange, placeholder, className, required 
       )}
       <div className="relative">
         <Input type={visible ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)}
-          placeholder={placeholder} className="pr-10" autoComplete="new-password" />
+          placeholder={placeholder} className={cn(adminInput, "pr-10")} autoComplete="new-password" />
         <button type="button" onClick={() => setVisible(v => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-lg transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
           tabIndex={-1}>
@@ -442,7 +444,7 @@ function ProviderSelect({ label, value, onChange, excludeKey, allowNone }: {
     <div>
       <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
       <Select value={value || "__none__"} onValueChange={handleChange}>
-        <SelectTrigger className="w-full min-h-[44px] rounded-xl">
+        <SelectTrigger className="w-full h-12 text-[15px] leading-6 rounded-xl">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

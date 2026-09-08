@@ -8,7 +8,7 @@ import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Lock, Pencil, Plus, 
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminBtnDanger } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import { ColorPicker } from "./color-picker"
 import { TagInlineEditor } from "./tag-inline-editor"
@@ -377,9 +377,6 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
   const totalTags = groups.reduce((sum, g) => sum + g.tags.length, 0)
   const totalGames = groups.reduce((sum, g) => sum + g.tags.reduce((s, t) => s + t.gameCount, 0), 0)
 
-  const inputCls =
-    "w-full rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-
   return (
     <div className="space-y-4">
       {/* ── 顶部标题栏 ── */}
@@ -429,13 +426,13 @@ export function TagGroupsManager({ initialGroups, initialUngroupedTags }: { init
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
             placeholder="标签组名称（如：题材、风格、制作商）"
-            className={inputCls}
+            className={adminInput}
           />
           <input
             value={newGroupDesc}
             onChange={(e) => setNewGroupDesc(e.target.value)}
             placeholder="描述（可选）"
-            className={inputCls}
+            className={adminInput}
           />
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">标签组颜色</p>

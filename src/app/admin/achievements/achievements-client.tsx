@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { AdminTable, type AdminTableColumn } from "@/components/admin/admin-table"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
-import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
+import { adminInput, adminSearchInput, adminBtnDanger, adminBtnPrimary } from "@/lib/admin-styles"
 import { Award, Edit2, Loader2, Plus, Save, Search, Trash2, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState, useId, useRef } from "react"
@@ -226,7 +226,7 @@ export function AchievementsClient() {
       title="成就管理"
       description="管理用户可解锁的成就"
       actions={
-        <Button onClick={startCreate}>
+        <Button className={cn(adminBtnPrimary, "h-10 min-h-[40px]")} onClick={startCreate}>
           <Plus className="h-4 w-4" strokeWidth={2} />
           新建成就
         </Button>
@@ -283,7 +283,7 @@ export function AchievementsClient() {
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setEditing(null)} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">取消</button>
-                  <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                  <button onClick={handleSave} disabled={saving} className={cn(adminBtnPrimary, "h-10")}>
                     {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}保存
                   </button>
                 </div>

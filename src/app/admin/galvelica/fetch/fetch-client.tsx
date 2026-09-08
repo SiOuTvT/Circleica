@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Download, Loader2, CheckCircle2, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 
 /** 源分类：与后端 routes/api/admin/galvelica/fetch 保持一致（仅海外源） */
 type SourceKey = "VNDB" | "EROGESCAPE" | "STEAM" | "DLSITE" | "GETCHU" | "FUWANOVEL" | "BOOTH"
@@ -133,7 +134,7 @@ export function GalvelicaFetchClient() {
           onChange={(e) => setIdsText(e.target.value)}
           placeholder={"v3945\nv17\nv12345"}
           rows={6}
-          className="mt-3 w-full rounded-lg border border-border bg-background p-3 font-mono text-sm text-foreground outline-none focus:border-primary/50"
+          className={cn("mt-3", adminInput, "min-h-[120px] font-mono")}
         />
       </section>
 
@@ -158,7 +159,7 @@ export function GalvelicaFetchClient() {
                 max={600}
                 value={maxDurationSec}
                 onChange={(e) => setMaxDurationSec(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground outline-none focus:border-primary/50"
+                className={cn("mt-1", adminInput)}
               />
             </div>
             <div>
@@ -169,7 +170,7 @@ export function GalvelicaFetchClient() {
                 max={500}
                 value={maxItems}
                 onChange={(e) => setMaxItems(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm text-foreground outline-none focus:border-primary/50"
+                className={cn("mt-1", adminInput)}
               />
             </div>
           </div>
@@ -178,7 +179,7 @@ export function GalvelicaFetchClient() {
           type="button"
           onClick={run}
           disabled={loading}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition duration-150 ease-in-out hover:bg-primary/90 disabled:opacity-60"
+          className={cn(adminBtnPrimary, "h-10 mt-4")}
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           {loading ? "拉取中…" : "开始拉取"}

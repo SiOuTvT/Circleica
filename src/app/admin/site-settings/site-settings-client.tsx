@@ -245,7 +245,7 @@ export function SiteSettingsClient() {
               <button
                 onClick={() => logoFileRef.current?.click()}
                 disabled={logoUploading}
-                className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                className="inline-flex h-9 items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
               >
                 <Upload className="h-4 w-4" />
                 {logoUploading ? "上传中…" : "上传图片"}
@@ -253,7 +253,7 @@ export function SiteSettingsClient() {
               {logoUrl && (
                 <button
                   onClick={() => setLogoUrl("")}
-                  className="inline-flex items-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                  className="inline-flex h-9 items-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                 >
                   <Trash2 className="h-4 w-4" />
                   清除（恢复默认 emblem）
@@ -420,7 +420,7 @@ export function SiteSettingsClient() {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+              className="inline-flex h-9 items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
             >
               <Upload className="h-4 w-4" />
               {uploading ? "上传中…" : "上传图片"}
@@ -428,7 +428,7 @@ export function SiteSettingsClient() {
             {placeholderUrl && (
               <button
                 onClick={() => setPlaceholderUrl("")}
-                className="inline-flex items-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                className="inline-flex h-9 items-center gap-2 rounded-xl border border-destructive/30 px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
               >
                 <Trash2 className="h-4 w-4" />
                 清除

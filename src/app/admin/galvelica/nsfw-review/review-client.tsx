@@ -92,7 +92,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
                   type="button"
                   disabled={busyId === it.id}
                   onClick={() => rate(it.id, 0)}
-                  className={`flex-1 rounded px-1.5 py-1 text-[11px] font-medium ring-1 transition-colors ${
+                  className={`flex-1 h-7 rounded-lg px-2 text-xs font-medium ring-1 transition-colors ${
                     it.coverSexual === 0 || it.coverSexual === 1
                       ? LEVEL_META[0].cls
                       : "bg-transparent text-muted-foreground ring-border hover:bg-muted"
@@ -105,7 +105,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
                   type="button"
                   disabled={busyId === it.id}
                   onClick={() => rate(it.id, 2)}
-                  className={`flex-1 rounded px-1.5 py-1 text-[11px] font-medium ring-1 transition-colors ${
+                  className={`flex-1 h-7 rounded-lg px-2 text-xs font-medium ring-1 transition-colors ${
                     it.coverSexual === 2 ? LEVEL_META[2].cls : "bg-transparent text-muted-foreground ring-border hover:bg-muted"
                   }`}
                   title="封面含成人内容，安全模式不渲染"
