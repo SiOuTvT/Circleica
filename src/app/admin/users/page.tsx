@@ -21,7 +21,7 @@ const UsersManager = dynamic(() => import("@/components/users-manager").then(m =
   loading: () => <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />)}</div>,
 })
 
-export const metadata = { title: "用户管理 · 管理后台" }
+export const metadata = { title: "用户管理" }
 
 export default async function AdminUsersPage({
   searchParams,

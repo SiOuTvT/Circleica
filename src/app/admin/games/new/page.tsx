@@ -7,7 +7,7 @@ const GameForm = dynamic(() => import("@/components/game-form").then(m => ({ def
   loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "新增游戏 · 管理后台" }
+export const metadata = { title: "新增游戏" }
 
 export default async function NewGamePage() {
   await requireAdmin()

@@ -6,6 +6,8 @@ import { prisma, Prisma } from "@/lib/prisma"
 import { TagsOverviewClient } from "./overview-client"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import Link from "next/link"
+
+export const metadata = { title: "标签管理" }
 import { List } from "lucide-react"
 import { cacheKey, cached } from "@/lib/redis"
 

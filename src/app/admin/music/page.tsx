@@ -8,7 +8,7 @@ const MusicManager = dynamic(() => import("@/components/music-manager").then(m =
   loading: () => <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />)}</div>,
 })
 
-export const metadata = { title: "音乐管理 · 管理后台" }
+export const metadata = { title: "音乐管理" }
 
 export default async function AdminMusicPage({
   searchParams,

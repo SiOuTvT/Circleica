@@ -29,7 +29,7 @@ interface CheckInRow {
   user: { id: string; username: string; avatar: string | null }
 }
 
-export const metadata = { title: "签到记录 · 管理后台" }
+export const metadata = { title: "签到记录" }
 
 export default async function AdminCheckInsPage({
   searchParams,

@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { ThemeEditor } from "@/components/theme-editor"
 import { useThemeSettings, type FullThemeSettings } from "@/components/theme-provider"
 import { useCallback, useEffect, useState } from "react"
@@ -26,5 +27,10 @@ export default function ThemeSettingsPage() {
 
   if (!mounted) return <div className="h-96 animate-pulse rounded-xl bg-muted" />
 
-  return <ThemeEditor initialSettings={ctxSettings} onSave={handleSave} />
+  return (
+    <>
+      <DocumentTitle title="主题设置" />
+      <ThemeEditor initialSettings={ctxSettings} onSave={handleSave} />
+    </>
+  )
 }

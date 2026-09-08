@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ImageUpload } from "@/components/image-upload"
@@ -233,6 +234,7 @@ export default function AdminAchievementsPage() {
         </Button>
       }
     >
+      <DocumentTitle title="成就管理" />
       {/* 编辑表单 */}
       {editing && (
         <Card size="comfortable" radius="xl">

@@ -14,7 +14,7 @@ const RatingDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ defaul
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "评分数据 · 管理后台" }
+export const metadata = { title: "评分数据" }
 
 export default async function AdminRatingsPage({
   searchParams,

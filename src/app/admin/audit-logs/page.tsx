@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { FileText } from "lucide-react"
 
-export const metadata = { title: "审计日志 · 管理后台" }
+export const metadata = { title: "审计日志" }
 
 const ACTION_LABELS: Record<string, string> = {
   approve_game: "通过审核",

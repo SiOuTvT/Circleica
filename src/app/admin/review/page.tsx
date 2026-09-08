@@ -28,7 +28,7 @@ const ReviewActions = dynamic(() => import("./review-actions").then(m => ({ defa
   loading: () => <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "审核队列 · 管理后台" }
+export const metadata = { title: "审核队列" }
 
 export default async function AdminReviewPage({
   searchParams,

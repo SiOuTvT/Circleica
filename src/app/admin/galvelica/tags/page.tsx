@@ -18,7 +18,7 @@ interface GalvelicaTagRow {
   workCount: number
 }
 
-export const metadata = { title: "Galvelica 标签管理 · 管理后台" }
+export const metadata = { title: "Galvelica 标签管理" }
 
 export default async function GalvelicaTagsPage({
   searchParams,

@@ -7,7 +7,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { cached, cacheKey } from "@/lib/redis"
 import { BookOpen, Inbox, Layers, CopyCheck, ShieldAlert, CheckCircle2 } from "lucide-react"
 
-export const metadata = { title: "副站 Galvelica 概览 · 管理后台" }
+export const metadata = { title: "副站 Galvelica 概览" }
 
 // 概览统计较重（含创作者重复的 GROUP BY 全表扫描），缓存 60s 避免每次导航打库。
 // 计数类指标对 60s 延迟不敏感；管理后台操作后会自然在 TTL 内刷新。
@@ -101,7 +101,7 @@ export default async function GalvelicaAdminDashboard() {
     <AdminPageContainer
       galvelica
       eyebrow="GALVELICA"
-      title="副站管理 · Galvelica"
+      title="副站管理"
       description="Galvelica 是同人向资料馆，与主站 Circleica 共享后台但数据独立隔离。以下入口仅操作 Galvelica 自身数据。"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

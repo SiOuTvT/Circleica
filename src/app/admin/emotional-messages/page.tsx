@@ -9,7 +9,7 @@ const EmotionalMessagesManager = dynamic(() => import("./manager").then(m => ({ 
   loading: () => <div className="space-y-4">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />)}</div>,
 })
 
-export const metadata = { title: "情感消息管理 · 管理后台" }
+export const metadata = { title: "情感消息管理" }
 
 export default async function EmotionalMessagesPage() {
   await requireSuperAdmin()

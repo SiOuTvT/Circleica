@@ -9,7 +9,7 @@ import { Tag as TagIcon } from "lucide-react"
 import { getGalvelicaTagColor } from "@/lib/site-settings"
 import { TagDetailClient } from "./tag-detail-client"
 
-export const metadata = { title: "Galvelica 标签详情 · 管理后台" }
+export const metadata = { title: "Galvelica 标签详情" }
 export const dynamic = "force-dynamic"
 
 export default async function GalvelicaTagDetailPage({

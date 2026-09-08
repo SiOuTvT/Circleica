@@ -212,22 +212,26 @@ async function testR2(config: Record<string, string>) {
     return { success: false, message: "Account ID 格式不合法" }
   }
   if (!config.access_key_id || !config.secret_access_key) return { success: false, message: "请填写 Access Key ID 和 Secret Access Key" }
+  if (!config.bucket_name) return { success: false, message: "请填写 Bucket Name" }
   try {
-    const { S3Client, ListBucketsCommand } = await import("@aws-sdk/client-s3")
+    const { S3Client, HeadBucketCommand } = await import("@aws-sdk/client-s3")
     const client = new S3Client({
       region: "auto",
       endpoint: `https://${config.account_id}.r2.cloudflarestorage.com`,
       credentials: { accessKeyId: config.access_key_id, secretAccessKey: config.secret_access_key },
     })
-    await client.send(new ListBucketsCommand({}))
-    return { success: true, message: "R2 连接成功，凭证有效" }
+    await client.send(new HeadBucketCommand({ Bucket: config.bucket_name }))
+    return { success: true, message: "R2 连接成功，凭证与 Bucket 有效" }
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
-    if (msg.includes("InvalidAccessKeyId")) return { success: false, message: "Access Key ID 无效" }
-    if (msg.includes("SignatureDoesNotMatch")) return { success: false, message: "Secret Access Key 不正确" }
-    if (msg.includes("NoSuchBucket") || msg.includes("NotFound")) return { success: false, message: "Account ID 或 Bucket 不存在" }
-    if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) return { success: false, message: "网络连接失败，请检查 Account ID 是否正确" }
-    return { success: false, message: "R2 连接失败，请检查配置或网络" }
+    const code = (e as { name?: string })?.name || ""
+    // 把底层错误码（403 权限 / 404 Bucket 不存在 / 网络）带进 message 方便排查
+    if (code === "InvalidAccessKeyId") return { success: false, message: "Access Key ID 无效（403）" }
+    if (code === "SignatureDoesNotMatch") return { success: false, message: "Secret Access Key 不正确（403）" }
+    if (code === "Forbidden" || msg.includes("403")) return { success: false, message: "凭证有效但无该 Bucket 访问权限（403）" }
+    if (code === "NotFound" || msg.includes("404") || msg.includes("NoSuchBucket")) return { success: false, message: "Bucket 不存在（404），请检查 Bucket Name" }
+    if (msg.includes("fetch failed") || msg.includes("ENOTFOUND")) return { success: false, message: "网络连接失败，请检查 Account ID 是否正确（网络错误）" }
+    return { success: false, message: `R2 连接失败：${msg.split("\n")[0]}` }
   }
 }
 

@@ -15,7 +15,7 @@ const ResourceDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ defa
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "游戏资源管理 · 管理后台" }
+export const metadata = { title: "游戏资源管理" }
 
 export default async function AdminGameResourcesPage({
   searchParams,

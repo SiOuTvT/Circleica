@@ -1,10 +1,13 @@
 import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
-import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
+import { getSiteSettings, getPublicSiteSettings, updateSiteSettings } from "@/lib/site-settings"
 
+// 全表 siteSetting 含 email_provider_* / r2_secret_access_key 等明文凭据，不可经 GET 落到前端 RSC payload。
+// 故 GET 只返回公开白名单字段（PUBLIC_SETTING_KEYS），由 getPublicSiteSettings() 收敛凭据暴露面。
+// POST 仍保留 SUPER_ADMIN 校验，可写全表；三个调用点只用 POST，不受影响。
 export const GET = withHandler(async () => {
   await requireAdminRole("ADMIN")
-  const settings = await getSiteSettings()
+  const settings = await getPublicSiteSettings()
   return json(settings)
 })
 

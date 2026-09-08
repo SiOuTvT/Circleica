@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
@@ -118,6 +119,7 @@ export default function ResourceTagsPage() {
       }
     >
 
+      <DocumentTitle title="资源标签管理" />
       <div className="grid gap-6 lg:grid-cols-2">
         {groups.map(g => (
           <Card key={g.group} size="comfortable" radius="xl">
@@ -133,7 +135,7 @@ export default function ResourceTagsPage() {
                   {i > 0 && (
                     <button
                       onClick={() => handleMove(g.group, i, i - 1)}
-                      className="transition-opacity text-muted-foreground hover:text-foreground"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
                       title="上移"
                     >
                       <ChevronUp className="h-4 w-4" />
@@ -142,7 +144,7 @@ export default function ResourceTagsPage() {
                   <span>{opt}</span>
                   <button
                     onClick={() => handleRemove(g.group, i)}
-                    className="ml-0.5 transition-opacity text-muted-foreground hover:text-red-400"
+                    className="ml-0.5 inline-flex h-7 w-7 items-center justify-center rounded-lg transition-colors text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     title="删除"
                   >
                     <X className="h-4 w-4" />

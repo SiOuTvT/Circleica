@@ -5,7 +5,7 @@ import { GalvelicaThemeClient } from "./client"
 
 export const dynamic = "force-dynamic"
 
-export const metadata = { title: "副站主题设置 · 管理后台" }
+export const metadata = { title: "副站主题设置" }
 
 export default async function GalvelicaThemePage() {
   await requireSiteAdmin("galvelica")

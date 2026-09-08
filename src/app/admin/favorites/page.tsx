@@ -14,7 +14,7 @@ const FavoriteDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ defa
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "收藏记录 · 管理后台" }
+export const metadata = { title: "收藏记录" }
 
 export default async function AdminFavoritesPage({
   searchParams,

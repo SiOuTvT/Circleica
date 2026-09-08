@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -144,6 +145,7 @@ export default function CuratedCollectionsPage() {
       }
     >
 
+      <DocumentTitle title="精选合集" />
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="relative flex-1 max-w-xs">

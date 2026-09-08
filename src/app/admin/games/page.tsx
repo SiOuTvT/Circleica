@@ -10,6 +10,8 @@ import { Download, Plus } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
+export const metadata = { title: "游戏管理" }
+
 interface AdminGameRow {
   id: string
   title: string

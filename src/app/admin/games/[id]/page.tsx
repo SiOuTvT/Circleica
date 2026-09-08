@@ -13,7 +13,7 @@ const GameLogManager = dynamic(() => import("@/components/game-log-manager").the
   loading: () => <div className="h-32 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "编辑游戏 · 管理后台" }
+export const metadata = { title: "编辑游戏" }
 
 export default async function EditGamePage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin()

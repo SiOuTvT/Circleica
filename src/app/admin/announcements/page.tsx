@@ -7,7 +7,7 @@ const AnnouncementsManager = dynamic(() => import("@/components/announcements-ma
   loading: () => <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />)}</div>,
 })
 
-export const metadata = { title: "公告管理 · 管理后台" }
+export const metadata = { title: "公告管理" }
 
 export default async function AdminAnnouncementsPage() {
   await requireAdmin()

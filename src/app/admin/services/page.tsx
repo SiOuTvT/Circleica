@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -115,7 +116,7 @@ export default function ServicesPage() {
     setTestResult(prev => { const next = { ...prev }; delete next[service]; return next })
     try {
       const payload = service === "r2"
-        ? { account_id: config.r2_account_id, access_key_id: config.r2_access_key_id, secret_access_key: config.r2_secret_access_key }
+        ? { account_id: config.r2_account_id, access_key_id: config.r2_access_key_id, secret_access_key: config.r2_secret_access_key, bucket_name: config.r2_bucket_name }
         : { url: config.redis_url, token: config.redis_token }
       const { data } = await apiFetchSafe<EmailTestResults>("/api/admin/services", {
         method: "POST",
@@ -191,6 +192,7 @@ export default function ServicesPage() {
       }
     >
 
+      <DocumentTitle title="服务配置" />
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
         <span>服务配置保存后需要重启应用才能生效。环境变量中的配置优先级高于此处设置。</span>

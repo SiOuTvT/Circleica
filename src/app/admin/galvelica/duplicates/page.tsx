@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { CopyCheck, Users, Layers, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-export const metadata = { title: "Galvelica 重复检测 · 管理后台" }
+export const metadata = { title: "Galvelica 重复检测" }
 export const dynamic = "force-dynamic"
 
 const PAGE_SIZE = 20

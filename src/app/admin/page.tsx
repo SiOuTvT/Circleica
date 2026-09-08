@@ -11,6 +11,8 @@ import Image from "next/image"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 
+export const metadata = { title: "仪表盘" }
+
 const AdminChartsWrapper = dynamic(() => import("@/components/admin-charts-wrapper").then(m => ({ default: m.AdminChartsWrapper })), {
   loading: () => <div className="h-[180px] animate-pulse rounded-xl bg-muted" />,
 })

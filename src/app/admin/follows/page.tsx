@@ -16,7 +16,7 @@ const FollowDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ defaul
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "关注记录 · 管理后台" }
+export const metadata = { title: "关注记录" }
 
 export default async function AdminFollowsPage({
   searchParams,

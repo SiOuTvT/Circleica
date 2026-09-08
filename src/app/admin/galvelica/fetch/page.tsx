@@ -2,7 +2,7 @@ import { requireSiteAdmin } from "@/lib/auth-context"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { GalvelicaFetchClient } from "./fetch-client"
 
-export const metadata = { title: "副站手动拉取 · Galvelica" }
+export const metadata = { title: "手动拉取" }
 
 export default async function GalvelicaFetchPage() {
   await requireSiteAdmin("galvelica")

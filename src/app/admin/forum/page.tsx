@@ -8,14 +8,14 @@ import { AdminSearch } from "@/components/admin/admin-search"
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare } from "lucide-react"
+import { Heart, MessageSquare } from "lucide-react"
 import dynamic from "next/dynamic"
 
 const ForumDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.ForumDeleteBtn })), {
   loading: () => <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />,
 })
 
-export const metadata = { title: "论坛管理 · 管理后台" }
+export const metadata = { title: "论坛管理" }
 
 export default async function AdminForumPage({
   searchParams,
@@ -136,7 +136,7 @@ export default async function AdminForumPage({
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" /> {post._count.comments} 评论
                   </span>
-                  <span>❤ {post.likeCount}</span>
+                  <Heart className="h-3 w-3" /> {post.likeCount}
                 </div>
               </div>
             </Card>

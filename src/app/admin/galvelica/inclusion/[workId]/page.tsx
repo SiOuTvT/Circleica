@@ -11,7 +11,7 @@ const GameForm = NextDynamic(() => import("@/components/game-form").then(m => ({
   loading: () => <div className="h-96 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "收录审核 · 补全与编辑 · 管理后台" }
+export const metadata = { title: "收录审核 · 补全与编辑" }
 
 /**
  * 收录审核的「编辑/补全」界面：与主站「新增游戏/编辑游戏」页面结构完全一致。

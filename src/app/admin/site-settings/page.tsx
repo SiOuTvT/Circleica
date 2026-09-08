@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
 import { adminInput } from "@/lib/admin-styles"
@@ -177,6 +178,7 @@ export default function SiteSettingsPage() {
       eyebrow="SETTINGS"
       description="管理站点名称、品牌 Logo、注册开关与邮件验证等基础设置。"
     >
+      <DocumentTitle title="站点设置" />
       {/* 站点信息 */}
       <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">

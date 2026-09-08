@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Inbox, Upload, Trash2 } from "lucide-react"
 import Link from "next/link"
+
+export const metadata = { title: "收录申请：待发布草稿" }
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { EmptyState } from "@/components/ui/empty-state"

@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/admin"
+import type { Metadata } from "next"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { logger } from "@/lib/logger"
 import { prisma } from "@/lib/prisma"
@@ -9,6 +10,13 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 export const dynamic = "force-dynamic"
+
+// 动态标题：与页面 h1（标签组名）逐字相等；查不到时回退「标签详情」
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const group = await prisma.tagGroup.findUnique({ where: { id }, select: { name: true } })
+  return { title: group?.name ?? "标签详情" }
+}
 
 // 预设组 → 资源标签 SiteSetting key 的映射
 const GROUP_RESOURCE_KEY_MAP: Record<string, string[]> = {

@@ -8,7 +8,7 @@ import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Layers, ExternalLink } from "lucide-react"
 import { CreatorDetailClient } from "./creator-detail-client"
 
-export const metadata = { title: "Galvelica 创作者详情 · 管理后台" }
+export const metadata = { title: "Galvelica 创作者详情" }
 export const dynamic = "force-dynamic"
 
 export default async function GalvelicaCreatorDetailPage({

@@ -4,7 +4,7 @@ import { PagesManager } from "./pages-manager"
 import { AdminPageContainer } from "@/components/admin-page-container"
 
 
-export const metadata = { title: "页面管理 · 管理后台" }
+export const metadata = { title: "页面管理" }
 
 // 默认页面内容（与前台页面保持一致）
 // 注意：这些 HTML 结构与前台 DefaultAbout 组件的视觉效果一致
@@ -142,10 +142,11 @@ export default async function AdminPagesPage() {
   await requireAdmin()
   const settings = await getSiteSettings()
 
-  // 合并数据库内容和默认内容：数据库优先级更高，但空值不覆盖默认内容
+  // 只把白名单内（默认可编辑页面）字段传给前台 PagesManager，避免把全表设置（含密钥类）灌进 RSC payload。
   const contents: Record<string, string> = { ...DEFAULT_CONTENTS }
-  for (const [k, v] of Object.entries(settings)) {
-    if (v) contents[k] = v
+  for (const key of Object.keys(DEFAULT_CONTENTS)) {
+    const v = settings[key]
+    if (v) contents[key] = v
   }
 
   return (

@@ -9,7 +9,7 @@ const VNDBImportManager = dynamic(() => import("@/components/vndb-import-manager
   loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted" />,
 })
 
-export const metadata = { title: "VNDB 导入 · 管理后台" }
+export const metadata = { title: "VNDB 导入" }
 
 export default async function VNDBImportPage() {
   await requireAdmin()

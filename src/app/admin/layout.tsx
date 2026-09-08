@@ -34,7 +34,11 @@ const AdminNav = dynamic(() => import("@/components/admin-nav").then(m => ({ def
   ),
 })
 
-export const metadata = { title: "管理后台" }
+export const metadata = {
+  title: "管理后台",
+  // 后台为内部运维页面，禁止被搜索引擎收录
+  robots: { index: false, follow: false },
+}
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const hdrs = await headers()

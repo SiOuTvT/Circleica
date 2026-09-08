@@ -19,7 +19,7 @@ interface CreatorRow {
   gameCount: number
 }
 
-export const metadata = { title: "创作者管理 · 管理后台" }
+export const metadata = { title: "创作者管理" }
 
 export default async function AdminCreatorsPage({
   searchParams,

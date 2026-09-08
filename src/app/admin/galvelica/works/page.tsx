@@ -23,7 +23,7 @@ interface GalvelicaWorkRow {
   gameId: string | null
 }
 
-export const metadata = { title: "Galvelica 作品管理 · 管理后台" }
+export const metadata = { title: "Galvelica 作品管理" }
 
 export default async function GalvelicaWorksPage({
   searchParams,

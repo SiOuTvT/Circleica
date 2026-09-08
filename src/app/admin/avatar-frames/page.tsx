@@ -1,5 +1,6 @@
 "use client"
 
+import { DocumentTitle } from "@/components/document-title"
 import { ImageUpload } from "@/components/image-upload"
 import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
@@ -135,6 +136,7 @@ export default function AdminAvatarFramesPage() {
       actions={<Button onClick={openCreate}>+ 新建头像框</Button>}
     >
 
+      <DocumentTitle title="头像框管理" />
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {Array.from({ length: 10 }).map((_, i) => (

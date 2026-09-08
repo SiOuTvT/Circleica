@@ -7,6 +7,8 @@ import { AllTagsClient, type GroupTab, type TagItem } from "./client"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminBackLink } from "@/components/admin/admin-back-link"
 
+export const metadata = { title: "全部标签" }
+
 export const dynamic = "force-dynamic"
 
 // 预设组 → 资源标签 SiteSetting key 的映射（与标签组详情页保持一致）

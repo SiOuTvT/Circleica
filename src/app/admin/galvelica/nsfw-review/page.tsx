@@ -6,7 +6,7 @@ import { ImageOff } from "lucide-react"
 import { Pagination } from "@/components/ui/pagination"
 import { NsfwReviewClient, NsfwReviewFilter, type ReviewItem } from "./review-client"
 
-export const metadata = { title: "副站封面 NSFW 审核 · 管理后台" }
+export const metadata = { title: "副站封面 NSFW 审核" }
 export const dynamic = "force-dynamic"
 
 const PAGE_SIZE = 20

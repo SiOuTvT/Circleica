@@ -9,7 +9,7 @@ import {
   Inbox, MessageSquare, Flag, CalendarCheck, Heart, UserPlus, CheckCircle2,
 } from "lucide-react"
 
-export const metadata = { title: "主站概览 · 管理后台" }
+export const metadata = { title: "主站概览" }
 
 export default async function CircleicaAdminOverview() {
   await requireAdmin()
@@ -147,7 +147,7 @@ export default async function CircleicaAdminOverview() {
   return (
     <AdminPageContainer
       eyebrow="CIRCLEICA"
-      title="主站管理 · Circleica"
+      title="主站管理"
       description="Circleica 是同人游戏资料主站。以下入口仅操作主站自身数据（与副站 Galvelica 数据隔离）。"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
