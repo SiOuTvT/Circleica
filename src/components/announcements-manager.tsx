@@ -252,7 +252,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 状态 + 置顶 + 链接 — 一行 */}
               <div className="grid grid-cols-1 sm:grid-cols-[140px_auto_1fr] gap-3 items-end">
                 <Field label="状态">
-                  <select value={status} onChange={e => setStatus(e.target.value)} className={cn(adminInput, "cursor-pointer")}>
+                  <select value={status} onChange={e => setStatus(e.target.value)} className={cn(adminInput, "cursor-pointer h-12 text-[15px] leading-6")}>
                     <option value="draft">草稿</option>
                     <option value="published">已发布</option>
                     <option value="hidden">已隐藏</option>
@@ -285,7 +285,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 提交 */}
               <div className="pt-1">
                 <button type="submit" disabled={adding}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
                     : isEditing

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { logger } from "@/lib/logger"
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput, adminBtnPrimary } from "@/lib/admin-styles"
 
 interface MusicItem { id: string; title: string; url: string; filename: string; isActive: boolean; playlist?: { id: string; name: string } | null }
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
@@ -261,7 +261,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             )}
           </div>
           <button type="submit" disabled={adding || uploading}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
+            className={cn(adminBtnPrimary, "h-10")}>
             {(adding || uploading) ? <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} /> : <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />}
             {uploading ? "上传中…" : adding ? "添加中…" : "添加"}
           </button>
@@ -345,7 +345,7 @@ function SelectPlaylist({ playlists, value, onChange }: {
 }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)}
-      className={cn(adminInput)}>
+      className={cn(adminInput, "h-12 text-[15px] leading-6")}>
       <option value="">未分类</option>
       {playlists.map(pl => (
         <option key={pl.id} value={pl.id}>{pl.name}</option>

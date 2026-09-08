@@ -106,7 +106,7 @@ export function GalvelicaFetchClient() {
                 type="button"
                 onClick={() => toggleSource(s.key)}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg border p-3 text-left transition duration-150 ease-in-out",
+                  "flex items-start gap-3 rounded-xl border-2 border-input p-3 text-left transition duration-150 ease-in-out",
                   on ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/30",
                 )}
               >

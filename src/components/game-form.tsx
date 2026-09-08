@@ -507,7 +507,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 type="button"
                 onClick={handleVndbFetch}
                 disabled={vndbLoading}
-                className="shrink-0 flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition ease-in-out duration-200 hover:opacity-90 disabled:opacity-60"
+                className={cn(adminBtnPrimary, "h-10 shrink-0")}
               >
                 {vndbLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
@@ -757,7 +757,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                             prev.map((p, j) => (j === i ? { ...p, role: e.target.value || null } : p)),
                           )
                         }
-                        className={cn(adminInput, "w-[120px] shrink-0")}
+                        className={cn(adminInput, "w-[120px] shrink-0 h-12 text-[15px] leading-6")}
                       >
                         {STUDIO_ROLE_OPTIONS.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -844,7 +844,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             <div className="grid grid-cols-1 gap-3 pt-3 border-t border-border sm:grid-cols-3">
               <div>
                 <label htmlFor={idOriginalLanguage} className={labelCls}>原始语言</label>
-                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={adminInput}>
+                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
                   <option value="">未设置</option>
                   {LANGUAGE_ORDER.map((code) => (
                     <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>
@@ -853,7 +853,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
               <div>
                 <label htmlFor={idAge} className={labelCls}>年龄分级</label>
-                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={adminInput}>
+                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
                   {AGE_RATING_ORDER.map((v) => (
                     <option key={v} value={v}>{AGE_RATING_LABELS[v]}</option>
                   ))}
@@ -861,7 +861,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               </div>
               <div>
                 <label htmlFor={idStatus} className={labelCls}>制作状态</label>
-                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={adminInput}>
+                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
                   {GAME_STATUS_ORDER.map((v) => (
                     <option key={v} value={v}>{GAME_STATUS_LABELS[v]}</option>
                   ))}
