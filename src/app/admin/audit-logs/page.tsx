@@ -67,6 +67,10 @@ const ACTION_LABELS: Record<string, string> = {
   "favorite.delete": "删除收藏",
   "follow.delete": "删除关注",
 
+  // ── 收录申请 ──
+  "inclusion.publish": "发布收录草稿",
+  "inclusion.deleteDraft": "删除收录草稿",
+
   // ── 资源 / 举报 ──
   "resource.delete": "删除游戏资源",
   "report.resolve": "处理游戏举报",

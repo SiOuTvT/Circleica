@@ -383,7 +383,9 @@ export const adminReviewRepo = {
   approve(gameId: string, reviewerId: string) {
     return prisma.game.update({
       where: { id: gameId },
-      data: { isPublished: true, publishedAt: new Date(), reviewedBy: reviewerId, reviewedAt: new Date() },
+      // 清掉 rejectReason：先驳回再通过后，旧理由会一直挂着，
+      // 等它以后被撤回未发布，审核队列会显示一条早就作废的理由。该列非 null，清成空串。
+      data: { isPublished: true, publishedAt: new Date(), reviewedBy: reviewerId, reviewedAt: new Date(), rejectReason: "" },
     })
   },
   reject(gameId: string, reason: string, reviewerId: string) {

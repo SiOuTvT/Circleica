@@ -393,17 +393,21 @@ export const adminReviewService = {
   getPending() { return adminReviewRepo.findPending() },
 
   async approve(gameId: string, reviewerId: string) {
-    if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
+    // 用一次 findUnique 同时做存在性校验并取标题（原来只 exists，拿不到标题写不进 detail）
+    const game = await prisma.game.findUnique({ where: { id: gameId }, select: { id: true, title: true } })
+    if (!game) throw new NotFoundError("游戏")
     const result = await adminReviewRepo.approve(gameId, reviewerId)
-    await logAudit({ userId: "ADMIN", action: "review.approve", target: gameId }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "review.approve", target: gameId, detail: `《${game.title}》通过审核并发布` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async reject(gameId: string, reason: string, reviewerId: string) {
-    if (!await adminGameRepo.exists(gameId)) throw new NotFoundError("游戏")
+    const game = await prisma.game.findUnique({ where: { id: gameId }, select: { id: true, title: true } })
+    if (!game) throw new NotFoundError("游戏")
     if (!reason?.trim()) throw new ValidationError("拒绝原因不能为空")
-    const result = await adminReviewRepo.reject(gameId, reason.trim(), reviewerId)
-    await logAudit({ userId: "ADMIN", action: "review.reject", target: gameId }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    const trimmed = reason.trim()
+    const result = await adminReviewRepo.reject(gameId, trimmed, reviewerId)
+    await logAudit({ userId: "ADMIN", action: "review.reject", target: gameId, detail: `《${game.title}》拒回：${trimmed.slice(0, 60)}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }

@@ -5,6 +5,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminCard } from "@/components/admin/admin-card"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
+import { AdminConfirmSubmitButton } from "@/components/admin/admin-confirm-submit-button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { toShanghaiDate } from "@/lib/date"
 import Link from "next/link"
@@ -14,8 +15,11 @@ import { publishInclusionGalvelica, deleteInclusionGalvelica } from "./actions"
 export const metadata = { title: "收录审核" }
 export const dynamic = "force-dynamic"
 
-export default async function GalvelicaInclusionPage() {
+const RETURN_TO = "/admin/galvelica/inclusion"
+
+export default async function GalvelicaInclusionPage({ searchParams }: { searchParams: Promise<{ err?: string }> }) {
   await requireSiteAdmin("galvelica")
+  const { err } = await searchParams
 
   let pendingDrafts: Array<{
     id: string
@@ -74,6 +78,10 @@ export default async function GalvelicaInclusionPage() {
         </span>
       }
     >
+      {err && (
+        <p className="rounded-lg bg-red-500/10 px-3.5 py-2.5 text-sm text-red-500 ring-1 ring-red-500/20">{err}</p>
+      )}
+
       <section>
         <AdminSectionHeading galvelica>待发布草稿（<span className="num-tab">{pendingDrafts.length}</span>）</AdminSectionHeading>
         {pendingDrafts.length === 0 ? (
@@ -113,15 +121,14 @@ export default async function GalvelicaInclusionPage() {
                       <Upload className="h-4 w-4" /> 发布
                     </button>
                   </form>
-                  <form action={deleteInclusionGalvelica}>
-                    <input type="hidden" name="workId" value={r.workId} />
-                    <button
-                      type="submit"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
-                    >
-                      <Trash2 className="h-4 w-4" /> 删草稿
-                    </button>
-                  </form>
+                  <AdminConfirmSubmitButton
+                    action={deleteInclusionGalvelica}
+                    formData={{ workId: r.workId, returnTo: RETURN_TO }}
+                    label={<><Trash2 className="h-4 w-4" /> 删草稿</>}
+                    title="删除收录草稿"
+                    description="这会连带删掉为该作品建的游戏草稿（含已填写的封面与简介），作品会重新变为未收录、可以再次申请。"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
+                  />
                 </div>
               </AdminCard>
             ))}

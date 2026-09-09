@@ -1,49 +1,24 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { Inbox, Upload, Trash2 } from "lucide-react"
 import Link from "next/link"
 
 export const metadata = { title: "收录申请：待发布草稿" }
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
+import { AdminConfirmSubmitButton } from "@/components/admin/admin-confirm-submit-button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
+import { publishInclusionGalvelica, deleteInclusionGalvelica } from "@/app/admin/galvelica/inclusion/actions"
 
-/** 采纳模型 A 后台操作：发布草稿 / 删除草稿（删后作品重新变为未收录，可再次申请）。 */
-async function handleDraft(formData: FormData) {
-  "use server"
-  await requireAdmin()
-  const session = await auth()
-  const adminId = (session as { user?: { id?: string } } | null)?.user?.id ?? null
-
-  const workId = String(formData.get("workId") || "")
-  const action = String(formData.get("action") || "")
-  if (!workId) return
-
-  const work = await prisma.work.findUnique({ where: { id: workId }, select: { gameId: true } })
-  if (!work?.gameId) return
-  const gameId = work.gameId
-
-  if (action === "publish") {
-    await prisma.game.update({ where: { id: gameId }, data: { isPublished: true } })
-    await prisma.inclusionRequest.updateMany({
-      where: { workId, status: "APPROVED" },
-      data: { decidedAt: new Date(), reviewedBy: adminId },
-    })
-  } else if (action === "delete") {
-    await prisma.game.delete({ where: { id: gameId } }).catch(() => {})
-    await prisma.work.update({ where: { id: workId }, data: { gameId: null } })
-  }
-  redirect("/admin/inclusion-requests")
-}
+const RETURN_TO = "/admin/inclusion-requests"
 
 export const dynamic = "force-dynamic"
 
-export default async function InclusionRequestsAdmin() {
+export default async function InclusionRequestsAdmin({ searchParams }: { searchParams: Promise<{ err?: string }> }) {
   await requireAdmin()
+  const { err } = await searchParams
 
   const [drafts, history] = await Promise.all([
     prisma.inclusionRequest.findMany({
@@ -86,6 +61,10 @@ export default async function InclusionRequestsAdmin() {
       }
     >
 
+      {err && (
+        <p className="rounded-lg bg-red-500/10 px-3.5 py-2.5 text-sm text-red-500 ring-1 ring-red-500/20">{err}</p>
+      )}
+
       <section>
         <AdminSectionHeading>待发布草稿（<span className="num-tab">{pendingDrafts.length}</span>）</AdminSectionHeading>
         {pendingDrafts.length === 0 ? (
@@ -113,28 +92,23 @@ export default async function InclusionRequestsAdmin() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <form action={handleDraft}>
+                  <form action={publishInclusionGalvelica}>
                     <input type="hidden" name="workId" value={r.work.id} />
                     <button
                       type="submit"
-                      name="action"
-                      value="publish"
                       className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400 ring-1 ring-emerald-500/20 transition-colors hover:bg-emerald-500/25"
                     >
                       <Upload className="h-4 w-4" /> 发布
                     </button>
                   </form>
-                  <form action={handleDraft}>
-                    <input type="hidden" name="workId" value={r.work.id} />
-                    <button
-                      type="submit"
-                      name="action"
-                      value="delete"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
-                    >
-                      <Trash2 className="h-4 w-4" /> 删草稿
-                    </button>
-                  </form>
+                  <AdminConfirmSubmitButton
+                    action={deleteInclusionGalvelica}
+                    formData={{ workId: r.work.id, returnTo: RETURN_TO }}
+                    label={<><Trash2 className="h-4 w-4" /> 删草稿</>}
+                    title="删除收录草稿"
+                    description="这会连带删掉为该作品建的游戏草稿（含已填写的封面与简介），作品会重新变为未收录、可以再次申请。"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
+                  />
                 </div>
               </Card>
             ))}
