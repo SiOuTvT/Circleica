@@ -9,7 +9,7 @@
     "build": "next build --webpack",
     "start": "next start -p 3000",
     "start:standalone": "node .next/standalone/server.js",
-    "lint": "node --require ./scripts/eslint-ts6-shim.cjs ./node_modules/eslint/bin/eslint.js",
+    "lint": "node --require ./scripts/eslint-ts6-shim.cjs ./node_modules/eslint/bin/eslint.js && node scripts/check-use-server-exports.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

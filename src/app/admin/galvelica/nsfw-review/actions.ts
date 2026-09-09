@@ -7,13 +7,8 @@ import { cache } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { NotFoundError, ValidationError } from "@/lib/errors"
 import { logAudit } from "@/lib/audit-log"
-
-/** 封面露骨度分级：0=安全 1=暗示 2=露骨（-1=未知，留待审核） */
-export const COVER_SEXUAL_LABELS: Record<number, string> = {
-  0: "安全",
-  1: "暗示",
-  2: "露骨",
-}
+// 常量不能放在 "use server" 模块里导出（只允许导出 async 函数），故移到 cover-levels.ts
+import { COVER_SEXUAL_LABELS } from "./cover-levels"
 
 /**
  * 人工标定某作品的封面露骨度。
