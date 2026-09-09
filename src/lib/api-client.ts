@@ -10,13 +10,16 @@ export class ApiError extends Error {
   status: number
   code: string
   details?: Record<string, string[]>
+  /** 后端原始响应体：失败响应也可能带 confirm / gameCount 等结构化字段，前端需要读它 */
+  body?: unknown
 
-  constructor(message: string, status: number, code: string, details?: Record<string, string[]>) {
+  constructor(message: string, status: number, code: string, details?: Record<string, string[]>, body?: unknown) {
     super(message)
     this.name = "ApiError"
     this.status = status
     this.code = code
     this.details = details
+    this.body = body
   }
 }
 
@@ -112,28 +115,36 @@ export async function apiClient<T = unknown>(
         const message = getErrorMessage(response.status)
         const code = getErrorCode(response.status)
 
-        // 尝试解析后端自定义错误信息
+        // 解析后端响应体：失败响应也可能带 confirm / gameCount 等结构化字段，
+        // 挂到 ApiError.body 上供 apiFetchSafe 透出（前端据此弹二次确认）。
+        let errBody: unknown
         try {
-          const errBody = await response.json()
-          if (errBody.error || errBody.message) {
-            const err = new ApiError(
-              errBody.error || errBody.message || message,
-              response.status,
-              errBody.code || code,
-              errBody.details,
-            )
-            if (isRetryable && attempt < retries) {
-              lastError = err
-              await delay(retryDelay * Math.pow(2, attempt))
-              continue
-            }
-            throw err
-          }
-        } catch (parseErr) {
-          if (parseErr instanceof ApiError) throw parseErr
+          errBody = await response.json()
+        } catch {
+          /* 非 JSON 响应：忽略，走下面的通用错误 */
+        }
+        const errJson = (errBody ?? {}) as {
+          error?: string; message?: string; code?: string; details?: Record<string, string[]>
         }
 
-        const err = new ApiError(message, response.status, code)
+        // 尝试解析后端自定义错误信息
+        if (errJson.error || errJson.message) {
+          const err = new ApiError(
+            errJson.error || errJson.message || message,
+            response.status,
+            errJson.code || code,
+            errJson.details,
+            errBody,
+          )
+          if (isRetryable && attempt < retries) {
+            lastError = err
+            await delay(retryDelay * Math.pow(2, attempt))
+            continue
+          }
+          throw err
+        }
+
+        const err = new ApiError(message, response.status, code, undefined, errBody)
         if (isRetryable && attempt < retries) {
           lastError = err
           await delay(retryDelay * Math.pow(2, attempt))
@@ -241,7 +252,8 @@ export async function apiFetchSafe<T = unknown>(
     const data = await apiClient<T>(url, options)
     return { ok: true, data }
   } catch (e) {
-    if (e instanceof ApiError) return { ok: false, error: e.message, errorDetails: e.details }
+    // data 带上后端响应体：失败分支也能拿到顶层的 confirm / gameCount / tagCount
+    if (e instanceof ApiError) return { ok: false, data: e.body as T | undefined, error: e.message, errorDetails: e.details }
     return { ok: false, error: "请求失败" }
   }
 }

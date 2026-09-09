@@ -24,6 +24,11 @@ export const tagGroupService = {
     return g
   },
 
+  /** 该组下挂了多少个标签：删除前二次确认用 */
+  countTags(id: string) {
+    return prisma.tag.count({ where: { groupId: id } })
+  },
+
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
     const result = await tagGroupRepo.create({
@@ -64,7 +69,16 @@ export const tagGroupService = {
   async delete(id: string) {
     const existing = await tagGroupRepo.findById(id)
     if (!existing) throw new NotFoundError("标签组")
+    if (existing.isPreset) throw new ValidationError("预设标签组不可删除，可以在组内移除标签")
     const result = await tagGroupRepo.delete(id)
+    // 与 update 同一套失效口径
+    await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -72,7 +86,18 @@ export const tagGroupService = {
   async forceDelete(id: string) {
     const existing = await tagGroupRepo.findById(id)
     if (!existing) throw new NotFoundError("标签组")
-    return tagGroupRepo.delete(id)
+    if (existing.isPreset) throw new ValidationError("预设标签组不可删除，可以在组内移除标签")
+    const result = await tagGroupRepo.delete(id)
+    // 强删不再是绕过审计与缓存的后门：失效与审计与 delete 完全一致
+    await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/games")
+    revalidatePath("/")
+    await logAudit({ userId: "ADMIN", action: "tagGroup.delete", target: id, detail: `《${existing.name}》（强制）` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    return result
   },
 }
 
@@ -80,6 +105,17 @@ export const tagGroupService = {
 
 export const tagService = {
   getAll() { return tagRepo.findAll() },
+
+  async getById(id: string) {
+    const t = await tagRepo.findById(id)
+    if (!t) throw new NotFoundError("标签")
+    return t
+  },
+
+  /** 该标签被多少部游戏引用：删除前二次确认用 */
+  countGames(id: string) {
+    return prisma.gameTag.count({ where: { tagId: id } })
+  },
 
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
@@ -102,9 +138,15 @@ export const tagService = {
       isVisible: raw.isVisible !== false,
       ...(raw.groupId ? { group: { connect: { id: String(raw.groupId) } } } : {}),
     })
+    // 与 tagGroupService.update 同一套失效口径（标签颜色会被固化进首页/发现页卡片数据）
     await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
+    revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "tag.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -145,9 +187,15 @@ export const tagService = {
       })
       .join(",")
     const result = await tagRepo.update(id, data)
+    // 与 tagGroupService.update 同一套失效口径（标签颜色会被固化进首页/发现页卡片数据）
     await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
+    revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "tag.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -157,8 +205,14 @@ export const tagService = {
     if (!existing) throw new NotFoundError("标签")
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.delete(id)
+    // 与 tagGroupService.update 同一套失效口径（标签颜色会被固化进首页/发现页卡片数据）
     await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
+    revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "tag.delete", target: id, detail: `《${existing.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
@@ -167,7 +221,18 @@ export const tagService = {
     const existing = await tagRepo.findById(id)
     if (!existing) throw new NotFoundError("标签")
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
-    return tagRepo.delete(id)
+    const result = await tagRepo.delete(id)
+    // 强删不再是绕过审计与缓存的后门：失效与审计与 delete 完全一致
+    await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
+    revalidatePath("/admin/tags")
+    revalidatePath("/admin/tags/all")
+    revalidatePath("/games")
+    revalidatePath("/")
+    await logAudit({ userId: "ADMIN", action: "tag.delete", target: id, detail: `《${existing.name}》（强制）` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    return result
   },
 
   async assignGroup(id: string, groupId: string | null) {
@@ -175,9 +240,15 @@ export const tagService = {
     if (!existing) throw new NotFoundError("标签")
     if (existing.source !== "circleica") throw new ForbiddenError("该标签属于其他站点，无权操作")
     const result = await tagRepo.update(id, groupId ? { group: { connect: { id: groupId } } } : { group: { disconnect: true } })
+    // 与 tagGroupService.update 同一套失效口径（标签颜色会被固化进首页/发现页卡片数据）
     await cache.delByPrefix("circleica:admin:tags:")
+    await cache.delByPrefix("circleica:tagGroup:")
+    await cache.delByPrefix("circleica:homepage:games:grid")
+    await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
+    revalidatePath("/games")
+    revalidatePath("/")
     await logAudit({ userId: "ADMIN", action: "tag.assignGroup", target: id, detail: `《${existing.name}》groupId=${groupId ?? "无"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },

@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma"
  * 预设标签组定义
  * 首次访问时自动创建，确保任何部署都有这些标签组
  */
-const PRESET_TAG_GROUPS = [
+/** 预设标签组的唯一定义来源：setup 初始化与 ensurePresetTagGroups 自愈都用它 */
+export const PRESET_TAG_GROUPS = [
   {
     id: "preset_home_card",
     name: "首页卡片标签",

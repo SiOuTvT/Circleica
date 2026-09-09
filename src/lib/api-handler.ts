@@ -250,19 +250,38 @@ function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
   }
 }
 
+/** 常见唯一字段名 → 中文（未命中的原样显示列名） */
+const UNIQUE_FIELD_LABELS: Record<string, string> = {
+  name: "名称",
+  slug: "网址标识",
+  key: "键",
+  username: "用户名",
+  email: "邮箱",
+}
+
 /**
  * P2002 文案：尽量用 meta.target 指出撞了哪个字段，
- * 例如「已存在同名的 name、slug，请换一个」；取不到 meta 时退回通用文案。
+ * 例如「已存在同名的 名称、网址标识，请换一个」；取不到 meta 时退回通用文案。
  */
 function describeUniqueConflict(error: Prisma.PrismaClientKnownRequestError): string {
   const target = (error.meta as { target?: unknown } | undefined)?.target
-  const fields = Array.isArray(target)
-    ? target.map((t) => String(t))
-    : typeof target === "string" && target
-      ? [target]
-      : []
+  const fields = extractConflictFields(target)
   if (!fields.length) return "内容重复，保存失败"
-  return `已存在同名的 ${fields.join("、")}，请换一个`
+  const labels = fields.map((f) => UNIQUE_FIELD_LABELS[f] ?? f)
+  return `已存在同名的 ${labels.join("、")}，请换一个`
+}
+
+/**
+ * 从 Prisma 的 meta.target 提取冲突字段名：
+ * - 数组（多列/部分驱动）直接用；
+ * - 字符串形如 <表名>_<字段>_key，复合唯一为 <表名>_<字段1>_<字段2>_key，取中段按 _ 拆开。
+ */
+function extractConflictFields(target: unknown): string[] {
+  if (Array.isArray(target)) return target.map((t) => String(t))
+  if (typeof target !== "string" || !target) return []
+  const m = /^(.+?)_(.+)_key$/.exec(target)
+  if (!m) return []
+  return m[2].split("_").filter(Boolean)
 }
 
 // ── 请求解析工具 ────────────────────

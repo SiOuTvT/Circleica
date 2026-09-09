@@ -202,6 +202,21 @@ export const adminGameService = {
     // 预创建预设标签组（幂等，仅确保预设分组存在）
     await ensurePresetTagGroups()
 
+    // 关联字段（标签/创作者/制作组）不在 ALLOWED 白名单里，单独记录前后数量写进审计 detail。
+    // 只在本次请求确实要动这些关联时才查，取不到旧值就跳过（不报错）。
+    const touchTags = Array.isArray(data.tagIds) || Array.isArray(data.tagNames)
+    const touchCreators = Array.isArray(data.creators)
+    const touchStudios = Array.isArray(data.studios)
+    const prevTagCount = touchTags
+      ? await prisma.gameTag.findMany({ where: { gameId: id }, select: { tagId: true } }).then((r) => r.length).catch(() => null)
+      : null
+    const prevCreatorCount = touchCreators
+      ? await prisma.gameCreator.count({ where: { gameId: id } }).catch(() => null)
+      : null
+    const prevStudioCount = touchStudios
+      ? await prisma.gameStudio.count({ where: { gameId: id } }).catch(() => null)
+      : null
+
     // 白名单过滤后，值真正发生变化的字段名，供审计日志 detail 使用
     let changedFields = ""
 
@@ -279,7 +294,27 @@ export const adminGameService = {
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
-    await logAudit({ userId: "ADMIN", action: "game.update", target: id, detail: `《${result.title}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+
+    // 关联变更：只在新旧数量都拿得到且确实不同时才追加，取不到就跳过（不报错）
+    const relationNotes: string[] = []
+    if (prevTagCount !== null) {
+      const next = await prisma.gameTag.findMany({ where: { gameId: id }, select: { tagId: true } }).then((r) => r.length).catch(() => null)
+      if (next !== null && next !== prevTagCount) relationNotes.push(`tags=${prevTagCount}→${next}`)
+    }
+    if (prevCreatorCount !== null) {
+      const next = await prisma.gameCreator.count({ where: { gameId: id } }).catch(() => null)
+      if (next !== null && next !== prevCreatorCount) relationNotes.push(`creators=${prevCreatorCount}→${next}`)
+    }
+    if (prevStudioCount !== null) {
+      const next = await prisma.gameStudio.count({ where: { gameId: id } }).catch(() => null)
+      if (next !== null && next !== prevStudioCount) relationNotes.push(`studios=${prevStudioCount}→${next}`)
+    }
+    const detailParts: string[] = []
+    if (changedFields) detailParts.push(`fields=${changedFields}`)
+    detailParts.push(...relationNotes)
+    const updateDetail = `《${result.title}》${detailParts.length ? detailParts.join(" ") : "无字段变化"}`
+
+    await logAudit({ userId: "ADMIN", action: "game.update", target: id, detail: updateDetail }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 

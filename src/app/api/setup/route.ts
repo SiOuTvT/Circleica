@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"
 import { serialIdToUid } from "@/lib/serial-id"
 import { ValidationError, ForbiddenError } from "@/lib/errors"
 import { validatePassword } from "@/lib/password"
+import { PRESET_TAG_GROUPS } from "@/lib/preset-tag-groups"
 
 interface SetupBody {
   siteName: string
@@ -96,19 +97,23 @@ export const POST = withHandler(async (req) => {
     }
 
     // 写入标签组颜色（upsert：如标签组不存在则创建，存在则更新颜色）
+    // 预设组的 id/名称/描述/positions 一律取 PRESET_TAG_GROUPS，
+    // 与 ensurePresetTagGroups 自愈逻辑共用同一份定义，避免两套 positions 不一致。
     if (body.tagGroupColors) {
-      const PRESET_GROUPS: Record<string, string> = {
-        preset_home_card: "首页卡片标签",
-        preset_detail_header: "详情页信息栏标签",
-        preset_discover: "发现页标签",
-        preset_resource_tab: "资源标签",
-      }
       for (const [id, color] of Object.entries(body.tagGroupColors)) {
-        if (!PRESET_GROUPS[id]) continue
+        const preset = PRESET_TAG_GROUPS.find((g) => g.id === id)
+        if (!preset) continue
         await tx.tagGroup.upsert({
           where: { id },
           update: { color },
-          create: { id, name: PRESET_GROUPS[id], color, isPreset: true, positions: "[]" },
+          create: {
+            id,
+            name: preset.name,
+            description: preset.description,
+            color,
+            isPreset: true,
+            positions: JSON.stringify(preset.positions),
+          },
         })
       }
     }
