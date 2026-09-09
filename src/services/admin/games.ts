@@ -20,14 +20,16 @@ import { slugify } from "@/lib/slug"
  * 规则：Creator 只在「保存游戏」时 upsert（按 vndbId 优先、name 兜底），
  * 绝不提前写库；关联统一先删后建，保证与本次提交完全一致。
  * 必须在事务（tx）内调用，确保创作者与游戏、标签的原子性。
+ * 返回是否新建了 Creator，供调用方在事务提交后失效创作者列表缓存。
  */
 async function linkGameCreators(
   tx: Prisma.TransactionClient,
   creators: unknown,
   gameId: string,
-) {
-  if (!Array.isArray(creators) || creators.length === 0) return
+): Promise<boolean> {
+  if (!Array.isArray(creators) || creators.length === 0) return false
   const links: { gameId: string; creatorId: string; role: string }[] = []
+  let createdNew = false
   for (const c of creators as Array<{ vndbId?: string; name?: string; nameJa?: string; role?: string }>) {
     const vndbId = c.vndbId ? String(c.vndbId).trim() : ""
     const name = c.name ? String(c.name).trim() : ""
@@ -49,6 +51,7 @@ async function linkGameCreators(
         update: {},
         select: { id: true },
       })
+      createdNew = true
     }
     links.push({ gameId, creatorId: creator.id, role: c.role || "other" })
   }
@@ -57,6 +60,7 @@ async function linkGameCreators(
   if (links.length > 0) {
     await tx.gameCreator.createMany({ data: links, skipDuplicates: true })
   }
+  return createdNew
 }
 
 /**
@@ -105,6 +109,7 @@ export const adminGameService = {
     // 预创建预设标签组（幂等，仅确保 preset_detail_header 存在；不写任何业务数据）
     await ensurePresetTagGroups()
 
+    let createdNewCreators = false
     const game = await prisma.$transaction(async (tx) => {
       const created = await tx.game.create({
         data: {
@@ -177,12 +182,18 @@ export const adminGameService = {
       }
 
       // 创作者关联（VNDB 拉取的 staff：保存时才 upsert Creator 并关联，绝不提前写库）
-      await linkGameCreators(tx, data.creators, created.id)
+      createdNewCreators = await linkGameCreators(tx, data.creators, created.id)
       // 制作组关联（VNDB 拉取的 devs：保存时才 upsert Studio 并关联，绝不提前写库）
       await linkGameStudios(tx, data.studios, created.id)
 
       return created
     })
+
+    // 导入可能 upsert 出新 Creator：事务提交后再清后台创作者列表缓存（不在事务内删缓存）
+    if (createdNewCreators) {
+      await cache.delByPrefix("circleica:admin:creators:")
+      revalidatePath("/admin/creators")
+    }
 
     await logAudit({ userId: publisherId, action: "game.create", target: game.id, detail: `《${game.title}》` })
     return game
@@ -219,6 +230,7 @@ export const adminGameService = {
 
     // 白名单过滤后，值真正发生变化的字段名，供审计日志 detail 使用
     let changedFields = ""
+    let createdNewCreators = false
 
     const result = await prisma.$transaction(async (tx) => {
       // 字段白名单，防止 mass assignment
@@ -273,7 +285,7 @@ export const adminGameService = {
 
       // 处理创作者关联更新（VNDB 拉取的 staff 只带 vndbId/name，无 creatorId：保存时 upsert Creator 再关联）
       if (Array.isArray(data.creators)) {
-        await linkGameCreators(tx, data.creators, id)
+        createdNewCreators = await linkGameCreators(tx, data.creators, id)
       }
 
       // 处理制作组关联更新（VNDB 拉取的 devs 只带名称：保存时 upsert Studio 再关联）
@@ -294,6 +306,12 @@ export const adminGameService = {
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
+
+    // 导入可能 upsert 出新 Creator：事务提交后再清后台创作者列表缓存（不在事务内删缓存）
+    if (createdNewCreators) {
+      await cache.delByPrefix("circleica:admin:creators:")
+      revalidatePath("/admin/creators")
+    }
 
     // 关联变更：只在新旧数量都拿得到且确实不同时才追加，取不到就跳过（不报错）
     const relationNotes: string[] = []

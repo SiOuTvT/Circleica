@@ -158,7 +158,15 @@ export const creatorService = {
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
     const baseName = String(raw.name).trim()
-    // slug 唯一兜底（同名碰撞时追加序号）
+    // 人工新建不允许静默复用：creatorRepo.create 是幂等的（游戏导入依赖它），
+    // 命中同名会直接返回旧记录并把本次提交的其它字段全丢掉，所以这里先拦一道。
+    // name 的唯一口径是 @@unique([name, source])，与这里带 source 的查询一致。
+    const dupName = await prisma.creator.findFirst({
+      where: { name: baseName, source: "circleica" },
+      select: { id: true },
+    })
+    if (dupName) throw new ConflictError("已存在同名创作者（主站和副站各自一套名字），请确认是否要编辑已有的那一位")
+    // slug 唯一兜底（同名碰撞时追加序号）；slug 是全局 @unique，不带 source
     let slug = slugify(baseName)
     let n = 2
     while (await prisma.creator.findUnique({ where: { slug } })) {
@@ -176,6 +184,8 @@ export const creatorService = {
       twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
       wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
     })
+    await cache.delByPrefix("circleica:admin:creators:")
+    revalidatePath("/admin/creators")
     await logAudit({ userId: "ADMIN", action: "creator.create", target: result.id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
