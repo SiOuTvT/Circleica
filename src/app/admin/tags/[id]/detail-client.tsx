@@ -8,7 +8,7 @@ import { TAG_PRESET_COLORS } from "@/lib/tag-colors"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
-import { AdminTagApiResponse } from "@/components/tag-groups-manager"
+import { AdminTagApiResponse } from "@/types/admin-tags"
 import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 
