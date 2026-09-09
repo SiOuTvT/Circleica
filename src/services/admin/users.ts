@@ -43,11 +43,11 @@ export const adminUserService = {
         if (superAdminCount <= 1) throw new ValidationError("至少需保留一名超级管理员")
         return tx.user.update({ where: { id }, data: { role: role as UserRole } })
       })
-      await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `《${user.username}》role=${role}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+      await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `《${user.username}》${user.role === role ? "无字段变化" : `role=${role}`}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
       return result
     }
     const result = await adminUserRepo.updateRole(id, role as UserRole)
-    await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `《${user.username}》role=${role}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "user.updateRole", target: id, detail: `《${user.username}》${user.role === role ? "无字段变化" : `role=${role}`}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 

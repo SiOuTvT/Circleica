@@ -195,11 +195,14 @@ export const adminGameService = {
   },
 
   async update(id: string, data: Record<string, unknown>) {
-    if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
+    // 取改前记录：既做存在性校验，也供审计比对「真正变化的字段」
+    const existing = await prisma.game.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundError("游戏")
+    const prev = existing as unknown as Record<string, unknown>
     // 预创建预设标签组（幂等，仅确保预设分组存在）
     await ensurePresetTagGroups()
 
-    // 记录本次白名单过滤后真正写入的字段名，供审计日志 detail 使用
+    // 白名单过滤后，值真正发生变化的字段名，供审计日志 detail 使用
     let changedFields = ""
 
     const result = await prisma.$transaction(async (tx) => {
@@ -214,7 +217,9 @@ export const adminGameService = {
       if (typeof safe.releaseDate === "string" && safe.releaseDate) {
         safe.releaseDate = new Date(safe.releaseDate + "T00:00:00.000Z")
       }
-      changedFields = Object.keys(safe).join(",")
+      changedFields = Object.keys(safe)
+        .filter((k) => JSON.stringify(safe[k]) !== JSON.stringify(prev[k]))
+        .join(",")
       const updated = await tx.game.update({ where: { id }, data: safe })
 
       // 处理标签关联更新（含 VNDB 拉取的草稿标签：保存时才创建缺失标签并关联）
@@ -274,13 +279,14 @@ export const adminGameService = {
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
-    await logAudit({ userId: "ADMIN", action: "game.update", target: id, detail: `《${result.title}》fields=${changedFields}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "game.update", target: id, detail: `《${result.title}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async delete(id: string) {
-    if (!await adminGameRepo.exists(id)) throw new NotFoundError("游戏")
-    const target = await prisma.game.findUnique({ where: { id }, select: { serialId: true, title: true } }).catch(() => null)
+    // 删除前取一次记录：既做存在性校验，也拿到 revalidate 用的 serialId 与审计用的标题
+    const existing = await prisma.game.findUnique({ where: { id }, select: { id: true, serialId: true, title: true } })
+    if (!existing) throw new NotFoundError("游戏")
     const result = await adminGameRepo.delete(id)
     // 删除后使管理后台列表缓存立即失效，并刷新前台列表/详情/首页网格/相关推荐，确保实时刷新。
     await cache.delByPrefix("circleica:admin:games:")
@@ -289,23 +295,26 @@ export const adminGameService = {
     revalidatePath("/admin/games")
     revalidatePath("/games")
     revalidatePath("/")
-    if (target?.serialId) revalidatePath(`/games/${target.serialId}`)
+    if (existing.serialId) revalidatePath(`/games/${existing.serialId}`)
     // A-8：详情页 Data Cache 失效（cache tag 机制，统一命名见 cache-tags.ts）
     revalidateTag(gameTag(id), { expire: 0 })
     revalidateTag(CacheTag.gameDetail, { expire: 0 })
-    await logAudit({ userId: "ADMIN", action: "game.delete", target: id, detail: target?.title ? `《${target.title}》` : "" }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "game.delete", target: id, detail: `《${existing.title}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
   async batchDelete(ids: string[]) {
     if (!ids.length) throw new ValidationError("缺少游戏 ID")
     // 校验所有 id 真实存在：避免部分 id 不存在时 deleteMany 静默跳过、前端误以为全部删除成功
-    const existing = await prisma.game.findMany({ where: { id: { in: ids } }, select: { id: true } })
+    const existing = await prisma.game.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } })
     const existingIds = new Set(existing.map((g) => g.id))
     const missing = ids.filter((id) => !existingIds.has(id))
     if (missing.length > 0) {
       throw new ValidationError(`有 ${missing.length} 个游戏不存在，已中止删除`)
     }
+    // 审计 detail：列出被删游戏标题，最多 5 个，超出写「等 N 部」
+    const shown = existing.slice(0, 5).map((g) => `《${g.title}》`).join("")
+    const deletedDetail = existing.length > 5 ? `${shown}等 ${existing.length} 部` : shown
     const result = await adminGameRepo.batchDelete(ids)
     await cache.delByPrefix("circleica:admin:games:")
     await cache.delByPrefix("circleica:homepage:games:grid")
@@ -313,7 +322,7 @@ export const adminGameService = {
     revalidatePath("/admin/games")
     revalidatePath("/games")
     revalidatePath("/")
-    await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: `${ids.length} games` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "game.batchDelete", target: ids.join(","), detail: deletedDetail }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 

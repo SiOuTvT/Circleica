@@ -34,13 +34,19 @@ export const adminMusicService = {
   },
 
   async update(id: string, raw: Record<string, unknown>) {
+    // 取改前记录，供审计比对「真正变化的字段」
+    const existing = await musicRepo.findById(id)
     const data: Prisma.MusicUpdateInput = {}
     if ("isActive" in raw) data.isActive = raw.isActive as boolean
     if (typeof raw.title === "string" && raw.title.trim()) data.title = raw.title.trim()
     if (typeof raw.url === "string" && raw.url.trim()) { data.url = raw.url.trim(); data.filename = raw.url.trim() }
     if (Object.keys(data).length === 0) throw new ValidationError("没有要更新的字段")
+    const prev = (existing ?? {}) as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify((data as Record<string, unknown>)[k]) !== JSON.stringify(prev[k]))
+      .join(",")
     const result = await musicRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "music.update", target: id, detail: `《${result.title}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "music.update", target: id, detail: `《${result.title}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -77,9 +83,10 @@ export const adminPlaylistService = {
 
   async update(id: string, name: string) {
     if (!name?.trim()) throw new ValidationError("名称不能为空")
-    await playlistRepo.findById(id).then(pl => { if (!pl) throw new NotFoundError("播放列表") })
+    const existing = await playlistRepo.findById(id)
+    if (!existing) throw new NotFoundError("播放列表")
     const result = await playlistRepo.update(id, { name: name.trim() })
-    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "playlist.update", target: id, detail: `《${result.name}》${existing.name === name.trim() ? "无字段变化" : "fields=name"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 

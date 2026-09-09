@@ -44,6 +44,10 @@ export const tagGroupService = {
     for (const f of ["name", "description", "color", "positions", "isPreset"]) {
       if (f in raw) data[f] = raw[f]
     }
+    const prev = existing as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify(data[k]) !== JSON.stringify(prev[k]))
+      .join(",")
     const result = await tagGroupRepo.update(id, data)
     // 标签组（含颜色）改了要清：后台标签缓存 + 前台标签组颜色缓存（3600s 隐藏炸弹）
     // + 首页/发现页网格缓存（其中 mapGameToCard 已把颜色固化进卡片数据，必须一并失效）
@@ -53,7 +57,7 @@ export const tagGroupService = {
     await cache.delByPrefix("circleica:discover:")
     revalidatePath("/admin/tags")
     revalidatePath("/games")
-    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tagGroup.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -130,11 +134,20 @@ export const tagService = {
     if ("groupId" in raw) {
       data.group = raw.groupId ? { connect: { id: String(raw.groupId) } } : { disconnect: true }
     }
+    const prev = existing as unknown as Record<string, unknown>
+    const nextGroupId = raw.groupId ? String(raw.groupId) : null
+    const changedFields = Object.keys(data)
+      .filter((k) => {
+        // group 是关系字段，data 里是 connect/disconnect 对象，无法直接和现有记录浅比较
+        if (k === "group") return ((prev.group as { id: string } | null)?.id ?? null) !== nextGroupId
+        return JSON.stringify((data as Record<string, unknown>)[k]) !== JSON.stringify(prev[k])
+      })
+      .join(",")
     const result = await tagRepo.update(id, data)
     await cache.delByPrefix("circleica:admin:tags:")
     revalidatePath("/admin/tags")
     revalidatePath("/admin/tags/all")
-    await logAudit({ userId: "ADMIN", action: "tag.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "tag.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 

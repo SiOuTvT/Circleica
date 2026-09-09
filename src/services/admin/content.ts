@@ -55,8 +55,12 @@ export const achievementService = {
     const data: Record<string, unknown> = {}
     for (const f of fields) { if (f in parsed) data[f] = parsed[f as keyof typeof parsed] }
     if (Object.keys(data).length === 0) throw new ValidationError("没有有效的更新字段")
+    const prev = existing as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify(data[k]) !== JSON.stringify(prev[k]))
+      .join(",")
     const result = await achievementRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "achievement.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -115,8 +119,12 @@ export const avatarFrameService = {
       if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
     if ("price" in data) data.price = Math.max(0, Math.floor(Number(data.price) || 0))
+    const prev = existing as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify(data[k]) !== JSON.stringify(prev[k]))
+      .join(",")
     const result = await avatarFrameRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id, detail: `《${result.name}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "avatarFrame.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -177,7 +185,7 @@ export const creatorService = {
     if (!existing) throw new NotFoundError("创作者")
     if (existing.source !== "circleica") throw new ForbiddenError("该创作者属于其他站点，无权操作")
     if (!raw.name?.toString().trim()) throw new ValidationError("名字不能为空")
-    const result = await creatorRepo.update(id, {
+    const data: Record<string, unknown> = {
       vndbId: raw.vndbId ? String(raw.vndbId).trim() : "",
       name: String(raw.name).trim(),
       nameJa: raw.nameJa ? String(raw.nameJa).trim() : "",
@@ -186,10 +194,15 @@ export const creatorService = {
       gender: raw.gender ? String(raw.gender) : "",
       twitterUrl: raw.twitterUrl ? (sanitizeUrl(String(raw.twitterUrl)) ?? "") : "",
       wikipediaUrl: raw.wikipediaUrl ? (sanitizeUrl(String(raw.wikipediaUrl)) ?? "") : "",
-    })
+    }
+    const prev = existing as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify(data[k]) !== JSON.stringify(prev[k]))
+      .join(",")
+    const result = await creatorRepo.update(id, data)
     await cache.delByPrefix("circleica:admin:creators:")
     revalidatePath("/admin/creators")
-    await logAudit({ userId: "ADMIN", action: "creator.update", target: id, detail: `《${result.name}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "creator.update", target: id, detail: `《${result.name}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
@@ -277,8 +290,12 @@ export const emotionalMessageService = {
     for (const f of ["title", "subtitle", "imageUrl", "emoji", "enabled", "category"]) {
       if (f in raw) data[f] = f === "imageUrl" ? (sanitizeUrl(String(raw[f])) ?? "") : raw[f]
     }
+    const prev = existing as unknown as Record<string, unknown>
+    const changedFields = Object.keys(data)
+      .filter((k) => JSON.stringify(data[k]) !== JSON.stringify(prev[k]))
+      .join(",")
     const result = await emotionalMessageRepo.update(id, data)
-    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id, detail: `《${result.title || result.key}》fields=${Object.keys(data).join(",")}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    await logAudit({ userId: "ADMIN", action: "emotionalMessage.update", target: id, detail: `《${result.title || result.key}》${changedFields ? `fields=${changedFields}` : "无字段变化"}` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 
