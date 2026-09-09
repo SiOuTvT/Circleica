@@ -109,8 +109,6 @@ export function TagGroupDetailClient({
 
   // 删除标签
   const [deletingTag, setDeletingTag] = useState<TagItem | null>(null)
-  // 二段式强删：服务端回 confirm 时存下引用信息，同一个确认框切换成「仍然删除」
-  const [forceRef, setForceRef] = useState<{ id: string; count: number; message: string } | null>(null)
 
   // 点击外部关闭编辑面板
   useEffect(() => {
@@ -217,45 +215,22 @@ export function TagGroupDetailClient({
   }
 
   async function handleDeleteTag() {
-    if (!deletingTag) return
+    const tag = deletingTag
+    if (!tag) return
     setSaving(true)
     setError("")
     try {
-      // 已进入强删态：改发 PATCH forceDelete
-      if (forceRef) {
-        const { ok, error } = await apiFetchSafe(`/api/admin/tags/${forceRef.id}`, {
-          method: "PATCH",
-          body: { forceDelete: true },
-        })
-        if (!ok) { setError(error ?? "删除失败"); return }
-        setTags((prev) => prev.filter((t) => t.id !== forceRef.id))
-        setDeletingTag(null)
-        setForceRef(null)
-        toast.success("标签已删除")
-        return
-      }
-      const { ok, data, error } = await apiFetchSafe<{ confirm?: boolean; gameCount?: number; error?: string }>(
-        `/api/admin/tags/${deletingTag.id}`,
-        { method: "DELETE" },
-      )
-      if (ok) {
-        setTags((prev) => prev.filter((t) => t.id !== deletingTag.id))
-        setDeletingTag(null)
-        setForceRef(null)
-        toast.success("标签已删除")
-        return
-      }
-      // 标签被游戏引用：沿用本页的 setError 提示之外，这里不报错，
-      // 而是切换成强删形态（文案直接用服务端整句），等用户再点一次「仍然删除」
-      if (data?.confirm) {
-        setForceRef({
-          id: deletingTag.id,
-          count: data.gameCount ?? 0,
-          message: data.error ?? "该标签正被游戏使用，删除会同时移除这些关联",
-        })
-        return
-      }
-      setError(error ?? "删除失败")
+      // 卡片上已带 gameCount：有引用直接走强删，没引用走普通删除，一次确认搞定。
+      // （ConfirmDialog 在 onConfirm 后会无条件 onOpenChange(false)，做不了二次确认态。）
+      // 万一本地记数为 0 而后端仍回 409，error 会带上服务端那整句文案。
+      const force = (tag.gameCount ?? 0) > 0
+      const { ok, error } = force
+        ? await apiFetchSafe(`/api/admin/tags/${tag.id}`, { method: "PATCH", body: { forceDelete: true } })
+        : await apiFetchSafe(`/api/admin/tags/${tag.id}`, { method: "DELETE" })
+      if (!ok) { setError(error ?? "删除失败"); return }
+      setTags((prev) => prev.filter((t) => t.id !== tag.id))
+      setDeletingTag(null)
+      toast.success("标签已删除")
     } catch { setError("网络错误") } finally { setSaving(false) }
   }
 
@@ -446,14 +421,14 @@ export function TagGroupDetailClient({
       {/* 删除确认 */}
       <ConfirmDialog
         open={!!deletingTag}
-        onOpenChange={(v) => { if (!v) { setDeletingTag(null); setForceRef(null) } }}
+        onOpenChange={(v) => { if (!v) setDeletingTag(null) }}
         title="删除标签"
         description={
-          forceRef
-            ? forceRef.message
-            : `确定删除标签「${deletingTag?.name ?? ""}」？关联的标签关系将一并清除。`
+          (deletingTag?.gameCount ?? 0) > 0
+            ? `这个标签正被 ${deletingTag?.gameCount} 部游戏使用，删除会同时从这些游戏上移除它。`
+            : `确定删除标签「${deletingTag?.name ?? ""}」？`
         }
-        confirmText={forceRef ? "仍然删除" : "删除"}
+        confirmText="删除"
         variant="destructive"
         onConfirm={handleDeleteTag}
       />

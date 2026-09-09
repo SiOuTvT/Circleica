@@ -120,9 +120,10 @@ export const tagService = {
   async create(raw: Record<string, unknown>) {
     if (!raw.name?.toString().trim()) throw new ValidationError("名称不能为空")
     const name = String(raw.name).trim()
-    // pg adapter 不回传 P2002 的 meta.target，重名只能写库前预查，给出准确文案
-    const dupName = await prisma.tag.findFirst({ where: { name, source: "circleica" }, select: { id: true } })
-    if (dupName) throw new ConflictError("已存在同名的标签，请换一个")
+    // pg adapter 不回传 P2002 的 meta.target，重名只能写库前预查，给出准确文案。
+    // name 是全局唯一（不带 source），预查口径必须与之一致，否则主站建副站已有的名字会漏到数据库才报错。
+    const dupName = await prisma.tag.findFirst({ where: { name }, select: { id: true } })
+    if (dupName) throw new ConflictError("已存在同名标签（主站和副站共用一套标签名），请换一个")
     // 生成稳定可读 slug（CJK 直出），循环查重追加 -n 直到唯一
     const baseSlug = slugify(name)
     let slug = baseSlug
@@ -163,12 +164,12 @@ export const tagService = {
     // 改名后重建 slug（与 create 一致），避免 URL 仍指向旧 slug 的陈旧链接；查重追加 -n
     if ("name" in raw && String(raw.name).trim() !== existing.name) {
       const name = String(raw.name).trim()
-      // 改名时同样预查重名（排除自己），pg adapter 不回传 target，靠不了 P2002
+      // 改名时同样预查重名（排除自己），口径与全局唯一约束一致，不带 source
       const dupName = await prisma.tag.findFirst({
-        where: { name, source: "circleica", NOT: { id } },
+        where: { name, NOT: { id } },
         select: { id: true },
       })
-      if (dupName) throw new ConflictError("已存在同名的标签，请换一个")
+      if (dupName) throw new ConflictError("已存在同名标签（主站和副站共用一套标签名），请换一个")
       const baseSlug = slugify(name)
       let slug = baseSlug
       let n = 2
