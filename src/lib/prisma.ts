@@ -237,10 +237,12 @@ function buildModelProxy(realModel: unknown, modelName: string, forceMock = fals
                       const isConnectionError = /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)
                       if (isConnectionError) {
                         markOffline(`${modelName}.${String(methodName)}`, msg)
-                      } else {
-                        logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+                        return getEmptyResult(modelName, String(methodName))
                       }
-                      return getEmptyResult(modelName, String(methodName))
+                      // 非连接级错误（P2002/P2003/P2025 等）必须向上抛：
+                      // 吞成空结果会让上层拿到 null/[] 继续跑业务逻辑，真实原因被彻底掩盖。
+                      logger.db.warn(`[db-error] ${modelName}.${String(methodName)} 失败（非连接问题）`, { error: msg })
+                      throw err
                     })
                 }
                 return getEmptyResult(modelName, String(methodName))
@@ -297,6 +299,8 @@ function buildPrismaProxy(real: unknown, forceMock = false) {
                 const msg = (err as Error)?.message ?? ""
                 if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ECONNRESET|Can't reach database|Server has closed/i.test(msg)) {
                   markOffline(String(prop), msg)
+                } else {
+                  logger.db.warn(`[db-error] ${String(prop)} 失败（非连接问题）`, { error: msg })
                 }
                 // 写操作失败暴露原始错误；读查询失败抛异常让上层感知
                 throw err

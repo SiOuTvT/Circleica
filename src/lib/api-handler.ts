@@ -236,18 +236,33 @@ export function withHandler(handler: RouteHandler): RouteHandler {
  */
 function mapPrismaError(error: Prisma.PrismaClientKnownRequestError): AppError {
   switch (error.code) {
-      case "P2002":
-        return new ConflictError("数据冲突：违反唯一约束，请检查是否重复提交")
+    case "P2002":
+      return new ConflictError(describeUniqueConflict(error))
     case "P2025":
       return new NotFoundError("目标记录")
     case "P2003":
-      return new ValidationError("外键约束失败：关联记录不存在或不可删除")
+      return new ConflictError("该内容还被别的地方引用着，先解除引用再删")
     case "P2014":
     case "P2016":
       return new NotFoundError("关联数据")
-      default:
-        return new AppError("数据库错误，请稍后再试", "INTERNAL", 500)
+    default:
+      return new AppError("数据库错误，请稍后再试", "INTERNAL", 500)
   }
+}
+
+/**
+ * P2002 文案：尽量用 meta.target 指出撞了哪个字段，
+ * 例如「已存在同名的 name、slug，请换一个」；取不到 meta 时退回通用文案。
+ */
+function describeUniqueConflict(error: Prisma.PrismaClientKnownRequestError): string {
+  const target = (error.meta as { target?: unknown } | undefined)?.target
+  const fields = Array.isArray(target)
+    ? target.map((t) => String(t))
+    : typeof target === "string" && target
+      ? [target]
+      : []
+  if (!fields.length) return "内容重复，保存失败"
+  return `已存在同名的 ${fields.join("、")}，请换一个`
 }
 
 // ── 请求解析工具 ────────────────────
