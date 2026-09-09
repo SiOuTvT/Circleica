@@ -67,6 +67,9 @@ const ACTION_LABELS: Record<string, string> = {
   "favorite.delete": "删除收藏",
   "follow.delete": "删除关注",
 
+  // ── 副站作品 ──
+  "work.coverReview": "标定封面分级",
+
   // ── 收录申请 ──
   "inclusion.publish": "发布收录草稿",
   "inclusion.deleteDraft": "删除收录草稿",
