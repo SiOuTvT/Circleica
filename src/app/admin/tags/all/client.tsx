@@ -54,6 +54,8 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
   const [sortBy, setSortBy] = useState<"name" | "count">("name")
   const [editingTagId, setEditingTagId] = useState<string | null>(null)
   const [deletingTag, setDeletingTag] = useState<TagItem | null>(null)
+  // 二段式强删：服务端回 confirm 时存下引用信息，同一个确认框切换成「仍然删除」
+  const [forceRef, setForceRef] = useState<{ id: string; count: number; message: string } | null>(null)
   const [, setSaving] = useState(false)
 
   const active = tabs.find((t) => t.id === activeTab) ?? tabs[0]
@@ -81,15 +83,44 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
     if (!deletingTag) return
     setSaving(true)
     try {
-      const { ok, error } = await apiFetchSafe(`/api/admin/tags/${deletingTag.id}`, { method: "DELETE" })
-      if (!ok) { toast.error(error || "删除失败"); setSaving(false); return }
-      toast.success("标签已删除")
-      setDeletingTag(null)
-      router.refresh()
+      // 已进入强删态：改发 PATCH forceDelete
+      if (forceRef) {
+        const { ok, error } = await apiFetchSafe(`/api/admin/tags/${forceRef.id}`, {
+          method: "PATCH",
+          body: { forceDelete: true },
+        })
+        if (!ok) { toast.error(error || "删除失败"); return }
+        toast.success("标签已删除")
+        setDeletingTag(null)
+        setForceRef(null)
+        router.refresh()
+        return
+      }
+      const { ok, data, error } = await apiFetchSafe<{ confirm?: boolean; gameCount?: number; error?: string }>(
+        `/api/admin/tags/${deletingTag.id}`,
+        { method: "DELETE" },
+      )
+      if (ok) {
+        toast.success("标签已删除")
+        setDeletingTag(null)
+        router.refresh()
+        return
+      }
+      // 标签被游戏引用：不报错，切换成强删形态，文案直接用服务端整句
+      if (data?.confirm) {
+        setForceRef({
+          id: deletingTag.id,
+          count: data.gameCount ?? 0,
+          message: data.error ?? "该标签正被游戏使用，删除会同时移除这些关联",
+        })
+        return
+      }
+      toast.error(error || "删除失败")
     } catch {
       toast.error("网络错误")
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   return (
@@ -220,10 +251,14 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
 
       <ConfirmDialog
         open={!!deletingTag}
-        onOpenChange={(v) => { if (!v) setDeletingTag(null) }}
+        onOpenChange={(v) => { if (!v) { setDeletingTag(null); setForceRef(null) } }}
         title="删除标签"
-        description={`确定删除标签「${deletingTag?.name ?? ""}」？关联的标签关系将一并清除。`}
-        confirmText="删除"
+        description={
+          forceRef
+            ? forceRef.message
+            : `确定删除标签「${deletingTag?.name ?? ""}」？关联的标签关系将一并清除。`
+        }
+        confirmText={forceRef ? "仍然删除" : "删除"}
         variant="destructive"
         onConfirm={handleDelete}
       />

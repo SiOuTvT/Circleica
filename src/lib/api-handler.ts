@@ -262,6 +262,11 @@ const UNIQUE_FIELD_LABELS: Record<string, string> = {
 /**
  * P2002 文案：尽量用 meta.target 指出撞了哪个字段，
  * 例如「已存在同名的 名称、网址标识，请换一个」；取不到 meta 时退回通用文案。
+ *
+ * 注意：当前 Prisma 6 + @prisma/adapter-pg 下唯一冲突的 error.meta.target 为空
+ * （日志为 "Unique constraint failed on the (not available)"），
+ * 所以这里恒走兜底「内容重复，保存失败」。准确文案改由各 service 写库前预查给出
+ * （例：tagService.create / update 的重名检查）。驱动补回 target 后本函数自动生效。
  */
 function describeUniqueConflict(error: Prisma.PrismaClientKnownRequestError): string {
   const target = (error.meta as { target?: unknown } | undefined)?.target
