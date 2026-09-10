@@ -44,7 +44,10 @@ export const adminFavoriteService = {
 
   async delete(id: string) {
     // 先取 gameId，删除收藏后同步递减游戏的 denormalized favoriteCount（M4 计数器对账）
-    const favorite = await prisma.favorite.findUnique({ where: { id }, select: { gameId: true, game: { select: { title: true } } } })
+    const favorite = await prisma.favorite.findUnique({
+      where: { id },
+      select: { gameId: true, user: { select: { username: true } }, game: { select: { title: true } } },
+    })
     if (!favorite) throw new NotFoundError("收藏")
     const result = await prisma.$transaction(async (tx) => {
       const deleted = await tx.favorite.delete({ where: { id } })
@@ -54,7 +57,10 @@ export const adminFavoriteService = {
       })
       return deleted
     })
-    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id, detail: `《${favorite.game?.title ?? ""}》` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    // 与 follow.delete「A 关注 B」、checkin.delete 保持同等信息量：写清是谁的收藏
+    const who = favorite.user?.username ?? "已注销用户"
+    const what = favorite.game?.title ?? "未知游戏"
+    await logAudit({ userId: "ADMIN", action: "favorite.delete", target: id, detail: `删除 ${who} 对《${what}》的收藏` }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
     return result
   },
 }
