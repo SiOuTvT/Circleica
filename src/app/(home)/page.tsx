@@ -198,33 +198,24 @@ export default async function HomePage({
   ]
 
   // Announcements (same query as before, inlined here)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // 原先这里读 cacheKey("homepage:announcements")、写 `homepage:stats:*`：两个 key 不是一回事，
+  // 读侧恒 miss，缓存形同不存在，且写入的形状（只有 announcements）也没人读。整层去掉，
+  // 首页统计数字的缓存与失效仍由 src/lib/home-stats.ts 负责。
   let announcements: HomeAnnouncement[] = []
   try {
-    const cached = await cache.get<{ announcements: HomeAnnouncement[] }>(cacheKey("homepage:announcements"))
-    if (cached) {
-      announcements = cached.announcements
-    } else {
-      const statsCacheKey = `homepage:stats:${nsfwMode}:${today.toISOString().slice(0, 10)}`
-      const pending = PENDING_HOLDER.map.get(statsCacheKey)
-      const annPromise = prisma.announcement.findMany({
-        where: {
-          status: "published",
-          isActive: true,
-          AND: [
-            { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
-            { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
-          ],
-        },
-        orderBy: [{ isPinned: "desc" }, { sortOrder: "asc" }],
-        take: 5,
-        select: { id: true, title: true, summary: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true, isPinned: true },
-      }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })))
-
-      announcements = await annPromise
-      await cache.set(statsCacheKey, { announcements }, 300).catch(() => {})
-    }
+    announcements = await prisma.announcement.findMany({
+      where: {
+        status: "published",
+        isActive: true,
+        AND: [
+          { OR: [{ startAt: null }, { startAt: { lte: new Date() } }] },
+          { OR: [{ endAt: null }, { endAt: { gte: new Date() } }] },
+        ],
+      },
+      orderBy: [{ isPinned: "desc" }, { sortOrder: "asc" }],
+      take: 5,
+      select: { id: true, title: true, summary: true, content: true, imageUrl: true, link: true, createdAt: true, authorName: true, authorAvatar: true, isPinned: true },
+    }).then((anns) => anns.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() })))
   } catch (error) {
     logger.db.error("[HomePage] Announcements query failed", error)
   }

@@ -67,6 +67,17 @@ const ACTION_LABELS: Record<string, string> = {
   "favorite.delete": "删除收藏",
   "follow.delete": "删除关注",
 
+  // ── 精选合集 ──
+  "collection.create": "新建合集",
+  "collection.update": "更新合集",
+  "collection.delete": "删除合集",
+
+  // ── 公告 ──
+  "announcement.create": "新建公告",
+  "announcement.update": "更新公告",
+  "announcement.delete": "删除公告",
+  "announcement.reorder": "公告改序",
+
   // ── 副站作品 ──
   "work.coverReview": "标定封面分级",
 

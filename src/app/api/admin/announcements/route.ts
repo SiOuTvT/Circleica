@@ -1,6 +1,8 @@
 import { withHandler, json, created, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { announcementService } from "@/services/announcement"
+import { logAudit } from "@/lib/audit-log"
+import { logger } from "@/lib/logger"
 import type { NextRequest } from "next/server"
 
 /**
@@ -29,5 +31,13 @@ export const POST = withHandler(async (req: NextRequest) => {
   const ctx = await requireAdminRole()
   const body = await safeParseJson(req)
   const data = await announcementService.create(body, ctx)
+
+  await logAudit({
+    userId: "ADMIN",
+    action: "announcement.create",
+    target: data.id,
+    detail: `新建公告《${data.title}》（${data.status === "published" ? "已发布" : "草稿"}）`,
+  }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+
   return created(data)
 })

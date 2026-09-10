@@ -38,6 +38,17 @@ interface CollectionDetail extends CollectionItem {
   games: Array<{ sortOrder: number; game: GameItem }>
 }
 
+/**
+ * 列表接口的响应体。apiClient 成功分支是 `return await response.json()`，不解包，
+ * 所以实际拿到的是 { success, data: { items, total, totalPages } }，这里手动解一层。
+ */
+type CollectionsListResponse = {
+  items?: CollectionItem[]
+  total?: number
+  totalPages?: number
+  data?: { items?: CollectionItem[]; total?: number; totalPages?: number }
+}
+
 interface GameSearchResult {
   id: string
   serialId: number
@@ -68,7 +79,8 @@ export function CollectionsClient() {
     try {
       const params = new URLSearchParams({ page: String(p), pageSize: String(PAGE_SIZE) })
       if (s.trim()) params.set("search", s.trim())
-      const data = await api.get<{ items?: CollectionItem[]; total?: number; totalPages?: number }>(`/api/admin/curated-collections?${params.toString()}`)
+      const raw = await api.get<CollectionsListResponse>(`/api/admin/curated-collections?${params.toString()}`)
+      const data = raw.data ?? raw
       const items = data.items ?? []
       setCollections(items)
       setTotal(data.total ?? items.length)

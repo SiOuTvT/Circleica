@@ -3,6 +3,8 @@ import { requireAdminRole } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { slugify } from "@/lib/slug"
 import { ValidationError } from "@/lib/errors"
+import { logAudit } from "@/lib/audit-log"
+import { logger } from "@/lib/logger"
 
 // GET — 列表（管理后台，服务端分页 + 搜索）
 export const GET = withHandler(async (req) => {
@@ -32,6 +34,16 @@ export const POST = withHandler(async (req) => {
   const { name, description, published, gameIds } = body
 
   if (!name?.trim()) throw new ValidationError("合集名称不能为空")
+
+  // 预查 gameIds：createMany 的外键报错会被 mapPrismaError 翻成「先解除引用再删」，
+  // 对「保存合集」完全对不上，所以这里先给准确文案（createMany 保留作第二道防线）
+  if (Array.isArray(gameIds) && gameIds.length > 0) {
+    const ids = gameIds as string[]
+    const found = await prisma.game.findMany({ where: { id: { in: ids } }, select: { id: true } })
+    if (found.length !== new Set(ids).size) {
+      throw new ValidationError(`所选游戏里有 ${ids.length - found.length} 部不存在，请重新选择`)
+    }
+  }
 
   // 生成稳定 slug（CJK 直出，保留中文可读）；库内同名冲突则追加 -2/-3
   const baseSlug = slugify(name.trim())
@@ -66,6 +78,13 @@ export const POST = withHandler(async (req) => {
 
     return c
   })
+
+  await logAudit({
+    userId: "ADMIN",
+    action: "collection.create",
+    target: collection.id,
+    detail: `新建合集《${collection.name}》（slug=${collection.slug}，${Array.isArray(gameIds) ? gameIds.length : 0} 部游戏，${collection.published ? "已发布" : "草稿"}）`,
+  }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
 
   return created(collection)
 })

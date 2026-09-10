@@ -24,11 +24,9 @@ export const metadata: Metadata = {
 type CollectionSummary = Prisma.CuratedCollectionGetPayload<{
   include: {
     games: {
-      take: 4
       orderBy: { sortOrder: "asc" }
       include: { game: { select: { id: true; serialId: true; title: true; coverImage: true } } }
     }
-    _count: { select: { games: true } }
   }
 }>
 
@@ -77,7 +75,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
       <div className="flex min-w-0 flex-1 flex-col justify-center">
         <h3 className="truncate text-[17px] font-semibold text-foreground transition-colors duration-200 group-hover:text-primary">{c.name}</h3>
         <p className="mt-2 text-[13px] tabular-nums text-muted-foreground">
-          {c._count.games} 部精选
+          {c.games.length} 部游戏
         </p>
       </div>
     </Link>
@@ -104,10 +102,9 @@ export default async function CuratedCollectionsPage({
         games: {
           where: { game: { isPublished: true, ...nsfwWhere } },
           orderBy: { sortOrder: "asc" },
-          take: 4,
+          // 不再 take: 4 —— 计数要与渲染同口径，前端 CollectionRow 自己 slice(0, 4)
           include: { game: { select: { id: true, serialId: true, title: true, coverImage: true } } },
         },
-        _count: { select: { games: true } },
       },
     })
   } catch {

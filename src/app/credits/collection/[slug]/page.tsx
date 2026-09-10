@@ -13,7 +13,6 @@ type CollectionDetail = Prisma.CuratedCollectionGetPayload<{
       orderBy: { sortOrder: "asc" }
       include: { game: { select: typeof GAME_CARD_SELECT } }
     }
-    _count: { select: { games: true } }
   }
 }>
 
@@ -62,7 +61,6 @@ export default async function CuratedCollectionDetailPage({
           orderBy: { sortOrder: "asc" },
           include: { game: { select: GAME_CARD_SELECT } },
         },
-        _count: { select: { games: true } },
       },
     })
   } catch {
@@ -72,7 +70,8 @@ export default async function CuratedCollectionDetailPage({
   if (!collection) notFound()
 
   const games = collection.games
-  const gameCount = collection._count.games
+  // 与真正渲染的卡片同口径：这里的 games 已按 isPublished + NSFW 过滤，不能用无过滤的关系计数
+  const gameCount = collection.games.length
 
   return (
     <div className="space-y-8 pt-4">
