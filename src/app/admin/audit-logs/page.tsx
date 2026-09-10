@@ -97,6 +97,11 @@ const ACTION_LABELS: Record<string, string> = {
   "report.resolve": "处理游戏举报",
   "report.delete": "删除举报",
 
+  // ── 站点设置 ──
+  "site.themeUpdate": "更新主题",
+  "site.pageUpdate": "更新站点页面",
+  "site.settingsUpdate": "更新站点设置",
+
   // ── 运维 ──
   ADMIN_SERVICE_CONFIG_SAVE: "保存服务配置",
 }
