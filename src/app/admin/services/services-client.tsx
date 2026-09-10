@@ -252,8 +252,8 @@ export function ServicesClient() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" required />
           <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => updateService("r2_bucket_name", v)} placeholder="存储桶名称" required />
-          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="留空表示保持原值不变" required configured={config.r2_access_key_id_configured} />
-          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="留空表示保持原值不变" required configured={config.r2_secret_access_key_configured} />
+          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder={config.r2_access_key_id_configured ? "留空表示保持原值不变" : "Cloudflare API Token ID"} required configured={config.r2_access_key_id_configured} />
+          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder={config.r2_secret_access_key_configured ? "留空表示保持原值不变" : "Cloudflare API Token Secret"} required configured={config.r2_secret_access_key_configured} />
           <Field label="Public URL" value={config.r2_public_url} onChange={v => updateService("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" required />
         </div>
         <TestAction>
@@ -271,7 +271,7 @@ export function ServicesClient() {
         <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="REST URL" value={config.redis_url} onChange={v => updateService("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" required />
-          <SecretField label="REST Token" value={config.redis_token} onChange={v => updateService("redis_token", v)} placeholder="留空表示保持原值不变" className="sm:col-span-2" required configured={config.redis_token_configured} />
+          <SecretField label="REST Token" value={config.redis_token} onChange={v => updateService("redis_token", v)} placeholder={config.redis_token_configured ? "留空表示保持原值不变" : "Upstash Redis Token"} className="sm:col-span-2" required configured={config.redis_token_configured} />
         </div>
         <TestAction>
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
