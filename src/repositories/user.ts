@@ -39,7 +39,12 @@ export const userRepo = {
   },
 
   updateAvatarFrame(id: string, avatarFrameId: string | null) {
-    return prisma.user.update({ where: { id }, data: { avatarFrameId } })
+    return prisma.user.update({
+      where: { id },
+      data: { avatarFrameId },
+      // 必须 select：不写的话返回值带 password 哈希，会被 /api/user/avatar-frame 的 json() 原样吐给前端
+      select: { id: true, avatarFrameId: true, composedAvatarUrl: true },
+    })
   },
 
   async getStats(id: string) {

@@ -257,13 +257,7 @@ export const authService = {
     if (!email) throw new ValidationError("邮箱不能为空")
     const user = await userRepo.findByEmail(email.toLowerCase().trim())
     if (!user) return { success: true }
-    // 清理该用户之前未使用的重置令牌，避免令牌堆积
-    await prisma.passwordResetToken.deleteMany({
-      where: { userId: user.id, usedAt: null },
-    })
-    const { raw, hash } = generateToken()
-    const expiresAt = new Date(Date.now() + 3600000)
-    await prisma.passwordResetToken.create({ data: { userId: user.id, token: hash, expiresAt } })
+    const raw = await createPasswordResetToken(user.id)
     const sent = await sendPasswordResetEmail(email.toLowerCase().trim(), raw).catch((e: unknown) => {
       logger.system.error("[ForgotPassword] 重置邮件发送失败", e)
       return false
@@ -289,6 +283,19 @@ export const authService = {
     ])
     return { success: true }
   },
+}
+
+/**
+ * 生成一次性密码重置令牌（管理员代发与「忘记密码」共用同一套逻辑，避免哈希规则复制两份）。
+ * 库里存的是 sha256 哈希；返回的是明文 token，只应出现在邮件或响应里，绝不写进日志。
+ */
+export async function createPasswordResetToken(userId: string): Promise<string> {
+  // 清理该用户之前未使用的重置令牌，避免令牌堆积
+  await prisma.passwordResetToken.deleteMany({ where: { userId, usedAt: null } })
+  const { raw, hash } = generateToken()
+  const expiresAt = new Date(Date.now() + 3600000)
+  await prisma.passwordResetToken.create({ data: { userId, token: hash, expiresAt } })
+  return raw
 }
 
 // ── 用户资料 ────────────────────────

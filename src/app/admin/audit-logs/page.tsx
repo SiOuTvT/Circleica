@@ -80,6 +80,11 @@ const ACTION_LABELS: Record<string, string> = {
   "announcement.delete": "删除公告",
   "announcement.reorder": "公告改序",
 
+  // ── 用户 / 签到 ──
+  "user.resetPassword": "重置用户密码",
+  "user.issueResetLink": "生成重置链接",
+  "checkin.delete": "删除签到记录",
+
   // ── 副站作品 ──
   "work.coverReview": "标定封面分级",
 

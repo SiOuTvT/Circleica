@@ -447,7 +447,12 @@ export const adminUserRepo = {
     return prisma.user.findUnique({ where: { id }, select: { id: true, role: true, username: true } })
   },
   updateRole(id: string, role: Prisma.UserUpdateInput["role"]) {
-    return prisma.user.update({ where: { id }, data: { role } })
+    return prisma.user.update({
+      where: { id },
+      data: { role },
+      // 必须 select：不写的话返回值带 password 哈希，会被 PUT /api/admin/users/{id} 的 json() 原样吐给前端
+      select: { id: true, username: true, email: true, role: true, avatar: true, createdAt: true },
+    })
   },
   countSuperAdmins() {
     return prisma.user.count({ where: { role: "SUPER_ADMIN" } })
