@@ -75,7 +75,7 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
       <div className="flex min-w-0 flex-1 flex-col justify-center">
         <h3 className="truncate text-[17px] font-semibold text-foreground transition-colors duration-200 group-hover:text-primary">{c.name}</h3>
         <p className="mt-2 text-[13px] tabular-nums text-muted-foreground">
-          {c.games.length} 部游戏
+          {c.games.length} 部精选
         </p>
       </div>
     </Link>
