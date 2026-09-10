@@ -139,7 +139,8 @@ export function ServicesClient() {
       if (!ok || data?.data?.success === false) throw new Error(data?.data?.message || error)
       // reloadServiceConfig() 只更新 service-config 的内存配置：邮件与 Redis 每次调用都重新读，
       // R2 的 S3Client 在 getStorage() 里是单例、构造一次后不再变，改 R2 必须重启进程。
-      toast.success("配置已保存；邮件与 Redis 立即生效，R2 需重启应用后生效")
+      // 热重载失败时后端会带 message，优先显示它
+      toast.success(data?.data?.message || "配置已保存；邮件与 Redis 立即生效，R2 需重启应用后生效")
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
@@ -230,7 +231,7 @@ export function ServicesClient() {
 
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-        <span>服务配置保存后需要重启应用才能生效。环境变量中的配置优先级高于此处设置。</span>
+        <span>邮件与 Redis 保存后立即生效，R2 需重启应用后生效。环境变量中的配置优先级高于此处设置。</span>
       </div>
 
       <div key={String(ready)} className="space-y-6">

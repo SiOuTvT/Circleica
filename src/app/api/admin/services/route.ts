@@ -7,6 +7,7 @@ import { emailProviderConfigSchema } from "@/lib/validations"
 import { EMAIL } from "@/lib/config"
 import { assertSafeHttpUrl, SsrfBlockedError } from "@/lib/ssrf"
 import { logAudit } from "@/lib/audit-log"
+import { logger } from "@/lib/logger"
 import { ValidationError } from "@/lib/errors"
 
 // 非 email 的服务 key（R2/Redis 保持平铺 key 不变）
@@ -192,22 +193,41 @@ export const POST = withHandler(async (req) => {
 
   // 没有任何配置变化时不写库、也不热重载全局配置（审计照常留痕）
   const hasChanges = Object.keys(toSave).length > 0
+  let reloadFailed = false
+
   if (hasChanges) {
     await updateSiteSettings(toSave)
-    await reloadServiceConfig()
+
+    // 记录管理操作审计日志（运维自有服务配置变更）。
+    // 位置刻意放在写库之后、热重载之前：reload 抛错时库其实已经保存，
+    // 若审计排在后面就会「库已写 + 接口 500 + 审计缺失」。
+    void logAudit({
+      userId: "SYSTEM",
+      action: "ADMIN_SERVICE_CONFIG_SAVE",
+      target: body.service || "services",
+      detail: `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`,
+    }).catch(() => {})
+
+    // 热重载失败不该让整个保存变成 500：库已经写成功，只是内存配置没跟上
+    try {
+      await reloadServiceConfig()
+    } catch (e) {
+      reloadFailed = true
+      logger.system.error("[ServiceConfig] 配置热重载失败，需重启应用后生效", e)
+    }
+  } else {
+    // 无变化：不写库、不重载，审计照常留痕
+    void logAudit({
+      userId: "SYSTEM",
+      action: "ADMIN_SERVICE_CONFIG_SAVE",
+      target: body.service || "services",
+      detail: "keys=无变化",
+    }).catch(() => {})
   }
 
-  // 记录管理操作审计日志（运维自有服务配置变更）。
-  void logAudit({
-    userId: "SYSTEM",
-    action: "ADMIN_SERVICE_CONFIG_SAVE",
-    target: body.service || "services",
-    detail: hasChanges
-      ? `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`
-      : "keys=无变化",
-  }).catch(() => {})
-
-  return json({ success: true })
+  return json(reloadFailed
+    ? { success: true, message: "配置已保存，但热重载失败，请重启应用后生效" }
+    : { success: true })
 })
 
 /* ── 工具函数 ── */
