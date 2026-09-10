@@ -7,6 +7,7 @@ import { emailProviderConfigSchema } from "@/lib/validations"
 import { EMAIL } from "@/lib/config"
 import { assertSafeHttpUrl, SsrfBlockedError } from "@/lib/ssrf"
 import { logAudit } from "@/lib/audit-log"
+import { ValidationError } from "@/lib/errors"
 
 // 非 email 的服务 key（R2/Redis 保持平铺 key 不变）
 const SERVICE_KEYS = [
@@ -80,7 +81,15 @@ export const POST = withHandler(async (req) => {
   await requireAdminRole("SUPER_ADMIN")
   const body = await safeParseJson(req)
 
-  if (body.action === "test") {
+  // action 显式白名单：不做 toLowerCase/trim，拼写错误要 422 报出来。
+  // 不带 action 与 action:"save" 都走保存分支（前端不用改）；其它任何值一律拒绝，
+  // 否则 "Test" / "test " 会静默落到保存，触发 reloadServiceConfig 与空审计。
+  const action = body.action
+  if (action !== undefined && action !== null && action !== "test" && action !== "save") {
+    throw new ValidationError("action 只能是 test 或 save")
+  }
+
+  if (action === "test") {
     return json(await testConnection(body.service, body.config))
   }
 
@@ -148,15 +157,21 @@ export const POST = withHandler(async (req) => {
     }
   }
 
-  await updateSiteSettings(toSave)
-  await reloadServiceConfig()
+  // 没有任何配置变化时不写库、也不热重载全局配置（审计照常留痕）
+  const hasChanges = Object.keys(toSave).length > 0
+  if (hasChanges) {
+    await updateSiteSettings(toSave)
+    await reloadServiceConfig()
+  }
 
   // 记录管理操作审计日志（运维自有服务配置变更）。
   void logAudit({
     userId: "SYSTEM",
     action: "ADMIN_SERVICE_CONFIG_SAVE",
     target: body.service || "services",
-    detail: `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`,
+    detail: hasChanges
+      ? `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`
+      : "keys=无变化",
   }).catch(() => {})
 
   return json({ success: true })
