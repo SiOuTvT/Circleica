@@ -3,7 +3,10 @@
  *
  * 配置优先级：SiteSetting JSON key > 旧 SiteSetting 平铺 key > process.env
  * 模块加载时自动触发 DB 读取（非阻塞），读取完成前使用 env fallback。
- * 修改后台配置后重启应用即可生效。
+ * 后台保存后调用 reloadServiceConfig() 重读 DB 并更新本模块的内存配置：
+ * 邮件与 Redis 即时生效（email 每次发送现读，redis 惰性代理发现 url 变化会重建客户端）；
+ * R2 需重启进程——getStorage() 的 _storage 是单例，S3Client 连同 endpoint 与凭据
+ * 在构造时固化，reloadServiceConfig() 不会清这个单例。
  */
 
 import { prisma } from "./prisma"

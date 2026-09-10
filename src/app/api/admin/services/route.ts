@@ -51,6 +51,13 @@ export const GET = withHandler(async () => {
   config.r2_access_key_id = ""
   config.redis_token = ""
 
+  // 只回「是否已配置」的布尔：这三个字段之所以回空串就是为了不外泄，
+  // 因此这里绝不能带值本身、长度、前缀或掩码串。
+  const configuredFlags: Record<string, boolean> = {}
+  for (const key of WRITE_ONLY_KEYS) {
+    configuredFlags[`${key}_configured`] = !!(all[key] || "").trim()
+  }
+
   // Email providers（JSON key，脱敏后返回）
   const emailProviders: Record<string, Record<string, string>> = {}
   for (const key of Object.keys(all)) {
@@ -72,6 +79,7 @@ export const GET = withHandler(async () => {
 
   return json({
     ...config,
+    ...configuredFlags,
     email_providers: emailProviders,
     email_provider_order: emailProviderOrder,
   })
@@ -97,12 +105,21 @@ export const POST = withHandler(async (req) => {
   // 保存
   const toSave: Record<string, string> = {}
 
+  // 一次批量读取，供「空值要不要建键」判断（不按字段各查一次库）
+  const existing = await getSiteSettings()
+
   // R2 / Redis（平铺 key）
   for (const key of SERVICE_KEYS) {
     if (!(key in body)) continue
-    const value = String(body[key] || "")
-    // 只写字段：空串 = 不修改，跳过不写（保留库里已有的密钥）
-    if (WRITE_ONLY_KEYS.has(key) && !value) continue
+    let value = body[key] == null ? "" : String(body[key])
+    // 只写字段：留空 = 不修改，跳过不写（保留库里已有的密钥）
+    if (WRITE_ONLY_KEYS.has(key) && !value.trim()) continue
+    if (!value.trim()) {
+      // 提交空值：库里已有该 key → 写入空串（管理员主动清空，语义保留）；
+      // 库里没有 → 跳过，不为「空」凭空建一行。
+      if (existing[key] === undefined) continue
+      value = ""
+    }
     toSave[key] = value
   }
 
@@ -170,9 +187,12 @@ export const POST = withHandler(async (req) => {
     }
   }
 
-  // Email provider order
+  // Email provider order（同「别为空建键」口径：库里没有且提交为空时不建行）
   if ("email_provider_order" in body) {
-    toSave.email_provider_order = String(body.email_provider_order || "")
+    const order = String(body.email_provider_order || "")
+    if (order.trim() || existing.email_provider_order !== undefined) {
+      toSave.email_provider_order = order
+    }
   }
 
   // SEC-C SSRF 双重校验（权限已在路由层 SUPER_ADMIN 门控）+ URL 层：
@@ -206,7 +226,7 @@ export const POST = withHandler(async (req) => {
       action: "ADMIN_SERVICE_CONFIG_SAVE",
       target: body.service || "services",
       detail: `keys=${Object.keys(toSave).filter(k => !SECRET_FIELDS.has(k)).join(",")}`,
-    }).catch(() => {})
+    }).catch(e => logger.system.error("[Audit] 审计日志写入失败", e))
 
     // 热重载失败不该让整个保存变成 500：库已经写成功，只是内存配置没跟上
     try {
@@ -222,7 +242,7 @@ export const POST = withHandler(async (req) => {
       action: "ADMIN_SERVICE_CONFIG_SAVE",
       target: body.service || "services",
       detail: "keys=无变化",
-    }).catch(() => {})
+    }).catch(e => logger.system.error("[Audit] 审计日志写入失败", e))
   }
 
   return json(reloadFailed

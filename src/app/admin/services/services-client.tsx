@@ -24,6 +24,10 @@ interface ServiceConfig {
   redis_token: string
   email_providers: Record<string, Record<string, string>>
   email_provider_order: string
+  // 只写字段的「是否已配置」标记（后端只给布尔，值本身永不回传）
+  r2_access_key_id_configured: boolean
+  r2_secret_access_key_configured: boolean
+  redis_token_configured: boolean
 }
 
 const EMPTY: ServiceConfig = {
@@ -32,6 +36,9 @@ const EMPTY: ServiceConfig = {
   redis_url: "", redis_token: "",
   email_providers: {},
   email_provider_order: "",
+  r2_access_key_id_configured: false,
+  r2_secret_access_key_configured: false,
+  redis_token_configured: false,
 }
 
 /**
@@ -79,6 +86,9 @@ export function ServicesClient() {
             redis_token: String(d.redis_token ?? ""),
             email_providers: providers,
             email_provider_order: String(d.email_provider_order ?? ""),
+            r2_access_key_id_configured: !!d.r2_access_key_id_configured,
+            r2_secret_access_key_configured: !!d.r2_secret_access_key_configured,
+            redis_token_configured: !!d.redis_token_configured,
           }))
         }
       })
@@ -242,8 +252,8 @@ export function ServicesClient() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Account ID" value={config.r2_account_id} onChange={v => updateService("r2_account_id", v)} placeholder="Cloudflare 账户 ID" required />
           <Field label="Bucket Name" value={config.r2_bucket_name} onChange={v => updateService("r2_bucket_name", v)} placeholder="存储桶名称" required />
-          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="R2 API Token ID" required />
-          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="R2 API Token Secret" required />
+          <Field label="Access Key ID" value={config.r2_access_key_id} onChange={v => updateService("r2_access_key_id", v)} placeholder="留空表示保持原值不变" required configured={config.r2_access_key_id_configured} />
+          <SecretField label="Secret Access Key" value={config.r2_secret_access_key} onChange={v => updateService("r2_secret_access_key", v)} placeholder="留空表示保持原值不变" required configured={config.r2_secret_access_key_configured} />
           <Field label="Public URL" value={config.r2_public_url} onChange={v => updateService("r2_public_url", v)} placeholder="https://pub-xxx.r2.dev" className="sm:col-span-2" required />
         </div>
         <TestAction>
@@ -261,7 +271,7 @@ export function ServicesClient() {
         <SectionHeader icon={Database} title="Redis 缓存" desc="Upstash Redis REST API，用于缓存加速和速率限制" />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="REST URL" value={config.redis_url} onChange={v => updateService("redis_url", v)} placeholder="https://xxx.upstash.io" className="sm:col-span-2" required />
-          <SecretField label="REST Token" value={config.redis_token} onChange={v => updateService("redis_token", v)} placeholder="Upstash Redis Token" className="sm:col-span-2" required />
+          <SecretField label="REST Token" value={config.redis_token} onChange={v => updateService("redis_token", v)} placeholder="留空表示保持原值不变" className="sm:col-span-2" required configured={config.redis_token_configured} />
         </div>
         <TestAction>
           <button onClick={() => handleTest("redis")} disabled={testing === "redis" || !config.redis_url} className={adminBtnSecondary}>
@@ -421,14 +431,15 @@ function TestResultBadge({ result }: { result?: TestResult }) {
   )
 }
 
-function Field({ label, value, onChange, placeholder, disabled, className, required }: {
+function Field({ label, value, onChange, placeholder, disabled, className, required, configured }: {
   label: string; value: string; onChange: (v: string) => void; placeholder: string
-  disabled?: boolean; className?: string; required?: boolean
+  disabled?: boolean; className?: string; required?: boolean; configured?: boolean
 }) {
   return (
     <div className={className}>
       <label className="block text-sm font-medium text-foreground mb-1.5">
         {label}{required && <span className="text-destructive ml-0.5">*</span>}
+        {configured && <span className="ml-1.5 text-xs font-normal text-muted-foreground">已配置 · 留空表示不修改</span>}
       </label>
       <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         disabled={disabled} autoComplete="off" className={cn(adminInput)} />
@@ -436,8 +447,8 @@ function Field({ label, value, onChange, placeholder, disabled, className, requi
   )
 }
 
-function SecretField({ label, value, onChange, placeholder, className, required }: {
-  label?: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string; required?: boolean
+function SecretField({ label, value, onChange, placeholder, className, required, configured }: {
+  label?: string; value: string; onChange: (v: string) => void; placeholder: string; className?: string; required?: boolean; configured?: boolean
 }) {
   const [visible, setVisible] = useState(false)
   return (
@@ -445,6 +456,7 @@ function SecretField({ label, value, onChange, placeholder, className, required 
       {label && (
         <label className="block text-sm font-medium text-foreground mb-1.5">
           {label}{required && <span className="text-destructive ml-0.5">*</span>}
+          {configured && <span className="ml-1.5 text-xs font-normal text-muted-foreground">已配置 · 留空表示不修改</span>}
         </label>
       )}
       <div className="relative">
