@@ -75,7 +75,9 @@ export default async function AdminReportsPage({
 
   // 从举报列表中 extract 游戏信息，避免重复查询
   const topReportedGames = gameReportCounts
-  const topGameIds = topReportedGames.map(g => g.gameId)
+  // 与概览卡的渲染范围一致：只补查前 10 部的游戏信息
+  // （计数 Map 仍用完整的 gameReportCounts，否则排不进前 10 的游戏会退回单数文案）
+  const topGameIds = topReportedGames.slice(0, 10).map(g => g.gameId)
 
   // 如果举报列表中的游戏不在概览中，补充查询
   const reportedGameIdsInList = reports.map(r => r.gameId)
@@ -110,7 +112,7 @@ export default async function AdminReportsPage({
               return (
                 <Link
                   key={item.gameId}
-                  href={`/admin/games/${game.serialId}`}
+                  href={`/admin/games/${game.id}`}
                   className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                 >
                   <span className="truncate max-w-[150px]">{game.title}</span>
@@ -153,7 +155,7 @@ export default async function AdminReportsPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <Link
-                    href={`/admin/games/${report.game.serialId}`}
+                    href={`/admin/games/${report.game.id}`}
                     className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline"
                   >
                     {report.game.title}

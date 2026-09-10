@@ -101,7 +101,7 @@ export default async function AdminReviewPage({
         <div className="space-y-2">
           {games.map(game => (
             <Card key={game.id} size="default" radius="xl" className="flex-row items-center gap-4">
-              <Link href={`/admin/games/${game.serialId}`} className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+              <Link href={`/admin/games/${game.id}`} className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {game.coverImage ? (
                   <Image src={game.coverImage} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
                 ) : (
@@ -109,7 +109,7 @@ export default async function AdminReviewPage({
                 )}
               </Link>
               <div className="min-w-0 flex-1">
-                <Link href={`/admin/games/${game.serialId}`} className="text-sm font-medium text-foreground hover:text-primary hover:underline">
+                <Link href={`/admin/games/${game.id}`} className="text-sm font-medium text-foreground hover:text-primary hover:underline">
                   {game.title}
                 </Link>
                 <p className="text-xs text-muted-foreground">
