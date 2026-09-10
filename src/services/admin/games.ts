@@ -366,7 +366,9 @@ export const adminGameService = {
   },
 
   async batchDelete(ids: string[]) {
-    if (!ids.length) throw new ValidationError("缺少游戏 ID")
+    if (!Array.isArray(ids) || ids.length === 0) throw new ValidationError("缺少游戏 ID")
+    // 元素必须是非空字符串：否则 [{}, null, 123] 会一路走到 Prisma 变成 500
+    if (!ids.every((x) => typeof x === "string" && x.length > 0)) throw new ValidationError("游戏 ID 格式不正确")
     // 校验所有 id 真实存在：避免部分 id 不存在时 deleteMany 静默跳过、前端误以为全部删除成功
     const existing = await prisma.game.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } })
     const existingIds = new Set(existing.map((g) => g.id))

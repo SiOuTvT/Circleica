@@ -1,6 +1,7 @@
 import { withHandler, json, noContent, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
 import { adminFollowService } from "@/services/admin"
+import { ValidationError } from "@/lib/errors"
 import type { NextRequest } from "next/server"
 
 export const GET = withHandler(async (req: NextRequest) => {
@@ -13,6 +14,7 @@ export const GET = withHandler(async (req: NextRequest) => {
 export const DELETE = withHandler(async (req) => {
   await requireAdminRole()
   const { id } = await safeParseJson(req)
+  if (typeof id !== "string" || !id) throw new ValidationError("缺少记录 id")
   await adminFollowService.delete(id)
   return noContent()
 })
