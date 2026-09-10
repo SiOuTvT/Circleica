@@ -1,6 +1,6 @@
 import { withHandler, json, safeParseJson } from "@/lib/api-handler"
 import { requireAdminRole } from "@/lib/auth-context"
-import { getSiteSettings, updateSiteSettings } from "@/lib/site-settings"
+import { getSiteSettings, getSiteSetting, updateSiteSettings } from "@/lib/site-settings"
 import { reloadServiceConfig } from "@/lib/service-config"
 import { PROVIDER_MAP, PROVIDER_LABELS } from "@/lib/email-providers"
 import { emailProviderConfigSchema } from "@/lib/validations"
@@ -122,17 +122,50 @@ export const POST = withHandler(async (req) => {
         })
       }
 
-      // 空 secret 字段 = "不修改"（保留旧值）
-      const cleaned = stripEmptySecrets(result.data.config as Record<string, string>)
-
-      // 如果清理后没有有效配置，跳过（删除该 provider）
       const dbKey = `${EMAIL_PROVIDER_KEY_PREFIX}${providerId}`
-      if (Object.keys(cleaned).length === 0) {
+
+      // 剔除掩码「之前」的字段数：0 才是用户显式清空该 provider（删除能力保留）；
+      // >0 而剔除后为空，只说明密钥没动（GET 回传的是掩码），绝不能当成要删除。
+      const rawCount = Object.keys(providerConfig as Record<string, unknown>).length
+      if (rawCount === 0) {
         // 显式删除：存空字符串
         toSave[dbKey] = ""
-      } else {
-        toSave[dbKey] = JSON.stringify(cleaned)
+        continue
       }
+
+      // 空 secret 字段 / 掩码串 = "不修改"（保留旧值）
+      const cleaned = stripEmptySecrets(result.data.config as Record<string, string>)
+
+      // 把提交里缺失、或被当作「不修改」剔掉的字段，从库里旧值回填。
+      // 只读这一个 key，不整表回读（保存分支此前没有现成的 settings 快照可用）。
+      const submitted = providerConfig as Record<string, unknown>
+      let prev: Record<string, string> | null = null
+      try {
+        const raw = await getSiteSetting(dbKey)
+        if (raw) {
+          const parsed: unknown = JSON.parse(raw)
+          if (typeof parsed === "object" && parsed !== null) prev = parsed as Record<string, string>
+        }
+      } catch {
+        prev = null // 不存在或历史脏数据 → 按「无旧值」处理
+      }
+
+      if (prev) {
+        for (const [k, v] of Object.entries(prev)) {
+          if (cleaned[k]) continue // 用户显式给了非空值
+          const sv = submitted[k]
+          // 提交里没这个字段 → 保持原值；留空或提交掩码的敏感字段 → 同样保持原值。
+          // 非敏感字段显式提交空串是「清空」，不回填（见 stripEmptySecrets 注释）。
+          if (!(k in submitted) || (typeof sv === "string" && (SECRET_FIELDS.has(k) || MASKED_SECRET_RE.test(sv)))) {
+            cleaned[k] = v
+          }
+        }
+      }
+
+      // 回填后仍为空：库里本来就没这份配置，一个字节都不要写
+      if (Object.keys(cleaned).length === 0) continue
+
+      toSave[dbKey] = JSON.stringify(cleaned)
     }
   }
 

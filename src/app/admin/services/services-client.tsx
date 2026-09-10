@@ -8,7 +8,7 @@ import { PROVIDER_FIELDS, PROVIDER_LABELS } from "@/lib/email-providers-meta"
 import { cn } from "@/lib/utils"
 import { adminBtnPrimary, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
@@ -34,6 +34,17 @@ const EMPTY: ServiceConfig = {
   email_provider_order: "",
 }
 
+/**
+ * 各 provider 的敏感字段（与后端 SECRET_FIELDS 对应）。
+ * GET 时这些字段会被掩码，原样提交回去等于「把星号串写成真密钥」。
+ */
+const SECRET_FIELD_KEYS: Record<string, Set<string>> = Object.fromEntries(
+  Object.entries(PROVIDER_FIELDS).map(([id, fields]) => [
+    id,
+    new Set(fields.filter(f => f.type === "secret").map(f => f.key)),
+  ]),
+)
+
 interface TestResult { ok: boolean; msg: string }
 interface EmailTestResults { success?: boolean; message?: string; error?: string; results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
 
@@ -46,12 +57,17 @@ export function ServicesClient() {
   const [testResult, setTestResult] = useState<Record<string, TestResult>>({})
   const [testEmail, setTestEmail] = useState("")
   const [sendingTest, setSendingTest] = useState(false)
+  // 初次加载的 email_providers 快照（字符串），仅用于提交前比对「哪些字段根本没改」。
+  // 放 ref 不放 state：不参与渲染，避免多余 re-render。
+  const initialProvidersRef = useRef<string>("{}")
 
   useEffect(() => {
     apiFetchSafe<{ data: ServiceConfig }>("/api/admin/services")
       .then(({ ok, data }) => {
         if (ok && data?.data) {
           const d = data.data
+          const providers = (typeof d.email_providers === "object" && d.email_providers !== null) ? d.email_providers : {}
+          initialProvidersRef.current = JSON.stringify(providers)
           setConfig(prev => ({
             ...prev,
             r2_account_id: String(d.r2_account_id ?? ""),
@@ -61,7 +77,7 @@ export function ServicesClient() {
             r2_public_url: String(d.r2_public_url ?? ""),
             redis_url: String(d.redis_url ?? ""),
             redis_token: String(d.redis_token ?? ""),
-            email_providers: (typeof d.email_providers === "object" && d.email_providers !== null) ? d.email_providers : {},
+            email_providers: providers,
             email_provider_order: String(d.email_provider_order ?? ""),
           }))
         }
@@ -94,16 +110,36 @@ export function ServicesClient() {
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
+      let snapshot: Record<string, Record<string, string>> = {}
+      try { snapshot = JSON.parse(initialProvidersRef.current || "{}") } catch { snapshot = {} }
+
+      const emailProviders: Record<string, Record<string, string>> = {}
+      for (const [providerId, fields] of Object.entries(config.email_providers)) {
+        if (!fields || typeof fields !== "object") continue
+        const before = snapshot[providerId] ?? {}
+        const secretKeys = SECRET_FIELD_KEYS[providerId] ?? new Set<string>()
+        const next: Record<string, string> = { ...fields }
+        // 与快照逐字段比对：值完全没变的敏感字段不提交（通常是 GET 回传的掩码）
+        for (const [k, v] of Object.entries(fields)) {
+          if (secretKeys.has(k) && v === before[k]) delete next[k]
+        }
+        // 剔除后变空则整个 provider 都不提交：否则后端会当成「显式清空」把凭据删掉
+        if (Object.keys(next).length === 0) continue
+        emailProviders[providerId] = next
+      }
+
       const { ok, data, error } = await apiFetchSafe<{ data?: { success?: boolean; message?: string } }>("/api/admin/services", {
         method: "POST",
         body: {
           ...config,
-          email_providers: config.email_providers,
+          email_providers: emailProviders,
           email_provider_order: config.email_provider_order,
         },
       })
       if (!ok || data?.data?.success === false) throw new Error(data?.data?.message || error)
-      toast.success("配置已保存，重启应用后生效")
+      // reloadServiceConfig() 只更新 service-config 的内存配置：邮件与 Redis 每次调用都重新读，
+      // R2 的 S3Client 在 getStorage() 里是单例、构造一次后不再变，改 R2 必须重启进程。
+      toast.success("配置已保存；邮件与 Redis 立即生效，R2 需重启应用后生效")
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
