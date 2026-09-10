@@ -24,6 +24,8 @@ const ACTION_LABELS: Record<string, string> = {
   "game.update": "修改游戏",
   "game.delete": "删除游戏",
   "game.batchDelete": "批量删除游戏",
+  "game.logCreate": "新增更新日志",
+  "game.logDelete": "删除更新日志",
   "review.approve": "审核通过",
   "review.reject": "审核驳回",
 

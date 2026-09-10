@@ -101,6 +101,15 @@ export async function linkGameStudios(
 
 // ── 游戏管理 ────────────────────────
 
+/**
+ * 审计 detail 里的日志内容：换行压成单个空格，超过 40 字截断加省略号，
+ * 避免一条多行日志把审计列表顶串行。
+ */
+function formatLogContent(content: string): string {
+  const oneLine = content.replace(/\s+/g, " ").trim()
+  return oneLine.length > 40 ? `${oneLine.slice(0, 40)}…` : oneLine
+}
+
 export const adminGameService = {
   getPaginated(page: number, limit?: number, search?: string) { return adminGameRepo.findPaginated(page, limit ?? 20, search) },
 
@@ -383,7 +392,32 @@ export const adminGameService = {
 
   async createLog(gameId: string, content: string) {
     if (!content?.trim()) throw new ValidationError("日志内容不能为空")
-    return adminGameRepo.createLog(gameId, content.trim())
+    const result = await adminGameRepo.createLog(gameId, content.trim())
+    const game = await prisma.game.findUnique({ where: { id: gameId }, select: { title: true } })
+    await logAudit({
+      userId: "ADMIN",
+      action: "game.logCreate",
+      target: result.id,
+      detail: `《${game?.title ?? "未知游戏"}》新增更新日志「${formatLogContent(content)}」`,
+    }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
+    return result
+  },
+
+  async deleteLog(gameId: string, logId: string) {
+    // 归属校验是安全边界：不校验的话，拿 A 游戏的 URL 配 B 游戏的 logId 就能删掉别的游戏的日志
+    const log = await prisma.gameLog.findUnique({
+      where: { id: logId },
+      select: { id: true, content: true, gameId: true, game: { select: { title: true } } },
+    })
+    if (!log || log.gameId !== gameId) throw new NotFoundError("更新日志")
+
+    await prisma.gameLog.delete({ where: { id: logId } })
+    await logAudit({
+      userId: "ADMIN",
+      action: "game.logDelete",
+      target: logId,
+      detail: `《${log.game?.title ?? "未知游戏"}》删除更新日志「${formatLogContent(log.content)}」`,
+    }).catch((e) => logger.system.error("[Audit] 审计日志写入失败", e))
   },
 }
 

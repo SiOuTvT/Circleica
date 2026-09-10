@@ -58,12 +58,13 @@ export default async function AdminReportsPage({
     }),
     prisma.gameReport.count({ where }),
     // 同时获取举报最多的游戏（用于概览）
+    // 全量统计：这里的计数要喂给每行的确认弹窗，不能只取前 10，
+    // 「举报最多的游戏」概览卡在渲染处自己 slice(0, 10)
     prisma.gameReport.groupBy({
       by: ["gameId"],
       where,
       _count: { id: true },
       orderBy: { _count: { id: "desc" } },
-      take: 10, // 只取前 10 个用于概览显示
     }),
   ])
 
@@ -102,7 +103,7 @@ export default async function AdminReportsPage({
         <Card size="default" radius="xl">
           <AdminSectionHeading>举报最多的游戏</AdminSectionHeading>
           <div className="flex flex-wrap gap-2">
-            {topReportedGames.map((item) => {
+            {topReportedGames.slice(0, 10).map((item) => {
               // 优先从举报列表中获取游戏信息，否则从补充查询中获取
               const game = reports.find(r => r.gameId === item.gameId)?.game || topGames.find(g => g.id === item.gameId)
               if (!game) return null
