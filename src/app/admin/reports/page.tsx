@@ -69,6 +69,9 @@ export default async function AdminReportsPage({
 
   const totalPages = Math.ceil(total / limit)
 
+  // 每部游戏当前的举报总数：直接取上面 groupBy 的结果，不额外查库
+  const reportCountByGame = new Map(gameReportCounts.map((g) => [g.gameId, g._count.id]))
+
   // 从举报列表中 extract 游戏信息，避免重复查询
   const topReportedGames = gameReportCounts
   const topGameIds = topReportedGames.map(g => g.gameId)
@@ -166,7 +169,7 @@ export default async function AdminReportsPage({
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <ReportResolveBtn id={report.id} gameId={report.game.id} />
+                <ReportResolveBtn gameId={report.game.id} reportCount={reportCountByGame.get(report.gameId) ?? 1} />
                 <ReportDeleteBtn id={report.id} />
               </div>
             </Card>

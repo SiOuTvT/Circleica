@@ -128,7 +128,7 @@ export default async function AdminForumPage({
                       {post.content}
                     </p>
                   </div>
-                  <ForumDeleteBtn id={post.id} />
+                  <ForumDeleteBtn id={post.id} commentCount={post._count.comments} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>发布者：{post.user.username}</span>
@@ -136,7 +136,9 @@ export default async function AdminForumPage({
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" /> {post._count.comments} 评论
                   </span>
-                  <Heart className="h-3 w-3" /> {post.likeCount}
+                  <span className="flex items-center gap-1">
+                    <Heart className="h-3 w-3" /> {post.likeCount} 点赞
+                  </span>
                 </div>
               </div>
             </Card>

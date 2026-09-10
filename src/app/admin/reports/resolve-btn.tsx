@@ -7,7 +7,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
-export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
+export function ReportResolveBtn({ gameId, reportCount }: { gameId: string; reportCount: number }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
@@ -31,7 +31,7 @@ export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
       <button
         onClick={() => setOpen(true)}
         className="shrink-0 rounded-lg p-2 text-muted-foreground transition duration-150 ease-in-out hover:bg-emerald-500/10 hover:text-emerald-400"
-        title="标记为已处理"
+        title="处理该游戏的全部举报"
       >
         <CheckCircle className="h-4 w-4" />
       </button>
@@ -39,7 +39,11 @@ export function ReportResolveBtn({ gameId }: { id: string; gameId: string }) {
         open={open}
         onOpenChange={setOpen}
         title="处理举报"
-        description="确定要将这条举报标记为已处理吗？该操作会删除此举报记录。"
+        description={
+          reportCount > 1
+            ? `这部游戏当前共有 ${reportCount} 条举报，确认全部标记为已处理？这 ${reportCount} 条记录都会被删除，游戏本身不受影响。`
+            : "确认将这条举报标记为已处理？该记录会被删除，游戏本身不受影响。"
+        }
         confirmText="确认处理"
         variant="default"
         onConfirm={handleResolve}

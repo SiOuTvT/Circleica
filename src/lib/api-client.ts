@@ -229,10 +229,16 @@ export const apiDelete = <T>(url: string, opts?: ApiClientOptions) => api.delete
  */
 export async function apiDeleteSafe(
   url: string,
+  /**
+   * 注意：这是「请求体」，不是 ApiClientOptions。
+   * api.delete 的第二参是 options 对象，直接把 body 传过去会被当成 options 摊开，
+   * apiClient 里的 `if (body !== undefined)` 永远不成立 → 请求根本没有请求体 → 服务端 422。
+   * 必须包成 { body }，由 apiClient 自己 JSON.stringify 并补 Content-Type。
+   */
   body?: Record<string, unknown>,
 ): Promise<{ ok: boolean; error?: string }> {
   try {
-    await api.delete<unknown>(url, body)
+    await api.delete<unknown>(url, body === undefined ? undefined : { body })
     return { ok: true }
   } catch (e) {
     if (e instanceof ApiError) return { ok: false, error: e.message }
