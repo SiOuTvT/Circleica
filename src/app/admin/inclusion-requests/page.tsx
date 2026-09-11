@@ -7,7 +7,7 @@ export const metadata = { title: "收录申请：待发布草稿" }
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { AdminConfirmSubmitButton } from "@/components/admin/admin-confirm-submit-button"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
 import { publishInclusionGalvelica, deleteInclusionGalvelica } from "@/app/admin/galvelica/inclusion/actions"
@@ -67,53 +67,73 @@ export default async function InclusionRequestsAdmin({ searchParams }: { searchP
 
       <section>
         <AdminSectionHeading>待发布草稿（<span className="num-tab">{pendingDrafts.length}</span>）</AdminSectionHeading>
-        {pendingDrafts.length === 0 ? (
-          <EmptyState icon={Inbox} title="暂无待发布的草稿" description="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。" />
-        ) : (
-          <div className="space-y-3">
-            {pendingDrafts.map((r) => (
-              <Card key={r.id} size="default" radius="xl" className="flex-row flex-wrap items-center gap-4">
-                <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
-                  {r.work.coverImage && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.work.coverImage} alt={r.work.title} className="h-full w-full object-cover" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
+        <AdminDataTable
+          rows={pendingDrafts}
+          rowKey={(r) => r.id}
+          emptyIcon={Inbox}
+          emptyTitle="暂无待发布的草稿"
+          emptyDescription="用户提交收录申请后，系统已自动建好未发布草稿，等待你批量发布。"
+          columns={[
+            {
+              key: "work",
+              label: "作品",
+              render: (r) => (
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="relative h-10 w-7 shrink-0 overflow-hidden rounded bg-muted">
+                    {r.work.coverImage && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={r.work.coverImage} alt={r.work.title} className="h-full w-full object-cover" />
+                    )}
+                  </span>
                   <Link
                     href={r.work.gameId ? `/admin/games/${r.work.gameId}` : `/galvelica/works/${r.work.slug}`}
-                    className="font-medium text-foreground hover:underline"
+                    className="truncate font-medium text-foreground hover:underline"
+                    title={r.work.title}
                   >
-                    {r.work.title}
+                    {r.work.title?.trim() || "—"}
                   </Link>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {toShanghaiDate(r.createdAt)}
-                    {r.note && ` 备注：${r.note}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <form action={publishInclusionGalvelica}>
-                    <input type="hidden" name="workId" value={r.work.id} />
-                    <button
-                      type="submit"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400 ring-1 ring-emerald-500/20 transition-colors hover:bg-emerald-500/25"
-                    >
-                      <Upload className="h-4 w-4" /> 发布
-                    </button>
-                  </form>
-                  <AdminConfirmSubmitButton
-                    action={deleteInclusionGalvelica}
-                    formData={{ workId: r.work.id, returnTo: RETURN_TO }}
-                    label={<><Trash2 className="h-4 w-4" /> 删草稿</>}
-                    title="删除收录草稿"
-                    description="这会连带删掉为该作品建的游戏草稿（含已填写的封面与简介），作品会重新变为未收录、可以再次申请。"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
-                  />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+                </span>
+              ),
+            },
+            {
+              key: "note",
+              label: "备注",
+              render: (r) => (
+                <span className="block truncate text-xs text-muted-foreground" title={r.note ?? ""}>
+                  {r.note?.trim() || "—"}
+                </span>
+              ),
+            },
+            {
+              key: "createdAt",
+              label: "提交时间",
+              width: "160px",
+              render: (r) => <span className="text-xs text-muted-foreground">{toShanghaiDate(r.createdAt)}</span>,
+            },
+          ]}
+          actions={(r) => (
+            <span className="inline-flex items-center gap-2">
+              <form action={publishInclusionGalvelica}>
+                <input type="hidden" name="workId" value={r.work.id} />
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400 ring-1 ring-emerald-500/20 transition-colors hover:bg-emerald-500/25"
+                >
+                  <Upload className="h-4 w-4" /> 发布
+                </button>
+              </form>
+              <AdminConfirmSubmitButton
+                action={deleteInclusionGalvelica}
+                formData={{ workId: r.work.id, returnTo: RETURN_TO }}
+                label={<><Trash2 className="h-4 w-4" /> 删草稿</>}
+                title="删除收录草稿"
+                description="这会连带删掉为该作品建的游戏草稿（含已填写的封面与简介），作品会重新变为未收录、可以再次申请。"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground"
+              />
+            </span>
+          )}
+          actionsWidth="200px"
+        />
       </section>
 
       {history.length > 0 && (
