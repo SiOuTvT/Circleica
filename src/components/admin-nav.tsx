@@ -264,7 +264,10 @@ export function AdminNav() {
   // 初始化：读取 localStorage
   useEffect(() => {
     setMounted(true)
-    // 后台收档层作用域标记：只有 /admin/** 会挂载本组件，前台不置该属性
+    // 后台收档层的第二条作用域（第一条 .admin-scope 已由服务端渲染在布局根容器上，首帧即生效）。
+    // 这里补 body 属性是为了兜住 portal：Radix 的 Dialog / Popover / Dropdown 等浮层
+    // 会被挂到 document.body 下，在 .admin-scope 容器之外，只有 body 选择器能命中它们。
+    // 只有 /admin/** 会挂载本组件，前台不置该属性。
     document.body.setAttribute("data-admin-scope", "true")
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved === "true") {
@@ -377,7 +380,7 @@ export function AdminNav() {
                 type="button"
                 onClick={() => setSiteView("circleica")}
                 className={cn(
-                  "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                  "flex-1 min-h-[28px] rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
                   currentSite === "circleica"
                     ? "bg-background text-foreground ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground",
@@ -389,7 +392,7 @@ export function AdminNav() {
                 type="button"
                 onClick={() => setSiteView("galvelica")}
                 className={cn(
-                  "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                  "flex-1 min-h-[28px] rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
                   currentSite === "galvelica"
                     ? "bg-background text-foreground ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground",
@@ -580,7 +583,7 @@ export function AdminNav() {
               type="button"
               onClick={() => setSiteView("circleica")}
               className={cn(
-                "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                "flex-1 min-h-[28px] rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
                 currentSite === "circleica"
                   ? "bg-background text-foreground ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",
@@ -592,7 +595,7 @@ export function AdminNav() {
               type="button"
               onClick={() => setSiteView("galvelica")}
               className={cn(
-                "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                "flex-1 min-h-[28px] rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
                 currentSite === "galvelica"
                   ? "bg-background text-foreground ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",

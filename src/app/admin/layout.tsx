@@ -53,7 +53,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    // admin-scope：服务端就渲染到 HTML 上的收档层作用域（首帧即生效，避免字号从 16px 跳到 13px）。
+    // 弹窗类（Dialog/Popover/Dropdown）经 portal 挂到 body 下、在本容器之外，由 AdminNav 写入的
+    // body[data-admin-scope="true"] 双选择器兜住。
+    <div className="admin-scope min-h-screen bg-background">
       <AdminNav />
       {/* 桌面端：左边距为侧边栏留空间（收缩 68px / 展开 220px） */}
       <main className="admin-main min-h-screen pt-8 md:pt-0 md:pl-[220px] transition-[padding,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter] duration-300 ease-in-out">

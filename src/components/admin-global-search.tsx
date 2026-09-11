@@ -142,7 +142,7 @@ export function AdminGlobalSearch() {
       >
         <Search className="h-4 w-4" strokeWidth={2} />
         <span className="hidden sm:inline">搜索…</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-muted px-1.5 py-0.5 text-micro font-medium text-muted-foreground ring-1 ring-border">
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded-[var(--admin-radius-ctl)] bg-muted px-1.5 py-0.5 text-micro font-medium text-muted-foreground ring-1 ring-border">
           <span className="text-xs">⌘</span>K
         </kbd>
       </button>
@@ -168,7 +168,7 @@ export function AdminGlobalSearch() {
               placeholder="搜索游戏、用户、标签、论坛帖子…"
               className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
             />
-            <kbd className="flex items-center rounded bg-muted px-1.5 py-0.5 text-micro font-medium text-muted-foreground ring-1 ring-border">
+            <kbd className="flex items-center rounded-[var(--admin-radius-ctl)] bg-muted px-1.5 py-0.5 text-micro font-medium text-muted-foreground ring-1 ring-border">
               ESC
             </kbd>
           </div>
@@ -234,13 +234,13 @@ export function AdminGlobalSearch() {
           {/* Footer hint */}
           <div className="flex items-center gap-4 border-t border-border px-4 py-2 text-micro text-muted-foreground/60">
             <span className="flex items-center gap-1">
-              <kbd className="rounded bg-muted px-1 py-0.5 ring-1 ring-border">↑↓</kbd> 导航
+              <kbd className="rounded-[var(--admin-radius-ctl)] bg-muted px-1 py-0.5 ring-1 ring-border">↑↓</kbd> 导航
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded bg-muted px-1 py-0.5 ring-1 ring-border">↵</kbd> 打开
+              <kbd className="rounded-[var(--admin-radius-ctl)] bg-muted px-1 py-0.5 ring-1 ring-border">↵</kbd> 打开
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded bg-muted px-1 py-0.5 ring-1 ring-border">Esc</kbd> 关闭
+              <kbd className="rounded-[var(--admin-radius-ctl)] bg-muted px-1 py-0.5 ring-1 ring-border">Esc</kbd> 关闭
             </span>
           </div>
         </DialogContent>
