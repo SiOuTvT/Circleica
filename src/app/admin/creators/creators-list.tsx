@@ -4,7 +4,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import { ExternalLink, User } from "lucide-react"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { CreatorDetailDialog } from "./creator-detail-dialog"
 
 const CreatorDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.CreatorDeleteBtn })), {
@@ -30,71 +30,93 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {creators.map((creator) => (
-          <div
-            key={creator.id}
-            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-2"
-          >
-            {/* 头像 + 名称（点击查看详情） */}
+    <AdminDataTable
+      rows={creators}
+      rowKey={(creator) => creator.id}
+      emptyIcon={User}
+      emptyTitle="暂无创作者"
+      columns={[
+        {
+          key: "name",
+          label: "创作者",
+          render: (creator) => (
             <button
               type="button"
               onClick={() => setSelectedCreator(creator)}
-              className="flex items-center gap-3 text-left cursor-pointer"
+              className="flex min-w-0 items-center gap-3 text-left"
             >
-              <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
+              <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-muted">
                 {creator.avatar ? (
                   <Image src={creator.avatar} alt={creator.name} width={36} height={36} className="h-full w-full object-cover" unoptimized />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-400 text-xs font-bold text-white">
+                  <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-400 text-xs font-bold text-white">
                     {creator.name.charAt(0)}
-                  </div>
+                  </span>
                 )}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-foreground truncate">{creator.name}</span>
-                  {creator.nameJa && (
-                    <span className="text-xs text-muted-foreground truncate">({creator.nameJa})</span>
-                  )}
-                </div>
-              </div>
+              </span>
+              <span className="truncate font-medium text-foreground" title={creator.name}>{creator.name}</span>
             </button>
-
-            {/* 元信息：性别 / VNDB / 作品数 */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span>性别：{creator.gender || "—"}</span>
-              {creator.vndbId ? (
-                <a
-                  href={`https://vndb.org/s${creator.vndbId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 hover:text-foreground"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  {creator.vndbId}
-                </a>
-              ) : (
-                <span>VNDB：—</span>
-              )}
-              <span>作品 {creator.gameCount}</span>
-            </div>
-
-            {/* 操作：查看 / 删除 */}
-            <div className="flex items-center gap-1.5 pt-1">
-              <button
-                type="button"
-                onClick={() => setSelectedCreator(creator)}
-                className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground cursor-pointer"
+          ),
+        },
+        {
+          key: "nameJa",
+          label: "别名",
+          width: "180px",
+          render: (creator) => (
+            <span className="block truncate text-xs text-muted-foreground" title={creator.nameJa ?? ""}>
+              {creator.nameJa?.trim() || "—"}
+            </span>
+          ),
+        },
+        {
+          key: "gender",
+          label: "性别",
+          width: "96px",
+          render: (creator) => (
+            <span className="text-xs text-muted-foreground">{creator.gender?.trim() || "—"}</span>
+          ),
+        },
+        {
+          key: "vndbId",
+          label: "VNDB",
+          width: "150px",
+          render: (creator) =>
+            creator.vndbId ? (
+              <a
+                href={`https://vndb.org/s${creator.vndbId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
               >
-                查看
-              </button>
-              <CreatorDeleteBtn id={creator.id} gameCount={creator.gameCount} />
-            </div>
-          </div>
-        ))}
-      </div>
+                <ExternalLink className="h-3.5 w-3.5" />
+                {creator.vndbId}
+              </a>
+            ) : (
+              <span className="text-xs text-muted-foreground">—</span>
+            ),
+        },
+        {
+          key: "gameCount",
+          label: "作品数",
+          numeric: true,
+          width: "96px",
+          render: (creator) => creator.gameCount,
+        },
+      ]}
+      actions={(creator) => (
+        <span className="inline-flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setSelectedCreator(creator)}
+            className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+          >
+            查看
+          </button>
+          <CreatorDeleteBtn id={creator.id} gameCount={creator.gameCount} />
+        </span>
+      )}
+      actionsWidth="132px"
+    />
 
       <CreatorDetailDialog
         creator={selectedCreator}
