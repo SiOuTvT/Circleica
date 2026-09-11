@@ -67,10 +67,10 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
               {it.coverImage ? (
                 <SafeImage src={it.coverImage} alt={it.title} fill className="object-cover" sizes="(max-width: 640px) 50vw, 220px" quality={60} />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground/40">无封面</div>
+                <div className="flex h-full w-full items-center justify-center text-micro text-muted-foreground/40">无封面</div>
               )}
               <span
-                className={`absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-[10px] font-semibold ring-1 ${
+                className={`absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-micro font-semibold ring-1 ${
                   meta ? meta.cls : "bg-slate-500/15 text-slate-500 ring-slate-500/30"
                 }`}
               >
@@ -82,7 +82,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
                 <a href={it.workHref} target="_blank" rel="noopener noreferrer" className="line-clamp-1 text-xs font-semibold hover:text-[var(--gal-accent)]">
                   {it.title}
                 </a>
-                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                <p className="mt-0.5 text-micro text-muted-foreground">
                   {it.vndbRating ? `VNDB ${it.vndbRating.toFixed(2)}` : "无评分"}，{it.viewCount} 浏览
                 </p>
               </div>

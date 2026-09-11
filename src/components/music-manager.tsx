@@ -195,7 +195,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
         <div className="flex flex-wrap gap-2">
           {playlists.map(pl => (
             <div key={pl.id} className={cn(
-              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition-colors",
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium ring-1 transition-colors",
               selectedPlaylistId === pl.id ? "bg-primary/10 text-primary ring-primary/30" : "bg-secondary text-muted-foreground ring-border"
             )}>
               {editingPlaylist === pl.id ? (
@@ -248,7 +248,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
             <input value={url} onChange={e => setUrl(e.target.value)} placeholder="音乐直链 URL（或直接上传文件）" className={cn(adminInput, "flex-1")} />
             <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
             <button type="button" onClick={() => fileInputRef.current?.click()}
-              className={cn("flex items-center gap-1.5 rounded-xl h-10 px-3 py-2.5 text-xs font-medium ring-1 transition duration-150 ease-in-out shrink-0",
+              className={cn("flex items-center gap-2 rounded-xl h-10 px-3 py-3 text-xs font-medium ring-1 transition duration-150 ease-in-out shrink-0",
                 file ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20" : "bg-secondary text-muted-foreground ring-border hover:text-foreground")}>
               <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
               {file ? file.name.slice(0, 15) + (file.name.length > 15 ? "…" : "") : "选择文件"}
@@ -281,14 +281,14 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                 {editingId === m.id ? (
                   <div className="flex flex-col gap-1">
                     <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
-                      className="rounded-lg border-2 border-input bg-transparent px-2 py-1.5 text-sm text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                      className="rounded-lg border-2 border-input bg-transparent px-2 py-2 text-sm text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                     <input value={editUrl} onChange={e => setEditUrl(e.target.value)}
-                      className="rounded-lg border-2 border-input bg-transparent px-2 py-1.5 text-micro text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
-                    <div className="flex gap-1.5 mt-0.5">
+                      className="rounded-lg border-2 border-input bg-transparent px-2 py-2 text-micro text-muted-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                    <div className="flex gap-2 mt-1">
                       <button onClick={() => saveEdit(m.id)}
-                        className="rounded-md bg-primary px-2 py-0.5 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
+                        className="rounded-md bg-primary px-2 py-1 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
                       <button onClick={() => setEditingId(null)}
-                        className="rounded-md bg-secondary px-2 py-0.5 text-micro font-medium text-muted-foreground hover:text-foreground">取消</button>
+                        className="rounded-md bg-secondary px-2 py-1 text-micro font-medium text-muted-foreground hover:text-foreground">取消</button>
                     </div>
                   </div>
                 ) : (
@@ -298,17 +298,17 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
                   </>
                 )}
               </div>
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-micro font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
+              <span className={`shrink-0 rounded px-2 py-1 text-micro font-medium ${m.isActive ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                 {m.isActive ? "播放中" : "已停用"}
               </span>
-              <button onClick={() => togglePlay(m.id, m.url)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title={playingId === m.id ? "暂停" : "试听"}>
+              <button onClick={() => togglePlay(m.id, m.url)} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title={playingId === m.id ? "暂停" : "试听"}>
                 {playingId === m.id ? <Pause className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Play className="h-3.5 w-3.5" strokeWidth={1.5} />}
               </button>
-              <button onClick={() => toggle(m.id, m.isActive)} className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <button onClick={() => toggle(m.id, m.isActive)} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                 {m.isActive ? <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />}
               </button>
               <button onClick={() => { setEditingId(m.id); setEditTitle(m.title); setEditUrl(m.url) }}
-                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="编辑">
+                className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="编辑">
                 <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
               <button onClick={() => setDeleteId(m.id)} className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>

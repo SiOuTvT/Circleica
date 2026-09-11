@@ -7,6 +7,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { EmptyState } from "@/components/ui/empty-state"
 import { adminInput, adminSearchInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
@@ -132,9 +133,13 @@ export default async function AdminCheckInsPage({
         }
       >
 
-      {/* 签到配置编辑器 */}
-      <CheckInConfigEditor />
+      {/* 签到配置编辑器 — 分节 + 列宽约束（760px，与期 3 表单列宽一致），避免铺满整行压掉记录列表 */}
+      <section className="max-w-[760px]">
+        <AdminSectionHeading>签到规则</AdminSectionHeading>
+        <CheckInConfigEditor />
+      </section>
 
+      <AdminSectionHeading>签到记录</AdminSectionHeading>
       {checkIns.length === 0 ? (
         <EmptyState icon={CalendarCheck} title="暂无签到记录" bordered />
       ) : (

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { ImageUpload } from "@/components/image-upload"
 import { Tag } from "@/components/ui/tag"
@@ -469,12 +469,12 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="rounded-lg bg-red-500/10 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>
+        <div className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
 
       {/* 草稿恢复提示 */}
       {showDraftBanner && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 ring-1 ring-amber-500/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-400 ring-1 ring-amber-500/20">
           <span>检测到未保存的草稿「{draft.title || "无标题"}」，是否恢复？</span>
           <div className="flex shrink-0 gap-2">
             <button type="button" onClick={restoreDraft}
@@ -552,13 +552,13 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         {/* 多语言简介 Tab 切换 */}
         <div>
           <label className={labelCls}>简介</label>
-          <div className="flex gap-1.5 mb-2 overflow-x-auto">
+          <div className="flex gap-2 mb-2 overflow-x-auto">
             {DESCRIPTION_LANGUAGES.map(({ key, label, flag }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setActiveDescLang(key)}
-                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition duration-150 ease-in-out whitespace-nowrap ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition duration-150 ease-in-out whitespace-nowrap ${
                   activeDescLang === key
                     ? "bg-primary/15 text-primary ring-1 ring-primary/20"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -567,7 +567,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 <span>{flag}</span>
                 <span>{label}</span>
                 {descLangs[key] && (
-                  <span className="ml-0.5 h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="ml-1 h-2 w-2 rounded-full bg-emerald-500" />
                 )}
               </button>
             ))}
@@ -581,7 +581,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 onChange={(e) => setDescLang(key, e.target.value)}
                 placeholder={`输入${label}…`}
                 rows={4}
-                className="resize-none px-4 py-2.5 text-[15px] md:text-[15px] leading-6 placeholder:text-muted-foreground/50"
+                className="resize-none px-4 py-3 text-[15px] md:text-[15px] leading-6 placeholder:text-muted-foreground/50"
               />
             )
           ))}
@@ -700,10 +700,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             )}
           </div>
           {translateError && (
-            <div className="mt-1 rounded-lg bg-red-500/10 px-3 py-1.5 text-xs text-red-400 ring-1 ring-red-500/20">{translateError}</div>
+            <div className="mt-1 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">{translateError}</div>
           )}
           {translateSuccess && (
-            <div className="mt-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 ring-1 ring-emerald-500/20">{translateSuccess}</div>
+            <div className="mt-1 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400 ring-1 ring-emerald-500/20">{translateSuccess}</div>
           )}
           <p className="mt-1 text-xs text-muted-foreground/50">
             前台默认优先展示中文，缺少的语种将按{"中文 > 英文 > 日文 > 其他"}的优先级自动回退。
@@ -806,7 +806,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                       key={p.code}
                       type="button"
                       onClick={() => setPlatforms((prev) => (active ? prev.filter((c) => c !== p.code) : [...prev, p.code]))}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
+                      className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
                         active
                           ? "bg-primary/15 text-primary ring-primary/30"
                           : "text-muted-foreground ring-border hover:bg-secondary"
@@ -829,7 +829,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                       key={l.code}
                       type="button"
                       onClick={() => setLanguages((prev) => (active ? prev.filter((c) => c !== l.code) : [...prev, l.code]))}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
+                      className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
                         active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
                       }`}
                     >
@@ -897,7 +897,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         </div>
         {/* 已选标签展示 */}
         {selectedTags.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-1 sm:gap-1.5">
+          <div className="mb-3 flex flex-wrap gap-1 sm:gap-2">
             {selectedTags.map(id => {
               const tag = tags.find(t => t.id === id)
               if (!tag) return null
@@ -916,8 +916,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         {/* VNDB 拉取的待创建标签（保存游戏后才写入数据库） */}
         {draftTagNames.length > 0 && (
           <div className="mb-3">
-            <p className="mb-1.5 text-xs text-muted-foreground">VNDB 拉取的标签（保存游戏后才会创建）：</p>
-            <div className="flex flex-wrap gap-1 sm:gap-1.5">
+            <p className="mb-2 text-xs text-muted-foreground">VNDB 拉取的标签（保存游戏后才会创建）：</p>
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               {draftTagNames.map((name) => (
                 <Tag key={name} color="#6b7280" className="gap-1">
                   {name}
@@ -956,16 +956,16 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
               <>
                 {grouped.map(group => (
                   <div key={group.id}>
-                    <div className="flex items-center gap-2 mb-1.5 px-1">
+                    <div className="flex items-center gap-2 mb-2 px-1">
                       <div className="h-2 w-2 rounded-full" style={{ background: group.color }} />
                       <span className="text-xs font-semibold text-muted-foreground">{group.name}</span>
                     </div>
-                    <div className="space-y-0.5 pl-1">
+                    <div className="space-y-1 pl-1">
                       {group.tags.map((tag) => {
                         const checked = selectedTags.includes(tag.id)
                         return (
                           <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
-                            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                               checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
                             }`}>
                             <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-micro font-bold transition-colors ${
@@ -984,17 +984,17 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 {ungrouped.length > 0 && (
                   <div>
                     {grouped.length > 0 && (
-                      <div className="flex items-center gap-2 mb-1.5 px-1">
+                      <div className="flex items-center gap-2 mb-2 px-1">
                         <div className="h-2 w-2 rounded-full bg-muted-foreground/40" />
                         <span className="text-xs font-semibold text-muted-foreground">未分组</span>
                       </div>
                     )}
-                    <div className="space-y-0.5 pl-1">
+                    <div className="space-y-1 pl-1">
                       {ungrouped.map((tag) => {
                         const checked = selectedTags.includes(tag.id)
                         return (
                           <button key={tag.id} type="button" onClick={() => toggleTag(tag.id)}
-                            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                               checked ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
                             }`}>
                             <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-micro font-bold transition-colors ${
@@ -1026,11 +1026,11 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             {creators.map((c, i) => (
               <div
                 key={i}
-                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 ring-1 ring-border text-xs"
+                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-2 ring-1 ring-border text-xs"
               >
                 <span className="font-medium text-foreground">{c.name}</span>
                 {c.nameJa && <span className="text-muted-foreground">({c.nameJa})</span>}
-                <span className="text-micro text-muted-foreground bg-muted rounded px-1 py-0.5">{c.role}</span>
+                <span className="text-micro text-muted-foreground bg-muted rounded px-1 py-1">{c.role}</span>
                 <button
                   type="button"
                   onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
@@ -1065,7 +1065,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           ))}
         </div>
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
-          className="inline-flex h-8 items-center gap-1.5 px-2.5 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
+          className="inline-flex h-8 items-center gap-2 px-3 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加截图
         </button>
       </div>
@@ -1078,7 +1078,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>
         <button type="button" onClick={() => router.back()}
-          className="rounded-xl bg-secondary px-6 py-2.5 text-sm text-muted-foreground ring-1 ring-border transition ease-in-out duration-200 hover:text-foreground">
+          className="rounded-xl bg-secondary px-6 py-3 text-sm text-muted-foreground ring-1 ring-border transition ease-in-out duration-200 hover:text-foreground">
           取消
         </button>
       </div>

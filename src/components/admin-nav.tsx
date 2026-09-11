@@ -7,34 +7,39 @@ import { cn } from "@/lib/utils"
 import { api, unwrapApiData } from "@/lib/api-client"
 import Image from "next/image"
 import {
-  ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gamepad2, Heart, ImageOff, Inbox,
-  Layers, LayoutDashboard, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette,
-  PenTool, Search, Server, Settings, ShieldAlert, SmilePlus, Star, Sun, Tag, UserPlus, Users, X, CopyCheck,
+  ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gauge, Gamepad2, Heart, ImageOff, Inbox,
+  Layers, List, Megaphone, Menu, MessageSquare, Moon, Music, Paintbrush,
+  Palette, PenTool, Search, Server, Settings, Shield, ShieldAlert, SmilePlus, Star, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
+type SiteKey = "circleica" | "galvelica"
+
 interface NavItem {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
   label: string
   href: string
   minRole: UserRole
-  /** 栏目归属：circleica=主站 / galvelica=副站；省略=主副站都显示（全局配置类） */
-  site?: "circleica" | "galvelica"
+  /** 栏目归属：circleica=主站 / galvelica=副站 */
+  site: SiteKey
 }
 
 interface NavGroup {
   label?: string
   items: NavItem[]
+  /** 系统级分组（平台配置：用户 / 站点设置 / 审计日志…）：
+   *  不参与主副站切换，两侧视图都可见，渲染在侧栏底部固定区。 */
+  system?: boolean
 }
 
+/** 导航区：只放真导航。「搜索 / 返回前台 / 主题 / 角色徽标」已移到底部工具区。 */
 const navGroups: NavGroup[] = [
   {
     items: [
-      { icon: LayoutDashboard, label: "概览", href: "/admin/overview", minRole: "ADMIN", site: "circleica" },
-      { icon: ClipboardCheck, label: "仪表盘", href: "/admin", minRole: "ADMIN", site: "circleica" },
+      { icon: Gauge, label: "仪表盘", href: "/admin", minRole: "ADMIN", site: "circleica" },
       { icon: ClipboardCheck, label: "审核队列", href: "/admin/review", minRole: "ADMIN", site: "circleica" },
       { icon: Inbox, label: "收录申请", href: "/admin/inclusion-requests", minRole: "ADMIN", site: "circleica" },
     ],
@@ -49,6 +54,7 @@ const navGroups: NavGroup[] = [
       { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN", site: "circleica" },
       { icon: Music, label: "音乐", href: "/admin/music", minRole: "ADMIN", site: "circleica" },
       { icon: Download, label: "游戏资源", href: "/admin/game-resources", minRole: "ADMIN", site: "circleica" },
+      { icon: FolderTree, label: "资源标签", href: "/admin/resource-tags", minRole: "SUPER_ADMIN", site: "circleica" },
     ],
   },
   {
@@ -75,22 +81,20 @@ const navGroups: NavGroup[] = [
       { icon: Download, label: "手动拉取", href: "/admin/galvelica/fetch", minRole: "ADMIN", site: "galvelica" },
       { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN", site: "galvelica" },
       { icon: ImageOff, label: "封面 NSFW 审核", href: "/admin/galvelica/nsfw-review", minRole: "ADMIN", site: "galvelica" },
-      { icon: Palette, label: "副站主题", href: "/admin/galvelica/theme", minRole: "ADMIN", site: "galvelica" },
+      { icon: Paintbrush, label: "副站主题", href: "/admin/galvelica/theme", minRole: "ADMIN", site: "galvelica" },
     ],
   },
   {
     label: "系统",
-    // 系统分组为平台级配置（用户/站点设置/审计日志等），非站点专属，归主站。
-    // 副站侧边栏只显示 Galvelica 对应栏目；需系统设置时切到 Circleica 标签。
+    system: true,
     items: [
-      { icon: SmilePlus, label: "情感消息", href: "/admin/emotional-messages", minRole: "SUPER_ADMIN", site: "circleica" },
-      { icon: FolderTree, label: "资源标签", href: "/admin/resource-tags", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: Users, label: "用户", href: "/admin/users", minRole: "SUPER_ADMIN", site: "circleica" },
-      { icon: Frame, label: "头像框", href: "/admin/avatar-frames", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: Settings, label: "站点设置", href: "/admin/site-settings", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: FileCode, label: "页面管理", href: "/admin/pages", minRole: "SUPER_ADMIN", site: "circleica" },
-      { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: Palette, label: "主题设置", href: "/admin/theme", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Award, label: "成就", href: "/admin/achievements", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: Frame, label: "头像框", href: "/admin/avatar-frames", minRole: "SUPER_ADMIN", site: "circleica" },
+      { icon: SmilePlus, label: "情感消息", href: "/admin/emotional-messages", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: Server, label: "服务配置", href: "/admin/services", minRole: "SUPER_ADMIN", site: "circleica" },
       { icon: FileText, label: "审计日志", href: "/admin/audit-logs", minRole: "ADMIN", site: "circleica" },
     ],
@@ -121,6 +125,81 @@ function applyTheme(mode: ThemeMode) {
 
 const ROLE_LEVEL: Record<string, number> = { USER: 0, ADMIN: 1, SUPER_ADMIN: 2 }
 
+/** 导航项：32px 高 / 13px 字（text-sm 经后台收档层落到 13px）/ 控件圆角 6px */
+const ITEM_BASE =
+  "group relative flex h-8 shrink-0 items-center gap-3 rounded-[var(--admin-radius-ctl)] text-sm font-medium transition-colors"
+
+function NavItemRow({
+  item,
+  isActive,
+  accent,
+  accentSoft,
+  collapsed,
+  badge,
+  onNavigate,
+}: {
+  item: NavItem
+  isActive: boolean
+  accent: string
+  accentSoft: string
+  collapsed: boolean
+  badge: number
+  onNavigate?: () => void
+}) {
+  const Icon = item.icon
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      title={collapsed ? item.label : undefined}
+      aria-current={isActive ? "page" : undefined}
+      className={cn(
+        ITEM_BASE,
+        collapsed ? "justify-center px-0" : "px-3",
+        isActive ? "text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+      )}
+      style={isActive ? { backgroundColor: accentSoft } : undefined}
+    >
+      {/* 选中态①：左侧 2px 色条（条本身不设圆角，避免产生非收纳档位的半径） */}
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 h-full w-0.5"
+        style={{ backgroundColor: isActive ? accent : "transparent" }}
+      />
+      <span className="relative">
+        <Icon
+          className={cn("h-4 w-4 shrink-0", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}
+          strokeWidth={2}
+        />
+        {badge > 0 && (
+          <Badge variant="destructive-solid" size="sm" className="absolute -top-1 -right-1">
+            {badge > 99 ? "99+" : badge}
+          </Badge>
+        )}
+      </span>
+      {!collapsed && <span className="truncate">{item.label}</span>}
+    </Link>
+  )
+}
+
+/** 分组标题：11/600 + 沿用 eyebrow 字距，与下面条目间隔 16px */
+function GroupLabel({ text, collapsed }: { text: string; collapsed: boolean }) {
+  if (collapsed) {
+    return (
+      <div className="px-3 pt-4 pb-4">
+        <div className="h-px bg-border" />
+      </div>
+    )
+  }
+  return (
+    <div className="px-3 pt-4 pb-4">
+      <span className="text-micro font-semibold uppercase tracking-wider text-muted-foreground/70">
+        {text}
+      </span>
+    </div>
+  )
+}
+
 export function AdminNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
@@ -130,6 +209,10 @@ export function AdminNav() {
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark")
   const [mounted, setMounted] = useState(false)
   const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number; inclusionDrafts: number }>({ reports: 0, unpublishedGames: 0, inclusionDrafts: 0 })
+
+  // 5a 默认视图按当前路径判定；点切换器只换视图、不做路由跳转（后续路由变化再同步一次）
+  const siteFromPath = pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica"
+  const [siteView, setSiteView] = useState<SiteKey>(siteFromPath)
 
   // 获取待办数量
   useEffect(() => {
@@ -141,6 +224,33 @@ export function AdminNav() {
       .catch(() => {})
   }, [])
 
+  // 路由变化后同步站点视图（例如从副站页面点回主站入口）
+  useEffect(() => {
+    setSiteView(pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica")
+  }, [pathname])
+
+  // 当前所处站点：用于侧边栏按主/副站只显示对应栏目
+  const currentSite = siteView
+
+  const visibleGroups = useMemo(
+    () => navGroups.map(g => ({
+      ...g,
+      // 系统级分组不参与站点过滤，保证两侧视图都能找到用户/站点设置/审计日志
+      items: g.items.filter(item =>
+        (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0) &&
+        (g.system || item.site === currentSite)
+      ),
+    })).filter(g => g.items.length > 0),
+    [userRole, currentSite]
+  )
+
+  const navSection = visibleGroups.filter(g => !g.system)
+  const systemSection = visibleGroups.filter(g => g.system)
+
+  // 选中态配色：副站视图跟 --gal-accent，主站跟 --primary（均为变量，不硬编码色值）
+  const accent = currentSite === "galvelica" ? "var(--gal-accent)" : "var(--primary)"
+  const accentSoft = currentSite === "galvelica" ? "var(--gal-accent-soft)" : "var(--primary-soft)"
+
   // 根据 href 返回待办数量
   const getBadgeCount = (href: string): number => {
     if (href === "/admin/reports") return badgeCounts.reports
@@ -149,24 +259,13 @@ export function AdminNav() {
     return 0
   }
 
-  // 当前所处站点：用于侧边栏按主/副站只显示对应栏目
-  const currentSite: "circleica" | "galvelica" =
-    pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica"
-
-  const visibleGroups = useMemo(
-    () => navGroups.map(g => ({
-      ...g,
-      items: g.items.filter(item =>
-        (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0) &&
-        (item.site === undefined || item.site === currentSite)
-      ),
-    })).filter(g => g.items.length > 0),
-    [userRole, currentSite]
-  )
+  const isActive = (href: string) => pathname === href || (href !== "/admin" && pathname.startsWith(href))
 
   // 初始化：读取 localStorage
   useEffect(() => {
     setMounted(true)
+    // 后台收档层作用域标记：只有 /admin/** 会挂载本组件，前台不置该属性
+    document.body.setAttribute("data-admin-scope", "true")
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved === "true") {
       setCollapsed(true)
@@ -187,7 +286,10 @@ export function AdminNav() {
       }
     }
     mq.addEventListener("change", handler)
-    return () => mq.removeEventListener("change", handler)
+    return () => {
+      mq.removeEventListener("change", handler)
+      document.body.removeAttribute("data-admin-scope")
+    }
   }, [])
 
   // 切换侧边栏
@@ -216,6 +318,10 @@ export function AdminNav() {
     setMobileOpen(false)
   }, [pathname])
 
+  const themeLabel = mounted
+    ? themeMode === "dark" ? "深色模式" : themeMode === "light" ? "浅色模式" : "跟随系统"
+    : "跟随系统"
+
   const sidebarWidth = collapsed ? "w-[68px]" : "w-[220px]"
 
   return (
@@ -230,7 +336,7 @@ export function AdminNav() {
         {/* 顶部：用户信息 + 收缩按钮 */}
         <div className="flex h-14 items-center justify-between border-b border-border px-3">
           {!collapsed ? (
-            <div className="flex items-center gap-2.5 min-w-0 px-2 py-1.5">
+            <div className="flex items-center gap-2 min-w-0 px-2 py-2">
               {session?.user?.image ? (
                 <Image src={session.user.image} alt="" width={32} height={32} className="h-8 w-8 shrink-0 rounded-full object-cover" unoptimized />
               ) : (
@@ -240,9 +346,6 @@ export function AdminNav() {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{session?.user?.name || "管理员"}</p>
-                <span className="inline-block rounded px-1.5 py-0.5 text-micro font-medium bg-primary/10 text-primary">
-                  {ROLE_META[userRole as UserRole]?.label ?? "管理员"}
-                </span>
               </div>
             </div>
           ) : (
@@ -257,7 +360,7 @@ export function AdminNav() {
           <button
             onClick={toggleSidebar}
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground",
               collapsed && "mx-auto"
             )}
             title={collapsed ? "展开侧边栏" : "收缩侧边栏"}
@@ -266,147 +369,153 @@ export function AdminNav() {
           </button>
         </div>
 
-        {/* 站点切换器 */}
+        {/* 站点切换器（二段）：只切换视图，不做路由跳转 */}
         {!collapsed && (
           <div className="px-3 pt-2">
-            <div className="flex rounded-lg bg-muted/50 p-0.5 text-xs font-medium">
-              <Link
-                href="/admin"
+            <div className="flex rounded-[var(--admin-radius-ctl)] bg-muted/50 p-1 text-micro font-medium">
+              <button
+                type="button"
+                onClick={() => setSiteView("circleica")}
                 className={cn(
-                  "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
-                  !pathname.startsWith("/admin/galvelica")
-                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                  "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                  currentSite === "circleica"
+                    ? "bg-background text-foreground ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Circleica
-              </Link>
-              <Link
-                href="/admin/galvelica"
+              </button>
+              <button
+                type="button"
+                onClick={() => setSiteView("galvelica")}
                 className={cn(
-                  "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
-                  pathname.startsWith("/admin/galvelica")
-                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                  "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                  currentSite === "galvelica"
+                    ? "bg-background text-foreground ring-1 ring-border"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Galvelica
-              </Link>
+              </button>
             </div>
           </div>
         )}
 
-        {/* 返回前台 + 搜索 */}
-        <div className="px-3 pt-2 flex flex-col gap-1">
-          <Link
-            href="/"
-            title={collapsed ? "返回前台" : undefined}
-            className={cn(
-              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
-              collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
-            )}
-          >
-            <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} />
-            {!collapsed && <span className="truncate">返回前台</span>}
-          </Link>
-          <button
-            onClick={() => {
-              document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
-            }}
-            title={collapsed ? "全局搜索 (Ctrl+K)" : undefined}
-            className={cn(
-              "flex items-center gap-2 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
-              collapsed ? "justify-center h-9 w-9 mx-auto" : "w-full px-3 py-2"
-            )}
-          >
-            <Search className="h-4 w-4 shrink-0" strokeWidth={2} />
-            {!collapsed && (
-              <>
-                <span className="truncate flex-1 text-left">搜索</span>
-                <kbd className="rounded bg-muted px-1 py-0.5 text-micro text-muted-foreground ring-1 ring-border">⌘K</kbd>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* 导航列表 */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
-          <div className="flex flex-col gap-0.5">
-            {visibleGroups.map((group, gi) => (
+        {/* 导航列表（只含真导航） */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2">
+          <div className="flex flex-col gap-1">
+            {navSection.map((group, gi) => (
               <div key={group.label ?? gi}>
-                {group.label && !collapsed && (
-                  <div className="px-3 pt-4 pb-1.5">
-                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
-                  </div>
-                )}
-                {group.label && collapsed && (
-                  <div className="px-3 pt-3 pb-1"><div className="h-px bg-border" /></div>
-                )}
-                {group.items.map(({ icon: Icon, label, href }) => {
-                  const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href))
-                  const badge = getBadgeCount(href)
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      title={collapsed ? label : undefined}
-                      className={cn(
-                        "group relative flex items-center gap-3 rounded-lg text-sm font-medium transition ease-in-out duration-200",
-                        collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5",
-                        isActive
-                          ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
-                          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-                      )}
-                    >
-                      <span className="relative">
-                        <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")} strokeWidth={2} />
-                        {badge > 0 && (
-                          <Badge variant="destructive-solid" size="sm" className="absolute -top-1.5 -right-1.5">
-                            {badge > 99 ? "99+" : badge}
-                          </Badge>
-                        )}
-                      </span>
-                      {!collapsed && <span className="truncate">{label}</span>}
-                    </Link>
-                  )
-                })}
+                {group.label && <GroupLabel text={group.label} collapsed={collapsed} />}
+                {group.items.map((item) => (
+                  <NavItemRow
+                    key={item.href}
+                    item={item}
+                    isActive={isActive(item.href)}
+                    accent={accent}
+                    accentSoft={accentSoft}
+                    collapsed={collapsed}
+                    badge={getBadgeCount(item.href)}
+                  />
+                ))}
               </div>
             ))}
           </div>
         </nav>
 
-        {/* 底部：主题切换 + 收缩提示 */}
-        <div className="border-t border-border px-2 py-3">
-          <button
-            onClick={cycleTheme}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground",
-              collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2.5"
-            )}
-            title={
-              themeMode === "dark" ? "当前：深色模式（点击切换）" :
-              themeMode === "light" ? "当前：浅色模式（点击切换）" :
-              "当前：跟随系统（点击切换）"
-            }
-          >
-            {mounted && (
-              <>
-                {themeMode === "dark" && <Moon className="h-5 w-5 shrink-0" strokeWidth={2} />}
-                {themeMode === "light" && <Sun className="h-5 w-5 shrink-0" strokeWidth={2} />}
-                {themeMode === "system" && (
-                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
-                    <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
-                    <Moon className="absolute size-3 translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
-                  </span>
-                )}
-              </>
-            )}
-            {!collapsed && (
-              <span className="truncate">
-                {themeMode === "dark" ? "深色模式" : themeMode === "light" ? "浅色模式" : "跟随系统"}
-              </span>
-            )}
-          </button>
+        {/* 底部固定区①：系统级导航（不参与主副站切换，两侧都可见） */}
+        {systemSection.length > 0 && (
+          <div className="border-t border-border px-2 pt-2">
+            {systemSection.map((group, gi) => (
+              <div key={group.label ?? gi}>
+                {group.label && !collapsed && <GroupLabel text={group.label} collapsed={false} />}
+                {group.label && collapsed && <GroupLabel text={group.label} collapsed />}
+                <div className="flex flex-col gap-1">
+                  {group.items.map((item) => (
+                    <NavItemRow
+                      key={item.href}
+                      item={item}
+                      isActive={isActive(item.href)}
+                      accent={accent}
+                      accentSoft={accentSoft}
+                      collapsed={collapsed}
+                      badge={getBadgeCount(item.href)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* 底部固定区②：工具区（角色徽标 / 搜索 / 返回前台 / 主题） */}
+        <div className="mt-2 border-t border-border px-2 py-2">
+          <div className="flex flex-col gap-1">
+            {/* 角色徽标 */}
+            <div
+              title={collapsed ? `角色：${ROLE_META[userRole as UserRole]?.label ?? "管理员"}` : undefined}
+              className={cn(ITEM_BASE, collapsed ? "justify-center px-0" : "px-3", "text-muted-foreground")}
+            >
+              <Shield className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
+              {!collapsed && (
+                <span className="truncate text-micro font-semibold text-primary">{ROLE_META[userRole as UserRole]?.label ?? "管理员"}</span>
+              )}
+            </div>
+            {/* 搜索 */}
+            <button
+              type="button"
+              onClick={() => {
+                document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
+              }}
+              title={collapsed ? "全局搜索 (Ctrl+K)" : undefined}
+              className={cn(
+                ITEM_BASE,
+                collapsed ? "justify-center px-0" : "px-3",
+                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+            >
+              <Search className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
+              {!collapsed && <span className="truncate">搜索</span>}
+            </button>
+            {/* 返回前台 */}
+            <Link
+              href="/"
+              title={collapsed ? "返回前台" : undefined}
+              className={cn(
+                ITEM_BASE,
+                collapsed ? "justify-center px-0" : "px-3",
+                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+            >
+              <ArrowLeft className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
+              {!collapsed && <span className="truncate">返回前台</span>}
+            </Link>
+            {/* 主题切换 */}
+            <button
+              type="button"
+              onClick={cycleTheme}
+              className={cn(
+                ITEM_BASE,
+                collapsed ? "justify-center px-0" : "px-3",
+                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+              )}
+              title={
+                themeMode === "dark" ? "当前：深色模式（点击切换）" :
+                themeMode === "light" ? "当前：浅色模式（点击切换）" :
+                "当前：跟随系统（点击切换）"
+              }
+            >
+              {mounted && themeMode === "dark" && <Moon className="h-4 w-4 shrink-0" strokeWidth={2} />}
+              {mounted && themeMode === "light" && <Sun className="h-4 w-4 shrink-0" strokeWidth={2} />}
+              {mounted && themeMode === "system" && (
+                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center">
+                  <Sun className="absolute h-4 w-4 opacity-50" strokeWidth={2} />
+                  <Moon className="absolute size-2.5 translate-x-[1px] -translate-y-[1px]" strokeWidth={2} />
+                </span>
+              )}
+              {!collapsed && <span className="truncate">{themeLabel}</span>}
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -414,7 +523,7 @@ export function AdminNav() {
       <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-lg md:hidden">
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
+          className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
@@ -424,16 +533,16 @@ export function AdminNav() {
             onClick={() => {
               document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
+            className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <Search className="h-5 w-5" strokeWidth={2} />
           </button>
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
+            className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
-          <ArrowLeft className="h-5 w-5" strokeWidth={2} />
-        </Link>
+            <ArrowLeft className="h-5 w-5" strokeWidth={2} />
+          </Link>
         </div>
       </nav>
 
@@ -458,118 +567,96 @@ export function AdminNav() {
           <span className="text-sm font-semibold text-foreground">管理后台</span>
           <button
             onClick={() => setMobileOpen(false)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
+            className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>
         </div>
 
         {/* 站点切换器（手机端） */}
-        <div className="px-3 pt-2">
-          <div className="flex rounded-lg bg-muted/50 p-0.5 text-xs font-medium">
-            <Link
-              href="/admin"
-              onClick={() => setMobileOpen(false)}
+        <div className="px-3 pt-2 pb-2">
+          <div className="flex rounded-[var(--admin-radius-ctl)] bg-muted/50 p-1 text-micro font-medium">
+            <button
+              type="button"
+              onClick={() => setSiteView("circleica")}
               className={cn(
-                "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
-                !pathname.startsWith("/admin/galvelica")
-                  ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                currentSite === "circleica"
+                  ? "bg-background text-foreground ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
               Circleica
-            </Link>
-            <Link
-              href="/admin/galvelica"
-              onClick={() => setMobileOpen(false)}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSiteView("galvelica")}
               className={cn(
-                "flex-1 rounded-md px-2 py-1.5 text-center transition-colors",
-                pathname.startsWith("/admin/galvelica")
-                  ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                "flex-1 rounded-[var(--admin-radius-ctl)] px-2 py-1 text-center transition-colors",
+                currentSite === "galvelica"
+                  ? "bg-background text-foreground ring-1 ring-border"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
               Galvelica
-            </Link>
+            </button>
           </div>
         </div>
 
-        {/* 返回前台 */}
-        <div className="px-3 pt-2">
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-            <span>返回前台</span>
-          </Link>
-        </div>
-
-        {/* 导航 */}
-        <nav className="flex-1 overflow-y-auto px-2 py-1">
-          <div className="flex flex-col gap-0.5">
+        {/* 导航（含系统区） */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
+          <div className="flex flex-col gap-1">
             {visibleGroups.map((group, gi) => (
               <div key={group.label ?? gi}>
-                {group.label && (
-                  <div className="px-3 pt-4 pb-1.5">
-                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/50">{group.label}</span>
-                  </div>
-                )}
-                {group.items.map(({ icon: Icon, label, href }) => {
-                  const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href))
-                  const badge = getBadgeCount(href)
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition duration-150 ease-in-out",
-                        isActive
-                          ? "bg-accent text-foreground shadow-1 ring-1 ring-border"
-                          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-                      )}
-                    >
-                      <span className="relative">
-                        <Icon className="h-5 w-5 shrink-0" strokeWidth={2} />
-                        {badge > 0 && (
-                          <Badge variant="destructive-solid" size="sm" className="absolute -top-1.5 -right-1.5">
-                            {badge > 99 ? "99+" : badge}
-                          </Badge>
-                        )}
-                      </span>
-                      <span>{label}</span>
-                    </Link>
-                  )
-                })}
+                {group.label && <GroupLabel text={group.label} collapsed={false} />}
+                {group.items.map((item) => (
+                  <NavItemRow
+                    key={item.href}
+                    item={item}
+                    isActive={isActive(item.href)}
+                    accent={accent}
+                    accentSoft={accentSoft}
+                    collapsed={false}
+                    badge={getBadgeCount(item.href)}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                ))}
               </div>
             ))}
           </div>
-        </nav>
+        </div>
 
-        {/* 底部主题切换 */}
-        <div className="border-t border-border px-3 py-3">
-          <button
-            onClick={cycleTheme}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition duration-150 ease-in-out hover:bg-accent/60 hover:text-foreground"
-          >
-            {mounted && (
-              <>
-                {themeMode === "dark" && <Moon className="h-5 w-5 shrink-0" strokeWidth={2} />}
-                {themeMode === "light" && <Sun className="h-5 w-5 shrink-0" strokeWidth={2} />}
-                {themeMode === "system" && (
-                  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
-                    <Sun className="absolute h-5 w-5 opacity-50" strokeWidth={2} />
-                    <Moon className="absolute size-3 translate-x-[2px] -translate-y-[2px]" strokeWidth={2} />
-                  </span>
-                )}
-              </>
-            )}
-            <span>
-              {themeMode === "dark" ? "深色模式" : themeMode === "light" ? "浅色模式" : "跟随系统"}
-            </span>
-          </button>
+        {/* 底部工具区（手机端） */}
+        <div className="border-t border-border px-2 py-2">
+          <div className="flex flex-col gap-1">
+            <div className={cn(ITEM_BASE, "px-3 text-muted-foreground")}>
+              <Shield className="h-4 w-4 shrink-0" strokeWidth={2} />
+              <span className="truncate text-micro font-semibold text-primary">{ROLE_META[userRole as UserRole]?.label ?? "管理员"}</span>
+            </div>
+            <Link
+              href="/"
+              onClick={() => setMobileOpen(false)}
+              className={cn(ITEM_BASE, "px-3 text-muted-foreground hover:bg-accent/60 hover:text-foreground")}
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} />
+              <span className="truncate">返回前台</span>
+            </Link>
+            <button
+              type="button"
+              onClick={cycleTheme}
+              className={cn(ITEM_BASE, "px-3 text-muted-foreground hover:bg-accent/60 hover:text-foreground")}
+            >
+              {mounted && themeMode === "dark" && <Moon className="h-4 w-4 shrink-0" strokeWidth={2} />}
+              {mounted && themeMode === "light" && <Sun className="h-4 w-4 shrink-0" strokeWidth={2} />}
+              {mounted && themeMode === "system" && (
+                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center">
+                  <Sun className="absolute h-4 w-4 opacity-50" strokeWidth={2} />
+                  <Moon className="absolute size-2.5 translate-x-[1px] -translate-y-[1px]" strokeWidth={2} />
+                </span>
+              )}
+              <span className="truncate">{themeLabel}</span>
+            </button>
+          </div>
         </div>
       </aside>
     </>

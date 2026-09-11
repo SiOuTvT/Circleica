@@ -194,7 +194,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
         {/* 表单卡片 */}
         <section className="rounded-xl bg-card ring-1 ring-border overflow-hidden">
           {/* 卡片头部 */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-muted/30">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-muted/30">
             <h2 className="text-sm font-semibold text-foreground tracking-tight">
               {isEditing ? "编辑公告" : "新建公告"}
             </h2>
@@ -208,18 +208,18 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
           <div className="p-5 space-y-5">
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-500/8 px-3.5 py-2.5 text-xs text-red-500 ring-1 ring-red-500/15">
+              <div className="flex items-center gap-2 rounded-lg bg-red-500/8 px-4 py-3 text-xs text-red-500 ring-1 ring-red-500/15">
                 <span className="shrink-0">⚠</span> {error}
               </div>
             )}
             {showDraftBanner && (
-              <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/8 px-3.5 py-2.5 text-xs text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/15">
+              <div className="flex items-center justify-between gap-3 rounded-lg bg-amber-500/8 px-4 py-3 text-xs text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/15">
                 <span>检测到草稿「{draft.title || "无标题"}」</span>
-                <div className="flex shrink-0 gap-1.5">
+                <div className="flex shrink-0 gap-2">
                   <button type="button" onClick={restoreDraft}
-                    className="rounded-md bg-amber-500/15 px-2.5 py-1 font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors">恢复</button>
+                    className="rounded-md bg-amber-500/15 px-3 py-1 font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors">恢复</button>
                   <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }}
-                    className="rounded-md px-2.5 py-1 text-muted-foreground hover:text-foreground transition-colors">丢弃</button>
+                    className="rounded-md px-3 py-1 text-muted-foreground hover:text-foreground transition-colors">丢弃</button>
                 </div>
               </div>
             )}
@@ -258,7 +258,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                     <option value="hidden">已隐藏</option>
                   </select>
                 </Field>
-                <label className="flex items-center gap-2 pb-0.5 cursor-pointer select-none group">
+                <label className="flex items-center gap-2 pb-1 cursor-pointer select-none group">
                   <span className="relative inline-flex">
                     <input type="checkbox" checked={isPinned} onChange={e => setIsPinned(e.target.checked)} className="peer sr-only" />
                     <span className="h-5 w-5 rounded-md ring-1 ring-border bg-muted transition duration-150 ease-in-out peer-checked:bg-primary peer-checked:ring-primary flex items-center justify-center">
@@ -285,7 +285,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               {/* 提交 */}
               <div className="pt-1">
                 <button type="submit" disabled={adding}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
                     : isEditing
@@ -306,7 +306,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
       <aside className="w-full xl:w-[460px] shrink-0 space-y-5">
         {/* 预览 */}
         <div className="rounded-xl bg-card ring-1 ring-border overflow-hidden xl:sticky xl:top-4 xl:self-start">
-          <div className="px-4 py-2.5 border-b border-border bg-muted/20">
+          <div className="px-4 py-3 border-b border-border bg-muted/20">
             <p className="text-xs font-medium text-muted-foreground">前台效果预览</p>
           </div>
           <div className="p-4">
@@ -347,7 +347,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       : <div className="w-full h-full flex items-center justify-center text-micro text-muted-foreground/40">🎮</div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       {ann.isPinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
                       <Badge variant={STATUS_VARIANTS[ann.status] ?? "secondary"} size="sm">
                         {STATUS_LABELS[ann.status] ?? ann.status}
@@ -355,22 +355,22 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       <span className="text-sm font-medium text-foreground truncate">{ann.title}</span>
                     </div>
                     {expandedId === ann.id ? (
-                      <div className="mt-1.5"><RichTextContent html={ann.content} /></div>
+                      <div className="mt-2"><RichTextContent html={ann.content} /></div>
                     ) : (
-                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{ann.summary || stripHtml(ann.content)}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{ann.summary || stripHtml(ann.content)}</p>
                     )}
                     <div className="flex items-center gap-2 mt-1 text-caption text-muted-foreground/60">
                       <span>{formatMonthDay(ann.createdAt)}</span>
                       {ann.content.length > 100 && (
                         <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
-                          className="inline-flex h-7 items-center gap-0.5 px-2 hover:text-foreground transition-colors">
+                          className="inline-flex h-7 items-center gap-1 px-2 hover:text-foreground transition-colors">
                           {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                           {expandedId === ann.id ? "收起" : "展开"}
                         </button>
                       )}
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                  <div className="flex shrink-0 items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                     <IconBtn onClick={() => startEdit(ann)} title="编辑"><Pencil className="h-3.5 w-3.5" /></IconBtn>
                     <IconBtn onClick={() => togglePinned(ann.id, ann.isPinned)} title={ann.isPinned ? "取消置顶" : "置顶"}
                       active={ann.isPinned}><Pin className="h-3.5 w-3.5" /></IconBtn>
@@ -399,7 +399,7 @@ function Field({ label, required, hint, children }: {
 }) {
   const id = useId()
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <label htmlFor={id} className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {label}{required && <span className="text-primary">*</span>}
       </label>
@@ -445,8 +445,8 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
         {/* 渐变遮罩 — 和前台 announce-swiper 一致 */}
         <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {ann.isPinned && (
-          <div className="absolute top-2.5 left-2.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-micro font-medium text-primary-foreground shadow-1">
+          <div className="absolute top-3 left-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-1 text-micro font-medium text-primary-foreground shadow-1">
               <Pin className="h-2.5 w-2.5" /> 置顶
             </span>
           </div>
@@ -454,9 +454,9 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
       </div>
       {/* 毛玻璃信息卡片 — 和前台一致 */}
       <div className="absolute inset-x-0 bottom-0 p-3">
-        <div className="backdrop-blur-md bg-black/35 rounded-lg ring-1 ring-white/[0.08] px-3 py-2.5 space-y-1.5">
+        <div className="backdrop-blur-md bg-black/35 rounded-lg ring-1 ring-white/[0.08] px-3 py-3 space-y-2">
           {/* 作者行 */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <div className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center text-micro font-bold text-white/70">F</div>
             <span className="text-caption font-medium text-white/80">Circleica</span>
           </div>
@@ -469,7 +469,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
             <p className="text-caption text-white/60 line-clamp-1 leading-relaxed">{summary}</p>
           )}
           {/* 查看详情 */}
-          <span className="inline-flex items-center gap-0.5 text-micro font-medium text-white/70">
+          <span className="inline-flex items-center gap-1 text-micro font-medium text-white/70">
             查看详情 <span>→</span>
           </span>
         </div>

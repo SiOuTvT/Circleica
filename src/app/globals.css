@@ -3109,3 +3109,65 @@ a.galvelica-pager-nav:hover {
   margin-top: 6px;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   后台收档层 — 后台版式基因 · 期 1
+   ── 作用域：body[data-admin-scope="true"]。该属性由 AdminNav 挂载时写入
+      （见 src/components/admin-nav.tsx），只有 /admin/** 会挂载 AdminNav，
+      前台与 Galvelica 前台不挂载 → 本块对外零影响。
+   ── 为什么按类收档而不是逐页改 className：后台的 14/16/18px 与 18px 圆角
+      绝大多数来自共享层的语义类（ui/card 的 text-sm、ui/button 的 text-sm、
+      本项目 @theme 里 radius-lg 被重映射成的 18px）。ui/* 的默认值前台在用、
+      禁止改；而逐页加覆盖类也改不净——继承下来的 computed 值仍在。
+      故在此按类把「不在档内的值」一次性拉回 token，改动面可控且不碰前台。
+   ── 刻意只动不合格的值：12 / 24 / 9999 已在档内，一律不动。
+   ═══════════════════════════════════════════════════════════════════ */
+body[data-admin-scope="true"] {
+  /* 裸容器不再继承前台 body 的 16px 基准 */
+  font-size: var(--admin-fs-body);
+}
+
+/* ── 字号四档：10 → 11；14 / 16 / 18 → 13；20 → 24 ── */
+body[data-admin-scope="true"] .text-micro,
+body[data-admin-scope="true"] .badge-micro {
+  font-size: var(--admin-fs-micro);
+}
+body[data-admin-scope="true"] .text-sm,
+body[data-admin-scope="true"] .text-base,
+body[data-admin-scope="true"] .text-lg {
+  font-size: var(--admin-fs-body);
+}
+body[data-admin-scope="true"] .text-xl {
+  font-size: var(--admin-fs-h1);
+}
+/* @layer base 的标题默认字号（h2=20 h3=16 h4=14 h5/h6=12）在后台落到正文档；
+   已显式标了字号档的标题不参与，避免把 24px 的 H1 类标题压成 13px。 */
+body[data-admin-scope="true"] h2:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
+body[data-admin-scope="true"] h3:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
+body[data-admin-scope="true"] h4:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
+body[data-admin-scope="true"] h5:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
+body[data-admin-scope="true"] h6:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl) {
+  font-size: var(--admin-fs-body);
+}
+/* 表单控件字号落在控件档 15px（否则部分裸 input 会算出浏览器默认的 13.33px） */
+body[data-admin-scope="true"] input,
+body[data-admin-scope="true"] select,
+body[data-admin-scope="true"] textarea {
+  font-size: var(--admin-fs-ctl);
+}
+
+/* ── 圆角两档：容器 12 / 控件 6 ── */
+/* 本项目 @theme 把 radius-lg 重映射为 18px、radius-sm 为 9px，均不在档内 */
+body[data-admin-scope="true"] .rounded-lg,
+body[data-admin-scope="true"] .rounded-2xl {
+  border-radius: var(--admin-radius-box);
+}
+body[data-admin-scope="true"] .rounded-sm {
+  border-radius: var(--admin-radius-ctl);
+}
+/* 表单控件统一 6px（胶囊型控件不参与） */
+body[data-admin-scope="true"] input:not([class*="rounded-full"]),
+body[data-admin-scope="true"] select:not([class*="rounded-full"]),
+body[data-admin-scope="true"] textarea:not([class*="rounded-full"]) {
+  border-radius: var(--admin-radius-ctl);
+}
+

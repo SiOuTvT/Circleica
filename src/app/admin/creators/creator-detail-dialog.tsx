@@ -64,7 +64,7 @@ export function CreatorDetailDialog({ creator, onClose }: CreatorDetailDialogPro
 
           <div className="flex items-start gap-4">
             {/* 头像 */}
-            <div className="h-16 w-16 shrink-0 overflow-clip rounded-2xl bg-muted ring-2 ring-background shadow-2">
+            <div className="h-16 w-16 shrink-0 overflow-clip rounded-[var(--admin-radius-box)] bg-muted ring-2 ring-background shadow-2">
               {creator.avatar ? (
                 <Image src={creator.avatar} alt={creator.name} width={64} height={64} className="h-full w-full object-cover" unoptimized />
               ) : (
