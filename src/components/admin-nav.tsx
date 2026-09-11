@@ -8,8 +8,8 @@ import { api, unwrapApiData } from "@/lib/api-client"
 import Image from "next/image"
 import {
   ArrowLeft, Award, BookOpen, Building2, CalendarCheck, ChevronLeft, ChevronRight, ClipboardCheck, Download, FileCode, FileText, Flag, FolderTree, Frame, Gauge, Gamepad2, Heart, ImageOff, Inbox,
-  Layers, List, Megaphone, Menu, MessageSquare, Moon, Music, Paintbrush,
-  Palette, PenTool, Search, Server, Settings, Shield, ShieldAlert, SmilePlus, Star, Sun, Tag, UserPlus, Users, X, CopyCheck,
+  Layers, List, Megaphone, Menu, MessageSquare, Moon, Music, Palette, Paintbrush,
+  PenTool, Search, Server, Settings, Shield, ShieldAlert, SmilePlus, Star, Sun, Tag, UserPlus, Users, X, CopyCheck,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -31,56 +31,73 @@ interface NavGroup {
   label?: string
   items: NavItem[]
   /** 系统级分组（平台配置：用户 / 站点设置 / 审计日志…）：
-   *  不参与主副站切换，两侧视图都可见，渲染在侧栏底部固定区。 */
+   *  不参与主副站切换，两侧视图都可见；它不再钉在底部，而是滚动容器里的最后一个分组。 */
   system?: boolean
 }
 
-/** 导航区：只放真导航。「搜索 / 返回前台 / 主题 / 角色徽标」已移到底部工具区。 */
+/**
+ * 滚动区分组与顺序 = 使用频率重排（期 1 补漏定案，勿自行发明顺序）：
+ *   主站：概览 / 内容 / 社区与数据 / 系统
+ *   副站：概览 / 数据 / 采集与治理 / 系统
+ * 「系统」永远在数组末尾 → 渲染时即为滚动流的最后一个分组。
+ * 底部固定区只剩 4 个工具（搜索 / 返回前台 / 主题 / 角色徽标）。
+ */
 const navGroups: NavGroup[] = [
   {
+    label: "概览",
     items: [
       { icon: Gauge, label: "仪表盘", href: "/admin", minRole: "ADMIN", site: "circleica" },
       { icon: ClipboardCheck, label: "审核队列", href: "/admin/review", minRole: "ADMIN", site: "circleica" },
+      { icon: Flag, label: "举报", href: "/admin/reports", minRole: "ADMIN", site: "circleica" },
       { icon: Inbox, label: "收录申请", href: "/admin/inclusion-requests", minRole: "ADMIN", site: "circleica" },
     ],
   },
   {
-    label: "内容管理",
+    label: "内容",
     items: [
       { icon: Gamepad2, label: "游戏", href: "/admin/games", minRole: "ADMIN", site: "circleica" },
-      { icon: List, label: "精选合集", href: "/admin/collections", minRole: "ADMIN", site: "circleica" },
       { icon: Tag, label: "标签管理", href: "/admin/tags", minRole: "ADMIN", site: "circleica" },
       { icon: PenTool, label: "创作者", href: "/admin/creators", minRole: "ADMIN", site: "circleica" },
       { icon: Megaphone, label: "公告", href: "/admin/announcements", minRole: "ADMIN", site: "circleica" },
+      { icon: List, label: "精选合集", href: "/admin/collections", minRole: "ADMIN", site: "circleica" },
+    ],
+  },
+  {
+    label: "社区与数据",
+    items: [
+      { icon: MessageSquare, label: "论坛", href: "/admin/forum", minRole: "ADMIN", site: "circleica" },
+      { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN", site: "circleica" },
+      { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN", site: "circleica" },
+      { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN", site: "circleica" },
+      { icon: Star, label: "评分数据", href: "/admin/ratings", minRole: "ADMIN", site: "circleica" },
       { icon: Music, label: "音乐", href: "/admin/music", minRole: "ADMIN", site: "circleica" },
       { icon: Download, label: "游戏资源", href: "/admin/game-resources", minRole: "ADMIN", site: "circleica" },
       { icon: FolderTree, label: "资源标签", href: "/admin/resource-tags", minRole: "SUPER_ADMIN", site: "circleica" },
     ],
   },
   {
-    label: "社区",
+    label: "概览",
     items: [
-      { icon: MessageSquare, label: "论坛", href: "/admin/forum", minRole: "ADMIN", site: "circleica" },
-      { icon: Flag, label: "举报", href: "/admin/reports", minRole: "ADMIN", site: "circleica" },
-      { icon: CalendarCheck, label: "签到记录", href: "/admin/checkins", minRole: "ADMIN", site: "circleica" },
-      { icon: Heart, label: "收藏数据", href: "/admin/favorites", minRole: "ADMIN", site: "circleica" },
-      { icon: UserPlus, label: "关注关系", href: "/admin/follows", minRole: "ADMIN", site: "circleica" },
-      { icon: Star, label: "评分数据", href: "/admin/ratings", minRole: "ADMIN", site: "circleica" },
+      { icon: BookOpen, label: "副站概览", href: "/admin/galvelica", minRole: "ADMIN", site: "galvelica" },
+      { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN", site: "galvelica" },
+      { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN", site: "galvelica" },
+      { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN", site: "galvelica" },
     ],
   },
   {
-    label: "副站 Galvelica",
+    label: "数据",
     items: [
-      { icon: BookOpen, label: "概览", href: "/admin/galvelica", minRole: "ADMIN", site: "galvelica" },
-      { icon: Layers, label: "作品管理", href: "/admin/galvelica/works", minRole: "ADMIN", site: "galvelica" },
-      { icon: Building2, label: "商业作品归档", href: "/admin/galvelica/commercial", minRole: "ADMIN", site: "galvelica" },
       { icon: Tag, label: "标签管理", href: "/admin/galvelica/tags", minRole: "ADMIN", site: "galvelica" },
       { icon: PenTool, label: "创作者", href: "/admin/galvelica/creators", minRole: "ADMIN", site: "galvelica" },
-      { icon: Inbox, label: "收录审核", href: "/admin/galvelica/inclusion", minRole: "ADMIN", site: "galvelica" },
-      { icon: CopyCheck, label: "重复检测", href: "/admin/galvelica/duplicates", minRole: "ADMIN", site: "galvelica" },
+      { icon: ImageOff, label: "封面 NSFW 审核", href: "/admin/galvelica/nsfw-review", minRole: "ADMIN", site: "galvelica" },
+      { icon: Building2, label: "商业作品归档", href: "/admin/galvelica/commercial", minRole: "ADMIN", site: "galvelica" },
+    ],
+  },
+  {
+    label: "采集与治理",
+    items: [
       { icon: Download, label: "手动拉取", href: "/admin/galvelica/fetch", minRole: "ADMIN", site: "galvelica" },
       { icon: ShieldAlert, label: "数据治理", href: "/admin/galvelica/governance", minRole: "ADMIN", site: "galvelica" },
-      { icon: ImageOff, label: "封面 NSFW 审核", href: "/admin/galvelica/nsfw-review", minRole: "ADMIN", site: "galvelica" },
       { icon: Paintbrush, label: "副站主题", href: "/admin/galvelica/theme", minRole: "ADMIN", site: "galvelica" },
     ],
   },
@@ -128,6 +145,10 @@ const ROLE_LEVEL: Record<string, number> = { USER: 0, ADMIN: 1, SUPER_ADMIN: 2 }
 /** 导航项：32px 高 / 13px 字（text-sm 经后台收档层落到 13px）/ 控件圆角 6px */
 const ITEM_BASE =
   "group relative flex h-8 shrink-0 items-center gap-3 rounded-[var(--admin-radius-ctl)] text-sm font-medium transition-colors"
+
+/** 底部工具项：32×32 可点热区（≥28px 下限），图标 16px */
+const TOOL_BASE =
+  "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
 
 function NavItemRow({
   item,
@@ -210,7 +231,7 @@ export function AdminNav() {
   const [mounted, setMounted] = useState(false)
   const [badgeCounts, setBadgeCounts] = useState<{ reports: number; unpublishedGames: number; inclusionDrafts: number }>({ reports: 0, unpublishedGames: 0, inclusionDrafts: 0 })
 
-  // 5a 默认视图按当前路径判定；点切换器只换视图、不做路由跳转（后续路由变化再同步一次）
+  // 默认视图按当前路径判定；点切换器只换视图、不做路由跳转（后续路由变化再同步一次）
   const siteFromPath = pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica"
   const [siteView, setSiteView] = useState<SiteKey>(siteFromPath)
 
@@ -229,13 +250,12 @@ export function AdminNav() {
     setSiteView(pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica")
   }, [pathname])
 
-  // 当前所处站点：用于侧边栏按主/副站只显示对应栏目
   const currentSite = siteView
 
   const visibleGroups = useMemo(
     () => navGroups.map(g => ({
       ...g,
-      // 系统级分组不参与站点过滤，保证两侧视图都能找到用户/站点设置/审计日志
+      // 系统级分组不参与站点过滤，保证两侧视图都滚得到用户 / 站点设置 / 审计日志
       items: g.items.filter(item =>
         (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0) &&
         (g.system || item.site === currentSite)
@@ -243,9 +263,6 @@ export function AdminNav() {
     })).filter(g => g.items.length > 0),
     [userRole, currentSite]
   )
-
-  const navSection = visibleGroups.filter(g => !g.system)
-  const systemSection = visibleGroups.filter(g => g.system)
 
   // 选中态配色：副站视图跟 --gal-accent，主站跟 --primary（均为变量，不硬编码色值）
   const accent = currentSite === "galvelica" ? "var(--gal-accent)" : "var(--primary)"
@@ -321,9 +338,28 @@ export function AdminNav() {
     setMobileOpen(false)
   }, [pathname])
 
-  const themeLabel = mounted
-    ? themeMode === "dark" ? "深色模式" : themeMode === "light" ? "浅色模式" : "跟随系统"
-    : "跟随系统"
+  const roleLabel = ROLE_META[userRole as UserRole]?.label ?? "管理员"
+  const themeTitle =
+    themeMode === "dark" ? "当前：深色模式（点击切换）" :
+    themeMode === "light" ? "当前：浅色模式（点击切换）" :
+    "当前：跟随系统（点击切换）"
+
+  const triggerSearch = () => {
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
+  }
+
+  const themeIcon = (
+    <>
+      {mounted && themeMode === "dark" && <Moon className="h-4 w-4" strokeWidth={2} />}
+      {mounted && themeMode === "light" && <Sun className="h-4 w-4" strokeWidth={2} />}
+      {mounted && themeMode === "system" && (
+        <span className="relative flex h-4 w-4 items-center justify-center">
+          <Sun className="absolute h-4 w-4 opacity-50" strokeWidth={2} />
+          <Moon className="absolute size-2.5 translate-x-[1px] -translate-y-[1px]" strokeWidth={2} />
+        </span>
+      )}
+    </>
+  )
 
   const sidebarWidth = collapsed ? "w-[68px]" : "w-[220px]"
 
@@ -336,8 +372,8 @@ export function AdminNav() {
           sidebarWidth,
         )}
       >
-        {/* 顶部：用户信息 + 收缩按钮 */}
-        <div className="flex h-14 items-center justify-between border-b border-border px-3">
+        {/* 顶部固定区①：用户 + 收缩按钮 */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3">
           {!collapsed ? (
             <div className="flex items-center gap-2 min-w-0 px-2 py-2">
               {session?.user?.image ? (
@@ -372,9 +408,9 @@ export function AdminNav() {
           </button>
         </div>
 
-        {/* 站点切换器（二段）：只切换视图，不做路由跳转 */}
+        {/* 顶部固定区②：站点切换器（只切换视图，不做路由跳转） */}
         {!collapsed && (
-          <div className="px-3 pt-2">
+          <div className="shrink-0 px-3 pt-2">
             <div className="flex rounded-[var(--admin-radius-ctl)] bg-muted/50 p-1 text-micro font-medium">
               <button
                 type="button"
@@ -404,11 +440,11 @@ export function AdminNav() {
           </div>
         )}
 
-        {/* 导航列表（只含真导航） */}
+        {/* 滚动区：除顶部两块外一切内容都在这里，含末尾的「系统」组 */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2">
           <div className="flex flex-col gap-1">
-            {navSection.map((group, gi) => (
-              <div key={group.label ?? gi}>
+            {visibleGroups.map((group, gi) => (
+              <div key={`${group.label ?? "g"}-${gi}`}>
                 {group.label && <GroupLabel text={group.label} collapsed={collapsed} />}
                 {group.items.map((item) => (
                   <NavItemRow
@@ -426,98 +462,27 @@ export function AdminNav() {
           </div>
         </nav>
 
-        {/* 底部固定区①：系统级导航（不参与主副站切换，两侧都可见） */}
-        {systemSection.length > 0 && (
-          <div className="border-t border-border px-2 pt-2">
-            {systemSection.map((group, gi) => (
-              <div key={group.label ?? gi}>
-                {group.label && !collapsed && <GroupLabel text={group.label} collapsed={false} />}
-                {group.label && collapsed && <GroupLabel text={group.label} collapsed />}
-                <div className="flex flex-col gap-1">
-                  {group.items.map((item) => (
-                    <NavItemRow
-                      key={item.href}
-                      item={item}
-                      isActive={isActive(item.href)}
-                      accent={accent}
-                      accentSoft={accentSoft}
-                      collapsed={collapsed}
-                      badge={getBadgeCount(item.href)}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 底部固定区②：工具区（角色徽标 / 搜索 / 返回前台 / 主题） */}
-        <div className="mt-2 border-t border-border px-2 py-2">
-          <div className="flex flex-col gap-1">
-            {/* 角色徽标 */}
-            <div
-              title={collapsed ? `角色：${ROLE_META[userRole as UserRole]?.label ?? "管理员"}` : undefined}
-              className={cn(ITEM_BASE, collapsed ? "justify-center px-0" : "px-3", "text-muted-foreground")}
-            >
-              <Shield className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
-              {!collapsed && (
-                <span className="truncate text-micro font-semibold text-primary">{ROLE_META[userRole as UserRole]?.label ?? "管理员"}</span>
-              )}
-            </div>
-            {/* 搜索 */}
+        {/* 底部固定区：只有 4 个工具，整块 48px（py-2 + 32px 项高） */}
+        <div className="shrink-0 border-t border-border px-2 py-2">
+          <div className={cn("flex gap-1", collapsed ? "flex-col items-center" : "items-center justify-between")}>
             <button
               type="button"
-              onClick={() => {
-                document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
-              }}
-              title={collapsed ? "全局搜索 (Ctrl+K)" : undefined}
-              className={cn(
-                ITEM_BASE,
-                collapsed ? "justify-center px-0" : "px-3",
-                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-              )}
+              onClick={triggerSearch}
+              title="全局搜索 (Ctrl+K)"
+              aria-label="全局搜索"
+              className={TOOL_BASE}
             >
-              <Search className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
-              {!collapsed && <span className="truncate">搜索</span>}
+              <Search className="h-4 w-4" strokeWidth={2} />
             </button>
-            {/* 返回前台 */}
-            <Link
-              href="/"
-              title={collapsed ? "返回前台" : undefined}
-              className={cn(
-                ITEM_BASE,
-                collapsed ? "justify-center px-0" : "px-3",
-                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-              )}
-            >
-              <ArrowLeft className={cn("h-4 w-4 shrink-0")} strokeWidth={2} />
-              {!collapsed && <span className="truncate">返回前台</span>}
+            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE}>
+              <ArrowLeft className="h-4 w-4" strokeWidth={2} />
             </Link>
-            {/* 主题切换 */}
-            <button
-              type="button"
-              onClick={cycleTheme}
-              className={cn(
-                ITEM_BASE,
-                collapsed ? "justify-center px-0" : "px-3",
-                "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-              )}
-              title={
-                themeMode === "dark" ? "当前：深色模式（点击切换）" :
-                themeMode === "light" ? "当前：浅色模式（点击切换）" :
-                "当前：跟随系统（点击切换）"
-              }
-            >
-              {mounted && themeMode === "dark" && <Moon className="h-4 w-4 shrink-0" strokeWidth={2} />}
-              {mounted && themeMode === "light" && <Sun className="h-4 w-4 shrink-0" strokeWidth={2} />}
-              {mounted && themeMode === "system" && (
-                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center">
-                  <Sun className="absolute h-4 w-4 opacity-50" strokeWidth={2} />
-                  <Moon className="absolute size-2.5 translate-x-[1px] -translate-y-[1px]" strokeWidth={2} />
-                </span>
-              )}
-              {!collapsed && <span className="truncate">{themeLabel}</span>}
+            <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
+              {themeIcon}
             </button>
+            <div title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_BASE, "cursor-default hover:bg-transparent")}>
+              <Shield className="h-4 w-4" strokeWidth={2} />
+            </div>
           </div>
         </div>
       </aside>
@@ -533,9 +498,7 @@ export function AdminNav() {
         <span className="text-sm font-semibold text-foreground">管理后台</span>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => {
-              document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
-            }}
+            onClick={triggerSearch}
             className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <Search className="h-5 w-5" strokeWidth={2} />
@@ -565,8 +528,8 @@ export function AdminNav() {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* 顶部 */}
-        <div className="flex h-14 items-center justify-between border-b border-border px-4">
+        {/* 顶部固定区①：标题 + 关闭 */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
           <span className="text-sm font-semibold text-foreground">管理后台</span>
           <button
             onClick={() => setMobileOpen(false)}
@@ -576,8 +539,8 @@ export function AdminNav() {
           </button>
         </div>
 
-        {/* 站点切换器（手机端） */}
-        <div className="px-3 pt-2 pb-2">
+        {/* 顶部固定区②：站点切换器（与桌面端同一份视图状态） */}
+        <div className="shrink-0 px-3 pt-2">
           <div className="flex rounded-[var(--admin-radius-ctl)] bg-muted/50 p-1 text-micro font-medium">
             <button
               type="button"
@@ -606,11 +569,11 @@ export function AdminNav() {
           </div>
         </div>
 
-        {/* 导航（含系统区） */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
+        {/* 滚动区（与桌面端同一份 visibleGroups，含末尾「系统」） */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2">
           <div className="flex flex-col gap-1">
             {visibleGroups.map((group, gi) => (
-              <div key={group.label ?? gi}>
+              <div key={`${group.label ?? "g"}-${gi}`}>
                 {group.label && <GroupLabel text={group.label} collapsed={false} />}
                 {group.items.map((item) => (
                   <NavItemRow
@@ -627,38 +590,29 @@ export function AdminNav() {
               </div>
             ))}
           </div>
-        </div>
+        </nav>
 
-        {/* 底部工具区（手机端） */}
-        <div className="border-t border-border px-2 py-2">
-          <div className="flex flex-col gap-1">
-            <div className={cn(ITEM_BASE, "px-3 text-muted-foreground")}>
-              <Shield className="h-4 w-4 shrink-0" strokeWidth={2} />
-              <span className="truncate text-micro font-semibold text-primary">{ROLE_META[userRole as UserRole]?.label ?? "管理员"}</span>
-            </div>
-            <Link
-              href="/"
-              onClick={() => setMobileOpen(false)}
-              className={cn(ITEM_BASE, "px-3 text-muted-foreground hover:bg-accent/60 hover:text-foreground")}
-            >
-              <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2} />
-              <span className="truncate">返回前台</span>
-            </Link>
+        {/* 底部固定区：同款 4 个工具（窄屏排一行，260px 放得下） */}
+        <div className="shrink-0 border-t border-border px-2 py-2">
+          <div className="flex items-center justify-between gap-1">
             <button
               type="button"
-              onClick={cycleTheme}
-              className={cn(ITEM_BASE, "px-3 text-muted-foreground hover:bg-accent/60 hover:text-foreground")}
+              onClick={triggerSearch}
+              title="全局搜索 (Ctrl+K)"
+              aria-label="全局搜索"
+              className={TOOL_BASE}
             >
-              {mounted && themeMode === "dark" && <Moon className="h-4 w-4 shrink-0" strokeWidth={2} />}
-              {mounted && themeMode === "light" && <Sun className="h-4 w-4 shrink-0" strokeWidth={2} />}
-              {mounted && themeMode === "system" && (
-                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center">
-                  <Sun className="absolute h-4 w-4 opacity-50" strokeWidth={2} />
-                  <Moon className="absolute size-2.5 translate-x-[1px] -translate-y-[1px]" strokeWidth={2} />
-                </span>
-              )}
-              <span className="truncate">{themeLabel}</span>
+              <Search className="h-4 w-4" strokeWidth={2} />
             </button>
+            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE} onClick={() => setMobileOpen(false)}>
+              <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+            </Link>
+            <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
+              {themeIcon}
+            </button>
+            <div title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_BASE, "cursor-default hover:bg-transparent")}>
+              <Shield className="h-4 w-4" strokeWidth={2} />
+            </div>
           </div>
         </div>
       </aside>
