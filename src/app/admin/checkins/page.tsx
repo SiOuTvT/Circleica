@@ -132,12 +132,7 @@ export default async function AdminCheckInsPage({
         }
       >
 
-      {/* 签到配置编辑器 — 分节 + 列宽约束（760px，与期 3 表单列宽一致），避免铺满整行压掉记录列表 */}
-      <section className="max-w-[760px]">
-        <AdminSectionHeading>签到规则</AdminSectionHeading>
-        <CheckInConfigEditor />
-      </section>
-
+      {/* 记录区置顶：配置区会把 57 条记录挤到首屏之外，故记录在前、配置在后 */}
       <AdminSectionHeading>签到记录</AdminSectionHeading>
       <AdminDataTable
         rows={checkIns}
@@ -178,6 +173,12 @@ export default async function AdminCheckInsPage({
         actions={(ci) => <CheckinDeleteBtn id={ci.id} />}
         actionsWidth="88px"
       />
+
+      {/* 签到配置编辑器 — 分节 + 列宽约束（760px，与表单列宽一致） */}
+      <section className="max-w-[760px]">
+        <AdminSectionHeading>签到规则</AdminSectionHeading>
+        <CheckInConfigEditor />
+      </section>
 
       <Pagination
         currentPage={page}

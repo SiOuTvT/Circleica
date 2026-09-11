@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { apiFetchSafe } from "@/lib/api-client"
-import { adminBtnDanger } from "@/lib/admin-styles"
+import { adminBtnDanger, adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils";
 
 interface EmMsg {
@@ -214,7 +214,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
         expanded={(item) =>
           editing?.id === item.id ? (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <Field label="Key"><input value={editing!.key} onChange={e => setEditing(p => p && { ...p, key: e.target.value })} placeholder="如: tmrw" className="em-input" /></Field>
                 <Field label="分类">
                   <select value={editing!.category} onChange={e => setEditing(p => p && { ...p, category: e.target.value })} className="em-input">
@@ -229,13 +229,12 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
               {editing!.imageUrl && (
                 <Image src={editing!.imageUrl} alt="" width={80} height={80} className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" unoptimized />
               )}
-              <div className="flex gap-2">
+              <div className="flex justify-end gap-2">
                 <button onClick={() => handleUpdate(editing!)} disabled={pending}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
+                  className={cn(adminBtnPrimary, "disabled:opacity-40")}>
                   <Save className="h-3.5 w-3.5" /> 保存
                 </button>
-                <button onClick={() => setEditing(null)}
-                  className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+                <button onClick={() => setEditing(null)} className={adminBtnSecondary}>
                   取消
                 </button>
               </div>
@@ -337,7 +336,7 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block space-y-1">
+    <label className="block min-w-0 space-y-1">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {children}
     </label>

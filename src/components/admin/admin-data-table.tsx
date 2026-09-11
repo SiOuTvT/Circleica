@@ -102,6 +102,9 @@ export function AdminDataTable<T>({
       ]
     : columns
 
+  // 展开行跨列用的列总数（数据列 + 操作列 + 勾选列）
+  const colCount = cols.length + (selectable ? 1 : 0)
+
   return (
     <div className={cn("w-full", className)}>
       {/* 窄屏横向滚动；lg 以上放开 overflow，让 sticky 表头相对视口生效 */}
@@ -179,16 +182,19 @@ export function AdminDataTable<T>({
                     </td>
                   ))}
                 </tr>
-                {extra && (
+                {extra ? (
                   <tr>
+                    {/* 展开行：必须显式 colSpan = 实际列总数（数据列 + 操作列 + 勾选列），
+                        否则表单会被塞进第一列，输入框塌成 0 宽。
+                        表单列宽统一 max-w-[760px]，各页不要再自己拼 tr。 */}
                     <td
-                      colSpan={cols.length + (selectable ? 1 : 0)}
-                      className="border-b border-border px-4 py-3"
+                      colSpan={colCount}
+                      className="w-full border-b border-border px-4 py-3 align-top"
                     >
-                      {extra}
+                      <div className="w-full max-w-[760px]">{extra}</div>
                     </td>
                   </tr>
-                )}
+                ) : null}
                 </Fragment>
               )
             })}
