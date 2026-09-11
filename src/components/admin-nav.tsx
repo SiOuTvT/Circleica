@@ -118,6 +118,11 @@ const navGroups: NavGroup[] = [
   },
 ]
 
+// 根型条目：它们是其余子页的路径前缀，按前缀匹配会和子页一起高亮（一个侧栏亮两项）。
+// 这两个只能精确匹配；其余条目一律用 href + "/" 前缀匹配，
+// 避免 /admin/tags 误配 /admin/tags-all 这类同前缀路径。
+const EXACT_ONLY = ["/admin", "/admin/galvelica"]
+
 const STORAGE_KEY = "admin-sidebar-collapsed"
 const THEME_KEY = "admin-theme-mode" // "light" | "dark" | "system"
 
@@ -276,7 +281,10 @@ export function AdminNav() {
     return 0
   }
 
-  const isActive = (href: string) => pathname === href || (href !== "/admin" && pathname.startsWith(href))
+  const isActive = (href: string) =>
+    EXACT_ONLY.includes(href)
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + "/")
 
   // 初始化：读取 localStorage
   useEffect(() => {
