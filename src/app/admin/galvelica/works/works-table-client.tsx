@@ -71,7 +71,7 @@ export function WorksTableClient({ works }: { works: WorkRow[] }) {
           {
             key: "studioName",
             label: "制作组",
-            width: "180px",
+            width: "140px",
             render: (w) => (
               <span className="block truncate text-xs text-muted-foreground" title={w.studioName ?? ""}>
                 {w.studioName?.trim() || "—"}
@@ -108,7 +108,6 @@ export function WorksTableClient({ works }: { works: WorkRow[] }) {
           },
         ]}
         actions={(w) => <WorkRowActions work={w} />}
-        actionsWidth="176px"
       />
     </div>
   )

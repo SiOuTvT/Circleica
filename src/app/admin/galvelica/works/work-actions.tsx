@@ -74,7 +74,8 @@ export function WorkRowActions({ work }: { work: WorkRow }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-1.5">
+    // nowrap + 不设列宽：三枚按钮折行会把整行顶到 125px，故强制单行、由表格自动布局吃宽
+    <div className="flex flex-nowrap items-center justify-end gap-1.5 whitespace-nowrap">
       <button type="button" className={adminBtnSubtle} onClick={() => setEditing(true)} disabled={busy}>
         <Pencil className="h-3.5 w-3.5" /> 编辑
       </button>
