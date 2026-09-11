@@ -34,7 +34,7 @@ export function AZIndex({ available, active, anchorPrefix = "archive-letter-", c
               key={key}
               href={`#${anchorPrefix}${encodeURIComponent(key)}`}
               className={cn(
-                "min-w-[1.75rem] rounded-md px-2 py-1 text-center text-xs font-medium transition-colors",
+                "inline-flex min-h-[32px] min-w-[1.75rem] items-center justify-center rounded-md px-2 text-center text-xs font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground",

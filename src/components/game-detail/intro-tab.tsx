@@ -85,7 +85,7 @@ function LangTabs({
               aria-selected={isActive}
               onClick={() => onChange(d.lang)}
               className={cn(
-                "shrink-0 text-sm font-medium transition-colors duration-150",
+                "inline-flex min-h-[28px] shrink-0 items-center text-sm font-medium transition-colors duration-150",
                 isActive
                   ? "text-foreground"
                   : "text-muted-foreground/60 hover:text-muted-foreground"

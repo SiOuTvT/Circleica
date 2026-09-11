@@ -78,7 +78,7 @@ export function StudioWorksCard({ data }: { data: StudioWorksItem }) {
               <Link
                 key={s.slug}
                 href={`/credits/studio/${encodeURIComponent(s.slug)}`}
-                className="relative z-10 block min-w-0 truncate text-[16px] font-semibold text-foreground transition-colors duration-200 hover:text-primary"
+                className="relative z-10 flex min-h-[44px] min-w-0 items-center truncate text-[16px] font-semibold text-foreground transition-colors duration-200 hover:text-primary"
               >
                 {s.name}
               </Link>

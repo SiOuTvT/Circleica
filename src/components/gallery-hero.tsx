@@ -328,7 +328,7 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
                 return next
               })
             }}
-            className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 sm:hover:scale-105 opacity-70"
+            className="flex h-8 w-8 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 text-white border border-white/15 backdrop-blur-md transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] ease-in-out duration-200 sm:hover:scale-105 opacity-70"
             aria-label={isPaused ? "继续轮播" : "暂停轮播"}
           >
             {isPaused ? <Play className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <Pause className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}

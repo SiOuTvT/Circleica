@@ -778,7 +778,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                   <button
                     type="button"
                     onClick={() => setStudios((prev) => [...prev, { name: "" }])}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-foreground/80 transition-colors hover:text-primary"
+                    className="inline-flex min-h-[28px] items-center gap-1 rounded-lg px-2 py-1 text-sm text-foreground/80 transition-colors hover:text-primary"
                   >
                     <Plus className="h-4 w-4" />
                     添加制作组
