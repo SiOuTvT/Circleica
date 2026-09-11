@@ -38,14 +38,15 @@ export function EmailVerificationBanner() {
           <button
             onClick={handleResend}
             disabled={sending}
-            className="underline font-medium hover:text-amber-600 dark:hover:text-amber-300 whitespace-nowrap disabled:opacity-50"
+            // 热区：<sm 36px、≥sm 28px；仍是裸 underline 文字按钮，不套按钮底色
+            className="inline-flex items-center min-h-[36px] sm:min-h-[28px] px-2 underline font-medium hover:text-amber-600 dark:hover:text-amber-300 whitespace-nowrap disabled:opacity-50"
           >
             {sending ? "发送中..." : "发送验证邮件"}
           </button>
         </div>
         <button
           onClick={() => setDismissed(true)}
-          className="shrink-0 p-1 rounded hover:bg-amber-500/10 transition-colors"
+          className="shrink-0 inline-flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded hover:bg-amber-500/10 transition-colors"
           aria-label="关闭"
         >
           <X className="h-4 w-4" />

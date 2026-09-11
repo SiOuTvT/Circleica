@@ -32,7 +32,8 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logo
               <Link
                 key={link.href}
                 href={link.href}
-                className="font-medium text-foreground/80 transition-colors hover:text-foreground"
+                // 热区：<sm 32px、≥sm 28px。刻意不加下划线（只有正文段落内链接才有下划线）
+                className="inline-flex items-center min-h-[32px] sm:min-h-[28px] font-medium text-foreground/80 transition-colors hover:text-foreground"
               >
                 {link.label}
               </Link>
@@ -41,7 +42,7 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logo
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-foreground/80 transition-colors hover:text-foreground"
+              className="inline-flex items-center min-h-[32px] sm:min-h-[28px] font-medium text-foreground/80 transition-colors hover:text-foreground"
             >
               GitHub
             </a>
