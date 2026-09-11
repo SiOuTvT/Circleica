@@ -7,7 +7,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Badge } from "@/components/ui/badge"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Flag } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -129,56 +129,71 @@ export default async function AdminReportsPage({
       )}
 
       {/* 举报列表 */}
-      {reports.length === 0 ? (
-        <EmptyState
-          icon={Flag}
-          title={q ? `没有找到与"${q}"相关的举报` : "暂无举报记录"}
-          bordered
-        />
-      ) : (
-        <div className="space-y-2">
-          {reports.map((report) => (
-            <Card
-              key={report.id}
-              size="default" radius="xl"
-              className="group flex-row items-start sm:items-center gap-3 sm:gap-4 hover:ring-primary/30"
-            >
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                {report.game.coverImage ? (
-                  <Image src={report.game.coverImage} alt="" width={48} height={48} className="h-full w-full object-cover" unoptimized />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                    <Flag className="h-5 w-5" />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/admin/games/${report.game.id}`}
-                    className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline"
-                  >
-                    {report.game.title}
-                  </Link>
-                  {!report.game.isPublished && (
-                    <AdminStatusBadge tone="warning">未发布</AdminStatusBadge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground break-all">
-                  举报IP: <span className="font-mono">{report.ip}</span>，{formatDateTime(report.createdAt)}
-                  {report.reason && (
-                    <> <span className="text-destructive break-words">{report.reason}</span></>
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <ReportResolveBtn gameId={report.game.id} reportCount={reportCountByGame.get(report.gameId) ?? 1} />
-                <ReportDeleteBtn id={report.id} />
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminDataTable
+        rows={reports}
+        rowKey={(report) => report.id}
+        emptyIcon={Flag}
+        emptyTitle={q ? `没有找到与"${q}"相关的举报` : "暂无举报记录"}
+        columns={[
+          {
+            key: "game",
+            label: "游戏",
+            render: (report) => (
+              <span className="flex min-w-0 items-center gap-2">
+                <Link
+                  href={`/admin/games/${report.game.id}`}
+                  className="truncate font-medium text-foreground hover:text-primary hover:underline"
+                  title={report.game.title}
+                >
+                  {report.game.title}
+                </Link>
+                {!report.game.isPublished && <AdminStatusBadge tone="warning">未发布</AdminStatusBadge>}
+              </span>
+            ),
+          },
+          {
+            key: "reportCount",
+            label: "举报数",
+            numeric: true,
+            width: "96px",
+            render: (report) => reportCountByGame.get(report.gameId) ?? 1,
+          },
+          {
+            key: "ip",
+            label: "IP",
+            width: "140px",
+            render: (report) => (
+              <span className="block truncate font-mono text-xs text-muted-foreground" title={report.ip ?? ""}>
+                {report.ip?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "reason",
+            label: "原因",
+            render: (report) => (
+              <span className="block truncate text-xs text-destructive" title={report.reason?.trim() || ""}>
+                {report.reason?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "createdAt",
+            label: "最近时间",
+            width: "160px",
+            render: (report) => (
+              <span className="text-xs text-muted-foreground">{formatDateTime(report.createdAt)}</span>
+            ),
+          },
+        ]}
+        actions={(report) => (
+          <span className="inline-flex items-center gap-1.5">
+            <ReportResolveBtn gameId={report.game.id} reportCount={reportCountByGame.get(report.gameId) ?? 1} />
+            <ReportDeleteBtn id={report.id} />
+          </span>
+        )}
+        actionsWidth="132px"
+      />
 
       <Pagination
         currentPage={page}
