@@ -11,10 +11,17 @@ import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+/** 帖子 id 形状（cuid）。非法形状直接 404，不要落到服务层抛异常 */
+const ID_SHAPE = /^[a-z0-9]{20,32}$/i
+function isPostId(value: string) {
+  return ID_SHAPE.test(value)
+}
+
 export const revalidate = 30
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
+  if (!isPostId(id)) return { title: "帖子不存在" }
   const post = await prisma.forumPost.findUnique({ where: { id }, select: { title: true, content: true } })
   if (!post) return { title: "帖子不存在" }
   const desc = post.content.replace(/<[^>]*>/g, "").slice(0, 160)
@@ -28,6 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ForumPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (!isPostId(id)) notFound()
   const session = await auth()
 
   async function fetchPost() {
