@@ -14,7 +14,7 @@ interface TagCategoryProps {
  */
 export function TagCategory({ group }: TagCategoryProps) {
   const [expanded, setExpanded] = useState(false)
-  const displayTags = expanded ? group.tags : group.tags.slice(0, 8)
+  const displayTags = expanded ? group.tags : group.tags.slice(0, 12)
 
   return (
     <div
@@ -31,10 +31,10 @@ export function TagCategory({ group }: TagCategoryProps) {
             {group.name}
           </h3>
         </div>
-        {group.tags.length > 8 && (
+        {group.tags.length > 12 && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center min-h-[32px] px-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             {expanded ? "收起" : `展开 (${group.tags.length})`}
           </button>
@@ -47,6 +47,7 @@ export function TagCategory({ group }: TagCategoryProps) {
             key={tag.id}
             variant="content"
             color={tag.color}
+            className="inline-flex items-center min-h-[36px] sm:min-h-[32px]"
             href={tag.slug ? `/credits/tag/${encodeURIComponent(tag.slug)}` : `/tags/${tag.id}`}
             title={`${tag.gameCount} 个游戏`}
           >
