@@ -712,6 +712,25 @@ main > * {
     transition: border-color var(--duration-slow) ease;
   }
 
+  /* ═══ 后台版式基因 · 期 1 定案 ═══
+     后台一律取本组变量：页面内禁止再写死 10/11/14/16/17/18px 与 rounded-2xl，
+     字号取 --admin-fs-*、圆角取 --admin-radius-*、间距取 --admin-gap-*。
+     仅「定义」，不挂任何按元素/按类的覆盖选择器（那是下方【后台收档层】的事，且带 admin 作用域）。 */
+  :root {
+    --admin-fs-micro:    11px;   /* 眉标、表头、状态徽标、分组标题 */
+    --admin-fs-meta:     12px;   /* 次要说明、时间戳、计数、表格次要列 */
+    --admin-fs-body:     13px;   /* 列表主行、卡片标题、区块标题 */
+    --admin-fs-ctl:      15px;   /* 表单控件：沿用 adminInput，仅登记不新写 */
+    --admin-fs-h1:       24px;   /* 仅 AdminPageHeader 的 H1 */
+    --admin-radius-ctl:  6px;    /* 按钮、输入框、select、pill、徽标 */
+    --admin-radius-box:  12px;   /* Card、抽屉、弹窗、图片框 */
+    --admin-gap-1: 4px;
+    --admin-gap-2: 8px;
+    --admin-gap-3: 12px;
+    --admin-gap-4: 16px;
+    --admin-gap-5: 24px;
+  }
+
   /* 链接颜色/下划线过渡：置于 base 层，优先级低于 @layer utilities，
      避免未分层规则覆盖卡片 <a> 的 transition 工具类（见文件下方未分层 a 规则） */
   a {
