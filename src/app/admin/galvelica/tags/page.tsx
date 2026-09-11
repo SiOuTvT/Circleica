@@ -132,26 +132,6 @@ export default async function GalvelicaTagsPage({
             ),
           },
           {
-            key: "slug",
-            label: "Slug",
-            width: "200px",
-            render: (t) => (
-              <span className="block truncate text-xs text-muted-foreground" title={t.slug ?? ""}>
-                {t.slug?.trim() || "—"}
-              </span>
-            ),
-          },
-          {
-            key: "category",
-            label: "分类",
-            width: "140px",
-            render: (t) => (
-              <span className="block truncate text-xs text-muted-foreground" title={t.category ?? ""}>
-                {t.category?.trim() || "—"}
-              </span>
-            ),
-          },
-          {
             key: "workCount",
             label: "引用数",
             numeric: true,
