@@ -5,7 +5,7 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Tag } from "lucide-react"
 import Link from "next/link"
 import { TagCreateForm, TagRowActions, TagColorPalette } from "./tag-actions"
@@ -105,16 +105,18 @@ export default async function GalvelicaTagsPage({
       }
     >
       <TagColorPalette initialColor={tagColor} />
-      {mappedTags.length === 0 ? (
-        <EmptyState icon={Tag} title="暂无标签" description="Galvelica 副站尚无标签数据" bordered />
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {mappedTags.map((t) => (
-            <div
-              key={t.id}
-              className="flex flex-col rounded-xl border border-border bg-card p-3 transition-colors hover:border-[color:var(--admin-accent,var(--primary))]"
-            >
-              <div className="flex items-center gap-2">
+      <AdminDataTable
+        rows={mappedTags}
+        rowKey={(t) => t.id}
+        emptyIcon={Tag}
+        emptyTitle="暂无标签"
+        emptyDescription="Galvelica 副站尚无标签数据"
+        columns={[
+          {
+            key: "name",
+            label: "名称",
+            render: (t) => (
+              <span className="flex min-w-0 items-center gap-2">
                 <span
                   className="inline-block h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-border"
                   style={{ background: t.color || tagColor }}
@@ -124,17 +126,42 @@ export default async function GalvelicaTagsPage({
                   className="block min-w-0 flex-1 truncate font-medium text-foreground hover:text-primary hover:underline"
                   title={t.name}
                 >
-                  {t.name}
+                  {t.name?.trim() || "—"}
                 </Link>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
-                <span className="text-xs text-muted-foreground">关联作品 {t.workCount}</span>
-                <TagRowActions tag={t} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+              </span>
+            ),
+          },
+          {
+            key: "slug",
+            label: "Slug",
+            width: "200px",
+            render: (t) => (
+              <span className="block truncate text-xs text-muted-foreground" title={t.slug ?? ""}>
+                {t.slug?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "category",
+            label: "分类",
+            width: "140px",
+            render: (t) => (
+              <span className="block truncate text-xs text-muted-foreground" title={t.category ?? ""}>
+                {t.category?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "workCount",
+            label: "引用数",
+            numeric: true,
+            width: "112px",
+            render: (t) => t.workCount,
+          },
+        ]}
+        actions={(t) => <TagRowActions tag={t} />}
+        actionsWidth="132px"
+      />
 
       <Pagination
         currentPage={page}
