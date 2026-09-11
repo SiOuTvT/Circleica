@@ -1,13 +1,15 @@
 "use client"
 
 import { Gamepad2, Pencil, Trash2 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { AdminDeleteButton } from "./admin-delete-button"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "./admin/admin-data-table"
+import { formatDate } from "@/lib/date"
 import { api } from "@/lib/api-client"
 
 type Game = {
@@ -19,7 +21,9 @@ type Game = {
   viewCount: number
   favoriteCount: number
   createdAt: Date
-  tags: { tag: { name: string; color: string } }[]
+  updatedAt: Date
+  coverImage: string | null
+  tagCount: number
 }
 
 export function AdminGamesTable({ games }: { games: Game[] }) {
@@ -88,71 +92,93 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
         </div>
       )}
 
-      {games.length === 0 ? (
-        <EmptyState icon={Gamepad2} title="暂无游戏" description="点击右上角「新增游戏」开始添加" bordered />
-      ) : (
-      <>
-      <div className="flex items-center gap-3 mb-3">
-        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-          <input type="checkbox" checked={allSelected} onChange={toggleAll}
-            className="h-4 w-4 rounded border-border accent-primary cursor-pointer" />
-          全选
-        </label>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {games.map((g) => (
-          <div
-            key={g.id}
-            className="group flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border transition ease-in-out duration-200 hover:ring-foreground/10 hover:shadow-2"
-          >
-            <div className="flex items-start gap-3">
-              <input type="checkbox" checked={selected.has(g.id)} onChange={() => toggle(g.id)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-primary cursor-pointer" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground line-clamp-1">{g.title}</span>
-                  {g.isNsfw && (
-                    <span className="shrink-0 rounded px-1.5 py-0.5 text-micro font-semibold bg-red-500/10 text-red-400 ring-1 ring-red-500/20">R18</span>
-                  )}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {g.tags.slice(0, 3).map(({ tag }) => (
-                    <span key={tag.name} className="game-card-tag inline-block text-xs font-medium px-2 py-0.5 rounded-md max-w-[96px] truncate"
-                      title={tag.name}>
-                      {tag.name}
+      <AdminDataTable
+        rows={games}
+        rowKey={(g) => g.id}
+        emptyIcon={Gamepad2}
+        emptyTitle="暂无游戏"
+        emptyDescription="点击右上角「新增游戏」开始添加"
+        selectable
+        selectedKeys={Array.from(selected)}
+        onToggleRow={toggle}
+        onToggleAll={toggleAll}
+        allSelected={allSelected}
+        columns={[
+          {
+            key: "title",
+            label: "游戏",
+            render: (g) => (
+              <span className="flex min-w-0 items-center gap-3">
+                <span className="h-11 w-8 shrink-0 overflow-hidden rounded bg-muted">
+                  {g.coverImage ? (
+                    <Image src={g.coverImage} alt="" width={32} height={44} className="h-full w-full object-cover" unoptimized />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <Gamepad2 className="h-4 w-4" />
                     </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-micro font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
+                  )}
+                </span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <span className="truncate font-medium text-foreground" title={g.title}>{g.title}</span>
+                  {g.isNsfw && (
+                    <span className="shrink-0 rounded bg-red-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-red-400 ring-1 ring-red-500/20">
+                      R18
+                    </span>
+                  )}
+                </span>
+              </span>
+            ),
+          },
+          {
+            key: "isPublished",
+            label: "状态",
+            width: "96px",
+            render: (g) => (
+              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                 {g.isPublished ? "已发布" : "草稿"}
               </span>
-              <span className="text-xs text-muted-foreground tabular-nums">浏览 {g.viewCount?.toLocaleString() ?? 0}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Link
-                href={`/admin/games/${g.id}`}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
-              >
-                <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
-              </Link>
-              <div className="ml-auto">
-                <AdminDeleteButton
-                  endpoint={`/api/admin/games/${g.id}`}
-                  title="删除游戏"
-                  description={`确定要删除《${g.title}》吗？此操作不可撤销，相关资源与评论将一并删除。`}
-                  successMessage="游戏已删除"
-                  buttonTitle={`删除 ${g.title}`}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      </>
-      )}
+            ),
+          },
+          {
+            key: "tagCount",
+            label: "标签数",
+            numeric: true,
+            width: "96px",
+            render: (g) => g.tagCount ?? 0,
+          },
+          {
+            key: "viewCount",
+            label: "浏览量",
+            numeric: true,
+            width: "112px",
+            render: (g) => (g.viewCount ?? 0).toLocaleString(),
+          },
+          {
+            key: "updatedAt",
+            label: "更新时间",
+            width: "140px",
+            render: (g) => <span className="text-xs text-muted-foreground">{formatDate(g.updatedAt)}</span>,
+          },
+        ]}
+        actions={(g) => (
+          <span className="inline-flex items-center gap-1.5">
+            <Link
+              href={`/admin/games/${g.id}`}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-border transition duration-150 ease-in-out hover:bg-accent hover:text-foreground"
+            >
+              <Pencil className="h-3.5 w-3.5" strokeWidth={2} />编辑
+            </Link>
+            <AdminDeleteButton
+              endpoint={`/api/admin/games/${g.id}`}
+              title="删除游戏"
+              description={`确定要删除《${g.title}》吗？此操作不可撤销，相关资源与评论将一并删除。`}
+              successMessage="游戏已删除"
+              buttonTitle={`删除 ${g.title}`}
+            />
+          </span>
+        )}
+        actionsWidth="176px"
+      />
 
       <ConfirmDialog
         open={showDeleteConfirm}

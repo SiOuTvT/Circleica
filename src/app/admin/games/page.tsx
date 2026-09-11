@@ -21,7 +21,9 @@ interface AdminGameRow {
   viewCount: number
   favoriteCount: number
   createdAt: Date
-  tags: { tag: { name: string; color: string } }[]
+  updatedAt: Date
+  coverImage: string
+  _count: { tags: number }
 }
 
 const AdminGamesTable = dynamic(() => import("@/components/admin-games-table").then(m => ({ default: m.AdminGamesTable })), {
@@ -73,7 +75,8 @@ export default async function AdminGamesPage({
         select: {
           id: true, title: true, status: true, isNsfw: true,
           isPublished: true, viewCount: true, favoriteCount: true, createdAt: true,
-          tags: { take: 3, select: { tag: { select: { name: true, color: true } } } },
+          updatedAt: true, coverImage: true,
+          _count: { select: { tags: true } },
         },
       }),
       prisma.game.count({ where }),
@@ -113,7 +116,21 @@ export default async function AdminGamesPage({
       }
     >
 
-      <AdminGamesTable games={games} />
+      <AdminGamesTable
+        games={games.map((g) => ({
+          id: g.id,
+          title: g.title,
+          status: g.status,
+          isNsfw: g.isNsfw,
+          isPublished: g.isPublished,
+          viewCount: g.viewCount,
+          favoriteCount: g.favoriteCount,
+          createdAt: g.createdAt,
+          updatedAt: g.updatedAt,
+          coverImage: g.coverImage,
+          tagCount: g._count.tags,
+        }))}
+      />
 
       <Pagination
         currentPage={page}
