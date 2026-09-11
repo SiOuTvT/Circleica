@@ -21,6 +21,8 @@ import type { WorkCrewItem, WorkCrewResult } from "@/lib/credits-works"
 const PAGE_SIZE = 96
 const WORKS_PAGE_SIZE = 24
 const ANCHOR_PREFIX = "archive-letter-"
+/** 窄屏专期：首字分组默认折叠阈值 */
+const GROUP_LIMIT = 20
 
 /**
  * Creator Archive 列表（与 Studio Archive 同构，列表交互层）。
@@ -58,6 +60,16 @@ export function CreatorArchiveClient({
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(false)
   const [activeLetter, setActiveLetter] = useState<string | undefined>(undefined)
+  // 窄屏专期：每组默认 20 人，超出折叠（176 人平铺会让 390 下达 9 屏）
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  function toggleGroup(key: string) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
   const reqId = useRef(0)
 
   const fetchCreators = useCallback(async (page: number): Promise<CreatorListResult> => {
@@ -237,31 +249,44 @@ export function CreatorArchiveClient({
             />
           ) : (
             <div className="space-y-8">
-              {groups.map((g) => (
-                <section key={g.key} id={`${ANCHOR_PREFIX}${encodeURIComponent(g.key)}`} className="scroll-mt-20">
-                  <h2 className="mb-3 flex items-center gap-2.5 text-sm font-semibold text-muted-foreground">
-                    <span className="font-heading text-base text-foreground">{g.key === "#" ? "#" : g.key}</span>
-                    <span className="h-px flex-1 bg-border/60" />
-                    <span className="tabular-nums text-xs text-muted-foreground/60">{g.items.length}</span>
-                  </h2>
-                  <div className={cn("grid gap-3", DENSITY_GRID[density])}>
-                    {g.items.map((c) => (
-                      <EntityCard
-                        key={c.id}
-                        variant="creator"
-                        data={{
-                          id: c.id,
-                          slug: c.slug,
-                          name: c.name,
-                          nameJa: c.nameJa,
-                          avatar: c.avatar,
-                          roles: c.roles,
-                        }}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))}
+              {groups.map((g) => {
+                const shown = expandedGroups.has(g.key) ? g.items : g.items.slice(0, GROUP_LIMIT)
+                return (
+                  <section key={g.key} id={`${ANCHOR_PREFIX}${encodeURIComponent(g.key)}`} className="scroll-mt-20">
+                    <h2 className="mb-3 flex items-center gap-2.5 text-sm font-semibold text-muted-foreground">
+                      <span className="font-heading text-base text-foreground">{g.key === "#" ? "#" : g.key}</span>
+                      <span className="h-px flex-1 bg-border/60" />
+                      <span className="tabular-nums text-xs text-muted-foreground/60">{g.items.length}</span>
+                    </h2>
+                    {/* 整行可点 + 44px 热区：作用在卡片内的链接上，不改共享组件 */}
+                    <div className={cn("grid gap-3", DENSITY_GRID[density], "[&_a]:min-h-[44px] [&_a]:flex [&_a]:items-center")}>
+                      {shown.map((c) => (
+                        <EntityCard
+                          key={c.id}
+                          variant="creator"
+                          data={{
+                            id: c.id,
+                            slug: c.slug,
+                            name: c.name,
+                            nameJa: c.nameJa,
+                            avatar: c.avatar,
+                            roles: c.roles,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    {g.items.length > GROUP_LIMIT && (
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(g.key)}
+                        className="mt-2 inline-flex items-center min-h-[32px] px-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {expandedGroups.has(g.key) ? "收起" : `展开全部 (${g.items.length})`}
+                      </button>
+                    )}
+                  </section>
+                )
+              })}
             </div>
           )}
         </>

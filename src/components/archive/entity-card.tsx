@@ -93,7 +93,8 @@ function CoverMedia({
 
 function StudioCard({ data }: { data: StudioCardData }) {
   return (
-    <CardShell href={`/credits/studio/${encodeURIComponent(data.slug ?? data.normalized)}`}>
+    // 窄屏专期：组卡整块可点，热区下限 44px
+    <CardShell href={`/credits/studio/${encodeURIComponent(data.slug ?? data.normalized)}`} className="min-h-[44px]">
       <CoverMedia cover={data.coverImage} initial={data.name} />
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         <h3 className="truncate font-heading text-sm font-semibold text-foreground transition-colors group-hover:text-primary">

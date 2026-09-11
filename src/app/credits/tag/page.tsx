@@ -4,7 +4,7 @@ import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { AZIndex } from "@/components/archive/az-index"
-import { TagCard } from "@/components/archive/tag-card"
+import { AzTagGroup } from "@/components/tags/az-tag-group"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
 import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
 import { LayoutGrid, Tag as TagIcon } from "lucide-react"
@@ -121,19 +121,13 @@ export default async function TagsPage({
                 const tags = tagsByLetter[letter]
                 if (!tags || tags.length === 0) return null
                 return (
-                  <div key={letter} id={`${ANCHOR_PREFIX}${encodeURIComponent(letter)}`} className="scroll-mt-20">
-                    <div className="mb-3 flex items-baseline gap-2 border-b border-border/50 pb-1.5">
-                      <span className="text-sm font-bold text-foreground">
-                        {letter === "0-9" ? "#" : letter}
-                      </span>
-                      <span className="text-xs text-muted-foreground/60">{tags.length} 个标签</span>
-                    </div>
-                    <div className={cn("grid gap-2.5", DENSITY_GRID[density])}>
-                      {tags.map((tag) => (
-                        <TagCard key={tag.id} tag={tag} />
-                      ))}
-                    </div>
-                  </div>
+                  <AzTagGroup
+                    key={letter}
+                    letter={letter === "0-9" ? "#" : letter}
+                    tags={tags}
+                    gridClass={cn("grid gap-2.5", DENSITY_GRID[density])}
+                    anchorId={`${ANCHOR_PREFIX}${encodeURIComponent(letter)}`}
+                  />
                 )
               })}
             </div>

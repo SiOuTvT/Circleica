@@ -2374,6 +2374,15 @@ body[data-has-bottom-nav="true"] {
   text-decoration: none;
   white-space: nowrap;
   transition: color 0.18s ease;
+  /* 窄屏专期：热区下限（<sm 32px / ≥sm 28px），视觉仍是纯文字 */
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+}
+@media (max-width: 639px) {
+  .galvelica-section-more {
+    min-height: 32px;
+  }
 }
 .galvelica-section-more:hover { color: var(--gal-accent); }
 
