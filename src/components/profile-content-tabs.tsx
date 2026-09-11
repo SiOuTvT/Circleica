@@ -373,7 +373,7 @@ function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefau
   return (
     <div className="group w-full rounded-xl bg-secondary/40 p-4 hover:bg-secondary/60">
       <div className="flex items-center justify-between mb-3">
-        <button onClick={onOpen} className="flex items-center gap-2.5 min-w-0 text-left">
+        <button onClick={onOpen} className="flex min-h-[28px] items-center gap-2.5 min-w-0 text-left">
           <FolderHeart className="h-5 w-5 text-primary/80 shrink-0" strokeWidth={2} />
           <span className="text-sm font-semibold text-foreground truncate">{name}</span>
           <Tag variant="badge" className="bg-muted text-muted-foreground">{gameCount} 部</Tag>
