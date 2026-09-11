@@ -198,8 +198,8 @@ export default async function AdminAuditLogsPage({
             label: "目标",
             width: "160px",
             render: (log) => (
-              <span className="block truncate font-mono text-xs text-muted-foreground" title={log.target ?? ""}>
-                {log.target ?? "—"}
+              <span className="block truncate font-mono text-xs text-muted-foreground" title={log.target?.trim() || ""}>
+                {log.target?.trim() || "—"}
               </span>
             ),
           },
@@ -207,8 +207,8 @@ export default async function AdminAuditLogsPage({
             key: "detail",
             label: "详情",
             render: (log) => (
-              <span className="block truncate text-xs text-muted-foreground" title={log.detail ?? ""}>
-                {log.detail ?? "—"}
+              <span className="block truncate text-xs text-muted-foreground" title={log.detail?.trim() || ""}>
+                {log.detail?.trim() || "—"}
               </span>
             ),
           },

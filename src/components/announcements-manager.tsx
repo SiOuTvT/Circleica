@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { RichTextEditor } from "@/components/rich-text-editor-wrapper"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import Image from "next/image"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
@@ -56,9 +56,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [draggingId, setDraggingId] = useState<string | null>(null)
-  const [dragOverId, setDragOverId] = useState<string | null>(null)
-  const dragNodeRef = useRef<HTMLDivElement | null>(null)
+
 
   const isEditing = editingId !== null
   useUnsavedChanges(!isEditing && (title.trim() !== "" || content.trim() !== ""))
@@ -147,38 +145,22 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     else { toast.error(error || "删除失败"); throw new Error("删除失败") }
   }
 
-  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
-    setDraggingId(id); e.dataTransfer.effectAllowed = "move"
-    dragNodeRef.current = e.currentTarget as HTMLDivElement
-    setTimeout(() => { if (dragNodeRef.current) dragNodeRef.current.style.opacity = "0.4" }, 0)
-  }, [])
-
-  const handleDragEnd = useCallback(() => {
-    if (dragNodeRef.current) dragNodeRef.current.style.opacity = "1"
-    dragNodeRef.current = null; setDraggingId(null); setDragOverId(null)
-  }, [])
-
-  const handleDragOver = useCallback((e: React.DragEvent, id: string) => {
-    e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOverId(id)
-  }, [])
-
-  const handleDragLeave = useCallback(() => { setDragOverId(null) }, [])
-
-  const handleDrop = useCallback(async (e: React.DragEvent, targetId: string) => {
-    e.preventDefault(); setDragOverId(null)
-    if (!draggingId || draggingId === targetId) return
-    const dragIndex = anns.findIndex(a => a.id === draggingId)
-    const targetIndex = anns.findIndex(a => a.id === targetId)
-    if (dragIndex === -1 || targetIndex === -1) return
-    const newAnns = [...anns]; const [removed] = newAnns.splice(dragIndex, 1)
-    newAnns.splice(targetIndex, 0, removed); setAnns(newAnns)
+  // 上移 / 下移：沿用原拖拽用的 reorder 接口，不再依赖卡片上的 HTML5 拖拽
+  const moveAnn = useCallback(async (id: string, dir: -1 | 1) => {
+    const idx = anns.findIndex(a => a.id === id)
+    const next = idx + dir
+    if (idx === -1 || next < 0 || next >= anns.length) return
+    const newAnns = [...anns]
+    const [removed] = newAnns.splice(idx, 1)
+    newAnns.splice(next, 0, removed)
+    setAnns(newAnns)
     try {
       const { ok } = await apiFetchSafe("/api/admin/announcements/reorder", {
         method: "POST", body: { orderedIds: newAnns.map(a => a.id) },
       })
       if (!ok) toast.error("排序保存失败")
     } catch { toast.error("排序保存失败") }
-  }, [draggingId, anns])
+  }, [anns])
 
   const previewAnn: Ann = {
     id: "preview", title: title || "公告标题", summary, content,
@@ -320,72 +302,93 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             <p className="text-xs text-muted-foreground font-medium">
               共 {anns.length} 条公告
             </p>
-            <p className="text-caption text-muted-foreground/60">拖拽排序</p>
+            <p className="text-caption text-muted-foreground/60">上移 / 下移 调整顺序</p>
           </div>
 
-          {anns.length === 0 && (
-            <EmptyState icon={Megaphone} title="暂无公告" description="在左侧表单创建第一条公告" />
-          )}
-
-          <div className="divide-y divide-border/60 max-h-[500px] overflow-y-auto">
-            {anns.map(ann => (
-              <div key={ann.id}
-                draggable
-                onDragStart={e => handleDragStart(e, ann.id)} onDragEnd={handleDragEnd}
-                onDragOver={e => handleDragOver(e, ann.id)} onDragLeave={handleDragLeave}
-                onDrop={e => handleDrop(e, ann.id)}
-                className={`group/item transition-colors hover:bg-accent/40
-                  ${draggingId === ann.id ? "opacity-30" : ""}
-                  ${dragOverId === ann.id && draggingId !== ann.id ? "border-t-[3px] border-primary" : ""}`}>
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <div className="shrink-0 cursor-grab active:cursor-grabbing touch-none text-muted-foreground/40 group-hover/item:text-muted-foreground transition-colors">
-                    <GripVertical className="h-4 w-4" />
-                  </div>
-                  <div className="w-14 h-8 shrink-0 rounded-md overflow-hidden bg-muted ring-1 ring-border">
-                    {ann.imageUrl
-                      ? <Image src={ann.imageUrl} alt="" width={56} height={32} className="w-full h-full object-cover" unoptimized />
-                      : <div className="w-full h-full flex items-center justify-center text-micro text-muted-foreground/40">🎮</div>}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {ann.isPinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
-                      <Badge variant={STATUS_VARIANTS[ann.status] ?? "secondary"} size="sm">
-                        {STATUS_LABELS[ann.status] ?? ann.status}
-                      </Badge>
-                      <span className="text-sm font-medium text-foreground truncate">{ann.title}</span>
-                    </div>
-                    {expandedId === ann.id ? (
-                      <div className="mt-2"><RichTextContent html={ann.content} /></div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{ann.summary || stripHtml(ann.content)}</p>
+          <AdminDataTable
+            rows={anns}
+            rowKey={(ann) => ann.id}
+            emptyIcon={Megaphone}
+            emptyTitle="暂无公告"
+            emptyDescription="在左侧表单创建第一条公告"
+            expanded={(ann) =>
+              expandedId === ann.id ? <RichTextContent html={ann.content} /> : null
+            }
+            columns={[
+              {
+                key: "title",
+                label: "标题",
+                render: (ann) => (
+                  <span className="flex min-w-0 items-center gap-2">
+                    {ann.isPinned && <Pin className="h-3 w-3 shrink-0 text-primary" />}
+                    <span className="truncate font-medium text-foreground" title={ann.title}>{ann.title}</span>
+                    {ann.content.length > 100 && (
+                      <button
+                        onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
+                        className="inline-flex h-7 shrink-0 items-center gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        {expandedId === ann.id ? "收起" : "展开"}
+                      </button>
                     )}
-                    <div className="flex items-center gap-2 mt-1 text-caption text-muted-foreground/60">
-                      <span>{formatMonthDay(ann.createdAt)}</span>
-                      {ann.content.length > 100 && (
-                        <button onClick={() => setExpandedId(expandedId === ann.id ? null : ann.id)}
-                          className="inline-flex h-7 items-center gap-1 px-2 hover:text-foreground transition-colors">
-                          {expandedId === ann.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                          {expandedId === ann.id ? "收起" : "展开"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                    <IconBtn onClick={() => startEdit(ann)} title="编辑"><Pencil className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn onClick={() => togglePinned(ann.id, ann.isPinned)} title={ann.isPinned ? "取消置顶" : "置顶"}
-                      active={ann.isPinned}><Pin className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn onClick={() => toggleStatus(ann.id, ann.status === "published" ? "hidden" : "published")}
-                      title={ann.status === "published" ? "隐藏" : "发布"}>
-                      {ann.status === "published" ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                    </IconBtn>
-                    <IconBtn onClick={() => setDeleteId(ann.id)} title="删除" variant="danger">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </IconBtn>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </span>
+                ),
+              },
+              {
+                key: "status",
+                label: "状态",
+                width: "112px",
+                render: (ann) => (
+                  <Badge variant={STATUS_VARIANTS[ann.status] ?? "secondary"} size="sm">
+                    {STATUS_LABELS[ann.status] ?? ann.status}
+                  </Badge>
+                ),
+              },
+              {
+                key: "sortOrder",
+                label: "排序",
+                width: "112px",
+                render: (ann) => {
+                  const idx = anns.findIndex(a => a.id === ann.id)
+                  return (
+                    <span className="inline-flex items-center gap-1">
+                      <button onClick={() => moveAnn(ann.id, -1)} disabled={idx <= 0} title="上移"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-30">
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={() => moveAnn(ann.id, 1)} disabled={idx === anns.length - 1} title="下移"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-30">
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
+                  )
+                },
+              },
+              {
+                key: "createdAt",
+                label: "发布时间",
+                width: "140px",
+                render: (ann) => (
+                  <span className="text-xs text-muted-foreground">{formatMonthDay(ann.createdAt)}</span>
+                ),
+              },
+            ]}
+            actions={(ann) => (
+              <span className="inline-flex items-center gap-1">
+                <IconBtn onClick={() => startEdit(ann)} title="编辑"><Pencil className="h-3.5 w-3.5" /></IconBtn>
+                <IconBtn onClick={() => togglePinned(ann.id, ann.isPinned)} title={ann.isPinned ? "取消置顶" : "置顶"}
+                  active={ann.isPinned}><Pin className="h-3.5 w-3.5" /></IconBtn>
+                <IconBtn onClick={() => toggleStatus(ann.id, ann.status === "published" ? "hidden" : "published")}
+                  title={ann.status === "published" ? "隐藏" : "发布"}>
+                  {ann.status === "published" ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </IconBtn>
+                <IconBtn onClick={() => setDeleteId(ann.id)} title="删除" variant="danger">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </IconBtn>
+              </span>
+            )}
+            actionsWidth="148px"
+          />
         </section>
       </aside>
     </div>
