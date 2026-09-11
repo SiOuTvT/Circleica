@@ -1,13 +1,12 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
-import { Card } from "@/components/ui/card"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { formatDateTime } from "@/lib/date"
 import { Badge } from "@/components/ui/badge"
 import { Heart } from "lucide-react"
-import Image from "next/image"
 import dynamic from "next/dynamic"
 
 const FavoriteDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FavoriteDeleteBtn })), {
@@ -42,6 +41,7 @@ export default async function AdminFavoritesPage({
       orderBy: { createdAt: "desc" },
       skip, take: limit,
       include: {
+        createdAt: true,
         user: { select: { id: true, username: true, avatar: true } },
         game: { select: { id: true, title: true, coverImage: true } },
       },
@@ -61,38 +61,39 @@ export default async function AdminFavoritesPage({
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索用户或游戏…" />}
     >
 
-      {favorites.length === 0 ? (
-        <EmptyState icon={Heart} title="暂无收藏记录" bordered />
-      ) : (
-        <div className="space-y-2">
-          {favorites.map((fav) => (
-            <Card
-              key={fav.id}
-              size="default" radius="xl"
-              className="group flex-row items-center gap-4 hover:ring-primary/30"
-            >
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                {fav.game.coverImage ? (
-                  <Image src={fav.game.coverImage} alt={fav.game.title} width={48} height={48} className="h-full w-full object-cover" unoptimized />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                    <Heart className="h-5 w-5" />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {fav.game.title}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  收藏者: {fav.user.username}
-                </p>
-              </div>
-              <FavoriteDeleteBtn id={fav.id} />
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminDataTable
+        rows={favorites}
+        rowKey={(fav) => fav.id}
+        emptyIcon={Heart}
+        emptyTitle="暂无收藏记录"
+        columns={[
+          {
+            key: "user",
+            label: "用户",
+            width: "24%",
+            render: (fav) => (
+              <span className="block truncate" title={fav.user.username}>{fav.user.username}</span>
+            ),
+          },
+          {
+            key: "game",
+            label: "游戏",
+            render: (fav) => (
+              <span className="block truncate font-medium text-foreground" title={fav.game.title}>
+                {fav.game.title}
+              </span>
+            ),
+          },
+          {
+            key: "createdAt",
+            label: "时间",
+            width: "180px",
+            render: (fav) => <span className="text-xs text-muted-foreground">{formatDateTime(fav.createdAt)}</span>,
+          },
+        ]}
+        actions={(fav) => <FavoriteDeleteBtn id={fav.id} />}
+        actionsWidth="88px"
+      />
 
       <Pagination
         currentPage={page}

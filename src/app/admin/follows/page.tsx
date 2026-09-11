@@ -2,14 +2,12 @@ import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
-import { Card } from "@/components/ui/card"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Badge } from "@/components/ui/badge"
 import { Repeat, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
-import Image from "next/image"
 import Link from "next/link"
 
 const FollowDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.FollowDeleteBtn })), {
@@ -77,43 +75,60 @@ export default async function AdminFollowsPage({
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索用户名…" />}
     >
 
-      {follows.length === 0 ? (
-        <EmptyState icon={UserPlus} title="暂无关注记录" bordered />
-      ) : (
-        <div className="space-y-2">
-          {follows.map((follow) => (
-            <Card
-              key={follow.id}
-              size="default" radius="xl"
-              className="group flex-row items-center gap-4 hover:ring-primary/30"
-            >
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
-                {follow.follower.avatar
-                  ? <Image src={follow.follower.avatar} alt="" width={40} height={40} className="h-full w-full object-cover" />
-                  : <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary-foreground">{follow.follower.username.charAt(0).toUpperCase()}</div>
-                }
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">
-                  <Link href={`/admin/users?q=${encodeURIComponent(follow.follower.username)}`} className="hover:underline">{follow.follower.username}</Link>
-                  <span className="mx-2 text-muted-foreground">关注了</span>
-                  <Link href={`/admin/users?q=${encodeURIComponent(follow.following.username)}`} className="hover:underline">{follow.following.username}</Link>
-                  {reverseSet.has(`${follow.followerId}:${follow.followingId}`) && (
-                    <Badge variant="secondary" size="sm" className="ml-2 align-middle">
-                      <Repeat className="mr-0.5 h-3 w-3" />
-                      互关
-                    </Badge>
-                  )}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDateTime(follow.createdAt)}
-                </p>
-              </div>
-              <FollowDeleteBtn id={follow.id} />
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminDataTable
+        rows={follows}
+        rowKey={(follow) => follow.id}
+        emptyIcon={UserPlus}
+        emptyTitle="暂无关注记录"
+        columns={[
+          {
+            key: "follower",
+            label: "关注者",
+            width: "26%",
+            render: (follow) => (
+              <Link
+                href={`/admin/users?q=${encodeURIComponent(follow.follower.username)}`}
+                className="block truncate hover:underline"
+                title={follow.follower.username}
+              >
+                {follow.follower.username}
+              </Link>
+            ),
+          },
+          {
+            key: "following",
+            label: "被关注者",
+            width: "26%",
+            render: (follow) => (
+              <span className="flex min-w-0 items-center gap-2">
+                <Link
+                  href={`/admin/users?q=${encodeURIComponent(follow.following.username)}`}
+                  className="truncate hover:underline"
+                  title={follow.following.username}
+                >
+                  {follow.following.username}
+                </Link>
+                {reverseSet.has(`${follow.followerId}:${follow.followingId}`) && (
+                  <Badge variant="secondary" size="sm">
+                    <Repeat className="mr-0.5 h-3 w-3" />
+                    互关
+                  </Badge>
+                )}
+              </span>
+            ),
+          },
+          {
+            key: "createdAt",
+            label: "时间",
+            width: "180px",
+            render: (follow) => (
+              <span className="text-xs text-muted-foreground">{formatDateTime(follow.createdAt)}</span>
+            ),
+          },
+        ]}
+        actions={(follow) => <FollowDeleteBtn id={follow.id} />}
+        actionsWidth="88px"
+      />
 
       <Pagination
         currentPage={page}

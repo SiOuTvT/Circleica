@@ -4,11 +4,10 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { formatDate, formatDateTime } from "@/lib/date"
 import { Pagination } from "@/components/ui/pagination"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { adminInput, adminSearchInput, adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -140,37 +139,45 @@ export default async function AdminCheckInsPage({
       </section>
 
       <AdminSectionHeading>签到记录</AdminSectionHeading>
-      {checkIns.length === 0 ? (
-        <EmptyState icon={CalendarCheck} title="暂无签到记录" bordered />
-      ) : (
-        <div className="space-y-2">
-          {checkIns.map((ci) => (
-            <Card
-              key={ci.id}
-              size="default" radius="xl"
-              className="group flex-row items-center gap-4 hover:ring-primary/30"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-bold text-white">
-                {ci.user.username.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {ci.user.username}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  签到日期：{formatDate(ci.date)}，创建时间：{formatDateTime(ci.createdAt)}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Badge variant="warning" size="sm">
-                  +{ci.marks} 印记
-                </Badge>
-              </div>
-              <CheckinDeleteBtn id={ci.id} />
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminDataTable
+        rows={checkIns}
+        rowKey={(ci) => ci.id}
+        emptyIcon={CalendarCheck}
+        emptyTitle="暂无签到记录"
+        columns={[
+          {
+            key: "user",
+            label: "用户",
+            width: "24%",
+            render: (ci) => (
+              <span className="block truncate font-medium text-foreground" title={ci.user.username}>
+                {ci.user.username}
+              </span>
+            ),
+          },
+          {
+            key: "date",
+            label: "签到日期",
+            width: "160px",
+            render: (ci) => <span className="text-xs text-muted-foreground">{formatDate(ci.date)}</span>,
+          },
+          {
+            key: "marks",
+            label: "获得印记",
+            numeric: true,
+            width: "120px",
+            render: (ci) => `+${ci.marks}`,
+          },
+          {
+            key: "createdAt",
+            label: "创建时间",
+            width: "180px",
+            render: (ci) => <span className="text-xs text-muted-foreground">{formatDateTime(ci.createdAt)}</span>,
+          },
+        ]}
+        actions={(ci) => <CheckinDeleteBtn id={ci.id} />}
+        actionsWidth="88px"
+      />
 
       <Pagination
         currentPage={page}

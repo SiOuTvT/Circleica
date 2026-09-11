@@ -1,13 +1,11 @@
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { Pagination } from "@/components/ui/pagination"
-import { Card } from "@/components/ui/card"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Badge } from "@/components/ui/badge"
 import { Star } from "lucide-react"
-import Image from "next/image"
 import dynamic from "next/dynamic"
 
 const RatingDeleteBtn = dynamic(() => import("./delete-btn").then(m => ({ default: m.RatingDeleteBtn })), {
@@ -68,40 +66,45 @@ export default async function AdminRatingsPage({
       }
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索游戏标题…" />}
     >
-      {pageList.length === 0 ? (
-        <EmptyState icon={Star} title="暂无评分数据" description="用户在前台评分后，这里会汇总展示" bordered />
-      ) : (
-        <div className="space-y-2">
-          {pageList.map((r) => (
-            <Card
-              key={r.gameId}
-              size="default" radius="xl"
-              className="group flex-row items-center gap-4 hover:ring-primary/30"
-            >
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                {r.coverImage ? (
-                  <Image src={r.coverImage} alt={r.title} width={48} height={48} className="h-full w-full object-cover" unoptimized />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                    <Star className="h-5 w-5" />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">{r.title}</p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                    {r.avg} 分
-                  </span>
-                  <span>{r.count} 人评分</span>
-                </div>
-              </div>
-              <RatingDeleteBtn gameId={r.gameId} title={r.title} />
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminDataTable
+        rows={pageList}
+        rowKey={(r) => r.gameId}
+        emptyIcon={Star}
+        emptyTitle="暂无评分数据"
+        emptyDescription="用户在前台评分后，这里会汇总展示"
+        columns={[
+          {
+            key: "title",
+            label: "游戏",
+            render: (r) => (
+              <span className="block truncate font-medium text-foreground" title={r.title}>
+                {r.title}
+              </span>
+            ),
+          },
+          {
+            key: "avg",
+            label: "平均分",
+            numeric: true,
+            width: "140px",
+            render: (r) => (
+              <span className="inline-flex items-center justify-end gap-1">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                {r.avg}
+              </span>
+            ),
+          },
+          {
+            key: "count",
+            label: "评分人数",
+            numeric: true,
+            width: "140px",
+            render: (r) => `${r.count} 人`,
+          },
+        ]}
+        actions={(r) => <RatingDeleteBtn gameId={r.gameId} title={r.title} />}
+        actionsWidth="88px"
+      />
 
       <Pagination
         currentPage={page}
