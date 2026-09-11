@@ -95,7 +95,7 @@ export function GameRating({ gameId }: { gameId: string }) {
                 onClick={() => submit(s)}
                 disabled={pending}
                 className={cn(
-                  "rounded transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  "inline-flex h-8 w-8 items-center justify-center rounded transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-7 sm:w-7",
                   pending && "cursor-wait opacity-60",
                 )}
               >

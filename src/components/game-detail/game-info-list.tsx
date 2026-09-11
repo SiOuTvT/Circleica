@@ -61,7 +61,7 @@ function Link({ href, children }: { href: string; children: React.ReactNode }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
+      className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
     >
       {children}
     </a>

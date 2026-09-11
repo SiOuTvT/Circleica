@@ -16,6 +16,7 @@ interface TagIndexProps {
  */
 export function TagIndex({ tagsByLetter }: TagIndexProps) {
   const [activeLetter, setActiveLetter] = useState<string>("")
+  const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({})
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const letters = Object.keys(tagsByLetter).sort()
@@ -92,7 +93,7 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+                {(expandedLetters[letter] ? tags : tags.slice(0, 12)).map((tag) => (
                   <Link
                     key={tag.id}
                     href={tag.slug ? `/credits/tag/${encodeURIComponent(tag.slug)}` : `/tags/${tag.id}`}
@@ -111,6 +112,16 @@ export function TagIndex({ tagsByLetter }: TagIndexProps) {
                   </Link>
                 ))}
               </div>
+
+                {tags.length > 12 && (
+                  <button
+                    type="button"
+                    onClick={() => setExpandedLetters((prev) => ({ ...prev, [letter]: !prev[letter] }))}
+                    className="mt-2 inline-flex items-center min-h-[32px] px-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {expandedLetters[letter] ? "收起" : `展开全部 (${tags.length})`}
+                  </button>
+                )}
             </div>
           )
         })}

@@ -379,7 +379,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
 
       {/* 信息 */}
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-sm font-semibold text-foreground">
+        <h3 title={game.title} className="line-clamp-2 text-sm font-semibold text-foreground">
           <Cjk>{game.title}</Cjk>
         </h3>
         <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
