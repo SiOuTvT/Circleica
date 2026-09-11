@@ -191,7 +191,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => { setResetId(resetId === u.id ? null : u.id); setNewPwd("") }}
-                          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          className="flex items-center gap-1 rounded-lg h-7 px-2.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           title="重置密码"
                         >
                           <KeyRound className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -199,7 +199,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                         </button>
                         <button
                           onClick={() => generateResetLink(u.id)}
-                          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          className="flex items-center gap-1 rounded-lg h-7 px-2.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           title="生成重置链接"
                         >
                           <Link2 className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -209,7 +209,7 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
                           <button
                             onClick={() => setRoleConfirm({id: u.id, current: u.role})}
                             className={cn(
-                              "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+                              "flex items-center gap-1 rounded-lg h-7 px-2.5 text-xs transition-colors",
                               u.role === "ADMIN" ? adminBtnDanger : "text-blue-500 hover:bg-blue-500/10",
                             )}
                             title={u.role === "ADMIN" ? "撤销管理员" : "设为管理员"}

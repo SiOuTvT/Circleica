@@ -40,7 +40,7 @@ export function FeedbackBtn({ gameId }: { gameId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto shrink-0"
+        className="flex min-h-[28px] items-center gap-1 px-2 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto shrink-0"
       >
         <Flag className="h-3.5 w-3.5" strokeWidth={1.5} />
         <span>反馈</span>

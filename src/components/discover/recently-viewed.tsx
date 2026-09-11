@@ -26,7 +26,7 @@ export function RecentlyViewed({ initialCards = [] }: { initialCards?: GameCardD
         <button
           type="button"
           onClick={handleClear}
-          className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex min-h-[28px] items-center px-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           清空浏览记录
         </button>

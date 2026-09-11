@@ -224,13 +224,13 @@ export function ProfileContentTabs({ userId, isSelf }: Props) {
       {/* 左栏：Tab 切换区域（贴壁） */}
       <section className="flex min-w-0 flex-1 flex-col lg:border-r lg:border-border">
         <div className="sticky top-0 z-10 bg-card px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
-          <div className="flex gap-1 rounded-xl px-1 py-1">
+          <div className="flex gap-2 rounded-xl px-1 py-1">
             {tabs.map((tab) => {
               const Icon = tab.icon; const isActive = active === tab.key
               return (
                 <button key={tab.key} onClick={() => setActive(tab.key)}
                   className={cn(
-                    "relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold transition-all duration-300 ease-out",
+                    "relative flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold transition-all duration-300 ease-out sm:min-h-[36px]",
                     isActive
                       ? "bg-[var(--tab-active)] text-[var(--tab-active-text)] font-bold"
                       : "bg-transparent text-[var(--tab-inactive-text)] font-medium"

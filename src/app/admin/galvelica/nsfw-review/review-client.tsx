@@ -79,7 +79,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
             </div>
             <div className="space-y-1.5 p-2">
               <div className="min-w-0">
-                <a href={it.workHref} target="_blank" rel="noopener noreferrer" className="line-clamp-1 text-xs font-semibold hover:text-[var(--gal-accent)]">
+                <a href={it.workHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[28px] items-center line-clamp-1 text-xs font-semibold hover:text-[var(--gal-accent)]">
                   {it.title}
                 </a>
                 <p className="mt-0.5 text-micro text-muted-foreground">

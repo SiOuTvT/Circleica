@@ -202,7 +202,7 @@ export default async function AdminDashboard() {
               <EmptyState icon={Gamepad2} title="暂无游戏" className="!py-8" />
             ) : recentGames.map(g => (
               <div key={g.id} className="flex items-center justify-between py-2.5">
-                <Link href={`/admin/games/${g.id}`} className="truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
+                <Link href={`/admin/games/${g.id}`} className="inline-flex min-h-[28px] items-center truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
                 <span className={`ml-2 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                   {g.isPublished ? "已发布" : "草稿"}
                 </span>
@@ -220,7 +220,7 @@ export default async function AdminDashboard() {
             ) : topGames.map((g, i) => (
               <div key={g.id} className="flex items-center gap-3 py-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>
-                <Link href={`/games/${g.serialId}`} className="flex-1 truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
+                <Link href={`/games/${g.serialId}`} className="flex min-h-[28px] flex-1 items-center truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{g.title}</Link>
                 <span className="shrink-0 text-sm tabular-nums font-medium text-muted-foreground">{fmtNum(g.viewCount)}</span>
               </div>
             ))}

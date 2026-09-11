@@ -34,7 +34,7 @@ export function DiscoverySection({
         {actionHref && (
           <Link
             href={actionHref}
-            className="flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            className="flex min-h-[28px] shrink-0 items-center gap-0.5 px-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             {actionLabel}
             <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.75} />

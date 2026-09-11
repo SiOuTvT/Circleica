@@ -123,7 +123,7 @@ export default async function GalvelicaTagsPage({
                 />
                 <Link
                   href={`/admin/galvelica/tags/${t.id}`}
-                  className="block min-w-0 flex-1 truncate font-medium text-foreground hover:text-primary hover:underline"
+                  className="inline-flex min-w-0 min-h-[28px] flex-1 items-center truncate font-medium text-foreground hover:text-primary hover:underline"
                   title={t.name}
                 >
                   {t.name?.trim() || "—"}

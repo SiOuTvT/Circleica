@@ -22,7 +22,7 @@ export function AZIndex({ available, active, anchorPrefix = "archive-letter-", c
     <nav
       aria-label="首字索引"
       className={cn(
-        "sticky top-0 z-20 -mx-1 overflow-x-auto rounded-xl border-b border-border/60 bg-card/90 px-1 py-2 backdrop-blur-sm",
+        "sticky top-0 z-20 -mx-1 flex min-h-[32px] items-center overflow-x-auto rounded-xl border-b border-border/60 bg-card/90 px-1 py-2 backdrop-blur-sm",
         className,
       )}
     >

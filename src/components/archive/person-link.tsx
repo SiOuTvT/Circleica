@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
  * 会裁掉外层需要的拉伸覆盖层。需要抬到覆盖层之上时，由调用方传 className="relative z-10"。
  */
 export const PERSON_LINK_CLASS =
-  "text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-200"
+  "inline-flex items-center min-h-[28px] text-[14px] font-medium text-foreground hover:text-primary transition-colors duration-200"
 
 export function PersonLink({
   href,

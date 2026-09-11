@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Fragment, type ReactNode } from "react"
+import { Fragment, type KeyboardEvent, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -152,7 +152,19 @@ export function AdminDataTable<T>({
               return (
                 <Fragment key={key}>
                 <tr
-                  className={cn("h-11 transition-colors hover:bg-accent/60", selected && "bg-accent/60", rowClassName?.(row))}
+                  className={cn("h-11 transition-colors hover:bg-accent/60", selected && "bg-accent/60", selectable && "cursor-pointer", rowClassName?.(row))}
+                  onClick={selectable ? () => onToggleRow?.(key) : undefined}
+                  tabIndex={selectable ? 0 : undefined}
+                  onKeyDown={
+                    selectable
+                      ? (e: KeyboardEvent<HTMLTableRowElement>) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            onToggleRow?.(key)
+                          }
+                        }
+                      : undefined
+                  }
                 >
                   {selectable && (
                     <td className="border-b border-border px-4 py-3 align-middle">
@@ -160,8 +172,9 @@ export function AdminDataTable<T>({
                         type="checkbox"
                         checked={selected}
                         onChange={() => onToggleRow?.(key)}
+                        onClick={(e) => e.stopPropagation()}
                         aria-label="选择该行"
-                        className="h-4 w-4 accent-[var(--primary)]"
+                        className="h-4 w-4 cursor-pointer accent-[var(--primary)]"
                       />
                     </td>
                   )}
@@ -175,6 +188,7 @@ export function AdminDataTable<T>({
                         c.key === "__actions" && "whitespace-nowrap",
                         c.className,
                       )}
+                      onClick={selectable && c.key === "__actions" ? (e) => e.stopPropagation() : undefined}
                     >
                       {c.render
                         ? c.render(row)
