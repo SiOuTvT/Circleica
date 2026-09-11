@@ -139,22 +139,48 @@ export default async function InclusionRequestsAdmin({ searchParams }: { searchP
       {history.length > 0 && (
         <section>
           <AdminSectionHeading>已删除草稿（历史）</AdminSectionHeading>
-          <div className="space-y-3">
-            {history.map((r) => (
-              <Card key={r.id} size="default" radius="xl" className="flex-row items-center gap-4">
-                <Inbox className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-                <div className="min-w-0 flex-1">
-                  <span className="font-medium text-foreground">{r.work.title}</span>
-                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    已删除草稿
+          {/* 只读段：无可执行动作，故不塞操作列 */}
+          <AdminDataTable
+            rows={history}
+            rowKey={(r) => r.id}
+            emptyIcon={Inbox}
+            emptyTitle="暂无历史记录"
+            columns={[
+              {
+                key: "work",
+                label: "作品",
+                render: (r) => (
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate font-medium text-foreground" title={r.work.title}>
+                      {r.work.title?.trim() || "—"}
+                    </span>
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                      已删除草稿
+                    </span>
                   </span>
-                </div>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {r.decidedAt ? toShanghaiDate(r.decidedAt) : ""}
-                </span>
-              </Card>
-            ))}
-          </div>
+                ),
+              },
+              {
+                key: "note",
+                label: "备注",
+                render: (r) => (
+                  <span className="block truncate text-xs text-muted-foreground" title={r.note ?? ""}>
+                    {r.note?.trim() || "—"}
+                  </span>
+                ),
+              },
+              {
+                key: "decidedAt",
+                label: "提交时间",
+                width: "160px",
+                render: (r) => (
+                  <span className="text-xs text-muted-foreground">
+                    {r.decidedAt ? toShanghaiDate(r.decidedAt) : "—"}
+                  </span>
+                ),
+              },
+            ]}
+          />
         </section>
       )}
     </AdminPageContainer>
