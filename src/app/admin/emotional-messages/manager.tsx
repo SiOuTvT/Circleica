@@ -12,7 +12,7 @@ import {
   Trash2, X,
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
+import { AdminDataTable } from "@/components/admin/admin-data-table";
 import { EmotionalIcon } from "@/components/emotional-icon";
 import { adminBtnSubtle } from "@/lib/admin-styles";
 import Image from "next/image";
@@ -205,97 +205,114 @@ export function EmotionalMessagesManager({ initialItems }: { initialItems: EmMsg
       )}
 
       {/* 列表 */}
-      {filtered.length === 0 ? (
-        <EmptyState
-          icon={Sparkles}
-          title={items.length === 0 ? "暂无消息，点击上方「初始化预设」快速添加" : "该分类暂无消息"}
-          bordered
-        />
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(item => {
-            const meta = CATEGORY_META[item.category] || CATEGORY_META.toast
-            const Icon = meta.icon
-            const isEditing = editing?.id === item.id
-
-            return (
-              <div key={item.id}
-                className={`group rounded-xl border bg-card p-4 transition duration-150 ease-in-out ${item.enabled ? "border-border hover:border-primary/30" : "border-dashed border-muted-foreground/20 opacity-60"}`}>
-                {isEditing ? (
-                  /* ── 编辑模式 ── */
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      <Field label="Key"><input value={editing!.key} onChange={e => setEditing(p => p && { ...p, key: e.target.value })} placeholder="如: tmrw" className="em-input" /></Field>
-                      <Field label="分类">
-                        <select value={editing!.category} onChange={e => setEditing(p => p && { ...p, category: e.target.value })} className="em-input">
-                          {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_META[c].label}</option>)}
-                        </select>
-                      </Field>
-                      <Field label="Emoji"><input value={editing!.emoji} onChange={e => setEditing(p => p && { ...p, emoji: e.target.value })} placeholder="如: 🌅" className="em-input" /></Field>
-                      <Field label="标题"><input value={editing!.title} onChange={e => setEditing(p => p && { ...p, title: e.target.value })} placeholder="如: 明天会更好" className="em-input" /></Field>
-                      <Field label="副标题"><input value={editing!.subtitle} onChange={e => setEditing(p => p && { ...p, subtitle: e.target.value })} placeholder="鼓励语句" className="em-input" /></Field>
-                      <Field label="插图 URL"><input value={editing!.imageUrl} onChange={e => setEditing(p => p && { ...p, imageUrl: e.target.value })} placeholder="https://..." className="em-input" /></Field>
-                    </div>
-                    {editing!.imageUrl && (
-                      <Image src={editing!.imageUrl} alt="" width={80} height={80} className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" unoptimized />
-                    )}
-                    <div className="flex gap-2">
-                      <button onClick={() => handleUpdate(editing!)} disabled={pending}
-                        className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
-                        <Save className="h-3.5 w-3.5" /> 保存
-                      </button>
-                      <button onClick={() => setEditing(null)}
-                        className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
-                        取消
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* ── 展示模式 ── */
-                  <div className="flex items-center gap-4">
-                    {/* Emoji / 图标 */}
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted text-2xl">
-                      {item.imageUrl ? (
-                        <Image src={item.imageUrl} alt="" width={48} height={48} className="h-full w-full rounded-lg object-cover" unoptimized />
-                      ) : item.emoji ? (
-                        <span><EmotionalIcon emoji={item.emoji} className="h-8 w-8" /></span>
-                      ) : (
-                        <Icon className={`h-6 w-6 ${meta.color}`} />
-                      )}
-                    </div>
-                    {/* 文本 */}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-medium ${meta.color}`}>{meta.label}</span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-micro text-muted-foreground">{item.key}</span>
-                        {!item.enabled && <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-micro text-red-400">已禁用</span>}
-                      </div>
-                      <p className="mt-0.5 text-sm font-semibold text-foreground">{item.title || "—"}</p>
-                      <p className="text-xs text-muted-foreground">{item.subtitle || "—"}</p>
-                    </div>
-                    {/* 操作按钮 */}
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => toggleEnabled(item)} title={item.enabled ? "禁用" : "启用"}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
-                        {item.enabled ? <ToggleRight className="h-4 w-4 text-emerald-400" /> : <ToggleLeft className="h-4 w-4" />}
-                      </button>
-                      <button onClick={() => setEditing(item)} title="编辑"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => setConfirmDeleteId(item.id)} title="删除"
-                        className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
+      <AdminDataTable
+        rows={filtered}
+        rowKey={(item) => item.id}
+        emptyIcon={Sparkles}
+        emptyTitle={items.length === 0 ? "暂无消息，点击上方「初始化预设」快速添加" : "该分类暂无消息"}
+        rowClassName={(item) => (item.enabled ? undefined : "opacity-60")}
+        expanded={(item) =>
+          editing?.id === item.id ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Field label="Key"><input value={editing!.key} onChange={e => setEditing(p => p && { ...p, key: e.target.value })} placeholder="如: tmrw" className="em-input" /></Field>
+                <Field label="分类">
+                  <select value={editing!.category} onChange={e => setEditing(p => p && { ...p, category: e.target.value })} className="em-input">
+                    {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_META[c].label}</option>)}
+                  </select>
+                </Field>
+                <Field label="Emoji"><input value={editing!.emoji} onChange={e => setEditing(p => p && { ...p, emoji: e.target.value })} placeholder="如: 🌅" className="em-input" /></Field>
+                <Field label="标题"><input value={editing!.title} onChange={e => setEditing(p => p && { ...p, title: e.target.value })} placeholder="如: 明天会更好" className="em-input" /></Field>
+                <Field label="副标题"><input value={editing!.subtitle} onChange={e => setEditing(p => p && { ...p, subtitle: e.target.value })} placeholder="鼓励语句" className="em-input" /></Field>
+                <Field label="插图 URL"><input value={editing!.imageUrl} onChange={e => setEditing(p => p && { ...p, imageUrl: e.target.value })} placeholder="https://..." className="em-input" /></Field>
               </div>
-            )
-          })}
-        </div>
-      )}
+              {editing!.imageUrl && (
+                <Image src={editing!.imageUrl} alt="" width={80} height={80} className="h-20 w-20 rounded-lg object-cover ring-1 ring-border" unoptimized />
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => handleUpdate(editing!)} disabled={pending}
+                  className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40">
+                  <Save className="h-3.5 w-3.5" /> 保存
+                </button>
+                <button onClick={() => setEditing(null)}
+                  className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">
+                  取消
+                </button>
+              </div>
+            </div>
+          ) : null
+        }
+        columns={[
+          {
+            key: "category",
+            label: "分类",
+            width: "120px",
+            render: (item) => {
+              const meta = CATEGORY_META[item.category] || CATEGORY_META.toast
+              const Icon = meta.icon
+              return (
+                <span className="flex items-center gap-1.5">
+                  <Icon className={`h-3.5 w-3.5 ${meta.color}`} />
+                  <span className="text-xs text-muted-foreground">{meta.label}</span>
+                </span>
+              )
+            },
+          },
+          {
+            key: "key",
+            label: "Key",
+            width: "140px",
+            render: (item) => <span className="font-mono text-xs text-muted-foreground">{item.key}</span>,
+          },
+          {
+            key: "title",
+            label: "标题",
+            render: (item) => (
+              <span className="block truncate font-medium text-foreground" title={item.title || "—"}>
+                {item.emoji ? <EmotionalIcon emoji={item.emoji} className="mr-1.5 inline-block h-4 w-4 align-[-2px]" /> : null}
+                {item.title || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "subtitle",
+            label: "副标题",
+            render: (item) => (
+              <span className="block truncate text-xs text-muted-foreground" title={item.subtitle || "—"}>
+                {item.subtitle || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "enabled",
+            label: "状态",
+            width: "96px",
+            render: (item) =>
+              item.enabled ? (
+                <span className="text-xs text-emerald-400">启用</span>
+              ) : (
+                <span className="text-xs text-red-400">已禁用</span>
+              ),
+          },
+        ]}
+        actions={(item) => (
+          <span className="inline-flex items-center gap-1">
+            <button onClick={() => toggleEnabled(item)} title={item.enabled ? "禁用" : "启用"}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
+              {item.enabled ? <ToggleRight className="h-4 w-4 text-emerald-400" /> : <ToggleLeft className="h-4 w-4" />}
+            </button>
+            <button onClick={() => setEditing(item)} title="编辑"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition duration-150 ease-in-out hover:bg-accent hover:text-foreground">
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button onClick={() => setConfirmDeleteId(item.id)} title="删除"
+              className={cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}>
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </span>
+        )}
+        actionsWidth="132px"
+      />
 
       <ConfirmDialog
         open={showSeedConfirm}

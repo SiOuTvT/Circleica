@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import type { ReactNode } from "react"
+import { Fragment, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -36,6 +36,10 @@ export interface AdminDataTableProps<T> {
   emptyIcon?: LucideIcon
   emptyTitle?: string
   emptyDescription?: string
+  /** 行级附加类名（如禁用行降透明度） */
+  rowClassName?: (row: T) => string | undefined
+  /** 行内展开区：返回非 null 时在该行下方插一个跨列的行（用于行内编辑表单） */
+  expanded?: (row: T) => ReactNode | null
   /** 分页 / 计数，渲染在表格下方 */
   footer?: ReactNode
   className?: string
@@ -69,6 +73,8 @@ export function AdminDataTable<T>({
   emptyIcon,
   emptyTitle = "暂无数据",
   emptyDescription,
+  rowClassName,
+  expanded,
   footer,
   className,
 }: AdminDataTableProps<T>) {
@@ -139,10 +145,11 @@ export function AdminDataTable<T>({
             {rows.map((row) => {
               const key = rowKey(row)
               const selected = selectedKeys?.includes(key)
+              const extra = expanded?.(row) ?? null
               return (
+                <Fragment key={key}>
                 <tr
-                  key={key}
-                  className={cn("h-11 transition-colors hover:bg-accent/60", selected && "bg-accent/60")}
+                  className={cn("h-11 transition-colors hover:bg-accent/60", selected && "bg-accent/60", rowClassName?.(row))}
                 >
                   {selectable && (
                     <td className="border-b border-border px-4 py-3 align-middle">
@@ -172,6 +179,17 @@ export function AdminDataTable<T>({
                     </td>
                   ))}
                 </tr>
+                {extra && (
+                  <tr>
+                    <td
+                      colSpan={cols.length + (selectable ? 1 : 0)}
+                      className="border-b border-border px-4 py-3"
+                    >
+                      {extra}
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               )
             })}
           </tbody>
