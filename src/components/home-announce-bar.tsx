@@ -161,7 +161,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
           </div>
         </div>
         {/* ── 右侧列：Activity ── */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 flex flex-col lg:w-[35%] shrink-0" style={{ height: "clamp(308px, calc(30vh + 88px), 368px)" }}>
+        {/* 论坛动态：窄屏整块移除（它把第一部游戏卡顶到首屏之外），≥768 保持现状 */}
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 hidden md:flex flex-col lg:w-[35%] shrink-0" style={{ height: "clamp(308px, calc(30vh + 88px), 368px)" }}>
           <ActivityList activities={activities} />
         </div>
       </div>
