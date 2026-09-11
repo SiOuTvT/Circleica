@@ -4,6 +4,7 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import { ExternalLink, User } from "lucide-react"
+import { EmptyState } from "@/components/ui/empty-state"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { CreatorDetailDialog } from "./creator-detail-dialog"
 
