@@ -3131,7 +3131,7 @@ a.galvelica-pager-nav:hover {
       · 徽章（Badge）的内衬 padding 与内部 gap、记录行行高。
       以上保持原值不为此改动；禁半档的对象是布局容器的 gap / padding。
    ═══════════════════════════════════════════════════════════════════ */
-body[data-admin-scope="true"] {
+body[data-admin-scope="true"] ,
 .admin-scope {
   /* 裸容器不再继承前台 body 的 16px 基准 */
   font-size: var(--admin-fs-body);
@@ -3140,7 +3140,7 @@ body[data-admin-scope="true"] {
 /* ── 字号四档：10 → 11；14 / 16 / 18 → 13；20 → 24 ── */
 body[data-admin-scope="true"] .text-micro,
 .admin-scope .text-micro,
-body[data-admin-scope="true"] .badge-micro {
+body[data-admin-scope="true"] .badge-micro ,
 .admin-scope .badge-micro {
   font-size: var(--admin-fs-micro);
 }
@@ -3148,11 +3148,11 @@ body[data-admin-scope="true"] .text-sm,
 .admin-scope .text-sm,
 body[data-admin-scope="true"] .text-base,
 .admin-scope .text-base,
-body[data-admin-scope="true"] .text-lg {
+body[data-admin-scope="true"] .text-lg ,
 .admin-scope .text-lg {
   font-size: var(--admin-fs-body);
 }
-body[data-admin-scope="true"] .text-xl {
+body[data-admin-scope="true"] .text-xl ,
 .admin-scope .text-xl {
   font-size: var(--admin-fs-h1);
 }
@@ -3166,7 +3166,7 @@ body[data-admin-scope="true"] h4:not(.text-xs):not(.text-sm):not(.text-base):not
 .admin-scope h4:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
 body[data-admin-scope="true"] h5:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
 .admin-scope h5:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl),
-body[data-admin-scope="true"] h6:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl) {
+body[data-admin-scope="true"] h6:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl) ,
 .admin-scope h6:not(.text-xs):not(.text-sm):not(.text-base):not(.text-lg):not(.text-xl):not(.text-2xl):not(.text-3xl):not(.text-4xl) {
   font-size: var(--admin-fs-body);
 }
@@ -3175,7 +3175,7 @@ body[data-admin-scope="true"] input,
 .admin-scope input,
 body[data-admin-scope="true"] select,
 .admin-scope select,
-body[data-admin-scope="true"] textarea {
+body[data-admin-scope="true"] textarea ,
 .admin-scope textarea {
   font-size: var(--admin-fs-ctl);
 }
@@ -3184,11 +3184,11 @@ body[data-admin-scope="true"] textarea {
 /* 本项目 @theme 把 radius-lg 重映射为 18px、radius-sm 为 9px，均不在档内 */
 body[data-admin-scope="true"] .rounded-lg,
 .admin-scope .rounded-lg,
-body[data-admin-scope="true"] .rounded-2xl {
+body[data-admin-scope="true"] .rounded-2xl ,
 .admin-scope .rounded-2xl {
   border-radius: var(--admin-radius-box);
 }
-body[data-admin-scope="true"] .rounded-sm {
+body[data-admin-scope="true"] .rounded-sm ,
 .admin-scope .rounded-sm {
   border-radius: var(--admin-radius-ctl);
 }
@@ -3197,7 +3197,7 @@ body[data-admin-scope="true"] input:not([class*="rounded-full"]),
 .admin-scope input:not([class*="rounded-full"]),
 body[data-admin-scope="true"] select:not([class*="rounded-full"]),
 .admin-scope select:not([class*="rounded-full"]),
-body[data-admin-scope="true"] textarea:not([class*="rounded-full"]) {
+body[data-admin-scope="true"] textarea:not([class*="rounded-full"]) ,
 .admin-scope textarea:not([class*="rounded-full"]) {
   border-radius: var(--admin-radius-ctl);
 }
