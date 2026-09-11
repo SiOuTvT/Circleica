@@ -39,6 +39,16 @@ export const POST = withHandler(async (req) => {
   await requireAdminRole("SUPER_ADMIN")
   const body = await safeParseJson(req)
 
+  // 入参形状守卫（只挡形状，不挡内容）：safeParseJson 被全站共用，不能改；这层只在路由内挡。
+  // 1) body 必须是普通对象——挡掉字符串/数组/null（字符索引、TypeError 变 500）。
+  if (body === null || typeof body !== "object" || Array.isArray(body)) {
+    throw new ValidationError("请求体必须是一组配置项")
+  }
+  // 2) key 必须像配置名——挡掉误传的列表索引（"0"/"1" 等）往表里灌；带冒号的 galvelica:tagColor 仍合法。
+  const KEY_SHAPE = /^[A-Za-z][A-Za-z0-9_:]*$/
+  const bad = Object.keys(body).filter((k) => !KEY_SHAPE.test(k) || k.length < 3)
+  if (bad.length > 0) throw new ValidationError("配置项名称不合法：" + bad.slice(0, 3).join(", "))
+
   // 命中凭据类 key 一律拒绝（不静默跳过：静默会让调用方以为保存成功）
   const blocked = Object.keys(body).filter((k) =>
     CREDENTIAL_KEY_PREFIXES.some((p) => k.startsWith(p))
