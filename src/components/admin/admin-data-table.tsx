@@ -106,7 +106,7 @@ export function AdminDataTable<T>({
               {selectable && (
                 <th
                   scope="col"
-                  className="sticky top-0 z-10 w-10 border-b border-border bg-card px-4 py-3"
+                  className="w-10 border-b border-border bg-card px-4 py-2"
                 >
                   <input
                     type="checkbox"
@@ -123,7 +123,9 @@ export function AdminDataTable<T>({
                   scope="col"
                   style={c.width ? { width: c.width } : undefined}
                   className={cn(
-                    "sticky top-0 z-10 whitespace-nowrap border-b border-border bg-card px-4 py-3 text-micro font-semibold uppercase tracking-wider text-muted-foreground",
+                    // 显式任意值 + md 变体：text-micro/text-xs 会被 cn() 的 tailwind-merge
+                    // 判成 text-color 组、被同串里的 text-muted-foreground 顶掉（论坛徽标同坑）
+                    "whitespace-nowrap border-b border-border bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground md:text-[11px]",
                     (c.align === "right" || (c.numeric && c.align !== "left")) ? "text-right" : "text-left",
                     c.headerClassName,
                   )}
@@ -157,7 +159,7 @@ export function AdminDataTable<T>({
                     <td
                       key={c.key}
                       className={cn(
-                        "border-b border-border px-4 py-3 align-middle",
+                        "border-b border-border px-4 py-2 align-middle",
                         (c.align === "right" || (c.numeric && c.align !== "left")) ? "text-right" : "text-left",
                         c.numeric && "num-tab",
                         c.key === "__actions" && "whitespace-nowrap",
