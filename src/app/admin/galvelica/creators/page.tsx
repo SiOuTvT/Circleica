@@ -5,7 +5,7 @@ import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { PenTool } from "lucide-react"
 import Link from "next/link"
 import { CreatorRowActions } from "./creator-actions"
@@ -96,43 +96,57 @@ export default async function GalvelicaCreatorsPage({
       description={`Galvelica 副站共 ${total} 位创作者（source=galvelica）`}
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索创作者…" aria-label="搜索创作者" />}
     >
-      {mappedCreators.length === 0 ? (
-        <EmptyState icon={PenTool} title="暂无创作者" description="Galvelica 副站尚无创作者数据" bordered />
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {mappedCreators.map((c) => (
-            <div
-              key={c.id}
-              className="flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-[color:var(--admin-accent,var(--primary))]"
-            >
-              <div className="flex items-center gap-2.5">
+      <AdminDataTable
+        rows={mappedCreators}
+        rowKey={(c) => c.id}
+        emptyIcon={PenTool}
+        emptyTitle="暂无创作者"
+        emptyDescription="Galvelica 副站尚无创作者数据"
+        columns={[
+          {
+            key: "name",
+            label: "创作者",
+            render: (c) => (
+              <span className="flex min-w-0 items-center gap-2.5">
                 {c.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.avatar} alt={c.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-border" />
                 ) : (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                     {c.name.charAt(0)}
-                  </div>
+                  </span>
                 )}
-                <div className="min-w-0">
-                  <Link
-                    href={`/admin/galvelica/creators/${c.id}`}
-                    className="block truncate font-medium text-foreground hover:text-primary hover:underline"
-                    title={c.name}
-                  >
-                    {c.name}
-                  </Link>
-                  <p className="truncate text-xs text-muted-foreground">{c.nameJa || "—"}</p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
-                <span className="text-xs text-muted-foreground">关联作品 {c.workCount}</span>
-                <CreatorRowActions creator={c} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                <Link
+                  href={`/admin/galvelica/creators/${c.id}`}
+                  className="block truncate font-medium text-foreground hover:text-primary hover:underline"
+                  title={c.name}
+                >
+                  {c.name?.trim() || "—"}
+                </Link>
+              </span>
+            ),
+          },
+          {
+            key: "nameJa",
+            label: "别名",
+            width: "220px",
+            render: (c) => (
+              <span className="block truncate text-xs text-muted-foreground" title={c.nameJa ?? ""}>
+                {c.nameJa?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "workCount",
+            label: "作品数",
+            numeric: true,
+            width: "112px",
+            render: (c) => c.workCount,
+          },
+        ]}
+        actions={(c) => <CreatorRowActions creator={c} />}
+        actionsWidth="132px"
+      />
 
       <Pagination
         currentPage={page}
