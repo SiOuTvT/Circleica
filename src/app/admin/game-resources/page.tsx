@@ -4,7 +4,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { Card } from "@/components/ui/card"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
-import { EmptyState } from "@/components/ui/empty-state"
+import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Badge } from "@/components/ui/badge"
 import { Boxes, Download, Flag, Link2 } from "lucide-react"
 import Image from "next/image"
@@ -65,69 +65,89 @@ export default async function AdminGameResourcesPage({
       }
       actions={<AdminSearch name="q" defaultValue={q} placeholder="搜索资源名或游戏标题…" />}
     >
-      {resources.length === 0 ? (
-        <EmptyState icon={Boxes} title="暂无用户提交的资源" description="前台用户在游戏页提交的资源会显示在这里" bordered />
-      ) : (
-        <div className="space-y-2">
-          {resources.map((r) => {
-            const downloadCount = r.entries.reduce((s, e) => s + e.downloadCount, 0)
-            const platforms = Array.isArray(r.platform) ? (r.platform as string[]) : []
-            const languages = Array.isArray(r.language) ? (r.language as string[]) : []
-            return (
-              <Card
-                key={r.id}
-                size="default" radius="xl"
-                className="group flex-row items-center gap-4 hover:ring-primary/30"
-              >
-                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  {r.game.coverImage ? (
-                    <Image src={r.game.coverImage} alt={r.game.title} width={48} height={48} className="h-full w-full object-cover" unoptimized />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                      <Boxes className="h-5 w-5" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-foreground">{r.resourceName || "未命名资源"}</p>
-                    {r.isReported && (
-                      <Badge variant="destructive" size="sm" className="shrink-0">
-                        <Flag className="mr-0.5 h-3 w-3" />
-                        被举报
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    《{r.game.title}》，提交者 {r.user.username}，{timeAgo(r.createdAt)}
-                  </p>
-                  {(platforms.length > 0 || languages.length > 0) && (
-                    <div className="mt-1 flex flex-wrap items-center gap-1">
-                      {platforms.map((p) => <Badge key={p} variant="secondary" size="sm">{p}</Badge>)}
-                      {languages.map((l) => <Badge key={l} variant="secondary" size="sm">{l}</Badge>)}
-                    </div>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1" title="下载次数（累计点击）">
-                    <Download className="h-3.5 w-3.5" />
-                    {downloadCount}
-                  </span>
-                  <span className="inline-flex items-center gap-1" title="独立下载日志">
-                    <Link2 className="h-3.5 w-3.5" />
-                    {r._count.downloadLogs}
-                  </span>
-                  <span className="inline-flex items-center gap-1" title="举报数">
-                    <Flag className="h-3.5 w-3.5" />
-                    {r._count.reports}
-                  </span>
-                </div>
-                <ResourceDeleteBtn id={r.id} name={r.resourceName || r.game.title} />
-              </Card>
-            )
-          })}
-        </div>
-      )}
+      <AdminDataTable
+        rows={resources}
+        rowKey={(r) => r.id}
+        emptyIcon={Boxes}
+        emptyTitle="暂无用户提交的资源"
+        emptyDescription="前台用户在游戏页提交的资源会显示在这里"
+        columns={[
+          {
+            key: "game",
+            label: "游戏",
+            width: "20%",
+            render: (r) => (
+              <span className="block truncate font-medium text-foreground" title={r.game.title}>
+                {r.game.title?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "resourceName",
+            label: "资源名",
+            render: (r) => (
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="truncate" title={r.resourceName || ""}>
+                  {r.resourceName?.trim() || "未命名资源"}
+                </span>
+                {r.isReported && (
+                  <Badge variant="destructive" size="sm" className="shrink-0">
+                    <Flag className="mr-0.5 h-3 w-3" />
+                    被举报
+                  </Badge>
+                )}
+              </span>
+            ),
+          },
+          {
+            key: "platform",
+            label: "平台/语言",
+            width: "160px",
+            render: (r) => {
+              const platforms = Array.isArray(r.platform) ? (r.platform as string[]) : []
+              const languages = Array.isArray(r.language) ? (r.language as string[]) : []
+              const text = [...platforms, ...languages].join("、")
+              return (
+                <span className="block truncate text-xs text-muted-foreground" title={text}>
+                  {text?.trim() || "—"}
+                </span>
+              )
+            },
+          },
+          {
+            key: "user",
+            label: "提交者",
+            width: "130px",
+            render: (r) => (
+              <span className="block truncate text-xs text-muted-foreground" title={r.user.username ?? ""}>
+                {r.user.username?.trim() || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "createdAt",
+            label: "提交时间",
+            width: "120px",
+            render: (r) => <span className="text-xs text-muted-foreground">{timeAgo(r.createdAt)}</span>,
+          },
+          {
+            key: "downloadCount",
+            label: "下载次数",
+            numeric: true,
+            width: "104px",
+            render: (r) => r.entries.reduce((s, e) => s + e.downloadCount, 0),
+          },
+          {
+            key: "reports",
+            label: "举报数",
+            numeric: true,
+            width: "96px",
+            render: (r) => r._count.reports,
+          },
+        ]}
+        actions={(r) => <ResourceDeleteBtn id={r.id} name={r.resourceName || r.game.title} />}
+        actionsWidth="88px"
+      />
 
       <Pagination
         currentPage={page}
