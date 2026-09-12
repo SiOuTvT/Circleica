@@ -8,6 +8,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { AdminConfirmSubmitButton } from "@/components/admin/admin-confirm-submit-button"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
 import { publishInclusionGalvelica, deleteInclusionGalvelica } from "@/app/admin/galvelica/inclusion/actions"
@@ -134,6 +135,11 @@ export default async function InclusionRequestsAdmin({ searchParams }: { searchP
           )}
           actionsWidth="200px"
         />
+        {pendingDrafts.length === 0 && (
+          <AdminEmptyNext href="/admin/galvelica/inclusion" actionLabel="去收录审核">
+            这页接收副站收录申请自动生成的未发布草稿；有申请时会在这里一键发布或删除。
+          </AdminEmptyNext>
+        )}
       </section>
 
       {history.length > 0 && (

@@ -8,6 +8,7 @@ import { AdminFormShell } from "@/components/admin/admin-form-shell"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState, useRef } from "react"
@@ -178,7 +179,12 @@ export function CollectionsClient() {
           {total > 0 && <span className="text-xs text-muted-foreground">共 {total} 条</span>}
         </div>
         {collections.length === 0 ? (
-          <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
+          <div className="space-y-3">
+            <EmptyState icon={Plus} title="暂无合集" description="点击上方按钮创建第一个精选合集" bordered />
+            <AdminEmptyNext actionLabel="新建合集" onAction={handleCreate}>
+              这页管理前台展示的精选合集；建好合集后可以往里挑游戏。
+            </AdminEmptyNext>
+          </div>
         ) : (
           <div className="space-y-3">
             {collections.map(c => (

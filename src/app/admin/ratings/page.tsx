@@ -4,6 +4,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Badge } from "@/components/ui/badge"
 import { Star } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -105,6 +106,12 @@ export default async function AdminRatingsPage({
         actions={(r) => <RatingDeleteBtn gameId={r.gameId} title={r.title} />}
         actionsWidth="88px"
       />
+
+      {pageList.length === 0 && (
+        <AdminEmptyNext href="/admin/games" actionLabel="去游戏管理">
+          这页汇总前台的游戏评分；用户在游戏页打星后，会在这里按人数排行。
+        </AdminEmptyNext>
+      )}
 
       <Pagination
         currentPage={page}

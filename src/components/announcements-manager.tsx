@@ -35,6 +35,9 @@ function formatFieldErrors(details?: Record<string, string[]>, fallback?: string
   return parts.length ? parts.join("；") : (fallback || "操作失败")
 }
 
+/** 公告表单 id：保存条已移出 overflow-hidden 卡片、放到页面层，靠 form= 属性提交该表单 */
+const ANN_FORM_ID = "announcement-form"
+
 interface Ann {
   id: string; title: string; summary: string; content: string; imageUrl: string;
   link: string; status: string; isPinned: boolean; isActive: boolean; sortOrder: number;
@@ -170,6 +173,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
   }
 
   return (
+    <div className="space-y-5">
     <div className="flex flex-col xl:flex-row gap-6 items-start">
       {/* ── 左侧：编辑区域 ── */}
       <div className="flex-1 min-w-0 w-full space-y-5">
@@ -207,7 +211,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               </div>
             )}
 
-            <form onSubmit={submitAnn} className="space-y-4">
+            <form id={ANN_FORM_ID} onSubmit={submitAnn} className="space-y-4">
             <AdminFormShell>
               {/* 标题 — 全宽 */}
               <Field label="标题" required>
@@ -266,16 +270,6 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </Field>
               </div>
 
-              <AdminFormActions>
-                <button type="submit" disabled={adding}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
-                  {adding
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
-                    : isEditing
-                      ? <><Pencil className="h-4 w-4" /> 保存修改</>
-                      : <><Plus className="h-4 w-4" /> 创建公告</>}
-                </button>
-              </AdminFormActions>
             </AdminFormShell>
             </form>
           </div>
@@ -393,6 +387,19 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
           />
         </section>
       </aside>
+    </div>
+
+    {/* 页面层 sticky 保存条（与右侧预览卡同级，不在 overflow-hidden 卡片内 → sticky 生效） */}
+    <AdminFormActions>
+      <button type="submit" form={ANN_FORM_ID} disabled={adding}
+        className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+        {adding
+          ? <><Loader2 className="h-4 w-4 animate-spin" /> {isEditing ? "保存中…" : "创建中…"}</>
+          : isEditing
+            ? <><Pencil className="h-4 w-4" /> 保存修改</>
+            : <><Plus className="h-4 w-4" /> 创建公告</>}
+      </button>
+    </AdminFormActions>
     </div>
   )
 }

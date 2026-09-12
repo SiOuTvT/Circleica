@@ -152,7 +152,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             style={{ transform: `translateX(${contentOffset}px)` }}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
-              <div className="mx-auto max-w-[1200px] xl:max-w-[1440px] 2xl:max-w-[1560px]">
+              <div className="mx-auto max-w-[1200px] 2xl:max-w-[1560px]">
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>

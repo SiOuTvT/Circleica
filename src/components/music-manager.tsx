@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload, X, ListMusic } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -352,6 +353,11 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
           )}
           actionsWidth="148px"
         />
+        {list.length === 0 && (
+          <AdminEmptyNext>
+            这页管理站内音乐库；添加音乐与播放列表后，前台播放器会读取它们。
+          </AdminEmptyNext>
+        )}
       </Card>
       <ConfirmDialog
         open={!!deleteId}

@@ -5,6 +5,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Badge } from "@/components/ui/badge"
 import { Repeat, UserPlus } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -129,6 +130,12 @@ export default async function AdminFollowsPage({
         actions={(follow) => <FollowDeleteBtn id={follow.id} />}
         actionsWidth="88px"
       />
+
+      {follows.length === 0 && (
+        <AdminEmptyNext href="/admin/users" actionLabel="去用户管理">
+          这页展示用户之间的关注关系；有人在个人页关注他人后，这里会留下记录。
+        </AdminEmptyNext>
+      )}
 
       <Pagination
         currentPage={page}

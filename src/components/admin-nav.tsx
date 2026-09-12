@@ -118,6 +118,27 @@ const navGroups: NavGroup[] = [
   },
 ]
 
+/**
+ * 后台顶栏面包屑解析：按 href 最长前缀匹配当前路径 → 返回 { 当前页, 所在分组, 归属站点 }。
+ * 供 AdminTopBar 复用同一份导航配置，避免面包屑与侧栏两处维护、各自漂移。
+ */
+export function resolveAdminNavItem(pathname: string): {
+  label: string
+  groupLabel: string
+  site: SiteKey
+} | null {
+  let best: { item: NavItem; group: NavGroup } | null = null
+  for (const group of navGroups) {
+    for (const item of group.items) {
+      const match = pathname === item.href || pathname.startsWith(item.href + "/")
+      if (!match) continue
+      if (!best || item.href.length > best.item.href.length) best = { item, group }
+    }
+  }
+  if (!best) return null
+  return { label: best.item.label, groupLabel: best.group.label ?? "后台", site: best.item.site }
+}
+
 // 根型条目：它们是其余子页的路径前缀，按前缀匹配会和子页一起高亮（一个侧栏亮两项）。
 // 这两个只能精确匹配；其余条目一律用 href + "/" 前缀匹配，
 // 避免 /admin/tags 误配 /admin/tags-all 这类同前缀路径。
@@ -254,6 +275,12 @@ export function AdminNav() {
   useEffect(() => {
     setSiteView(pathname.startsWith("/admin/galvelica") ? "galvelica" : "circleica")
   }, [pathname])
+
+  // 同步给后台顶栏（AdminTopBar）：面包屑随主副站切换器联动，切换不改变路由
+  useEffect(() => {
+    document.documentElement.setAttribute("data-admin-site", siteView)
+    window.dispatchEvent(new Event("admin-site-view"))
+  }, [siteView])
 
   const currentSite = siteView
 

@@ -8,6 +8,7 @@ import { AdminStatusBadge } from "@/components/admin/admin-status-badge"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Badge } from "@/components/ui/badge"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Flag } from "lucide-react"
 import Image from "next/image"
 import dynamic from "next/dynamic"
@@ -194,6 +195,12 @@ export default async function AdminReportsPage({
         )}
         actionsWidth="132px"
       />
+
+      {reports.length === 0 && (
+        <AdminEmptyNext href="/admin/games" actionLabel="去游戏管理">
+          这页汇总前台用户对游戏的举报；有人举报后，这里会列出待处理的条目。
+        </AdminEmptyNext>
+      )}
 
       <Pagination
         currentPage={page}

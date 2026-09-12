@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { AdminTable, type AdminTableColumn } from "@/components/admin/admin-table"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { cn, withLabelableId } from "@/lib/utils"
@@ -314,6 +315,11 @@ export function AchievementsClient() {
             getRowKey={(ach) => ach.id}
             empty={<EmptyState icon={Award} title="暂无成就" description="点击上方「新建成就」创建第一个" />}
           />
+          {achievements.length === 0 && (
+            <AdminEmptyNext actionLabel="新建成就" onAction={startCreate}>
+              这页管理用户可解锁的成就；建好后前台会按条件自动解锁并发放积分。
+            </AdminEmptyNext>
+          )}
         </div>
         {totalPages > 1 && (
           <div className="flex items-center justify-between">

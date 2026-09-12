@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminSearch } from "@/components/admin/admin-search"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
+import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Badge } from "@/components/ui/badge"
 import { Boxes, Download, Flag, Link2 } from "lucide-react"
 import Image from "next/image"
@@ -148,6 +149,12 @@ export default async function AdminGameResourcesPage({
         actions={(r) => <ResourceDeleteBtn id={r.id} name={r.resourceName || r.game.title} />}
         actionsWidth="88px"
       />
+
+      {resources.length === 0 && (
+        <AdminEmptyNext href="/admin/games" actionLabel="去游戏管理">
+          这页汇总前台用户提交的下载资源；有人提交后，会连同下载量与举报数一起出现。
+        </AdminEmptyNext>
+      )}
 
       <Pagination
         currentPage={page}
