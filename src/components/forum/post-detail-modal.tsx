@@ -331,9 +331,9 @@ function PostDetailModalInner({
                           className="w-full rounded-lg border-2 border-input bg-transparent px-3 py-2.5 text-xs text-foreground outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
                         <div className="flex gap-2">
                           <button onClick={() => submitEditComment(c.id)}
-                            className="rounded-lg bg-primary px-2.5 py-1 text-micro font-medium text-primary-foreground hover:opacity-90">保存</button>
+                            className="inline-flex min-h-7 items-center justify-center rounded-lg bg-primary px-2.5 py-1 text-[11px] md:text-[11px] font-medium text-primary-foreground hover:opacity-90">保存</button>
                           <button onClick={() => setEditingComment(null)}
-                            className="rounded-lg bg-secondary px-2.5 py-1 text-micro font-medium text-muted-foreground hover:text-foreground">取消</button>
+                            className="inline-flex min-h-7 items-center justify-center rounded-lg bg-secondary px-2.5 py-1 text-[11px] md:text-[11px] font-medium text-muted-foreground hover:text-foreground">取消</button>
                         </div>
                       </div>
                     ) : (
