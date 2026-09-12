@@ -71,6 +71,8 @@ export function AdminTable<T>({
                   key={col.key}
                   className={cn(
                     "px-4 py-3 align-middle",
+                    // 与 AdminDataTable 同款：单元格内链接热区抬到 28（当前无链接，防复发）
+                    "[&_a]:min-h-7 [&_a]:leading-7",
                     col.align && alignClass[col.align],
                     col.className,
                   )}

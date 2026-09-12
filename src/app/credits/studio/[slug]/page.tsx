@@ -142,7 +142,6 @@ export default async function MakerDetailPage({
       header={
         <ArchiveHero
           variant="org"
-          eyebrow="Studio"
           title={detail.name}
           cover={detail.coverImage}
           fallbackInitial={detail.name}

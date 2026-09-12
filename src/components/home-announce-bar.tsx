@@ -87,7 +87,17 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
   const href = ann?.link || ann ? `/announcements/${ann.id}` : "#"
 
   return (
-    <div className="w-full">
+    <div className="relative w-full">
+      {/* 上一条 / 下一条：挂在整条横幅自己的相对定位容器上（贴在横幅两端、卡片盒外侧 32px），
+          与毛玻璃卡边缘恒留 ≥24px，任何视口都不与卡片重叠。
+          中线取 clamp(110px,15vh,140px) = 公告卡高 clamp(220px,30vh,280px) 的一半，
+          保证箭头垂直居中于公告卡而不是整条横幅。<sm 整卡已可点，箭头直接隐藏。 */}
+      {len > 1 && (
+        <>
+          <button onClick={() => setCur((cur - 1 + len) % len)} className="absolute -left-8 top-[clamp(110px,15vh,140px)] -translate-y-1/2 z-[5] hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
+          <button onClick={next} className="absolute -right-8 top-[clamp(110px,15vh,140px)] -translate-y-1/2 z-[5] hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
+        </>
+      )}
       <div className="flex flex-col lg:flex-row lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
         <div className="flex flex-col gap-4 min-w-0 lg:w-0 lg:flex-[3]">
@@ -129,14 +139,11 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                     </Link>
                   </div>
                 </div>
+                {/* 圆点指示器：位置与行为保持原样（bottom-3 right-4） */}
                 {len > 1 && (
-                  <>
-                    <button onClick={() => setCur((cur - 1 + len) % len)} className="absolute left-2 top-1/2 -translate-y-1/2 z-[5] flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
-                    <button onClick={() => next()} className="absolute right-2 top-1/2 -translate-y-1/2 z-[5] flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
-                    <div className="absolute bottom-3 right-4 z-[5] flex gap-1.5">
-                      {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"}`} />)}
-                    </div>
-                  </>
+                  <div className="absolute bottom-3 right-4 z-[5] flex gap-1.5">
+                    {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"}`} />)}
+                  </div>
                 )}
               </>
             ) : (

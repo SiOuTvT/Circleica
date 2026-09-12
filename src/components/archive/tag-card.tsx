@@ -5,6 +5,9 @@ import type { TagWithGroup } from "@/types/tags-browser"
 interface TagCardProps {
   tag: TagWithGroup
   className?: string
+  /** 是否显示第二行的所属组名。默认 true（其它调用点行为不变）；
+   *  /credits/tag 的整页网格全是同一组名，属噪音，传 false 只隐藏这一行。 */
+  showGroup?: boolean
 }
 
 /**
@@ -14,7 +17,7 @@ interface TagCardProps {
  * 不模拟实体 Hero / 大封面，与 Studio / Creator / Collection 展示卡明显区分。
  * 链接指向标签详情页 /credits/tag/[slug]；slug 缺失时回退旧路由 /tags/[id]。
  */
-export function TagCard({ tag, className }: TagCardProps) {
+export function TagCard({ tag, className, showGroup = true }: TagCardProps) {
   const color = tag.color || tag.group.color || "#6b7280"
   const href = tag.slug
     ? `/credits/tag/${encodeURIComponent(tag.slug)}`
@@ -41,7 +44,9 @@ export function TagCard({ tag, className }: TagCardProps) {
             {tag.gameCount}
           </span>
         </div>
-        <p className="mt-1.5 truncate text-caption text-muted-foreground/60">{tag.group.name}</p>
+        {showGroup && (
+          <p className="mt-1.5 truncate text-caption text-muted-foreground/60">{tag.group.name}</p>
+        )}
       </div>
     </Link>
   )

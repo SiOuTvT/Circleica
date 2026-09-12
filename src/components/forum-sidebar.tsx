@@ -68,7 +68,7 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
           <button
             onClick={onToggle}
             aria-label="关闭论坛侧栏"
-            className="text-muted-foreground transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:rotate-90 hover:text-foreground"
+            className="inline-flex min-h-8 min-w-8 items-center justify-center text-muted-foreground transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:rotate-90 hover:text-foreground"
           >
             <X className="h-5 w-5" strokeWidth={2} />
           </button>

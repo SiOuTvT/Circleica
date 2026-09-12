@@ -97,7 +97,7 @@ export default async function GalvelicaInclusionPage({ searchParams }: { searchP
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <a href={`/galvelica/works/${r.slug}`} className="font-medium text-foreground hover:underline">
+                  <a href={`/galvelica/works/${r.slug}`} className="inline-flex min-h-7 items-center font-medium text-foreground hover:underline">
                     {r.title}
                   </a>
                   <p className="mt-0.5 text-xs text-muted-foreground">

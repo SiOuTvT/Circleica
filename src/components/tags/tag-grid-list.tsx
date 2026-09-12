@@ -43,6 +43,7 @@ export function TagGridList({
             <TagCard
               key={tag.id}
               tag={tag}
+              showGroup={false}
               className={!showAll && i >= TAGS_BLOCK_BUDGET ? "hidden md:block" : undefined}
             />
           ))}

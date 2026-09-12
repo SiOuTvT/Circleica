@@ -55,7 +55,6 @@ export default async function StudioArchivePage({
       header={
         <ArchiveHero
           variant="org"
-          eyebrow="studios"
           title="制作组图鉴"
           lede="这里收录同人社团与小型制作组，按作品浏览；也可以切到按首字逐个查看。"
           meta={
