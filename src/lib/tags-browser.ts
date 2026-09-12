@@ -3,13 +3,12 @@
  * 带 Redis/内存缓存支持，缓存 5 分钟
  */
 
-import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { Prisma } from "@/generated/prisma/client"
 import { cache, cacheKey } from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import { getMainNsfwMode } from "@/lib/nsfw-mode"
-import type { TagBrowserData, TagDetail, TagGameItem, TagInfo, TagGroupWithTags, TagWithGroup } from "@/types/tags-browser"
+import type { TagBrowserData, TagDetail, TagGameItem, TagInfo, TagWithGroup } from "@/types/tags-browser"
 
 /**
  * 获取标签浏览页面数据（带缓存）
@@ -25,25 +24,8 @@ export async function getTagBrowserData(): Promise<TagBrowserData> {
   }
 
   try {
-    // 并发生成三组数据
-    const [tagGroupsData, hotTagsData, statsData] = await Promise.all([
-      // 1. 获取所有标签组及其标签（带游戏数量）
-      getTagGroupsWithTags(),
-      // 2. 获取热门标签（Top 30）
-      getHotTags(30),
-      // 3. 获取统计信息
-      getStats(),
-    ])
-
-    // 4. 按首字母聚合标签
-    const tagsByLetter = buildTagsByLetter(tagGroupsData)
-
-    const data: TagBrowserData = {
-      hotTags: hotTagsData,
-      tagGroups: tagGroupsData,
-      stats: statsData,
-      tagsByLetter,
-    }
+    const tags = await getTagsByGameCount()
+    const data: TagBrowserData = { tags }
 
     // 缓存 5 分钟
     await cache.set(cacheKeyStr, data, 300)
@@ -52,165 +34,54 @@ export async function getTagBrowserData(): Promise<TagBrowserData> {
   } catch (error) {
     logger.db.error("[TagsBrowser] Failed to fetch data", error)
     // 返回空数据，让页面显示错误状态
-    return {
-      hotTags: [],
-      tagGroups: [],
-      stats: { totalTags: 0, totalGames: 0 },
-      tagsByLetter: {},
-    }
+    return { tags: [] }
   }
 }
 
 /**
- * 获取所有标签组及其标签（带游戏数量）
+ * 全部主站标签（仅保留已关联已发布游戏的），按关联作品数倒序；同数按名称。
+ * 主站恒过滤 source，副站摄入的标签不窜入主站。
  */
-async function getTagGroupsWithTags(): Promise<TagGroupWithTags[]> {
-  // "发现页标签"预设组（id 稳定，不依赖 positions——历史数据 positions 为空）。
-  const group = await prisma.tagGroup.findUnique({
-    where: { id: "preset_discover" },
-  })
-  if (!group) return []
-
-  // 与后台组详情一致：预设组若没有直接挂标签，则取「已关联已发布游戏」的所有主站标签
-  // 作为该组内容（发现页标签墙 = 全站分类标签），颜色统一用组色。
-  const groupTags = await prisma.tag.findMany({
+async function getTagsByGameCount(): Promise<TagWithGroup[]> {
+  const rows = await prisma.tag.findMany({
     where: {
       source: "circleica",
       games: { some: { game: { isPublished: true } } },
     },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: { id: true, name: true, slug: true, color: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      color: true,
+      group: { select: { id: true, name: true, color: true } },
+    },
   })
 
-  const allTagIds = groupTags.map(t => t.id)
   const gameCounts = await prisma.gameTag.groupBy({
     by: ["tagId"],
     where: {
-      tagId: { in: allTagIds },
+      tagId: { in: rows.map((r) => r.id) },
       game: { isPublished: true },
     },
     _count: { tagId: true },
   })
-  const countMap = new Map(gameCounts.map(r => [r.tagId, r._count.tagId]))
+  const countMap = new Map(gameCounts.map((r) => [r.tagId, r._count.tagId]))
 
-  const tags = groupTags
-    .map((tag) => ({
-      id: tag.id,
-      name: tag.name,
-      slug: tag.slug,
-      color: tag.color || group.color || "#a78bfa",
-      gameCount: countMap.get(tag.id) ?? 0,
+  return rows
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      color: r.color || "#6b7280",
+      gameCount: countMap.get(r.id) ?? 0,
+      group: {
+        id: r.group?.id ?? "",
+        name: r.group?.name ?? "",
+        color: r.group?.color ?? "",
+      },
     }))
-    .filter(t => t.gameCount > 0)
-
-  if (tags.length === 0) return []
-
-  return [{
-    id: group.id,
-    name: group.name,
-    color: group.color,
-    description: group.description,
-    tags,
-  }]
-}
-
-/**
- * 获取热门标签（按游戏数量排序）
- */
-async function getHotTags(limit: number): Promise<TagInfo[]> {
-  const tagStats = await prisma.gameTag.groupBy({
-    by: ["tagId"],
-    _count: { tagId: true },
-    where: {
-      game: { isPublished: true },
-    },
-    orderBy: {
-      _count: { tagId: "desc" },
-    },
-    take: limit,
-  })
-
-  const tagIds = tagStats.map(ts => ts.tagId)
-  const tags = await prisma.tag.findMany({
-    where: { id: { in: tagIds }, source: "circleica" },
-    select: { id: true, name: true, slug: true, color: true },
-  })
-
-  const tagMap = new Map(tags.map(t => [t.id, t]))
-
-  return tagStats
-    .map(ts => {
-      const tag = tagMap.get(ts.tagId)
-      if (!tag) return null
-      return {
-        id: tag.id,
-        name: tag.name,
-        slug: tag.slug,
-        color: tag.color || "#6b7280",
-        gameCount: ts._count.tagId,
-      }
-    })
-    .filter((t): t is TagInfo => t !== null)
-}
-
-/**
- * 获取统计信息
- */
-// 标签浏览页「总标签数 / 已发布游戏数」两个聚合计数：与标签/游戏发布无强实时要求，
-// 用 unstable_cache 缓存 5 分钟，避免每次访问标签页都重复 count（PERF-4）。
-const _tagStatsCache = unstable_cache(
-  async () => {
-    const [totalTags, totalGames] = await Promise.all([
-      prisma.tag.count(),
-      prisma.game.count({ where: { isPublished: true } }),
-    ])
-    return { totalTags, totalGames }
-  },
-  ["tags-browser-stats"],
-  { revalidate: 300 },
-)
-
-async function getStats(): Promise<{ totalTags: number; totalGames: number }> {
-  return _tagStatsCache()
-}
-
-/**
- * 按首字母聚合标签
- */
-function buildTagsByLetter(tagGroups: TagGroupWithTags[]): Record<string, TagWithGroup[]> {
-  const letterMap = new Map<string, TagWithGroup[]>()
-
-  for (const group of tagGroups) {
-    for (const tag of group.tags) {
-      // 获取首字母（中文取拼音首字母，英文取大写首字母）
-      const firstChar = tag.name.charAt(0)
-      const letter = getLetterKey(firstChar)
-
-      if (!letterMap.has(letter)) {
-        letterMap.set(letter, [])
-      }
-
-      letterMap.get(letter)!.push({
-        ...tag,
-        group: {
-          id: group.id,
-          name: group.name,
-          color: group.color,
-        },
-      })
-    }
-  }
-
-  // 转为对象并按 key 排序
-  const result: Record<string, TagWithGroup[]> = {}
-  const sortedKeys = Array.from(letterMap.keys()).sort()
-  for (const key of sortedKeys) {
-    result[key] = letterMap.get(key)!.sort((a, b) =>
-      a.name.localeCompare(b.name, "zh-Hans-CN")
-    )
-  }
-
-  return result
+    .filter((t) => t.gameCount > 0)
+    .sort((a, b) => b.gameCount - a.gameCount || a.name.localeCompare(b.name, "zh-Hans-CN"))
 }
 
 /**
@@ -383,25 +254,4 @@ async function getRelatedTags(tagId: string, limit = 14): Promise<TagInfo[]> {
     if (result.length >= limit) break
   }
   return result
-}
-
-/**
- * 获取字符的索引键（A-Z, 0-9, 其他）
- */
-function getLetterKey(char: string): string {
-  // 英文字母
-  if (/[a-zA-Z]/.test(char)) {
-    return char.toUpperCase()
-  }
-  // 数字
-  if (/[0-9]/.test(char)) {
-    return "0-9"
-  }
-  // 中文 - 简单处理：直接返回字符
-  // 生产环境可使用 pinyin-match 库获取拼音首字母
-  if (/[一-鿿]/.test(char)) {
-    return char
-  }
-  // 其他字符
-  return "#"
 }

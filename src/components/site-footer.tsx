@@ -12,7 +12,7 @@ const GITHUB_URL = "https://github.com/SiOuTvT/Circleica"
 export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logoMode?: LogoMode; siteLogo?: string | null }) {
   return (
     <footer role="contentinfo" className="border-t border-border bg-muted/30">
-      <div className="mx-auto max-w-[1140px] px-3 sm:px-6 py-1 sm:py-4">
+      <div className="mx-auto max-w-[1140px] px-3 sm:px-6 py-1 sm:py-3">
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
         <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:text-left">
           {/* 左：品牌介绍 */}

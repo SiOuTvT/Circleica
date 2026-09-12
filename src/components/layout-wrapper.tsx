@@ -24,6 +24,8 @@ const LEFT_EXPANDED_W = 216
 const LEFT_COLLAPSED_W = 60
 const RIGHT_W = 260
 const RIGHT_EXPANDED_W = 340
+/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；挤位式算 padding 时要扣掉它 */
+const CONTENT_GUTTER = 40
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -61,43 +63,14 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  /* ── 内容区偏移 ── */
-  const [contentOffset, setContentOffset] = useState(0)
-
-  const calcOffset = useCallback(() => {
-    if (!isDesktop) return 0
-    const sw = window.innerWidth
-    const pageCenter = sw / 2
-    const onlyLeft = !navCollapsed && !forumOpen
-    const onlyRight = navCollapsed && forumOpen
-
-    if (onlyRight) {
-      // 只开右边：保持和右边的距离跟两边都开时一样
-      const bothOpenAvailable = sw - LEFT_W - RIGHT_W
-      const bothOpenCenter = LEFT_W + bothOpenAvailable / 2
-      const distFromRight = sw - bothOpenCenter - RIGHT_W
-      const targetCenter = sw - rightWidth - distFromRight
-      return targetCenter - pageCenter
-    }
-
-    // 其他状态：在可用空间居中
-    const available = sw - leftWidth - rightWidth
-    const center = leftWidth + available / 2
-    let offset = center - pageCenter
-    if (onlyLeft) offset -= leftWidth / 5 // 只开左边往左靠
-    return offset
-  }, [isDesktop, navCollapsed, forumOpen, leftWidth, rightWidth])
-
-  useEffect(() => {
-    setContentOffset(calcOffset())
-  }, [calcOffset])
-
-  useEffect(() => {
-    if (!isDesktop) return
-    const onResize = () => setContentOffset(calcOffset())
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [isDesktop, calcOffset])
+  /* ── 三栏「挤位式」（R36）──
+     侧栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
+     外层容器按侧栏实际占宽加 padding，让内容区从「侧栏右缘 + 16」开始，
+     内容列再在剩下的可用宽度里 max-w-[1140px] mx-auto（居中 ⇒ 左右间距天然相等）。
+     内层内容列自己已带 lg:px-10（40px）留白，故这里扣掉它，避免把间距算两遍。
+     窄屏的侧栏是覆盖式抽屉：不设任何 padding（undefined 让响应式 px 类照常生效），行为与之前完全一致。 */
+  const contentPadLeft = isDesktop ? leftWidth + 16 - CONTENT_GUTTER : undefined
+  const contentPadRight = isDesktop && forumOpen ? rightWidth + 16 - CONTENT_GUTTER : undefined
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -148,8 +121,8 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
           children
         ) : (
           <div
-            className="flex min-h-screen flex-col transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(${contentOffset}px)` }}
+            className="flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
+            style={{ paddingLeft: contentPadLeft, paddingRight: contentPadRight }}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto max-w-[1140px]">

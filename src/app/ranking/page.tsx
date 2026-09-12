@@ -299,16 +299,8 @@ export default async function RankingPage({
                 const style = PODIUM[rank]
                 return (
                   <div key={item.card.id} className="relative flex h-full flex-col items-center">
-                    <div className="absolute -top-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center">
-                      {/* 绶带：红/白/蓝三段 */}
-                      <div className="flex h-2 w-7 overflow-hidden rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                        <div className="flex-1 bg-red-500" />
-                        <div className="flex-1 bg-white" />
-                        <div className="flex-1 bg-blue-500" />
-                      </div>
-                      {/* 挂环 */}
-                      <div className="-mt-px h-1.5 w-1.5 rounded-full border border-white/70" />
-                      {/* 奖牌圆盘 */}
+                    {/* 名次圆牌：上移到卡片顶边（上下各露一半），只留圆牌本身 */}
+                    <div className="absolute -top-5 left-1/2 z-10 -translate-x-1/2">
                       <div
                         className="relative flex h-10 w-10 items-center justify-center rounded-full"
                         style={{ background: style.grad, boxShadow: `${style.ring}, 0 2px 3px rgba(0,0,0,0.35)` }}

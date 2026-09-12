@@ -4,7 +4,6 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Inbox } from "lucide-react"
 
-import { adminBtnPrimary } from "@/lib/admin-styles"
 import { cn } from "@/lib/utils"
 
 /**
@@ -62,7 +61,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
       type="button"
       onClick={submit}
       disabled={loading}
-      className={cn(adminBtnPrimary, "h-8 disabled:opacity-60")}
+      className={cn("galvelica-cta galvelica-cta-primary", "h-8 disabled:opacity-60")}
     >
       <Inbox className="h-4 w-4" />
       {loading ? "提交中…" : "申请收录到 Circleica"}

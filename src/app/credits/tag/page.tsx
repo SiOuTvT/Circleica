@@ -1,13 +1,10 @@
 import { getTagBrowserData } from "@/lib/tags-browser"
-import { TagCategory } from "@/components/tags/tag-category"
 import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
-import { AZIndex } from "@/components/archive/az-index"
-import { AzTagGroupList } from "@/components/tags/az-tag-group"
+import { TagGridList } from "@/components/tags/tag-grid-list"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
 import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
-import { LayoutGrid, Tag as TagIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import type { Metadata } from "next"
@@ -27,13 +24,11 @@ export const metadata: Metadata = {
 
 export const revalidate = 300 // 5 分钟缓存
 
-const ANCHOR_PREFIX = "tag-letter-"
-
 /**
  * 标签图鉴（Archive 浏览体系，tag 实体）
- * 列表 Archive 化：ArchiveShell + ArchiveHero(tag) + 补充区块(分类) + AZIndex + TagCard 网格。
- * 统一 slug 路由：/credits/tag（与 Studio / Creator / Collection 一致）。
- * 保持 Server Component：AZIndex 静态渲染 + anchor 跳转，不引入额外 hydration。
+ * 单一视图：搜索框 + 按关联作品数倒序的标签网格（TagCard）。
+ * 不再有「按分类浏览」补充区块，也不按拼音首字母分组/索引。
+ * 保持 Server Component：排序在数据层完成，手机端收起/展开交给 TagGridList。
  */
 export default async function TagsPage({
   searchParams,
@@ -45,37 +40,14 @@ export default async function TagsPage({
 
   const data = await getTagBrowserData()
 
-  // 按 ?q= 过滤标签（名称 / 别名），重算首字母分组
-  const tagsByLetter = query
-    ? Object.fromEntries(
-        Object.entries(data.tagsByLetter).map(([letter, tags]) => [
-          letter,
-          tags.filter((t) => (t.name ?? "").toLowerCase().includes(query)),
-        ]),
-      )
-    : data.tagsByLetter
+  // 按 ?q= 过滤标签（名称）
+  const tags = query
+    ? data.tags.filter((t) => (t.name ?? "").toLowerCase().includes(query))
+    : data.tags
 
-  const totalTags = Object.values(tagsByLetter).reduce((n, tags) => n + tags.length, 0)
-  const letters = Object.keys(tagsByLetter)
-    .filter((l) => (tagsByLetter[l]?.length ?? 0) > 0)
-    .sort()
+  const totalTags = tags.length
   const density = computeDensity(totalTags)
   const state = computeArchiveState(totalTags)
-
-  // 跨字母累计 offset：每个字母组首个标签在「整块」中的序号（供「整块前 24」截断用）。
-  // 必须在装配点算好——单个 AzTagGroup 只知道自己那一组，各自从 0 数会永远不触发截断。
-  let groupCursor = 0
-  const tagGroups = letters.map((letter) => {
-    const tags = tagsByLetter[letter] ?? []
-    const item = {
-      letter: letter === "0-9" ? "#" : letter,
-      tags,
-      startOffset: groupCursor,
-      anchorId: `${ANCHOR_PREFIX}${encodeURIComponent(letter)}`,
-    }
-    groupCursor += tags.length
-    return item
-  })
 
   return (
     <ArchiveShell
@@ -87,7 +59,7 @@ export default async function TagsPage({
           variant="tag"
           eyebrow="tags"
           title="标签图鉴"
-          lede="通过标签发现游戏，按分类与首字母索引浏览。"
+          lede="按关联作品数从多到少浏览，或用搜索框直接找标签。"
           meta={
             query ? (
               <span>
@@ -103,40 +75,15 @@ export default async function TagsPage({
         />
       }
     >
-      {/* 补充区块：分类浏览（只要有分类就显示，不依赖标签是否关联作品） */}
-      {data.tagGroups.length > 0 && (
-        <section>
-          <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
-            <LayoutGrid className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 按分类浏览
-          </h2>
-          <div className={cn("grid gap-4", DENSITY_GRID[density])}>
-            {data.tagGroups.map((group) => (
-              <TagCategory key={group.id} group={group} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 全部标签索引：AZIndex（静态）+ TagCard 网格（按首字母分组）；无标签时占位 */}
       <section>
-        <h2 className="mb-4 flex items-center gap-1.5 text-sm font-heading font-semibold text-foreground">
-          <TagIcon className="h-4 w-4 text-muted-foreground" strokeWidth={2} /> 全部标签
-        </h2>
-        {letters.length === 0 ? (
+        {totalTags === 0 ? (
           <ArchivePlaceholder
             state="empty"
             entity="tag"
             message={query ? "没有匹配的标签" : "暂无已收录作品的标签"}
           />
         ) : (
-          <>
-            <AZIndex available={letters} anchorPrefix={ANCHOR_PREFIX} />
-            <AzTagGroupList
-              totalTags={totalTags}
-              gridClass={cn("grid gap-2.5", DENSITY_GRID[density])}
-              groups={tagGroups}
-            />
-          </>
+          <TagGridList tags={tags} gridClass={cn("grid gap-2.5", DENSITY_GRID[density])} />
         )}
       </section>
     </ArchiveShell>
