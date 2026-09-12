@@ -183,9 +183,12 @@ export function AdminDataTable<T>({
                       key={c.key}
                       className={cn(
                         "border-b border-border px-4 py-2 align-middle",
-                        // 单元格内文字链接（主标识列那种 truncate 链接）统一热区 ≥28px：
-                        // 组件层一次性解决。保留链接原本 display:block（不动 truncate 的盒模型），
-                        // 只用 min-h + leading-7(28px) 把点击区抬到 28。
+                        // 单元格内文字链接（主标识列那种 truncate 链接）统一热区 ≥28px：组件层一次性解决。
+                        // 单元格内链接要生效必须 display:block（或继承 AdminDataTable 现有的 block 语义）——
+                        // min-height/height 对 display:inline 的非替换元素完全无效，computed 有值但 rect 不变。
+                        // 禁用 inline-flex，会改掉 truncate 的盒模型。
+                        // 当前 17 个表格页实测 inline 链接为 0，故此条不补 [&_a]:block，
+                        // 避免与调用方自传的 flex 类同层竞争产生回归。
                         "[&_a]:min-h-7 [&_a]:leading-7",
                         (c.align === "right" || (c.numeric && c.align !== "left")) ? "text-right" : "text-left",
                         c.numeric && "num-tab",

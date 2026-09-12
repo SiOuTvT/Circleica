@@ -138,7 +138,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                   <div className="mt-2.5 flex items-center justify-between">
                     <button onClick={() => setCur((cur - 1 + len) % len)} className="hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
                     <div className="mx-auto flex gap-1.5">
-                      {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"}`} />)}
+                      {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-foreground/70" : "w-1.5 bg-foreground/25"}`} />)}
                     </div>
                     <button onClick={next} className="hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
                   </div>
