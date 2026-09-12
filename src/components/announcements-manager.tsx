@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
 import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
+import { AdminFormShell } from "@/components/admin/admin-form-shell"
 import { stripHtml } from "@/lib/sanitize"
 import { cn, withLabelableId } from "@/lib/utils"
 import { toast } from "sonner"
@@ -207,6 +208,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
             )}
 
             <form onSubmit={submitAnn} className="space-y-4">
+            <AdminFormShell>
               {/* 标题 — 全宽 */}
               <Field label="标题" required>
                 <input value={title} onChange={e => setTitle(e.target.value)}
@@ -214,7 +216,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               </Field>
 
               {/* 摘要 + 封面图 — 左右并排 */}
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px] gap-4 items-start">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 items-start">
                 <Field label="摘要" hint="不填则自动截取正文">
                   <textarea value={summary} onChange={e => setSummary(e.target.value)}
                     placeholder="一句话概括公告内容…" rows={3} className={cn(adminInput, "resize-none")} />
@@ -232,7 +234,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               </Field>
 
               {/* 状态 + 置顶 + 链接 — 一行 */}
-              <div className="grid grid-cols-1 sm:grid-cols-[140px_auto_1fr] gap-3 items-end">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 items-end">
                 <Field label="状态">
                   <select value={status} onChange={e => setStatus(e.target.value)} className={cn(adminInput, "cursor-pointer h-12 text-[15px] leading-6")}>
                     <option value="draft">草稿</option>
@@ -255,7 +257,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
               </div>
 
               {/* 定时 — 两列 */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="定时上线">
                   <input type="datetime-local" value={startAt} onChange={e => setStartAt(e.target.value)} className={adminInput} />
                 </Field>
@@ -275,6 +277,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       : <><Plus className="h-4 w-4" /> 创建公告</>}
                 </button>
               </div>
+            </AdminFormShell>
             </form>
           </div>
         </section>

@@ -7,6 +7,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { StructuredEditor } from "./structured-editor"
+import { AdminFormShell } from "@/components/admin/admin-form-shell"
 
 const PAGES = [
   { key: "page_about", label: "关于", href: "/about" },
@@ -88,7 +89,7 @@ export function PagesManager({ initial }: Props) {
 
           <div className="p-5">
             {editingKey === page.key ? (
-              <StructuredEditor html={draft} onChange={setDraft} />
+              <AdminFormShell><StructuredEditor html={draft} onChange={setDraft} /></AdminFormShell>
             ) : (
               <div className="rounded-xl bg-card ring-1 ring-border p-6">
                 {contents[page.key] ? (

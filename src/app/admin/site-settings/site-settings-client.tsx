@@ -2,7 +2,9 @@
 
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { Card } from "@/components/ui/card"
-import { adminInput } from "@/lib/admin-styles"
+import { adminBtnPrimary, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
+import { AdminFormActions, AdminFormShell } from "@/components/admin/admin-form-shell"
+import { useRouter } from "next/navigation"
 import { Globe, Image as ImageIcon, Loader2, Save, Shield, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { BrandLogo } from "@/components/brand-logo"
@@ -13,6 +15,7 @@ import { apiFetchSafe } from "@/lib/api-client"
 import { AdminSwitch } from "@/components/admin/admin-switch"
 
 export function SiteSettingsClient() {
+  const router = useRouter()
   const [placeholderUrl, setPlaceholderUrl] = useState("")
   const [siteName, setSiteName] = useState("")
   const [siteDescription, setSiteDescription] = useState("")
@@ -178,6 +181,7 @@ export function SiteSettingsClient() {
       eyebrow="SETTINGS"
       description="管理站点名称、品牌 Logo、注册开关与邮件验证等基础设置。"
     >
+    <AdminFormShell>
       {/* 站点信息 */}
       <Card size="comfortable" radius="xl">
         <div className="flex items-center gap-2">
@@ -449,15 +453,14 @@ export function SiteSettingsClient() {
         </div>
         </Card>
 
-      {/* 统一保存按钮 */}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-      >
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        {saving ? "保存中…" : "保存所有设置"}
-      </button>
+      <AdminFormActions>
+        <button type="button" onClick={() => router.back()} className={adminBtnSecondary}>取消</button>
+        <button onClick={handleSave} disabled={saving} className={`${adminBtnPrimary} h-10`}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? "保存中…" : "保存所有设置"}
+        </button>
+      </AdminFormActions>
+    </AdminFormShell>
     </AdminPageContainer>
   )
 }

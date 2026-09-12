@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { applyThemeTokens, resolveTokens } from "@/lib/theme-colors"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { Check, Database, FileText, Loader2, RotateCcw, Save } from "lucide-react"
+import { AdminFormActions } from "@/components/admin/admin-form-shell"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -84,21 +85,6 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
           <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">THEME</p>
           <h1 className="font-heading text-xl font-bold leading-tight text-foreground sm:text-2xl">主题设置</h1>
           <p className="mt-1 text-sm text-muted-foreground">自定义网站的颜色、圆角、阴影和透明度，所有修改都会实时预览</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={handleReset}>
-            <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-            ) : saved ? (
-              <Check className="h-4 w-4 mr-1.5" />
-            ) : (
-              <Save className="h-4 w-4 mr-1.5" />
-            )}
-            {saved ? "已保存" : "确认保存"}
-          </Button>
         </div>
       </div>
 
@@ -324,6 +310,22 @@ export function ThemeEditor({ initialSettings, onSave }: ThemeEditorProps) {
           )}
         </div>
       </div>
+
+      <AdminFormActions>
+        <Button variant="ghost" size="sm" onClick={handleReset}>
+          <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
+        </Button>
+        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+          ) : saved ? (
+            <Check className="h-4 w-4 mr-1.5" />
+          ) : (
+            <Save className="h-4 w-4 mr-1.5" />
+          )}
+          {saved ? "已保存" : "确认保存"}
+        </Button>
+      </AdminFormActions>
     </div>
   )
 }

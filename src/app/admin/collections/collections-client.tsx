@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { adminBtnDanger, adminBtnSecondary, adminInput, adminBtnPrimary } from "@/lib/admin-styles"
+import { AdminFormShell } from "@/components/admin/admin-form-shell"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -320,7 +321,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
           <DialogTitle>{collection ? "编辑合集" : "新建合集"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5 max-h-[70vh] overflow-y-auto">
+        <AdminFormShell className="max-w-none space-y-5 max-h-[70vh] overflow-y-auto">
           {/* 合集名称 */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">合集名称 *</label>
@@ -412,7 +413,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
               </div>
             </div>
           )}
-        </div>
+        </AdminFormShell>
 
         <DialogFooter>
           <Button variant="outline" size="sm" onClick={onClose}>取消</Button>

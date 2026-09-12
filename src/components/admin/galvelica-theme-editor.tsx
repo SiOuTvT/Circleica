@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { THEME_PRESETS } from "@/lib/theme-presets"
 import { Check, Database, FileText, Loader2, RotateCcw, Save } from "lucide-react"
+import { AdminFormActions } from "@/components/admin/admin-form-shell"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import type { GalvelicaThemeSettings } from "@/lib/site-settings"
@@ -83,23 +84,6 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
-      {/* 操作栏（页面头已有标题与说明，这里只保留操作按钮，避免重复大标题） */}
-      <div className="flex items-center justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={handleReset}>
-          <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
-        </Button>
-        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-          ) : saved ? (
-            <Check className="h-4 w-4 mr-1.5" />
-          ) : (
-            <Save className="h-4 w-4 mr-1.5" />
-          )}
-          {saved ? "已保存" : "确认保存"}
-        </Button>
-      </div>
-
       <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
         {/* 左侧：控件 */}
         <div className="flex flex-col gap-5 sm:gap-6">
@@ -332,6 +316,22 @@ export function GalvelicaThemeEditor({ initialSettings, onSave }: Props) {
           )}
         </div>
       </div>
+
+      <AdminFormActions>
+        <Button variant="ghost" size="sm" onClick={handleReset}>
+          <RotateCcw className="h-4 w-4 mr-1.5" /> 恢复默认
+        </Button>
+        <Button size="sm" onClick={handleSave} disabled={!hasChanges || saving}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+          ) : saved ? (
+            <Check className="h-4 w-4 mr-1.5" />
+          ) : (
+            <Save className="h-4 w-4 mr-1.5" />
+          )}
+          {saved ? "已保存" : "确认保存"}
+        </Button>
+      </AdminFormActions>
     </div>
   )
 }

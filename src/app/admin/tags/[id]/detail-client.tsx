@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { AdminTagApiResponse } from "@/types/admin-tags"
 import { adminInput, adminSearchInput, adminBtnDanger } from "@/lib/admin-styles"
+import { AdminFormShell } from "@/components/admin/admin-form-shell"
 import { cn } from "@/lib/utils"
 
 /* ──────────────────── 类型 ──────────────────── */
@@ -270,6 +271,7 @@ export function TagGroupDetailClient({
       {showCreate && (
         <Card size="comfortable" radius="xl" className="space-y-4">
           <h3 className="text-sm font-semibold text-foreground">新建标签</h3>
+          <AdminFormShell className="max-w-none">
           <input
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
@@ -279,6 +281,7 @@ export function TagGroupDetailClient({
             onKeyDown={(e) => { if (e.key === "Enter") handleCreateTag(); if (e.key === "Escape") setShowCreate(false) }}
           />
           <ColorPicker value={newTagColor} onChange={setNewTagColor} />
+          </AdminFormShell>
           <div className="flex gap-2">
             <button
               onClick={handleCreateTag}
@@ -352,6 +355,7 @@ export function TagGroupDetailClient({
               {/* 内联编辑面板 */}
               {editingTag === tag.id && (
                 <Card ref={editPanelRef} size="default" radius="xl" className="mt-2 shadow-3 space-y-3">
+                  <AdminFormShell className="max-w-none">
                   <div className="flex gap-2">
                     <input
                       value={editName}
@@ -411,6 +415,7 @@ export function TagGroupDetailClient({
                       取消
                     </button>
                   </div>
+                  </AdminFormShell>
                 </Card>
               )}
             </div>

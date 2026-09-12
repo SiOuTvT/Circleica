@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PROVIDER_FIELDS, PROVIDER_LABELS } from "@/lib/email-providers-meta"
 import { cn } from "@/lib/utils"
 import { adminBtnPrimary, adminBtnSecondary, adminInput } from "@/lib/admin-styles"
+import { AdminFormActions, AdminFormShell } from "@/components/admin/admin-form-shell"
+import { useRouter } from "next/navigation"
 import { AlertTriangle, Check, Database, Eye, EyeOff, HardDrive, Loader2, Mail, Save, X, Zap } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -56,6 +58,7 @@ interface TestResult { ok: boolean; msg: string }
 interface EmailTestResults { success?: boolean; message?: string; error?: string; results?: Array<{ provider: string; label: string; ok: boolean; msg: string }> }
 
 export function ServicesClient() {
+  const router = useRouter()
   const [config, setConfig] = useState<ServiceConfig>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [ready, setReady] = useState(false)
@@ -231,14 +234,8 @@ export function ServicesClient() {
       title="服务配置"
       eyebrow="SERVICES"
       description="配置可选的外部服务，未配置时使用默认行为"
-      actions={
-        <button onClick={handleSave} disabled={saving} className={cn(adminBtnPrimary, "h-10")}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          保存配置
-        </button>
-      }
     >
-
+    <AdminFormShell>
       <div className="flex items-start gap-3 rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
         <span>邮件与 Redis 保存后立即生效，R2 需重启应用后生效。环境变量中的配置优先级高于此处设置。</span>
@@ -396,6 +393,15 @@ export function ServicesClient() {
       </Card>
 
       </div>
+
+      <AdminFormActions>
+        <button type="button" onClick={() => router.back()} className={adminBtnSecondary}>取消</button>
+        <button onClick={handleSave} disabled={saving} className={cn(adminBtnPrimary, "h-10")}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          保存配置
+        </button>
+      </AdminFormActions>
+    </AdminFormShell>
     </AdminPageContainer>
   )
 }

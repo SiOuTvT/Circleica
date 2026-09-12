@@ -5,13 +5,15 @@ import { Tag } from "@/components/ui/tag"
 import { Textarea } from "@/components/ui/textarea"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
-import { Loader2, Plus, X } from "lucide-react"
+import { ChevronDown, Loader2, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { memo, useEffect, useRef, useState, useId } from "react"
+import { memo, useEffect, useRef, useState, useId, type ReactNode } from "react"
 
 import { DESCRIPTION_LANGUAGES, parseDescription, serializeDescription, type LangKey } from "@/lib/parse-description"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
-import { adminBtnDanger, adminInput, adminBtnPrimary } from "@/lib/admin-styles"
+import { adminBtnDanger, adminInput, adminBtnPrimary, adminBtnSecondary } from "@/lib/admin-styles"
+import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
+import { AdminFormActions, AdminFormShell } from "@/components/admin/admin-form-shell"
 import { cn } from "@/lib/utils"
 import {
   PLATFORM_LABELS, PLATFORM_ORDER, LANGUAGE_LABELS, LANGUAGE_ORDER,
@@ -93,6 +95,34 @@ const ScreenshotItem = memo(function ScreenshotItem({
     </div>
   )
 })
+
+/** 游戏表单分段（仅第一段默认展开；折叠状态记忆在 localStorage） */
+const GAME_FORM_SECTIONS = ["basic", "cover", "tags", "resources", "staff", "publish"] as const
+type GameFormSectionKey = (typeof GAME_FORM_SECTIONS)[number]
+const GAME_FORM_SECTIONS_STORAGE = "admin-game-form-sections"
+
+/** 可折叠分段容器：标题用现成 AdminSectionHeading（13/600），右侧箭头指示展开态 */
+function GameFormSection({ title, open, onToggle, children }: {
+  title: string; open: boolean; onToggle: () => void; children: ReactNode
+}) {
+  return (
+    <section className="rounded-xl bg-card ring-1 ring-border">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-5 py-3.5 text-left [&>div]:mb-0"
+      >
+        <AdminSectionHeading>{title}</AdminSectionHeading>
+        <ChevronDown
+          className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200", open && "rotate-180")}
+          strokeWidth={2}
+        />
+      </button>
+      {open && <div className="px-5 pb-5">{children}</div>}
+    </section>
+  )
+}
 
 export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], gameId, redirectTo, initialData }: Props) {
   const router = useRouter()
@@ -449,6 +479,22 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
     }
   }
 
+  // 分段折叠状态（默认只展开第一段「基本信息」，其余折叠；记忆到 localStorage）
+  const [sectionOpen, setSectionOpen] = useState<Record<GameFormSectionKey, boolean>>(
+    () => Object.fromEntries(GAME_FORM_SECTIONS.map((k, i) => [k, i === 0])) as Record<GameFormSectionKey, boolean>,
+  )
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(GAME_FORM_SECTIONS_STORAGE)
+      if (raw) setSectionOpen(prev => ({ ...prev, ...(JSON.parse(raw) as Partial<Record<GameFormSectionKey, boolean>>) }))
+    } catch {}
+  }, [])
+  const toggleSection = (key: GameFormSectionKey) => setSectionOpen(prev => {
+    const next = { ...prev, [key]: !prev[key] }
+    try { localStorage.setItem(GAME_FORM_SECTIONS_STORAGE, JSON.stringify(next)) } catch {}
+    return next
+  })
+
   const labelCls = "mb-2 block text-sm font-medium text-foreground"
 
   const idTitle = useId()
@@ -467,7 +513,8 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
 
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="w-full">
+      <AdminFormShell>
       {error && (
         <div className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20">{error}</div>
       )}
@@ -489,9 +536,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
         </div>
       )}
 
-      {/* ── VNDB 一键拉取 ── */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-base font-semibold text-foreground">VNDB 数据拉取</h2>
+      {/* ── 基本信息 ── */}
+      <GameFormSection title="基本信息" open={sectionOpen.basic} onToggle={() => toggleSection("basic")}>
+      {/* ── VNDB 一键拉取（工具行，随「基本信息」展开） ── */}
+      <div className="rounded-xl bg-secondary/40 p-4 ring-1 ring-border space-y-3">
         <p className="text-xs text-muted-foreground">输入 VNDB 编号，一键拉取游戏数据自动填充表单。所有拉取的字段均可手动修改。</p>
         <div className="flex gap-2 items-start">
           <div className="flex-1">
@@ -526,10 +574,6 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           <div className="rounded-lg bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400 ring-1 ring-emerald-500/20">{vndbSuccess}</div>
         )}
       </div>
-
-      {/* 游戏信息 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-        <h2 className="text-base font-semibold text-foreground">游戏信息</h2>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
@@ -710,11 +754,86 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             {activeDescLang === "en" && " VNDB 拉取的英文简介将自动填入此栏，可点击翻译按钮一键生成中文。"}
           </p>
         </div>
-      </div>
 
-      {/* 发布设置 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-4">
-        <h2 className="text-base font-semibold text-foreground">发布设置</h2>
+        {/* VNDB ID / 游戏时长 / 官方网站 / 原始语言 / 制作状态 */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor={idVndb} className={labelCls}>VNDB ID</label>
+            <input id={idVndb} value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={adminInput} />
+          </div>
+          <div>
+            <label htmlFor={idDuration} className={labelCls}>游戏时长</label>
+            <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={adminInput} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor={idWebsite} className={labelCls}>官方网站</label>
+            <input id={idWebsite} value={officialWebsite} onChange={(e) => setOfficialWebsite(e.target.value)} placeholder="https://…" className={adminInput} />
+          </div>
+          <div>
+            <label htmlFor={idOriginalLanguage} className={labelCls}>原始语言</label>
+            <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
+              <option value="">未设置</option>
+              {LANGUAGE_ORDER.map((code) => (
+                <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor={idStatus} className={labelCls}>制作状态</label>
+            <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
+              {GAME_STATUS_ORDER.map((v) => (
+                <option key={v} value={v}>{GAME_STATUS_LABELS[v]}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 支持平台（多选，存储 VNDB 平台代码） */}
+        <div id={idPlatforms}>
+          <label className={labelCls}>支持平台</label>
+          <div className="flex flex-wrap gap-2">
+            {PLATFORM_OPTIONS.map((p) => {
+              const active = platforms.includes(p.code)
+              return (
+                <button
+                  key={p.code}
+                  type="button"
+                  onClick={() => setPlatforms((prev) => (active ? prev.filter((c) => c !== p.code) : [...prev, p.code]))}
+                  className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
+                    active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        {/* 游戏语言（多选，存储语言代码） */}
+        <div>
+          <label className={labelCls}>游戏语言</label>
+          <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
+            {LANGUAGE_OPTIONS.map((l) => {
+              const active = languages.includes(l.code)
+              return (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLanguages((prev) => (active ? prev.filter((c) => c !== l.code) : [...prev, l.code]))}
+                  className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
+                    active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
+                  }`}
+                >
+                  {l.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </GameFormSection>
+
+      {/* ── 封面与分级 ── */}
+      <GameFormSection title="封面与分级" open={sectionOpen.cover} onToggle={() => toggleSection("cover")}>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
           <div className="shrink-0">
             <label className={labelCls}>封面图</label>
@@ -728,164 +847,24 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
             />
           </div>
           <div className="flex-1 space-y-3 min-w-0">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor={idVndb} className={labelCls}>VNDB ID</label>
-                <input id={idVndb} value={vndbId} onChange={(e) => setVndbId(e.target.value)} placeholder="如：12345" className={adminInput} />
-              </div>
-              <div>
-                <label htmlFor={idRelease} className={labelCls}>发售日期</label>
-                <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={adminInput} />
-              </div>
-              <div>
-                <label className={labelCls}>制作会社与身份</label>
-                <div className="space-y-2">
-                  {studios.map((s, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <input
-                        value={s.name}
-                        onChange={(e) =>
-                          setStudios((prev) => prev.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))
-                        }
-                        placeholder="制作组名称，如：Key"
-                        className={adminInput}
-                      />
-                      <select
-                        value={s.role ?? ""}
-                        onChange={(e) =>
-                          setStudios((prev) =>
-                            prev.map((p, j) => (j === i ? { ...p, role: e.target.value || null } : p)),
-                          )
-                        }
-                        className={cn(adminInput, "w-[120px] shrink-0 h-12 text-[15px] leading-6")}
-                      >
-                        {STUDIO_ROLE_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => setStudios((prev) => prev.filter((_, j) => j !== i))}
-                        className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                        aria-label="移除制作组"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => setStudios((prev) => [...prev, { name: "" }])}
-                    className="inline-flex min-h-[28px] items-center gap-1 rounded-lg px-2 py-1 text-sm text-foreground/80 transition-colors hover:text-primary"
-                  >
-                    <Plus className="h-4 w-4" />
-                    添加制作组
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label htmlFor={idDuration} className={labelCls}>游戏时长</label>
-                <input id={idDuration} value={gameDuration} onChange={(e) => setGameDuration(e.target.value)} placeholder="如：20-30小时" className={adminInput} />
-              </div>
-              <div>
-                <label htmlFor={idWebsite} className={labelCls}>官方网站</label>
-                <input id={idWebsite} value={officialWebsite} onChange={(e) => setOfficialWebsite(e.target.value)} placeholder="https://…" className={adminInput} />
-              </div>
+            <div>
+              <label htmlFor={idAge} className={labelCls}>年龄分级</label>
+              <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
+                {AGE_RATING_ORDER.map((v) => (
+                  <option key={v} value={v}>{AGE_RATING_LABELS[v]}</option>
+                ))}
+              </select>
             </div>
-
-            {/* 支持平台（多选，存储 VNDB 平台代码） */}
-            <div className="pt-3 border-t border-border" id={idPlatforms}>
-              <label className={labelCls}>支持平台</label>
-              <div className="flex flex-wrap gap-2">
-                {PLATFORM_OPTIONS.map((p) => {
-                  const active = platforms.includes(p.code)
-                  return (
-                    <button
-                      key={p.code}
-                      type="button"
-                      onClick={() => setPlatforms((prev) => (active ? prev.filter((c) => c !== p.code) : [...prev, p.code]))}
-                      className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
-                        active
-                          ? "bg-primary/15 text-primary ring-primary/30"
-                          : "text-muted-foreground ring-border hover:bg-secondary"
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            {/* 游戏语言（多选，存储语言代码） */}
-            <div className="pt-3 border-t border-border">
-              <label className={labelCls}>游戏语言</label>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1">
-                {LANGUAGE_OPTIONS.map((l) => {
-                  const active = languages.includes(l.code)
-                  return (
-                    <button
-                      key={l.code}
-                      type="button"
-                      onClick={() => setLanguages((prev) => (active ? prev.filter((c) => c !== l.code) : [...prev, l.code]))}
-                      className={`rounded-lg px-3 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out ${
-                        active ? "bg-primary/15 text-primary ring-primary/30" : "text-muted-foreground ring-border hover:bg-secondary"
-                      }`}
-                    >
-                      {l.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* 原始语言 / 年龄分级 / 制作状态 */}
-            <div className="grid grid-cols-1 gap-3 pt-3 border-t border-border sm:grid-cols-3">
-              <div>
-                <label htmlFor={idOriginalLanguage} className={labelCls}>原始语言</label>
-                <select id={idOriginalLanguage} value={originalLanguage} onChange={(e) => setOriginalLanguage(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
-                  <option value="">未设置</option>
-                  {LANGUAGE_ORDER.map((code) => (
-                    <option key={code} value={code}>{LANGUAGE_LABELS[code] ?? code.toUpperCase()}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor={idAge} className={labelCls}>年龄分级</label>
-                <select id={idAge} value={ageRating} onChange={(e) => setAgeRating(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
-                  {AGE_RATING_ORDER.map((v) => (
-                    <option key={v} value={v}>{AGE_RATING_LABELS[v]}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor={idStatus} className={labelCls}>制作状态</label>
-                <select id={idStatus} value={status} onChange={(e) => setStatus(e.target.value)} className={cn(adminInput, "h-12 text-[15px] leading-6")}>
-                  {GAME_STATUS_ORDER.map((v) => (
-                    <option key={v} value={v}>{GAME_STATUS_LABELS[v]}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3 sm:gap-4 pt-2 border-t border-border">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
-                NSFW 内容
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
-                立即发布
-              </label>
-            </div>
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+              <input type="checkbox" checked={isNsfw} onChange={(e) => setIsNsfw(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
+              NSFW 内容
+            </label>
           </div>
         </div>
-      </div>
+      </GameFormSection>
 
-      {/* 标签 — 带搜索和复选框，按标签组分类 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border">
-        <h2 className="mb-3 text-base font-semibold text-foreground">标签</h2>
+      {/* ── 标签 ── */}
+      <GameFormSection title="标签" open={sectionOpen.tags} onToggle={() => toggleSection("tags")}>
         {/* 搜索框 */}
         <div className="mb-3">
           <input
@@ -1015,40 +994,10 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           })()}
         </div>
         {tags.length === 0 && <p className="mt-2 text-xs text-muted-foreground">暂无标签，请先在标签管理中创建</p>}
-      </div>
+      </GameFormSection>
 
-      {/* 创作者 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-base font-semibold text-foreground">创作者</h2>
-        <p className="text-xs text-muted-foreground">VNDB 拉取时自动填充，也可手动管理</p>
-        {creators.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {creators.map((c, i) => (
-              <div
-                key={i}
-                className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-2 ring-1 ring-border text-xs"
-              >
-                <span className="font-medium text-foreground">{c.name}</span>
-                {c.nameJa && <span className="text-muted-foreground">({c.nameJa})</span>}
-                <span className="text-micro text-muted-foreground bg-muted rounded px-1 py-1">{c.role}</span>
-                <button
-                  type="button"
-                  onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
-                  className={cn(adminBtnDanger, "ml-1 h-7 w-7 !p-0 justify-center")}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground/60">暂无创作者，使用 VNDB 拉取时会自动填入</p>
-        )}
-      </div>
-
-      {/* 截图 */}
-      <div className="rounded-xl bg-card p-5 ring-1 ring-border space-y-3">
-        <h2 className="text-base font-semibold text-foreground">截图</h2>
+      {/* ── 资源 ── */}
+      <GameFormSection title="资源" open={sectionOpen.resources} onToggle={() => toggleSection("resources")}>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
           {screenshots.map((src, i) => (
             <ScreenshotItem
@@ -1065,23 +1014,114 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           ))}
         </div>
         <button type="button" onClick={() => setScreenshots((p) => [...p, ""])}
-          className="inline-flex h-8 items-center gap-2 px-3 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
+          className="inline-flex min-h-[32px] items-center gap-2 px-3 text-xs text-muted-foreground hover:text-foreground transition-colors duration-200">
           <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />添加截图
         </button>
-      </div>
+      </GameFormSection>
 
-      {/* 提交 */}
-      <div className="flex gap-3">
+      {/* ── 制作组与班底 ── */}
+      <GameFormSection title="制作组与班底" open={sectionOpen.staff} onToggle={() => toggleSection("staff")}>
+        <div>
+          <label className={labelCls}>制作会社与身份</label>
+          <div className="space-y-2">
+            {studios.map((s, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  value={s.name}
+                  onChange={(e) =>
+                    setStudios((prev) => prev.map((p, j) => (j === i ? { ...p, name: e.target.value } : p)))
+                  }
+                  placeholder="制作组名称，如：Key"
+                  className={adminInput}
+                />
+                <select
+                  value={s.role ?? ""}
+                  onChange={(e) =>
+                    setStudios((prev) =>
+                      prev.map((p, j) => (j === i ? { ...p, role: e.target.value || null } : p)),
+                    )
+                  }
+                  className={cn(adminInput, "w-[120px] shrink-0 h-12 text-[15px] leading-6")}
+                >
+                  {STUDIO_ROLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setStudios((prev) => prev.filter((_, j) => j !== i))}
+                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  aria-label="移除制作组"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setStudios((prev) => [...prev, { name: "" }])}
+              className="inline-flex min-h-[28px] items-center gap-1 rounded-lg px-2 py-1 text-sm text-foreground/80 transition-colors hover:text-primary"
+            >
+              <Plus className="h-4 w-4" />
+              添加制作组
+            </button>
+          </div>
+        </div>
+        <div>
+          <label className={labelCls}>创作者</label>
+          <p className="mb-2 text-xs text-muted-foreground">VNDB 拉取时自动填充，也可手动管理</p>
+          {creators.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {creators.map((c, i) => (
+                <div
+                  key={i}
+                  className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-2 ring-1 ring-border text-xs"
+                >
+                  <span className="font-medium text-foreground">{c.name}</span>
+                  {c.nameJa && <span className="text-muted-foreground">({c.nameJa})</span>}
+                  <span className="text-micro text-muted-foreground bg-muted rounded px-1 py-1">{c.role}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCreators(p => p.filter((_, idx) => idx !== i))}
+                    className={cn(adminBtnDanger, "ml-1 h-7 w-7 !p-0 justify-center")}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground/60">暂无创作者，使用 VNDB 拉取时会自动填入</p>
+          )}
+        </div>
+      </GameFormSection>
+
+      {/* ── 发布时间与可见性 ── */}
+      <GameFormSection title="发布时间与可见性" open={sectionOpen.publish} onToggle={() => toggleSection("publish")}>
+        <div className="max-w-xs">
+          <label htmlFor={idRelease} className={labelCls}>发售日期</label>
+          <input id={idRelease} type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className={adminInput} />
+        </div>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-primary" />
+          立即发布
+        </label>
+      </GameFormSection>
+
+      <AdminFormActions>
+        <button type="button" onClick={() => router.back()}
+          className={cn(adminBtnSecondary, "h-10")}>
+          取消
+        </button>
         <button type="submit" disabled={saving}
           className={cn(adminBtnPrimary, "h-10")}>
           {saving && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
           {saving ? "保存中…" : isEdit ? "保存修改" : "创建游戏"}
         </button>
-        <button type="button" onClick={() => router.back()}
-          className="rounded-xl bg-secondary px-6 py-3 text-sm text-muted-foreground ring-1 ring-border transition ease-in-out duration-200 hover:text-foreground">
-          取消
-        </button>
-      </div>
+      </AdminFormActions>
+      </AdminFormShell>
     </form>
   )
 }
