@@ -321,7 +321,7 @@ export function ServicesClient() {
                 <span className={`text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}>
                   {PROVIDER_LABELS[providerId]}
                 </span>
-                {isActive && <span className="text-micro px-1.5 py-0.5 rounded bg-primary/10 text-primary">已启用</span>}
+                {isActive && <span className="text-[11px] md:text-[11px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">已启用</span>}
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {fields

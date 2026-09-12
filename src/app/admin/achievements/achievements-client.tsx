@@ -176,7 +176,7 @@ export function AchievementsClient() {
         <div className="flex items-center gap-2">
           <span className={cn("inline-block h-2 w-2 rounded-full", ach.isActive ? "bg-emerald-400" : "bg-muted-foreground")} />
           <span className="text-xs text-muted-foreground">{ach.isActive ? "启用" : "禁用"}</span>
-          {ach.hidden && <span className="rounded bg-muted-foreground/20 px-1.5 py-0.5 text-micro text-muted-foreground">隐藏</span>}
+          {ach.hidden && <span className="rounded bg-muted-foreground/20 px-1.5 py-0.5 text-[11px] md:text-[11px] text-muted-foreground">隐藏</span>}
         </div>
       ),
     },

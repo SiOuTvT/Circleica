@@ -335,7 +335,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.user.username}</span>
                     <span className="text-xs text-muted-foreground/50">{timeAgo(c.createdAt)}</span>
-                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/40">已编辑</span>}
+                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/40">已编辑</span>}
                   </div>
                   {editingComment === c.id ? (
                     <div className="space-y-2 mt-1">

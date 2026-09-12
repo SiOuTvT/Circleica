@@ -180,7 +180,7 @@ export function AllTagsClient({ tabs, groups, total }: AllTagsClientProps) {
                   {tag.name}
                 </span>
                 {tag.isVisible === false && (
-                  <span className="shrink-0 rounded bg-secondary px-1 py-0.5 text-micro text-muted-foreground">隐藏</span>
+                  <span className="shrink-0 rounded bg-secondary px-1 py-0.5 text-[11px] md:text-[11px] text-muted-foreground">隐藏</span>
                 )}
               </div>
               {tag.description && (
@@ -298,7 +298,7 @@ function InlineTagEdit({
     <div className="rounded-xl bg-muted/50 px-4 py-3 ring-1 ring-border" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-end gap-3 flex-wrap">
         <div className="space-y-1">
-          <label className="text-micro text-muted-foreground">名称</label>
+          <label className="text-[11px] md:text-[11px] text-muted-foreground">名称</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -307,7 +307,7 @@ function InlineTagEdit({
         </div>
 
         <div className="space-y-1">
-          <label className="text-micro text-muted-foreground">颜色</label>
+          <label className="text-[11px] md:text-[11px] text-muted-foreground">颜色</label>
           <div className="flex items-center gap-1.5">
             {TAG_PRESET_COLORS.slice(0, 8).map((c) => (
               <button
@@ -332,7 +332,7 @@ function InlineTagEdit({
         </div>
 
         <div className="space-y-1">
-          <label className="text-micro text-muted-foreground">标签组</label>
+          <label className="text-[11px] md:text-[11px] text-muted-foreground">标签组</label>
           <select
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}

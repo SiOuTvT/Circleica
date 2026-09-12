@@ -259,7 +259,7 @@ function PostDetailModalInner({
               <UserAvatar user={post.user} size={32} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">{post.user.username}</p>
-                <p className="text-micro text-muted-foreground flex flex-wrap items-center gap-x-3">
+                <p className="text-[11px] md:text-[11px] text-muted-foreground flex flex-wrap items-center gap-x-3">
                   <span>{timeAgo(post.createdAt)}</span>
                   {post.updatedAt !== post.createdAt && <span>(已编辑)</span>}
                   {post.viewCount != null && <span>浏览 {post.viewCount}</span>}
@@ -322,8 +322,8 @@ function PostDetailModalInner({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-foreground">{c.user.username}</span>
-                      <span className="text-micro text-muted-foreground">{timeAgo(c.createdAt)}</span>
-                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-micro text-muted-foreground/50">已编辑</span>}
+                      <span className="text-[11px] md:text-[11px] text-muted-foreground">{timeAgo(c.createdAt)}</span>
+                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/50">已编辑</span>}
                     </div>
                     {editingComment === c.id ? (
                       <div className="space-y-2">

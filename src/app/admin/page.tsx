@@ -238,7 +238,7 @@ export default async function AdminDashboard() {
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-primary/80 ring-2 ring-background">
                   {u.avatar
                     ? <Image src={u.avatar} alt="" width={28} height={28} className="h-full w-full object-cover" unoptimized />
-                    : <div className="flex h-full w-full items-center justify-center text-micro font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
+                    : <div className="flex h-full w-full items-center justify-center text-[11px] md:text-[11px] font-bold text-white">{(u.username?.[0] ?? "?").toUpperCase()}</div>}
                 </div>
                 <Link href={`/user/${u.id}`} className="flex min-h-[28px] flex-1 items-center truncate text-sm text-muted-foreground hover:text-foreground transition-colors">{u.username}</Link>
                 <span className="shrink-0 text-xs text-muted-foreground/70">{toShanghaiDate(u.createdAt)}</span>

@@ -323,7 +323,7 @@ export function TagGroupDetailClient({
                     {tag.name}
                   </span>
                   {tag.isVisible === false && (
-                    <span className="shrink-0 rounded bg-secondary px-1 py-0.5 text-micro text-muted-foreground">隐藏</span>
+                    <span className="shrink-0 rounded bg-secondary px-1 py-0.5 text-[11px] md:text-[11px] text-muted-foreground">隐藏</span>
                   )}
                 </div>
                 {tag.description && (

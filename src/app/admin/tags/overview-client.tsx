@@ -185,7 +185,7 @@ export function TagsOverviewClient({
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-semibold text-foreground">{g.name}</h3>
                 {g.isPreset && (
-                  <span className="text-micro text-muted-foreground bg-secondary rounded px-1.5 py-0.5">内置</span>
+                  <span className="text-[11px] md:text-[11px] text-muted-foreground bg-secondary rounded px-1.5 py-0.5">内置</span>
                 )}
               </div>
               {g.description && (
