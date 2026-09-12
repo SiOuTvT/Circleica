@@ -79,6 +79,9 @@ kill_dev*.cmd
 # 调试时生成的多余 .next 副本（.next-dirty-<ts> 等），禁止提交；应移出项目或清理
 .next-dirty*
 .next-dirty*/
+# 构建/校验改名残留的各种后缀（.next-tmp-<ts> / .next-x-<ts> / .next-y-<ts> / .next-z-<ts> / .next-old-<ts> 等），一律禁止提交
+/.next-*
+/.next.*
 # 构建进程 pid 跟踪临时文件（排查用，禁止提交）
 build_pid*.txt
 *_pid*.txt

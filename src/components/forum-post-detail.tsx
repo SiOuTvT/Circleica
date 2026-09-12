@@ -263,7 +263,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
         {/* 正文 */}
         <div className="p-6 md:p-8">
-          <div className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed">
+          <div className="prose prose-sm dark:prose-invert max-w-[880px] text-foreground leading-relaxed">
             <RichTextContent html={post.content} />
           </div>
           {post.imageUrl && (

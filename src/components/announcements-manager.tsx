@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
 import { adminBtnDanger, adminInput } from "@/lib/admin-styles"
-import { AdminFormShell } from "@/components/admin/admin-form-shell"
+import { AdminFormActions, AdminFormShell } from "@/components/admin/admin-form-shell"
 import { stripHtml } from "@/lib/sanitize"
 import { cn, withLabelableId } from "@/lib/utils"
 import { toast } from "sonner"
@@ -266,8 +266,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 </Field>
               </div>
 
-              {/* 提交 */}
-              <div className="pt-1">
+              <AdminFormActions>
                 <button type="submit" disabled={adding}
                   className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-1 transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out hover:shadow-2 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
                   {adding
@@ -276,7 +275,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                       ? <><Pencil className="h-4 w-4" /> 保存修改</>
                       : <><Plus className="h-4 w-4" /> 创建公告</>}
                 </button>
-              </div>
+              </AdminFormActions>
             </AdminFormShell>
             </form>
           </div>

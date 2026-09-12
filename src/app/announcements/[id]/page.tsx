@@ -130,7 +130,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           <div className="h-px bg-border/30 mb-6" />
 
           {/* 正文 */}
-          <div className="text-base leading-[1.9] text-foreground/90">
+          <div className="max-w-[880px] text-base leading-[1.9] text-foreground/90">
             <RichTextContent html={ann.content} />
           </div>
 

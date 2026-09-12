@@ -56,7 +56,7 @@ export default async function RulesPage() {
   const custom = await getSiteSetting("page_rules")
 
   return (
-    <div className="mx-auto max-w-3xl py-6 sm:py-8 px-4">
+    <div className="mx-auto max-w-[880px] py-6 sm:py-8 px-4">
       <ArchiveHero
         variant="rules"
         eyebrow="RULES"

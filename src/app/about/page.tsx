@@ -54,7 +54,7 @@ export default async function AboutPage() {
   const custom = await getSiteSetting("page_about")
 
   return (
-    <div className="mx-auto max-w-3xl py-8 px-4">
+    <div className="mx-auto max-w-[880px] py-8 px-4">
       <ArchiveHero
         variant="about"
         eyebrow="ABOUT"

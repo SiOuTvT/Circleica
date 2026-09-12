@@ -81,7 +81,8 @@ export function AdminFormActions({
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-20 mt-1 flex h-14 items-center justify-end gap-3 border-t border-border bg-card/95 backdrop-blur",
+        // [&_button]:h-10 —— 保存条内所有按钮高度统一 40px（内部文字与 gap 不动）
+        "sticky bottom-0 z-20 mt-1 flex h-14 items-center justify-end gap-3 border-t border-border bg-card/95 backdrop-blur [&_button]:h-10",
         className,
       )}
     >
