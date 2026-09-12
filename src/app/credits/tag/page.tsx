@@ -4,7 +4,7 @@ import { ArchiveShell } from "@/components/archive/archive-shell"
 import { ArchiveHero } from "@/components/archive/archive-hero"
 import { HeaderSearch } from "@/components/archive/header-search"
 import { AZIndex } from "@/components/archive/az-index"
-import { AzTagGroup } from "@/components/tags/az-tag-group"
+import { AzTagGroupList } from "@/components/tags/az-tag-group"
 import { ArchivePlaceholder } from "@/components/archive/archive-placeholder"
 import { computeDensity, computeArchiveState, DENSITY_GRID } from "@/components/archive/density"
 import { LayoutGrid, Tag as TagIcon } from "lucide-react"
@@ -62,6 +62,21 @@ export default async function TagsPage({
   const density = computeDensity(totalTags)
   const state = computeArchiveState(totalTags)
 
+  // 跨字母累计 offset：每个字母组首个标签在「整块」中的序号（供「整块前 24」截断用）。
+  // 必须在装配点算好——单个 AzTagGroup 只知道自己那一组，各自从 0 数会永远不触发截断。
+  let groupCursor = 0
+  const tagGroups = letters.map((letter) => {
+    const tags = tagsByLetter[letter] ?? []
+    const item = {
+      letter: letter === "0-9" ? "#" : letter,
+      tags,
+      startOffset: groupCursor,
+      anchorId: `${ANCHOR_PREFIX}${encodeURIComponent(letter)}`,
+    }
+    groupCursor += tags.length
+    return item
+  })
+
   return (
     <ArchiveShell
       entity="tag"
@@ -116,21 +131,11 @@ export default async function TagsPage({
         ) : (
           <>
             <AZIndex available={letters} anchorPrefix={ANCHOR_PREFIX} />
-            <div className="mt-4 space-y-6">
-              {letters.map((letter) => {
-                const tags = tagsByLetter[letter]
-                if (!tags || tags.length === 0) return null
-                return (
-                  <AzTagGroup
-                    key={letter}
-                    letter={letter === "0-9" ? "#" : letter}
-                    tags={tags}
-                    gridClass={cn("grid gap-2.5", DENSITY_GRID[density])}
-                    anchorId={`${ANCHOR_PREFIX}${encodeURIComponent(letter)}`}
-                  />
-                )
-              })}
-            </div>
+            <AzTagGroupList
+              totalTags={totalTags}
+              gridClass={cn("grid gap-2.5", DENSITY_GRID[density])}
+              groups={tagGroups}
+            />
           </>
         )}
       </section>
