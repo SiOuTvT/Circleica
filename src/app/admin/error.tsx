@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils"
  *
  * 观感与尺度对齐 src/app/admin/not-found.tsx：同一套 AdminPageContainer 壳，
  * 字号只用 11/12/13/24，圆角只用 6（rounded-md）/ 12（rounded-xl），不引入新色值。
- * 注意：不能做成 app/error.tsx 那种前台样式（text-8xl 感叹号 + 返回首页），后台边界留在后台壳内。
+ * 注意：不能做成 app/error.tsx 那种前台样式（超大号感叹号 + 返回首页），后台边界必须留在后台壳内。
  */
 export default function AdminError({
   error,
