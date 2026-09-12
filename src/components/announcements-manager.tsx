@@ -204,9 +204,9 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 <span>检测到草稿「{draft.title || "无标题"}」</span>
                 <div className="flex shrink-0 gap-2">
                   <button type="button" onClick={restoreDraft}
-                    className="rounded-md bg-amber-500/15 px-3 py-1 font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors">恢复</button>
+                    className="inline-flex items-center min-h-7 rounded-md bg-amber-500/15 px-3 py-0.5 font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors">恢复</button>
                   <button type="button" onClick={() => { clearDraft(); setDraftRestored(true) }}
-                    className="rounded-md px-3 py-1 text-muted-foreground hover:text-foreground transition-colors">丢弃</button>
+                    className="inline-flex items-center min-h-7 rounded-md px-3 py-0.5 text-muted-foreground hover:text-foreground transition-colors">丢弃</button>
                 </div>
               </div>
             )}

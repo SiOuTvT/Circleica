@@ -42,7 +42,6 @@ export function AdminTopBar() {
 
   const name = session?.user?.name ?? "管理员"
   const image = session?.user?.image ?? null
-  const isGal = site === "galvelica"
 
   return (
     <div className="sticky top-14 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 text-xs font-normal backdrop-blur sm:px-8 md:top-0">
@@ -53,19 +52,8 @@ export function AdminTopBar() {
         <span className="truncate text-foreground">{pageLabel}</span>
       </nav>
 
-      {/* 右：主副站标识 + 当前管理员 */}
+      {/* 右：当前管理员（主副站信息已由面包屑第一段承担，此处不再重复站名） */}
       <div className="flex shrink-0 items-center gap-3">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-2 py-1 ring-1",
-            isGal
-              ? "text-[var(--gal-accent)] ring-[var(--gal-accent)]/30"
-              : "text-muted-foreground ring-border",
-          )}
-        >
-          <span className={cn("h-1.5 w-1.5 rounded-full", isGal ? "bg-[var(--gal-accent)]" : "bg-primary")} />
-          {isGal ? "Galvelica" : "Circleica"}
-        </span>
         <span className="flex items-center gap-2 text-muted-foreground">
           {image ? (
             <Image

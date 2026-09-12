@@ -176,8 +176,8 @@ Thumbs.db
 /public/card-preview.html
 
 # ---------- 通用排除（补充 2）----------
-# 自动生成的文档 / 报告目录
-reports/
+# 自动生成的文档 / 报告目录（锚定仓库根，避免误伤 src/app/admin/reports/ 等业务目录）
+/reports/
 generated/
 
 # 报告文件

@@ -183,6 +183,9 @@ export function AdminDataTable<T>({
                       key={c.key}
                       className={cn(
                         "border-b border-border px-4 py-2 align-middle",
+                        // 单元格内文字链接（主标识列那种 truncate 链接）统一热区 ≥28px：
+                        // 组件层一次性解决，各页不要逐页贴类。列定义 / truncate / 字号均不动。
+                        "[&_a]:inline-flex [&_a]:min-h-7 [&_a]:items-center",
                         (c.align === "right" || (c.numeric && c.align !== "left")) ? "text-right" : "text-left",
                         c.numeric && "num-tab",
                         c.key === "__actions" && "whitespace-nowrap",
