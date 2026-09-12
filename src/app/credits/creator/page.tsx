@@ -30,7 +30,7 @@ export default async function CreatorArchivePage({
   const { q, sort: sortRaw, view: viewRaw } = await searchParams
   const sort = sortRaw === "count" ? "count" : "name"
   // 默认「按作品」：不带 view 参数或值非法时都落在 works
-  const view: ArchiveView = viewRaw === "works" ? "works" : "name"
+  const view: ArchiveView = viewRaw === "name" ? "name" : "works"
   const query = q?.trim() || ""
 
   let total = 0

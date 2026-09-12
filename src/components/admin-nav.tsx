@@ -31,14 +31,14 @@ interface NavGroup {
   label?: string
   items: NavItem[]
   /** 系统级分组（平台配置：用户 / 站点设置 / 审计日志…）：
-   *  不参与主副站切换，两侧视图都可见；它不再钉在底部，而是滚动容器里的最后一个分组。 */
+   *  条目全部归属主站，因此只在 circleica 视图渲染；它不再钉在底部，而是滚动容器里的最后一个分组。 */
   system?: boolean
 }
 
 /**
  * 滚动区分组与顺序 = 使用频率重排（期 1 补漏定案，勿自行发明顺序）：
  *   主站：概览 / 内容 / 社区与数据 / 系统
- *   副站：概览 / 数据 / 采集与治理 / 系统
+ *   副站：概览 / 数据 / 采集与治理（系统组只属主站，副站视图不渲染）
  * 「系统」永远在数组末尾 → 渲染时即为滚动流的最后一个分组。
  * 底部固定区只剩 4 个工具（搜索 / 返回前台 / 主题 / 角色徽标）。
  */
@@ -287,10 +287,10 @@ export function AdminNav() {
   const visibleGroups = useMemo(
     () => navGroups.map(g => ({
       ...g,
-      // 系统级分组不参与站点过滤，保证两侧视图都滚得到用户 / 站点设置 / 审计日志
+      // 一切分组（含系统组）都按站点过滤：系统组条目全为 circleica，副站视图下整组自然被滤空
       items: g.items.filter(item =>
         (ROLE_LEVEL[userRole] ?? 0) >= (ROLE_LEVEL[item.minRole] ?? 0) &&
-        (g.system || item.site === currentSite)
+        item.site === currentSite
       ),
     })).filter(g => g.items.length > 0),
     [userRole, currentSite]

@@ -400,7 +400,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
     include: {
       game: { select: { serialId: true } },
       sources: { select: { source: true, externalId: true } },
-      tags: { select: { tag: { select: { id: true, name: true, color: true, group: { select: { name: true, color: true } } } } } },
+      tags: { where: { tag: { source: "galvelica" } }, select: { tag: { select: { id: true, name: true, color: true, group: { select: { name: true, color: true } } } } } },
       creators: { include: { creator: { select: { id: true, name: true, nameJa: true } } } },
     },
   })
@@ -474,7 +474,7 @@ export async function getPopularTags(limit = 300): Promise<GalvelicaTag[]> {
 
   const rows = await prisma.tag.findMany({
     // 只统计仍被「非商业同人作品」使用的标签（商业系列已从 WorkTag 清理，显式过滤双保险）
-    where: { works: { some: { work: { isCommercial: false } } } },
+    where: { source: "galvelica", works: { some: { work: { isCommercial: false } } } },
     select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
     orderBy: { sortOrder: "desc" },
     take: 600,
@@ -671,8 +671,8 @@ async function pickRandomWorkOnce(): Promise<string | null> {
 
 export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
   if (!(await archiveReady())) return getTagByIdFromGame(tagId)
-  const t = await prisma.tag.findUnique({
-    where: { id: tagId },
+  const t = await prisma.tag.findFirst({
+    where: { id: tagId, source: "galvelica" },
     select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
   })
   if (!t) return null

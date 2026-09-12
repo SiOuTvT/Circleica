@@ -113,13 +113,11 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
             {work.vndbId && (
               <div className="galvelica-archive-row">
                 <span className="galvelica-archive-label">VNDB 编号</span>
-                <span className="galvelica-archive-value">{work.vndbId}</span>
+                <span className="galvelica-archive-value">
+                  <ExtLink href={`https://vndb.org/${work.vndbId}`} text={work.vndbId} />
+                </span>
               </div>
             )}
-            <div className="galvelica-archive-row">
-              <span className="galvelica-archive-label">收藏</span>
-              <span className="galvelica-archive-value">{work.favoriteCount}</span>
-            </div>
             <div className="galvelica-archive-row">
               <span className="galvelica-archive-label">浏览</span>
               <span className="galvelica-archive-value">
@@ -200,27 +198,11 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         {work.vndbId && <Meta label="VNDB" value={<ExtLink href={`https://vndb.org/${work.vndbId}`} text={work.vndbId} />} />}
       </div>
 
-      {/* ── 同社团其它作品（不足 3 条整块不渲染） ── */}
-      {studioOthers.length >= 3 && (
+      {/* ── 简介 ── */}
+      {work.description && (
         <section className="galvelica-detail-section">
-          <SectionTitle>同社团其它作品</SectionTitle>
-          <div className="galvelica-grid-2">
-            {studioOthers.map((w) => (
-              <GalvelicaEntryRow key={w.id} work={w} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── 同标签作品（取站内作品数最少的非通用标签；不足 3 条整块不渲染） ── */}
-      {tagOthers.length >= 3 && rarestTag && (
-        <section className="galvelica-detail-section">
-          <SectionTitle>同标签作品</SectionTitle>
-          <div className="galvelica-grid-2">
-            {tagOthers.map((w) => (
-              <GalvelicaEntryRow key={w.id} work={w} />
-            ))}
-          </div>
+          <SectionTitle>简介</SectionTitle>
+          <GalvelicaWorkDescription html={work.description} />
         </section>
       )}
 
@@ -288,14 +270,6 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         </section>
       )}
 
-      {/* ── 简介 ── */}
-      {work.description && (
-        <section className="galvelica-detail-section">
-          <SectionTitle>简介</SectionTitle>
-          <GalvelicaWorkDescription html={work.description} />
-        </section>
-      )}
-
       {/* ── 系列 / 相似作品 ── */}
       {work.siblings.length > 0 && (
         <section className="galvelica-detail-section">
@@ -312,6 +286,30 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
                 </div>
                 <p className="galvelica-sibling-title">{s.title}</p>
               </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 同社团其它作品（不足 3 条整块不渲染） ── */}
+      {studioOthers.length >= 3 && (
+        <section className="galvelica-detail-section">
+          <SectionTitle>同社团其它作品</SectionTitle>
+          <div className="galvelica-grid-2">
+            {studioOthers.map((w) => (
+              <GalvelicaEntryRow key={w.id} work={w} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── 同标签作品：定案排在最后（取站内作品数最少的非通用标签；不足 3 条整块不渲染） ── */}
+      {tagOthers.length >= 3 && rarestTag && (
+        <section className="galvelica-detail-section">
+          <SectionTitle>同标签作品</SectionTitle>
+          <div className="galvelica-grid-2">
+            {tagOthers.map((w) => (
+              <GalvelicaEntryRow key={w.id} work={w} />
             ))}
           </div>
         </section>

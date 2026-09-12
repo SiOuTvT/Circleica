@@ -4,6 +4,9 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Inbox } from "lucide-react"
 
+import { adminBtnPrimary } from "@/lib/admin-styles"
+import { cn } from "@/lib/utils"
+
 /**
  * 收录申请按钮（Stage E，客户端组件）
  * 未收录的 Galvelica 资料页显示此按钮：提交后创建 InclusionRequest(PENDING)，
@@ -47,7 +50,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
 
   if (done) {
     return (
-      <span className="galvelica-cta galvelica-cta-done">
+      <span className="galvelica-cta galvelica-cta-done h-8">
         <Inbox className="h-4 w-4" />
         已提交收录申请
       </span>
@@ -59,7 +62,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
       type="button"
       onClick={submit}
       disabled={loading}
-      className="galvelica-cta galvelica-cta-primary disabled:opacity-60"
+      className={cn(adminBtnPrimary, "h-8 disabled:opacity-60")}
     >
       <Inbox className="h-4 w-4" />
       {loading ? "提交中…" : "申请收录到 Circleica"}
