@@ -87,17 +87,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
   const href = ann?.link || ann ? `/announcements/${ann.id}` : "#"
 
   return (
-    <div className="relative w-full">
-      {/* 上一条 / 下一条：挂在整条横幅自己的相对定位容器上（贴在横幅两端、卡片盒外侧 32px），
-          与毛玻璃卡边缘恒留 ≥24px，任何视口都不与卡片重叠。
-          中线取 clamp(110px,15vh,140px) = 公告卡高 clamp(220px,30vh,280px) 的一半，
-          保证箭头垂直居中于公告卡而不是整条横幅。<sm 整卡已可点，箭头直接隐藏。 */}
-      {len > 1 && (
-        <>
-          <button onClick={() => setCur((cur - 1 + len) % len)} className="absolute -left-8 top-[clamp(110px,15vh,140px)] -translate-y-1/2 z-[5] hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
-          <button onClick={next} className="absolute -right-8 top-[clamp(110px,15vh,140px)] -translate-y-1/2 z-[5] hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
-        </>
-      )}
+    <div className="w-full">
       <div className="flex flex-col lg:flex-row lg:gap-5">
         {/* ── 左侧列：公告 + 数据行 ── */}
         <div className="flex flex-col gap-4 min-w-0 lg:w-0 lg:flex-[3]">
@@ -139,10 +129,18 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                     </Link>
                   </div>
                 </div>
-                {/* 圆点指示器：位置与行为保持原样（bottom-3 right-4） */}
+                {/* 卡下控制行：与卡片同宽（同一容器内），左=上一条 / 中=圆点 / 右=下一条。
+                    箭头改为常规 flex 流，不再 absolute：两端按钮同宽 32px + justify-between
+                    ⇒ 左右对称（差值 0）；任何视口都不会与毛玻璃卡 / fixed 侧栏 / 右侧面板重叠，
+                    也不会出现负 x 或被裁。与卡片留 10px（mt-2.5），箭头与圆点同在 items-center 的中线上。
+                    <sm 两个箭头 hidden，圆点靠 mx-auto 居中。 */}
                 {len > 1 && (
-                  <div className="absolute bottom-3 right-4 z-[5] flex gap-1.5">
-                    {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"}`} />)}
+                  <div className="mt-2.5 flex items-center justify-between">
+                    <button onClick={() => setCur((cur - 1 + len) % len)} className="hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
+                    <div className="mx-auto flex gap-1.5">
+                      {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-white/80" : "w-1.5 bg-white/30"}`} />)}
+                    </div>
+                    <button onClick={next} className="hidden h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/40 hover:text-white sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
                   </div>
                 )}
               </>

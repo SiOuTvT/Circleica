@@ -47,7 +47,7 @@ export function ViewTabs({ view }: { view: ArchiveView }) {
           data-ripple
           aria-pressed={view === t.key}
           className={cn(
-            "min-h-[36px] whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out",
+            "inline-flex items-center min-h-[36px] whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-medium ring-1 transition duration-150 ease-in-out",
             view === t.key
               ? "bg-primary/10 text-primary ring-primary/40"
               : "bg-transparent text-muted-foreground ring-border hover:bg-muted/50 hover:text-foreground",

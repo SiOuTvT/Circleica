@@ -36,7 +36,7 @@ export function ForumFilters({
           onClick={() => onCategoryChange("")}
           data-ripple
           className={cn(
-            "rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px]",
+            "inline-flex items-center rounded-xl px-3.5 py-2 text-xs font-medium transition duration-150 ease-in-out ring-1 min-h-[36px]",
             !activeCategory
               ? "bg-primary/10 text-primary ring-primary/40"
               : "bg-card text-muted-foreground ring-border hover:text-foreground hover:ring-border"

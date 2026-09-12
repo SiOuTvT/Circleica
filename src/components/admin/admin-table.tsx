@@ -71,8 +71,11 @@ export function AdminTable<T>({
                   key={col.key}
                   className={cn(
                     "px-4 py-3 align-middle",
-                    // 与 AdminDataTable 同款：单元格内链接热区抬到 28（当前无链接，防复发）
-                    "[&_a]:min-h-7 [&_a]:leading-7",
+                    // 与 AdminDataTable 同款：单元格内链接热区抬到 28（当前无链接，防复发）。
+                    // ⚠️ 单元格内链接必须先 block 才能让 min-h 生效——min-height 对 display:inline
+                    // 的元素完全不起作用（写了也是 computed 有值、实际高度不变）。
+                    // 这里用 block 而不是 inline-flex：inline-flex 会改掉 truncate 的盒模型。
+                    "[&_a]:block [&_a]:min-h-7 [&_a]:leading-7",
                     col.align && alignClass[col.align],
                     col.className,
                   )}

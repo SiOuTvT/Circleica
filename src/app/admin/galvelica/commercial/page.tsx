@@ -127,7 +127,7 @@ export default async function GalvelicaCommercialPage({
                 const href = w.game?.serialId ? `/galvelica/works/${w.game.serialId}` : w.slug ? `/galvelica/works/${w.slug}` : null
                 return (
                   <tr key={w.id} className="border-b border-border/60 last:border-0 hover:bg-muted/30">
-                    <td className="px-4 py-3 [&_a]:min-h-7 [&_a]:leading-7">
+                    <td className="px-4 py-3 [&_a]:block [&_a]:min-h-7 [&_a]:leading-7">
                       {href ? (
                         <Link href={href} className="font-medium text-foreground hover:text-primary hover:underline">
                           {w.title}
