@@ -18,7 +18,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
 
 /* ─────────── 默认选项（API 未返回时的兜底） ─────────── */
@@ -86,21 +86,47 @@ function RequiredMark() {
   return <span className="text-red-400 ml-0.5">*</span>
 }
 
+/** 四段的组标题：16px/700，组标题本身不带星号（星号只给真正的必填字段） */
+function GroupTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-base font-bold text-foreground">{children}</h3>
+}
+
+/* ─────────── 字段样式（弹窗内所有可填控件同一档） ─────────── */
+
+/**
+ * 弹窗内 input / textarea / 下拉触发按钮共用同一档：
+ * rounded-lg（本项目 @theme 重映射为 18px）+ px-3.5 py-2.5 + text-[15px] + border-2，
+ * 与 ui/input.tsx 的基类保持一致（不新增圆角或高度档位，全站基线不动）。
+ */
+const fieldBase =
+  "w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+
+function fieldClass(invalid: boolean, extra?: string) {
+  return cn(fieldBase, invalid ? "border-red-400" : "border-foreground/15", extra)
+}
+
 /* ─────────── 浮动 Popover 多选组件 ─────────── */
 
-function PopoverSelect({ label, icon, options, value, onChange }: {
+function PopoverSelect({ id, label, icon, options, value, onChange, invalid, onBlur }: {
+  id?: string
   label: string
   icon: React.ReactNode
   options: string[]
   value: string[]
   onChange: (val: string[]) => void
+  invalid?: boolean
+  onBlur?: () => void
 }) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const toggle = useCallback(() => {
-    setOpen(prev => !prev)
-  }, [])
+    setOpen(prev => {
+      // 关闭时视为一次“碰过”，便于缺项描边只在该出现时出现
+      if (prev) onBlur?.()
+      return !prev
+    })
+  }, [onBlur])
 
   // 点击外部关闭
   useEffect(() => {
@@ -122,11 +148,14 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
   return (
     <div ref={containerRef} className="relative">
       <button
+        id={id}
         type="button"
         onClick={toggle}
         className={cn(
-          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold transition duration-150 ease-in-out",
-          "border border-foreground/15 bg-card hover:bg-muted",
+          // 与 input 同档：圆角/内边距/字号全对齐（实测高度落在同一值上）
+          "flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-[15px] font-semibold transition duration-150 ease-in-out",
+          "border-2 bg-card hover:bg-muted",
+          invalid ? "border-red-400" : "border-input",
           value.length > 0 ? "text-foreground" : "text-foreground/60"
         )}
       >
@@ -161,7 +190,7 @@ function PopoverSelect({ label, icon, options, value, onChange }: {
                   }
                 }}
                 className={cn(
-                  "w-full text-left px-4 py-3 text-base font-semibold transition duration-150 ease-in-out flex items-center gap-2.5",
+                  "w-full text-left px-4 py-3 text-[15px] font-semibold transition duration-150 ease-in-out flex items-center gap-2.5",
                   "hover:bg-muted",
                   value.includes(opt)
                     ? "text-primary bg-primary/10"
@@ -215,6 +244,9 @@ function createEmptyEntry(): ResourceEntry {
   }
 }
 
+/** 缺项定位用的字段 id（自己定义，不猜 DOM 结构） */
+const fieldId = (key: string) => `resource-field-${key}`
+
 /* ─────────── 主组件 ─────────── */
 
 interface AddResourceDialogProps {
@@ -258,6 +290,8 @@ export function AddResourceDialog({
   }, [controlledOnOpenChange])
   const [submitAttempted, setSubmitAttempted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  /** 碰过的字段：缺项描边只在这些字段（或提交尝试后）出现，避免一打开就一片红 */
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   // 资源链接列表
   const [entries, setEntries] = useState<ResourceEntry[]>([createEmptyEntry()])
@@ -268,7 +302,7 @@ export function AddResourceDialog({
   const [runType, setRunType] = useState<string[]>([])
   const [resourceContent, setResourceContent] = useState<string[]>([])
 
-  // 资源名称 & 备注（可选）
+  // 资源名称 & 备注
   const [resourceName, setResourceName] = useState("")
   const [resourceNote, setResourceNote] = useState("")
 
@@ -293,6 +327,7 @@ export function AddResourceDialog({
       setResourceNote(editData.resourceNote || "")
       setSubmitAttempted(false)
       setSubmitting(false)
+      setTouched({})
     }
   }, [editData, open])
 
@@ -323,14 +358,47 @@ export function AddResourceDialog({
     setResourceNote("")
     setSubmitAttempted(false)
     setSubmitting(false)
+    setTouched({})
   }, [])
 
-  // 检查必填项是否都已填写
-  const isValid = useCallback(() => {
-    const hasUrl = entries.every((e) => e.url.trim() !== "")
-    const hasSelections = platform.length > 0 && language.length > 0 && runType.length > 0 && resourceContent.length > 0
-    return hasUrl && hasSelections
-  }, [entries, platform, language, runType, resourceContent])
+  const markTouched = useCallback((key: string) => {
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }))
+  }, [])
+
+  /* ── 缺项清单：操作条左侧的提示与字段描边都从这里取，唯一来源 ── */
+  const missing = useMemo(() => {
+    const list: { key: string; label: string }[] = []
+    if (!resourceName.trim()) list.push({ key: "resourceName", label: "资源名称" })
+    if (entries.some((e) => !e.url.trim())) list.push({ key: "entryUrl", label: "下载链接" })
+    if (platform.length === 0) list.push({ key: "platform", label: "平台" })
+    if (language.length === 0) list.push({ key: "language", label: "语言" })
+    if (runType.length === 0) list.push({ key: "runType", label: "运行方式" })
+    if (resourceContent.length === 0) list.push({ key: "resourceContent", label: "资源内容" })
+    return list
+  }, [resourceName, entries, platform, language, runType, resourceContent])
+
+  const isMissing = useCallback((key: string) => missing.some((m) => m.key === key), [missing])
+  // 是否亮红：确实缺 + （用户碰过它 或 已尝试提交）
+  const showInvalid = useCallback(
+    (key: string) => isMissing(key) && (submitAttempted || !!touched[key]),
+    [isMissing, submitAttempted, touched]
+  )
+
+  const isValid = useCallback(() => missing.length === 0, [missing])
+
+  /** 点提示行里的名字 → 滚到并聚焦对应控件（id 是本文件自己定义的，不猜） */
+  const focusField = useCallback((key: string) => {
+    setSubmitAttempted(true)
+    let id = fieldId(key)
+    if (key === "entryUrl") {
+      const target = entries.find((e) => !e.url.trim()) ?? entries[0]
+      if (target) id = fieldId(`url-${target.id}`)
+    }
+    const el = document.getElementById(id)
+    if (!el) return
+    el.scrollIntoView({ behavior: "smooth", block: "center" })
+    el.focus({ preventScroll: true })
+  }, [entries])
 
   const handleSubmit = useCallback(async () => {
     setSubmitAttempted(true)
@@ -393,223 +461,266 @@ export function AddResourceDialog({
         </DialogTrigger>
       )}
 
+      {/* 弹窗整体为纵向 flex：头部固定 / 内容可滚 / 操作条常驻底部（不随内容滚走） */}
       <DialogContent
         showCloseButton
         className={cn(
-          "w-[90vw] !max-w-[1152px] max-h-[90vh] overflow-y-auto p-0",
+          // gap-0：DialogContent 基类带 gap-4，纵向三段（头部 / 滚动区 / 操作条）之间不留空
+          "flex w-[90vw] !max-w-[1152px] max-h-[92vh] flex-col gap-0 overflow-hidden p-0",
           "rounded-xl"
         )}
       >
-        <DialogHeader className="px-4 sm:px-10 pt-6 sm:pt-10 pb-4 sm:pb-5">
+        <DialogHeader className="shrink-0 px-4 sm:px-10 pt-6 sm:pt-10 pb-4 sm:pb-5">
           <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">{isEditMode ? "编辑资源" : "添加资源"}</DialogTitle>
         </DialogHeader>
 
-        <div className="px-4 sm:px-10 pb-6 sm:pb-10 space-y-4 sm:space-y-6">
-          {/* ════════ 资源链接区 ════════ */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-base font-bold text-foreground">
-                资源链接 <RequiredMark />
-              </span>
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 sm:px-10 pb-6 sm:pb-8">
+          {/* ① 基本信息 */}
+          <section className="space-y-3">
+            <GroupTitle>基本信息</GroupTitle>
+            <div>
+              <label htmlFor={fieldId("resourceName")} className="text-sm font-semibold text-foreground mb-1.5 flex items-center">
+                资源名称 <RequiredMark />
+              </label>
+              <input
+                id={fieldId("resourceName")}
+                type="text"
+                placeholder="例：简体中文重制整合包 v2（含补丁）"
+                value={resourceName}
+                onChange={(e) => setResourceName(e.target.value)}
+                onBlur={() => markTouched("resourceName")}
+                className={fieldClass(showInvalid("resourceName"))}
+              />
+            </div>
+          </section>
+
+          {/* ② 说明 */}
+          <section className="space-y-3">
+            <GroupTitle>说明</GroupTitle>
+            <div>
+              <label htmlFor={fieldId("resourceNote")} className="text-sm font-semibold text-foreground mb-1.5 block">
+                资源备注
+              </label>
+              <textarea
+                id={fieldId("resourceNote")}
+                rows={3}
+                placeholder="按需填写备注信息，如用途、来源等"
+                value={resourceNote}
+                onChange={(e) => setResourceNote(e.target.value)}
+                className={cn(fieldBase, "resize-y border-foreground/15 py-2.5")}
+              />
+            </div>
+          </section>
+
+          {/* ③ 分流（可多条） */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <GroupTitle>分流</GroupTitle>
               <button
                 type="button"
                 onClick={addEntry}
-                className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:bg-secondary hover:text-foreground"
               >
-                <Plus className="h-4 w-4" />
-                继续添加链接
+                <Plus className="h-3.5 w-3.5" />
+                添加分流
               </button>
             </div>
 
-            {entries.map((entry) => (
+            {entries.map((entry, index) => (
               <div
                 key={entry.id}
-                className="space-y-3 rounded-xl border border-foreground/15 bg-muted/30 p-5 relative"
+                className="space-y-3 rounded-xl border border-foreground/15 bg-muted/30 p-4 relative"
               >
-                {entries.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeEntry(entry.id)}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
+                <div className="flex items-center justify-between gap-3">
+                  {entries.length > 1 && (
+                    <span className="text-[11px] font-medium text-muted-foreground">分流 {index + 1}</span>
+                  )}
+                  {entries.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeEntry(entry.id)}
+                      className="ml-auto flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      aria-label={`删除分流 ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
 
+                {/* 下载链接：必填主字段，独占整行 */}
                 <div>
-                  <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground mb-1.5">
+                  <label htmlFor={fieldId(`url-${entry.id}`)} className="flex items-center gap-1.5 text-sm font-semibold text-foreground mb-1.5">
                     <Link2 className="h-4 w-4 opacity-80" />
-                    下载地址 <RequiredMark />
+                    下载链接 <RequiredMark />
                   </label>
                   <input
+                    id={fieldId(`url-${entry.id}`)}
                     type="url"
-                    placeholder="请填写您的资源链接"
+                    placeholder="请填写资源链接"
                     value={entry.url}
                     onChange={(e) => updateEntry(entry.id, "url", e.target.value)}
-                    className={cn(
-                      "w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary",
-                      submitAttempted && !entry.url.trim() ? "border-red-400" : "border-foreground/15"
-                    )}
+                    onBlur={() => markTouched("entryUrl")}
+                    className={fieldClass(showInvalid("entryUrl") && !entry.url.trim())}
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* 提取码 / 解压码 / 文件大小：一行三列等宽 */}
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                    <label htmlFor={fieldId(`extract-${entry.id}`)} className="text-sm font-semibold text-foreground mb-1.5 block">
                       提取码
                     </label>
                     <input
+                      id={fieldId(`extract-${entry.id}`)}
                       type="text"
-                      placeholder="输入资源链接提取码，没有可留空"
+                      placeholder="没有可留空"
                       value={entry.extractCode}
                       onChange={(e) => updateEntry(entry.id, "extractCode", e.target.value)}
-                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className={fieldClass(false)}
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                    <label htmlFor={fieldId(`decompress-${entry.id}`)} className="text-sm font-semibold text-foreground mb-1.5 block">
                       解压码
                     </label>
                     <input
+                      id={fieldId(`decompress-${entry.id}`)}
                       type="text"
-                      placeholder="请填写压缩包解压码，没有可留空"
+                      placeholder="没有可留空"
                       value={entry.decompressCode}
                       onChange={(e) => updateEntry(entry.id, "decompressCode", e.target.value)}
-                      className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+                      className={fieldClass(false)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor={fieldId(`size-${entry.id}`)} className="text-sm font-semibold text-foreground mb-1.5 block">
+                      文件大小
+                    </label>
+                    <input
+                      id={fieldId(`size-${entry.id}`)}
+                      type="text"
+                      placeholder="如 2.5GB"
+                      value={entry.fileSize}
+                      onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
+                      className={fieldClass(false)}
                     />
                   </div>
                 </div>
-
-                <div className="w-full md:w-1/2">
-                  <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                    资源大小（MB或GB）
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="请填写资源大小，如 2.5GB"
-                    value={entry.fileSize}
-                    onChange={(e) => updateEntry(entry.id, "fileSize", e.target.value)}
-                    className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-                  />
-                </div>
               </div>
             ))}
-          </div>
+          </section>
 
-          {/* ════════ 详情区 ════════ */}
-          <div className="space-y-3">
-            <span className="text-base font-bold text-foreground">
-              资源详情 <RequiredMark />
-            </span>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* ④ 资源标签（四组都是必填，沿用标签组色） */}
+          <section className="space-y-3">
+            <GroupTitle>资源标签</GroupTitle>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
-                <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                <label htmlFor={fieldId("platform")} className="text-sm font-semibold text-foreground mb-1.5 flex items-center">
                   平台 <RequiredMark />
                 </label>
                 <PopoverSelect
+                  id={fieldId("platform")}
                   label="选择运行平台"
                   icon={<Monitor className="h-4 w-4" />}
                   options={tagOptions.platforms}
                   value={platform}
                   onChange={setPlatform}
+                  invalid={showInvalid("platform")}
+                  onBlur={() => markTouched("platform")}
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                <label htmlFor={fieldId("language")} className="text-sm font-semibold text-foreground mb-1.5 flex items-center">
                   语言 <RequiredMark />
                 </label>
                 <PopoverSelect
+                  id={fieldId("language")}
                   label="选择游戏语言"
                   icon={<Globe className="h-4 w-4" />}
                   options={tagOptions.languages}
                   value={language}
                   onChange={setLanguage}
+                  invalid={showInvalid("language")}
+                  onBlur={() => markTouched("language")}
                 />
               </div>
-            </div>
-
-            {submitAttempted && (platform.length === 0 || language.length === 0) && (
-              <p className="text-sm text-red-400 font-medium">请填写上方的平台和语言</p>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                <label htmlFor={fieldId("runType")} className="text-sm font-semibold text-foreground mb-1.5 flex items-center">
                   运行方式 <RequiredMark />
                 </label>
                 <PopoverSelect
+                  id={fieldId("runType")}
                   label="选择运行方式"
                   icon={<HardDrive className="h-4 w-4" />}
                   options={tagOptions.runTypes}
                   value={runType}
                   onChange={setRunType}
+                  invalid={showInvalid("runType")}
+                  onBlur={() => markTouched("runType")}
                 />
               </div>
               <div>
-                <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                <label htmlFor={fieldId("resourceContent")} className="text-sm font-semibold text-foreground mb-1.5 flex items-center">
                   资源内容 <RequiredMark />
                 </label>
                 <PopoverSelect
+                  id={fieldId("resourceContent")}
                   label="选择资源类型"
                   icon={<FileText className="h-4 w-4" />}
                   options={tagOptions.contentTypes}
                   value={resourceContent}
                   onChange={setResourceContent}
+                  invalid={showInvalid("resourceContent")}
+                  onBlur={() => markTouched("resourceContent")}
                 />
               </div>
             </div>
+          </section>
+        </div>
 
-            {submitAttempted && (runType.length === 0 || resourceContent.length === 0) && (
-              <p className="text-sm text-red-400 font-medium">请填写运行方式和资源内容</p>
-            )}
-          </div>
-
-          {/* ════════ 可选信息 ════════ */}
-          <div className="space-y-3">
-            <span className="text-base font-bold text-foreground">
-              补充信息（可选）
-            </span>
-            <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                资源名称
-              </label>
-              <input
-                type="text"
-                placeholder="请填写您的资源名称"
-                value={resourceName}
-                onChange={(e) => setResourceName(e.target.value)}
-                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-              />
+        {/* ── 底部操作条：常驻，不随内容滚走 ── */}
+        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border bg-card px-4 sm:px-10 py-3">
+          <p className="mb-2 text-xs text-muted-foreground">
+            提交后进入人工审核，通过后才会显示在游戏页。
+          </p>
+          <div className="flex items-center gap-3">
+            {/* 缺项提示：写明具体缺什么，点名字能定位到控件 */}
+            <div className="min-w-0 flex-1">
+              {missing.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  还差 {missing.length} 项：
+                  {missing.length <= 4 ? (
+                    missing.map((m, i) => (
+                      <span key={m.key}>
+                        {i > 0 && "、"}
+                        <button
+                          type="button"
+                          onClick={() => focusField(m.key)}
+                          className="underline underline-offset-2 hover:text-foreground transition-colors"
+                        >
+                          {m.label}
+                        </button>
+                      </span>
+                    ))
+                  ) : null}
+                </p>
+              )}
             </div>
-            <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                资源备注
-              </label>
-              <input
-                type="text"
-                placeholder="请按需填写备注信息，如用途、来源等"
-                value={resourceNote}
-                onChange={(e) => setResourceNote(e.target.value)}
-                className="w-full rounded-lg border-2 border-input bg-transparent text-foreground px-3.5 py-2.5 text-[15px] outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
-              />
-            </div>
-          </div>
 
-          {/* ════════ 提交按钮 ════════ */}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className={cn(
-              "w-full rounded-xl py-4 text-base font-bold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out",
-              canSubmit
-                ? "text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.98]"
-                : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"
-            )}
-          >
-            {submitting ? "提交中…" : canSubmit ? (isEditMode ? "保存修改" : "提交资源") : "还有必填项没填完哦"}
-          </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+              className={cn(
+                "inline-flex h-10 shrink-0 items-center justify-center rounded-xl px-6 text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out",
+                canSubmit
+                  ? "text-primary-foreground bg-primary hover:opacity-90 active:scale-[0.98]"
+                  : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"
+              )}
+            >
+              {submitting ? "提交中…" : "提交"}
+            </button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
