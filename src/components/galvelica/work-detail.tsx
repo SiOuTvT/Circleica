@@ -14,7 +14,7 @@ import type { GalvelicaWorkDetail } from "@/lib/galvelica"
 import { getStaffBrief, getTagWorkCounts, listWorks } from "@/lib/galvelica"
 import { formatZhDate } from "@/lib/date"
 import { CREATOR_ROLE_LABELS } from "@/types/game"
-import { Star, ArrowUpRight } from "lucide-react"
+import { Star, ArrowUpRight, ArrowLeft } from "lucide-react"
 
 const ROLE_ORDER = ["director", "scenario", "art", "chardesign", "music", "songs"]
 
@@ -103,6 +103,12 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
   return (
     <div>
       <GalvelicaWorkBreadcrumb serialId={work.serialId ? String(work.serialId) : work.slug} title={work.title} />
+
+      {/* 返回作品库：详情页不分端的统一返回入口（左栏 rail 的「作品库」「返回 Circleica」保持原样，两者并存） */}
+      <Link href="/galvelica/works" className="galvelica-section-more galvelica-back-link gap-1.5 my-2">
+        <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+        返回作品库
+      </Link>
 
       {/* ── 头部：左索引卡 + 右文献区 ── */}
       <div className="galvelica-detail-head">

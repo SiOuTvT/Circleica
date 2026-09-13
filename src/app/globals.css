@@ -2385,6 +2385,9 @@ body[data-has-bottom-nav="true"] {
   }
 }
 .galvelica-section-more:hover { color: var(--gal-accent); }
+/* 作品详情页「返回作品库」：沿用 .galvelica-section-more 的字号/色板/hover/focus，
+   详情页不分端、任何视口都显示，故把热区统一抬到 32px（不复用该类的 28/32 断点） */
+.galvelica-back-link { min-height: 32px; }
 
 /* 双列条目网格 */
 .galvelica-grid-2 {

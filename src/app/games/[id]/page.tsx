@@ -46,7 +46,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id: resolved.id },
     select: { serialId: true, title: true, description: true, coverImage: true, originalWork: true },
   }) : null
-  if (!game) return { title: "游戏详情" }
+  if (!game) {
+    return {
+      title: "游戏未找到",
+      description: "未找到该游戏。",
+      robots: { index: false, follow: true },
+    }
+  }
   return {
     title: `${game.title}`,
     description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,

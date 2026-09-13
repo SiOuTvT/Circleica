@@ -606,7 +606,7 @@ export function CardGenerateBtn({ data }: { data: CardData }) {
 
       {/* 封面选择弹窗 + 实时预览 */}
       {pickerOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={() => setPickerOpen(false)}>
+        <div className="fixed inset-0 z-[100] touch-none flex items-center justify-center bg-black/50 backdrop-blur-sm cursor-pointer p-4" onClick={() => setPickerOpen(false)}>
           <div style={{ width: "100%", maxWidth: 900, maxHeight: "90vh", background: "#fff", borderRadius: 16, padding: 20, boxShadow: "0 24px 48px rgba(0,0,0,0.2)", display: "flex", gap: 20, overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
             {/* 左侧：封面选择 */}
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>

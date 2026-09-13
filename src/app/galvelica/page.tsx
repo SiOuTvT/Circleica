@@ -69,19 +69,7 @@ export default async function GalvelicaHome() {
       <h1 className="sr-only galvelica-fs-h1">同人视觉小说资料库</h1>
 
       <div className="galvelica-home">
-        {/* ① 继续浏览（登录且有历史才显示，上限 6）：无历史时该块不渲染，顺序自然回落到今日偶遇在前 */}
-        {recentWorks.length > 0 && (
-          <section>
-            <GalvelicaSectionHead title="继续浏览" href="/galvelica/works" hrefLabel="全部作品" />
-            <div className="galvelica-grid-2">
-              {recentWorks.map((w) => (
-                <GalvelicaEntryRow key={w.id} work={w} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ② 今日偶遇 */}
+        {/* ① 今日偶遇 */}
         {daily && (
           <a href={daily.href} className="galvelica-daily">
             <span className="galvelica-daily-spine" aria-hidden />
@@ -119,7 +107,19 @@ export default async function GalvelicaHome() {
           </div>
         </section>
 
-        {/* ③ 按年份走 */}
+        {/* ③ 继续浏览（登录且有历史才显示，上限 6）：无历史时该块不渲染，顺序自然回落到按年份走 */}
+        {recentWorks.length > 0 && (
+          <section>
+            <GalvelicaSectionHead title="继续浏览" href="/galvelica/works" hrefLabel="全部作品" />
+            <div className="galvelica-grid-2">
+              {recentWorks.map((w) => (
+                <GalvelicaEntryRow key={w.id} work={w} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ④ 按年份走 */}
         <section>
           <GalvelicaSectionHead title="按年份走" href="/galvelica/years" hrefLabel="全部 42 个年份" />
           <div className="galvelica-strip">
@@ -132,7 +132,7 @@ export default async function GalvelicaHome() {
           </div>
         </section>
 
-        {/* ④ 常见标签 */}
+        {/* ⑤ 常见标签 */}
         <section>
           <GalvelicaSectionHead title="常见标签" href="/galvelica/tags" hrefLabel="标签索引" />
           <div className="galvelica-strip">
