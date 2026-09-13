@@ -67,7 +67,7 @@ export function ThemeModeToggle({ className }: { className?: string }) {
           aria-label={`切换主题（当前${label}）`}
           className={
             className ??
-            "galvelica-navlink inline-flex h-9 w-9 shrink-0 items-center justify-center text-sm font-medium"
+            "galvelica-navlink galvelica-fs-body inline-flex h-9 w-9 shrink-0 items-center justify-center font-medium"
           }
         >
           <Icon className="h-5 w-5" strokeWidth={2} />

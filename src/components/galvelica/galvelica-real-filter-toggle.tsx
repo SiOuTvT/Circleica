@@ -46,7 +46,7 @@ export function GalvelicaRealFilterToggle({ className }: { className?: string })
           data-active={enabled}
           className={
             className ??
-            "galvelica-navlink inline-flex h-9 items-center gap-1.5 px-2.5 text-sm font-medium whitespace-nowrap"
+            "galvelica-navlink galvelica-fs-body inline-flex h-9 items-center gap-1.5 px-2.5 font-medium whitespace-nowrap"
           }
         >
           <Clapperboard className="h-4 w-4" strokeWidth={2} />

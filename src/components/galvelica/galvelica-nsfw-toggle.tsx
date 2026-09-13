@@ -71,7 +71,7 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
             aria-label={`NSFW 过滤（当前 ${cur.label}）`}
             className={
               className ??
-              "galvelica-navlink inline-flex h-9 items-center gap-1.5 px-2.5 text-sm font-medium whitespace-nowrap"
+              "galvelica-navlink galvelica-fs-body inline-flex h-9 items-center gap-1.5 px-2.5 font-medium whitespace-nowrap"
             }
           >
             {mode === "sfw" ? <EyeOff className="h-4 w-4" strokeWidth={2} /> : <Eye className="h-4 w-4" strokeWidth={2} />}
@@ -93,7 +93,7 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
               key={k}
               type="button"
               onClick={() => select(k)}
-              className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+              className={`galvelica-fs-body flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-colors ${
                 mode === k
                   ? "bg-[var(--gal-accent-soft)] font-semibold text-[var(--gal-accent)]"
                   : "text-foreground hover:bg-muted"
@@ -101,7 +101,7 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
             >
               <span>
                 <span className="font-medium">{MODE_META[k].label}</span>
-                <span className="ml-2 text-xs text-muted-foreground">{MODE_META[k].desc}</span>
+                <span className="galvelica-fs-meta ml-2 text-muted-foreground">{MODE_META[k].desc}</span>
               </span>
               {mode === k && <span className="text-[var(--gal-accent)]">✓</span>}
             </button>

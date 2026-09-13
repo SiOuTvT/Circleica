@@ -309,8 +309,8 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         </section>
       )}
 
-      {/* ── 同标签作品：定案排在最后（取站内作品数最少的非通用标签；不足 3 条整块不渲染） ── */}
-      {tagOthers.length >= 3 && rarestTag && (
+      {/* ── 同标签作品：定案排在最后（取站内作品数最少的非通用标签；≥1 条就渲染，数据少也一次给全） ── */}
+      {tagOthers.length >= 1 && rarestTag && (
         <section className="galvelica-detail-section">
           <SectionTitle>同标签作品</SectionTitle>
           <div className="galvelica-grid-2">

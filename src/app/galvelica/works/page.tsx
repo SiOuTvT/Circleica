@@ -130,7 +130,7 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 作品库</p>
+        <p className="galvelica-fs-eyebrow font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 作品库</p>
         <h1 className="galvelica-h1 mt-2">{heading}</h1>
         <p className="mt-1 galvelica-fs-meta text-muted-foreground">共 {result.total} 部作品</p>
       </div>

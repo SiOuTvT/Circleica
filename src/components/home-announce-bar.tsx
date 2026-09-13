@@ -48,8 +48,8 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
   }
   const typeLabel: Record<string, string> = { checkin: "签到", comment: "评论", favorite: "收藏", announcement: "公告", game_added: "发布", game_updated: "更新" }
   return (
-    <div className="flex flex-col min-w-0 max-h-full">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 scrollbar-thin">
+    <div className="flex flex-col min-w-0 h-full">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto scrollbar-thin">
         <div className="flex flex-col gap-3.5 pr-1">
           {activities.map((act) => (
             <div key={act.id} className="flex items-start gap-3">
@@ -167,7 +167,7 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
         </div>
         {/* ── 右侧列：Activity ── */}
         {/* 论坛动态：窄屏整块移除（它把第一部游戏卡顶到首屏之外），≥768 保持现状 */}
-        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 hidden md:flex flex-col lg:w-[35%] shrink-0" style={{ height: "clamp(308px, calc(30vh + 88px), 368px)" }}>
+        <div className="rounded-2xl bg-muted/15 border border-border/15 p-4 hidden md:flex flex-col lg:w-[35%] shrink-0 self-stretch h-[clamp(308px,30vh_+_88px,368px)] lg:h-auto">
           <ActivityList activities={activities} />
         </div>
       </div>

@@ -32,7 +32,7 @@ export default async function GalvelicaYears() {
   return (
     <div className="galvelica-index-page">
       <div className="galvelica-index-title">
-        <p className="text-caption font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 年份</p>
+        <p className="galvelica-fs-eyebrow font-medium uppercase tracking-[0.28em] text-[var(--gal-accent)]">GALVELICA 年份</p>
         <h1 className="galvelica-h1 mt-2 flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
           年份索引

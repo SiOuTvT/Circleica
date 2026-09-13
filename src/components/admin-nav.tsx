@@ -176,6 +176,10 @@ const ITEM_BASE =
 const TOOL_BASE =
   "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
 
+/** 底部工具条 2×2 格：32 高 / 图标 16 / 文字 12px / 宽度不折行（展开态约 99×32） */
+const TOOL_CELL =
+  "inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[12px] whitespace-nowrap text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+
 function NavItemRow({
   item,
   isActive,
@@ -497,28 +501,45 @@ export function AdminNav() {
           </div>
         </nav>
 
-        {/* 底部固定区：只有 4 个工具，整块 48px（py-2 + 32px 项高） */}
+        {/* 底部固定区：4 个工具。展开态排成 2×2（带文字、热区 32 高）；
+            收缩态侧栏只有 68px 宽，维持纯图标竖排不动。 */}
         <div className="shrink-0 border-t border-border px-2 py-2">
-          <div className={cn("flex gap-1", collapsed ? "flex-col items-center" : "items-center justify-between")}>
-            <button
-              type="button"
-              onClick={triggerSearch}
-              title="全局搜索 (Ctrl+K)"
-              aria-label="全局搜索"
-              className={TOOL_BASE}
-            >
-              <Search className="h-4 w-4" strokeWidth={2} />
-            </button>
-            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE}>
-              <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-            </Link>
-            <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
-              {themeIcon}
-            </button>
-            <div title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_BASE, "cursor-default hover:bg-transparent")}>
-              <Shield className="h-4 w-4" strokeWidth={2} />
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-1">
+              <button type="button" onClick={triggerSearch} title="全局搜索 (Ctrl+K)" aria-label="全局搜索" className={TOOL_BASE}>
+                <Search className="h-4 w-4" strokeWidth={2} />
+              </button>
+              <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE}>
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+              </Link>
+              <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
+                {themeIcon}
+              </button>
+              <span title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_BASE, "cursor-default hover:bg-transparent")}>
+                <Shield className="h-4 w-4" strokeWidth={2} />
+              </span>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={triggerSearch} title="全局搜索 (Ctrl+K)" aria-label="全局搜索" className={TOOL_CELL}>
+                <Search className="h-4 w-4" strokeWidth={2} />
+                搜索
+              </button>
+              <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_CELL}>
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+                前台
+              </Link>
+              <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_CELL}>
+                {themeIcon}
+                主题
+              </button>
+              {/* 站长：不可点的说明位（用 span，不做成 button/a） */}
+              <span title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_CELL, "cursor-default hover:bg-transparent")}>
+                <Shield className="h-4 w-4" strokeWidth={2} />
+                站长
+              </span>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -627,27 +648,26 @@ export function AdminNav() {
           </div>
         </nav>
 
-        {/* 底部固定区：同款 4 个工具（窄屏排一行，260px 放得下） */}
+        {/* 底部固定区：同款 4 个工具，与桌面展开态一致排成 2×2（260px 抽屉放得下） */}
         <div className="shrink-0 border-t border-border px-2 py-2">
-          <div className="flex items-center justify-between gap-1">
-            <button
-              type="button"
-              onClick={triggerSearch}
-              title="全局搜索 (Ctrl+K)"
-              aria-label="全局搜索"
-              className={TOOL_BASE}
-            >
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" onClick={triggerSearch} title="全局搜索 (Ctrl+K)" aria-label="全局搜索" className={TOOL_CELL}>
               <Search className="h-4 w-4" strokeWidth={2} />
+              搜索
             </button>
-            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE} onClick={() => setMobileOpen(false)}>
+            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_CELL} onClick={() => setMobileOpen(false)}>
               <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+              前台
             </Link>
-            <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
+            <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_CELL}>
               {themeIcon}
+              主题
             </button>
-            <div title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_BASE, "cursor-default hover:bg-transparent")}>
+            {/* 站长：不可点的说明位（用 span，不做成 button/a） */}
+            <span title={`角色：${roleLabel}`} aria-label={`角色：${roleLabel}`} className={cn(TOOL_CELL, "cursor-default hover:bg-transparent")}>
               <Shield className="h-4 w-4" strokeWidth={2} />
-            </div>
+              站长
+            </span>
           </div>
         </div>
       </aside>

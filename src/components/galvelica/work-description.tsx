@@ -27,7 +27,7 @@ export function GalvelicaWorkDescription({ html }: { html: string }) {
 
   return (
     <div>
-      <RichTextContent html={html} className="max-w-3xl text-[15px] leading-relaxed text-foreground/90" />
+      <RichTextContent html={html} className="max-w-3xl galvelica-fs-body leading-relaxed text-foreground/90" />
       {showBtn && !translated && (
         <div className="galvelica-translate-slot mt-3">
           <TranslateBtn text={plain} onTranslated={setTranslated} />
@@ -36,7 +36,7 @@ export function GalvelicaWorkDescription({ html }: { html: string }) {
       {translated && (
         <div className="mt-4 border-l-2 border-[var(--gal-accent)] p-4">
           <div className="mb-1.5 galvelica-fs-meta font-semibold text-muted-foreground">中文翻译</div>
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">{translated}</p>
+          <p className="whitespace-pre-wrap galvelica-fs-body leading-relaxed text-foreground/90">{translated}</p>
         </div>
       )}
     </div>
