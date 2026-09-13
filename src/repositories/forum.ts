@@ -115,6 +115,7 @@ export const forumRepo = {
 
   // ── 评论 ────────────────────────────
 
+  /** 评论分页。与 gameRepo.findComments 同形：返回 { items, total, page, limit }，不再吐元组 */
   findComments(postId: string, page: number, limit: number) {
     const skip = (page - 1) * limit
     return Promise.all([
@@ -127,7 +128,7 @@ export const forumRepo = {
         },
       }),
       prisma.forumComment.count({ where: { postId } }),
-    ])
+    ]).then(([items, total]) => ({ items, total, page, limit }))
   },
 
   findCommentById(id: string) {

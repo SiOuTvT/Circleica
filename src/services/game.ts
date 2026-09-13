@@ -8,6 +8,7 @@ import { NotFoundError, ValidationError, ForbiddenError } from "@/lib/errors"
 import { prisma } from "@/lib/prisma"
 import { gameResourceCreateSchema } from "@/lib/validations"
 import { checkAchievements } from "@/lib/achievements"
+import { resolveGameCuid } from "@/lib/serial-id"
 import type { Prisma, UserRole } from "@/generated/prisma/client"
 import { hasRole } from "@/lib/permissions"
 
@@ -160,11 +161,15 @@ export const gameService = {
   async createComment(userId: string, gameId: string, content: string, imageUrl?: string, parentId?: string) {
     if (!content?.trim() && !imageUrl) throw new ValidationError("评论内容不能为空")
     if (content && content.length > 2000) throw new ValidationError("评论最多 2000 个字符")
-    const comment = await gameRepo.createComment(userId, gameId, content?.trim() || "", imageUrl, parentId)
+    // gameId 也可能是 serialId（/api/games/41/comments）：先解析成 cuid。
+    // 解析不到直接 404「游戏不存在」——不让外键失败(P2003)被翻译成 409「还被别的地方引用着」。
+    const gameCuid = await resolveGameCuid(gameId)
+    if (!gameCuid) throw new NotFoundError("游戏")
+    const comment = await gameRepo.createComment(userId, gameCuid, content?.trim() || "", imageUrl, parentId)
     checkAchievements(userId).catch(() => {})
     // 通知游戏发布者（新评论）
     prisma.game
-      .findUnique({ where: { id: gameId }, select: { publisherId: true } })
+      .findUnique({ where: { id: gameCuid }, select: { publisherId: true } })
       .then((game) => {
         if (game?.publisherId) {
           notificationRepo.create({
@@ -172,7 +177,7 @@ export const gameService = {
             actorId: userId,
             type: "game_comment_new",
             targetType: "game",
-            targetId: gameId,
+            targetId: gameCuid,
           }).catch(() => {})
         }
       })

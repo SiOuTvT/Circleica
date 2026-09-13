@@ -78,3 +78,21 @@ export async function findGameByCuid(cuid: string) {
     select: { serialId: true },
   })
 }
+
+/**
+ * 解析路由参数 [id] → 游戏 cuid：数字 serialId 与 cuid 两种都接受。
+ * 与页面路由 /games/[id] 的解析口径保持一致；API 侧此前只认 cuid，
+ * 用 serialId（如 /api/games/41/comments）访问会静默返回空。
+ * 解析不到返回 null，由调用方决定 404 还是空响应。
+ */
+export async function resolveGameCuid(id: string): Promise<string | null> {
+  if (isNumericId(id)) {
+    const numId = parseInt(id, 10)
+    if (isNaN(numId) || numId <= 0) return null
+    const game = await findGameBySerialId(numId)
+    return game?.id ?? null
+  }
+  // cuid：findGameByCuid 只回 serialId，查到即说明该 cuid 有效，cuid 就是入参本身
+  const game = await findGameByCuid(id)
+  return game ? id : null
+}

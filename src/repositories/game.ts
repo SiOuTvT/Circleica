@@ -181,6 +181,11 @@ export const gameRepo = {
 
   // ── 评论 ────────────────────────────
 
+  /**
+   * 评论分页。返回明确对象 { items, total, page, limit }——
+   * 之前直接把 [rows, count] 元组交给 route，响应体形如 data: [[],0]，形状不自解释。
+   * items 只含顶层评论（parentId: null），其 replies 由 include 带出。
+   */
   findComments(gameId: string, page: number, limit: number) {
     const skip = (page - 1) * limit
     return Promise.all([
@@ -197,7 +202,7 @@ export const gameRepo = {
         },
       }),
       prisma.comment.count({ where: { gameId, parentId: null } }),
-    ])
+    ]).then(([items, total]) => ({ items, total, page, limit }))
   },
 
   createComment(userId: string, gameId: string, content: string, imageUrl?: string, parentId?: string) {

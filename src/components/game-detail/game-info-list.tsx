@@ -86,7 +86,11 @@ export function vndbNumericId(vndbId?: string): string | null {
   return /^\d+$/.test(numericId) ? numericId : null
 }
 
-/** 「游戏档案」标题右侧的 VNDB 小徽标；无有效编号时整块不渲染 */
+/**
+ * 「游戏档案」标题右侧的 VNDB 小徽标；无有效编号时整块不渲染。
+ * <sm 不渲染：实测它只有 15px 高，低于站内 28px 触屏热区下限；
+ * 移动端点 VNDB 走档案卡里那行 v3246 链接（那行 28 高，正常）。
+ */
 export function VndbBadge({ vndbId }: { vndbId?: string }) {
   const numericId = vndbNumericId(vndbId)
   if (!numericId) return null
@@ -95,7 +99,7 @@ export function VndbBadge({ vndbId }: { vndbId?: string }) {
       href={`https://vndb.org/v${numericId}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary ring-1 ring-border transition-colors hover:opacity-80"
+      className="hidden items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary ring-1 ring-border transition-colors hover:opacity-80 sm:inline-flex"
     >
       VNDB
     </a>

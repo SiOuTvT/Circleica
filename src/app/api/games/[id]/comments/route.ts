@@ -3,6 +3,9 @@ import { requireAuth, getOptionalAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 import { checkRateLimit, rateLimits } from '@/lib/rate-limit'
 import { RateLimitError, ValidationError } from '@/lib/errors'
+import { revalidateTag } from 'next/cache'
+import { CacheTag, gameTag } from '@/lib/cache-tags'
+import { resolveGameCuid } from '@/lib/serial-id'
 
 export const GET = withHandler(async (req, ctx) => {
   await getOptionalAuth()
@@ -11,7 +14,11 @@ export const GET = withHandler(async (req, ctx) => {
   const page = Math.max(1, Number(searchParams.get('page') || '1'))
   const limit = Math.min(50, Math.max(1, Number(searchParams.get('limit') || '10')))
 
-  const result = await gameService.getComments(id, page, limit)
+  // [id] 两种都接：数字 serialId 与 cuid，与页面路由 /games/[id] 的解析口径一致
+  const gameCuid = await resolveGameCuid(id)
+  if (!gameCuid) return json({ items: [], total: 0, page, limit })
+
+  const result = await gameService.getComments(gameCuid, page, limit)
   return json(result)
 })
 
@@ -51,5 +58,12 @@ export const POST = withHandler(async (req, ctx) => {
   }
 
   const comment = await gameService.createComment(userId, gameId, content ?? "", imageUrl, parentId)
+  // A-8：评论 include 在详情页同一次查询里，写成功后失效对应 Data Cache
+  try {
+    revalidateTag(gameTag(comment.gameId), { expire: 0 })
+    revalidateTag(CacheTag.gameDetail, { expire: 0 })
+  } catch {
+    /* revalidateTag 仅在请求上下文可用，非请求场景静默忽略 */
+  }
   return created(comment)
 })

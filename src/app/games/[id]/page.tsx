@@ -291,12 +291,12 @@ export default async function GameDetailPage({
           {/* ③ 标签行 — 单行不换行，超出横向滚动（右缘渐隐），信息列高度不随标签数失控 */}
           <TagRow className="mt-2 sm:mt-2.5 mb-3 sm:mb-4" singleLine>
             {/* SFW/NSFW 标识 — 语义色令牌 */}
-            <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"}>
+            <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"} className="shrink-0">
               {game.isNsfw ? "NSFW" : "SFW"}
             </Tag>
             {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 用资源标签组色，与后台「资源标签」组一致 */}
             {resourceTags.map((tag) => (
-              <Tag key={tag} color={resourceTagColor || undefined} className="whitespace-nowrap" title={tag}>
+              <Tag key={tag} color={resourceTagColor || undefined} className="shrink-0 whitespace-nowrap" title={tag}>
                 {tag}
               </Tag>
             ))}

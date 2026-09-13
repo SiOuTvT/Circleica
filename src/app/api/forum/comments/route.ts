@@ -8,7 +8,8 @@ export const GET = withHandler(async (req) => {
   if (!postId) return json({ items: [], total: 0, page: 1, pageSize: FORUM.COMMENTS_PER_PAGE, totalPages: 1 }, 400)
   const page = Math.max(1, Number(url.searchParams.get("page")) || 1)
   const pageSize = Math.min(Math.max(1, Number(url.searchParams.get("pageSize")) || FORUM.COMMENTS_PER_PAGE), 100)
-  const [rows, total] = await forumRepo.findComments(postId, page, pageSize)
+  // findComments 现在返回 { items, total, page, limit }，不再是无语义的 [rows, count] 元组
+  const { items: rows, total } = await forumRepo.findComments(postId, page, pageSize)
   const items = rows.map((c) => ({
     id: c.id,
     content: c.content,

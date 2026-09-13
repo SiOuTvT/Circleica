@@ -63,7 +63,9 @@ export function TagRow({
     setPhase("done")
   }, [phase, children, singleLine])
 
-  const baseClass = `flex items-center gap-1 sm:gap-1.5 ${singleLine ? "flex-nowrap overflow-x-auto scrollbar-thin" : "flex-wrap"} ${className ?? ""}`
+  // 单行模式：flex 子项一律不压缩（shrink-0 由每个 Tag 实例自带），
+  // 并用 [&_*]:max-w-none 覆盖 Tag 基类里的 max-w-full —— 否则窄屏下每个 pill 都会被省略号截断。
+  const baseClass = `flex items-center gap-1 sm:gap-1.5 ${singleLine ? "flex-nowrap overflow-x-auto scrollbar-thin [&_*]:max-w-none" : "flex-wrap"} ${className ?? ""}`
 
   if (singleLine) {
     return (

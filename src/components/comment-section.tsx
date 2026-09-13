@@ -165,15 +165,16 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
 
   /**
    * 楼中楼回复：走同一个评论接口，body 里带 parentId（接口 :27/:34 已支持）。
-   * 回复某条回复时也挂到这一串的顶层评论下（parentId = 顶层 id），让一层结构能收拢全部回复。
+   * parentId 写真实被回复的那条评论 id（回复某条回复就写那条回复的 id）；
+   * threadRootId 只用于成功后展开这一串（展示侧按 rootOf 归堆，interface 形状不变）。
    */
-  async function submitReply(threadRootId: string) {
+  async function submitReply(targetId: string, threadRootId: string) {
     if (!replyContent.trim()) return
-    setReplySubmitting(threadRootId)
+    setReplySubmitting(targetId)
     setSubmitError(null)
     const fd = new FormData()
     fd.append("content", replyContent.trim())
-    fd.append("parentId", threadRootId)
+    fd.append("parentId", targetId)
     try {
       const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
       if (res.ok) {
@@ -219,9 +220,24 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     setDeletingId(null)
   }
 
+  // 已加载评论索引：归堆与「回复 @谁」都从这里取，不查库、不递归
+  const commentById = useMemo(() => new Map(comments.map((c) => [c.id, c])), [comments])
+
   // 楼中楼分组：只在前端按 parentId 归堆，接口返回结构与缓存一律不动。
-  // 顶层评论按 createdAt 倒序（「最热」时按点赞倒序），每条下面的回复按 createdAt 正序。
+  // 顶层评论按 createdAt 倒序（「最热」时按点赞倒序）；每条顶层评论的 replies = 所有直接
+  // 或间接挂在它下面的评论 —— 顺着 parentId 往上找到顶层再归堆，展示仍是一层。
   const threads = useMemo(() => {
+    const rootOf = (c: Comment): Comment => {
+      let cur = c
+      const seen = new Set<string>()
+      while (cur.parentId && !seen.has(cur.parentId)) {
+        seen.add(cur.id)
+        const parent = commentById.get(cur.parentId)
+        if (!parent) break
+        cur = parent
+      }
+      return cur
+    }
     const roots = comments
       .filter((c) => !c.parentId)
       .sort((a, b) => {
@@ -231,10 +247,15 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     return roots.map((root) => ({
       root,
       replies: comments
-        .filter((c) => c.parentId === root.id)
+        .filter((c) => {
+          if (!c.parentId) return false
+          const top = rootOf(c)
+          // 链路中断（父评论没加载进来）的不硬塞进任何一串
+          return !top.parentId && top.id === root.id
+        })
         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
     }))
-  }, [comments, sortMode])
+  }, [comments, sortMode, commentById])
 
   return (
     <section>
@@ -461,7 +482,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                     placeholder={`回复 @${root.user.username}…`}
                     submitting={replySubmitting === root.id}
                     onChange={setReplyContent}
-                    onSubmit={() => submitReply(root.id)}
+                    onSubmit={() => submitReply(root.id, root.id)}
                   />
                 )}
 
@@ -477,12 +498,18 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                         查看全部 {replies.length} 条回复
                       </button>
                     )}
-                    {shownReplies.map((r, i) => (
+                    {shownReplies.map((r, i) => {
+                      // 回复的是另一条回复（而不是顶层评论）时标出被回复者；取不到就不显示这段
+                      const repliedTo = r.parentId && r.parentId !== root.id ? commentById.get(r.parentId) : undefined
+                      return (
                       <div key={r.id} className={cn("flex gap-2 py-1.5", i > 0 && "border-t border-border/50")}>
                         <UserAvatar user={r.user} size={24} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-muted-foreground">{r.user.username}</span>
+                            {repliedTo && (
+                              <span className="text-xs text-muted-foreground">回复 @{repliedTo.user.username}</span>
+                            )}
                             <span className="text-xs text-muted-foreground">{formatZhDateTime(r.createdAt)}</span>
                           </div>
                           {r.content && (
@@ -504,12 +531,13 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
                               placeholder={`回复 @${r.user.username}…`}
                               submitting={replySubmitting === r.id}
                               onChange={setReplyContent}
-                              onSubmit={() => submitReply(root.id)}
+                              onSubmit={() => submitReply(r.id, root.id)}
                             />
                           )}
                         </div>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>

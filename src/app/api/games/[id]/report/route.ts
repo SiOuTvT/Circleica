@@ -3,6 +3,9 @@ import { requireAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 import { checkRateLimit, rateLimits } from '@/lib/rate-limit'
 import { RateLimitError } from '@/lib/errors'
+import { revalidateTag } from 'next/cache'
+import { CacheTag, gameTag } from '@/lib/cache-tags'
+import { resolveGameCuid } from '@/lib/serial-id'
 
 export const POST = withHandler(async (req, ctx) => {
   const { userId } = await requireAuth()
@@ -14,5 +17,12 @@ export const POST = withHandler(async (req, ctx) => {
     || req.headers.get('x-real-ip')
     || 'unknown'
   const result = await gameService.report(userId, gameId, ip, reason)
+  try {
+    const gameCuid = await resolveGameCuid(gameId)
+    if (gameCuid) revalidateTag(gameTag(gameCuid), { expire: 0 })
+    revalidateTag(CacheTag.gameDetail, { expire: 0 })
+  } catch {
+    /* revalidateTag 仅在请求上下文可用，非请求场景静默忽略 */
+  }
   return json(result)
 })
