@@ -49,7 +49,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
   const typeLabel: Record<string, string> = { checkin: "签到", comment: "评论", favorite: "收藏", announcement: "公告", game_added: "发布", game_updated: "更新" }
   return (
     <div className="flex flex-col min-w-0 h-full min-h-0">
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto scrollbar-thin">
         <div className="flex flex-col gap-3.5 pr-1">
           {activities.map((act) => (
             <div key={act.id} className="flex items-start gap-3">
