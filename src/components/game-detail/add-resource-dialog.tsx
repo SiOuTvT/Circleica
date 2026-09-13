@@ -689,20 +689,20 @@ export function AddResourceDialog({
               {missing.length > 0 && (
                 <p className="text-xs text-muted-foreground">
                   还差 {missing.length} 项：
-                  {missing.length <= 4 ? (
-                    missing.map((m, i) => (
-                      <span key={m.key}>
-                        {i > 0 && "、"}
-                        <button
-                          type="button"
-                          onClick={() => focusField(m.key)}
-                          className="underline underline-offset-2 hover:text-foreground transition-colors"
-                        >
-                          {m.label}
-                        </button>
-                      </span>
-                    ))
-                  ) : null}
+                  {/* 任何情况都列前 4 个可点名字；超出的用纯文本「等 N 项」收尾，冒号后不留空 */}
+                  {missing.slice(0, 4).map((m, i) => (
+                    <span key={m.key}>
+                      {i > 0 && "、"}
+                      <button
+                        type="button"
+                        onClick={() => focusField(m.key)}
+                        className="underline underline-offset-2 hover:text-foreground transition-colors"
+                      >
+                        {m.label}
+                      </button>
+                    </span>
+                  ))}
+                  {missing.length > 4 && ` 等 ${missing.length} 项`}
                 </p>
               )}
             </div>
@@ -718,7 +718,7 @@ export function AddResourceDialog({
                   : "text-primary-foreground/70 bg-primary/50 cursor-not-allowed"
               )}
             >
-              {submitting ? "提交中…" : "提交"}
+              {submitting ? "提交中…" : isEditMode ? "保存修改" : "提交"}
             </button>
           </div>
         </div>
