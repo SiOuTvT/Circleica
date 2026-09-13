@@ -257,8 +257,21 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     }))
   }, [comments, sortMode, commentById])
 
+  // 评论概览：全部基于已加载的评论，不新增请求
+  const participantCount = new Set(comments.map((c) => c.user.id)).size
+  const latestComment = comments.reduce<Comment | null>(
+    (latest, c) => (!latest || new Date(c.createdAt) > new Date(latest.createdAt) ? c : latest),
+    null
+  )
+  const overviewRows = [
+    { label: "评论数", value: comments.length > 0 ? String(comments.length) : "—" },
+    { label: "参与人数", value: participantCount > 0 ? String(participantCount) : "—" },
+    { label: "最近一条", value: latestComment ? formatZhDateTime(latestComment.createdAt) : "—" },
+  ]
+
   return (
-    <section>
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+    <section className="min-w-0 flex-1">
       <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
         <span className="h-4 w-0.5 rounded-full bg-primary" />
         评论
@@ -379,8 +392,9 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
           </div>
         </form>
       ) : (
-        <p className="mb-6 text-sm text-muted-foreground">
-          <a href="/login" className="text-primary hover:text-primary/80 transition-colors">登录</a>后发表评论
+        <p className="mb-6 flex items-center text-sm text-muted-foreground">
+          {/* 保持行内链接（不改成按钮，那行已有「后发表评论」的说明文字），但把热区补到 28px */}
+          <a href="/login" className="inline-flex min-h-7 items-center text-primary hover:text-primary/80 transition-colors">登录</a>后发表评论
         </p>
       )}
 
@@ -555,6 +569,25 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         onConfirm={() => { if (deletingId) deleteComment(deletingId) }}
       />
     </section>
+
+      {/* ─── 右侧：评论概览（与资源 tab 侧栏同档 296）─── */}
+      <aside className="w-full shrink-0 lg:w-[296px]">
+        <div className="rounded-xl bg-card p-4 ring-1 ring-border">
+          <h3 className="text-[13px] font-semibold text-foreground">评论概览</h3>
+          <div className="mt-1.5">
+            {overviewRows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between gap-2.5 border-t border-border py-1.5 text-[13px] first:border-t-0"
+              >
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="text-right font-semibold tabular-nums text-foreground">{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
   )
 }
 

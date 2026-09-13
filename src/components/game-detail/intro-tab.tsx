@@ -124,12 +124,15 @@ function Section({
   title,
   count,
   action,
+  extra,
   children,
 }: {
   title: string
   count?: number
   /** 标题右侧的操作文案（如「展开 / 收起」） */
   action?: { label: string; onClick: () => void }
+  /** 标题行最右侧的附加内容（如语言切换 tab） */
+  extra?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -148,6 +151,7 @@ function Section({
             {action.label}
           </button>
         )}
+        {extra && <div className="ml-auto min-w-0">{extra}</div>}
       </div>
       <div className="mt-2">{children}</div>
     </section>
@@ -210,20 +214,20 @@ export function IntroTab({
 
   return (
     <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
-      {/* 语言切换 Tab — 仅多语言时显示 */}
-      {hasMultiple && (
-        <div className="mb-4">
-          <LangTabs
-            descriptions={allDescriptions!}
-            activeLang={activeLang}
-            onChange={switchLang}
-          />
-        </div>
-      )}
-
       <div className="space-y-6">
-        {/* ① 简介 */}
-        <Section title="简介">
+        {/* ① 简介 — 语言切换 tab 挂在标题行右侧（它切的就是这段简介文本） */}
+        <Section
+          title="简介"
+          extra={
+            hasMultiple && allDescriptions ? (
+              <LangTabs
+                descriptions={allDescriptions}
+                activeLang={activeLang}
+                onChange={switchLang}
+              />
+            ) : undefined
+          }
+        >
           {prose ? (
             <div
               className="transition-opacity duration-150 ease-out"
