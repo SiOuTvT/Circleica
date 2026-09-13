@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import {
   BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Monitor, ShieldAlert,
 } from "lucide-react"
@@ -157,17 +158,20 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
 
       {studios && studios.length > 0 && (
         <Row icon={<Building2 className="h-4 w-4" strokeWidth={2} />} label="制作会社">
-          {studios.map((s) => {
+          {/* 多个会社用顿号「、」连：各自仍是独立链接，不合并成一条；每个带 studioRoleLabel 小标签，role 为空则不加 */}
+          {studios.map((s, i) => {
             const lab = studioRoleLabel(s.role)
             return (
-              <a
-                key={s.normalized}
-                href={`/credits/studio/${encodeURIComponent(s.slug ?? s.normalized)}`}
-                className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
-              >
-                {lab ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
-                {s.name}
-              </a>
+              <Fragment key={s.normalized}>
+                {i > 0 && <span className="text-xs text-muted-foreground">、</span>}
+                <a
+                  href={`/credits/studio/${encodeURIComponent(s.slug ?? s.normalized)}`}
+                  className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
+                >
+                  {lab ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
+                  {s.name}
+                </a>
+              </Fragment>
             )
           })}
         </Row>

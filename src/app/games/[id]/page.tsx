@@ -96,7 +96,7 @@ export default async function GameDetailPage({
         resources: { select: { platform: true, language: true, runType: true, resourceContent: true } },
         comments: {
           orderBy: { createdAt: "desc" },
-          take: 20,
+          take: 50,
           include: { user: { select: { id: true, username: true, avatar: true } } },
         },
         creators: {
@@ -193,7 +193,10 @@ export default async function GameDetailPage({
 
   // 识别区 facts 行的取值：空值由渲染处判断，整项不渲染
   const releaseDateLabel = game.releaseDate ? formatZhDate(game.releaseDate) : undefined
-  const studioLabel = game.studios[0]?.studio.displayName || undefined
+  // 制作会社全部列出（不只取第一个），多个用顿号连
+  const studioLabel = game.studios.length > 0
+    ? game.studios.map((s) => s.studio.displayName).join("、")
+    : undefined
 
   // JSON-LD 结构化数据
   const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
@@ -262,7 +265,7 @@ export default async function GameDetailPage({
             )}
           </div>
 
-          {/* ② facts：发行日期 / 制作会社 / 时长 / 浏览 — 没有值的整项不渲染 */}
+          {/* ② facts：发行日期 / 制作会社 / 时长 — 没有值的整项不渲染；浏览数不再出现在这里（同屏不要两个浏览数） */}
           <div className="mt-3 flex flex-wrap items-start gap-x-6 gap-y-2">
             {releaseDateLabel && (
               <div className="flex flex-col gap-1">
@@ -282,10 +285,6 @@ export default async function GameDetailPage({
                 <span className="text-[13px] font-semibold text-foreground">{game.gameDuration}</span>
               </div>
             )}
-            <div className="flex flex-col gap-1">
-              <span className="text-[11px] text-muted-foreground">浏览</span>
-              <span className="text-[13px] font-semibold tabular-nums text-foreground">{game.viewCount.toLocaleString()}</span>
-            </div>
           </div>
 
           {/* ③ 标签行 — 单行不换行，超出横向滚动（右缘渐隐），信息列高度不随标签数失控 */}

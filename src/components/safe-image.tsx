@@ -132,6 +132,10 @@ export function SafeImage(props: ImageProps) {
       {...props}
       alt={props.alt ?? ""}
       unoptimized={props.unoptimized ?? isRemoteCdn(src)}
+      // 这个 Next 版本里 priority 只负责 preload / loading=eager，
+      // <img> 上的 fetchpriority 来自独立的 fetchPriority prop（见 shared/lib/get-img-props），
+      // 不会自动跟着 priority 走 —— 显式透传，让首屏封面真的拿到 fetchpriority=high。
+      fetchPriority={props.fetchPriority ?? (props.priority ? "high" : undefined)}
       onError={handleNextImageError}
       onLoad={resetState}
     />
