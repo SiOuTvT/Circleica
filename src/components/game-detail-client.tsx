@@ -121,6 +121,8 @@ export default function GameDetailClient({
   const [fav, setFav] = useState(false)
   const [favCnt, setFavCnt] = useState(favCount)
   const [commentCnt, setCommentCnt] = useState(comments.length)
+  // 资源数由 ResourceTab 加载完成后回报（tab 上的计数用，不额外发请求）
+  const [resourceCnt, setResourceCnt] = useState(0)
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
   const { messages: favMsgs } = useEmotionalMessages(favMsgKeys)
@@ -257,7 +259,7 @@ export default function GameDetailClient({
         <div className="flex-1 min-w-0 lg:w-[calc(100%-380px)]">
           {/* Tab 栏：圆角底槽 + 悬浮滑块 — 横向填满 */}
           <div ref={containerRef}
-            className="relative flex rounded-xl p-0.5"
+            className="relative flex w-fit rounded-xl p-0.5"
             role="tablist"
             aria-label="游戏详情导航"
             style={{
@@ -282,15 +284,18 @@ export default function GameDetailClient({
                 aria-controls={`tabpanel-${t.key}`}
                 id={`tab-${t.key}`}
                 onClick={() => setTab(t.key)}
-                className="relative z-10 flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors duration-300 text-center"
+                className="relative z-10 inline-flex h-9 items-center rounded-xl px-4 text-sm font-semibold transition-colors duration-300"
                 style={{
                   color: tab === t.key ? "var(--tab-active-text, var(--foreground))" : "var(--tab-inactive-text, var(--muted-foreground))",
                   fontWeight: tab === t.key ? 600 : 500,
                 }}
               >
                 {t.label}
-                {t.key === "comments" && commentCnt > 0 && (
-                  <span className="ml-1.5 text-micro opacity-60">{commentCnt}</span>
+                {/* 计数：0 也显示，用 11px muted 文本，不做色块 badge */}
+                {t.key !== "intro" && (
+                  <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
+                    {t.key === "resource" ? resourceCnt : commentCnt}
+                  </span>
                 )}
               </button>
             ))}
@@ -328,6 +333,7 @@ export default function GameDetailClient({
                   userAvatar={userAvatar}
                   publisherId={publisherId}
                   resourceTagColor={resourceTagColor}
+                  onResourceCountChange={setResourceCnt}
                 />
               </div>
             )}

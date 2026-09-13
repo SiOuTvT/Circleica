@@ -177,21 +177,22 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
         </Row>
       )}
 
+      {/* 多值字段用顿号连成一行文本（chip 只留给能点走的东西：制作会社 / VNDB） */}
       {platformChips.length > 0 && (
         <Row icon={<Monitor className="h-4 w-4" strokeWidth={2} />} label="平台">
-          {platformChips.map((p) => <Chip key={p}>{p}</Chip>)}
+          <span className="text-[13px] font-semibold text-foreground">{platformChips.join("、")}</span>
         </Row>
       )}
 
       {langChips.length > 0 && (
         <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="语言">
-          {langChips.map((l) => <Chip key={l}>{l}</Chip>)}
+          <span className="text-[13px] font-semibold text-foreground">{langChips.join("、")}</span>
         </Row>
       )}
 
       {originalLanguage && (
         <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="原版语言">
-          <Chip>{langLabel(originalLanguage)}</Chip>
+          <span className="text-[13px] font-semibold text-foreground">{langLabel(originalLanguage)}</span>
         </Row>
       )}
 

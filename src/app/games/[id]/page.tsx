@@ -287,19 +287,22 @@ export default async function GameDetailPage({
             )}
           </div>
 
-          {/* ③ 标签行 — 单行不换行，超出横向滚动（右缘渐隐），信息列高度不随标签数失控 */}
-          <TagRow className="mt-2 sm:mt-2.5 mb-3 sm:mb-4" singleLine>
-            {/* SFW/NSFW 标识 — 语义色令牌 */}
-            <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"} className="shrink-0">
-              {game.isNsfw ? "NSFW" : "SFW"}
-            </Tag>
-            {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 用资源标签组色，与后台「资源标签」组一致 */}
-            {resourceTags.map((tag) => (
-              <Tag key={tag} color={resourceTagColor || undefined} className="shrink-0 whitespace-nowrap" title={tag}>
-                {tag}
+          {/* ③ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
+          <div className="mt-2 flex items-center gap-2.5 sm:mt-2.5 mb-3 sm:mb-4">
+            <span className="shrink-0 text-[11px] text-muted-foreground">资源标签</span>
+            <TagRow className="min-w-0 flex-1" singleLine>
+              {/* SFW/NSFW 标识 — 语义色令牌 */}
+              <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"} className="shrink-0">
+                {game.isNsfw ? "NSFW" : "SFW"}
               </Tag>
-            ))}
-          </TagRow>
+              {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 用资源标签组色，与后台「资源标签」组一致 */}
+              {resourceTags.map((tag) => (
+                <Tag key={tag} color={resourceTagColor || undefined} className="shrink-0 whitespace-nowrap" title={tag}>
+                  {tag}
+                </Tag>
+              ))}
+            </TagRow>
+          </div>
 
           {/* ⑤ 动作组：下载资源 / 收藏 / 分享 */}
           <div>
@@ -353,7 +356,7 @@ export default async function GameDetailPage({
             {game.galvelicaWork?.slug ? (
               <Link
                 href={`/galvelica/works/${game.galvelicaWork.slug}`}
-                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
                 title="在 Galvelica 资料库查看本作完整资料"
               >
                 <Library className="h-3.5 w-3.5" />
@@ -362,7 +365,7 @@ export default async function GameDetailPage({
             ) : (
               <Link
                 href={`/galvelica/works?search=${encodeURIComponent(game.title)}`}
-                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
+                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
                 title="本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
               >
                 <Library className="h-3.5 w-3.5" />

@@ -116,7 +116,46 @@ function LangTabs({
 }
 
 /* ═══════════════════════════════════════════════
-   IntroTab — 游戏简介 + 制作人员
+   Section — 简介 tab 内统一的块（无卡壳：无背景 / 无边框 / 无圆角 / 无内边距）
+   标题 15px / font-semibold，标题与内容间距 8px；块与块之间 24px（由外层 space-y-6 提供）
+   ═══════════════════════════════════════════════ */
+
+function Section({
+  title,
+  count,
+  action,
+  children,
+}: {
+  title: string
+  count?: number
+  /** 标题右侧的操作文案（如「展开 / 收起」） */
+  action?: { label: string; onClick: () => void }
+  children: React.ReactNode
+}) {
+  return (
+    <section>
+      <div className="flex items-center gap-2">
+        <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
+        {count != null && (
+          <span className="text-xs font-normal text-muted-foreground">({count})</span>
+        )}
+        {action && (
+          <button
+            type="button"
+            onClick={action.onClick}
+            className="text-xs font-medium text-primary hover:opacity-80 transition-opacity"
+          >
+            {action.label}
+          </button>
+        )}
+      </div>
+      <div className="mt-2">{children}</div>
+    </section>
+  )
+}
+
+/* ═══════════════════════════════════════════════
+   IntroTab — 游戏简介 + 截图 + 制作人员 + 标签
    ═══════════════════════════════════════════════ */
 
 export function IntroTab({
@@ -129,9 +168,6 @@ export function IntroTab({
 }: {
   description: string
   allDescriptions?: { lang: string; label: string; text: string }[]
-  /** 截图：原首页右侧画廊搬到这里，改用网格版式 */
-  screenshots?: string[]
-  gameTitle: string
   creators: {
     id: string
     slug?: string | null
@@ -143,6 +179,9 @@ export function IntroTab({
   }[]
   /** 游戏标签（已从档案卡迁出，颜色沿用后台标签组色） */
   gameTags?: { name: string; color: string; groupName?: string }[]
+  /** 截图：原首页右侧画廊搬到这里，改用网格版式 */
+  screenshots?: string[]
+  gameTitle: string
 }) {
   const hasMultiple = allDescriptions && allDescriptions.length > 1
   const [activeLang, setActiveLang] = useState(() =>
@@ -163,35 +202,11 @@ export function IntroTab({
     [activeLang]
   )
 
-  // 单语言或无 allDescriptions 时直接渲染
-  if (!allDescriptions || allDescriptions.length === 0) {
-    return (
-      <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
-        {description ? (
-          <RichTextContent html={description} className="prose dark:prose-invert max-w-[880px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
-        ) : (
-          <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
-        )}
-        {screenshots && screenshots.length > 0 && (
-          <div className="mt-6">
-            <ScreenshotsSection screenshots={screenshots} gameTitle={gameTitle} />
-          </div>
-        )}
-        {creators.length > 0 && (
-          <div className="mt-6">
-            <CreatorsSection creators={creators} />
-          </div>
-        )}
-        {gameTags && gameTags.length > 0 && (
-          <div className="mt-6">
-            <TagsSection tags={gameTags} />
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const activeDesc = allDescriptions.find((d) => d.lang === activeLang) ?? allDescriptions[0]
+  const activeDesc =
+    allDescriptions && allDescriptions.length > 0
+      ? allDescriptions.find((d) => d.lang === activeLang) ?? allDescriptions[0]
+      : null
+  const prose = activeDesc ? activeDesc.text : description
 
   return (
     <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
@@ -199,41 +214,50 @@ export function IntroTab({
       {hasMultiple && (
         <div className="mb-4">
           <LangTabs
-            descriptions={allDescriptions}
+            descriptions={allDescriptions!}
             activeLang={activeLang}
             onChange={switchLang}
           />
         </div>
       )}
 
-      {/* 简介内容 — 淡入淡出 */}
-      <div
-        className="transition-opacity duration-150 ease-out"
-        style={{ opacity: fading ? 0 : 1 }}
-      >
-        <RichTextContent html={activeDesc.text} className="prose dark:prose-invert max-w-[880px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
+      <div className="space-y-6">
+        {/* ① 简介 */}
+        <Section title="简介">
+          {prose ? (
+            <div
+              className="transition-opacity duration-150 ease-out"
+              style={{ opacity: fading ? 0 : 1 }}
+            >
+              <RichTextContent html={prose} className="prose dark:prose-invert max-w-[880px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
+          )}
+        </Section>
+
+        {/* ② 截图 */}
+        {screenshots && screenshots.length > 0 && (
+          <Section title="截图" count={screenshots.length}>
+            <ScreenshotGrid screenshots={screenshots} gameTitle={gameTitle} />
+          </Section>
+        )}
+
+        {/* ③ 制作人员（默认收起，点标题展开） */}
+        {creators.length > 0 && <CreatorsSection creators={creators} />}
+
+        {/* ④ 游戏标签 — 整块常驻，不折叠、不「+N 更多」 */}
+        {gameTags && gameTags.length > 0 && (
+          <Section title="标签" count={gameTags.length}>
+            <div className="flex flex-wrap gap-2">
+              {gameTags.map((t, i) => (
+                // 颜色沿用传进来的标签组色（后台「详情页信息栏标签」组），不写死常量
+                <Tag key={`${t.name}-${i}`} color={t.color}>{t.name}</Tag>
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
-
-      {/* 截图网格 — 简介之后、制作人员之前 */}
-      {screenshots && screenshots.length > 0 && (
-        <div className="mt-6">
-          <ScreenshotsSection screenshots={screenshots} gameTitle={gameTitle} />
-        </div>
-      )}
-
-      {/* 制作人员折叠卡片 — 桌面默认展开，手机默认收起 */}
-      {creators.length > 0 && (
-        <div className="mt-6">
-          <CreatorsSection creators={creators} />
-        </div>
-      )}
-
-      {/* 游戏标签 — 排在最末，整块常驻不折叠 */}
-      {gameTags && gameTags.length > 0 && (
-        <div className="mt-6">
-          <TagsSection tags={gameTags} />
-        </div>
-      )}
     </div>
   )
 }
@@ -241,34 +265,6 @@ export function IntroTab({
 /* ═══════════════════════════════════════════════
    CreatorsGrid — 制作人员网格
    ═══════════════════════════════════════════════ */
-
-/** 收起状态下显示的人数（一行 4 个、两行） */
-const CREATORS_COLLAPSE_AT = 8
-
-function CreatorsSection({
-  creators,
-}: {
-  creators: { id: string; slug?: string | null; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
-}) {
-  // 默认展开；总人数超过 8 才出现折叠按钮（一行 4 个，收起时正好两行）
-  const needToggle = creators.length > CREATORS_COLLAPSE_AT
-  const [open, setOpen] = useState(true)
-  const shown = !needToggle || open ? creators : creators.slice(0, CREATORS_COLLAPSE_AT)
-
-  return (
-    <CollapsibleCard
-      icon={<Users className="h-4 w-4 opacity-60" />}
-      label="制作人员"
-      count={creators.length}
-      collapsible={needToggle}
-      isOpen={open}
-      onToggle={() => setOpen((v) => !v)}
-      action={needToggle ? (open ? "收起" : `展开全部 ${creators.length} 位`) : undefined}
-    >
-      <CreatorsGrid creators={shown} />
-    </CollapsibleCard>
-  )
-}
 
 function CreatorsGrid({
   creators,
@@ -310,15 +306,35 @@ function CreatorsGrid({
   )
 }
 
+function CreatorsSection({
+  creators,
+}: {
+  creators: { id: string; slug?: string | null; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
+}) {
+  // 默认收起：折叠态只有「标题 + (N) + 展开」，无外框无底色
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Section
+      title="制作人员"
+      count={creators.length}
+      action={{ label: open ? "收起" : "展开", onClick: () => setOpen((v) => !v) }}
+    >
+      {open ? (
+        <CreatorsGrid creators={creators} />
+      ) : null}
+    </Section>
+  )
+}
 
 /* ═══════════════════════════════════════════════
-   ScreenshotsSection — 截图网格（原首屏右 58% 画廊搬到这里）
+   ScreenshotGrid — 截图网格（原首屏右 58% 画廊搬到这里）
    ═══════════════════════════════════════════════ */
 
 /** 网格最多占 8 格，多出的合并进最后一格的「+N」遮罩 */
 const SHOTS_MAX = 8
 
-function ScreenshotsSection({
+function ScreenshotGrid({
   screenshots,
   gameTitle,
 }: {
@@ -338,12 +354,7 @@ function ScreenshotsSection({
   }
 
   return (
-    <CollapsibleCard
-      icon={<Images className="h-4 w-4 opacity-60" />}
-      label="截图"
-      count={screenshots.length}
-      collapsible={false}
-    >
+    <>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {shown.map((src, i) => {
           const overflow = i === shown.length - 1 && rest > 0
@@ -381,29 +392,7 @@ function ScreenshotsSection({
         onIndexChange={setActiveIndex}
         altTitle={gameTitle}
       />
-    </CollapsibleCard>
-  )
-}
-
-
-/* ═══════════════════════════════════════════════
-   TagsSection — 游戏标签（整块常驻：自然换行、不折叠、不「+N 更多」）
-   ═══════════════════════════════════════════════ */
-
-function TagsSection({ tags }: { tags: { name: string; color: string }[] }) {
-  return (
-    <CollapsibleCard
-      icon={<Tags className="h-4 w-4 opacity-60" />}
-      label="标签"
-      collapsible={false}
-    >
-      <div className="flex flex-wrap gap-2">
-        {tags.map((t, i) => (
-          // 颜色沿用传进来的标签组色（后台「详情页信息栏标签」组），不写死常量
-          <Tag key={`${t.name}-${i}`} color={t.color}>{t.name}</Tag>
-        ))}
-      </div>
-    </CollapsibleCard>
+    </>
   )
 }
 
@@ -438,7 +427,7 @@ export function ArchiveCard({
 
 
 /* ═══════════════════════════════════════════════
-   CollapsibleCard — 统一折叠卡片组件
+   CollapsibleCard — 移动端档案卡用的折叠卡片
    ═══════════════════════════════════════════════ */
 
 function CollapsibleCard({

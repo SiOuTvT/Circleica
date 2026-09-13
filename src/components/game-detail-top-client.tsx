@@ -50,49 +50,47 @@ export function GameDetailTopClient({
     // 紧凑模式：三个按钮自适应宽度，不撑满整行
     return (
       <>
-        <div className="flex items-center gap-1 sm:gap-1.5 w-fit">
+        {/* 三颗同档按钮：32 高 / 13px / 600 / rounded-lg，间距 8px */}
+        <div className="flex w-fit items-center gap-2">
           {/* 收藏 */}
           <button
             onClick={handleFavoriteClick}
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
-              btnBase,
-              "p-2.5 sm:p-2.5 rounded-xl ring-1",
+              "inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold ring-1 transition-all",
               fav
                 ? "bg-primary/10 ring-primary/20 text-primary"
                 : "bg-card ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20"
             )}
           >
             {unfavoriting ? (
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <Heart
-                className="h-4 w-4 sm:h-5 sm:w-5"
+                className="h-3.5 w-3.5"
                 strokeWidth={2}
                 fill={fav ? "currentColor" : "none"}
               />
             )}
+            <span>收藏</span>
+          </button>
+
+          {/* 下载资源 */}
+          <button
+            onClick={handleDownloadClick}
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Download className="h-3.5 w-3.5" strokeWidth={2} />
+            <span>下载资源</span>
           </button>
 
           {/* 分享 */}
           <button
             onClick={handleShare}
-            className={cn(btnBase, "p-2.5 sm:p-2.5 rounded-xl bg-card ring-1 ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20")}
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
           >
-            <Share2 className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
-          </button>
-
-          {/* 下载 */}
-          <button
-            onClick={handleDownloadClick}
-            className={cn(btnBase, "py-1.5 px-2 sm:py-2.5 sm:px-3.5 rounded-xl text-xs font-medium")}
-            style={{
-              background: "rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.75)",
-              color: "var(--primary-foreground)",
-            }}
-          >
-            <Download className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
-            <span>下载资源</span>
+            <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
+            <span>分享</span>
           </button>
         </div>
 

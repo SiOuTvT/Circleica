@@ -3,11 +3,12 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { timeAgo } from "@/lib/time-ago"
-import { AlertTriangle, ChevronDown, ChevronUp, Download, Loader2, Pencil, Trash2 } from "lucide-react"
+import { AlertTriangle, Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
 import { UserActivityTimeline, type ActivityItemData } from "@/components/user-activity-timeline"
 
@@ -31,6 +32,8 @@ interface ApiResource extends SubmittedResource {
 }
 
 interface ResourceTabProps {
+  /** 加载完成后把资源数回报给父级（供 tab 上的计数显示，不发额外请求） */
+  onResourceCountChange?: (count: number) => void
   downloadLinks: DownloadLink[]
   creators?: Creator[]
   roleLabels?: Record<string, string>
@@ -46,64 +49,34 @@ interface ResourceTabProps {
   publisherId?: string
 }
 
-/* ─── 备注展开收起组件 ─── */
-function CollapsibleNote({ text, maxLines = 3 }: { text: string; maxLines?: number }) {
-  const [expanded, setExpanded] = useState(false)
-  const [needsCollapse, setNeedsCollapse] = useState(false)
-  const textRef = useRef<HTMLParagraphElement>(null)
+/** 分流默认摊开；超过这个条数才折叠为「前 N 条 + 展开全部」 */
+const ENTRY_PREVIEW = 3
 
-  useEffect(() => {
-    if (textRef.current) {
-      const lineHeight = parseFloat(getComputedStyle(textRef.current).lineHeight)
-      const maxHeight = lineHeight * maxLines
-      setNeedsCollapse(textRef.current.scrollHeight > maxHeight + 2)
+/** 从下载链接解析来源名（百度网盘 / 夸克 / Mega 等），解析不出来就回退域名 */
+function sourceLabel(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "")
+    const known: Record<string, string> = {
+      "pan.baidu.com": "百度网盘",
+      "yun.baidu.com": "百度网盘",
+      "pan.quark.cn": "夸克网盘",
+      "quark.cn": "夸克网盘",
+      "mega.nz": "Mega",
+      "drive.google.com": "Google Drive",
+      "1drv.ms": "OneDrive",
+      "aliyundrive.com": "阿里云盘",
+      "www.alipan.com": "阿里云盘",
+      "pan.xunlei.com": "迅雷网盘",
+      "cowtransfer.com": "奶牛快传",
+      "123pan.com": "123云盘",
+      "lanzoui.com": "蓝奏云",
+      "lanzoup.com": "蓝奏云",
+      "lanzoux.com": "蓝奏云",
     }
-  }, [text, maxLines])
-
-  // 不需要折叠时直接全部显示
-  if (!needsCollapse) {
-    return (
-      <div className="px-4 pb-3">
-        <p ref={textRef} className="text-sm text-foreground/90 leading-relaxed">
-          {text}
-        </p>
-      </div>
-    )
+    return known[host] ?? host
+  } catch {
+    return "外链"
   }
-
-  return (
-    <div className="px-4 pb-3">
-      <div
-        className="relative overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ maxHeight: expanded ? "500px" : `${maxLines * 1.5}em` }}
-      >
-        <p ref={!expanded ? textRef : undefined} className="text-sm text-foreground/90 leading-relaxed">
-          {text}
-        </p>
-        {!expanded && (
-          <div
-            className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-            style={{ background: "linear-gradient(transparent, var(--card))" }}
-          />
-        )}
-      </div>
-      <button
-        type="button"
-        onClick={() => setExpanded(prev => !prev)}
-        className="mt-1 flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary transition-colors"
-      >
-        {expanded ? (
-          <>
-            收起 <ChevronUp className="h-3 w-3" />
-          </>
-        ) : (
-          <>
-            展开全部 <ChevronDown className="h-3 w-3" />
-          </>
-        )}
-      </button>
-    </div>
-  )
 }
 
 /* ─── 资源卡片组件 ─── */
@@ -126,16 +99,6 @@ const ResourceCard = memo(function ResourceCard({
   onDownload: (entryId: string, entryIdx: number) => void
   resourceTagColor?: string
 }) {
-  const [expandedEntries, setExpandedEntries] = useState<Set<number>>(new Set())
-  const toggleEntry = useCallback((idx: number) => {
-    setExpandedEntries(prev => {
-      const next = new Set(prev)
-      if (next.has(idx)) next.delete(idx)
-      else next.add(idx)
-      return next
-    })
-  }, [])
-
   // 合并所有标签
   const allTags = [
     ...resource.platform,
@@ -144,52 +107,48 @@ const ResourceCard = memo(function ResourceCard({
     ...resource.resourceContent,
   ]
 
+  // 体积取第一条填了大小的；下载数为各分流下载数之和
+  const sizeLabel = resource.entries.find((e) => e.fileSize)?.fileSize || "—"
+  const downloadTotal = resource.entries.reduce(
+    (sum, e) => sum + (typeof e.downloadCount === "number" ? e.downloadCount : 0),
+    0
+  )
+  // 分流默认摊开；超过 ENTRY_PREVIEW 条才折叠成「前 3 条 + 展开全部」
+  const [showAllEntries, setShowAllEntries] = useState(false)
+  const shownEntries =
+    resource.entries.length > ENTRY_PREVIEW && !showAllEntries
+      ? resource.entries.slice(0, ENTRY_PREVIEW)
+      : resource.entries
+
   return (
     <div
-      className={`relative rounded-2xl ring-1 overflow-visible transition duration-150 ease-in-out duration-200 hover:shadow-2 ${
+      className={`flex flex-col gap-3.5 rounded-2xl p-4 ring-1 sm:p-5 ${
         resource.isReported
-          ? "ring-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10 hover:ring-amber-300/70"
-          : "ring-border bg-card hover:ring-foreground/20"
+          ? "ring-amber-300/50 bg-amber-50/5 dark:bg-amber-950/10"
+          : "ring-border bg-card"
       }`}
-      style={{ boxShadow: "var(--shadow-card)" }}
     >
-      {/* ── 第一行：胶囊标签流 ── */}
-      <TagGroup className="px-4 pt-4 pb-2.5">
-        {allTags.slice(0, 8).map((tag) => (
-          <Tag key={tag} color={resourceTagColor || undefined}>
-            {tag}
-          </Tag>
-        ))}
-        {allTags.length > 8 && (
-          <span className="text-xs text-muted-foreground">+{allTags.length - 8}</span>
-        )}
-      </TagGroup>
-
-      {/* ── 第二行：发布者用户信息栏 ── */}
-      <div className="flex items-center gap-3.5 px-4 pb-2.5">
-        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground overflow-hidden shrink-0 ring-2 ring-background">
-          {resource.userAvatar ? (
-            <Image src={resource.userAvatar} alt="" width={32} height={32} className="h-full w-full object-cover" unoptimized />
-          ) : (
-            (resource.username || "?")[0]
-          )}
-        </div>
+      {/* ── 第一行：资源名称 + 右侧 体积 / 分流数 / 下载数 ── */}
+      <div className="flex items-start gap-3.5">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground truncate">
-            {resource.username || "热心网友"}
+          <h3 className="text-base font-bold text-foreground">
+            {resource.resourceName || "未命名资源"}
+          </h3>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+            提交者 {resource.username || "热心网友"}，更新于 {timeAgo(resource.createdAt)}，说明：{resource.resourceNote || "（未填写）"}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground/80">
-            {timeAgo(resource.createdAt)}
-            {resource.userResourceCount > 0 && (
-              <span className="ml-2">已发布 {resource.userResourceCount} 条资源</span>
-            )}
-          </p>
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-0.5">
+          <span className="text-[15px] font-bold tabular-nums text-foreground">{sizeLabel}</span>
+          <span className="text-[11px] text-muted-foreground">
+            {resource.entries.length} 个分流，下载 {downloadTotal}
+          </span>
         </div>
       </div>
 
       {/* ── 失效标记 ── */}
       {resource.isReported && (
-        <div className="px-4 pb-2">
+        <div>
           <Tag color="#f59e0b" className="gap-1.5">
             <AlertTriangle className="h-3 w-3" />
             链接已失效
@@ -197,124 +156,90 @@ const ResourceCard = memo(function ResourceCard({
         </div>
       )}
 
-      {/* ── 第三行：资源名称 ── */}
-      {resource.resourceName && (
-        <div className="px-4 pb-2.5">
-          <p className="text-base font-semibold text-foreground leading-snug">
-            {resource.resourceName}
-          </p>
-        </div>
-      )}
+      {/* ── 资源标签：组色沿用 resourceTagColor ── */}
+      <TagGroup>
+        {allTags.map((tag) => (
+          <Tag key={tag} color={resourceTagColor || undefined}>
+            {tag}
+          </Tag>
+        ))}
+      </TagGroup>
 
-      {/* ── 第四行：下载链接按钮 ── */}
-      <div className="px-4 pb-2.5">
-        <div className="flex flex-wrap gap-2">
-          {resource.entries.map((entry, i) => {
-            const isExpanded = expandedEntries.has(i)
-            const label = resource.entries.length > 1 ? `分流 ${i + 1}` : "下载"
-            return (
-              <div key={i} className="flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => toggleEntry(i)}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/15 active:bg-primary/20 transition ease-in-out duration-200"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  {label}
-                  {entry.fileSize && (
-                    <span className="text-primary/60 ml-0.5">({entry.fileSize})</span>
-                  )}
-                  {typeof entry.downloadCount === "number" && entry.downloadCount > 0 && (
-                    <span className="text-primary/60 text-xs">已下 {entry.downloadCount}</span>
-                  )}
-                  {isExpanded ? (
-                    <ChevronUp className="h-3.5 w-3.5 opacity-60" />
-                  ) : (
-                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                  )}
-                </button>
-                {/* 展开区域：真实链接、提取码、解压码 */}
-                <div
-                  className="overflow-hidden transition-all duration-300 ease-in-out"
-                  style={{ maxHeight: isExpanded ? "200px" : "0px", opacity: isExpanded ? 1 : 0 }}
-                >
-                  <div className="mt-2 rounded-lg bg-muted/50 px-3 py-2 text-sm space-y-1.5">
-                    <a
-                      href={entry.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => { if (entry.id) onDownload(entry.id, i) }}
-                      className="block text-primary underline underline-offset-2 break-all hover:text-primary/80 transition-colors"
-                    >
-                      {entry.url}
-                    </a>
-                    {entry.extractCode && (
-                      <p className="text-muted-foreground">
-                        提取码：<span className="font-mono font-semibold text-foreground">{entry.extractCode}</span>
-                      </p>
-                    )}
-                    {entry.decompressCode && (
-                      <p className="text-muted-foreground">
-                        解压码：<span className="font-mono font-semibold text-foreground">{entry.decompressCode}</span>
-                      </p>
-                    )}
-                    {!entry.extractCode && !entry.decompressCode && !entry.fileSize && (
-                      <p className="text-muted-foreground/50">无需提取码</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ── 第五行：资源备注（可展开收起）── */}
-      {resource.resourceNote && (
-        <CollapsibleNote text={resource.resourceNote} maxLines={3} />
-      )}
-
-      {/* ── 右下角：反馈/编辑/删除按钮 ── */}
-      <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1">
-        {/* 非本人可以看到反馈按钮 */}
-        {!isOwner && !isGamePublisher && (
-          <button
-            type="button"
-            onClick={onReport}
-            disabled={resource.isReportedByMe}
-            className={`p-2 rounded-lg transition duration-150 ease-in-out duration-200 ${
-              resource.isReportedByMe
-                ? "text-amber-400/60 cursor-default"
-                : "text-muted-foreground/40 hover:text-amber-400 hover:bg-amber-500/10"
-            }`}
-            title={resource.isReportedByMe ? "已反馈" : "反馈链接失效"}
-          >
-            <AlertTriangle className="h-4 w-4" />
-          </button>
-        )}
-        {(isOwner || isGamePublisher) && (
-          <>
-            {isOwner && (
+      {/* ── 分流：默认摊开在卡里，>3 条才折叠 ── */}
+      <div className="flex flex-col border-t border-border pt-2">
+        {shownEntries.map((entry, i) => (
+          <div key={i} className="flex items-center gap-3 border-b border-border/50 py-2.5 last:border-b-0">
+            <span className="w-[76px] shrink-0 truncate text-[12.5px] font-semibold text-foreground">
+              {sourceLabel(entry.url)}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+              {[entry.fileSize, entry.extractCode ? `提取码 ${entry.extractCode}` : ""]
+                .filter(Boolean)
+                .join("，")}
+            </span>
+            <span className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
-                onClick={onEdit}
-                className="p-2 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition ease-in-out duration-200"
-                title="编辑"
+                onClick={onReport}
+                disabled={resource.isReportedByMe}
+                className={cn(
+                  "inline-flex h-7 items-center justify-center rounded-md px-3 text-xs font-semibold ring-1 ring-border transition-colors",
+                  resource.isReportedByMe
+                    ? "cursor-default text-amber-400/60"
+                    : "text-muted-foreground hover:bg-amber-500/10 hover:text-amber-400"
+                )}
+                title={resource.isReportedByMe ? "已反馈" : "举报失效"}
               >
-                <Pencil className="h-4 w-4" />
+                举报失效
               </button>
-            )}
-            <button
-              type="button"
-              onClick={onDelete}
-              className="p-2 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition ease-in-out duration-200"
-              title="删除"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </>
+              <a
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => { if (entry.id) onDownload(entry.id, i) }}
+                className="inline-flex h-7 w-[48px] items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                下载
+              </a>
+            </span>
+          </div>
+        ))}
+        {resource.entries.length > ENTRY_PREVIEW && !showAllEntries && (
+          <button
+            type="button"
+            onClick={() => setShowAllEntries(true)}
+            className="self-start pt-2 text-xs font-medium text-primary hover:opacity-80 transition-opacity"
+          >
+            展开全部 {resource.entries.length} 个分流
+          </button>
         )}
       </div>
+
+      {/* ── 本人的编辑 / 删除入口：卡片本体不可点，只有这些控件与上面两个按钮可点 ── */}
+      {(isOwner || isGamePublisher) && (
+        <div className="flex items-center justify-end gap-2">
+          {isOwner && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-primary"
+              title="编辑"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              编辑
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onDelete}
+            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-red-400"
+            title="删除"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            删除
+          </button>
+        </div>
+      )}
     </div>
   )
 })
@@ -335,7 +260,8 @@ function extractResource(body: unknown): ApiResource | undefined {
 }
 
 export function ResourceTab({
-  downloadLinks,
+  onResourceCountChange,
+  downloadLinks: _downloadLinks,
   creators: _creators,
   roleLabels: _roleLabels,
   isLoggedIn,
@@ -353,6 +279,12 @@ export function ResourceTab({
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [displayCount, setDisplayCount] = useState(20) // 初始显示 20 条
+  const [addOpen, setAddOpen] = useState(false)
+
+  // 资源数回报给父级（tab 上的计数），不发额外请求
+  useEffect(() => {
+    onResourceCountChange?.(resources.length)
+  }, [resources.length, onResourceCountChange])
   const [editingResource, setEditingResource] = useState<ApiResource | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ApiResource | null>(null)
@@ -541,11 +473,135 @@ export function ResourceTab({
     }
   }, [gameId, deleteTarget])
 
+  // 侧栏统计：全部基于已加载的资源，不额外请求
+  const totalEntries = resources.reduce((sum, r) => sum + r.entries.length, 0)
+  const totalDownloads = resources.reduce(
+    (sum, r) =>
+      sum +
+      r.entries.reduce(
+        (inner, e) => inner + (typeof e.downloadCount === "number" ? e.downloadCount : 0),
+        0
+      ),
+    0
+  )
+  const reportedCount = resources.filter((r) => r.isReported).length
+  const statRows = [
+    { label: "资源数", value: resources.length },
+    { label: "分流数", value: totalEntries },
+    { label: "下载计数", value: totalDownloads },
+    { label: "失效举报", value: reportedCount },
+  ]
+
   return (
-    <div className="space-y-5">
-      {/* 添加资源按钮 */}
-      <div className="flex items-center justify-end">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+
+      {/* ─── 左列：资源卡列表（390 下与侧栏正常堆叠）─── */}
+      <div className="min-w-0 flex-1">
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-sm text-muted-foreground">加载资源中...</span>
+          </div>
+        )}
+
+        {loadError && !loading && (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-center">
+            <p className="text-sm text-red-400">{loadError}</p>
+            <button
+              type="button"
+              onClick={fetchResources}
+              className="mt-2 text-sm font-medium text-red-700 underline hover:no-underline"
+            >
+              重试
+            </button>
+          </div>
+        )}
+
+        {!loading && !loadError && resources.length === 0 && (
+          <div className="rounded-xl border border-dashed border-border p-6 text-center text-[13px] text-muted-foreground">
+            还没有人分享资源
+          </div>
+        )}
+
+        {/* 用户提交的资源卡片列表 */}
+        {!loading && !loadError && resources.length > 0 && (
+          <>
+            <div className="space-y-4">
+              {resources.slice(0, displayCount).map((res, resIdx) => {
+                const isOwner = !!currentUserId && res.userId === currentUserId
+                const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
+                return (
+                  <ResourceCard
+                    key={res.id}
+                    resource={res}
+                    isOwner={isOwner}
+                    isGamePublisher={isGamePublisher}
+                    resourceTagColor={resourceTagColor}
+                    onDownload={(entryId, entryIdx) => trackDownload(res.id, entryId, resIdx, entryIdx)}
+                    onEdit={() => {
+                      setEditingResource(res)
+                      setEditOpen(true)
+                    }}
+                    onDelete={() => {
+                      setDeleteTarget(res)
+                      setDeleteOpen(true)
+                    }}
+                    onReport={() => {
+                      if (!isLoggedIn) {
+                        toast.error("请先登录")
+                        return
+                      }
+                      setReportTarget(res)
+                      setReportOpen(true)
+                    }}
+                  />
+                )
+              })}
+            </div>
+              {displayCount < resources.length && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => setDisplayCount(c => c + 20)}
+                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    加载更多（{resources.length - displayCount} 条）
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+      </div>
+
+      {/* ─── 右列：296 侧栏（390 下堆在列表下方）─── */}
+      <aside className="w-full shrink-0 space-y-3 lg:w-[296px]">
+        <section className="rounded-xl bg-card p-4 ring-1 ring-border">
+          <h3 className="text-[13px] font-semibold text-foreground">资源动态</h3>
+          <div className="mt-2.5">
+            <UserActivityTimeline items={gameActivities} />
+          </div>
+        </section>
+
+        <section className="rounded-xl bg-card p-4 ring-1 ring-border">
+          <h3 className="text-[13px] font-semibold text-foreground">本游戏资源</h3>
+          <div className="mt-1.5">
+            {statRows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between gap-2.5 border-t border-border py-1.5 text-[13px] first:border-t-0"
+              >
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="text-right font-semibold tabular-nums text-foreground">{row.value}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setAddOpen(true)}
+            className="mt-2.5 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+            添加资源
+          </button>
           <AddResourceDialog
             gameId={gameId}
             userId={currentUserId || ""}
@@ -553,132 +609,12 @@ export function ResourceTab({
             userAvatar={userAvatar ?? null}
             isLoggedIn={isLoggedIn}
             onAdd={handleAdd}
+            open={addOpen}
+            onOpenChange={setAddOpen}
+            hideTrigger
           />
-        </div>
-      </div>
-
-      {/* 加载中状态 */}
-      {loading && (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-sm text-muted-foreground">加载资源中...</span>
-        </div>
-      )}
-
-      {/* 加载错误 */}
-      {loadError && !loading && (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-center">
-          <p className="text-sm text-red-400">{loadError}</p>
-          <button
-            type="button"
-            onClick={fetchResources}
-            className="mt-2 text-sm font-medium text-red-700 underline hover:no-underline"
-          >
-            重试
-          </button>
-        </div>
-      )}
-
-      {/* 用户提交的资源卡片列表 */}
-      {!loading && !loadError && resources.length > 0 && (
-        <>
-          <div className="space-y-3">
-            {resources.slice(0, displayCount).map((res, resIdx) => {
-              const isOwner = !!currentUserId && res.userId === currentUserId
-              const isGamePublisher = !!publisherId && !!currentUserId && publisherId === currentUserId
-              return (
-                <ResourceCard
-                  key={res.id}
-                  resource={res}
-                  isOwner={isOwner}
-                  isGamePublisher={isGamePublisher}
-                  resourceTagColor={resourceTagColor}
-                  onDownload={(entryId, entryIdx) => trackDownload(res.id, entryId, resIdx, entryIdx)}
-                  onEdit={() => {
-                    setEditingResource(res)
-                    setEditOpen(true)
-                  }}
-                  onDelete={() => {
-                    setDeleteTarget(res)
-                    setDeleteOpen(true)
-                  }}
-                  onReport={() => {
-                    if (!isLoggedIn) {
-                      toast.error("请先登录")
-                      return
-                    }
-                    setReportTarget(res)
-                    setReportOpen(true)
-                  }}
-                />
-              )
-            })}
-          </div>
-          {displayCount < resources.length && (
-            <div className="flex justify-center pt-4">
-              <button
-                onClick={() => setDisplayCount(c => c + 20)}
-                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                加载更多（{resources.length - displayCount} 条）
-              </button>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* 资源区下方：左 = 游戏动态（竖排时间轴），右 = 后台下载链接区。
-          用内联 style 强制横排（左动态右下载），与用户主页动态区风格一致；窄屏自动换行降级为竖排。 */}
-      <div
-        className="mt-6"
-        style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1.5rem" }}
-      >
-        {/* 左：游戏动态（固定窄宽，不占大块） */}
-        <section style={{ minWidth: 0, flex: "0 0 160px", maxWidth: "160px" }}>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">游戏动态</h3>
-          <UserActivityTimeline items={gameActivities} />
         </section>
-
-        {/* 右：后台配置的下载链接（flex 占满剩余放大均衡；左竖线为唯一分隔，无横线） */}
-        <div style={{ flex: "1 1 0%", minWidth: 280, display: "flex", flexDirection: "column", gap: "0.5rem" }} className="border-l border-border/60 pl-5">
-          <h3 className="mb-3 text-sm font-semibold text-foreground">下载链接</h3>
-          {downloadLinks.length > 0 ? (
-            downloadLinks.map((dl, i) => (
-              <a
-                key={i}
-                href={dl.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary-foreground bg-primary hover:opacity-90 transition-opacity"
-              >
-                <Download className="h-4 w-4" strokeWidth={2} />
-                {dl.label || "下载"}
-              </a>
-            ))
-          ) : (
-            <p className="text-center text-sm text-muted-foreground">暂无下载链接</p>
-          )}
-
-          {/* 用户分享资源空态 + 次级添加按钮，归属右栏内部，不跨栏 */}
-          {!loading && !loadError && resources.length === 0 && (
-            <div className="mt-4 flex flex-col items-center gap-3 text-center">
-              <p className="text-sm text-muted-foreground">
-                {isLoggedIn ? "还没有人分享资源，成为第一个分享者吧！" : "还没有人分享资源，等一等~"}
-              </p>
-              {isLoggedIn && (
-                <AddResourceDialog
-                  gameId={gameId}
-                  userId={currentUserId || ""}
-                  username={username || ""}
-                  userAvatar={userAvatar ?? null}
-                  isLoggedIn={isLoggedIn}
-                  onAdd={handleAdd}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      </aside>
 
       {/* 编辑资源弹窗 */}
       {editingResource && (
