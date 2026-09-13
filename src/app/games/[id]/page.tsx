@@ -46,7 +46,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id: resolved.id },
     select: { serialId: true, title: true, description: true, coverImage: true, originalWork: true },
   }) : null
-  if (!game) return { title: "游戏详情" }
+  // 真·不存在：回 HTTP 404（不再吐 200 软 404）
+  if (!game) notFound()
   return {
     title: `${game.title}`,
     description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
@@ -99,7 +100,7 @@ export default async function GameDetailPage({
           include: { creator: { select: { id: true, name: true, nameJa: true, avatar: true, slug: true } } },
         },
         studios: {
-          include: { studio: { select: { displayName: true, normalizedName: true } } },
+          include: { studio: { select: { displayName: true, normalizedName: true, slug: true } } },
         },
         publisher: { select: { id: true, username: true, avatar: true } },
         galvelicaWork: { select: { slug: true } },
@@ -377,7 +378,7 @@ export default async function GameDetailPage({
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
-            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName, role: s.role ?? null }))}
+            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName, slug: s.studio.slug, role: s.role ?? null }))}
             platforms={platforms}
             officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
             languages={languages}

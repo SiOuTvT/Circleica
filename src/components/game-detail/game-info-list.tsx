@@ -3,13 +3,14 @@ import {
 } from "lucide-react"
 import { Tag } from "@/components/ui/tag"
 import {
-  PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS, STUDIO_ROLE_LABELS,
+  PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
 } from "@/lib/game-meta"
+import { studioRoleLabel } from "@/lib/role-labels"
 
 export interface GameInfoData {
   releaseDate?: string
   status?: string
-  studios?: { name: string; normalized: string; role?: string | null }[]
+  studios?: { name: string; normalized: string; slug?: string | null; role?: string | null }[]
   gameDuration?: string
   platforms?: string[]
   languages?: string[]
@@ -105,16 +106,19 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
 
       {studios && studios.length > 0 && (
         <Row icon={<Building2 className="h-4 w-4" strokeWidth={2} />} label="制作会社">
-          {studios.map((s) => (
-            <a
-              key={s.normalized}
-              href={`/credits/studio/${encodeURIComponent(s.normalized)}`}
-              className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
-            >
-              {s.role && STUDIO_ROLE_LABELS[s.role] ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{STUDIO_ROLE_LABELS[s.role]}</span> : null}
-              {s.name}
-            </a>
-          ))}
+          {studios.map((s) => {
+            const lab = studioRoleLabel(s.role)
+            return (
+              <a
+                key={s.normalized}
+                href={`/credits/studio/${encodeURIComponent(s.slug ?? s.normalized)}`}
+                className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
+              >
+                {lab ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
+                {s.name}
+              </a>
+            )
+          })}
         </Row>
       )}
 

@@ -27,11 +27,14 @@ export async function generateMetadata({
   const decoded = decodeURIComponent(slug)
   const detail = await getMakerDetail(decoded, 1)
   if (!detail) {
-    return {
-      title: "制作组未找到",
-      description: "未找到该制作组。",
-      robots: { index: false, follow: true },
+    // 旧路由 /credits/studio/[normalizedName] 兼容：能 308 的必须先返回兜底 metadata，
+    // 不能在这里 notFound()，否则会把页面的 permanentRedirect 提前掐死。
+    const legacySlug = await getStudioSlugByName(decoded)
+    if (legacySlug && legacySlug !== decoded) {
+      return { title: "制作组", robots: { index: false, follow: true } }
     }
+    // 真·不存在：回 HTTP 404（不再吐 200 软 404）
+    notFound()
   }
   return {
     title: `${detail.name}`,

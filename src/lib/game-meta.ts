@@ -103,12 +103,6 @@ export const GAME_STATUS_COLORS: Record<string, string> = {
   CANCELLED: "var(--color-error, #ef4444)",
 }
 
-/** 制作组身份（GameStudio.role） → 可读标签；档案卡 pill 前置小标签用，未收录的值不显示 */
-export const STUDIO_ROLE_LABELS: Record<string, string> = {
-  developer: "制作",
-  publisher: "发行",
-}
-
 /** 年龄分级值 → 可读标签（存储值为 "0"/"12"/"15"/"18"，空串=未知） */
 export const AGE_RATING_LABELS: Record<string, string> = {
   "": "未知",
