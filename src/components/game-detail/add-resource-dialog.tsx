@@ -680,8 +680,9 @@ export function AddResourceDialog({
 
         {/* ── 底部操作条：常驻，不随内容滚走 ── */}
         <div className="sticky bottom-0 z-10 shrink-0 border-t border-border bg-card px-4 sm:px-10 py-3">
+          {/* A1 落地（资源投稿审核）后，这句要改回「提交后进入人工审核，通过后才会显示在游戏页。」 */}
           <p className="mb-2 text-xs text-muted-foreground">
-            提交后进入人工审核，通过后才会显示在游戏页。
+            提交后会直接显示在游戏页，请确保链接可用、不含捆绑推广。
           </p>
           <div className="flex items-center gap-3">
             {/* 缺项提示：写明具体缺什么，点名字能定位到控件 */}
