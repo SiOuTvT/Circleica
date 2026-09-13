@@ -377,7 +377,7 @@ export default async function GameDetailPage({
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
-            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName }))}
+            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName, role: s.role ?? null }))}
             platforms={platforms}
             officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
             languages={languages}
