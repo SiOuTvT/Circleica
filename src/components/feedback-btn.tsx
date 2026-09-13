@@ -44,9 +44,9 @@ export function FeedbackBtn({ gameId, className }: { gameId: string; className?:
         title={isLoggedIn ? undefined : "登录后才能反馈"}
         className={cn(
           "flex items-center justify-center gap-1 transition-colors",
-          // 注意：globals.css 的 button{cursor:pointer} 写在 @layer 之外，层序优先于所有
-          // Tailwind 工具类（层序 > 特异性），所以禁用态必须带 !important 才压得住它。
-          isLoggedIn ? "cursor-pointer" : "opacity-60 disabled:cursor-not-allowed!",
+          // globals.css 的全局 cursor 规则已收进 @layer base，utilities 层的工具类现在压得住，
+          // 不再需要 !important（禁用态另有 base 层的 button:disabled{cursor:default} 兜底）。
+          isLoggedIn ? "cursor-pointer" : "opacity-60 disabled:cursor-not-allowed",
           className ?? "min-h-[28px] px-2 text-xs text-muted-foreground hover:text-foreground ml-auto shrink-0",
         )}
       >
