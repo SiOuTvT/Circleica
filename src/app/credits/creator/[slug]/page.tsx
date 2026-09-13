@@ -22,8 +22,13 @@ export async function generateMetadata({
   const { slug } = await params
   const decoded = decodeURIComponent(slug)
   const detail = await getCreatorDetail(decoded, 1)
-  // 真·不存在：回 HTTP 404（不再吐 200 软 404）
-  if (!detail) notFound()
+  if (!detail) {
+    return {
+      title: "创作者未找到",
+      description: "未找到该创作者。",
+      robots: { index: false, follow: true },
+    }
+  }
   return {
     title: `${detail.nameJa || detail.name}`,
     description: `浏览 Circleica 中创作者「${detail.nameJa || detail.name}」的参与作品、所属制作组与职位。`,

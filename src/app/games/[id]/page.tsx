@@ -46,8 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id: resolved.id },
     select: { serialId: true, title: true, description: true, coverImage: true, originalWork: true },
   }) : null
-  // 真·不存在：回 HTTP 404（不再吐 200 软 404）
-  if (!game) notFound()
+  if (!game) return { title: "游戏详情" }
   return {
     title: `${game.title}`,
     description: getDescriptionText(game.description)?.slice(0, 160) || `${game.originalWork ? `${game.originalWork}同人游戏` : "同人游戏"} - ${game.title}`,
