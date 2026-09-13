@@ -2,11 +2,12 @@
 
 import { cn } from "@/lib/utils"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { ChevronDown, Users } from "lucide-react"
+import { ChevronDown, Tags, Users } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { GameInfoList, type GameInfoData } from "./game-info-list"
+import { GameInfoList, VndbBadge, type GameInfoData } from "./game-info-list"
 import { roleLabel } from "@/lib/role-labels"
+import { Tag } from "@/components/ui/tag"
 
 /* ═══════════════════════════════════════════════
    语言优先级：中文 > English > 日本語 > 其他
@@ -121,6 +122,7 @@ export function IntroTab({
   description,
   allDescriptions,
   creators,
+  gameTags,
 }: {
   description: string
   allDescriptions?: { lang: string; label: string; text: string }[]
@@ -133,6 +135,8 @@ export function IntroTab({
     nameJa?: string | null
     aliases?: string[]
   }[]
+  /** 游戏标签（已从档案卡迁出，颜色沿用后台标签组色） */
+  gameTags?: { name: string; color: string; groupName?: string }[]
 }) {
   const hasMultiple = allDescriptions && allDescriptions.length > 1
   const [activeLang, setActiveLang] = useState(() =>
@@ -167,6 +171,11 @@ export function IntroTab({
             <CreatorsSection creators={creators} />
           </div>
         )}
+        {gameTags && gameTags.length > 0 && (
+          <div className="mt-6">
+            <TagsSection tags={gameTags} />
+          </div>
+        )}
       </div>
     )
   }
@@ -198,6 +207,13 @@ export function IntroTab({
       {creators.length > 0 && (
         <div className="mt-6">
           <CreatorsSection creators={creators} />
+        </div>
+      )}
+
+      {/* 游戏标签 — 排在最末，整块常驻不折叠 */}
+      {gameTags && gameTags.length > 0 && (
+        <div className="mt-6">
+          <TagsSection tags={gameTags} />
         </div>
       )}
     </div>
@@ -278,6 +294,28 @@ function CreatorsGrid({
 
 
 /* ═══════════════════════════════════════════════
+   TagsSection — 游戏标签（整块常驻：自然换行、不折叠、不「+N 更多」）
+   ═══════════════════════════════════════════════ */
+
+function TagsSection({ tags }: { tags: { name: string; color: string }[] }) {
+  return (
+    <CollapsibleCard
+      icon={<Tags className="h-4 w-4 opacity-60" />}
+      label="标签"
+      collapsible={false}
+    >
+      <div className="flex flex-wrap gap-2">
+        {tags.map((t, i) => (
+          // 颜色沿用传进来的标签组色（后台「详情页信息栏标签」组），不写死常量
+          <Tag key={`${t.name}-${i}`} color={t.color}>{t.name}</Tag>
+        ))}
+      </div>
+    </CollapsibleCard>
+  )
+}
+
+
+/* ═══════════════════════════════════════════════
    ArchiveCard — 游戏档案折叠卡片（手机端）
    ═══════════════════════════════════════════════ */
 
@@ -295,6 +333,7 @@ export function ArchiveCard({
       <CollapsibleCard
         icon={<ChevronDown className="h-4 w-4 opacity-60" />}
         label="游戏档案"
+        badge={<VndbBadge vndbId={data.vndbId} />}
         isOpen={isOpen}
         onToggle={onToggle}
       >
@@ -312,6 +351,8 @@ export function ArchiveCard({
 function CollapsibleCard({
   icon,
   label,
+  /** 标题右侧的小徽标（如 VNDB 出处链接） */
+  badge,
   count,
   isOpen: controlledOpen,
   onToggle: controlledToggle,
@@ -324,6 +365,7 @@ function CollapsibleCard({
 }: {
   icon: React.ReactNode
   label: string
+  badge?: React.ReactNode
   count?: number
   isOpen?: boolean
   onToggle?: () => void
@@ -341,6 +383,7 @@ function CollapsibleCard({
     <>
       {icon}
       <span className="text-base font-semibold text-foreground">{label}</span>
+      {badge}
       {count != null && (
         <span className="text-xs font-medium text-muted-foreground">({count})</span>
       )}

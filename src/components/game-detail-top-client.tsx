@@ -2,12 +2,9 @@
 
 import { cn } from "@/lib/utils"
 import { Download, Heart, Loader2, Share2 } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
-import { toast } from "sonner"
-import { apiFetchSafe } from "@/lib/api-client"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
 import { ConfirmDialog } from "./ui/confirm-dialog"
+import { useGameFavorite } from "./game-detail/use-game-favorite"
 
 export function GameDetailTopClient({
   gameId,
@@ -24,66 +21,11 @@ export function GameDetailTopClient({
   /** 紧凑模式：三个按钮等宽并排，用于手机端卡片内 */
   compact?: boolean
 }) {
-  const { status } = useSession()
-  const isLoggedIn = status === "authenticated"
-  const [fav, setFav] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [unfavoriting, setUnfavoriting] = useState(false)
-
-  // A-8：个性化收藏状态改由客户端 API 拉取（页面已走 Data Cache），避免污染缓存键。
-  useEffect(() => {
-    let cancelled = false
-    apiFetchSafe<{ isFav: boolean }>(`/api/games/${gameId}/personalization`)
-      .then(({ ok, data }) => {
-        if (ok && data && !cancelled) setFav(data.isFav)
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [gameId])
-
-  // 与 GameDetailClient 跨组件同步收藏态
-  useEffect(() => {
-    const onFavChange = (e: Event) => {
-      const detail = (e as CustomEvent<{ isFav: boolean }>).detail
-      setFav(detail.isFav)
-    }
-    window.addEventListener("game-fav-change", onFavChange)
-    return () => window.removeEventListener("game-fav-change", onFavChange)
-  }, [])
-
-  function handleFavoriteClick() {
-    if (!isLoggedIn) return
-    if (fav) {
-      setConfirmOpen(true)
-    } else {
-      setDialogOpen(true)
-    }
-  }
-
-  async function handleUnfavorite() {
-    setUnfavoriting(true)
-    try {
-      const { ok } = await apiFetchSafe(`/api/games/${gameId}/favorite`, {
-        method: "POST",
-      })
-      if (ok) {
-        setFav(false)
-        window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: false } }))
-        toast.success("已取消收藏")
-      }
-    } finally {
-      setUnfavoriting(false)
-    }
-  }
-
-  function handleSelect(_collectionId: string | null) {
-    setFav(true)
-    window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: true } }))
-    toast.success("已收藏")
-  }
+  // 收藏流程与档案卡底部收藏长条共用 useGameFavorite —— 单一实现，不另写一份
+  const {
+    isLoggedIn, fav, unfavoriting, dialogOpen, setDialogOpen, confirmOpen, setConfirmOpen,
+    handleFavoriteClick, handleUnfavorite, handleSelect,
+  } = useGameFavorite(gameId)
 
   function handleShare() {
     if (navigator.share) {
@@ -150,7 +92,7 @@ export function GameDetailTopClient({
             }}
           >
             <Download className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
-            <span>{downloadLinks.length > 0 ? "下载" : "资源"}</span>
+            <span>下载资源</span>
           </button>
         </div>
 

@@ -1,11 +1,11 @@
 import {
-  BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Gamepad2, Globe, Monitor, ShieldAlert,
+  BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Monitor, ShieldAlert,
 } from "lucide-react"
-import { Tag } from "@/components/ui/tag"
 import {
   PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
 } from "@/lib/game-meta"
 import { studioRoleLabel } from "@/lib/role-labels"
+import { GameInfoActions } from "./game-info-actions"
 
 export interface GameInfoData {
   releaseDate?: string
@@ -18,8 +18,11 @@ export interface GameInfoData {
   ageRating?: string
   officialWebsite?: string
   englishName?: string
+  originalWork?: string
   vndbId?: string
-  gameTags?: { name: string; color: string; groupName?: string }[]
+  /** 底部两条长条要用：收藏条走收藏 API、反馈条走举报 API */
+  gameId: string
+  favoriteCount?: number
 }
 
 function Row({
@@ -73,34 +76,67 @@ function Link({ href, children }: { href: string; children: React.ReactNode }) {
  * 游戏档案信息卡（桌面右侧 360px 卡 + 移动端折叠卡共用）。
  * 所有基础信息字段统一在此渲染，避免前台/后台不一致。
  */
+/** 提取 VNDB 数字编号：档案行与卡头徽标共用同一套判定 */
+export function vndbNumericId(vndbId?: string): string | null {
+  if (!vndbId) return null
+  // 只接受标准 VNDB ID（v12345 或 12345）；非数字格式（如测试数据的 seed-xxx）不渲染，
+  // 避免出现无意义的字母串。
+  const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
+  const numericId = rawId.replace(/^v/, "")
+  return /^\d+$/.test(numericId) ? numericId : null
+}
+
+/** 「游戏档案」标题右侧的 VNDB 小徽标；无有效编号时整块不渲染 */
+export function VndbBadge({ vndbId }: { vndbId?: string }) {
+  const numericId = vndbNumericId(vndbId)
+  if (!numericId) return null
+  return (
+    <a
+      href={`https://vndb.org/v${numericId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary ring-1 ring-border transition-colors hover:opacity-80"
+    >
+      VNDB
+    </a>
+  )
+}
+
 export function GameInfoList({ data }: { data: GameInfoData }) {
   const {
     releaseDate, status, studios, gameDuration, platforms, languages,
-    originalLanguage, ageRating, officialWebsite, englishName, vndbId, gameTags,
+    originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
+    gameId, favoriteCount,
   } = data
 
   const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
   const langChips = (languages ?? []).map((c) => langLabel(c))
   const hasContent =
     releaseDate || status || (studios && studios.length) || gameDuration || platformChips.length ||
-    langChips.length || originalLanguage || ageRating || officialWebsite || englishName || vndbId || (gameTags && gameTags.length)
+    langChips.length || originalLanguage || ageRating || officialWebsite || englishName ||
+    originalWork || vndbId
 
   if (!hasContent) return null
 
+  const vndbNum = vndbNumericId(vndbId)
+
   return (
     <div className="space-y-3.5">
-      {releaseDate && (
-        <Row icon={<Calendar className="h-4 w-4" strokeWidth={2} />} label="发售日期">
-          <Text>{releaseDate}</Text>
+      {originalWork && (
+        <Row icon={<BookOpen className="h-4 w-4" strokeWidth={2} />} label="原名">
+          <Text>{originalWork}</Text>
         </Row>
       )}
 
-      {status && (
-        <Row icon={<CircleDot className="h-4 w-4" strokeWidth={2} />} label="制作状态">
-          <Pill>
-            <span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ background: GAME_STATUS_COLORS[status] ?? "var(--muted-foreground)" }} />
-            {GAME_STATUS_LABELS[status] ?? status}
-          </Pill>
+      {englishName && (
+        <Row icon={<Languages className="h-4 w-4" strokeWidth={2} />} label="英文名">
+          <Text>{englishName}</Text>
+        </Row>
+      )}
+
+      {releaseDate && (
+        <Row icon={<Calendar className="h-4 w-4" strokeWidth={2} />} label="发行日期">
+          <Text>{releaseDate}</Text>
         </Row>
       )}
 
@@ -122,27 +158,42 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
         </Row>
       )}
 
-      {gameDuration && (
-        <Row icon={<Clock className="h-4 w-4" strokeWidth={2} />} label="游戏时长">
-          <Pill>{gameDuration}</Pill>
-        </Row>
-      )}
-
       {platformChips.length > 0 && (
-        <Row icon={<Monitor className="h-4 w-4" strokeWidth={2} />} label="支持平台">
+        <Row icon={<Monitor className="h-4 w-4" strokeWidth={2} />} label="平台">
           {platformChips.map((p) => <Chip key={p}>{p}</Chip>)}
         </Row>
       )}
 
       {langChips.length > 0 && (
-        <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="游戏语言">
+        <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="语言">
           {langChips.map((l) => <Chip key={l}>{l}</Chip>)}
         </Row>
       )}
 
       {originalLanguage && (
-        <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="原始语言">
+        <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="原版语言">
           <Chip>{langLabel(originalLanguage)}</Chip>
+        </Row>
+      )}
+
+      {gameDuration && (
+        <Row icon={<Clock className="h-4 w-4" strokeWidth={2} />} label="时长">
+          <Pill>{gameDuration}</Pill>
+        </Row>
+      )}
+
+      {vndbNum && (
+        <Row icon={<ExternalLink className="h-4 w-4" strokeWidth={2} />} label="VNDB">
+          <Link href={`https://vndb.org/v${vndbNum}`}>v{vndbNum}</Link>
+        </Row>
+      )}
+
+      {status && (
+        <Row icon={<CircleDot className="h-4 w-4" strokeWidth={2} />} label="制作状态">
+          <Pill>
+            <span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ background: GAME_STATUS_COLORS[status] ?? "var(--muted-foreground)" }} />
+            {GAME_STATUS_LABELS[status] ?? status}
+          </Pill>
         </Row>
       )}
 
@@ -158,32 +209,10 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
         </Row>
       )}
 
-      {englishName && (
-        <Row icon={<BookOpen className="h-4 w-4" strokeWidth={2} />} label="英文名称">
-          <Text>{englishName}</Text>
-        </Row>
-      )}
-
-      {vndbId && (() => {
-        // 只接受标准 VNDB ID（v12345 或 12345）；非数字格式（如测试数据的 seed-xxx）不渲染，
-        // 避免出现无意义的字母串。
-        const rawId = vndbId.startsWith("v") ? vndbId : `v${vndbId}`
-        const numericId = rawId.replace(/^v/, "")
-        if (!/^\d+$/.test(numericId)) return null
-        return (
-          <Row icon={<ExternalLink className="h-4 w-4" strokeWidth={2} />} label="VNDB">
-            <Link href={`https://vndb.org/v${numericId}`}>v{numericId}</Link>
-          </Row>
-        )
-      })()}
-
-      {gameTags && gameTags.length > 0 && (
-        <Row icon={<Gamepad2 className="h-4 w-4" strokeWidth={2} />} label="游戏标签">
-          {gameTags.map((tag, i) => (
-            <Tag key={i} color={tag.color || "#6b7280"}>{tag.name}</Tag>
-          ))}
-        </Row>
-      )}
+      {/* 底部两条等宽长条：收藏数量 / 反馈问题 */}
+      <div className="pt-1">
+        <GameInfoActions gameId={gameId} favoriteCount={favoriteCount} />
+      </div>
     </div>
   )
 }

@@ -132,7 +132,7 @@ GitHub 仓库
 <p class="text-xs text-muted-foreground">A: 在游戏详情页点击心形按钮，可选择收藏到指定合集。</p>
 </div>
 <div class="rounded-xl bg-secondary/20 p-4">
-<p class="text-sm font-medium text-foreground mb-1">Q: 如何发布资源？</p>
+<p class="text-sm font-medium text-foreground mb-1">Q: 如何添加资源？</p>
 <p class="text-xs text-muted-foreground">A: 注册后联系管理员申请发布权限，或通过论坛求档区反馈。</p>
 </div>
 </div>`,

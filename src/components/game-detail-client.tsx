@@ -60,6 +60,7 @@ export default function GameDetailClient({
   gameId,
   favCount,
   gameTags,
+  originalWork,
   vndbId,
   releaseDate,
   gameDuration,
@@ -82,6 +83,7 @@ export default function GameDetailClient({
   gameId: string
   favCount: number
   gameTags?: TagInfo[]
+  originalWork?: string
   vndbId?: string
   releaseDate?: string
   gameDuration?: string
@@ -296,6 +298,7 @@ export default function GameDetailClient({
                   description={description}
                   allDescriptions={allDescriptions}
                   creators={creators}
+                  gameTags={gameTags}
                 />
               </div>
             )}
@@ -350,8 +353,10 @@ export default function GameDetailClient({
                 originalLanguage,
                 ageRating,
                 englishName,
+                originalWork,
                 vndbId,
-                gameTags,
+                gameId,
+                favoriteCount: favCnt,
               }}
               isOpen={mobileArchiveOpen}
               onToggle={() => setMobileArchiveOpen(v => !v)}
@@ -379,8 +384,10 @@ export default function GameDetailClient({
               originalLanguage,
               ageRating,
               englishName,
+              originalWork,
               vndbId,
-              gameTags,
+              gameId,
+              favoriteCount: favCnt,
             }}
           />
 

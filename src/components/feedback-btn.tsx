@@ -3,11 +3,12 @@
 import { Flag } from "lucide-react"
 import { useState } from "react"
 import { useSession } from "next-auth/react"
+import { cn } from "@/lib/utils"
 import { ReportDialog } from "./game-detail/report-dialog"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
-export function FeedbackBtn({ gameId }: { gameId: string }) {
+export function FeedbackBtn({ gameId, className }: { gameId: string; className?: string }) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const { status } = useSession()
@@ -40,10 +41,13 @@ export function FeedbackBtn({ gameId }: { gameId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex min-h-[28px] items-center gap-1 px-2 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto shrink-0"
+        className={cn(
+          "flex items-center justify-center gap-1 transition-colors",
+          className ?? "min-h-[28px] px-2 text-xs text-muted-foreground hover:text-foreground ml-auto shrink-0",
+        )}
       >
         <Flag className="h-3.5 w-3.5" strokeWidth={1.5} />
-        <span>反馈</span>
+        <span>反馈问题</span>
       </button>
       <ReportDialog
         show={open}

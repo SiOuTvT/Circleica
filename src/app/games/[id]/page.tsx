@@ -5,7 +5,6 @@ import { GameGallery } from "@/components/game-gallery"
 import { SafeImage } from "@/components/safe-image"
 import { ViewCounter } from "@/components/view-counter"
 import { ViewHistoryRecorder } from "@/components/view-history-recorder"
-import { FeedbackBtn } from "@/components/feedback-btn"
 import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
@@ -269,15 +268,15 @@ export default async function GameDetailPage({
                 )}
               </div>
 
-              {/* ② 标签行 — 自由换行，最多 2 行，超出折叠为「+N 更多」（左列高度不随标签数失控） */}
-              <TagRow className="mt-2 sm:mt-2.5 mb-3 sm:mb-4">
+              {/* ② 标签行 — 单行不换行，超出横向滚动（右缘渐隐），左列高度不随标签数失控 */}
+              <TagRow className="mt-2 sm:mt-2.5 mb-3 sm:mb-4" singleLine>
                 {/* SFW/NSFW 标识 — 语义色令牌 */}
                 <Tag color={game.isNsfw ? "var(--color-error)" : "var(--color-info)"}>
                   {game.isNsfw ? "NSFW" : "SFW"}
                 </Tag>
                 {/* 资源标签（语言/运行方式/资源内容，来自 GameResource）— 用资源标签组色，与后台「资源标签」组一致 */}
                 {resourceTags.map((tag) => (
-                  <Tag key={tag} color={resourceTagColor || undefined} className="max-w-[96px] truncate" title={tag}>
+                  <Tag key={tag} color={resourceTagColor || undefined} className="whitespace-nowrap" title={tag}>
                     {tag}
                   </Tag>
                 ))}
@@ -330,7 +329,6 @@ export default async function GameDetailPage({
                   <Heart className="h-3.5 w-3.5" />
                   <span className="font-bold tabular-nums">{game.favoriteCount}</span>
                 </span>
-                <FeedbackBtn gameId={resolved.id} />
                 {game.galvelicaWork?.slug ? (
                   <Link
                     href={`/galvelica/works/${game.galvelicaWork.slug}`}
@@ -380,6 +378,7 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             favCount={game.favoriteCount}
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
+            originalWork={game.originalWork ? game.originalWork : undefined}
             vndbId={game.vndbId ?? undefined}
             releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
             gameDuration={game.gameDuration ?? undefined}
