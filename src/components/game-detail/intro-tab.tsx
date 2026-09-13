@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { ChevronDown, Tags, Users } from "lucide-react"
+import { ChevronDown, Images, Tags, Users } from "lucide-react"
 import Image from "next/image"
+import { ScreenshotLightbox } from "@/components/gallery-hero"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { GameInfoList, VndbBadge, type GameInfoData } from "./game-info-list"
 import { roleLabel } from "@/lib/role-labels"
@@ -123,9 +124,14 @@ export function IntroTab({
   allDescriptions,
   creators,
   gameTags,
+  screenshots,
+  gameTitle,
 }: {
   description: string
   allDescriptions?: { lang: string; label: string; text: string }[]
+  /** 截图：原首页右侧画廊搬到这里，改用网格版式 */
+  screenshots?: string[]
+  gameTitle: string
   creators: {
     id: string
     slug?: string | null
@@ -166,6 +172,11 @@ export function IntroTab({
         ) : (
           <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>
         )}
+        {screenshots && screenshots.length > 0 && (
+          <div className="mt-6">
+            <ScreenshotsSection screenshots={screenshots} gameTitle={gameTitle} />
+          </div>
+        )}
         {creators.length > 0 && (
           <div className="mt-6">
             <CreatorsSection creators={creators} />
@@ -202,6 +213,13 @@ export function IntroTab({
       >
         <RichTextContent html={activeDesc.text} className="prose dark:prose-invert max-w-[880px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
       </div>
+
+      {/* 截图网格 — 简介之后、制作人员之前 */}
+      {screenshots && screenshots.length > 0 && (
+        <div className="mt-6">
+          <ScreenshotsSection screenshots={screenshots} gameTitle={gameTitle} />
+        </div>
+      )}
 
       {/* 制作人员折叠卡片 — 桌面默认展开，手机默认收起 */}
       {creators.length > 0 && (
@@ -289,6 +307,81 @@ function CreatorsGrid({
         </a>
       ))}
     </div>
+  )
+}
+
+
+/* ═══════════════════════════════════════════════
+   ScreenshotsSection — 截图网格（原首屏右 58% 画廊搬到这里）
+   ═══════════════════════════════════════════════ */
+
+/** 网格最多占 8 格，多出的合并进最后一格的「+N」遮罩 */
+const SHOTS_MAX = 8
+
+function ScreenshotsSection({
+  screenshots,
+  gameTitle,
+}: {
+  screenshots: string[]
+  gameTitle: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const shown = screenshots.slice(0, SHOTS_MAX)
+  const rest = screenshots.length - shown.length
+
+  // 索引受控：点第几张灯箱就从第几张开
+  const openAt = (index: number) => {
+    setActiveIndex(index)
+    setOpen(true)
+  }
+
+  return (
+    <CollapsibleCard
+      icon={<Images className="h-4 w-4 opacity-60" />}
+      label="截图"
+      count={screenshots.length}
+      collapsible={false}
+    >
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {shown.map((src, i) => {
+          const overflow = i === shown.length - 1 && rest > 0
+          return (
+            <button
+              key={`${src}-${i}`}
+              type="button"
+              onClick={() => openAt(i)}
+              className="relative aspect-[16/9] overflow-hidden rounded-lg border border-border bg-secondary"
+              aria-label={overflow ? `查看全部截图（还有 ${rest} 张）` : `查看第 ${i + 1} 张截图`}
+            >
+              <Image
+                src={src}
+                alt={overflow ? `${gameTitle} 截图（还有 ${rest} 张）` : `${gameTitle} 截图 ${i + 1}`}
+                fill
+                className="object-cover"
+                draggable={false}
+                sizes="(max-width: 640px) 45vw, 220px"
+              />
+              {overflow && (
+                <span className="absolute inset-0 flex items-center justify-center bg-black/55 text-sm font-semibold text-white">
+                  +{rest}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+
+      <ScreenshotLightbox
+        images={screenshots}
+        index={activeIndex}
+        open={open}
+        onClose={() => setOpen(false)}
+        onIndexChange={setActiveIndex}
+        altTitle={gameTitle}
+      />
+    </CollapsibleCard>
   )
 }
 

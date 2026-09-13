@@ -14,7 +14,7 @@ import { useGameFavorite } from "./use-game-favorite"
  * 只补「高度 32 / bg-card / ring-1」三项，不引入新颜色、不加 shadow。
  */
 const barBase =
-  "flex flex-1 items-center justify-center gap-1.5 rounded-lg h-8 text-[13px] font-semibold bg-card ring-1 ring-border transition-all"
+  "flex flex-1 items-center justify-center gap-1.5 rounded-lg h-8 text-[13px] font-semibold bg-card ring-1 ring-border transition-[color,background-color,box-shadow,opacity] duration-200"
 
 export function GameInfoActions({
   gameId,

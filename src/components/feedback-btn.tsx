@@ -14,8 +14,6 @@ export function FeedbackBtn({ gameId, className }: { gameId: string; className?:
   const { status } = useSession()
   const isLoggedIn = status === "authenticated"
 
-  if (!isLoggedIn) return null
-
   async function handleSubmit(reason: string) {
     if (!reason || submitting) return
     setSubmitting(true)
@@ -40,21 +38,27 @@ export function FeedbackBtn({ gameId, className }: { gameId: string; className?:
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        type="button"
+        onClick={() => isLoggedIn && setOpen(true)}
+        disabled={!isLoggedIn}
+        title={isLoggedIn ? undefined : "登录后才能反馈"}
         className={cn(
           "flex items-center justify-center gap-1 transition-colors",
+          isLoggedIn ? "cursor-pointer" : "opacity-60 cursor-not-allowed",
           className ?? "min-h-[28px] px-2 text-xs text-muted-foreground hover:text-foreground ml-auto shrink-0",
         )}
       >
         <Flag className="h-3.5 w-3.5" strokeWidth={1.5} />
         <span>反馈问题</span>
       </button>
-      <ReportDialog
-        show={open}
-        onClose={() => setOpen(false)}
-        reportSubmitting={submitting}
-        onSubmit={handleSubmit}
-      />
+      {isLoggedIn && (
+        <ReportDialog
+          show={open}
+          onClose={() => setOpen(false)}
+          reportSubmitting={submitting}
+          onSubmit={handleSubmit}
+        />
+      )}
     </>
   )
 }

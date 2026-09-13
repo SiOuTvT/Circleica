@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger"
 import { api } from "@/lib/api-client"
 import { formatZhDateTime } from "@/lib/date"
 import { COMMENT_EMOJI_GROUPS } from "@/lib/emoji"
-import { Heart, ImageIcon, Send, Smile, Trash2, X } from "lucide-react"
+import { Heart, ImageIcon, MessageSquare, Send, Smile, Trash2, X } from "lucide-react"
 import { EmotionalIcon } from "@/components/emotional-icon"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -21,8 +21,13 @@ interface Comment {
   imageUrl?: string | null
   likeCount: number
   createdAt: string
+  /** 楼中楼：父评论 id，顶层评论为 null / undefined */
+  parentId?: string | null
   user: { id: string; username: string; avatar: string | null }
 }
+
+/** 回复超过这个条数时折叠，只留最后 2 条 + 「查看全部 N 条回复」 */
+const REPLIES_PREVIEW = 2
 
 interface Props {
   gameId: string
@@ -51,6 +56,11 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   const [likingId, setLikingId] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  // 楼中楼：当前展开输入框的目标（父评论 id 或其某条回复 id），同一时刻只展开一处
+  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [replyContent, setReplyContent] = useState("")
+  const [replySubmitting, setReplySubmitting] = useState<string | null>(null)
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({})
 
   // 同步评论数量到父组件
   useEffect(() => {
@@ -153,6 +163,38 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     }
   }
 
+  /**
+   * 楼中楼回复：走同一个评论接口，body 里带 parentId（接口 :27/:34 已支持）。
+   * 回复某条回复时也挂到这一串的顶层评论下（parentId = 顶层 id），让一层结构能收拢全部回复。
+   */
+  async function submitReply(threadRootId: string) {
+    if (!replyContent.trim()) return
+    setReplySubmitting(threadRootId)
+    setSubmitError(null)
+    const fd = new FormData()
+    fd.append("content", replyContent.trim())
+    fd.append("parentId", threadRootId)
+    try {
+      const res = await fetch(`/api/games/${gameId}/comments`, { method: "POST", body: fd })
+      if (res.ok) {
+        const j = await res.json()
+        const c = j.data ?? j
+        setComments((prev) => [...prev, c])
+        setReplyContent("")
+        setReplyTo(null)
+        setExpandedReplies((prev) => ({ ...prev, [threadRootId]: true }))
+        toast.success(commentMsg ? commentMsg.title : "回复成功！", { icon: commentMsg ? <EmotionalIcon emoji={commentMsg.emoji} className="h-4 w-4" /> : undefined })
+      } else {
+        const err = await res.json().catch(() => ({ error: "发送失败了，再试试？" }))
+        setSubmitError(err.error || "发送失败了，再试试？")
+      }
+    } catch {
+      setSubmitError("网络好像不太给力，检查一下？")
+    } finally {
+      setReplySubmitting(null)
+    }
+  }
+
   async function likeComment(commentId: string) {
     if (likingId === commentId) return
     setLikingId(commentId)
@@ -177,10 +219,22 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
     setDeletingId(null)
   }
 
-  const sortedComments = useMemo(() => [...comments].sort((a, b) => {
-    if (sortMode === "hottest") return b.likeCount - a.likeCount
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  }), [comments, sortMode])
+  // 楼中楼分组：只在前端按 parentId 归堆，接口返回结构与缓存一律不动。
+  // 顶层评论按 createdAt 倒序（「最热」时按点赞倒序），每条下面的回复按 createdAt 正序。
+  const threads = useMemo(() => {
+    const roots = comments
+      .filter((c) => !c.parentId)
+      .sort((a, b) => {
+        if (sortMode === "hottest") return b.likeCount - a.likeCount
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      })
+    return roots.map((root) => ({
+      root,
+      replies: comments
+        .filter((c) => c.parentId === root.id)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
+    }))
+  }, [comments, sortMode])
 
   return (
     <section>
@@ -337,54 +391,131 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         </div>
       )}
 
-      {/* 评论列表 */}
+      {/* 评论列表 — 楼中楼：顶层评论 + 其下回复 */}
       <div className="space-y-4">
-        {sortedComments.length === 0 && (
+        {threads.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
             {emptyMsg ? <><EmotionalIcon emoji={emptyMsg.emoji} className="h-4 w-4" /> {emptyMsg.title}，{emptyMsg.subtitle}</> : "还没有评论，来说点什么吧~"}
           </p>
         )}
-        {sortedComments.map((c) => (
-          <div key={c.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-secondary/30">
-            <UserAvatar user={c.user} size={32} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-semibold text-foreground">{c.user.username}</span>
-                <span className="text-micro text-muted-foreground">
-                  {formatZhDateTime(c.createdAt)}
-                </span>
-                {currentUserId === c.user.id && (
-                  <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+        {threads.map(({ root, replies }) => {
+          const expanded = !!expandedReplies[root.id]
+          const hiddenCount = replies.length - REPLIES_PREVIEW
+          const shownReplies = hiddenCount > 0 && !expanded ? replies.slice(-REPLIES_PREVIEW) : replies
+
+          return (
+            <div key={root.id} className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-secondary/30">
+              <UserAvatar user={root.user} size={32} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                {/* 主评论 — 保持原有扁平样式 */}
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-foreground">{root.user.username}</span>
+                  <span className="text-micro text-muted-foreground">
+                    {formatZhDateTime(root.createdAt)}
+                  </span>
+                  {currentUserId === root.user.id && (
+                    <div className="flex items-center gap-0.5 ml-auto sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => setDeletingId(root.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                        aria-label="删除评论"
+                      >
+                        <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {root.content && <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">{root.content}</p>}
+                {root.imageUrl && (
+                  <a href={root.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-xs">
+                    <Image src={root.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition duration-150 ease-in-out" unoptimized />
+                  </a>
+                )}
+                <div className="flex items-center gap-1">
+                  <button onClick={() => isLoggedIn && likingId !== root.id && likeComment(root.id)}
+                    disabled={likingId === root.id}
+                    className={cn(
+                      "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-xs transition-colors",
+                      isLoggedIn ? "text-muted-foreground hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
+                    )}
+                    aria-label={root.likeCount > 0 ? `${root.likeCount} 个赞` : "点赞"}
+                  >
+                    <Heart className="h-4 w-4" strokeWidth={1.5} />
+                    {root.likeCount > 0 && root.likeCount}
+                  </button>
+                  {isLoggedIn && (
                     <button
-                      onClick={() => setDeletingId(c.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                      aria-label="删除评论"
+                      type="button"
+                      onClick={() => setReplyTo(replyTo === root.id ? null : root.id)}
+                      className="mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:text-primary"
                     >
-                      <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                      <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      回复
                     </button>
+                  )}
+                </div>
+
+                {replyTo === root.id && (
+                  <ReplyComposer
+                    value={replyContent}
+                    placeholder={`回复 @${root.user.username}…`}
+                    submitting={replySubmitting === root.id}
+                    onChange={setReplyContent}
+                    onSubmit={() => submitReply(root.id)}
+                  />
+                )}
+
+                {/* 回复：pl-6 + 2px 左竖线，不给卡片外壳 */}
+                {replies.length > 0 && (
+                  <div className="mt-2 border-l-2 border-border pl-6">
+                    {hiddenCount > 0 && !expanded && (
+                      <button
+                        type="button"
+                        onClick={() => setExpandedReplies((prev) => ({ ...prev, [root.id]: true }))}
+                        className="mb-0.5 text-xs font-medium text-primary hover:opacity-80 transition-opacity"
+                      >
+                        查看全部 {replies.length} 条回复
+                      </button>
+                    )}
+                    {shownReplies.map((r, i) => (
+                      <div key={r.id} className={cn("flex gap-2 py-1.5", i > 0 && "border-t border-border/50")}>
+                        <UserAvatar user={r.user} size={24} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-muted-foreground">{r.user.username}</span>
+                            <span className="text-xs text-muted-foreground">{formatZhDateTime(r.createdAt)}</span>
+                          </div>
+                          {r.content && (
+                            <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">{r.content}</p>
+                          )}
+                          {isLoggedIn && (
+                            <button
+                              type="button"
+                              onClick={() => setReplyTo(replyTo === r.id ? null : r.id)}
+                              className="flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 text-xs text-muted-foreground transition-colors hover:text-primary"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} />
+                              回复
+                            </button>
+                          )}
+                          {replyTo === r.id && (
+                            <ReplyComposer
+                              value={replyContent}
+                              placeholder={`回复 @${r.user.username}…`}
+                              submitting={replySubmitting === r.id}
+                              onChange={setReplyContent}
+                              onSubmit={() => submitReply(root.id)}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-              {c.content && <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">{c.content}</p>}
-              {c.imageUrl && (
-                <a href={c.imageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 block max-w-xs">
-                  <Image src={c.imageUrl} alt="评论图片" width={320} height={240} className="rounded-xl object-cover ring-1 ring-border max-h-60 hover:ring-border transition duration-150 ease-in-out" unoptimized />
-                </a>
-              )}
-              <button onClick={() => isLoggedIn && likingId !== c.id && likeComment(c.id)}
-                disabled={likingId === c.id}
-                className={cn(
-                  "mt-1.5 flex items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 -my-1 text-xs transition-colors",
-                  isLoggedIn ? "text-muted-foreground hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
-                )}
-                aria-label={c.likeCount > 0 ? `${c.likeCount} 个赞` : "点赞"}
-              >
-                <Heart className="h-4 w-4" strokeWidth={1.5} />
-                {c.likeCount > 0 && c.likeCount}
-              </button>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <ConfirmDialog
@@ -396,5 +527,49 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
         onConfirm={() => { if (deletingId) deleteComment(deletingId) }}
       />
     </section>
+  )
+}
+
+/* ─────────── 回复输入框 ───────────
+   主评论与其每条回复共用同一份（单行输入 + 发送，回车即发），
+   不为楼中楼另开一套评论状态机。 */
+
+function ReplyComposer({
+  value,
+  placeholder,
+  submitting,
+  onChange,
+  onSubmit,
+}: {
+  value: string
+  placeholder: string
+  submitting: boolean
+  onChange: (value: string) => void
+  onSubmit: () => void
+}) {
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            if (value.trim() && !submitting) onSubmit()
+          }
+        }}
+        placeholder={placeholder}
+        className="flex min-h-8 flex-1 rounded-lg bg-secondary/60 px-3 py-1.5 text-[13px] text-foreground placeholder:text-muted-foreground outline-none ring-1 ring-border transition-colors focus:ring-primary"
+      />
+      <button
+        type="button"
+        onClick={onSubmit}
+        disabled={submitting || !value.trim()}
+        className="flex min-h-8 shrink-0 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+        {submitting ? "发送中…" : "发送"}
+      </button>
+    </div>
   )
 }

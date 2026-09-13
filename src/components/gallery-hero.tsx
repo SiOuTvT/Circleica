@@ -18,6 +18,135 @@ interface GalleryHeroProps {
 }
 
 /**
+ * 截图灯箱 — 全站唯一的灯箱实现。
+ *
+ * 原先内联在 HeroCarousel 里，现抽出为独立组件：巨幕卡片与游戏详情页简介 tab 的截图网格
+ * 共用它（含索引切换、←/→/Esc 键盘、触摸滑动、body 滚动锁、底部 N/M 计数），避免两套各写一半。
+ * 索引外部受控 —— 点第几张就从第几张开，不写死 0。
+ */
+export function ScreenshotLightbox({
+  images,
+  index,
+  open,
+  onClose,
+  onIndexChange,
+  altTitle,
+}: {
+  images: string[]
+  index: number
+  open: boolean
+  onClose: () => void
+  onIndexChange?: (index: number) => void
+  altTitle?: string
+}) {
+  useBodyScrollLock(open)
+  const hasMultiple = images.length > 1
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const didSwipeRef = useRef(false)
+
+  const goPrev = useCallback(() => {
+    if (!hasMultiple) return
+    onIndexChange?.(index === 0 ? images.length - 1 : index - 1)
+  }, [hasMultiple, images.length, index, onIndexChange])
+
+  const goNext = useCallback(() => {
+    if (!hasMultiple) return
+    onIndexChange?.((index + 1) % images.length)
+  }, [hasMultiple, images.length, index, onIndexChange])
+
+  // 键盘导航：仅在灯箱打开且页面可见时监听
+  useEffect(() => {
+    if (!open || document.hidden) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrev()
+      if (e.key === "ArrowRight") goNext()
+      if (e.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [open, goPrev, goNext, onClose])
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    didSwipeRef.current = false
+  }, [])
+
+  const handleSwipeEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current || !hasMultiple) return
+      const dx = e.changedTouches[0].clientX - touchStartRef.current.x
+      const dy = e.changedTouches[0].clientY - touchStartRef.current.y
+      touchStartRef.current = null
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        didSwipeRef.current = true
+        if (dx < 0) goNext()
+        else goPrev()
+      }
+    },
+    [hasMultiple, goNext, goPrev]
+  )
+
+  if (!open || typeof document === "undefined") return null
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 backdrop-blur-md"
+      onClick={onClose}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleSwipeEnd}
+    >
+      <div className="flex min-h-full items-center justify-center p-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={images[index]}
+          alt={altTitle ? `${altTitle} - 预览 ${index + 1}` : `预览 ${index + 1}`}
+          className="max-h-[92vh] max-w-[92vw] object-contain"
+          onClick={(e) => e.stopPropagation()}
+          draggable={false}
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+        aria-label="关闭"
+      >
+        <X className="h-5 w-5" />
+      </button>
+
+      {hasMultiple && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); goPrev() }}
+          className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          aria-label="上一张"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      )}
+
+      {hasMultiple && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); goNext() }}
+          className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          aria-label="下一张"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      )}
+
+      <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 text-sm text-white/70">
+        {index + 1} / {images.length}
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+/**
  * 16:10 巨幕预览卡片 — 400px 锁高
  * 支持自动/手动切换 CG 图片
  * 支持受控模式（通过 activeIndex/onIndexChange）和非受控模式
@@ -109,21 +238,6 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
     }
   }, [hasMultipleImages, goNext, goPrev])
 
-  // 键盘事件监听 - 仅在 Lightbox 打开时监听，使用 VisibilityObserver 检测页面可见性
-  useEffect(() => {
-    // 仅在 Lightbox 打开且页面可见时监听键盘事件
-    if (!lightboxOpen || document.hidden) return
-
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") goPrev()
-      if (e.key === "ArrowRight") goNext()
-      if (e.key === "Escape") closeLightbox()
-    }
-
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [lightboxOpen, goPrev, goNext, closeLightbox])
-
   // 画廊预览键盘导航 - 仅在多图、可见且 Lightbox 未打开时监听
   useEffect(() => {
     if (screenshots.length <= 1 || lightboxOpen || document.hidden) return
@@ -185,62 +299,15 @@ export function HeroCarousel({ screenshots, gameTitle, activeIndex: controlledIn
 
   return (
     <>
-    {/* Lightbox 弹层：portal 到 body，遮罩盖满整屏（含侧栏）；图片居中且超高可滚动 */}
-    {lightboxOpen && typeof document !== "undefined" && createPortal(
-      <div
-        className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 backdrop-blur-md"
-        onClick={closeLightbox}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleSwipeEnd}
-      >
-        <div className="flex min-h-full items-center justify-center p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={galleryImages[activeIndex]}
-            alt={`${gameTitle} - 预览 ${activeIndex + 1}`}
-            className="max-h-[92vh] max-w-[92vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-            draggable={false}
-          />
-        </div>
-
-        <button
-          type="button"
-          onClick={closeLightbox}
-          className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-          aria-label="关闭"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {hasMultipleImages && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); goPrev() }}
-            className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-            aria-label="上一张"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-        )}
-
-        {hasMultipleImages && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); goNext() }}
-            className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-            aria-label="下一张"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        )}
-
-        <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 text-sm text-white/70">
-          {activeIndex + 1} / {galleryImages.length}
-        </div>
-      </div>,
-      document.body
-    )}
+    {/* Lightbox 弹层 — 与详情页简介 tab 的截图网格共用 ScreenshotLightbox，索引受控 */}
+    <ScreenshotLightbox
+      images={galleryImages}
+      index={activeIndex}
+      open={lightboxOpen}
+      onClose={closeLightbox}
+      onIndexChange={setActiveIndex}
+      altTitle={gameTitle}
+    />
 
     <div className="group relative h-full w-full overflow-hidden cursor-zoom-in"
       onTouchStart={handleTouchStart}

@@ -102,7 +102,11 @@ export function VndbBadge({ vndbId }: { vndbId?: string }) {
   )
 }
 
-export function GameInfoList({ data }: { data: GameInfoData }) {
+/**
+ * @param showTitle 桌面右侧卡片自己没有「游戏档案」标题时在字段前补一行标题（含 VNDB 徽标）。
+ *                  移动端折叠卡的标题由 CollapsibleCard 的 label 渲染，不传此项，避免出现两个标题。
+ */
+export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; showTitle?: boolean }) {
   const {
     releaseDate, status, studios, gameDuration, platforms, languages,
     originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
@@ -122,6 +126,13 @@ export function GameInfoList({ data }: { data: GameInfoData }) {
 
   return (
     <div className="space-y-3.5">
+      {showTitle && (
+        <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+          <span className="text-[13px] font-semibold text-foreground">游戏档案</span>
+          <VndbBadge vndbId={vndbId} />
+        </div>
+      )}
+
       {originalWork && (
         <Row icon={<BookOpen className="h-4 w-4" strokeWidth={2} />} label="原名">
           <Text>{originalWork}</Text>

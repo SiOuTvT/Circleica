@@ -38,6 +38,8 @@ type Comment = {
   imageUrl?: string
   likeCount: number
   createdAt: string
+  /** 楼中楼：指向父评论 id，顶层评论为 null/undefined */
+  parentId?: string | null
   user: { id: string; username: string; avatar: string | null }
 }
 
@@ -58,8 +60,10 @@ export default function GameDetailClient({
   creators,
   comments,
   gameId,
+  gameTitle,
   favCount,
   gameTags,
+  screenshots,
   originalWork,
   vndbId,
   releaseDate,
@@ -81,8 +85,11 @@ export default function GameDetailClient({
   creators: Creator[]
   comments: Comment[]
   gameId: string
+  gameTitle: string
   favCount: number
   gameTags?: TagInfo[]
+  /** 截图：用于简介 tab 的截图网格（alt 文案用 gameTitle） */
+  screenshots?: string[]
   originalWork?: string
   vndbId?: string
   releaseDate?: string
@@ -299,6 +306,8 @@ export default function GameDetailClient({
                   allDescriptions={allDescriptions}
                   creators={creators}
                   gameTags={gameTags}
+                  screenshots={screenshots}
+                  gameTitle={gameTitle}
                 />
               </div>
             )}
@@ -373,6 +382,7 @@ export default function GameDetailClient({
 
           {/* 档案行列表 — 统一信息卡 */}
           <GameInfoList
+            showTitle
             data={{
               releaseDate,
               status,
