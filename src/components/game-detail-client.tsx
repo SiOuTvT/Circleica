@@ -65,10 +65,6 @@ export default function GameDetailClient({
   gameId,
   gameTitle,
   favCount,
-  viewCount,
-  downloadCount,
-  publisherName,
-  createdAt,
   gameTags,
   screenshots,
   originalWork,
@@ -94,13 +90,6 @@ export default function GameDetailClient({
   gameId: string
   gameTitle: string
   favCount: number
-  /** 站内计数：档案卡底部那行小字 */
-  viewCount?: number
-  downloadCount?: number
-  /** 收录者用户名（档案卡底部小字，空则显示「本站」） */
-  publisherName?: string
-  /** 收录时间（档案卡底部「N 天前」） */
-  createdAt?: string
   gameTags?: TagInfo[]
   /** 截图：用于简介 tab 的截图网格（alt 文案用 gameTitle） */
   screenshots?: string[]
@@ -395,10 +384,6 @@ export default function GameDetailClient({
                   vndbId,
                   gameId,
                   favoriteCount: favCnt,
-                  viewCount,
-                  downloadCount,
-                  publisherName,
-                  createdAt,
                 }}
               />
             </div>

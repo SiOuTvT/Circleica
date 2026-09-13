@@ -253,7 +253,7 @@ export function IntroTab({
         {/* ④ 游戏标签 — 整块常驻，不折叠、不「+N 更多」 */}
         {gameTags && gameTags.length > 0 && (
           <Section title="标签" count={gameTags.length}>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {gameTags.map((t, i) => (
                 // 颜色沿用传进来的标签组色（后台「详情页信息栏标签」组），不写死常量
                 <Tag key={`${t.name}-${i}`} color={t.color}>{t.name}</Tag>
@@ -315,14 +315,28 @@ function CreatorsSection({
 }: {
   creators: { id: string; slug?: string | null; role: string; name: string; avatar?: string | null; nameJa?: string | null }[]
 }) {
-  // 默认收起：折叠态只有「标题 + (N) + 展开」，无外框无底色
+  // 默认态：桌面（≥1024）展开、手机（<1024）收起。
+  // 不在 useState 初始化函数里读 window —— 那样服务端首帧与客户端首帧不一致，会 hydration 报错；
+  // 挂载后用 matchMedia 定一次默认值，之后用户手动开合就听他的（本会话内保持，不写 localStorage）。
   const [open, setOpen] = useState(false)
+  const userToggledRef = useRef(false)
+
+  useEffect(() => {
+    if (userToggledRef.current) return
+    setOpen(window.matchMedia("(min-width: 1024px)").matches)
+  }, [])
 
   return (
     <Section
       title="制作人员"
       count={creators.length}
-      action={{ label: open ? "收起" : "展开", onClick: () => setOpen((v) => !v) }}
+      action={{
+        label: open ? "收起" : "展开",
+        onClick: () => {
+          userToggledRef.current = true
+          setOpen((v) => !v)
+        },
+      }}
     >
       {open ? (
         <CreatorsGrid creators={creators} />

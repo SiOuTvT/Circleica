@@ -2,8 +2,6 @@ import { Fragment } from "react"
 import {
   BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Monitor, ShieldAlert,
 } from "lucide-react"
-import { ViewCounter } from "@/components/view-counter"
-import { timeAgo } from "@/lib/time-ago"
 import {
   PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
 } from "@/lib/game-meta"
@@ -26,13 +24,6 @@ export interface GameInfoData {
   /** 底部两条长条要用：收藏条走收藏 API、反馈条走举报 API */
   gameId: string
   favoriteCount?: number
-  /** 站内计数 + 收录者（字段主体之外的唯一例外，显示在两条长条上方） */
-  viewCount?: number
-  downloadCount?: number
-  /** 收录者用户名（为空时显示「本站」） */
-  publisherName?: string
-  /** 收录时间（相对时间「N 天前」，缺失时整段不显示） */
-  createdAt?: string
 }
 
 /** 每行「label 左 / 值右」：值与卡片内容右边缘对齐，长值换行时仍右靠齐 */
@@ -125,7 +116,7 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
   const {
     releaseDate, status, studios, gameDuration, platforms, languages,
     originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
-    gameId, favoriteCount, viewCount, downloadCount, publisherName, createdAt,
+    gameId, favoriteCount,
   } = data
 
   const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
@@ -238,29 +229,6 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
           <Link href={officialWebsite}>{officialWebsite.replace(/^https?:\/\//, "")}</Link>
         </Row>
       )}
-
-      {/* 站内计数 + 收录者：字段主体之外的唯一例外，放在两条长条上方（收藏数不重复显示）。
-          一行两段：左边收录者，右边浏览/下载 */}
-      <div className="flex items-center justify-between gap-2 pt-1 text-xs text-muted-foreground">
-        <span className="min-w-0 truncate">
-          由 {publisherName || "本站"} 收录{createdAt ? `，${timeAgo(createdAt)}` : ""}
-        </span>
-        <span className="flex shrink-0 items-center gap-4">
-          <span className="flex items-center gap-1">
-            浏览
-            <ViewCounter
-              gameId={gameId}
-              initialCount={viewCount ?? 0}
-              icon={false}
-              className="tabular-nums"
-            />
-          </span>
-          <span className="flex items-center gap-1">
-            下载
-            <span className="tabular-nums">{downloadCount ?? 0}</span>
-          </span>
-        </span>
-      </div>
 
       {/* 底部两条等宽长条：收藏数量 / 反馈问题 */}
       <div className="pt-1">

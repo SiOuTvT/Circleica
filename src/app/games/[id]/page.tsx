@@ -7,12 +7,15 @@ import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
 import { safeParse } from "@/lib/parse-utils"
 import { formatZhDate } from "@/lib/date"
+import { timeAgo } from "@/lib/time-ago"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
+import { Download, Eye } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { unstable_cache } from "next/cache"
 import { cache as reactCache } from "react"
@@ -172,6 +175,8 @@ export default async function GameDetailPage({
 
   const screenshots = safeParse<string[]>(game.screenshots, [])
   const downloadLinks = safeParse<{ label: string; url: string }[]>(game.downloadLinks, [])
+  // 首屏收录者行的时间（相对时间，服务端渲染时算好）
+  const collectedAgo = timeAgo(game.createdAt)
   const platforms = safeParse<string[]>(game.platforms, [])
   const languages = safeParse<string[]>(game.languages, [])
 
@@ -216,7 +221,7 @@ export default async function GameDetailPage({
           顶部识别区 — 左竖版海报 + 右信息列
           海报横向让位后 H1 直接顶到首屏上部，不再被卡片内的 16:9 封面图压下去
       ═══════════════════════════════════════════════ */}
-      <div className="flex min-w-0 items-start gap-5">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:gap-5">
 
         {/* 浏览历史记录器（无 UI）：原先挂在人气数据行里，那行已删，这里单独保留以继续记录 */}
         <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
@@ -241,8 +246,8 @@ export default async function GameDetailPage({
           )}
         </div>
 
-        {/* ─── 右：信息列 ─── */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {/* ─── 右：信息列（块间距统一 8px）─── */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 
           {/* ① 标题 + 原作（同一行 baseline，去掉「原作：」前缀） */}
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -254,8 +259,59 @@ export default async function GameDetailPage({
             )}
           </div>
 
-          {/* ③ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
-          <div className="mt-2 flex items-center gap-2.5 sm:mt-2.5 mb-3 sm:mb-4">
+          {/* ② 数据条：浏览 / 下载 —— 就是一行文字，无边框、无底色、不包卡片。
+              行高给到 32（与按钮同高）是为了让右列内容高度贴近海报，见批次说明。 */}
+          <div className="flex min-h-8 items-center gap-4">
+            <span className="inline-flex items-center gap-1.5">
+              <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+              <span className="text-[13px] font-semibold tabular-nums text-foreground">
+                {game.viewCount.toLocaleString()}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+              <span className="text-[13px] font-semibold tabular-nums text-foreground">
+                {game.downloadCount.toLocaleString()}
+              </span>
+            </span>
+          </div>
+
+          {/* ③ 收录者行：头像 24 + 「由 X 收录，N 天前」；用户名是链接，跳讲人的页面 */}
+          <div className="flex min-h-8 items-center gap-2 text-[13px] text-muted-foreground">
+            {game.publisher?.avatar ? (
+              <Image
+                src={game.publisher.avatar}
+                alt={game.publisher.username}
+                width={24}
+                height={24}
+                className="h-6 w-6 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
+              >
+                {game.publisher?.username?.[0] || "?"}
+              </span>
+            )}
+            <span className="min-w-0 truncate">
+              由{" "}
+              {game.publisher ? (
+                <Link
+                  href={`/user/${game.publisher.id}`}
+                  className="font-semibold text-primary transition-opacity hover:opacity-80"
+                >
+                  {game.publisher.username}
+                </Link>
+              ) : (
+                "本站"
+              )}{" "}
+              收录{collectedAgo ? `，${collectedAgo}` : ""}
+            </span>
+          </div>
+
+          {/* ④ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
+          <div className="flex items-center gap-2.5">
             <span className="shrink-0 text-[11px] text-muted-foreground">资源标签</span>
             <TagRow className="min-w-0 flex-1" singleLine>
               {/* SFW/NSFW 标识 — 语义色令牌 */}
@@ -271,7 +327,7 @@ export default async function GameDetailPage({
             </TagRow>
           </div>
 
-          {/* ⑤ 动作组：下载资源 / 收藏 / 分享 */}
+          {/* ⑤ 动作组：下载资源 / 收藏 / 分享 / 副站资料库 */}
           <div>
             <GameDetailTopClient
               gameId={resolved.id}
@@ -315,8 +371,6 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             gameTitle={game.title}
             favCount={game.favoriteCount}
-            viewCount={game.viewCount}
-            downloadCount={game.downloadCount}
             screenshots={screenshots}
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             originalWork={game.originalWork ? game.originalWork : undefined}
@@ -333,8 +387,6 @@ export default async function GameDetailPage({
             status={game.status}
             resourceTagColor={resourceTagColor}
             publisherId={game.publisher?.id}
-            publisherName={game.publisher?.username ?? undefined}
-            createdAt={typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString()}
           />
       </div>
 
