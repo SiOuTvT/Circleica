@@ -197,7 +197,7 @@ const ResourceCard = memo(function ResourceCard({
                   "inline-flex h-7 items-center justify-center rounded-md px-3 text-xs font-semibold ring-1 ring-border transition-colors",
                   resource.isReportedByMe
                     ? "cursor-default text-amber-400/60"
-                    : "text-muted-foreground hover:bg-amber-500/10 hover:text-amber-400"
+                    : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                 )}
                 title={resource.isReportedByMe ? "已反馈" : "举报失效"}
               >

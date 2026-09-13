@@ -67,7 +67,8 @@ export default function GameDetailClient({
   favCount,
   viewCount,
   downloadCount,
-  galvelicaSlug,
+  publisherName,
+  createdAt,
   gameTags,
   screenshots,
   originalWork,
@@ -96,8 +97,10 @@ export default function GameDetailClient({
   /** 站内计数：档案卡底部那行小字 */
   viewCount?: number
   downloadCount?: number
-  /** 副站作品 slug：有值才在档案卡里渲染「副站」行 */
-  galvelicaSlug?: string | null
+  /** 收录者用户名（档案卡底部小字，空则显示「本站」） */
+  publisherName?: string
+  /** 收录时间（档案卡底部「N 天前」） */
+  createdAt?: string
   gameTags?: TagInfo[]
   /** 截图：用于简介 tab 的截图网格（alt 文案用 gameTitle） */
   screenshots?: string[]
@@ -265,20 +268,15 @@ export default function GameDetailClient({
 
   return (
     <div>
-      {/* ══════ 下方区域 — 左 Tab 导航 + 右 300px 档案卡 ══════ */}
-      <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start">
-
-        {/* ─── 左侧: Tab 导航 + 内容（三个 tab 下都占满剩余宽度）─── */}
-        <div className="min-w-0 flex-1">
-          {/* Tab 栏：圆角底槽 + 悬浮滑块 — 横向填满 */}
-          <div ref={containerRef}
-            className="relative flex w-fit rounded-xl p-0.5"
-            role="tablist"
-            aria-label="游戏详情导航"
-            style={{
-              backgroundColor: "var(--tab-trough, var(--secondary))",
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
-            }}>
+      {/* ══════ Tab 行：通栏独占一行（自身按内容宽贴左、带计数，不拉满）══════ */}
+      <div ref={containerRef}
+        className="relative mt-6 flex w-fit rounded-xl p-0.5"
+        role="tablist"
+        aria-label="游戏详情导航"
+        style={{
+          backgroundColor: "var(--tab-trough, var(--secondary))",
+          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.06)",
+        }}>
             {/* 滑块 */}
             <div ref={sliderRef}
               className="absolute top-0.5 left-0 h-[calc(100%-4px)] rounded-xl transition-all duration-300 ease-out"
@@ -314,8 +312,11 @@ export default function GameDetailClient({
             ))}
           </div>
 
-          {/* ─── Tab 内容 ─── */}
-          <div className="pt-4">
+      {/* ══════ 内容行：tabpanel 与右栏槽位同一个 flex 行（顶边对齐）══════ */}
+      <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-start">
+
+        {/* ─── 左列: Tab 内容（三个 tab 下都占满剩余宽度）─── */}
+        <div className="min-w-0 flex-1">
             {/* 游戏简介 — 提取至 IntroTab 组件 */}
             {tab === "intro" && (
               <div role="tabpanel" id="tabpanel-intro" aria-labelledby="tab-intro">
@@ -369,7 +370,6 @@ export default function GameDetailClient({
                 />
               </div>
             )}
-          </div>
         </div>
 
         {/* ─── 右栏：整页唯一槽位（宽 360 恒定、x 恒定，内容随 tab 切换）；
@@ -397,8 +397,8 @@ export default function GameDetailClient({
                   favoriteCount: favCnt,
                   viewCount,
                   downloadCount,
-                  galvelicaHref: galvelicaSlug ? `/galvelica/works/${galvelicaSlug}` : undefined,
-                  galvelicaTitle: "在 Galvelica 资料库查看本作完整资料",
+                  publisherName,
+                  createdAt,
                 }}
               />
             </div>

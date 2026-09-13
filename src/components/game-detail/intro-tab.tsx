@@ -6,7 +6,7 @@ import { ChevronDown, Images, Tags, Users } from "lucide-react"
 import Image from "next/image"
 import { ScreenshotLightbox } from "@/components/gallery-hero"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { GameInfoList, VndbBadge, type GameInfoData } from "./game-info-list"
+import { GameInfoList, type GameInfoData } from "./game-info-list"
 import { roleLabel } from "@/lib/role-labels"
 import { Tag } from "@/components/ui/tag"
 
@@ -419,7 +419,6 @@ export function ArchiveCard({
       <CollapsibleCard
         icon={<ChevronDown className="h-4 w-4 opacity-60" />}
         label="游戏档案"
-        badge={<VndbBadge vndbId={data.vndbId} />}
         isOpen={isOpen}
         onToggle={onToggle}
       >

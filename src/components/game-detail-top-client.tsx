@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Download, Heart, Loader2, Share2 } from "lucide-react"
+import { Download, Heart, Library, Loader2, Share2 } from "lucide-react"
 import { CollectionPickerDialog } from "./collection-picker-dialog"
 import { ConfirmDialog } from "./ui/confirm-dialog"
 import { useGameFavorite } from "./game-detail/use-game-favorite"
@@ -12,14 +12,19 @@ export function GameDetailTopClient({
   onDownloadClick,
   scrollToResources = false,
   compact = false,
+  galvelicaHref,
+  galvelicaTitle,
 }: {
   gameId: string
   downloadLinks: { label: string; url: string }[]
   onDownloadClick?: () => void
   /** 点击下载时自动滚动到资源区 */
   scrollToResources?: boolean
-  /** 紧凑模式：三个按钮等宽并排，用于手机端卡片内 */
+  /** 紧凑模式：四个按钮等宽并排，用于手机端卡片内 */
   compact?: boolean
+  /** 副站资料库入口（由页面按「已收录 / 未收录」算好 href 与 title） */
+  galvelicaHref?: string
+  galvelicaTitle?: string
 }) {
   // 收藏流程与档案卡底部收藏长条共用 useGameFavorite —— 单一实现，不另写一份
   const {
@@ -92,6 +97,18 @@ export function GameDetailTopClient({
             <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
             <span>分享</span>
           </button>
+
+          {/* 副站资料库 — 与「分享」同档，不给主色底（主色底只给下载资源） */}
+          {galvelicaHref && (
+            <a
+              href={galvelicaHref}
+              title={galvelicaTitle}
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
+            >
+              <Library className="h-3.5 w-3.5" strokeWidth={2} />
+              <span>副站资料库</span>
+            </a>
+          )}
         </div>
 
         <CollectionPickerDialog

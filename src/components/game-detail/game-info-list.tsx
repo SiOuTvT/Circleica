@@ -1,8 +1,9 @@
 import { Fragment } from "react"
 import {
-  ArrowUpRight, BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Library, Monitor, ShieldAlert,
+  BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Monitor, ShieldAlert,
 } from "lucide-react"
 import { ViewCounter } from "@/components/view-counter"
+import { timeAgo } from "@/lib/time-ago"
 import {
   PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
 } from "@/lib/game-meta"
@@ -25,25 +26,47 @@ export interface GameInfoData {
   /** 底部两条长条要用：收藏条走收藏 API、反馈条走举报 API */
   gameId: string
   favoriteCount?: number
-  /** 站内计数（字段主体之外的唯一例外，显示在两条长条上方） */
+  /** 站内计数 + 收录者（字段主体之外的唯一例外，显示在两条长条上方） */
   viewCount?: number
   downloadCount?: number
-  /** 副站入口：提供时才渲染「副站」行（未收录整行不渲染） */
-  galvelicaHref?: string
-  galvelicaTitle?: string
+  /** 收录者用户名（为空时显示「本站」） */
+  publisherName?: string
+  /** 收录时间（相对时间「N 天前」，缺失时整段不显示） */
+  createdAt?: string
 }
 
+/** 每行「label 左 / 值右」：值与卡片内容右边缘对齐，长值换行时仍右靠齐 */
 function Row({
   icon, label, children,
 }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2.5">
-      <span className="mt-0.5 shrink-0 text-muted-foreground">{icon}</span>
-      <div className="flex flex-1 flex-wrap items-center gap-x-1.5 gap-y-1.5 min-w-0">
-        <span className="text-sm font-medium shrink-0 text-muted-foreground">{label}</span>
+    <div className="flex items-start justify-between gap-2.5">
+      <div className="flex min-w-0 items-start gap-2.5">
+        <span className="mt-0.5 shrink-0 text-muted-foreground">{icon}</span>
+        <span className="text-sm font-medium text-muted-foreground">{label}</span>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-1.5 gap-y-1.5 text-right">
         {children}
       </div>
     </div>
+  )
+}
+
+/** 能跳走的值：primary + 600 + 尾部 12px ↗；hover 只改透明度，不加下划线 */
+function ExtLink({
+  href, title, children,
+}: { href: string; title?: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      title={title}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
+    >
+      {children}
+      <ExternalLink className="h-3 w-3" strokeWidth={2} />
+    </a>
   )
 }
 
@@ -95,34 +118,14 @@ export function vndbNumericId(vndbId?: string): string | null {
 }
 
 /**
- * 「游戏档案」标题右侧的 VNDB 小徽标；无有效编号时整块不渲染。
- * <sm 不渲染：实测它只有 15px 高，低于站内 28px 触屏热区下限；
- * 移动端点 VNDB 走档案卡里那行 v3246 链接（那行 28 高，正常）。
- */
-export function VndbBadge({ vndbId }: { vndbId?: string }) {
-  const numericId = vndbNumericId(vndbId)
-  if (!numericId) return null
-  return (
-    <a
-      href={`https://vndb.org/v${numericId}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hidden items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary ring-1 ring-border transition-colors hover:opacity-80 sm:inline-flex"
-    >
-      VNDB
-    </a>
-  )
-}
-
-/**
- * @param showTitle 桌面右侧卡片自己没有「游戏档案」标题时在字段前补一行标题（含 VNDB 徽标）。
+ * @param showTitle 桌面右侧卡片自己没有「游戏档案」标题时在字段前补一行标题。
  *                  移动端折叠卡的标题由 CollapsibleCard 的 label 渲染，不传此项，避免出现两个标题。
  */
 export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; showTitle?: boolean }) {
   const {
     releaseDate, status, studios, gameDuration, platforms, languages,
     originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
-    gameId, favoriteCount, viewCount, downloadCount, galvelicaHref, galvelicaTitle,
+    gameId, favoriteCount, viewCount, downloadCount, publisherName, createdAt,
   } = data
 
   const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
@@ -141,7 +144,6 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
       {showTitle && (
         <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
           <span className="text-[13px] font-semibold text-foreground">游戏档案</span>
-          <VndbBadge vndbId={vndbId} />
         </div>
       )}
 
@@ -173,10 +175,11 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
                 {i > 0 && <span className="text-xs text-muted-foreground">、</span>}
                 <a
                   href={`/credits/studio/${encodeURIComponent(s.slug ?? s.normalized)}`}
-                  className="inline-flex min-h-[28px] items-center rounded-md px-2.5 py-1 text-xs font-semibold transition duration-150 ease-in-out hover:opacity-80 bg-secondary text-foreground"
+                  className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
                 >
                   {lab ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
                   {s.name}
+                  <ExternalLink className="h-3 w-3" strokeWidth={2} />
                 </a>
               </Fragment>
             )
@@ -211,7 +214,7 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
 
       {vndbNum && (
         <Row icon={<ExternalLink className="h-4 w-4" strokeWidth={2} />} label="VNDB">
-          <Link href={`https://vndb.org/v${vndbNum}`}>v{vndbNum}</Link>
+          <ExtLink href={`https://vndb.org/v${vndbNum}`}>v{vndbNum}</ExtLink>
         </Row>
       )}
 
@@ -236,34 +239,26 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
         </Row>
       )}
 
-      {/* 副站入口：与 VNDB 一样属于「外部资料库」，未收录时整行不渲染 */}
-      {galvelicaHref && (
-        <Row icon={<Library className="h-4 w-4" strokeWidth={2} />} label="副站">
-          <a
-            href={galvelicaHref}
-            title={galvelicaTitle}
-            className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
-          >
-            Galvelica 资料库
-            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
-          </a>
-        </Row>
-      )}
-
-      {/* 站内计数：字段主体之外的唯一例外，放在两条长条上方（收藏数不重复显示） */}
-      <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          浏览
-          <ViewCounter
-            gameId={gameId}
-            initialCount={viewCount ?? 0}
-            icon={false}
-            className="tabular-nums"
-          />
+      {/* 站内计数 + 收录者：字段主体之外的唯一例外，放在两条长条上方（收藏数不重复显示）。
+          一行两段：左边收录者，右边浏览/下载 */}
+      <div className="flex items-center justify-between gap-2 pt-1 text-xs text-muted-foreground">
+        <span className="min-w-0 truncate">
+          由 {publisherName || "本站"} 收录{createdAt ? `，${timeAgo(createdAt)}` : ""}
         </span>
-        <span className="flex items-center gap-1">
-          下载
-          <span className="tabular-nums">{downloadCount ?? 0}</span>
+        <span className="flex shrink-0 items-center gap-4">
+          <span className="flex items-center gap-1">
+            浏览
+            <ViewCounter
+              gameId={gameId}
+              initialCount={viewCount ?? 0}
+              icon={false}
+              className="tabular-nums"
+            />
+          </span>
+          <span className="flex items-center gap-1">
+            下载
+            <span className="tabular-nums">{downloadCount ?? 0}</span>
+          </span>
         </span>
       </div>
 

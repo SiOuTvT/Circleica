@@ -278,6 +278,16 @@ export default async function GameDetailPage({
               downloadLinks={downloadLinks}
               compact
               scrollToResources
+              galvelicaHref={
+                game.galvelicaWork?.slug
+                  ? `/galvelica/works/${game.galvelicaWork.slug}`
+                  : `/galvelica/works?search=${encodeURIComponent(game.title)}`
+              }
+              galvelicaTitle={
+                game.galvelicaWork?.slug
+                  ? "在 Galvelica 资料库查看本作完整资料"
+                  : "本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
+              }
             />
           </div>
 
@@ -307,7 +317,6 @@ export default async function GameDetailPage({
             favCount={game.favoriteCount}
             viewCount={game.viewCount}
             downloadCount={game.downloadCount}
-            galvelicaSlug={game.galvelicaWork?.slug ?? null}
             screenshots={screenshots}
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             originalWork={game.originalWork ? game.originalWork : undefined}
@@ -324,6 +333,8 @@ export default async function GameDetailPage({
             status={game.status}
             resourceTagColor={resourceTagColor}
             publisherId={game.publisher?.id}
+            publisherName={game.publisher?.username ?? undefined}
+            createdAt={typeof game.createdAt === 'string' ? game.createdAt : game.createdAt.toISOString()}
           />
       </div>
 
