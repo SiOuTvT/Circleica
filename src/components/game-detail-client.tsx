@@ -9,11 +9,14 @@ import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 import { ROLE_LABELS } from "@/lib/role-labels"
-import { IntroTab, ArchiveCard } from "./game-detail/intro-tab"
+import { IntroTab } from "./game-detail/intro-tab"
 import { GameInfoList } from "./game-detail/game-info-list"
 import { GameRating } from "./game-rating"
 import { ReportDialog } from "./game-detail/report-dialog"
-import { ResourceTab } from "./game-detail/resource-tab"
+import { ResourceTab, type ResourceRailData } from "./game-detail/resource-tab"
+import { UserActivityTimeline } from "@/components/user-activity-timeline"
+import type { OverviewRow } from "./comment-section"
+import { Plus } from "lucide-react"
 
 /** 评论 */
 const CommentSection = dynamic(() => import("./comment-section").then(m => ({ default: m.CommentSection })), {
@@ -62,6 +65,9 @@ export default function GameDetailClient({
   gameId,
   gameTitle,
   favCount,
+  viewCount,
+  downloadCount,
+  galvelicaSlug,
   gameTags,
   screenshots,
   originalWork,
@@ -87,6 +93,11 @@ export default function GameDetailClient({
   gameId: string
   gameTitle: string
   favCount: number
+  /** 站内计数：档案卡底部那行小字 */
+  viewCount?: number
+  downloadCount?: number
+  /** 副站作品 slug：有值才在档案卡里渲染「副站」行 */
+  galvelicaSlug?: string | null
   gameTags?: TagInfo[]
   /** 截图：用于简介 tab 的截图网格（alt 文案用 gameTitle） */
   screenshots?: string[]
@@ -123,10 +134,12 @@ export default function GameDetailClient({
   const [commentCnt, setCommentCnt] = useState(comments.length)
   // 资源数由 ResourceTab 加载完成后回报（tab 上的计数用，不额外发请求）
   const [resourceCnt, setResourceCnt] = useState(0)
+  // 右栏槽位内容：资源 tab 由 ResourceTab 回报，评论 tab 由 CommentSection 回报
+  const [resourceRail, setResourceRail] = useState<ResourceRailData>({ activities: [], stats: [] })
+  const [commentOverview, setCommentOverview] = useState<OverviewRow[]>([])
   const [favPending, setFavPending] = useState(false)
   const favAbortRef = useRef<AbortController | null>(null)
   const { messages: favMsgs } = useEmotionalMessages(favMsgKeys)
-  const [mobileArchiveOpen, setMobileArchiveOpen] = useState(true)
   const sliderRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -255,8 +268,8 @@ export default function GameDetailClient({
       {/* ══════ 下方区域 — 左 Tab 导航 + 右 300px 档案卡 ══════ */}
       <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start">
 
-        {/* ─── 左侧: Tab 导航 + 内容 ─── */}
-        <div className="flex-1 min-w-0 lg:w-[calc(100%-380px)]">
+        {/* ─── 左侧: Tab 导航 + 内容（三个 tab 下都占满剩余宽度）─── */}
+        <div className="min-w-0 flex-1">
           {/* Tab 栏：圆角底槽 + 悬浮滑块 — 横向填满 */}
           <div ref={containerRef}
             className="relative flex w-fit rounded-xl p-0.5"
@@ -314,6 +327,10 @@ export default function GameDetailClient({
                   screenshots={screenshots}
                   gameTitle={gameTitle}
                 />
+                {/* 评分 — 移动端（右栏槽位在窄屏排在下方，这里保持跟随简介内容） */}
+                <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border lg:hidden">
+                  <GameRating gameId={gameId} />
+                </div>
               </div>
             )}
 
@@ -334,6 +351,7 @@ export default function GameDetailClient({
                   publisherId={publisherId}
                   resourceTagColor={resourceTagColor}
                   onResourceCountChange={setResourceCnt}
+                  onRailChange={setResourceRail}
                 />
               </div>
             )}
@@ -347,67 +365,98 @@ export default function GameDetailClient({
                   isLoggedIn={isLoggedIn}
                   currentUserId={currentUserId}
                   onCountChange={setCommentCnt}
+                  onOverviewChange={setCommentOverview}
                 />
               </div>
             )}
           </div>
         </div>
 
-        {/* ─── 移动端档案信息（折叠面板，仅简介 tab）─ */}
-        {tab === "intro" && (
-          <div className="lg:hidden">
-            <ArchiveCard
-              data={{
-                releaseDate,
-                status,
-                studios,
-                gameDuration,
-                platforms,
-                officialWebsite,
-                languages,
-                originalLanguage,
-                ageRating,
-                englishName,
-                originalWork,
-                vndbId,
-                gameId,
-                favoriteCount: favCnt,
-              }}
-              isOpen={mobileArchiveOpen}
-              onToggle={() => setMobileArchiveOpen(v => !v)}
-            />
-            {/* 评分 — 移动端 */}
-            <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border">
-              <GameRating gameId={gameId} />
+        {/* ─── 右栏：整页唯一槽位（宽 360 恒定、x 恒定，内容随 tab 切换）；
+             窄屏退化为跟在 tab 内容后面的整宽块 ─── */}
+        <aside className="w-full shrink-0 lg:w-[360px]">
+          {/* 简介 tab → 游戏档案卡 */}
+          {tab === "intro" && (
+            <div className="rounded-2xl bg-card p-6 ring-1 ring-border card-shadow">
+              <GameInfoList
+                showTitle
+                data={{
+                  releaseDate,
+                  status,
+                  studios,
+                  gameDuration,
+                  platforms,
+                  officialWebsite,
+                  languages,
+                  originalLanguage,
+                  ageRating,
+                  englishName,
+                  originalWork,
+                  vndbId,
+                  gameId,
+                  favoriteCount: favCnt,
+                  viewCount,
+                  downloadCount,
+                  galvelicaHref: galvelicaSlug ? `/galvelica/works/${galvelicaSlug}` : undefined,
+                  galvelicaTitle: "在 Galvelica 资料库查看本作完整资料",
+                }}
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ─── 右侧: 档案卡片 300px (仅桌面端显示) ─── */}
-        <div className="hidden lg:block w-[360px] shrink-0 rounded-2xl p-6 bg-card ring-1 ring-border card-shadow">
+          {/* 资源 tab → 资源动态 + 本游戏资源 */}
+          {tab === "resource" && (
+            <div className="space-y-3">
+              <section className="rounded-xl bg-card p-4 ring-1 ring-border">
+                <h3 className="text-[13px] font-semibold text-foreground">资源动态</h3>
+                <div className="mt-2.5">
+                  <UserActivityTimeline items={resourceRail.activities} />
+                </div>
+              </section>
 
-          {/* 档案行列表 — 统一信息卡 */}
-          <GameInfoList
-            showTitle
-            data={{
-              releaseDate,
-              status,
-              studios,
-              gameDuration,
-              platforms,
-              officialWebsite,
-              languages,
-              originalLanguage,
-              ageRating,
-              englishName,
-              originalWork,
-              vndbId,
-              gameId,
-              favoriteCount: favCnt,
-            }}
-          />
+              <section className="rounded-xl bg-card p-4 ring-1 ring-border">
+                <h3 className="text-[13px] font-semibold text-foreground">本游戏资源</h3>
+                <div className="mt-1.5">
+                  {resourceRail.stats.map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex items-center justify-between gap-2.5 border-t border-border py-1.5 text-[13px] first:border-t-0"
+                    >
+                      <span className="text-muted-foreground">{row.label}</span>
+                      <span className="text-right font-semibold tabular-nums text-foreground">{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("game-detail-add-resource"))}
+                  className="mt-2.5 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  添加资源
+                </button>
+              </section>
+            </div>
+          )}
 
-        </div>
+          {/* 评论 tab → 评论概览 */}
+          {tab === "comments" && (
+            <section className="rounded-xl bg-card p-4 ring-1 ring-border">
+              <h3 className="text-[13px] font-semibold text-foreground">评论概览</h3>
+              <div className="mt-1.5">
+                {commentOverview.map((row) => (
+                  <div
+                    key={row.label}
+                    className="flex items-center justify-between gap-2.5 border-t border-border py-1.5 text-[13px] first:border-t-0"
+                  >
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className="text-right font-semibold tabular-nums text-foreground">{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </aside>
       </div>
 
       <ReportDialog

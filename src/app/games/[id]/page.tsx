@@ -2,7 +2,6 @@ import { GameBreadcrumb } from "@/components/game-breadcrumb"
 import GameDetailClient from "@/components/game-detail-client"
 import { GameDetailTopClient } from "@/components/game-detail-top-client"
 import { SafeImage } from "@/components/safe-image"
-import { ViewCounter } from "@/components/view-counter"
 import { ViewHistoryRecorder } from "@/components/view-history-recorder"
 import { logger } from "@/lib/logger"
 import { getAllDescriptions, getDescriptionText } from "@/lib/parse-description"
@@ -11,12 +10,9 @@ import { formatZhDate } from "@/lib/date"
 import { prisma } from "@/lib/prisma"
 import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
-import { timeAgoPublished } from "@/lib/time-ago"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
-import { Download, Heart, Library } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { unstable_cache } from "next/cache"
 import { cache as reactCache } from "react"
@@ -188,16 +184,6 @@ export default async function GameDetailPage({
     role: gc.role,
   }))
 
-  // 计算发布时间相对描述（H2 统一为 timeAgoPublished）
-  const releaseLabel = timeAgoPublished(game.createdAt)
-
-  // 识别区 facts 行的取值：空值由渲染处判断，整项不渲染
-  const releaseDateLabel = game.releaseDate ? formatZhDate(game.releaseDate) : undefined
-  // 制作会社全部列出（不只取第一个），多个用顿号连
-  const studioLabel = game.studios.length > 0
-    ? game.studios.map((s) => s.studio.displayName).join("、")
-    : undefined
-
   // JSON-LD 结构化数据
   const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
   const jsonLd = {
@@ -232,6 +218,9 @@ export default async function GameDetailPage({
       ═══════════════════════════════════════════════ */}
       <div className="flex min-w-0 items-start gap-5">
 
+        {/* 浏览历史记录器（无 UI）：原先挂在人气数据行里，那行已删，这里单独保留以继续记录 */}
+        <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
+
         {/* ─── 左：竖版海报（lg 168×224，lg 以下 144×192）─── */}
         <div className="relative h-[192px] w-[144px] shrink-0 overflow-hidden rounded-lg border border-border lg:h-[224px] lg:w-[168px]">
           {game.coverImage ? (
@@ -265,28 +254,6 @@ export default async function GameDetailPage({
             )}
           </div>
 
-          {/* ② facts：发行日期 / 制作会社 / 时长 — 没有值的整项不渲染；浏览数不再出现在这里（同屏不要两个浏览数） */}
-          <div className="mt-3 flex flex-wrap items-start gap-x-6 gap-y-2">
-            {releaseDateLabel && (
-              <div className="flex flex-col gap-1">
-                <span className="text-[11px] text-muted-foreground">发行日期</span>
-                <span className="text-[13px] font-semibold text-foreground">{releaseDateLabel}</span>
-              </div>
-            )}
-            {studioLabel && (
-              <div className="flex flex-col gap-1">
-                <span className="text-[11px] text-muted-foreground">制作会社</span>
-                <span className="text-[13px] font-semibold text-foreground">{studioLabel}</span>
-              </div>
-            )}
-            {game.gameDuration && (
-              <div className="flex flex-col gap-1">
-                <span className="text-[11px] text-muted-foreground">时长</span>
-                <span className="text-[13px] font-semibold text-foreground">{game.gameDuration}</span>
-              </div>
-            )}
-          </div>
-
           {/* ③ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
           <div className="mt-2 flex items-center gap-2.5 sm:mt-2.5 mb-3 sm:mb-4">
             <span className="shrink-0 text-[11px] text-muted-foreground">资源标签</span>
@@ -314,65 +281,6 @@ export default async function GameDetailPage({
             />
           </div>
 
-          {/* ④ 发布者信息（移到动作组下方） */}
-          <div className="mt-3 flex items-center gap-2.5 sm:gap-3">
-            {game.publisher?.avatar ? (
-              <Image
-                src={game.publisher.avatar}
-                alt={game.publisher.username}
-                width={48}
-                height={48}
-                className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover shrink-0"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full text-sm sm:text-base font-bold text-white"
-                style={{ background: "linear-gradient(135deg, var(--clr-sky), var(--clr-blue))" }}
-              >
-                {game.publisher?.username?.[0] || "?"}
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-semibold text-foreground/80 sm:text-foreground truncate">
-                {game.publisher ? game.publisher.username : "本站发布"}
-              </p>
-              <p className="mt-1 text-xs sm:text-sm text-muted-foreground/50 sm:text-muted-foreground/70">{releaseLabel}</p>
-            </div>
-          </div>
-
-          {/* ④ 人气数据 */}
-          <div className="flex items-center gap-4 sm:gap-5 pt-4 sm:pt-5 mt-3 sm:mt-4 border-t border-border/40">
-            <ViewCounter gameId={resolved.id} initialCount={game.viewCount} className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground" />
-            <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
-            <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-              <Download className="h-3.5 w-3.5" />
-              <span className="font-bold tabular-nums">{game.downloadCount}</span>
-            </span>
-            <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-              <Heart className="h-3.5 w-3.5" />
-              <span className="font-bold tabular-nums">{game.favoriteCount}</span>
-            </span>
-            {game.galvelicaWork?.slug ? (
-              <Link
-                href={`/galvelica/works/${game.galvelicaWork.slug}`}
-                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
-                title="在 Galvelica 资料库查看本作完整资料"
-              >
-                <Library className="h-3.5 w-3.5" />
-                副站资料
-              </Link>
-            ) : (
-              <Link
-                href={`/galvelica/works?search=${encodeURIComponent(game.title)}`}
-                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--gal-accent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_28%,transparent)] transition duration-150 ease-in-out hover:bg-[color-mix(in_srgb,var(--gal-accent)_22%,transparent)]"
-                title="本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
-              >
-                <Library className="h-3.5 w-3.5" />
-                副站查资料
-              </Link>
-            )}
-          </div>
         </div>
       </div>
 
@@ -397,6 +305,9 @@ export default async function GameDetailPage({
             gameId={resolved.id}
             gameTitle={game.title}
             favCount={game.favoriteCount}
+            viewCount={game.viewCount}
+            downloadCount={game.downloadCount}
+            galvelicaSlug={game.galvelicaWork?.slug ?? null}
             screenshots={screenshots}
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             originalWork={game.originalWork ? game.originalWork : undefined}

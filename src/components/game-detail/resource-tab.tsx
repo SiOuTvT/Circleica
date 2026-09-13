@@ -3,14 +3,14 @@
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { timeAgo } from "@/lib/time-ago"
-import { AlertTriangle, Download, Loader2, Pencil, Plus, Trash2 } from "lucide-react"
+import { AlertTriangle, Download, Loader2, Pencil, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { memo, useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import { AddResourceDialog, type SubmittedResource } from "./add-resource-dialog"
-import { UserActivityTimeline, type ActivityItemData } from "@/components/user-activity-timeline"
+import type { ActivityItemData } from "@/components/user-activity-timeline"
 
 /* ─── 后台配置的下载链接 ─── */
 type DownloadLink = { label: string; url: string }
@@ -31,9 +31,20 @@ interface ApiResource extends SubmittedResource {
   isReportedByMe?: boolean
 }
 
+/** 右栏槽位里的统计行（label + 数值） */
+export type RailStat = { label: string; value: number }
+
+/** 资源 tab 的右栏槽位数据 */
+export interface ResourceRailData {
+  activities: ActivityItemData[]
+  stats: RailStat[]
+}
+
 interface ResourceTabProps {
   /** 加载完成后把资源数回报给父级（供 tab 上的计数显示，不发额外请求） */
   onResourceCountChange?: (count: number) => void
+  /** 把右栏槽位内容（资源动态 + 统计）回报给页面统一渲染 */
+  onRailChange?: (data: ResourceRailData) => void
   downloadLinks: DownloadLink[]
   creators?: Creator[]
   roleLabels?: Record<string, string>
@@ -261,6 +272,7 @@ function extractResource(body: unknown): ApiResource | undefined {
 
 export function ResourceTab({
   onResourceCountChange,
+  onRailChange,
   downloadLinks: _downloadLinks,
   creators: _creators,
   roleLabels: _roleLabels,
@@ -485,18 +497,33 @@ export function ResourceTab({
     0
   )
   const reportedCount = resources.filter((r) => r.isReported).length
-  const statRows = [
-    { label: "资源数", value: resources.length },
-    { label: "分流数", value: totalEntries },
-    { label: "下载计数", value: totalDownloads },
-    { label: "失效举报", value: reportedCount },
-  ]
+  const statRows = useMemo<RailStat[]>(
+    () => [
+      { label: "资源数", value: resources.length },
+      { label: "分流数", value: totalEntries },
+      { label: "下载计数", value: totalDownloads },
+      { label: "失效举报", value: reportedCount },
+    ],
+    [resources.length, totalEntries, totalDownloads, reportedCount]
+  )
+
+  // 右栏槽位内容交给页面统一渲染（整页只有一个右栏，宽度与 x 恒定）
+  useEffect(() => {
+    onRailChange?.({ activities: gameActivities, stats: statRows })
+  }, [gameActivities, statRows, onRailChange])
+
+  // 槽位里的「添加资源」按钮通过事件打开本组件内的弹窗（与站内既有的跨组件事件一致）
+  useEffect(() => {
+    const onOpen = () => setAddOpen(true)
+    window.addEventListener("game-detail-add-resource", onOpen)
+    return () => window.removeEventListener("game-detail-add-resource", onOpen)
+  }, [])
 
   return (
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+    <div>
 
-      {/* ─── 左列：资源卡列表（390 下与侧栏正常堆叠）─── */}
-      <div className="min-w-0 flex-1">
+      {/* ─── 资源卡列表（右栏内容由页面统一槽位渲染）─── */}
+      <div className="min-w-0">
         {loading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -572,49 +599,18 @@ export function ResourceTab({
           )}
       </div>
 
-      {/* ─── 右列：296 侧栏（390 下堆在列表下方）─── */}
-      <aside className="w-full shrink-0 space-y-3 lg:w-[296px]">
-        <section className="rounded-xl bg-card p-4 ring-1 ring-border">
-          <h3 className="text-[13px] font-semibold text-foreground">资源动态</h3>
-          <div className="mt-2.5">
-            <UserActivityTimeline items={gameActivities} />
-          </div>
-        </section>
-
-        <section className="rounded-xl bg-card p-4 ring-1 ring-border">
-          <h3 className="text-[13px] font-semibold text-foreground">本游戏资源</h3>
-          <div className="mt-1.5">
-            {statRows.map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center justify-between gap-2.5 border-t border-border py-1.5 text-[13px] first:border-t-0"
-              >
-                <span className="text-muted-foreground">{row.label}</span>
-                <span className="text-right font-semibold tabular-nums text-foreground">{row.value}</span>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setAddOpen(true)}
-            className="mt-2.5 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-            添加资源
-          </button>
-          <AddResourceDialog
-            gameId={gameId}
-            userId={currentUserId || ""}
-            username={username || ""}
-            userAvatar={userAvatar ?? null}
-            isLoggedIn={isLoggedIn}
-            onAdd={handleAdd}
-            open={addOpen}
-            onOpenChange={setAddOpen}
-            hideTrigger
-          />
-        </section>
-      </aside>
+      {/* 添加资源弹窗：触发器在页面右栏槽位里，这里只保留弹窗本体 */}
+      <AddResourceDialog
+        gameId={gameId}
+        userId={currentUserId || ""}
+        username={username || ""}
+        userAvatar={userAvatar ?? null}
+        isLoggedIn={isLoggedIn}
+        onAdd={handleAdd}
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        hideTrigger
+      />
 
       {/* 编辑资源弹窗 */}
       {editingResource && (

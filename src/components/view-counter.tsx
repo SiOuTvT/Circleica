@@ -31,10 +31,13 @@ export function ViewCounter({
   gameId,
   initialCount = 0,
   className,
+  /** 是否显示眼睛图标（档案卡那种「浏览 57」纯文本行不需要） */
+  icon = true,
 }: {
   gameId: string
   initialCount?: number
   className?: string
+  icon?: boolean
 }) {
   const [count, setCount] = useState(initialCount)
 
@@ -49,7 +52,7 @@ export function ViewCounter({
 
   return (
     <span className={className ?? DEFAULT_CLS}>
-      <Eye className="h-3.5 w-3.5" />
+      {icon && <Eye className="h-3.5 w-3.5" />}
       <span className="font-bold tabular-nums">{count}</span>
     </span>
   )
