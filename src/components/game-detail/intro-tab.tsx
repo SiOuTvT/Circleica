@@ -392,6 +392,9 @@ function ScreenshotGrid({
                 className="object-cover"
                 draggable={false}
                 sizes="(max-width: 640px) 45vw, 220px"
+                // 站内 /uploads/… 仍走优化器（保留响应式压缩）；外链绕过优化器，
+                // 否则 /_next/image 抓不到外站原图会 500
+                unoptimized={src.startsWith("/") ? undefined : true}
               />
               {overflow && (
                 <span className="absolute inset-0 flex items-center justify-center bg-black/55 text-sm font-semibold text-white">
