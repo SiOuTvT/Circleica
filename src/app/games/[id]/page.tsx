@@ -12,12 +12,10 @@ import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
-import { AGE_RATING_LABELS, PLATFORM_LABELS, langLabel } from "@/lib/game-meta"
-import { studioRoleLabel } from "@/lib/role-labels"
-import { Download, ExternalLink, Eye, Heart } from "lucide-react"
+import { Download, Eye, Heart } from "lucide-react"
 import { notFound, redirect } from "next/navigation"
 import { unstable_cache } from "next/cache"
-import { Fragment, cache as reactCache } from "react"
+import { cache as reactCache } from "react"
 
 /**
  * 游戏详情页 — 支持两种 URL 格式：
@@ -177,11 +175,11 @@ export default async function GameDetailPage({
   const platforms = safeParse<string[]>(game.platforms, [])
   const languages = safeParse<string[]>(game.languages, [])
 
-  // 首屏 meta 网格的展示值（全部来自已有字段，无新增查询）
-  const releaseDateLabel = game.releaseDate ? formatZhDate(game.releaseDate) : undefined
-  const platformLabels = platforms.map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
-  const languageLabels = languages.map((c) => langLabel(c))
-  const ageRatingLabel = game.ageRating ? (AGE_RATING_LABELS[game.ageRating] ?? game.ageRating) : undefined
+  // 首屏别名行：库里是逗号分隔字符串（半角/全角都认），trim 去空后顿号连接
+  const aliasList = (game.aliases || "")
+    .split(/[,，]/)
+    .map((a) => a.trim())
+    .filter(Boolean)
   // 简介摘要与简介 tab 共用同一份纯文本
   const descriptionText = getDescriptionText(game.description)
 
@@ -251,8 +249,8 @@ export default async function GameDetailPage({
           )}
         </div>
 
-        {/* ─── 右：信息列（块间距 16px；justify-between 让内容在列高内铺满）─── */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between gap-4">
+        {/* ─── 右：信息列（行间距固定 12px，不靠拉伸对齐）─── */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
 
           {/* ① 标题 + 原作（同一行 baseline，去掉「原作：」前缀） */}
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -264,92 +262,42 @@ export default async function GameDetailPage({
             )}
           </div>
 
-          {/* ② 数据行：浏览 / 下载 / 收藏 —— 一行文字，无边框、无底色、不包卡 */}
+          {/* ② 别名：库里是逗号分隔字符串，顿号连接；最多 4 个，超出补「等 N 个」；空值整行不渲染 */}
+          {aliasList.length > 0 && (
+            <p className="text-[13px] text-muted-foreground">
+              {aliasList.slice(0, 4).join("、")}
+              {aliasList.length > 4 ? ` 等 ${aliasList.length} 个` : ""}
+            </p>
+          )}
+
+          {/* ③ 数据行：浏览 / 下载 / 收藏 —— 一行文字，无边框、无底色、不包卡 */}
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5">
               <Eye className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-              <span className="text-xs text-muted-foreground">浏览</span>
-              <span className="text-sm font-semibold tabular-nums text-foreground">
+              <span className="text-[13px] text-muted-foreground">浏览</span>
+              <span className="text-[15px] font-bold tabular-nums text-foreground">
                 {game.viewCount.toLocaleString()}
               </span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-              <span className="text-xs text-muted-foreground">下载</span>
-              <span className="text-sm font-semibold tabular-nums text-foreground">
+              <span className="text-[13px] text-muted-foreground">下载</span>
+              <span className="text-[15px] font-bold tabular-nums text-foreground">
                 {game.downloadCount.toLocaleString()}
               </span>
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Heart className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-              <span className="text-xs text-muted-foreground">收藏</span>
-              <span className="text-sm font-semibold tabular-nums text-foreground">
+              <span className="text-[13px] text-muted-foreground">收藏</span>
+              <span className="text-[15px] font-bold tabular-nums text-foreground">
                 {game.favoriteCount.toLocaleString()}
               </span>
             </span>
           </div>
 
-          {/* ③ meta 网格：发行日期 / 制作会社 / 时长 / 平台 / 语言 / 分级
-               两列排布，取不到值的整项不渲染（不写「未定 / 暂无 / -」） */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-            {releaseDateLabel && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">发行日期</span>
-                <span className="text-[13px] font-semibold tabular-nums text-foreground">{releaseDateLabel}</span>
-              </div>
-            )}
-            {game.studios.length > 0 && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">制作会社</span>
-                <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
-                  {game.studios.map((s, i) => {
-                    const lab = studioRoleLabel(s.role)
-                    return (
-                      <Fragment key={s.studio.normalizedName}>
-                        {i > 0 && <span className="text-xs text-muted-foreground">、</span>}
-                        <a
-                          href={`/credits/studio/${encodeURIComponent(s.studio.slug ?? s.studio.normalizedName)}`}
-                          className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
-                        >
-                          {lab ? <span className="text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
-                          {s.studio.displayName}
-                          <ExternalLink className="h-3 w-3" strokeWidth={2} />
-                        </a>
-                      </Fragment>
-                    )
-                  })}
-                </span>
-              </div>
-            )}
-            {game.gameDuration && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">时长</span>
-                <span className="text-[13px] font-semibold text-foreground">{game.gameDuration}</span>
-              </div>
-            )}
-            {platformLabels.length > 0 && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">平台</span>
-                <span className="text-[13px] font-semibold text-foreground">{platformLabels.join("、")}</span>
-              </div>
-            )}
-            {languageLabels.length > 0 && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">语言</span>
-                <span className="text-[13px] font-semibold text-foreground">{languageLabels.join("、")}</span>
-              </div>
-            )}
-            {ageRatingLabel && (
-              <div className="flex items-baseline gap-2">
-                <span className="shrink-0 text-xs text-muted-foreground">分级</span>
-                <span className="text-[13px] font-semibold text-foreground">{ageRatingLabel}</span>
-              </div>
-            )}
-          </div>
-
-          {/* ④ 简介摘要：正文转纯文本、最多两行；简介为空整块不渲染 */}
+          {/* ④ 简介摘要：正文转纯文本、最多两行（15px / 1.75）；简介为空整块不渲染 */}
           {descriptionText && (
-            <p className="line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+            <p className="line-clamp-2 text-[15px] leading-[1.75] text-muted-foreground">
               {descriptionText}
             </p>
           )}
@@ -373,9 +321,9 @@ export default async function GameDetailPage({
 
         </div>
 
-        {/* ─── 第三列：动作组（≥sm 竖排撑满 132、底边与信息列底边对齐；
+        {/* ─── 第三列：动作组（≥sm 竖排撑满 132、顶边与 H1 顶边对齐；
              <sm 回到横排换行，不再竖排）─── */}
-        <div className="flex flex-col items-stretch justify-end gap-2 self-stretch">
+        <div className="flex flex-col gap-2 self-start">
           <GameDetailTopClient
             gameId={resolved.id}
             downloadLinks={downloadLinks}
@@ -420,8 +368,14 @@ export default async function GameDetailPage({
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             originalWork={game.originalWork ? game.originalWork : undefined}
             vndbId={game.vndbId ?? undefined}
+            releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
+            gameDuration={game.gameDuration ?? undefined}
+            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName, slug: s.studio.slug, role: s.role ?? null }))}
+            platforms={platforms}
             officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
+            languages={languages}
             originalLanguage={game.originalLanguage ? game.originalLanguage : undefined}
+            ageRating={game.ageRating ? game.ageRating : undefined}
             englishName={game.englishName ? game.englishName : undefined}
             status={game.status}
             resourceTagColor={resourceTagColor}

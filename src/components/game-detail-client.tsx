@@ -70,8 +70,14 @@ export default function GameDetailClient({
   screenshots,
   originalWork,
   vndbId,
+  releaseDate,
+  gameDuration,
+  studios,
+  platforms,
   officialWebsite,
+  languages,
   originalLanguage,
+  ageRating,
   englishName,
   status,
   resourceTagColor,
@@ -90,8 +96,14 @@ export default function GameDetailClient({
   screenshots?: string[]
   originalWork?: string
   vndbId?: string
+  releaseDate?: string
+  gameDuration?: string
+  studios?: { name: string; normalized: string; slug?: string | null; role?: string | null }[]
+  platforms?: string[]
   officialWebsite?: string
+  languages?: string[]
   originalLanguage?: string
+  ageRating?: string
   englishName?: string
   status?: string
   resourceTagColor?: string
@@ -361,9 +373,15 @@ export default function GameDetailClient({
               <GameInfoList
                 showTitle
                 data={{
+                  releaseDate,
                   status,
+                  studios,
+                  gameDuration,
+                  platforms,
                   officialWebsite,
+                  languages,
                   originalLanguage,
+                  ageRating,
                   englishName,
                   originalWork,
                   vndbId,
