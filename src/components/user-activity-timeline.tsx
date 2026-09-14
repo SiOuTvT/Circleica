@@ -75,7 +75,54 @@ function ActivityRow({ item, last }: { item: ActivityItemData; last: boolean }) 
   )
 }
 
-export function UserActivityTimeline({ items, className }: { items: ActivityItemData[]; className?: string }) {
+/**
+ * 紧凑行 —— 游戏详情页右栏（312 宽）专用：不渲染 44x44 图块，圆点 8px，
+ * 第一行 = 类型图标 + label + 右侧时间，第二行 = 标题，description 有值才第三行。
+ * 行高控制在 40 以内。
+ */
+function ActivityRowCompact({ item, last }: { item: ActivityItemData; last: boolean }) {
+  const meta = KIND_META[item.kind]
+  const Icon = meta.icon
+  const inner = (
+    <>
+      {/* 左侧圆点（8px）+ 竖线 */}
+      <div className="relative flex w-4 shrink-0 justify-center">
+        <span className="absolute top-1.5 h-2 w-2 rounded-full ring-2 ring-card" style={{ background: meta.color }} />
+        {!last && <span className="absolute top-3 bottom-[-6px] w-px bg-border" />}
+      </div>
+      {/* 内容 */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: meta.color }} strokeWidth={2} />
+          <span className="text-xs font-medium leading-none" style={{ color: meta.color }}>{meta.label}</span>
+          <span className="ml-auto shrink-0 text-[11px] text-muted-foreground/70">{timeAgo(item.createdAt)}</span>
+        </div>
+        <p className="truncate text-[13px] font-semibold leading-snug text-foreground">{item.title}</p>
+        {item.description && (
+          <p className="line-clamp-1 text-xs leading-snug text-muted-foreground">{item.description}</p>
+        )}
+      </div>
+    </>
+  )
+  return item.href ? (
+    <Link href={item.href} className="group flex gap-2 rounded-lg px-1 py-1 transition-colors hover:bg-secondary/50">
+      {inner}
+    </Link>
+  ) : (
+    <div className="flex gap-2 rounded-lg px-1 py-1">{inner}</div>
+  )
+}
+
+export function UserActivityTimeline({
+  items,
+  className,
+  compact = false,
+}: {
+  items: ActivityItemData[]
+  className?: string
+  /** 紧凑模式：详情页右栏用；用户主页宽版不传，保持原样式 */
+  compact?: boolean
+}) {
   if (!items || items.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center px-1 py-8 text-center">
@@ -87,7 +134,9 @@ export function UserActivityTimeline({ items, className }: { items: ActivityItem
   return (
     <div className={cn("flex flex-col", className)}>
       {items.map((it, i) => (
-        <ActivityRow key={it.id} item={it} last={i === items.length - 1} />
+        compact
+          ? <ActivityRowCompact key={it.id} item={it} last={i === items.length - 1} />
+          : <ActivityRow key={it.id} item={it} last={i === items.length - 1} />
       ))}
     </div>
   )

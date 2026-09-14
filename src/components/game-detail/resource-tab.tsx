@@ -141,16 +141,61 @@ const ResourceCard = memo(function ResourceCard({
           : "ring-border bg-card"
       }`}
     >
-      {/* ── 第一段：资源名 + 右侧 体积 / 分流数 / 下载数 ── */}
+      {/* ── 第一段：资源名 + meta 串（左）/ 体积、分流数、下载数、编辑删除（右）── */}
       <div className="flex items-start gap-3.5">
-        <h3 className="min-w-0 flex-1 text-[15px] font-bold text-foreground">
-          {resource.resourceName || "未命名资源"}
-        </h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-bold text-foreground">
+            {resource.resourceName || "未命名资源"}
+          </h3>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+            <Link
+              href={`/user/${resource.userId}`}
+              className="text-primary transition-opacity hover:opacity-80"
+            >
+              {resource.username}
+            </Link>
+            {" "}更新于 {timeAgo(resource.createdAt)}
+            {resource.resourceNote ? `，说明：${resource.resourceNote}` : ""}
+          </p>
+        </div>
         <div className="flex shrink-0 flex-col items-end gap-0.5">
           <span className="text-[15px] font-bold tabular-nums text-foreground">{sizeLabel}</span>
           <span className="text-[11px] text-muted-foreground">
             {resource.entries.length} 个分流，下载 {downloadTotal}
           </span>
+          {/* 编辑 / 删除：28x28 图标按钮，跟在体积信息下面，不再单独占一整行 */}
+          {(isOwner || isGamePublisher) && (
+            <div className="mt-1 flex items-center gap-1">
+              {isOwner && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={onEdit}
+                      aria-label="编辑"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>编辑</TooltipContent>
+                </Tooltip>
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={onDelete}
+                    aria-label="删除"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-destructive"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>删除</TooltipContent>
+              </Tooltip>
+            </div>
+          )}
         </div>
       </div>
 
@@ -164,31 +209,59 @@ const ResourceCard = memo(function ResourceCard({
         </div>
       )}
 
-      {/* ── 第二段：分流列表（每条一行 36 高；行本身不可点，只有右侧下载可点）── */}
-      <div className="flex flex-col">
+      {/* ── 资源标签：组色沿用 resourceTagColor ── */}
+      <TagGroup>
+        {allTags.map((tag) => (
+          <Tag key={tag} scale="detail" color={resourceTagColor || undefined}>
+            {tag}
+          </Tag>
+        ))}
+      </TagGroup>
+
+      {/* ── 分流行：默认摊开在卡里，>3 条才折叠 ── */}
+      <div className="flex flex-col border-t border-border pt-2">
         {shownEntries.map((entry, i) => (
-          <div
-            key={i}
-            className="flex h-9 items-center gap-3 rounded-md px-1.5 transition-colors hover:bg-secondary/30"
-          >
-            <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-foreground">
+          <div key={i} className="flex items-center gap-3 border-b border-border/50 py-2.5 last:border-b-0">
+            <span className="w-[76px] shrink-0 truncate text-[12.5px] font-semibold text-foreground">
               {sourceLabel(entry.url)}
             </span>
-            {entry.extractCode ? (
-              <span className="shrink-0 text-[11px] text-muted-foreground">提取码 {entry.extractCode}</span>
-            ) : null}
-            {entry.decompressCode ? (
-              <span className="shrink-0 text-[11px] text-muted-foreground">解压码 {entry.decompressCode}</span>
-            ) : null}
-            <a
-              href={entry.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => { if (entry.id) onDownload(entry.id, i) }}
-              className="inline-flex h-7 shrink-0 items-center justify-center rounded-md border border-primary/35 bg-transparent px-2.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
-            >
-              下载
-            </a>
+            <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+              {[entry.fileSize, entry.extractCode ? `提取码 ${entry.extractCode}` : ""]
+                .filter(Boolean)
+                .join("，")}
+            </span>
+            <span className="flex shrink-0 items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {/* 已反馈是 disabled 按钮，浏览器不给它派发指针事件 —— 外面套一层接事件，提示才留得住 */}
+                  <span className={cn("inline-flex shrink-0", resource.isReportedByMe && "cursor-default")}>
+                    <button
+                      type="button"
+                      onClick={onReport}
+                      disabled={resource.isReportedByMe}
+                      className={cn(
+                        "inline-flex h-7 items-center justify-center rounded-md px-3 text-xs font-semibold ring-1 ring-border transition-colors",
+                        resource.isReportedByMe
+                          ? "pointer-events-none cursor-default text-amber-400/60"
+                          : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      )}
+                    >
+                      举报失效
+                    </button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{resource.isReportedByMe ? "已反馈" : "举报失效"}</TooltipContent>
+              </Tooltip>
+              <a
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => { if (entry.id) onDownload(entry.id, i) }}
+                className="inline-flex h-7 shrink-0 items-center justify-center rounded-md border border-primary/35 bg-transparent px-2.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+              >
+                下载
+              </a>
+            </span>
           </div>
         ))}
         {resource.entries.length > ENTRY_PREVIEW && !showAllEntries && (
@@ -201,86 +274,6 @@ const ResourceCard = memo(function ResourceCard({
           </button>
         )}
       </div>
-
-      {/* ── 第三段：提交者 + 更新时间 + 资源标签 + 举报失效 ── */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-muted-foreground">
-        <span className="inline-flex min-w-0 items-center gap-1">
-          <Link
-            href={`/user/${resource.userId}`}
-            className="text-primary transition-opacity hover:opacity-80"
-          >
-            {resource.username}
-          </Link>
-          更新于 {timeAgo(resource.createdAt)}
-        </span>
-        <TagGroup className="gap-1.5">
-          {allTags.map((tag) => (
-            <Tag key={tag} scale="detail" color={resourceTagColor || undefined}>
-              {tag}
-            </Tag>
-          ))}
-        </TagGroup>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {/* 已反馈是 disabled 按钮，浏览器不给它派发指针事件 —— 外面套一层接事件，提示才留得住 */}
-            <span className={cn("ml-auto inline-flex shrink-0", resource.isReportedByMe && "cursor-default")}>
-              <button
-                type="button"
-                onClick={onReport}
-                disabled={resource.isReportedByMe}
-                className={cn(
-                  "inline-flex h-7 items-center justify-center rounded-md px-3 text-xs font-semibold ring-1 ring-border transition-colors",
-                  resource.isReportedByMe
-                    ? "pointer-events-none cursor-default text-amber-400/60"
-                    : "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                )}
-              >
-                举报失效
-              </button>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>{resource.isReportedByMe ? "已反馈" : "举报失效"}</TooltipContent>
-        </Tooltip>
-      </div>
-
-      {/* ── 说明：有值才单独一行，空的不占位 ── */}
-      {resource.resourceNote ? (
-        <p className="text-[13px] leading-relaxed text-muted-foreground">{resource.resourceNote}</p>
-      ) : null}
-
-      {/* ── 本人的编辑 / 删除入口：卡片本体不可点，只有这些控件与上面的下载 / 举报可点 ── */}
-      {(isOwner || isGamePublisher) && (
-        <div className="flex items-center justify-end gap-2">
-          {isOwner && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={onEdit}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-primary"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  编辑
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>编辑</TooltipContent>
-            </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={onDelete}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-red-400"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                删除
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>删除</TooltipContent>
-          </Tooltip>
-        </div>
-      )}
     </div>
   )
 })

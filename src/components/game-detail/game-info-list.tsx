@@ -1,22 +1,14 @@
-import { Fragment } from "react"
 import {
-  BookOpen, Building2, Calendar, CircleDot, Clock, ExternalLink, Globe, Languages, Monitor, ShieldAlert,
+  BookOpen, CircleDot, ExternalLink, Globe, Languages,
 } from "lucide-react"
 import {
-  PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
+  langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS,
 } from "@/lib/game-meta"
-import { studioRoleLabel } from "@/lib/role-labels"
 import { FeedbackBtn } from "@/components/feedback-btn"
 
 export interface GameInfoData {
-  releaseDate?: string
   status?: string
-  studios?: { name: string; normalized: string; slug?: string | null; role?: string | null }[]
-  gameDuration?: string
-  platforms?: string[]
-  languages?: string[]
   originalLanguage?: string
-  ageRating?: string
   officialWebsite?: string
   englishName?: string
   originalWork?: string
@@ -113,17 +105,12 @@ export function vndbNumericId(vndbId?: string): string | null {
  */
 export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; showTitle?: boolean }) {
   const {
-    releaseDate, status, studios, gameDuration, platforms, languages,
-    originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
+    status, originalLanguage, officialWebsite, englishName, originalWork, vndbId,
     gameId,
   } = data
 
-  const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
-  const langChips = (languages ?? []).map((c) => langLabel(c))
   const hasContent =
-    releaseDate || status || (studios && studios.length) || gameDuration || platformChips.length ||
-    langChips.length || originalLanguage || ageRating || officialWebsite || englishName ||
-    originalWork || vndbId
+    status || originalLanguage || officialWebsite || englishName || originalWork || vndbId
 
   if (!hasContent) return null
 
@@ -149,56 +136,9 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
         </Row>
       )}
 
-      {releaseDate && (
-        <Row icon={<Calendar className="h-4 w-4" strokeWidth={2} />} label="发行日期">
-          <Text>{releaseDate}</Text>
-        </Row>
-      )}
-
-      {studios && studios.length > 0 && (
-        <Row icon={<Building2 className="h-4 w-4" strokeWidth={2} />} label="制作会社">
-          {/* 多个会社用顿号「、」连：各自仍是独立链接，不合并成一条；每个带 studioRoleLabel 小标签，role 为空则不加 */}
-          {studios.map((s, i) => {
-            const lab = studioRoleLabel(s.role)
-            return (
-              <Fragment key={s.normalized}>
-                {i > 0 && <span className="text-xs text-muted-foreground">、</span>}
-                <a
-                  href={`/credits/studio/${encodeURIComponent(s.slug ?? s.normalized)}`}
-                  className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
-                >
-                  {lab ? <span className="mr-1.5 text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
-                  {s.name}
-                  <ExternalLink className="h-3 w-3" strokeWidth={2} />
-                </a>
-              </Fragment>
-            )
-          })}
-        </Row>
-      )}
-
-      {/* 多值字段用顿号连成一行文本（chip 只留给能点走的东西：制作会社 / VNDB） */}
-      {platformChips.length > 0 && (
-        <Row icon={<Monitor className="h-4 w-4" strokeWidth={2} />} label="平台">
-          <span className="text-[13px] font-semibold text-foreground">{platformChips.join("、")}</span>
-        </Row>
-      )}
-
-      {langChips.length > 0 && (
-        <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="语言">
-          <span className="text-[13px] font-semibold text-foreground">{langChips.join("、")}</span>
-        </Row>
-      )}
-
       {originalLanguage && (
         <Row icon={<Globe className="h-4 w-4" strokeWidth={2} />} label="原版语言">
           <span className="text-[13px] font-semibold text-foreground">{langLabel(originalLanguage)}</span>
-        </Row>
-      )}
-
-      {gameDuration && (
-        <Row icon={<Clock className="h-4 w-4" strokeWidth={2} />} label="时长">
-          <Pill>{gameDuration}</Pill>
         </Row>
       )}
 
@@ -214,12 +154,6 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
             <span className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style={{ background: GAME_STATUS_COLORS[status] ?? "var(--muted-foreground)" }} />
             {GAME_STATUS_LABELS[status] ?? status}
           </Pill>
-        </Row>
-      )}
-
-      {ageRating && (
-        <Row icon={<ShieldAlert className="h-4 w-4" strokeWidth={2} />} label="年龄分级">
-          <Pill>{AGE_RATING_LABELS[ageRating] ?? "未知"}</Pill>
         </Row>
       )}
 

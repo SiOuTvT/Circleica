@@ -12,10 +12,12 @@ import { cache, cacheKey } from "@/lib/redis"
 import { isNumericId } from "@/lib/serial-id"
 import { Tag } from "@/components/ui/tag"
 import { TagRow } from "@/components/tag-row"
-import { Download, Eye, Heart } from "lucide-react"
+import { AGE_RATING_LABELS, PLATFORM_LABELS, langLabel } from "@/lib/game-meta"
+import { studioRoleLabel } from "@/lib/role-labels"
+import { Download, ExternalLink, Eye, Heart } from "lucide-react"
 import { notFound, redirect } from "next/navigation"
 import { unstable_cache } from "next/cache"
-import { cache as reactCache } from "react"
+import { Fragment, cache as reactCache } from "react"
 
 /**
  * 游戏详情页 — 支持两种 URL 格式：
@@ -175,6 +177,14 @@ export default async function GameDetailPage({
   const platforms = safeParse<string[]>(game.platforms, [])
   const languages = safeParse<string[]>(game.languages, [])
 
+  // 首屏 meta 网格的展示值（全部来自已有字段，无新增查询）
+  const releaseDateLabel = game.releaseDate ? formatZhDate(game.releaseDate) : undefined
+  const platformLabels = platforms.map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
+  const languageLabels = languages.map((c) => langLabel(c))
+  const ageRatingLabel = game.ageRating ? (AGE_RATING_LABELS[game.ageRating] ?? game.ageRating) : undefined
+  // 简介摘要与简介 tab 共用同一份纯文本
+  const descriptionText = getDescriptionText(game.description)
+
   const creators = game.creators.map((gc) => ({
     id: gc.creator.id,
     slug: gc.creator.slug,
@@ -241,8 +251,8 @@ export default async function GameDetailPage({
           )}
         </div>
 
-        {/* ─── 右：信息列（块间距 10px）─── */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2.5">
+        {/* ─── 右：信息列（块间距 16px；justify-between 让内容在列高内铺满）─── */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-between gap-4">
 
           {/* ① 标题 + 原作（同一行 baseline，去掉「原作：」前缀） */}
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -279,7 +289,72 @@ export default async function GameDetailPage({
             </span>
           </div>
 
-          {/* ③ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
+          {/* ③ meta 网格：发行日期 / 制作会社 / 时长 / 平台 / 语言 / 分级
+               两列排布，取不到值的整项不渲染（不写「未定 / 暂无 / -」） */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+            {releaseDateLabel && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">发行日期</span>
+                <span className="text-[13px] font-semibold tabular-nums text-foreground">{releaseDateLabel}</span>
+              </div>
+            )}
+            {game.studios.length > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">制作会社</span>
+                <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+                  {game.studios.map((s, i) => {
+                    const lab = studioRoleLabel(s.role)
+                    return (
+                      <Fragment key={s.studio.normalizedName}>
+                        {i > 0 && <span className="text-xs text-muted-foreground">、</span>}
+                        <a
+                          href={`/credits/studio/${encodeURIComponent(s.studio.slug ?? s.studio.normalizedName)}`}
+                          className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary transition-opacity hover:opacity-80"
+                        >
+                          {lab ? <span className="text-[11px] font-medium text-muted-foreground">{lab}</span> : null}
+                          {s.studio.displayName}
+                          <ExternalLink className="h-3 w-3" strokeWidth={2} />
+                        </a>
+                      </Fragment>
+                    )
+                  })}
+                </span>
+              </div>
+            )}
+            {game.gameDuration && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">时长</span>
+                <span className="text-[13px] font-semibold text-foreground">{game.gameDuration}</span>
+              </div>
+            )}
+            {platformLabels.length > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">平台</span>
+                <span className="text-[13px] font-semibold text-foreground">{platformLabels.join("、")}</span>
+              </div>
+            )}
+            {languageLabels.length > 0 && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">语言</span>
+                <span className="text-[13px] font-semibold text-foreground">{languageLabels.join("、")}</span>
+              </div>
+            )}
+            {ageRatingLabel && (
+              <div className="flex items-baseline gap-2">
+                <span className="shrink-0 text-xs text-muted-foreground">分级</span>
+                <span className="text-[13px] font-semibold text-foreground">{ageRatingLabel}</span>
+              </div>
+            )}
+          </div>
+
+          {/* ④ 简介摘要：正文转纯文本、最多两行；简介为空整块不渲染 */}
+          {descriptionText && (
+            <p className="line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+              {descriptionText}
+            </p>
+          )}
+
+          {/* ⑤ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
           <div className="flex items-center gap-2.5">
             <span className="shrink-0 text-[11px] text-muted-foreground">资源标签</span>
             <TagRow className="min-w-0 flex-1" singleLine>
@@ -325,7 +400,7 @@ export default async function GameDetailPage({
       ═══════════════════════════════════════════════ */}
       <div className="pt-9 pb-6 sm:pt-6 sm:pb-8 lg:pt-6 lg:pb-12">
           <GameDetailClient
-            description={getDescriptionText(game.description)}
+            description={descriptionText}
             allDescriptions={getAllDescriptions(game.description)}
             downloadLinks={downloadLinks}
             creators={creators}
@@ -345,14 +420,8 @@ export default async function GameDetailPage({
             gameTags={tags.map((t) => ({ name: t.name, color: detailHeaderTagColor || t.color || "#6b7280", groupName: t.group?.name }))}
             originalWork={game.originalWork ? game.originalWork : undefined}
             vndbId={game.vndbId ?? undefined}
-            releaseDate={game.releaseDate ? formatZhDate(game.releaseDate) : undefined}
-            gameDuration={game.gameDuration ?? undefined}
-            studios={game.studios.map((s) => ({ name: s.studio.displayName, normalized: s.studio.normalizedName, slug: s.studio.slug, role: s.role ?? null }))}
-            platforms={platforms}
             officialWebsite={game.officialWebsite ? game.officialWebsite : undefined}
-            languages={languages}
             originalLanguage={game.originalLanguage ? game.originalLanguage : undefined}
-            ageRating={game.ageRating ? game.ageRating : undefined}
             englishName={game.englishName ? game.englishName : undefined}
             status={game.status}
             resourceTagColor={resourceTagColor}
