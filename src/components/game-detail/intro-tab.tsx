@@ -233,7 +233,8 @@ export function IntroTab({
               className="transition-opacity duration-150 ease-out"
               style={{ opacity: fading ? 0 : 1 }}
             >
-              <RichTextContent html={prose} className="prose dark:prose-invert max-w-[880px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
+              {/* 正文行宽上限 820：只管这一段，截图网格 / 制作人员 / 标签区仍占满主栏 */}
+              <RichTextContent html={prose} className="prose dark:prose-invert max-w-[820px] text-[13px] sm:text-[15px] leading-[1.7] text-foreground prose-headings:font-[var(--font-heading)]" />
             </div>
           ) : (
             <p className="text-sm text-muted-foreground/60 italic">暂无简介</p>

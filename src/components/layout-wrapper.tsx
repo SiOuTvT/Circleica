@@ -66,7 +66,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   /* ── 三栏「挤位式」（R36）──
      侧栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
      外层容器按侧栏实际占宽加 padding，让内容区从「侧栏右缘 + 16」开始，
-     内容列再在剩下的可用宽度里 max-w-[1140px] mx-auto（居中 ⇒ 左右间距天然相等）。
+     内容列再在剩下的可用宽度里 max-w-[1560px] mx-auto（居中 ⇒ 左右间距天然相等）。
      内层内容列自己已带 lg:px-10（40px）留白，故这里扣掉它，避免把间距算两遍。
      窄屏的侧栏是覆盖式抽屉：不设任何 padding（undefined 让响应式 px 类照常生效），行为与之前完全一致。 */
   const contentPadLeft = isDesktop ? leftWidth + 16 - CONTENT_GUTTER : undefined
@@ -125,7 +125,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             style={{ paddingLeft: contentPadLeft, paddingRight: contentPadRight }}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
-              <div className="mx-auto max-w-[1140px]">
+              <div className="mx-auto w-full max-w-[1560px]">
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>

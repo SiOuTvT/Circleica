@@ -11,9 +11,11 @@ const ABOUT_LINKS: { label: string; href: string }[] = [
 const GITHUB_URL = "https://github.com/SiOuTvT/Circleica"
 
 export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logoMode?: LogoMode; siteLogo?: string | null }) {
+  // 与 layout-wrapper 的内容列同构：响应式留白（含 lg:px-10）放在外层、上限放在内层，
+  // 这样页脚内容左右边缘与顶栏内层、页面内容列三者 x 完全一致
   return (
-    <footer role="contentinfo" className="border-t border-border bg-muted/30">
-      <div className="mx-auto max-w-[1140px] px-3 sm:px-6 py-1 sm:py-3">
+    <footer role="contentinfo" className="border-t border-border bg-muted/30 px-3 sm:px-6 lg:px-10 py-1 sm:py-3">
+      <div className="mx-auto w-full max-w-[1560px]">
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
         <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:text-left">
           {/* 左：品牌介绍 */}
