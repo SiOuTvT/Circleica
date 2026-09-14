@@ -213,10 +213,10 @@ export default async function GameDetailPage({
       <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
-          顶部识别区 — 左竖版海报 + 右信息列
-          海报横向让位后 H1 直接顶到首屏上部，不再被卡片内的 16:9 封面图压下去
+          顶部识别区 — 三列网格（≥sm）：海报 208 / 信息列 minmax(0,1fr) / 动作组 132
+          <sm 仍是纵向堆叠：海报 → 信息列 → 动作组（横排换行）
       ═══════════════════════════════════════════════ */}
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:gap-6">
+      <div className="flex min-w-0 flex-col gap-2 sm:grid sm:grid-cols-[208px_minmax(0,1fr)_132px] sm:gap-6">
 
         {/* 浏览历史记录器（无 UI）：原先挂在人气数据行里，那行已删，这里单独保留以继续记录 */}
         <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
@@ -296,26 +296,27 @@ export default async function GameDetailPage({
             </TagRow>
           </div>
 
-          {/* ⑤ 动作组：下载资源 / 收藏 / 分享 / 副站资料库 */}
-          <div>
-            <GameDetailTopClient
-              gameId={resolved.id}
-              downloadLinks={downloadLinks}
-              compact
-              scrollToResources
-              galvelicaHref={
-                game.galvelicaWork?.slug
-                  ? `/galvelica/works/${game.galvelicaWork.slug}`
-                  : `/galvelica/works?search=${encodeURIComponent(game.title)}`
-              }
-              galvelicaTitle={
-                game.galvelicaWork?.slug
-                  ? "在 Galvelica 资料库查看本作完整资料"
-                  : "本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
-              }
-            />
-          </div>
+        </div>
 
+        {/* ─── 第三列：动作组（≥sm 竖排撑满 132、底边与信息列底边对齐；
+             <sm 回到横排换行，不再竖排）─── */}
+        <div className="flex flex-col items-stretch justify-end gap-2 self-stretch">
+          <GameDetailTopClient
+            gameId={resolved.id}
+            downloadLinks={downloadLinks}
+            compact
+            scrollToResources
+            galvelicaHref={
+              game.galvelicaWork?.slug
+                ? `/galvelica/works/${game.galvelicaWork.slug}`
+                : `/galvelica/works?search=${encodeURIComponent(game.title)}`
+            }
+            galvelicaTitle={
+              game.galvelicaWork?.slug
+                ? "在 Galvelica 资料库查看本作完整资料"
+                : "本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
+            }
+          />
         </div>
       </div>
 

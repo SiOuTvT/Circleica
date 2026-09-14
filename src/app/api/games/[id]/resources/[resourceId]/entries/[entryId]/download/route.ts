@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { NotFoundError } from "@/lib/errors"
 import { checkRateLimit, rateLimits } from "@/lib/rate-limit"
+import { resolveGameCuid } from "@/lib/serial-id"
 import { NextResponse } from "next/server"
 
 /** 内存级防刷：同一资源分流 60s 内仅计一次（IP + entryId 维度），避免刷新/误点刷爆计数 */
@@ -11,11 +12,14 @@ const recentDownloads = new Map<string, number>()
 const DL_WINDOW_MS = 60_000
 
 export const POST = withHandler(async (req, ctx) => {
-  const { id: gameId, resourceId, entryId } = (await ctx!.params) as {
+  const { id, resourceId, entryId } = (await ctx!.params) as {
     id: string
     resourceId: string
     entryId: string
   }
+  // [id] 两种都接：数字 serialId 与 cuid —— 下面的归属校验与计数写库都要用 cuid
+  const gameId = await resolveGameCuid(id)
+  if (!gameId) throw new NotFoundError("游戏")
 
   // 匿名/全体防刷：单 IP 每分钟最多 60 次下载计数（防止批量刷下载计数、探测 entry.url、
   // 以及异常高频下载行为）。与下方 60s 同分流去重形成纵深防御；正常用户单次点击远达不到。

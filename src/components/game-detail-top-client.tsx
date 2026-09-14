@@ -52,17 +52,19 @@ export function GameDetailTopClient({
   const btnBase = "flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all"
 
   if (compact) {
-    // 紧凑模式：三个按钮自适应宽度，不撑满整行
+    // 紧凑模式：<sm 横排换行、≥sm 竖排撑满右列
     return (
       <>
-        {/* 三颗同档按钮：32 高 / 13px / 600 / rounded-lg，间距 8px */}
-        <div className="flex w-fit items-center gap-2">
+        {/* 四颗同档按钮：32 高 / 13px / 600 / rounded-lg，间距 8px。
+            ≥sm 竖排撑满右列（图标在左文字在右、justify-start），<sm 横排换行并保持居中。 */}
+        <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
           {/* 收藏 */}
           <button
             onClick={handleFavoriteClick}
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
               "inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold ring-1 transition-all",
+              "sm:w-full sm:justify-start",
               fav
                 ? "bg-primary/10 ring-primary/20 text-primary"
                 : "bg-card ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20"
@@ -83,7 +85,7 @@ export function GameDetailTopClient({
           {/* 下载 */}
           <button
             onClick={handleDownloadClick}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-primary/35 bg-primary/10 px-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-primary/35 bg-primary/10 px-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20 sm:w-full sm:justify-start"
           >
             <Download className="h-3.5 w-3.5" strokeWidth={2} />
             <span>下载</span>
@@ -92,7 +94,7 @@ export function GameDetailTopClient({
           {/* 分享 */}
           <button
             onClick={handleShare}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20 sm:w-full sm:justify-start"
           >
             <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
             <span>分享</span>
@@ -103,7 +105,7 @@ export function GameDetailTopClient({
             <a
               href={galvelicaHref}
               title={galvelicaTitle}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-[var(--gal-accent)] bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)]"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-[var(--gal-accent)] bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)] sm:w-full sm:justify-start"
             >
               <Library className="h-3.5 w-3.5" strokeWidth={2} />
               <span>副站资料库</span>

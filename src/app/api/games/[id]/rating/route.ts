@@ -2,7 +2,8 @@ import { withHandler, json, safeParseJson } from '@/lib/api-handler'
 import { requireAuth, getOptionalAuth } from '@/lib/auth-context'
 import { gameService } from '@/services/game'
 import { checkRateLimit, rateLimits } from '@/lib/rate-limit'
-import { RateLimitError } from '@/lib/errors'
+import { NotFoundError, RateLimitError } from '@/lib/errors'
+import { resolveGameCuid } from '@/lib/serial-id'
 
 /**
  * 评分接口
@@ -21,7 +22,10 @@ export const GET = withHandler(async (_req, ctx) => {
 
 export const POST = withHandler(async (req, ctx) => {
   const { userId } = await requireAuth()
-  const { id: gameId } = await ctx!.params
+  const { id } = await ctx!.params
+  // [id] 两种都接：数字 serialId 与 cuid；解析不到直接 404「游戏不存在」
+  const gameId = await resolveGameCuid(id)
+  if (!gameId) throw new NotFoundError("游戏")
   const rl = await checkRateLimit(rateLimits.interact, "rating")
   if (!rl.success) throw new RateLimitError()
   const { score } = await safeParseJson(req)
