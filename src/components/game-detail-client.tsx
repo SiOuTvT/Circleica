@@ -257,9 +257,10 @@ export default function GameDetailClient({
 
   return (
     <div>
-      {/* ══════ Tab 行：通栏独占一行（自身按内容宽贴左、带计数，不拉满）══════ */}
+      {/* ══════ Tab 行：通栏独占一行（自身按内容宽贴左、带计数，不拉满）；
+           间距只由外层（page.tsx 内容区上内边距）提供，这里不再自己叠 mt ══════ */}
       <div ref={containerRef}
-        className="relative mt-6 flex w-fit rounded-xl p-0.5"
+        className="relative flex w-fit rounded-xl p-0.5"
         role="tablist"
         aria-label="游戏详情导航"
         style={{
@@ -383,7 +384,6 @@ export default function GameDetailClient({
                   originalWork,
                   vndbId,
                   gameId,
-                  favoriteCount: favCnt,
                 }}
               />
             </div>

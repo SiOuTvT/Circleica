@@ -9,7 +9,7 @@ import { apiFetchSafe } from "@/lib/api-client"
 /**
  * 游戏收藏 —— 单一职责 hook。
  *
- * 详情页首屏按钮（GameDetailTopClient）与档案卡底部收藏长条（GameInfoActions）
+ * 详情页首屏动作组（GameDetailTopClient 的「收藏」）与资源 tab 的收藏操作
  * 共用这一份实现，避免收藏流程（未登录拦截 / 合集选择 / 取消确认 / 乐观更新 +
  * 跨组件 game-fav-change 广播）在同一页里长出两套分支彼此带偏。
  */

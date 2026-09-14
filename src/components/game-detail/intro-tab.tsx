@@ -256,7 +256,7 @@ export function IntroTab({
             <div className="flex flex-wrap gap-1.5">
               {gameTags.map((t, i) => (
                 // 颜色沿用传进来的标签组色（后台「详情页信息栏标签」组），不写死常量
-                <Tag key={`${t.name}-${i}`} color={t.color}>{t.name}</Tag>
+                <Tag key={`${t.name}-${i}`} scale="detail" color={t.color}>{t.name}</Tag>
               ))}
             </div>
           </Section>

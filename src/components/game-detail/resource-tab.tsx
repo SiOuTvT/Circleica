@@ -170,7 +170,7 @@ const ResourceCard = memo(function ResourceCard({
       {/* ── 资源标签：组色沿用 resourceTagColor ── */}
       <TagGroup>
         {allTags.map((tag) => (
-          <Tag key={tag} color={resourceTagColor || undefined}>
+          <Tag key={tag} scale="detail" color={resourceTagColor || undefined}>
             {tag}
           </Tag>
         ))}

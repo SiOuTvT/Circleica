@@ -80,13 +80,13 @@ export function GameDetailTopClient({
             <span>收藏</span>
           </button>
 
-          {/* 下载资源 */}
+          {/* 下载 */}
           <button
             onClick={handleDownloadClick}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-primary/35 bg-primary/10 px-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
           >
             <Download className="h-3.5 w-3.5" strokeWidth={2} />
-            <span>下载资源</span>
+            <span>下载</span>
           </button>
 
           {/* 分享 */}
@@ -98,12 +98,12 @@ export function GameDetailTopClient({
             <span>分享</span>
           </button>
 
-          {/* 副站资料库 — 与「分享」同档，不给主色底（主色底只给下载资源） */}
+          {/* 副站资料库 — 副站主题色（var(--gal-accent) 随明暗主题走，不写死色值） */}
           {galvelicaHref && (
             <a
               href={galvelicaHref}
               title={galvelicaTitle}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-[var(--gal-accent)] bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)]"
             >
               <Library className="h-3.5 w-3.5" strokeWidth={2} />
               <span>副站资料库</span>

@@ -27,6 +27,15 @@ import type { ReactNode } from "react"
 
 type TagVariant = "content" | "cloud" | "badge"
 
+/**
+ * pill 尺度。
+ * default — 全站既有尺寸，不做任何改动。
+ * detail  — 游戏详情页三处标签区（首屏资源标签行 / 简介 tab 标签块 / 资源卡资源标签行）专用：
+ *           13px / 700 / 高 28 / padding 5px 11px / 组色底 16% / 描边 32%。
+ *           只在实例上显式传 scale="detail" 才生效，全站其它一百多处不受影响。
+ */
+type TagScale = "detail"
+
 interface TagBaseProps {
   variant?: TagVariant
   /** 标签颜色（hex），不传则使用默认主题色 */
@@ -36,6 +45,8 @@ interface TagBaseProps {
 }
 
 interface TagProps extends TagBaseProps {
+  /** 详情页专用 pill 尺度（默认不传 = 全站既有尺寸） */
+  scale?: TagScale
   /** 传入 href 时渲染为 Link */
   href?: string
   /** Link 点击回调 */
@@ -84,7 +95,7 @@ const variantStyles: Record<TagVariant, string> = {
  *   - hex 走原 hex-alpha 拼接，零回归
  *   - var() 走 color-mix 透明度，使标签可跟随主题语义色（成功/警告等）
  */
-function tagColorStyle(color?: string, variant?: TagVariant): React.CSSProperties | undefined {
+function tagColorStyle(color?: string, variant?: TagVariant, scale?: TagScale): React.CSSProperties | undefined {
   if (!color) return undefined
   const isVar = color.startsWith("var(")
   const withAlpha = (pct: number) =>
@@ -97,11 +108,19 @@ function tagColorStyle(color?: string, variant?: TagVariant): React.CSSPropertie
       color: `color-mix(in srgb, ${color} 85%, #000)`,
     }
   }
+  // 详情页 pill：组色底 16% / 描边 32%；默认仍是全站原值 9% / 19%
+  const bgPct = scale === "detail" ? 16 : 9
+  const borderPct = scale === "detail" ? 32 : 19
   return {
-    backgroundColor: withAlpha(9),
+    backgroundColor: withAlpha(bgPct),
     color: `color-mix(in srgb, ${color} 80%, #000)`,
-    border: `1px solid ${withAlpha(19)}`,
+    border: `1px solid ${withAlpha(borderPct)}`,
   }
+}
+
+/** 详情页 pill 尺寸：高 28 / padding 5px 11px / 13px / 700（圆角沿用各 variant 自身） */
+const scaleStyles: Record<TagScale, string> = {
+  detail: "h-7 px-[11px] py-[5px] sm:px-[11px] sm:py-[5px] text-[13px] font-bold",
 }
 
 /**
@@ -109,6 +128,7 @@ function tagColorStyle(color?: string, variant?: TagVariant): React.CSSPropertie
  */
 export function Tag({
   variant = "content",
+  scale,
   color,
   className,
   href,
@@ -116,8 +136,13 @@ export function Tag({
   title,
   children,
 }: TagProps) {
-  const style = tagColorStyle(color, variant)
-  const classes = cn(variantStyles[variant], "min-w-0 max-w-full", className)
+  const style = tagColorStyle(color, variant, scale)
+  const classes = cn(
+    variantStyles[variant],
+    "min-w-0 max-w-full",
+    scale ? scaleStyles[scale] : undefined,
+    className,
+  )
 
   if (href) {
     return (

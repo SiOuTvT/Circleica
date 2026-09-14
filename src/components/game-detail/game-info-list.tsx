@@ -6,7 +6,7 @@ import {
   PLATFORM_LABELS, langLabel, GAME_STATUS_LABELS, GAME_STATUS_COLORS, AGE_RATING_LABELS,
 } from "@/lib/game-meta"
 import { studioRoleLabel } from "@/lib/role-labels"
-import { GameInfoActions } from "./game-info-actions"
+import { FeedbackBtn } from "@/components/feedback-btn"
 
 export interface GameInfoData {
   releaseDate?: string
@@ -21,9 +21,8 @@ export interface GameInfoData {
   englishName?: string
   originalWork?: string
   vndbId?: string
-  /** 底部两条长条要用：收藏条走收藏 API、反馈条走举报 API */
+  /** 底部反馈条用：走举报 API */
   gameId: string
-  favoriteCount?: number
 }
 
 /** 每行「label 左 / 值右」：值与卡片内容右边缘对齐，长值换行时仍右靠齐 */
@@ -116,7 +115,7 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
   const {
     releaseDate, status, studios, gameDuration, platforms, languages,
     originalLanguage, ageRating, officialWebsite, englishName, originalWork, vndbId,
-    gameId, favoriteCount,
+    gameId,
   } = data
 
   const platformChips = (platforms ?? []).map((c) => PLATFORM_LABELS[c] ?? c.toUpperCase())
@@ -230,9 +229,12 @@ export function GameInfoList({ data, showTitle = false }: { data: GameInfoData; 
         </Row>
       )}
 
-      {/* 底部两条等宽长条：收藏数量 / 反馈问题 */}
+      {/* 底部只留一条：反馈问题（全宽；收藏条已删） */}
       <div className="pt-1">
-        <GameInfoActions gameId={gameId} favoriteCount={favoriteCount} />
+        <FeedbackBtn
+          gameId={gameId}
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg h-8 text-[13px] font-semibold bg-card ring-1 ring-border text-muted-foreground transition-[color,background-color,box-shadow,opacity] duration-200 hover:text-foreground"
+        />
       </div>
     </div>
   )
