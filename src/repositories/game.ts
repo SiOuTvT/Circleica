@@ -228,7 +228,7 @@ export const gameRepo = {
     return prisma.gameResource
       .findMany({
         where: { gameId },
-        include: { entries: { take: 20 }, user: { select: { id: true, username: true } } },
+        include: { entries: { take: 20 }, user: { select: { id: true, username: true, avatar: true } } },
         orderBy: { createdAt: "desc" },
         take: 50,
       })
@@ -238,7 +238,7 @@ export const gameRepo = {
   createResource(data: Prisma.GameResourceCreateInput | Prisma.GameResourceUncheckedCreateInput) {
     return prisma.gameResource.create({
       data,
-      include: { entries: true, user: { select: { id: true, username: true } } },
+      include: { entries: true, user: { select: { id: true, username: true, avatar: true } } },
     }).then(deserializeResourceFields)
   },
 

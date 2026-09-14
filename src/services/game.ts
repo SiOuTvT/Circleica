@@ -193,13 +193,16 @@ export const gameService = {
 
   // ── 资源 ────────────────────────────
 
-  getResources(gameId: string) { return gameRepo.findResources(gameId) },
+  async getResources(gameId: string) {
+    const rows = await gameRepo.findResources(gameId)
+    return rows.map(withFlatUser)
+  },
 
   async createResource(gameId: string, userId: string, raw: Record<string, unknown>) {
     // Zod 验证
     const parsed = gameResourceCreateSchema.parse(raw)
 
-    return gameRepo.createResource({
+    return withFlatUser(await gameRepo.createResource({
       gameId, userId,
       resourceName: parsed.resourceName ?? "",
       resourceNote: parsed.resourceNote ?? "",
@@ -215,7 +218,7 @@ export const gameService = {
           fileSize: e.fileSize ?? "",
         })),
       },
-    })
+    }))
   },
 
   async deleteResource(resourceId: string, userId: string, role: string) {
@@ -269,7 +272,7 @@ export const gameService = {
       return tx.gameResource.update({
         where: { id: resourceId },
         data: updateData as Prisma.GameResourceUpdateInput,
-        include: { entries: true, user: { select: { id: true, username: true } } },
+        include: { entries: true, user: { select: { id: true, username: true, avatar: true } } },
       })
     })
     // 与 findResources/createResource 保持一致：标签字段反序列化为数组
@@ -279,12 +282,24 @@ export const gameService = {
       try { const p: unknown = JSON.parse(v); return Array.isArray(p) ? p.filter((x): x is string => typeof x === "string") : [] }
       catch { return [] }
     }
-    return {
+    return withFlatUser({
       ...updated,
       platform: parseArr(updated.platform),
       language: parseArr(updated.language),
       runType: parseArr(updated.runType),
       resourceContent: parseArr(updated.resourceContent),
-    }
+    })
   },
+}
+
+/**
+ * 资源出口统一形状。
+ *
+ * repo 返回的是嵌套的 user: { id, username, avatar }，而前端读的是平铺的
+ * username / userAvatar（SubmittedResource 就是这个形状）—— 不展平的话前台
+ * 只能永远拿到 undefined。这里在 service 出口展平，前端读取方式保持不变。
+ */
+function withFlatUser<T extends { user?: { username?: string | null; avatar?: string | null } | null }>(resource: T) {
+  const { user, ...rest } = resource
+  return { ...rest, username: user?.username ?? "", userAvatar: user?.avatar ?? null }
 }

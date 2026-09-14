@@ -15,6 +15,7 @@ import { GameRating } from "./game-rating"
 import { ReportDialog } from "./game-detail/report-dialog"
 import { ResourceTab, type ResourceRailData } from "./game-detail/resource-tab"
 import { UserActivityTimeline } from "@/components/user-activity-timeline"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import type { OverviewRow } from "./comment-section"
 import { Plus } from "lucide-react"
 
@@ -256,6 +257,7 @@ export default function GameDetailClient({
 
 
   return (
+    <TooltipProvider>
     <div>
       {/* ══════ Tab 行：通栏独占一行（自身按内容宽贴左、带计数，不拉满）；
            间距只由外层（page.tsx 内容区上内边距）提供，这里不再自己叠 mt ══════ */}
@@ -395,7 +397,11 @@ export default function GameDetailClient({
               <section className="rounded-xl bg-card p-4 ring-1 ring-border">
                 <h3 className="text-[13px] font-semibold text-foreground">资源动态</h3>
                 <div className="mt-2.5">
-                  <UserActivityTimeline items={resourceRail.activities} />
+                  {resourceRail.activities.length === 0 ? (
+                    <p className="text-[13px] text-muted-foreground">暂无动态</p>
+                  ) : (
+                    <UserActivityTimeline items={resourceRail.activities} />
+                  )}
                 </div>
               </section>
 
@@ -451,5 +457,6 @@ export default function GameDetailClient({
         onSubmit={handleReport}
       />
     </div>
+    </TooltipProvider>
   )
 }

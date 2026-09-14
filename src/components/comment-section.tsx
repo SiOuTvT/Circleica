@@ -29,7 +29,7 @@ interface Comment {
 /** 回复超过这个条数时折叠，只留最后 2 条 + 「查看全部 N 条回复」 */
 const REPLIES_PREVIEW = 2
 
-/** 右栏「评论概览」的一行（值可能是「—」） */
+/** 右栏「评论概览」的一行：数字类一律显示 0；文本/时间类没有数据时整行不渲染 */
 export type OverviewRow = { label: string; value: string }
 
 interface Props {
@@ -73,7 +73,6 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
   }, [comments.length, onCountChange])
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { message: emptyMsg } = useEmotionalMessage("empty_comments")
   const { message: commentMsg } = useEmotionalMessage("comment_success")
 
   function handleFile(file: File) {
@@ -270,9 +269,13 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       null
     )
     return [
-      { label: "评论数", value: comments.length > 0 ? String(comments.length) : "—" },
-      { label: "参与人数", value: participantCount > 0 ? String(participantCount) : "—" },
-      { label: "最近一条", value: latestComment ? formatZhDateTime(latestComment.createdAt) : "—" },
+      // 数字类一律显示真实值（0 也显示），和资源 tab 右栏同一口径
+      { label: "评论数", value: String(comments.length) },
+      { label: "参与人数", value: String(participantCount) },
+      // 时间/文本项没有数据时整行不渲染，不显示「—」
+      ...(latestComment
+        ? [{ label: "最近一条", value: formatZhDateTime(latestComment.createdAt) }]
+        : []),
     ]
   }, [comments])
 
@@ -282,12 +285,6 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
 
   return (
     <section>
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-        <span className="h-4 w-0.5 rounded-full bg-primary" />
-        评论
-        <span className="text-xs font-normal text-muted-foreground">{comments.length}</span>
-      </h2>
-
       {/* 发评论 */}
       {isLoggedIn ? (
         <form onSubmit={submit} className="mb-6">
@@ -439,9 +436,7 @@ export function CommentSection({ gameId, comments: init, isLoggedIn, currentUser
       {/* 评论列表 — 楼中楼：顶层评论 + 其下回复 */}
       <div className="space-y-4">
         {threads.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            {emptyMsg ? <><EmotionalIcon emoji={emptyMsg.emoji} className="h-4 w-4" /> {emptyMsg.title}，{emptyMsg.subtitle}</> : "还没有评论，来说点什么吧~"}
-          </p>
+          <p className="mt-4 text-[13px] text-muted-foreground">还没有评论</p>
         )}
         {threads.map(({ root, replies }) => {
           const expanded = !!expandedReplies[root.id]

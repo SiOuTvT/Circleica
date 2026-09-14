@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { FilePlus2, Pencil, Sparkles, Calendar } from "lucide-react"
+import { FilePlus2, Pencil, Plus, Sparkles, Calendar } from "lucide-react"
 import { timeAgo } from "@/lib/time-ago"
 import { cn } from "@/lib/utils"
 
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
  * 面板自身上下自由滚动（max-h + overflow-y-auto）。
  */
 
-export type ActivityKind = "game_published" | "resource_added" | "resource_edited" | "other"
+export type ActivityKind = "game_published" | "resource_added" | "resource_edited" | "resource_created" | "other"
 
 export interface ActivityItemData {
   id: string
@@ -29,6 +29,8 @@ export interface ActivityItemData {
 const KIND_META: Record<ActivityKind, { icon: React.ElementType; label: string; color: string }> = {
   game_published: { icon: Sparkles, label: "发布了游戏", color: "var(--primary)" },
   resource_added: { icon: FilePlus2, label: "添加了资源", color: "#22c55e" },
+  // 详情页右栏由已加载资源生成的事件（新增资源「名字」）
+  resource_created: { icon: Plus, label: "新增资源", color: "#22c55e" },
   resource_edited: { icon: Pencil, label: "编辑了资源", color: "#f59e0b" },
   other: { icon: Calendar, label: "动态", color: "var(--muted-foreground)" },
 }
