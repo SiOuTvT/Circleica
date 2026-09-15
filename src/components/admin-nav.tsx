@@ -198,10 +198,12 @@ function NavItemRow({
   onNavigate?: () => void
 }) {
   const Icon = item.icon
+  // 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44（桌面端仍 32）
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
+      role="link"
       title={collapsed ? item.label : undefined}
       aria-current={isActive ? "page" : undefined}
       className={cn(
@@ -509,7 +511,8 @@ export function AdminNav() {
               <button type="button" onClick={triggerSearch} title="全局搜索 (Ctrl+K)" aria-label="全局搜索" className={TOOL_BASE}>
                 <Search className="h-4 w-4" strokeWidth={2} />
               </button>
-              <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_BASE}>
+              {/* 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44 */}
+              <Link href="/" title="返回前台" aria-label="返回前台" role="link" className={TOOL_BASE}>
                 <ArrowLeft className="h-4 w-4" strokeWidth={2} />
               </Link>
               <button type="button" onClick={cycleTheme} title={themeTitle} aria-label={themeTitle} className={TOOL_BASE}>
@@ -525,7 +528,8 @@ export function AdminNav() {
                 <Search className="h-4 w-4" strokeWidth={2} />
                 搜索
               </button>
-              <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_CELL}>
+              {/* 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44 */}
+              <Link href="/" title="返回前台" aria-label="返回前台" role="link" className={TOOL_CELL}>
                 <ArrowLeft className="h-4 w-4" strokeWidth={2} />
                 前台
               </Link>
@@ -559,8 +563,10 @@ export function AdminNav() {
           >
             <Search className="h-5 w-5" strokeWidth={2} />
           </button>
+          {/* 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44 */}
           <Link
             href="/"
+            role="link"
             className="flex h-9 w-9 items-center justify-center rounded-[var(--admin-radius-ctl)] text-muted-foreground hover:bg-accent hover:text-foreground transition duration-150 ease-in-out"
           >
             <ArrowLeft className="h-5 w-5" strokeWidth={2} />
@@ -655,7 +661,8 @@ export function AdminNav() {
               <Search className="h-4 w-4" strokeWidth={2} />
               搜索
             </button>
-            <Link href="/" title="返回前台" aria-label="返回前台" className={TOOL_CELL} onClick={() => setMobileOpen(false)}>
+            {/* 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44 */}
+            <Link href="/" title="返回前台" aria-label="返回前台" role="link" className={TOOL_CELL} onClick={() => setMobileOpen(false)}>
               <ArrowLeft className="h-4 w-4" strokeWidth={2} />
               前台
             </Link>

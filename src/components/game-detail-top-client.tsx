@@ -63,7 +63,7 @@ export function GameDetailTopClient({
             onClick={handleFavoriteClick}
             disabled={!isLoggedIn || unfavoriting}
             className={cn(
-              "inline-flex h-8 items-center justify-center gap-1.5 rounded-[6px] px-3 text-[13px] font-semibold ring-1 transition-all",
+              "inline-flex h-8 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold ring-1 transition-all",
               fav
                 ? "bg-primary/10 ring-primary/20 text-primary"
                 : "bg-card ring-border text-muted-foreground hover:text-foreground hover:ring-foreground/20"
@@ -84,7 +84,7 @@ export function GameDetailTopClient({
           {/* 下载 */}
           <button
             onClick={handleDownloadClick}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[6px] border border-primary/35 bg-primary/10 px-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-xl border border-primary/35 bg-primary/10 px-3 text-[13px] font-semibold text-primary transition-colors hover:bg-primary/20"
           >
             <Download className="h-3.5 w-3.5" strokeWidth={2} />
             <span>下载</span>
@@ -93,7 +93,7 @@ export function GameDetailTopClient({
           {/* 分享 */}
           <button
             onClick={handleShare}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[6px] bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-xl bg-card px-3 text-[13px] font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20"
           >
             <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
             <span>分享</span>
@@ -101,10 +101,12 @@ export function GameDetailTopClient({
 
           {/* 副站资料库 — 副站主题色（var(--gal-accent) 随明暗主题走，不写死色值） */}
           {galvelicaHref && (
+            // 复用 globals.css 触控热区档：[role="link"] ⇒ 触屏端自动 ≥44×44（桌面端仍 32，观感不变）
             <a
               href={galvelicaHref}
               title={galvelicaTitle}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[6px] px-3 text-[13px] font-semibold text-[var(--gal-accent)] bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)]"
+              role="link"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold text-[var(--gal-accent)] bg-[color-mix(in_srgb,var(--gal-accent)_12%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--gal-accent)_35%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--gal-accent)_20%,transparent)]"
             >
               <Library className="h-3.5 w-3.5" strokeWidth={2} />
               <span>副站资料库</span>
