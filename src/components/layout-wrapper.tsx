@@ -27,8 +27,6 @@ const RIGHT_W = 260
 const CONTENT_GUTTER = 40
 /** 侧栏与内容列之间的缝 */
 const SIDE_GAP = 32
-/** ≥1440 起启用恒定预留（两侧都按最宽态留位，内容列完全不受侧栏开合影响） */
-const WIDE_BREAKPOINT = 1440
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -49,22 +47,15 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   const [navMobileOpen, setNavMobileOpen] = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
-  /** ≥1440：两侧按最宽态恒定预留，内容列与侧栏开合彻底解耦 */
-  const [isWide, setIsWide] = useState(false)
 
+  // ≥1440 的恒定预留不经过 JS：那一档的 padding 由 globals.css 的 .layout-shell
+  // @media (min-width: 1440px) 直接写死（阈值只存在于那一处）。这里只需要 isDesktop。
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024)
-    setIsWide(window.innerWidth >= WIDE_BREAKPOINT)
     const mqlDesktop = window.matchMedia("(min-width: 1024px)")
-    const mqlWide = window.matchMedia(`(min-width: ${WIDE_BREAKPOINT}px)`)
     const onDesktop = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
-    const onWide = (e: MediaQueryListEvent) => setIsWide(e.matches)
     mqlDesktop.addEventListener("change", onDesktop)
-    mqlWide.addEventListener("change", onWide)
-    return () => {
-      mqlDesktop.removeEventListener("change", onDesktop)
-      mqlWide.removeEventListener("change", onWide)
-    }
+    return () => mqlDesktop.removeEventListener("change", onDesktop)
   }, [])
 
   // 左栏展开态恒 216（≥1440 的恒定预留就按这个基准对齐）；收起时它自己变窄，不回头影响内容列
@@ -74,22 +65,23 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? RIGHT_W : 0
 
-  /* ── 内容列预留（15-F）──
-     ① ≥1440：两侧都按「该侧最宽态 + 32 缝」恒定预留（左 216 / 右 260 都是常量），
-        不读 leftWidth / rightWidth，与 navCollapsed、forumOpen 完全无关 ——
-        四态下内容列 x 与宽度一像素不动，侧栏只在留白里滑入滑出：永不覆盖、永不挤压。
-     ② 1024–1439：沿用挤位式（R36）—— 侧栏打开时内容列让位，仍然不覆盖。
-     ③ <1024：抽屉覆盖 + 遮罩，两条都给 undefined（响应式 px 类照常生效，行为不变）。
-     内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍。 */
-  const pad = isWide
-    ? {
-        paddingLeft: LEFT_EXPANDED_W + SIDE_GAP - CONTENT_GUTTER,
-        paddingRight: RIGHT_W + SIDE_GAP - CONTENT_GUTTER,
-      }
-    : {
-        paddingLeft: isDesktop ? leftWidth + SIDE_GAP - CONTENT_GUTTER : undefined,
-        paddingRight: isDesktop && forumOpen ? rightWidth + SIDE_GAP - CONTENT_GUTTER : undefined,
-      }
+  /* ── 内容列预留（15-G）──
+     本层只输出两个 CSS 自定义属性，真正的 padding 由 globals.css 的 .layout-shell 消费：
+     ① 1024–1439 挤位式（R36）：--pad-left = 左栏实际占宽 + 32 缝 − 40 内层留白；
+        --pad-right 只在论坛栏打开时给（右侧让位，仍然不覆盖），关闭时这个键不写。
+     ② ≥1440 恒定预留：由 globals.css 的 @media (min-width: 1440px) 直接写死 208 / 252 覆盖本层，
+        JS 完全不参与 —— 首帧即是最终值，不会有「先按挤位画一帧再补预留」那一下。
+     ③ <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
+     内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍。
+     自定义属性不是 CSSProperties 的已知键，用「计算键 + as string」只放宽这两个键，不放宽整个 style。 */
+  const padStyle: React.CSSProperties = {
+    ...(isDesktop
+      ? { ["--pad-left" as string]: `${leftWidth + SIDE_GAP - CONTENT_GUTTER}px` }
+      : null),
+    ...(isDesktop && forumOpen
+      ? { ["--pad-right" as string]: `${rightWidth + SIDE_GAP - CONTENT_GUTTER}px` }
+      : null),
+  }
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -140,8 +132,8 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
           children
         ) : (
           <div
-            className="flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
-            style={pad}
+            className="layout-shell flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
+            style={padStyle}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto w-full max-w-[1560px]">

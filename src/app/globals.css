@@ -93,6 +93,27 @@ main > * {
   min-width: 0;
 }
 
+/* ═══ 内容列外壳（layout-shell）· 15-G ═══
+   承载整页左右 padding 的那一层，见 src/components/layout-wrapper.tsx（className 带 layout-shell 的那个 div）。
+   ① 1024–1439「挤位式」：值由 JS 通过 --pad-left / --pad-right 两个自定义属性喂进来
+      （= 侧栏实际占宽 + 32 缝 − 40 内层留白，对应 layout-wrapper 的 SIDE_GAP / CONTENT_GUTTER）；
+   ② ≥1440「恒定预留」：两侧都按最宽态留位，直接写死、不读 JS 变量 ——
+      首帧即是最终值（不再有"先按挤位画一帧、挂载后再补预留"那一下），
+      四态（开左 / 双开 / 左收右开 / 只开右）下内容列 x 与宽度一像素不动。
+   阈值 1440 只在本文件这一处定义，JS 里不保留第二份；同特异度、靠源码顺序压过上面那条，不用 !important。 */
+.layout-shell {
+  padding-left: var(--pad-left, 0px);
+  padding-right: var(--pad-right, 0px);
+}
+/* 左 216 + 32 − 40 = 208；右 260 + 32 − 40 = 252
+   （216 = 左栏展开态 LEFT_EXPANDED_W，260 = 论坛栏 RIGHT_W，32 = SIDE_GAP 缝，40 = 内层 lg:px-10 的留白） */
+@media (min-width: 1440px) {
+  .layout-shell {
+    padding-left: 208px;
+    padding-right: 252px;
+  }
+}
+
 /* ═══ iOS 输入框自动缩放防护 ═══ */
 /* iOS Safari 在 font-size < 16px 的 input/textarea 获焦时会自动缩放页面 */
 @media (max-width: 768px) {
