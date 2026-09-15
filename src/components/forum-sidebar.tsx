@@ -9,6 +9,7 @@ import { FORUM_CATEGORIES } from "@/lib/forum-categories"
 
 interface ForumSidebarProps {
   open: boolean
+  expanded?: boolean
   onToggle: () => void
 }
 
@@ -20,7 +21,7 @@ interface SidebarPost {
   createdAt?: string
 }
 
-export function ForumSidebar({ open, onToggle }: ForumSidebarProps) {
+export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarProps) {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 1023px)")
@@ -45,15 +46,11 @@ export function ForumSidebar({ open, onToggle }: ForumSidebarProps) {
           "fixed z-50 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
-          // 浮层边界：本栏不再要求内容列让位，展开时靠一圈发丝线 + 左侧柔和投影划清层级
-          //（关闭态不加，避免投影糊在视口右缘；无遮罩、不拦截内容区点击）
-          open && "shadow-[0_0_0_1px_rgba(255,255,255,.08),-16px_0_40px_-24px_rgba(0,0,0,.55)]",
         )}
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          // 桌面恒 260：内容列按「260 + 32 缝」恒定预留，面板再宽就会顶出预留位压住内容
-          width: isMobile ? "min(82vw, 300px)" : 260,
+          width: isMobile ? "min(82vw, 300px)" : expanded ? 340 : 260,
           // 关闭态多平移 1rem（> Windows 15px 滚动条），确保面板含左侧 1px 边框完全移出视口右缘，消除关闭态残留竖条
           transform: open ? "translateX(0)" : "translateX(calc(100% + 1rem))",
         }}

@@ -45,7 +45,7 @@ export const revalidate = 60
 
 function GameGridSlots() {
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
+    <div className="grid auto-rows-fr grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSlot key={i} />)}
     </div>
   )
@@ -263,7 +263,7 @@ export default async function HomePage({
       {/* ── 游戏网格 ── */}
       {allGames.length > 0 ? (
         <section>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
             {allGames.map((game) => (
               <GameCard key={game.id} game={game} />
             ))}
@@ -297,7 +297,7 @@ function LegacyGameGrid({ games, total, tag, q, page, sort }: { games: ReturnTyp
   return (
     <>
       <div className="mt-4">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
           {games.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}

@@ -209,7 +209,7 @@ async function SearchResults({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
             {games.map((game) => (
               <GameCard key={game.id} game={game} />
             ))}
@@ -244,7 +244,7 @@ function ResultsSkeleton({ view = "grid" }: { view?: ViewKey }) {
     )
   }
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
+    <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-5 sm:grid-cols-3 md:grid-cols-4 items-stretch">
       {Array.from({ length: 12 }).map((_, i) => <GameCardSkeleton key={i} />)}
     </div>
   )
