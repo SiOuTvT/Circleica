@@ -23,9 +23,12 @@ const LEFT_W = 180
 const LEFT_EXPANDED_W = 216
 const LEFT_COLLAPSED_W = 60
 const RIGHT_W = 260
-const RIGHT_EXPANDED_W = 340
-/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；挤位式算 padding 时要扣掉它 */
+/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；算 padding 时要扣掉它 */
 const CONTENT_GUTTER = 40
+/** 侧栏与内容列之间的缝 */
+const SIDE_GAP = 32
+/** ≥1440 起启用恒定预留（两侧都按最宽态留位，内容列完全不受侧栏开合影响） */
+const WIDE_BREAKPOINT = 1440
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -46,31 +49,47 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   const [navMobileOpen, setNavMobileOpen] = useState(false)
   const [forumOpen, setForumOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
+  /** ≥1440：两侧按最宽态恒定预留，内容列与侧栏开合彻底解耦 */
+  const [isWide, setIsWide] = useState(false)
 
   useEffect(() => {
     setIsDesktop(window.innerWidth >= 1024)
-    const mql = window.matchMedia("(min-width: 1024px)")
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
-    mql.addEventListener("change", handler)
-    return () => mql.removeEventListener("change", handler)
+    setIsWide(window.innerWidth >= WIDE_BREAKPOINT)
+    const mqlDesktop = window.matchMedia("(min-width: 1024px)")
+    const mqlWide = window.matchMedia(`(min-width: ${WIDE_BREAKPOINT}px)`)
+    const onDesktop = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    const onWide = (e: MediaQueryListEvent) => setIsWide(e.matches)
+    mqlDesktop.addEventListener("change", onDesktop)
+    mqlWide.addEventListener("change", onWide)
+    return () => {
+      mqlDesktop.removeEventListener("change", onDesktop)
+      mqlWide.removeEventListener("change", onWide)
+    }
   }, [])
 
-  // 只开一边时那一边变大
-  const leftExpanded = isDesktop && !navCollapsed && !forumOpen
-  const rightExpanded = isDesktop && navCollapsed && forumOpen
+  // 左栏展开态恒 216（≥1440 的恒定预留就按这个基准对齐）；收起时它自己变窄，不回头影响内容列
+  const leftExpanded = isDesktop && !navCollapsed
 
-  // 实际宽度
+  // 实际宽度：只有 1024–1439 的挤位式在用（≥1440 一律走下面的常量预留）
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
-  const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
+  const rightWidth = forumOpen ? RIGHT_W : 0
 
-  /* ── 三栏「挤位式」（R36）──
-     侧栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
-     外层容器按侧栏实际占宽加 padding，让内容区从「侧栏右缘 + 32」开始，
-     内容列再在剩下的可用宽度里 max-w-[1560px] mx-auto（居中 ⇒ 左右间距天然相等）。
-     内层内容列自己已带 lg:px-10（40px）留白，故这里扣掉它，避免把间距算两遍。
-     窄屏的侧栏是覆盖式抽屉：不设任何 padding（undefined 让响应式 px 类照常生效），行为与之前完全一致。 */
-  const contentPadLeft = isDesktop ? leftWidth + 32 - CONTENT_GUTTER : undefined
-  const contentPadRight = isDesktop && forumOpen ? rightWidth + 32 - CONTENT_GUTTER : undefined
+  /* ── 内容列预留（15-F）──
+     ① ≥1440：两侧都按「该侧最宽态 + 32 缝」恒定预留（左 216 / 右 260 都是常量），
+        不读 leftWidth / rightWidth，与 navCollapsed、forumOpen 完全无关 ——
+        四态下内容列 x 与宽度一像素不动，侧栏只在留白里滑入滑出：永不覆盖、永不挤压。
+     ② 1024–1439：沿用挤位式（R36）—— 侧栏打开时内容列让位，仍然不覆盖。
+     ③ <1024：抽屉覆盖 + 遮罩，两条都给 undefined（响应式 px 类照常生效，行为不变）。
+     内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍。 */
+  const pad = isWide
+    ? {
+        paddingLeft: LEFT_EXPANDED_W + SIDE_GAP - CONTENT_GUTTER,
+        paddingRight: RIGHT_W + SIDE_GAP - CONTENT_GUTTER,
+      }
+    : {
+        paddingLeft: isDesktop ? leftWidth + SIDE_GAP - CONTENT_GUTTER : undefined,
+        paddingRight: isDesktop && forumOpen ? rightWidth + SIDE_GAP - CONTENT_GUTTER : undefined,
+      }
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -122,7 +141,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
         ) : (
           <div
             className="flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
-            style={{ paddingLeft: contentPadLeft, paddingRight: contentPadRight }}
+            style={pad}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto w-full max-w-[1560px]">
@@ -144,7 +163,6 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
       {isNormalRoute && (
         <ForumSidebar
           open={forumOpen}
-          expanded={rightExpanded}
           onToggle={toggleForum}
         />
       )}
