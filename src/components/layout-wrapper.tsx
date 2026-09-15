@@ -19,13 +19,17 @@ const EmailVerificationBanner = dynamic(() => import("@/components/email-verific
 /* ═══════════════════════════════════════════════════
    侧边栏宽度常量
    ═══════════════════════════════════════════════════ */
-const LEFT_W = 180
+/**
+ * 两侧「最宽档」宽度 —— 内容列按这两个数恒定预留，与侧栏开合无关。
+ * 左栏自身的 60 / 180 / 216 三档由 nav-sidebar.tsx 的类控制（本文件不再重复持有一份），
+ * 论坛侧栏恒 260（取消原来的 340 档，见 forum-sidebar.tsx）。
+ */
 const LEFT_EXPANDED_W = 216
-const LEFT_COLLAPSED_W = 60
-/* 论坛侧栏（右）宽度 260 / 340 只作用于它自己（见 forum-sidebar.tsx 的 expanded 分支），
-   内容列已不再为它让位，故此处不再持有这两个常量。 */
-/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；挤位式算 padding 时要扣掉它 */
+const RIGHT_W = 260
+/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；算 padding 时要扣掉它 */
 const CONTENT_GUTTER = 40
+/** 侧栏（浮层）与内容列之间的缝 */
+const SIDE_GAP = 32
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -55,23 +59,22 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
     return () => mql.removeEventListener("change", handler)
   }, [])
 
-  // 只开一边时那一边变大；左栏只认自己收没收起，不看论坛栏（论坛栏是浮层，不占内容位）
+  // 左栏自身仍按 collapsed 在 60 / 180 / 216 之间变（nav-sidebar.tsx 内部实现），
+  // 但内容列不跟它联动 —— 收起时只是左侧留白变宽，中间的起点与宽度一动不动。
   const leftExpanded = isDesktop && !navCollapsed
-  // 论坛侧栏自身的宽度档：导航收起 + 论坛开 = 340，否则 260（只影响它自己，不再影响内容列）
-  const rightExpanded = isDesktop && navCollapsed && forumOpen
 
-  // 实际宽度
-  const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
-
-  /* ── 左栏「挤位式」（R36）──
-     左栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
-     外层容器按左栏实际占宽 + 32 的缝加 paddingLeft，让内容区从「左栏右缘 + 32」开始，
-     内容列再在剩下的可用宽度里 max-w-[1560px] mx-auto（居中 ⇒ 左右间距天然相等）。
-     内层内容列自己已带 lg:px-10（40px）留白，故这里扣掉它，避免把间距算两遍。
-     论坛侧栏（右）不参与挤位：它本来就是浮层，开合不再改变内容列的起点与宽度，
-     层级由它自己的发丝线 + 左侧柔和投影说明（见 forum-sidebar.tsx）。
+  /* ── 内容列恒定预留（15-C）──
+     两条 padding 都只看视口，与 navCollapsed / forumOpen 完全无关：
+     两侧一律按「该侧最宽档 + 32 缝」预留，侧栏只在预留位里滑入滑出 ——
+       ① 永不覆盖：内容列两侧始终留空 ≥32，论坛浮层恒 260，不会压到内容上；
+       ② 永不挤压：四态（都不开 / 只开左 / 只开右 / 都开）下内容列的 x 与宽度逐字相同。
+     代价是侧栏收起时那一侧留白变宽（这是刻意的选择，换来布局稳定）。
+     论坛侧栏因此取消 260/340 两档、恒 260；左栏自己在收起时变窄，也不再回头影响这里。
+     内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍；
+     再往里是 max-w-[1560px] mx-auto，顶栏 / 内容 / 页脚三者同源 ⇒ 同宽同位。
      窄屏的侧栏是覆盖式抽屉：不设任何 padding（undefined 让响应式 px 类照常生效），行为与之前完全一致。 */
-  const contentPadLeft = isDesktop ? leftWidth + 32 - CONTENT_GUTTER : undefined
+  const contentPadLeft = isDesktop ? LEFT_EXPANDED_W + SIDE_GAP - CONTENT_GUTTER : undefined
+  const contentPadRight = isDesktop ? RIGHT_W + SIDE_GAP - CONTENT_GUTTER : undefined
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -123,7 +126,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
         ) : (
           <div
             className="flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
-            style={{ paddingLeft: contentPadLeft }}
+            style={{ paddingLeft: contentPadLeft, paddingRight: contentPadRight }}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto w-full max-w-[1560px]">
@@ -145,7 +148,6 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
       {isNormalRoute && (
         <ForumSidebar
           open={forumOpen}
-          expanded={rightExpanded}
           onToggle={toggleForum}
         />
       )}

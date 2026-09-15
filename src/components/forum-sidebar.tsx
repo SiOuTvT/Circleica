@@ -9,7 +9,6 @@ import { FORUM_CATEGORIES } from "@/lib/forum-categories"
 
 interface ForumSidebarProps {
   open: boolean
-  expanded?: boolean
   onToggle: () => void
 }
 
@@ -21,7 +20,7 @@ interface SidebarPost {
   createdAt?: string
 }
 
-export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarProps) {
+export function ForumSidebar({ open, onToggle }: ForumSidebarProps) {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const mql = window.matchMedia("(max-width: 1023px)")
@@ -53,7 +52,8 @@ export function ForumSidebar({ open, expanded = false, onToggle }: ForumSidebarP
         style={{
           background: "var(--sidebar)",
           borderLeft: "1px solid var(--sidebar-border)",
-          width: isMobile ? "min(82vw, 300px)" : expanded ? 340 : 260,
+          // 桌面恒 260：内容列按「260 + 32 缝」恒定预留，面板再宽就会顶出预留位压住内容
+          width: isMobile ? "min(82vw, 300px)" : 260,
           // 关闭态多平移 1rem（> Windows 15px 滚动条），确保面板含左侧 1px 边框完全移出视口右缘，消除关闭态残留竖条
           transform: open ? "translateX(0)" : "translateX(calc(100% + 1rem))",
         }}

@@ -43,7 +43,7 @@ export default async function ListSharePage({ params }: { params: Promise<{ id: 
             <p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:gap-4 lg:gap-5 items-stretch [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))] lg:[grid-template-columns:repeat(auto-fill,minmax(248px,1fr))]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 min-[1700px]:grid-cols-4 sm:gap-4 lg:gap-5 items-stretch">
             {games.map((g) => (
               <Link key={g.id} href={`/games/${g.serialId ?? g.id}`} className="group">
                 <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted">
