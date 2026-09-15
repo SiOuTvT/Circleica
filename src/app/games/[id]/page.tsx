@@ -221,10 +221,10 @@ export default async function GameDetailPage({
       <GameBreadcrumb gameId={String(game.serialId)} gameTitle={game.title} />
 
       {/* ═══════════════════════════════════════════════
-          顶部识别区 — 三列网格（≥sm）：海报 208 / 信息列 minmax(0,1fr) / 动作组 132
-          <sm 仍是纵向堆叠：海报 → 信息列 → 动作组（横排换行）
+          顶部识别区 — 两列网格（≥sm）：海报 208 / 信息列 minmax(0,1fr)
+          动作组回到信息列最后一行横排；<sm 纵向堆叠：海报 → 信息列（含动作组）
       ═══════════════════════════════════════════════ */}
-      <div className="flex min-w-0 flex-col gap-2 sm:grid sm:grid-cols-[208px_minmax(0,1fr)_132px] sm:gap-6">
+      <div className="flex min-w-0 flex-col gap-2 sm:grid sm:grid-cols-[208px_minmax(0,1fr)] sm:gap-6">
 
         {/* 浏览历史记录器（无 UI）：原先挂在人气数据行里，那行已删，这里单独保留以继续记录 */}
         <ViewHistoryRecorder targetType="GAME" targetId={resolved.id} />
@@ -295,14 +295,7 @@ export default async function GameDetailPage({
             </span>
           </div>
 
-          {/* ④ 简介摘要：正文转纯文本、最多两行（15px / 1.75）；简介为空整块不渲染 */}
-          {descriptionText && (
-            <p className="line-clamp-2 text-[15px] leading-[1.75] text-muted-foreground">
-              {descriptionText}
-            </p>
-          )}
-
-          {/* ⑤ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
+          {/* ④ 资源标签行：眉标固定不随滚动，pill 单行横滑（右缘渐隐） */}
           <div className="flex items-center gap-2.5">
             <span className="shrink-0 text-[11px] text-muted-foreground">资源标签</span>
             <TagRow className="min-w-0 flex-1" singleLine>
@@ -319,11 +312,7 @@ export default async function GameDetailPage({
             </TagRow>
           </div>
 
-        </div>
-
-        {/* ─── 第三列：动作组（≥sm 竖排撑满 132、顶边与 H1 顶边对齐；
-             <sm 回到横排换行，不再竖排）─── */}
-        <div className="flex flex-col gap-2 self-start">
+          {/* ⑤ 动作组：收藏 / 下载 / 分享 / 副站资料库 —— 横排、按内容自适应宽（信息列最后一行） */}
           <GameDetailTopClient
             gameId={resolved.id}
             downloadLinks={downloadLinks}
@@ -340,6 +329,7 @@ export default async function GameDetailPage({
                 : "本作尚未收录进 Galvelica 资料库，去副站查找或申请收录"
             }
           />
+
         </div>
       </div>
 

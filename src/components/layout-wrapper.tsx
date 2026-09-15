@@ -22,8 +22,8 @@ const EmailVerificationBanner = dynamic(() => import("@/components/email-verific
 const LEFT_W = 180
 const LEFT_EXPANDED_W = 216
 const LEFT_COLLAPSED_W = 60
-const RIGHT_W = 260
-const RIGHT_EXPANDED_W = 340
+/* 论坛侧栏（右）宽度 260 / 340 只作用于它自己（见 forum-sidebar.tsx 的 expanded 分支），
+   内容列已不再为它让位，故此处不再持有这两个常量。 */
 /** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；挤位式算 padding 时要扣掉它 */
 const CONTENT_GUTTER = 40
 
@@ -55,22 +55,23 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
     return () => mql.removeEventListener("change", handler)
   }, [])
 
-  // 只开一边时那一边变大
-  const leftExpanded = isDesktop && !navCollapsed && !forumOpen
+  // 只开一边时那一边变大；左栏只认自己收没收起，不看论坛栏（论坛栏是浮层，不占内容位）
+  const leftExpanded = isDesktop && !navCollapsed
+  // 论坛侧栏自身的宽度档：导航收起 + 论坛开 = 340，否则 260（只影响它自己，不再影响内容列）
   const rightExpanded = isDesktop && navCollapsed && forumOpen
 
   // 实际宽度
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
-  const rightWidth = forumOpen ? (rightExpanded ? RIGHT_EXPANDED_W : RIGHT_W) : 0
 
-  /* ── 三栏「挤位式」（R36）──
-     侧栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
-     外层容器按侧栏实际占宽加 padding，让内容区从「侧栏右缘 + 16」开始，
+  /* ── 左栏「挤位式」（R36）──
+     左栏仍是 fixed 覆盖层（定位与动画都不重写），改由内容区主动让位：
+     外层容器按左栏实际占宽 + 32 的缝加 paddingLeft，让内容区从「左栏右缘 + 32」开始，
      内容列再在剩下的可用宽度里 max-w-[1560px] mx-auto（居中 ⇒ 左右间距天然相等）。
      内层内容列自己已带 lg:px-10（40px）留白，故这里扣掉它，避免把间距算两遍。
+     论坛侧栏（右）不参与挤位：它本来就是浮层，开合不再改变内容列的起点与宽度，
+     层级由它自己的发丝线 + 左侧柔和投影说明（见 forum-sidebar.tsx）。
      窄屏的侧栏是覆盖式抽屉：不设任何 padding（undefined 让响应式 px 类照常生效），行为与之前完全一致。 */
-  const contentPadLeft = isDesktop ? leftWidth + 16 - CONTENT_GUTTER : undefined
-  const contentPadRight = isDesktop && forumOpen ? rightWidth + 16 - CONTENT_GUTTER : undefined
+  const contentPadLeft = isDesktop ? leftWidth + 32 - CONTENT_GUTTER : undefined
 
   /* ── 切换函数 ── */
   const toggleNav = useCallback(() => {
@@ -122,7 +123,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
         ) : (
           <div
             className="flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
-            style={{ paddingLeft: contentPadLeft, paddingRight: contentPadRight }}
+            style={{ paddingLeft: contentPadLeft }}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
               <div className="mx-auto w-full max-w-[1560px]">

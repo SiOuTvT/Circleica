@@ -55,7 +55,7 @@ export default async function MyFavoritesPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 lg:gap-5 items-stretch [grid-template-columns:repeat(auto-fill,minmax(160px,1fr))] lg:[grid-template-columns:repeat(auto-fill,minmax(248px,1fr))]">
           {items.map((f) => (
             <Link
               key={f.id}
