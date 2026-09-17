@@ -93,24 +93,37 @@ main > * {
   min-width: 0;
 }
 
-/* ═══ 内容列外壳（layout-shell）· 15-G ═══
+/* ═══ 内容列外壳（layout-shell）· 15-H ═══
    承载整页左右 padding 的那一层，见 src/components/layout-wrapper.tsx（className 带 layout-shell 的那个 div）。
-   ① 1024–1439「挤位式」：值由 JS 通过 --pad-left / --pad-right 两个自定义属性喂进来
-      （= 侧栏实际占宽 + 32 缝 − 40 内层留白，对应 layout-wrapper 的 SIDE_GAP / CONTENT_GUTTER）；
-   ② ≥1440「恒定预留」：两侧都按最宽态留位，直接写死、不读 JS 变量 ——
-      首帧即是最终值（不再有"先按挤位画一帧、挂载后再补预留"那一下），
-      四态（开左 / 双开 / 左收右开 / 只开右）下内容列 x 与宽度一像素不动。
-   阈值 1440 只在本文件这一处定义，JS 里不保留第二份；同特异度、靠源码顺序压过上面那条，不用 !important。 */
+   ① ≥1024（桌面全区间，含 ≥1440）：挤位式 —— padding = 侧栏实际占宽 + 缝 − 40 内层留白，
+      值由 JS 通过 --pad-left / --pad-right 两个自定义属性喂进来；
+      缝随开栏数变化：只开左导航 40、左右同开 24（见 layout-wrapper 的 SIDE_GAP_SOLO / SIDE_GAP_BOTH），
+      左栏收起（60 窄轨）时左栏仍算「已开的一条」，同样套用上表。
+   ② <1024：抽屉覆盖 + 遮罩，两个键都不写，padding 0（行为不变）。
+   ── 首帧兜底：脚本接管前 --pad-left 尚未写入，此时回退到 --shell-pad-left-default，
+      它给的就是默认态（左导航展开 216、论坛栏关 ⇒ 216 + 40 − 40 = 216）的间距；
+      挂载后 JS 写入的值与之完全相同 ⇒ 无跳变、也不会播出一次入场动画。 */
 .layout-shell {
-  padding-left: var(--pad-left, 0px);
+  padding-left: var(--pad-left, var(--shell-pad-left-default, 0px));
   padding-right: var(--pad-right, 0px);
 }
-/* 左 216 + 32 − 40 = 208；右 260 + 32 − 40 = 252
-   （216 = 左栏展开态 LEFT_EXPANDED_W，260 = 论坛栏 RIGHT_W，32 = SIDE_GAP 缝，40 = 内层 lg:px-10 的留白） */
-@media (min-width: 1440px) {
+@media (min-width: 1024px) {
   .layout-shell {
-    padding-left: 208px;
-    padding-right: 252px;
+    --shell-pad-left-default: 216px;
+  }
+}
+/* ── 动效：外壳 padding 与两条侧栏（.sidebar-shell）共用同一时长与缓动，锁步开始与结束 ──
+   时长 300ms、缓动 cubic-bezier(0.22, 1, 0.36, 1)；transition-property 仍由各自的 Tailwind 类给出。
+   prefers-reduced-motion: reduce 时把时长压到 0（直接到位），不动 transition-property。 */
+.layout-shell,
+.sidebar-shell {
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .layout-shell,
+  .sidebar-shell {
+    transition-duration: 0ms;
   }
 }
 

@@ -23,10 +23,16 @@ const LEFT_W = 180
 const LEFT_EXPANDED_W = 216
 const LEFT_COLLAPSED_W = 60
 const RIGHT_W = 260
-/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；算 padding 时要扣掉它 */
+/** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；算 padding 时扣掉一次即可，勿重复扣减 */
 const CONTENT_GUTTER = 40
-/** 侧栏与内容列之间的缝 */
-const SIDE_GAP = 32
+/**
+ * 侧栏与内容区之间的缝（= 侧栏内边缘到内容区文字的视觉距离），随开栏数变化，左右共用同一个值：
+ *   · 只开左侧导航栏（论坛栏关）→ 40
+ *   · 左导航 + 右论坛栏同开 → 24
+ * 左栏收起（60 窄轨）时左栏仍算「已开的一条」，同样套用这两档。
+ */
+const SIDE_GAP_SOLO = 40
+const SIDE_GAP_BOTH = 24
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -65,21 +71,24 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
   const rightWidth = forumOpen ? RIGHT_W : 0
 
-  /* ── 内容列预留（15-G）──
+  // 缝随开栏数变化：只开左导航 40，左右同开 24（桌面全区间统一，含 ≥1440）
+  const sideGap = forumOpen ? SIDE_GAP_BOTH : SIDE_GAP_SOLO
+
+  /* ── 内容列预留（15-H）──
      本层只输出两个 CSS 自定义属性，真正的 padding 由 globals.css 的 .layout-shell 消费：
-     ① 1024–1439 挤位式（R36）：--pad-left = 左栏实际占宽 + 32 缝 − 40 内层留白；
-        --pad-right 只在论坛栏打开时给（右侧让位，仍然不覆盖），关闭时这个键不写。
-     ② ≥1440 恒定预留：由 globals.css 的 @media (min-width: 1440px) 直接写死 208 / 252 覆盖本层，
-        JS 完全不参与 —— 首帧即是最终值，不会有「先按挤位画一帧再补预留」那一下。
-     ③ <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
+     ① ≥1024（含 ≥1440）挤位式：--pad-left = 左栏实际占宽 + 缝 − 40 内层留白，
+        论坛栏打开时再写 --pad-right = 260 + 缝 − 40；关闭时右侧不留位，这个键不写（回退 0）。
+     ② <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
      内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍。
+     首帧（脚本接管前）由 CSS 的 --shell-pad-left-default 给出默认态的 216，挂载前后一致 ⇒ 无跳变、无入场动画。
+     过渡时长与缓动统一写在 globals.css 的 .layout-shell 规则里，本文件不重复。
      自定义属性不是 CSSProperties 的已知键，用「计算键 + as string」只放宽这两个键，不放宽整个 style。 */
   const padStyle: React.CSSProperties = {
     ...(isDesktop
-      ? { ["--pad-left" as string]: `${leftWidth + SIDE_GAP - CONTENT_GUTTER}px` }
+      ? { ["--pad-left" as string]: `${leftWidth + sideGap - CONTENT_GUTTER}px` }
       : null),
     ...(isDesktop && forumOpen
-      ? { ["--pad-right" as string]: `${rightWidth + SIDE_GAP - CONTENT_GUTTER}px` }
+      ? { ["--pad-right" as string]: `${rightWidth + sideGap - CONTENT_GUTTER}px` }
       : null),
   }
 
@@ -132,7 +141,7 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
           children
         ) : (
           <div
-            className="layout-shell flex min-h-screen flex-col transition-[padding] duration-300 ease-out"
+            className="layout-shell flex min-h-screen flex-col transition-[padding]"
             style={padStyle}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">

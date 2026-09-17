@@ -126,7 +126,8 @@ export function NavSidebar({ collapsed, expanded = false, onToggle: _onToggle, m
       {/* 侧边栏 */}
       <aside
         className={cn(
-          "fixed left-0 top-[env(safe-area-inset-top,0px)] z-50 h-[calc(100dvh-env(safe-area-inset-top,0px))] overflow-hidden transition-transform duration-300 ease-out lg:top-0 lg:h-full lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
+          // sidebar-shell：与外壳 padding、论坛侧栏共用同一时长/缓动（见 globals.css），锁步不换错拍
+          "sidebar-shell fixed left-0 top-[env(safe-area-inset-top,0px)] z-50 h-[calc(100dvh-env(safe-area-inset-top,0px))] overflow-hidden transition-transform lg:top-0 lg:h-full lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
           // 桌面宽度：收起 60 / 展开 216 / 默认 180；移动端统一 min(82vw,300px)（对齐移动端设计系统 8px 栅格与触控基线）
           collapsed ? "w-[60px]" : expanded ? "w-[216px]" : "w-[180px] max-lg:w-[min(82vw,300px)]",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"

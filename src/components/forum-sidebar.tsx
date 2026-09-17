@@ -42,7 +42,8 @@ export function ForumSidebar({ open, onToggle }: ForumSidebarProps) {
 
       <aside
         className={cn(
-          "fixed z-50 flex flex-col transition-transform duration-300 ease-out lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
+          // sidebar-shell：与外壳 padding、左侧导航栏共用同一时长/缓动（见 globals.css），锁步不换错拍
+          "sidebar-shell fixed z-50 flex flex-col transition-transform lg:transition-[width,color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter]",
           "top-[env(safe-area-inset-top,0px)] h-[calc(100dvh-env(safe-area-inset-top,0px))]",
           "right-0",
         )}
