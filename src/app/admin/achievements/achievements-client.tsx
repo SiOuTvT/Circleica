@@ -186,17 +186,20 @@ export function AchievementsClient() {
       align: "right",
       cell: (ach) => (
         <div className="flex items-center justify-end gap-1">
+          {/* 图标 + 文字：与后台其它操作列同一套形态，纯图标容易被当成装饰 */}
           <button
             onClick={() => setEditing(ach)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground ring-1 ring-border hover:bg-secondary hover:text-foreground transition-colors"
           >
-            <Edit2 className="h-4 w-4" />
+            <Edit2 className="h-3.5 w-3.5" />
+            编辑
           </button>
           <button
             onClick={() => setDeleteTarget(ach.id)}
-            className={cn(adminBtnDanger, "h-8 w-8 !p-0 justify-center")}
+            className={cn(adminBtnDanger, "h-8 px-2.5 text-xs")}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
+            删除
           </button>
         </div>
       ),

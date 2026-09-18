@@ -182,6 +182,7 @@ export default async function AdminReportsPage({
             key: "createdAt",
             label: "最近时间",
             width: "160px",
+            nowrap: true,
             render: (report) => (
               <span className="text-xs text-muted-foreground">{formatDateTime(report.createdAt)}</span>
             ),
@@ -193,7 +194,7 @@ export default async function AdminReportsPage({
             <ReportDeleteBtn id={report.id} />
           </span>
         )}
-        actionsWidth="132px"
+        actionsWidth="176px"
       />
 
       {reports.length === 0 && (

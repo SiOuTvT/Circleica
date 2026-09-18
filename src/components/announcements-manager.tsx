@@ -364,6 +364,7 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
                 key: "createdAt",
                 label: "发布时间",
                 width: "140px",
+                nowrap: true,
                 render: (ann) => (
                   <span className="text-xs text-muted-foreground">{formatMonthDay(ann.createdAt)}</span>
                 ),

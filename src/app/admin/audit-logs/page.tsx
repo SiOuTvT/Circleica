@@ -173,8 +173,9 @@ export default async function AdminAuditLogsPage({
             key: "createdAt",
             label: "时间",
             width: "160px",
+            nowrap: true,
             render: (log) => (
-              <span className="whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(log.createdAt)}</span>
+              <span className="text-xs text-muted-foreground">{formatDateTime(log.createdAt)}</span>
             ),
           },
           {

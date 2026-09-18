@@ -109,6 +109,7 @@ export default async function InclusionRequestsAdmin({ searchParams }: { searchP
               key: "createdAt",
               label: "提交时间",
               width: "160px",
+              nowrap: true,
               render: (r) => <span className="text-xs text-muted-foreground">{toShanghaiDate(r.createdAt)}</span>,
             },
           ]}
@@ -179,6 +180,7 @@ export default async function InclusionRequestsAdmin({ searchParams }: { searchP
                 key: "decidedAt",
                 label: "提交时间",
                 width: "160px",
+                nowrap: true,
                 render: (r) => (
                   <span className="text-xs text-muted-foreground">
                     {r.decidedAt ? toShanghaiDate(r.decidedAt) : "—"}

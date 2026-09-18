@@ -154,6 +154,7 @@ export default async function AdminCheckInsPage({
             key: "date",
             label: "签到日期",
             width: "160px",
+            nowrap: true,
             render: (ci) => <span className="text-xs text-muted-foreground">{formatDate(ci.date)}</span>,
           },
           {
@@ -167,11 +168,12 @@ export default async function AdminCheckInsPage({
             key: "createdAt",
             label: "创建时间",
             width: "180px",
+            nowrap: true,
             render: (ci) => <span className="text-xs text-muted-foreground">{formatDateTime(ci.createdAt)}</span>,
           },
         ]}
         actions={(ci) => <CheckinDeleteBtn id={ci.id} />}
-        actionsWidth="88px"
+        actionsWidth="120px"
       />
 
       {/* 签到配置编辑器 — 分节 + 列宽约束（760px，与表单列宽一致） */}

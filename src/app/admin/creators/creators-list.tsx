@@ -116,7 +116,7 @@ export function CreatorsList({ creators }: { creators: Creator[] }) {
           <CreatorDeleteBtn id={creator.id} gameCount={creator.gameCount} />
         </span>
       )}
-      actionsWidth="132px"
+      actionsWidth="176px"
     />
 
       <CreatorDetailDialog

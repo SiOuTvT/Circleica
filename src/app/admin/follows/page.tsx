@@ -122,13 +122,14 @@ export default async function AdminFollowsPage({
             key: "createdAt",
             label: "时间",
             width: "180px",
+            nowrap: true,
             render: (follow) => (
               <span className="text-xs text-muted-foreground">{formatDateTime(follow.createdAt)}</span>
             ),
           },
         ]}
         actions={(follow) => <FollowDeleteBtn id={follow.id} />}
-        actionsWidth="88px"
+        actionsWidth="120px"
       />
 
       {follows.length === 0 && (

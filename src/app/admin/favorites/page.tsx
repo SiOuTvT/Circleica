@@ -87,11 +87,12 @@ export default async function AdminFavoritesPage({
             key: "createdAt",
             label: "时间",
             width: "180px",
+            nowrap: true,
             render: (fav) => <span className="text-xs text-muted-foreground">{formatDateTime(fav.createdAt)}</span>,
           },
         ]}
         actions={(fav) => <FavoriteDeleteBtn id={fav.id} />}
-        actionsWidth="88px"
+        actionsWidth="120px"
       />
 
       <Pagination

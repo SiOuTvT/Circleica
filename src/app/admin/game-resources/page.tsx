@@ -129,6 +129,7 @@ export default async function AdminGameResourcesPage({
             key: "createdAt",
             label: "提交时间",
             width: "120px",
+            nowrap: true,
             render: (r) => <span className="text-xs text-muted-foreground">{timeAgo(r.createdAt)}</span>,
           },
           {
@@ -147,7 +148,7 @@ export default async function AdminGameResourcesPage({
           },
         ]}
         actions={(r) => <ResourceDeleteBtn id={r.id} name={r.resourceName || r.game.title} />}
-        actionsWidth="88px"
+        actionsWidth="120px"
       />
 
       {resources.length === 0 && (

@@ -134,7 +134,8 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
             label: "状态",
             width: "96px",
             render: (g) => (
-              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
+              // whitespace-nowrap：列被挤窄时 CJK 会逐字断行、胶囊竖成三行，这里强制横向单行
+              <span className={`inline-flex items-center whitespace-nowrap rounded-md px-2 py-0.5 text-[11px] font-semibold leading-none ${g.isPublished ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20" : "bg-muted text-muted-foreground ring-1 ring-border"}`}>
                 {g.isPublished ? "已发布" : "草稿"}
               </span>
             ),
@@ -157,6 +158,8 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
             key: "updatedAt",
             label: "更新时间",
             width: "140px",
+            // nowrap：整列放得下完整的 YYYY-MM-DD，不再被挤成「2026-」/「09-14」两行
+            nowrap: true,
             render: (g) => <span className="text-xs text-muted-foreground">{formatDate(g.updatedAt)}</span>,
           },
         ]}
@@ -177,7 +180,7 @@ export function AdminGamesTable({ games }: { games: Game[] }) {
             />
           </span>
         )}
-        actionsWidth="176px"
+        actionsWidth="184px"
       />
 
       <ConfirmDialog

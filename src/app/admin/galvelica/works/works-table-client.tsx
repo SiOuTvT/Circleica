@@ -82,6 +82,7 @@ export function WorksTableClient({ works }: { works: WorkRow[] }) {
             key: "releaseDate",
             label: "发售日",
             width: "130px",
+            nowrap: true,
             render: (w) => (
               <span className="text-xs text-muted-foreground">
                 {w.releaseDate ? new Date(w.releaseDate).toLocaleDateString("zh-CN") : "—"}

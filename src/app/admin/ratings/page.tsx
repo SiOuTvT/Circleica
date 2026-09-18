@@ -104,7 +104,7 @@ export default async function AdminRatingsPage({
           },
         ]}
         actions={(r) => <RatingDeleteBtn gameId={r.gameId} title={r.title} />}
-        actionsWidth="88px"
+        actionsWidth="120px"
       />
 
       {pageList.length === 0 && (

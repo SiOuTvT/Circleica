@@ -13,6 +13,13 @@ export interface AdminTableColumn<T> {
   sortable?: boolean
   /** 数字类列：自动右对齐 + tabular-nums（计数 / 浏览量 / 大小 / 分值 / 下载次数） */
   numeric?: boolean
+  /**
+   * 单元格不换行（日期/时间、状态胶囊、短枚举值等）。
+   * 表格是 table-auto：不设 nowrap 时列会被挤到按 CJK/连字符断行
+   *（"2026-09-14" 断成 "2026-" / "09-14"，"已发布" 竖排），
+   * 设了之后列至少拿到 min-content 宽 —— 整列不再折行、不占两个行高。
+   */
+  nowrap?: boolean
   /** 单元格内容；缺省按 key 取行上的同名字段 */
   render?: (row: T) => ReactNode
   className?: string
@@ -192,6 +199,7 @@ export function AdminDataTable<T>({
                         "[&_a]:min-h-7 [&_a]:leading-7",
                         (c.align === "right" || (c.numeric && c.align !== "left")) ? "text-right" : "text-left",
                         c.numeric && "num-tab",
+                        c.nowrap && "whitespace-nowrap",
                         c.key === "__actions" && "whitespace-nowrap",
                         c.className,
                       )}

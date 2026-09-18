@@ -57,12 +57,14 @@ export function AdminDeleteButton({
 
   return (
     <>
+      {/* 图标 + 文字：与同行「编辑」等操作按钮同一套形态 —— 纯图标容易被当成装饰、且与文字按钮不对称 */}
       <button
         onClick={() => setOpen(true)}
         title={buttonTitle}
-        className={buttonClassName ?? cn(adminBtnDanger, "h-7 w-7 !p-0 justify-center")}
+        className={buttonClassName ?? cn(adminBtnDanger, "h-7 px-2.5 text-xs")}
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-3.5 w-3.5" />
+        删除
       </button>
       <ConfirmDialog
         open={open}
