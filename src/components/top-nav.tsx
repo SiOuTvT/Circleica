@@ -26,7 +26,7 @@ import {
 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -41,8 +41,27 @@ interface TopNavProps {
 
 export function TopNav({ onToggleForum }: TopNavProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { data: session } = useSession()
   const user = session?.user
+
+  /**
+   * 「是否存在上一页」—— 没有跨浏览器可靠的单一 API，两条腿走路：
+   *   ① Navigation API（Chromium）直接给 canGoBack，连"刚按过返回、前面已经没有了"也算得准；
+   *   ② 其余浏览器退回 history.length > 1（同一个标签页里前面还有历史条目）。
+   * 首帧一律 false：SSR 拿不到 window，挂载后再按真实历史修正 ⇒ 不产生 hydration 不一致；
+   * 首页等最顶层页面落地时两者都为 false ⇒ 箭头隐藏，不会出现点了没反应的按钮。
+   */
+  const [canGoBack, setCanGoBack] = useState(false)
+  useEffect(() => {
+    const compute = () => {
+      const nav = (window as unknown as { navigation?: { canGoBack?: boolean } }).navigation
+      setCanGoBack(typeof nav?.canGoBack === "boolean" ? nav.canGoBack : window.history.length > 1)
+    }
+    compute()
+    window.addEventListener("popstate", compute)
+    return () => window.removeEventListener("popstate", compute)
+  }, [pathname])
 
   const [userOpen, setUserOpen]   = useState(false)
   const [scrolled, setScrolled]   = useState(false)
@@ -239,19 +258,22 @@ export function TopNav({ onToggleForum }: TopNavProps) {
       >
         <div className="flex h-full w-full items-center gap-1 sm:gap-3">
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => router.back()}
-                data-ripple
-                className="flex h-11 w-11 items-center justify-center rounded-full transition duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
-                aria-label="返回上一页"
-              >
-                <ArrowLeft className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">返回</TooltipContent>
-          </Tooltip>
+          {/* 只在确实存在上一页时才渲染（首页等最顶层页面隐藏，避免点了没反应） */}
+          {canGoBack && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => router.back()}
+                  data-ripple
+                  className="flex h-11 w-11 items-center justify-center rounded-full transition duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring nav-icon-btn hover:bg-muted"
+                  aria-label="返回上一页"
+                >
+                  <ArrowLeft className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">返回</TooltipContent>
+            </Tooltip>
+          )}
 
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <Tooltip>

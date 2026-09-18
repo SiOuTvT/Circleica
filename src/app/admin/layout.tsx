@@ -2,7 +2,6 @@ import { requireAdmin, requireSuperAdmin } from "@/lib/admin"
 import { isSuperAdminRoute } from "@/lib/permissions"
 import dynamic from "next/dynamic"
 import { headers } from "next/headers"
-import { AdminBackButton } from "@/components/admin-back-button"
 import { AdminTopBar } from "@/components/admin/admin-top-bar"
 
 const AdminGlobalSearch = dynamic(() => import("@/components/admin-global-search").then(m => ({ default: m.AdminGlobalSearch })))
@@ -65,8 +64,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="sr-only"><AdminGlobalSearch /></div>
         {/* 后台顶栏（期 4）：h-14、sticky、无阴影，覆盖全部后台页 */}
         <AdminTopBar />
+        {/* 返回入口只留顶栏 AdminTopBar 那一个（它带当前分区名，信息更完整）；
+            这里不再叠第二个「← 返回」，避免每个后台页出现两个功能重复的返回按钮。 */}
         <div className="mx-auto w-full max-w-[1400px] px-4 pt-0 pb-2 sm:px-8 sm:py-5">
-          <AdminBackButton />
           {children}
         </div>
       </main>

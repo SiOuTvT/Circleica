@@ -1,9 +1,7 @@
 ﻿import { requireAdmin } from "@/lib/admin"
 import { Card } from "@/components/ui/card"
 import { AdminPageHeader } from "@/components/admin/admin-page-header"
-import { ArrowLeft } from "lucide-react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 
 const VNDBImportManager = dynamic(() => import("@/components/vndb-import-manager").then(m => ({ default: m.VNDBImportManager })), {
   loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted" />,
@@ -16,14 +14,6 @@ export default async function VNDBImportPage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        href="/admin/games"
-        className="inline-flex h-8 items-center gap-1.5 px-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        返回游戏管理
-      </Link>
-
       <AdminPageHeader
         eyebrow="VNDB IMPORT"
         title="VNDB 批量导入"

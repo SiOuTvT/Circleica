@@ -4,7 +4,8 @@ import { ArrowLeft } from "lucide-react"
 
 /**
  * AdminBackLink — 用途：返回「指定的上级页面」（用 <Link> 跳转到明确 href，如 /admin/tags）。
- * 与 AdminBackButton（router.back() 走浏览历史）不是同一功能，勿互相替换。
+ * 与顶栏 AdminTopBar 那个「返回」（router.back() 走浏览历史、或回落 /admin）不是同一功能，
+ * 它跳的是明确的上级路由，用于详情页/子页面 —— 两者不重复，勿互相替换。
  * 纯 Server Component。accent 随 var(--admin-accent) → 默认 --primary。
  */
 export function AdminBackLink({
