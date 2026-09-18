@@ -100,16 +100,17 @@ main > * {
       缝随开栏数变化：只开左导航 40、左右同开 24（见 layout-wrapper 的 SIDE_GAP_SOLO / SIDE_GAP_BOTH），
       左栏收起（60 窄轨）时左栏仍算「已开的一条」，同样套用上表。
    ② <1024：抽屉覆盖 + 遮罩，两个键都不写，padding 0（行为不变）。
-   ── 首帧兜底：脚本接管前 --pad-left 尚未写入，此时回退到 --shell-pad-left-default，
-      它给的就是默认态（左导航展开 216、论坛栏关 ⇒ 216 + 40 − 40 = 216）的间距；
+   ── 首帧兜底：脚本接管前 --pad-* 尚未写入，此时回退到 --shell-pad-{left,right}-default，
+      它们给的就是默认态（左导航展开、论坛栏关 ⇒ 左 216 + 40 − 40 = 216，右 524 − 216 − 40 − 40 = 228）；
       挂载后 JS 写入的值与之完全相同 ⇒ 无跳变、也不会播出一次入场动画。 */
 .layout-shell {
   padding-left: var(--pad-left, var(--shell-pad-left-default, 0px));
-  padding-right: var(--pad-right, 0px);
+  padding-right: var(--pad-right, var(--shell-pad-right-default, 0px));
 }
 @media (min-width: 1024px) {
   .layout-shell {
     --shell-pad-left-default: 216px;
+    --shell-pad-right-default: 228px;
   }
 }
 /* ── 动效：外壳 padding 与两条侧栏（.sidebar-shell）共用同一时长与缓动，锁步开始与结束 ──

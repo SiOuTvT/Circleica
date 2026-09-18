@@ -15,7 +15,8 @@ export function SiteFooter({ siteName = "Circleica" }: { siteName?: string; logo
   // 这样页脚内容左右边缘与顶栏内层、页面内容列三者 x 完全一致
   return (
     <footer role="contentinfo" className="border-t border-border bg-muted/30 px-3 sm:px-6 lg:px-10 py-1 sm:py-3">
-      <div className="mx-auto w-full max-w-[1560px]">
+      {/* 去掉 mx-auto：内容列已改左对齐锚定（右侧留白是给论坛栏预留的位置），页脚必须跟着左锚定才同宽同位 */}
+      <div className="w-full max-w-[1560px]">
         {/* 品牌居左 + 链接居右，中间留白备后续扩展 */}
         <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:text-left">
           {/* 左：品牌介绍 */}

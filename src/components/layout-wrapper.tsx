@@ -17,22 +17,27 @@ const MusicPlayer = dynamic(() => import("@/components/music-player").then(m => 
 const EmailVerificationBanner = dynamic(() => import("@/components/email-verification-banner").then(m => ({ default: m.EmailVerificationBanner })), { ssr: false })
 
 /* ═══════════════════════════════════════════════════
-   侧边栏宽度常量
+   侧栏 / 内容列几何常量（R-01 v2：内容列宽度恒定、只平移）
    ═══════════════════════════════════════════════════ */
-const LEFT_W = 180
+/** 左栏展开态宽；收起成 60 窄轨时仍按 216 计（收起不移动内容、也不改变内容宽） */
 const LEFT_EXPANDED_W = 216
-const LEFT_COLLAPSED_W = 60
+/** 论坛栏宽（fixed 右贴边，定位不动） */
 const RIGHT_W = 260
 /** 内容列自身在 lg 断点下的左右留白（对应内层 lg:px-10）；算 padding 时扣掉一次即可，勿重复扣减 */
 const CONTENT_GUTTER = 40
 /**
- * 侧栏与内容区之间的缝（= 侧栏内边缘到内容区文字的视觉距离），随开栏数变化，左右共用同一个值：
+ * 侧栏与内容区之间的缝（= 侧栏内边缘到内容区文字的视觉距离），随开栏数变化：
  *   · 只开左侧导航栏（论坛栏关）→ 40
- *   · 左导航 + 右论坛栏同开 → 24
- * 左栏收起（60 窄轨）时左栏仍算「已开的一条」，同样套用这两档。
+ *   · 左导航 + 论坛栏同开 → 24
  */
 const SIDE_GAP_SOLO = 40
 const SIDE_GAP_BOTH = 24
+/**
+ * 固定总预留：两栏全开时两侧占掉的空间（216 + 260 + 2×24 = 524）。
+ * 内容列宽度 = 视口宽 − RESERVE，与开合状态、与桌面宽度都无关；
+ * 开合产生的差值全部交给对侧留白吸收（所以论坛关闭时右侧会露出约 268px 留白 —— 那是刻意保留的）。
+ */
+const RESERVE = LEFT_EXPANDED_W + RIGHT_W + 2 * SIDE_GAP_BOTH
 
 export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "full", siteLogo = null }: {
   children: React.ReactNode
@@ -64,31 +69,29 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
     return () => mqlDesktop.removeEventListener("change", onDesktop)
   }, [])
 
-  // 左栏展开态恒 216（≥1440 的恒定预留就按这个基准对齐）；收起时它自己变窄，不回头影响内容列
+  // 左栏展开 / 收起只影响它自己的宽度（nav-sidebar.tsx 内部实现），不再参与内容列的定位
   const leftExpanded = isDesktop && !navCollapsed
 
-  // 实际宽度：只有 1024–1439 的挤位式在用（≥1440 一律走下面的常量预留）
-  const leftWidth = navCollapsed ? LEFT_COLLAPSED_W : (leftExpanded ? LEFT_EXPANDED_W : LEFT_W)
-  const rightWidth = forumOpen ? RIGHT_W : 0
-
-  // 缝随开栏数变化：只开左导航 40，左右同开 24（桌面全区间统一，含 ≥1440）
+  // 缝随开栏数变化：只开左导航 40，左右同开 24
   const sideGap = forumOpen ? SIDE_GAP_BOTH : SIDE_GAP_SOLO
 
-  /* ── 内容列预留（15-H）──
-     本层只输出两个 CSS 自定义属性，真正的 padding 由 globals.css 的 .layout-shell 消费：
-     ① ≥1024（含 ≥1440）挤位式：--pad-left = 左栏实际占宽 + 缝 − 40 内层留白，
-        论坛栏打开时再写 --pad-right = 260 + 缝 − 40；关闭时右侧不留位，这个键不写（回退 0）。
-     ② <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
-     内层内容列自己已带 lg:px-10（40px），故这里扣掉它，避免把间距算两遍。
-     首帧（脚本接管前）由 CSS 的 --shell-pad-left-default 给出默认态的 216，挂载前后一致 ⇒ 无跳变、无入场动画。
+  /* ── 内容列定位（R-01 v2：宽度恒定、只平移）──
+     视口 = 左栏 + 左缝 + 内容 + 右缝 + 右栏，内容宽恒 = 视口 − RESERVE(524)。
+     本层只写 padding（位移），绝不写 width —— 卡片 / 网格不重排，这是"高级流畅"的关键：
+       padding-left  = 左栏 216 + 缝 − 40           ⇒ 论坛关 216 / 论坛开 200（内容左移 16）
+       padding-right = RESERVE − 左栏 216 − 缝 − 40  ⇒ 论坛关 228 / 论坛开 244
+     两式之和恒为 444（+ 内层留白 80 = 524）⇒ 内容列宽度恒定，开合只产生 16px 平移。
+     <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
+     首帧（脚本接管前）由 CSS 的 --shell-pad-{left,right}-default 给出默认态 216 / 228，
+     挂载后 JS 写入同值 ⇒ 无跳变、也不会播出一次入场动画。
      过渡时长与缓动统一写在 globals.css 的 .layout-shell 规则里，本文件不重复。
      自定义属性不是 CSSProperties 的已知键，用「计算键 + as string」只放宽这两个键，不放宽整个 style。 */
   const padStyle: React.CSSProperties = {
     ...(isDesktop
-      ? { ["--pad-left" as string]: `${leftWidth + sideGap - CONTENT_GUTTER}px` }
-      : null),
-    ...(isDesktop && forumOpen
-      ? { ["--pad-right" as string]: `${rightWidth + sideGap - CONTENT_GUTTER}px` }
+      ? {
+          ["--pad-left" as string]: `${LEFT_EXPANDED_W + sideGap - CONTENT_GUTTER}px`,
+          ["--pad-right" as string]: `${RESERVE - LEFT_EXPANDED_W - sideGap - CONTENT_GUTTER}px`,
+        }
       : null),
   }
 
@@ -145,7 +148,9 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
             style={padStyle}
           >
             <div className="flex-1 px-3 sm:px-6 lg:px-10 pb-8">
-              <div className="mx-auto w-full max-w-[1560px]">
+              {/* 宽度由外层预留（视口 − 524）决定、恒定不变；去掉 mx-auto 改左对齐锚定，
+                  右侧多出来的留白是给论坛栏预留的位置，刻意保留（R-01 v2） */}
+              <div className="w-full max-w-[1560px]">
                 <div className="sticky top-0 z-30" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
                   <TopNav onToggleForum={toggleForum} logoMode={logoMode} siteLogo={siteLogo} />
                 </div>
