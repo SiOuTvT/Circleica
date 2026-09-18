@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Tag as TagIcon } from "lucide-react"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -64,14 +63,11 @@ export default async function GalvelicaTagDetailPage({
       title={tag.name}
       description={tag.description || "Galvelica 副站标签"}
       actions={
-        <div className="flex items-center gap-2">
-          <AdminBackLink href="/admin/galvelica/tags" label="返回" />
-          <TagDetailClient
-            tag={{ id: tag.id, name: tag.name, color: tag.color, description: tag.description }}
-            candidates={candidates}
-            unifiedColor={unifiedColor}
-          />
-        </div>
+        <TagDetailClient
+          tag={{ id: tag.id, name: tag.name, color: tag.color, description: tag.description }}
+          candidates={candidates}
+          unifiedColor={unifiedColor}
+        />
       }
     >
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

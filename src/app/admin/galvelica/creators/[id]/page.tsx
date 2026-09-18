@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { requireSiteAdmin } from "@/lib/auth-context"
 import { prisma } from "@/lib/prisma"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { AdminBackLink } from "@/components/admin/admin-back-link"
 import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { Layers, ExternalLink, User } from "lucide-react"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -57,20 +56,17 @@ export default async function GalvelicaCreatorDetailPage({
       title={creator.name}
       description={creator.nameJa || "Galvelica 副站创作者"}
       actions={
-        <div className="flex items-center gap-2">
-          <AdminBackLink href="/admin/galvelica/creators" label="返回" />
-          <CreatorDetailClient
-            creator={{
-              id: creator.id,
-              name: creator.name,
-              nameJa: creator.nameJa,
-              bio: creator.bio,
-              gender: creator.gender,
-              twitterUrl: creator.twitterUrl,
-              wikipediaUrl: creator.wikipediaUrl,
-            }}
-          />
-        </div>
+        <CreatorDetailClient
+          creator={{
+            id: creator.id,
+            name: creator.name,
+            nameJa: creator.nameJa,
+            bio: creator.bio,
+            gender: creator.gender,
+            twitterUrl: creator.twitterUrl,
+            wikipediaUrl: creator.wikipediaUrl,
+          }}
+        />
       }
     >
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

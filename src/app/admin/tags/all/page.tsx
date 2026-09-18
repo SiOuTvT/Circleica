@@ -5,7 +5,6 @@ import { logger } from "@/lib/logger"
 import { ensureResourceTags } from "@/lib/preset-resource-tags"
 import { AllTagsClient, type GroupTab, type TagItem } from "./client"
 import { AdminPageContainer } from "@/components/admin-page-container"
-import { AdminBackLink } from "@/components/admin/admin-back-link"
 
 export const metadata = { title: "全部标签" }
 
@@ -208,7 +207,6 @@ export default async function AllTagsPage() {
       eyebrow="TAGS"
       title="全部标签"
       description={`共 ${total} 个标签，按标签组分栏展示`}
-      actions={<AdminBackLink href="/admin/tags" label="返回" />}
     >
       <AllTagsClient tabs={tabs} groups={groups} total={total} />
     </AdminPageContainer>
