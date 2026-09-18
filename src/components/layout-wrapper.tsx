@@ -27,15 +27,16 @@ const RIGHT_W = 260
 const CONTENT_GUTTER = 40
 /**
  * 侧栏与内容区之间的缝（= 侧栏内边缘到内容区文字的视觉距离），随开栏数变化：
- *   · 只开左侧导航栏（论坛栏关）→ 40
+ *   · 只开左侧导航栏（论坛栏关）→ 56（可继续调的旋钮；再大一档建议 64）
  *   · 左导航 + 论坛栏同开 → 24
  */
-const SIDE_GAP_SOLO = 40
+const SIDE_GAP_SOLO = 56
 const SIDE_GAP_BOTH = 24
 /**
  * 固定总预留：两栏全开时两侧占掉的空间（216 + 260 + 2×24 = 524）。
  * 内容列宽度 = 视口宽 − RESERVE，与开合状态、与桌面宽度都无关；
- * 开合产生的差值全部交给对侧留白吸收（所以论坛关闭时右侧会露出约 268px 留白 —— 那是刻意保留的）。
+ * 开合产生的差值全部交给对侧留白吸收
+ * （论坛关闭时右侧留白 = 524 − 216 − 缝 = 252，论坛打开时 = 260 + 24 = 284 —— 都是刻意保留的）。
  */
 const RESERVE = LEFT_EXPANDED_W + RIGHT_W + 2 * SIDE_GAP_BOTH
 
@@ -72,17 +73,17 @@ export function LayoutWrapper({ children, siteName = "Circleica", logoMode = "fu
   // 左栏展开 / 收起只影响它自己的宽度（nav-sidebar.tsx 内部实现），不再参与内容列的定位
   const leftExpanded = isDesktop && !navCollapsed
 
-  // 缝随开栏数变化：只开左导航 40，左右同开 24
+  // 缝随开栏数变化：只开左导航 56，左右同开 24
   const sideGap = forumOpen ? SIDE_GAP_BOTH : SIDE_GAP_SOLO
 
   /* ── 内容列定位（R-01 v2：宽度恒定、只平移）──
      视口 = 左栏 + 左缝 + 内容 + 右缝 + 右栏，内容宽恒 = 视口 − RESERVE(524)。
      本层只写 padding（位移），绝不写 width —— 卡片 / 网格不重排，这是"高级流畅"的关键：
-       padding-left  = 左栏 216 + 缝 − 40           ⇒ 论坛关 216 / 论坛开 200（内容左移 16）
-       padding-right = RESERVE − 左栏 216 − 缝 − 40  ⇒ 论坛关 228 / 论坛开 244
-     两式之和恒为 444（+ 内层留白 80 = 524）⇒ 内容列宽度恒定，开合只产生 16px 平移。
+       padding-left  = 左栏 216 + 缝 − 40           ⇒ 论坛关 232 / 论坛开 200（内容左右平移 32）
+       padding-right = RESERVE − 左栏 216 − 缝 − 40  ⇒ 论坛关 212 / 论坛开 244
+     两式之和恒为 444（+ 内层留白 80 = 524）⇒ 内容列宽度恒定，开合只产生平移、不改变宽度。
      <1024：抽屉覆盖 + 遮罩，两个键都不写（响应式 px 类照常生效，行为不变）。
-     首帧（脚本接管前）由 CSS 的 --shell-pad-{left,right}-default 给出默认态 216 / 228，
+     首帧（脚本接管前）由 CSS 的 --shell-pad-{left,right}-default 给出默认态 232 / 212，
      挂载后 JS 写入同值 ⇒ 无跳变、也不会播出一次入场动画。
      过渡时长与缓动统一写在 globals.css 的 .layout-shell 规则里，本文件不重复。
      自定义属性不是 CSSProperties 的已知键，用「计算键 + as string」只放宽这两个键，不放宽整个 style。 */
