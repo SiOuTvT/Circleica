@@ -585,6 +585,23 @@ export async function getTagWorkCounts(tagIds: string[]): Promise<Record<string,
   return out
 }
 
+/**
+ * 全库作品总数（含商业作）—— 首页「编辑精选」区块头「N 部里挑出 8 部」的那个 N。
+ *
+ * ⚠️ 口径与左栏导航「作品库」的计数不同：那边走 listWorks().total，只收同人作
+ * （isCommercial: false）；这里是 Work 表全量，两者相差的正是「商业作不进同人馆」的部分。
+ * 副站归档未就绪时回退到主站 Game 总数，与 getEditorPicks 等函数的回退策略一致。
+ */
+export async function getTotalWorkCount(): Promise<number> {
+  if (!(await archiveReady())) return prisma.game.count()
+  const key = cacheKey("galvelica", "total-work-count")
+  const cached = await cache.get<number>(key)
+  if (cached != null) return cached
+  const total = await prisma.work.count()
+  await cache.set(key, total, GAL_CACHE_TTL)
+  return total
+}
+
 export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   if (!(await archiveReady())) return getEditorPicksFromGame(limit)
   const key = cacheKey("galvelica", "editor-picks", await getNsfwMode(), String(limit))

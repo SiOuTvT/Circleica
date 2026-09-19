@@ -12,6 +12,7 @@ import {
   getPopularTags,
   getNsfwMode,
   getWorksByIds,
+  getTotalWorkCount,
   type GalvelicaWorkCard,
 } from "@/lib/galvelica"
 import { auth } from "@/lib/auth"
@@ -43,11 +44,13 @@ export const metadata: Metadata = {
 export default async function GalvelicaHome() {
   const nsfwMode = await getNsfwMode().catch(() => "safe")
 
-  const [editorPicks, daily, years, tags] = await Promise.all([
+  const [editorPicks, daily, years, tags, workTotal] = await Promise.all([
     cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 8), () => getEditorPicks(8), 300).catch(() => [] as GalvelicaWorkCard[]),
     cached(cacheKey("galvelica:home:daily", nsfwMode, new Date().toISOString().slice(0, 10)), () => getDailyPick(), 300).catch(() => null),
     getYears(),
     getPopularTags(10),
+    // 全库总数（含商业作）：区块头「N 部里挑出 8 部」的 N，跟库里实际数据走
+    getTotalWorkCount().catch(() => 0),
   ])
 
   let recentWorks: GalvelicaWorkCard[] = []
@@ -96,7 +99,8 @@ export default async function GalvelicaHome() {
         <section>
           <GalvelicaSectionHead
             title="编辑精选"
-            count="20928 部里挑出 8 部"
+            // 跟着库里实际数据走：总数是全库口径（含商业作），挑出的部数按实际取到的条目数
+            count={workTotal > 0 ? `${workTotal} 部里挑出 ${editorPicks.length} 部` : undefined}
             // 口径说明：这边的部数是含商业作的全库口径，左栏「作品库」计数只收同人作，
             // 两者相差的是「商业作不进同人馆」的既定规则，不是数据错误。
             note="这里的部数是含商业作的全库口径；左栏「作品库」只收同人作，商业作不进同人馆。"
