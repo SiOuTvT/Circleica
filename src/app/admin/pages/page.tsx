@@ -78,7 +78,7 @@ Next.js 16、React 19、Prisma ORM、PostgreSQL、NextAuth v5、Cloudflare R2、
 <ul class="space-y-2 text-sm text-muted-foreground leading-relaxed">
 <li>发现违规内容可通过游戏详情页的「举报」功能反馈。</li>
 <li>资源失效可通过资源区的「报告死链」功能提交。</li>
-<li>管理员将在 24 小时内处理举报，严重违规内容将立即下架。</li>
+<li>管理员会尽快核实并处理举报，严重违规内容将优先下架。</li>
 </ul>
 </section>
 
