@@ -3,7 +3,7 @@ import { type LogoMode } from "@/lib/branding"
 
 const ABOUT_LINKS: { label: string; href: string }[] = [
   { label: "关于我们", href: "/about" },
-  { label: "社区规范", href: "/rules" },
+  { label: "社区规则", href: "/rules" },
   { label: "公告", href: "/announcements" },
   { label: "联系我们", href: "/contact" },
 ]
