@@ -9,21 +9,32 @@ export function GalvelicaSectionHead({
   count,
   href,
   hrefLabel,
+  note,
 }: {
   title: string
   count?: string
   href?: string
   hrefLabel?: string
+  /**
+   * 计数口径说明：一行小字，跟在区块头下面（用负 margin 吃掉区块头的一部分下边距，
+   * 不新增纵向留白）。只在计数容易与其它位置的数字对不上时才传。
+   */
+  note?: string
 }) {
   return (
-    <div className="galvelica-section-head">
-      <h2>{title}</h2>
-      {count ? <span className="galvelica-section-count">{count}</span> : null}
-      <div className="galvelica-sechead-line" />
-      {href ? (
-        <Link href={href} className="galvelica-section-more">
-          {hrefLabel}
-        </Link>
+    <div>
+      <div className="galvelica-section-head">
+        <h2>{title}</h2>
+        {count ? <span className="galvelica-section-count">{count}</span> : null}
+        <div className="galvelica-sechead-line" />
+        {href ? (
+          <Link href={href} className="galvelica-section-more">
+            {hrefLabel}
+          </Link>
+        ) : null}
+      </div>
+      {note ? (
+        <p className="galvelica-fs-meta -mt-2 mb-4 text-muted-foreground">{note}</p>
       ) : null}
     </div>
   )

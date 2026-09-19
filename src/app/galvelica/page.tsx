@@ -97,6 +97,9 @@ export default async function GalvelicaHome() {
           <GalvelicaSectionHead
             title="编辑精选"
             count="20928 部里挑出 8 部"
+            // 口径说明：这边的部数是含商业作的全库口径，左栏「作品库」计数只收同人作，
+            // 两者相差的是「商业作不进同人馆」的既定规则，不是数据错误。
+            note="这里的部数是含商业作的全库口径；左栏「作品库」只收同人作，商业作不进同人馆。"
             href="/galvelica/works"
             hrefLabel="全部作品"
           />
