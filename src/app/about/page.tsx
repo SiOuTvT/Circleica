@@ -25,6 +25,10 @@ Circleica 是面向 Galgame / 视觉小说爱好者的资源站。
 </div>
 <div class="rounded-xl bg-secondary/40 p-4">
 <h3 class="text-sm font-semibold text-foreground mb-1.5">制作组图鉴</h3>
+<p class="text-xs text-muted-foreground leading-relaxed">浏览收录作品的制作团队/社团信息</p>
+</div>
+<div class="rounded-xl bg-secondary/40 p-4">
+<h3 class="text-sm font-semibold text-foreground mb-1.5">创作者图鉴</h3>
 <p class="text-xs text-muted-foreground leading-relaxed">通过 VNDB 数据展示脚本家、画师、音乐人等创作者信息</p>
 </div>
 <div class="rounded-xl bg-secondary/40 p-4">
