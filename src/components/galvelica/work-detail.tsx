@@ -115,15 +115,9 @@ export async function WorkDetailView({ work }: { work: GalvelicaWorkDetail }) {
         <div className="galvelica-detail-card">
           <GalvelicaCover src={work.coverImage} alt={work.title} size="xl" priority />
 
+          {/* 档案卡只放站内统计；VNDB 编号属外部资料库引用，与「官网」同级，统一放在下方资料表里
+              （此前海报下方与资料表各有一处，重复） */}
           <div className="galvelica-archive">
-            {work.vndbId && (
-              <div className="galvelica-archive-row">
-                <span className="galvelica-archive-label">VNDB 编号</span>
-                <span className="galvelica-archive-value">
-                  <ExtLink href={`https://vndb.org/${work.vndbId}`} text={work.vndbId} />
-                </span>
-              </div>
-            )}
             <div className="galvelica-archive-row">
               <span className="galvelica-archive-label">浏览</span>
               <span className="galvelica-archive-value">
