@@ -588,8 +588,11 @@ export async function getTagWorkCounts(tagIds: string[]): Promise<Record<string,
 /**
  * 全库作品总数（含商业作）—— 首页「编辑精选」区块头「N 部里挑出 8 部」的那个 N。
  *
- * ⚠️ 口径与左栏导航「作品库」的计数不同：那边走 listWorks().total，只收同人作
- * （isCommercial: false）；这里是 Work 表全量，两者相差的正是「商业作不进同人馆」的部分。
+ * ⚠️ 口径与左栏导航「作品库」的计数不同：那边走 listWorks().total，除了只收同人作
+ * （isCommercial: false），还要过 workWhere 的另外两条过滤 —— 真人实拍/写实 3D 默认隐藏、
+ * NSFW 三段模式（未登录强制 sfw，排除露骨封面）。所以两个数字的差值是「同人馆不变式 +
+ * 默认过滤」共同造成的，且 NSFW 那条随登录状态与浏览模式变化；不是商业作单项
+ * （实测：全库 20928，其中商业作仅 173）。
  * 副站归档未就绪时回退到主站 Game 总数，与 getEditorPicks 等函数的回退策略一致。
  */
 export async function getTotalWorkCount(): Promise<number> {

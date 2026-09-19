@@ -101,9 +101,10 @@ export default async function GalvelicaHome() {
             title="编辑精选"
             // 跟着库里实际数据走：总数是全库口径（含商业作），挑出的部数按实际取到的条目数
             count={workTotal > 0 ? `${workTotal} 部里挑出 ${editorPicks.length} 部` : undefined}
-            // 口径说明：这边的部数是含商业作的全库口径，左栏「作品库」计数只收同人作，
-            // 两者相差的是「商业作不进同人馆」的既定规则，不是数据错误。
-            note="这里的部数是含商业作的全库口径；左栏「作品库」只收同人作，商业作不进同人馆。"
+            // 口径说明：这边的部数走 getTotalWorkCount（全库口径）；左栏「作品库」计数走
+            // listWorks().total，除了只收同人作，还默认过滤真人作品与露骨内容、并随浏览模式变化，
+            // 所以两个数字必然差一截 —— 是口径不同，不是数据错误。
+            note="这里的部数是全库口径；左栏「作品库」只收同人作，并按当前浏览模式过滤（露骨内容与真人作品默认不显示）。"
             href="/galvelica/works"
             hrefLabel="全部作品"
           />
