@@ -90,6 +90,7 @@ build_pid*.txt
 # 根目录诊断/验证残留（构建输出、探针脚本、dev 错误日志、一次性启动/校验脚本），禁止提交
 build-output*.txt
 probe*.mjs
+probe*.ts
 dev*.err
 start.bat
 verify.ps1
