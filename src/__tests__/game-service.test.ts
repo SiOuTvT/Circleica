@@ -27,6 +27,11 @@ jest.mock("@/repositories/game", () => ({
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
+    // createComment 经 resolveGameCuid → findGameByCuid 调 prisma.game.findUnique 解析 cuid，
+    // 随后再查 publisherId 发通知；返回 { serialId } 即可让解析通过、通知分支落空。
+    game: {
+      findUnique: jest.fn().mockResolvedValue({ serialId: 1 }),
+    },
     gameResource: {
       findUnique: jest.fn(),
     },

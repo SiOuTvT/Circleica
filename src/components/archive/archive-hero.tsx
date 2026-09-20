@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { Layers, Users, User, Tag as TagIcon, Compass, Trophy, Gamepad2, Info, Mail, ScrollText, Megaphone } from "lucide-react"
+import { Layers, Users, User, Tag as TagIcon, Compass, Trophy, Gamepad2, Info, Mail, ScrollText, Megaphone, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HeroCover } from "./hero-cover"
 
@@ -16,6 +16,7 @@ export type ArchiveHeroVariant =
   | "about"
   | "contact"
   | "rules"
+  | "privacy"
   | "announcements"
 
 interface ArchiveHeroProps {
@@ -54,6 +55,7 @@ const ICON_MAP: Record<ArchiveHeroVariant, typeof Layers> = {
   about: Info,
   contact: Mail,
   rules: ScrollText,
+  privacy: ShieldCheck,
   announcements: Megaphone,
 }
 

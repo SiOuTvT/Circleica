@@ -230,6 +230,14 @@ function LoginContent() {
                 {loading && <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />}
                 {loading ? "注册中…" : "注 册"}
               </button>
+
+              {/* 注册即代表同意本站规则与隐私政策 */}
+              <p className="text-center text-xs text-muted-foreground">
+                注册即代表你同意
+                <Link href="/rules" className="text-foreground/80 underline underline-offset-2 hover:text-foreground">社区规则</Link>
+                与
+                <Link href="/privacy" className="text-foreground/80 underline underline-offset-2 hover:text-foreground">隐私政策</Link>
+              </p>
             </form>
           )}
 

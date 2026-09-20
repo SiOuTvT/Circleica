@@ -11,6 +11,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/forum`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/credits/tag`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/credits/collection`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/credits/studio`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
+    { url: `${BASE}/credits/creator`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
     { url: `${BASE}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/rules`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
@@ -28,7 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { isPublished: true },
       select: { serialId: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
-      take: 5000,
+      // 单份 sitemap 上限 50000 条；此前 take:5000 会在游戏超过 5000 时静默截断
+      take: 50000,
     })
 
     const gamePages: MetadataRoute.Sitemap = games.map(g => ({
@@ -53,7 +56,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }))
 
-    return [...staticPages, ...gamePages, ...workPages]
+    // 图鉴详情页（制作组 / 创作者 / 标签 / 精选合集）：slug 稳定；这些实体变化不频繁，
+    // lastModified 用当前时间即可，重点是把详情 URL 补进 sitemap 供搜索引擎发现。
+    const [studios, creators, tags, collections] = await Promise.all([
+      prisma.studio.findMany({ select: { slug: true } }),
+      prisma.creator.findMany({ select: { slug: true } }),
+      prisma.tag.findMany({ select: { slug: true } }),
+      prisma.curatedCollection.findMany({ where: { published: true }, select: { slug: true } }),
+    ])
+    const now = new Date()
+    const toSlugPages = (prefix: string, items: { slug: string }[]): MetadataRoute.Sitemap =>
+      items.map((i) => ({
+        url: `${BASE}${prefix}/${i.slug}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.5,
+      }))
+    const slugPages: MetadataRoute.Sitemap = [
+      ...toSlugPages("/credits/studio", studios),
+      ...toSlugPages("/credits/creator", creators),
+      ...toSlugPages("/credits/tag", tags),
+      ...toSlugPages("/credits/collection", collections),
+    ]
+
+    return [...staticPages, ...gamePages, ...workPages, ...slugPages]
   } catch {
     return staticPages
   }

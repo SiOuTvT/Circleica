@@ -87,6 +87,12 @@ build_pid*.txt
 *_pid*.txt
 # Windows 保留名误生成文件（重定向 > nul 偶发），禁止提交
 /nul
+# 根目录诊断/验证残留（构建输出、探针脚本、dev 错误日志、一次性启动/校验脚本），禁止提交
+build-output*.txt
+probe*.mjs
+dev*.err
+start.bat
+verify.ps1
 .next-verify
 .next-verify/
 .next-verify.bak

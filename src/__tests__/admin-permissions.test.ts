@@ -64,7 +64,16 @@ jest.mock("@/lib/prisma", () => {
 })
 
 jest.mock("@/lib/redis", () => ({
-  cache: jest.fn(),
+  cache: {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+    incr: jest.fn(),
+    // src/services/admin/users.ts 的 invalidateAdminUsersCache 调用 delByPrefix 清缓存
+    delByPrefix: jest.fn().mockResolvedValue(undefined),
+  },
+  // src/services/admin/users.ts 在模块加载期调用 cacheKey 生成缓存前缀，mock 必须提供
+  cacheKey: jest.fn((...parts: unknown[]) => parts.join(":")),
 }))
 
 jest.mock("@/lib/preset-tag-groups", () => ({
