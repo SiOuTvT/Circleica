@@ -294,9 +294,11 @@ function extractConflictFields(target: unknown): string[] {
 /**
  * 安全解析 JSON 请求体：非法/空 JSON 统一抛 422（ValidationError），
  * 而非让 withHandler 当作未知异常返回 500。
+ *
+ * 有意以 any 作默认泛型：JSON 载荷形状未知，返回未类型化数据由各调用方解构/断言；
+ * 全站 30+ 路由依赖此默认，改成 unknown 会让 `const { id } = await …` 全量报错。
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 有意的 any：JSON 载荷形状未知，
-// 返回未类型化数据由各调用方解构/断言（全站 30+ 路由依赖此默认，改成 unknown 会让 const { id } = await … 全量报错）
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function safeParseJson<T = any>(
   req: NextRequest,
   options?: { allowEmpty?: boolean },

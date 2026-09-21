@@ -6,6 +6,7 @@ import { AdminPageContainer } from "@/components/admin-page-container"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { Badge } from "@/components/ui/badge"
 import { FileText } from "lucide-react"
+import Link from "next/link"
 
 export const metadata = { title: "审计日志" }
 
@@ -150,15 +151,15 @@ export default async function AdminAuditLogsPage({
       {/* Filter tabs */}
       {distinctActions.length > 0 && (
         <div className="flex flex-wrap items-end gap-4">
-          <a href="/admin/audit-logs"
+          <Link href="/admin/audit-logs"
             className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition duration-150 ease-in-out ${!action ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"}`}>
             全部
-          </a>
+          </Link>
           {distinctActions.map(({ action: a }) => (
-            <a key={a} href={`/admin/audit-logs?action=${a}`}
+            <Link key={a} href={`/admin/audit-logs?action=${a}`}
               className={`inline-flex items-center px-1 pb-2.5 text-sm font-medium transition duration-150 ease-in-out ${action === a ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground border-b-2 border-transparent"}`}>
               {ACTION_LABELS[a] ?? a}
-            </a>
+            </Link>
           ))}
         </div>
       )}

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     // dev 构建缓存（next-dev 改名残留）。同 .next，是编译产物不是源码，
     // 一旦被 lint 扫到会灌入大量 no-require-imports 噪声，淹没真实问题。
     ".next-dev/**",
+    // 历史构建残留目录（早前 distDir 曾指向 .next-build，改回 .next/.next-dev 后旧目录未删）。
+    // 含 Next 自动生成的 .ts 类型文件（250+ 个，内里大量 any），是编译产物不是源码，
+    // 一旦被 lint 扫到会灌入数千条 no-explicit-any 噪声。.gitignore 已用 /.next-* 忽略。
+    ".next-build/**",
     // 根目录临时脚本（保留的诊断/工具脚本，CommonJS require 写法，非应用源码）
     "tmp-tagcolor-cascade.cjs",
     // 调试时把 .next 改名留下的构建产物残留（.next_bak_*/.next_bak2_* 等）。
@@ -36,6 +40,10 @@ const eslintConfig = defineConfig([
     "start-server2.js",
     "start-server3.js",
     "delete-checkin.ts",
+    // 根目录诊断/探针脚本残留（已 git rm --cached 移出版本库，物理文件仍在磁盘）。
+    // 非应用源码，不纳入 lint 卡点（.gitignore 已有同名忽略）。
+    "probe*.ts",
+    "probe*.mjs",
   ]),
   {
     rules: {
