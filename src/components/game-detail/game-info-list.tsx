@@ -72,14 +72,6 @@ function Pill({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-foreground">
-      {children}
-    </span>
-  )
-}
-
 function Link({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a

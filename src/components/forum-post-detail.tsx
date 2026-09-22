@@ -122,6 +122,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
     setConfirmCallback(() => async () => {
       try {
         await api.delete(`/api/forum/posts/${post.id}`)
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- 删除后整页刷新重拉论坛列表，避免客户端缓存残留已删帖
         window.location.href = "/forum"
       } catch (err) { logger.forum.warn("[ForumPostDetail] deletePost failed", { error: err instanceof Error ? err.message : String(err) }) }
     })

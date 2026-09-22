@@ -49,8 +49,6 @@ export function GameDetailTopClient({
     }
   }
 
-  const btnBase = "flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all"
-
   if (compact) {
     // 紧凑模式：四颗一律横排、按内容自适应宽（不是等分 stretch，也不竖排）
     return (

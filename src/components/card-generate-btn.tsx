@@ -1,5 +1,6 @@
 "use client"
 
+/* eslint-disable @next/next/no-img-element -- 名片由 html2canvas 导出，raw <img> 需 crossOrigin="anonymous" 供 canvas 读取跨域封面/头像；next/image 会改写 URL 且不支持 crossOrigin，导出会失败 */
 import { Download, Loader2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"

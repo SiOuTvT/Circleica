@@ -30,6 +30,7 @@ export function RequestInclusionButton({ workId, title }: { workId: string; titl
         const d = (await res.json().catch(() => ({}))) as { error?: string }
         if (res.status === 401) {
           // 提交收录要求登录（2026-08-07 决策）：引导去登录后回到当前页
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- 整页跳登录并携带回跳地址
           window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
           return
         }

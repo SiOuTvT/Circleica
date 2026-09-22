@@ -50,6 +50,7 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
     if (status !== "authenticated") {
       // 切换过滤需登录
       const cb = encodeURIComponent(window.location.pathname + window.location.search)
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- 未登录切换过滤整页跳登录（携带回跳地址）
       window.location.href = `/login?callbackUrl=${cb}`
       return
     }

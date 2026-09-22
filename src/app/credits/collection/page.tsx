@@ -48,9 +48,8 @@ function CollectionRow({ c }: { c: CollectionSummary }) {
             <span className="text-xl font-bold text-primary/30">{c.name.charAt(0)}</span>
           </div>
         ) : (
-          // 叠放：第一张在最前，后面的向右后错（错位步长 66）；按倒序渲染使第一张置顶
-          covers.slice(0, 4).map((cover, i, arr) => {
-            const revIndex = arr.length - 1 - i // 倒序：原第 0 张最后渲染=最前
+          // 叠放：第一张在最前，后面的向右后错（错位步长 66）
+          covers.slice(0, 4).map((cover, i) => {
             return (
               <div
                 key={i}

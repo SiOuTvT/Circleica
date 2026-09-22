@@ -4,10 +4,9 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Tag, TagGroup } from "@/components/ui/tag"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { timeAgo } from "@/lib/time-ago"
-import { AlertTriangle, Download, Loader2, Pencil, Trash2 } from "lucide-react"
-import Image from "next/image"
+import { AlertTriangle, Loader2, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe, unwrapApiData } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
@@ -330,7 +329,7 @@ export function ResourceTab({
 
   /* ── 游戏动态（详情页：按游戏聚合，含"发布游戏" + 资源添加/编辑）── */
   const [gameActivities, setGameActivities] = useState<ActivityItemData[]>([])
-  const [gameActivityReady, setGameActivityReady] = useState(false)
+  const [, setGameActivityReady] = useState(false)
 
   useEffect(() => {
     let alive = true

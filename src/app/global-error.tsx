@@ -74,7 +74,10 @@ export default function GlobalError({
                 重试
               </button>
               <button
-                onClick={() => (window.location.href = "/")}
+                onClick={() => {
+                  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- 全局错误边界整页刷新回首页，无法用 useRouter（边界在 React 树外）
+                  window.location.href = "/"
+                }}
                 style={{
                   padding: "0.75rem 1.5rem",
                   borderRadius: "0.5rem",

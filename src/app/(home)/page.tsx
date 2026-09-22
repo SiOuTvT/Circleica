@@ -1,6 +1,6 @@
 import { GameCard, GameCardSlot } from "@/components/game-card"
 import { Suspense } from "react"
-import { HomeAnnounceBar, buildActivities, type ActivityItem, type StatItem } from "@/components/home-announce-bar"
+import { HomeAnnounceBar, type ActivityItem, type StatItem } from "@/components/home-announce-bar"
 import { HomeRandomDiscover } from "@/components/home-random-discover"
 import Link from "next/link"
 import { buildGameSearchFilter } from "@/lib/filters"
@@ -174,7 +174,7 @@ export default async function HomePage({
   const page = Math.max(1, parseInt(sp.page || "1"))
 
   // ── Fetch data in parallel ──────────────────────────────────
-  const [siteName, siteDesc, gridData] = await Promise.all([
+  const [siteName, , gridData] = await Promise.all([
     getSiteName(),
     getSiteDescription(),
     GameGridServer({ tag: activeTag, q, mode: nsfwMode, sort, page }),
@@ -275,7 +275,7 @@ export default async function HomePage({
       ) : (
         <section>
           <Suspense fallback={<GameGridSlots />}>
-            <LegacyGameGrid games={gridData.games} total={gridData.total} tag={activeTag} q={q} page={page} sort={sort} />
+            <LegacyGameGrid games={gridData.games} total={gridData.total} page={page} />
           </Suspense>
         </section>
       )}
@@ -285,9 +285,7 @@ export default async function HomePage({
 
 // ─── Legacy grid (only shown when track is empty) ──────────────
 
-function LegacyGameGrid({ games, total, tag, q, page, sort }: { games: ReturnType<typeof mapGameToCard>[]; total: number; tag: string; q: string; page: number; sort: string }) {
-  const isSearch = tag && tag !== "全部"
-  const basePath = isSearch ? "/search" : "/"
+function LegacyGameGrid({ games, total, page }: { games: ReturnType<typeof mapGameToCard>[]; total: number; page: number }) {
   const totalPages = Math.ceil(total / 24)
   const placeholderCount = page === 1 ? Math.max(0, 12 - games.length) : 0
   const hasReal = games.length > 0

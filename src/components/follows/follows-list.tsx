@@ -13,7 +13,7 @@ interface FollowRow {
 
 export function FollowsList({ initialItems, initialTotal }: { initialItems: FollowRow[]; initialTotal: number }) {
   const [items, setItems] = useState(initialItems)
-  const [total, setTotal] = useState(initialTotal)
+  const [, setTotal] = useState(initialTotal)
 
   return (
     <>

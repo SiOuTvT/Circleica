@@ -9,7 +9,6 @@ import { AdminSectionHeading } from "@/components/admin/admin-section-heading"
 import { AdminConfirmSubmitButton } from "@/components/admin/admin-confirm-submit-button"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
-import { Card } from "@/components/ui/card"
 import { toShanghaiDate } from "@/lib/date"
 import { publishInclusionGalvelica, deleteInclusionGalvelica } from "@/app/admin/galvelica/inclusion/actions"
 

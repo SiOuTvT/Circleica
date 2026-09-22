@@ -365,7 +365,7 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
   )
 }
 
-function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefault, isPublic, shareId, showControls, onShare, onTogglePublic }: {
+function CollectionCard({ name, gameCount, coverGames, onOpen, onDelete, isDefault, isPublic, shareId: _shareId, showControls, onShare, onTogglePublic }: {
   name: string; gameCount: number; coverGames: GameLite[]; onOpen: () => void; onDelete?: () => void; isDefault?: boolean
   isPublic?: boolean; shareId?: string | null; showControls?: boolean
   onShare?: () => void; onTogglePublic?: (makePublic: boolean) => void

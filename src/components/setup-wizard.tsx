@@ -289,8 +289,14 @@ export function SetupWizard() {
             </div>
             <p className={cn("text-xs", "text-muted-foreground")}>接下来你可以配置存储、上传游戏内容、自定义站点页面</p>
             <div className="flex gap-3">
-              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => { window.location.href = "/" }}>查看网站</button>
-              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => { window.location.href = "/admin" }}>进入后台 →</button>
+              <button type="button" className={cn("flex-1 h-11 rounded-xl text-sm font-medium transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.98]", "bg-muted text-foreground border border-border")} onClick={() => {
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- setup 完成整页跳转主站
+                window.location.href = "/"
+              }}>查看网站</button>
+              <button type="button" className="flex-1 h-11 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,transform-origin,filter,backdrop-filter] duration-150 ease-in-out active:scale-[0.97] text-[var(--theme-fg)] shadow-[0_4px_20px_rgba(var(--theme-r),var(--theme-g),var(--theme-b),0.2)]" style={{ backgroundColor: "var(--theme-color)" }} onClick={() => {
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- setup 完成整页跳转后台
+                window.location.href = "/admin"
+              }}>进入后台 →</button>
             </div>
           </div>
         </div>

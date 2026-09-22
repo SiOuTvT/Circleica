@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { Flag } from "lucide-react"
-import Image from "next/image"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 

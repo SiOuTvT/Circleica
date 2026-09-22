@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
-import { ChevronDown, Images, Tags, Users } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { ScreenshotLightbox } from "@/components/gallery-hero"
 import { useCallback, useEffect, useRef, useState } from "react"

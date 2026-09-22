@@ -107,7 +107,7 @@ export const GameCard = memo(function GameCard({
       data-ripple
       data-ripple-target=".game-card-body"
       className="game-card group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border transition duration-300  hover:ring-foreground/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      onClick={(e) => {
+      onClick={() => {
         try {
           sessionStorage.setItem(`pending_view_${game.id}`, "1")
           pushRecentlyViewed({

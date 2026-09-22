@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- 名片静态渲染需内联 style 精确控制尺寸/旋转/错位 + serverProxyImg 跨域代理，next/image 不支持此场景 */
 import type { Metadata } from "next"
 import { getCardData, serverProxyImg } from "@/lib/card-data"
 import { prisma } from "@/lib/prisma"

@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
 import { notFound, permanentRedirect } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"

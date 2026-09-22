@@ -10,8 +10,6 @@ import { getGameParticipants } from "@/lib/credits-works"
 
 export const dynamic = "force-dynamic"
 
-type RawSP = Record<string, string | string[] | undefined>
-
 export async function generateMetadata({
   params,
 }: {

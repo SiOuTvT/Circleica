@@ -107,10 +107,13 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           {/* 发布人信息：头像 + 用户名 + 发布时间（同一行） */}
           <div className="flex items-center gap-3 mb-6">
             {author.avatar ? (
-              <img
+              <Image
                 src={author.avatar}
                 alt={author.name}
-                className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+                width={40}
+                height={40}
+                unoptimized
+                className="rounded-full object-cover ring-1 ring-border"
               />
             ) : (
               <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center ring-1 ring-border">
