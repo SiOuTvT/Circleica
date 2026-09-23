@@ -31,8 +31,10 @@ jobs:
         run: npx tsc --noEmit
       - name: Lint
         run: npm run lint
-      - name: Unit tests
-        run: npm run test
+      - name: Unit tests (coverage threshold)
+        # --coverage 让 jest.config 的 coverageThreshold 生效（global 5% + lib 层 20%），
+        # --runInBand 串行避免并行 worker 偶发崩溃（稳定性优先，代价是慢一点）
+        run: npm run test -- --coverage --runInBand
 
   # ── 生产构建：CI 用内置 postgres 服务验证「能构建 + ISR 预渲染可连库」──
   # 说明：项目多个页面为 ISR（revalidate），next build 期会预渲染并回源数据库，
