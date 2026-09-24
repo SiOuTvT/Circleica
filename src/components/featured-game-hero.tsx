@@ -42,7 +42,7 @@ export function FeaturedGameHero({ game, description: _description }: FeaturedGa
               quality={80}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground/30">
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground/60">
               <span className="text-sm">暂无封面</span>
             </div>
           )}

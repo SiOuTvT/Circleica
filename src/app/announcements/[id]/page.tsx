@@ -196,7 +196,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
                   </Link>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground/40">暂无其他公告</p>
+                <p className="text-sm text-muted-foreground/60">暂无其他公告</p>
               )}
             </div>
           </div>
@@ -207,7 +207,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
       <div className="lg:hidden mt-8 space-y-5">
         {showIndex && (
           <div className="rounded-xl bg-muted/30 border border-border/20 p-4">
-            <h3 className="text-sm font-semibold text-foreground/70 mb-3">本篇索引</h3>
+            <h3 className="text-sm font-semibold text-foreground/80 mb-3">本篇索引</h3>
             <nav className="flex flex-col gap-1">
               {headings.map((h) => (
                 <a key={h.id} href={`#${h.id}`} className="text-[14px] text-muted-foreground/80 hover:text-foreground rounded px-2 py-2 transition-colors">
@@ -218,7 +218,7 @@ export default async function AnnouncementPage({ params }: { params: Promise<{ i
           </div>
         )}
         <div className="rounded-xl bg-muted/30 border border-border/20 p-4">
-          <h3 className="text-sm font-semibold text-foreground/70 mb-3">其他公告</h3>
+          <h3 className="text-sm font-semibold text-foreground/80 mb-3">其他公告</h3>
           <div className="flex flex-col gap-1">
             {otherAnnouncements.slice(0, 8).map((a) => (
               <Link

@@ -244,7 +244,7 @@ export default async function GameDetailPage({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-secondary">
-              <span className="text-xs text-muted-foreground/40">封面还没上传~</span>
+              <span className="text-xs text-muted-foreground/60">封面还没上传~</span>
             </div>
           )}
         </div>

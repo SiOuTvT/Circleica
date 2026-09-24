@@ -194,7 +194,7 @@ function buildSpecialCrumbs(
 function CrumbSeparator() {
   return (
     <ChevronRight
-      className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/40"
+      className="h-3.5 w-3.5 shrink-0 self-center text-muted-foreground/60"
       strokeWidth={2}
     />
   )
@@ -223,7 +223,7 @@ export function Breadcrumb() {
       <nav className="mt-2 sm:mt-3 mb-0 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
         <Link
           href="/"
-          className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
+          className="inline-flex items-center shrink-0 leading-none text-foreground/75 transition-colors hover:text-foreground"
         >
           首页
         </Link>
@@ -239,7 +239,7 @@ export function Breadcrumb() {
               ) : (
                 <Link
                   href={crumb.href}
-                  className="inline-flex items-center leading-none text-foreground/60 transition-colors hover:text-foreground"
+                  className="inline-flex items-center leading-none text-foreground/75 transition-colors hover:text-foreground"
                 >
                   {crumb.label}
                 </Link>
@@ -313,7 +313,7 @@ export function Breadcrumb() {
     <nav className="mt-3 sm:mt-7 mb-0 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-sm text-muted-foreground leading-none" aria-label="面包屑导航">
       <Link
         href="/"
-        className="inline-flex items-center shrink-0 leading-none text-foreground/60 transition-colors hover:text-foreground"
+        className="inline-flex items-center shrink-0 leading-none text-foreground/75 transition-colors hover:text-foreground"
       >
         首页
       </Link>
@@ -329,7 +329,7 @@ export function Breadcrumb() {
             ) : (
               <Link
                 href={crumb.href}
-                className="inline-flex items-center leading-none text-foreground/60 transition-colors hover:text-foreground"
+                className="inline-flex items-center leading-none text-foreground/75 transition-colors hover:text-foreground"
               >
                 {crumb.label}
               </Link>

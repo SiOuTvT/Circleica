@@ -372,7 +372,7 @@ export function TopNav({ onToggleForum }: TopNavProps) {
                       className={cn(
                         "flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors",
                         checkedIn
-                          ? "cursor-default text-muted-foreground/50"
+                          ? "cursor-default text-muted-foreground/70"
                           : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       )}>
                       {checkinLoading ? (

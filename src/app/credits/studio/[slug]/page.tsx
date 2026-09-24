@@ -134,7 +134,7 @@ export default async function MakerDetailPage({
             <ChevronLeft className="h-4 w-4" strokeWidth={2} />
             制作组图鉴
           </Link>
-          <span className="text-muted-foreground/40">/</span>
+          <span className="text-muted-foreground/60">/</span>
           <span className="truncate text-foreground">{detail.name}</span>
         </nav>
       }
@@ -248,7 +248,7 @@ export default async function MakerDetailPage({
               上一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">上一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/60 ring-1 ring-border">上一页</span>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
             <span className="tabular-nums text-foreground/90">{detail.page}</span>
@@ -263,7 +263,7 @@ export default async function MakerDetailPage({
               下一页
             </Link>
           ) : (
-            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/30 ring-1 ring-border">下一页</span>
+            <span className="rounded-lg px-3.5 py-1.5 text-sm text-muted-foreground/60 ring-1 ring-border">下一页</span>
           )}
         </div>
       )}

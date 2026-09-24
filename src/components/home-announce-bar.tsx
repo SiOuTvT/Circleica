@@ -40,7 +40,7 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   if (activities.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground/40 py-4">
+      <div className="flex items-center gap-2 text-muted-foreground/60 py-4">
         <Bell className="h-4 w-4 shrink-0" strokeWidth={1.5} />
         <span className="text-sm">暂无动态</span>
       </div>
@@ -66,9 +66,9 @@ function ActivityList({ activities }: { activities: ActivityItem[] }) {
                   <span className="text-[15px] text-foreground/80 truncate">{act.title}</span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  {typeLabel[act.type] && <span className="text-xs px-1.5 py-0.5 rounded bg-muted/80 text-foreground/60 font-medium">{typeLabel[act.type]}</span>}
-                  <Clock className="h-3 w-3 text-muted-foreground/40" strokeWidth={1.5} />
-                  <span className="text-xs text-muted-foreground/55">{timeAgo(act.time)}</span>
+                  {typeLabel[act.type] && <span className="text-xs px-1.5 py-0.5 rounded bg-muted/80 text-foreground/75 font-medium">{typeLabel[act.type]}</span>}
+                  <Clock className="h-3 w-3 text-muted-foreground/60" strokeWidth={1.5} />
+                  <span className="text-xs text-muted-foreground/70">{timeAgo(act.time)}</span>
                 </div>
               </div>
             </div>
@@ -136,17 +136,17 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
                     <sm 两个箭头 hidden，圆点靠 mx-auto 居中。 */}
                 {len > 1 && (
                   <div className="mt-2.5 flex items-center justify-between">
-                    <button onClick={() => setCur((cur - 1 + len) % len)} className="hidden h-8 w-8 items-center justify-center rounded-full bg-foreground/5 text-foreground/70 ring-1 ring-foreground/15 transition-colors hover:bg-foreground/10 hover:text-foreground sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
+                    <button onClick={() => setCur((cur - 1 + len) % len)} className="hidden h-8 w-8 items-center justify-center rounded-full bg-foreground/5 text-foreground/80 ring-1 ring-foreground/15 transition-colors hover:bg-foreground/10 hover:text-foreground sm:flex" aria-label="上一条公告"><ChevronLeft className="h-4 w-4" strokeWidth={2} /></button>
                     <div className="mx-auto flex gap-1.5">
                       {announcements.map((_, i) => <span key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === cur ? "w-4 bg-foreground/70" : "w-1.5 bg-foreground/25"}`} />)}
                     </div>
-                    <button onClick={next} className="hidden h-8 w-8 items-center justify-center rounded-full bg-foreground/5 text-foreground/70 ring-1 ring-foreground/15 transition-colors hover:bg-foreground/10 hover:text-foreground sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
+                    <button onClick={next} className="hidden h-8 w-8 items-center justify-center rounded-full bg-foreground/5 text-foreground/80 ring-1 ring-foreground/15 transition-colors hover:bg-foreground/10 hover:text-foreground sm:flex" aria-label="下一条公告"><ChevronRight className="h-4 w-4" strokeWidth={2} /></button>
                   </div>
                 )}
               </>
             ) : (
               <div className="flex items-center justify-center rounded-2xl bg-muted/30 border border-dashed border-border/30" style={{ height: "clamp(220px, 30vh, 280px)" }}>
-                <div className="flex flex-col items-center gap-2 text-muted-foreground/30"><Bell className="h-6 w-6" strokeWidth={1.5} /><span className="text-sm">暂无公告</span></div>
+                <div className="flex flex-col items-center gap-2 text-muted-foreground/60"><Bell className="h-6 w-6" strokeWidth={1.5} /><span className="text-sm">暂无公告</span></div>
               </div>
             )}
           </div>
@@ -158,8 +158,8 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
               </div>
             ))}
             <div key="reserved" className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-3 text-center">
-              <span className="text-2xl font-bold text-muted-foreground/30">—</span>
-              <p className="text-xs text-muted-foreground/30 mt-1 font-medium">预留</p>
+              <span className="text-2xl font-bold text-muted-foreground/60">—</span>
+              <p className="text-xs text-muted-foreground/60 mt-1 font-medium">预留</p>
             </div>
             {/* 随机发现功能入口 */}
             {randomDiscover ? <div key="random-discover" className="contents">{randomDiscover}</div> : null}

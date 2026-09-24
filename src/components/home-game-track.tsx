@@ -48,20 +48,20 @@ export function HomeGameTrack({ games, title, viewAllHref = "/games", viewAllLab
     <section>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-3 sm:px-6 lg:px-8">
-        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/35 flex-shrink-0">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60 flex-shrink-0">
           {title}
         </h2>
         <div className="flex items-center gap-3">
           {viewAllHref && (
-            <Link href={viewAllHref} className="text-[11px] text-muted-foreground/40 transition-colors hover:text-foreground/70 flex-shrink-0">
+            <Link href={viewAllHref} className="text-[11px] text-muted-foreground/60 transition-colors hover:text-foreground/80 flex-shrink-0">
               {viewAllLabel}
             </Link>
           )}
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button onClick={() => scroll(-1)} disabled={!canScrollLeft} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/25 transition-colors hover:text-foreground/60 disabled:opacity-15" aria-label="向左滚动">
+            <button onClick={() => scroll(-1)} disabled={!canScrollLeft} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:text-foreground/75 disabled:opacity-15" aria-label="向左滚动">
               <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
-            <button onClick={() => scroll(1)} disabled={!canScrollRight} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/25 transition-colors hover:text-foreground/60 disabled:opacity-15" aria-label="向右滚动">
+            <button onClick={() => scroll(1)} disabled={!canScrollRight} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:text-foreground/75 disabled:opacity-15" aria-label="向右滚动">
               <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
           </div>

@@ -7,7 +7,7 @@
 export function HomeStatsPlaceholder() {
   return (
     <div className="w-full py-3">
-      <div className="flex items-center justify-center gap-6 sm:gap-10 text-muted-foreground/20">
+      <div className="flex items-center justify-center gap-6 sm:gap-10 text-muted-foreground/60">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-medium uppercase tracking-[0.2em]">Stats</span>
         </div>

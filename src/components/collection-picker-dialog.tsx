@@ -176,7 +176,7 @@ export function CollectionPickerDialog({
                 >
                   <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
                   <span className="flex-1 truncate">{col.name}</span>
-                  <span className="text-xs text-muted-foreground/50 mr-1">{col._count.favorites}</span>
+                  <span className="text-xs text-muted-foreground/70 mr-1">{col._count.favorites}</span>
                   {currentCollectionId === col.id && isFav && (
                     <Check className="h-5 w-5 text-primary shrink-0" />
                   )}

@@ -118,7 +118,7 @@ export function CollectionCard({
             {description}
           </p>
         )}
-        <p className="mt-2 text-caption tabular-nums text-muted-foreground/50">
+        <p className="mt-2 text-caption tabular-nums text-muted-foreground/70">
           {count} 部精选
         </p>
       </div>

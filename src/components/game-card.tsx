@@ -159,7 +159,7 @@ export const GameCard = memo(function GameCard({
             />
           )
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
+          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/60">
             <ImageOff className="h-8 w-8" aria-hidden="true" strokeWidth={1} />
           </div>
         )}
@@ -366,7 +366,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
             />
           )
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/30">
+          <div className="absolute inset-0 flex items-center justify-center bg-muted text-muted-foreground/60">
             <ImageOff className="h-6 w-6" aria-hidden="true" strokeWidth={1} />
           </div>
         )}

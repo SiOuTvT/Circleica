@@ -67,7 +67,7 @@ export function NsfwReviewClient({ items, filter }: { items: ReviewItem[]; filte
               {it.coverImage ? (
                 <SafeImage src={it.coverImage} alt={it.title} fill className="object-cover" sizes="(max-width: 640px) 50vw, 220px" quality={60} />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-[11px] md:text-[11px] text-muted-foreground/40">无封面</div>
+                <div className="flex h-full w-full items-center justify-center text-[11px] md:text-[11px] text-muted-foreground/60">无封面</div>
               )}
               <span
                 className={`absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-[11px] md:text-[11px] font-semibold ring-1 ${

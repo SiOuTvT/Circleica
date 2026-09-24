@@ -11,7 +11,7 @@
 
 /** 输入框 — 统一为 rounded-xl + bg-transparent + ring 边框（聚焦时圆角收直角为后台习惯） */
 export const adminInput =
-  "w-full rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] md:text-[15px] leading-6 text-foreground placeholder:text-muted-foreground/50 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
+  "w-full rounded-xl border-2 border-input bg-transparent px-3 py-2.5 text-[15px] md:text-[15px] leading-6 text-foreground placeholder:text-muted-foreground/70 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary"
 
 /** 搜索框 — 左侧留白给图标；字号与 adminInput 同为 text-[15px]，保证并排时高度都是 44px */
 export const adminSearchInput =

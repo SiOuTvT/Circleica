@@ -151,7 +151,7 @@ async function SearchResults({
     return (
       <div className="py-8 sm:py-12 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <Search className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
+          <Search className="h-8 w-8 text-muted-foreground/60" strokeWidth={1.5} />
         </div>
         <p className="text-sm font-medium text-foreground">
           {q ? `没有找到与「${q}」相关的游戏` : "没有符合条件的游戏"}

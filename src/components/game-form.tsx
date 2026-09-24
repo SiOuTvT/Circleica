@@ -625,7 +625,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
                 onChange={(e) => setDescLang(key, e.target.value)}
                 placeholder={`输入${label}…`}
                 rows={4}
-                className="resize-none px-4 py-3 text-[15px] md:text-[15px] leading-6 placeholder:text-muted-foreground/50"
+                className="resize-none px-4 py-3 text-[15px] md:text-[15px] leading-6 placeholder:text-muted-foreground/70"
               />
             )
           ))}
@@ -749,7 +749,7 @@ export function GameForm({ tags: initialTags, tagGroups: initialTagGroups = [], 
           {translateSuccess && (
             <div className="mt-1 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400 ring-1 ring-emerald-500/20">{translateSuccess}</div>
           )}
-          <p className="mt-1 text-xs text-muted-foreground/50">
+          <p className="mt-1 text-xs text-muted-foreground/70">
             前台默认优先展示中文，缺少的语种将按{"中文 > 英文 > 日文 > 其他"}的优先级自动回退。
             {activeDescLang === "en" && " VNDB 拉取的英文简介将自动填入此栏，可点击翻译按钮一键生成中文。"}
           </p>

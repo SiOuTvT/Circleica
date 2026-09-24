@@ -166,7 +166,7 @@ export function AdminGlobalSearch() {
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="搜索游戏、用户、标签、论坛帖子…"
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/70 outline-none"
             />
             <kbd className="flex items-center rounded-[var(--admin-radius-ctl)] bg-muted px-1.5 py-0.5 text-micro font-medium text-muted-foreground ring-1 ring-border">
               ESC
@@ -196,7 +196,7 @@ export function AdminGlobalSearch() {
               return (
                 <div key={type} className="mb-2">
                   <div className="px-3 py-1.5">
-                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/50">
+                    <span className="text-micro font-medium uppercase tracking-wider text-muted-foreground/70">
                       {config.label}
                     </span>
                   </div>

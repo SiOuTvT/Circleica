@@ -100,7 +100,7 @@ export function GameRating({ gameId }: { gameId: string }) {
                 )}
               >
                 <Star
-                  className={cn("h-4 w-4", lit ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40")}
+                  className={cn("h-4 w-4", lit ? "fill-amber-400 text-amber-400" : "text-muted-foreground/60")}
                   strokeWidth={2}
                 />
               </button>

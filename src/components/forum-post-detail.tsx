@@ -325,7 +325,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
           </h2>
 
           {comments.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted-foreground/50">还没有评论，来说点什么吧</p>
+            <p className="py-8 text-center text-sm text-muted-foreground/70">还没有评论，来说点什么吧</p>
           )}
 
           <div className="space-y-5">
@@ -335,8 +335,8 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.user.username}</span>
-                    <span className="text-xs text-muted-foreground/50">{timeAgo(c.createdAt)}</span>
-                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/40">已编辑</span>}
+                    <span className="text-xs text-muted-foreground/70">{timeAgo(c.createdAt)}</span>
+                    {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/60">已编辑</span>}
                   </div>
                   {editingComment === c.id ? (
                     <div className="space-y-2 mt-1">
@@ -420,7 +420,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
               {replyTo && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span>回复 {replyTo.replace(/^@/, "").replace(/\s$/, "")}</span>
-                  <button type="button" onClick={() => setReplyTo(null)} className="text-muted-foreground/50 hover:text-foreground">
+                  <button type="button" onClick={() => setReplyTo(null)} className="text-muted-foreground/70 hover:text-foreground">
                     <X className="h-3 w-3" strokeWidth={2} />
                   </button>
                 </div>
@@ -475,7 +475,7 @@ export function ForumPostDetail({ post: initPost, comments: initComments, totalC
 
                 <input ref={commentInputRef} value={commentText} onChange={e => setCommentText(e.target.value)}
                   placeholder="写下你的评论..."
-                  className="flex-1 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/40 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
+                  className="flex-1 rounded-xl border-2 border-input bg-transparent px-4 py-3.5 text-[15px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-[color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,border-radius] duration-300 ease-out focus:rounded-none focus:border-primary" />
 
                 <button type="submit" disabled={submitting || (!commentText.trim() && !commentImagePreview)}
                   className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition duration-150 ease-in-out hover:opacity-90 disabled:opacity-30 shrink-0">

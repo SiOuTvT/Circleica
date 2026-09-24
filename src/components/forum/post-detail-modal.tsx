@@ -323,7 +323,7 @@ function PostDetailModalInner({
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-foreground">{c.user.username}</span>
                       <span className="text-[11px] md:text-[11px] text-muted-foreground">{timeAgo(c.createdAt)}</span>
-                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/50">已编辑</span>}
+                      {c.updatedAt && c.updatedAt !== c.createdAt && <span className="text-[11px] md:text-[11px] text-muted-foreground/70">已编辑</span>}
                     </div>
                     {editingComment === c.id ? (
                       <div className="space-y-2">
@@ -393,7 +393,7 @@ function PostDetailModalInner({
                   <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                     <span>回复 {replyTo.replace(/^@/, "").replace(/\s$/, "")}</span>
                     <button type="button" onClick={() => setReplyTo(null)}
-                      className="text-muted-foreground/50 hover:text-foreground">
+                      className="text-muted-foreground/70 hover:text-foreground">
                       <X className="h-3 w-3" strokeWidth={2} />
                     </button>
                   </div>

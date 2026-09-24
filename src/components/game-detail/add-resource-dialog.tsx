@@ -156,7 +156,7 @@ function PopoverSelect({ id, label, icon, options, value, onChange, invalid, onB
           "flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-[15px] font-semibold transition duration-150 ease-in-out",
           "border-2 bg-card hover:bg-muted",
           invalid ? "border-red-400" : "border-input",
-          value.length > 0 ? "text-foreground" : "text-foreground/60"
+          value.length > 0 ? "text-foreground" : "text-foreground/75"
         )}
       >
         <span className="flex-shrink-0 opacity-80">{icon}</span>

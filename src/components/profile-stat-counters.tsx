@@ -73,7 +73,7 @@ export function ProfileStatCounters({ userId, following, followers }: {
                       <div className="flex items-center justify-center py-12"><Loader2 className="h-5 w-5 animate-spin" /></div>
                     ) : users.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <Users className="mb-3 h-10 w-10 text-muted-foreground/30" strokeWidth={1.5} />
+                        <Users className="mb-3 h-10 w-10 text-muted-foreground/60" strokeWidth={1.5} />
                         <p className="text-sm text-muted-foreground">{open === "following" ? "还没有关注任何人" : "还没有粉丝"}</p>
                       </div>
                     ) : (

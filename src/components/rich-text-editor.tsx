@@ -425,7 +425,7 @@ export function RichTextEditor({
           <Upload className="h-3 w-3" strokeWidth={1.5} />
           拖拽图片到编辑区域上传
         </span>
-        <span className="mx-2 text-muted-foreground/50">•</span>
+        <span className="mx-2 text-muted-foreground/70">•</span>
         点击工具栏图标格式化文本
       </div>
     </div>

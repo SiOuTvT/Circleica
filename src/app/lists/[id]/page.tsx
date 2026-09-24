@@ -39,7 +39,7 @@ export default async function ListSharePage({ params }: { params: Promise<{ id: 
 
         {games.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <FolderHeart className="h-12 w-12 text-muted-foreground/20 mb-3" />
+            <FolderHeart className="h-12 w-12 text-muted-foreground/60 mb-3" />
             <p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
           </div>
         ) : (
@@ -58,7 +58,7 @@ export default async function ListSharePage({ params }: { params: Promise<{ id: 
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      <FolderHeart className="h-6 w-6 text-muted-foreground/40" />
+                      <FolderHeart className="h-6 w-6 text-muted-foreground/60" />
                     </div>
                   )}
                 </div>

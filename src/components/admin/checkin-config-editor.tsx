@@ -153,7 +153,7 @@ export function CheckInConfigEditor() {
             </div>
           ) : (
             <div className="h-24 w-24 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/50">
-              <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
+              <ImageIcon className="h-8 w-8 text-muted-foreground/60" />
             </div>
           )}
 

@@ -417,7 +417,7 @@ function Field({ label, required, hint, children }: {
         {label}{required && <span className="text-primary">*</span>}
       </label>
       {withLabelableId(children, id)}
-      {hint && <p className="text-caption text-muted-foreground/50">{hint}</p>}
+      {hint && <p className="text-caption text-muted-foreground/70">{hint}</p>}
     </div>
   )
 }
@@ -452,7 +452,7 @@ function PreviewCard({ ann }: { ann: { title: string; summary: string; content: 
           <Image src={ann.imageUrl} alt={ann.title || "公告封面"} fill sizes="(max-width: 768px) 100vw, 320px" className="object-cover" unoptimized />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg text-muted-foreground/30">📢</div>
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg text-muted-foreground/60">📢</div>
           </div>
         )}
         {/* 渐变遮罩 — 和前台 announce-swiper 一致 */}

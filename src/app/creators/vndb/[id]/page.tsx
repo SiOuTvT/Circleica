@@ -120,7 +120,7 @@ export default async function VndbCreatorPage({
                       loading="lazy"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40">
+                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/60">
                       无封面
                     </div>
                   )}

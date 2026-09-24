@@ -234,7 +234,7 @@ export function ProfileMedalModal({ favCount, playCount, commentCount, totalLeve
             <div className="p-5">
               {earnedMedals.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Award className="h-12 w-12 text-muted-foreground/20 mb-3" />
+                  <Award className="h-12 w-12 text-muted-foreground/60 mb-3" />
                   <p className="text-sm text-muted-foreground">暂无勋章，继续努力吧~</p>
                 </div>
               ) : (

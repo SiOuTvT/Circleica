@@ -354,7 +354,7 @@ function FavoritesTab({ defaultFolderGames, collections, isSelf, onOpenFolder, s
 
       {defaultFolderGames.length === 0 && collections.length === 0 && !loading && !showCreateFolder && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FolderHeart className="h-10 w-10 text-muted-foreground/30 mb-3" />
+          <FolderHeart className="h-10 w-10 text-muted-foreground/60 mb-3" />
           <p className="text-sm text-muted-foreground">
             {favMsgs.empty_favorites ? <>{favMsgs.empty_favorites.title}，{favMsgs.empty_favorites.subtitle}</> : "还没有收藏夹"}
           </p>
@@ -432,7 +432,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
       <div className="flex-1 overflow-y-auto p-5 max-h-[calc(80vh-72px)]">
         {games.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <FolderHeart className="h-12 w-12 text-muted-foreground/20 mb-3" /><p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
+            <FolderHeart className="h-12 w-12 text-muted-foreground/60 mb-3" /><p className="text-sm text-muted-foreground">这个收藏夹还是空的</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
@@ -451,7 +451,7 @@ const FolderModalContent = memo(function FolderModalContent({ name, games, onClo
 })
 
 function CommentsTab({ comments, hasMore, loadingMore, onLoadMore }: { comments: CommentLite[]; hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void }) {
-  if (comments.length === 0) return <div className="flex flex-col items-center justify-center py-12 text-center"><MessageSquare className="h-10 w-10 text-muted-foreground/30 mb-3" /><p className="text-sm text-muted-foreground">还没有发表评论</p></div>
+  if (comments.length === 0) return <div className="flex flex-col items-center justify-center py-12 text-center"><MessageSquare className="h-10 w-10 text-muted-foreground/60 mb-3" /><p className="text-sm text-muted-foreground">还没有发表评论</p></div>
   return (
     <div className="flex flex-col gap-2.5">
       {comments.map((c) => {

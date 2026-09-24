@@ -105,7 +105,7 @@ export function AchievementModal({ compact, emptyText: _emptyText = "暂无成�
                 </div>
               ) : achievements.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Award className="h-12 w-12 text-muted-foreground/20 mb-3" />
+                  <Award className="h-12 w-12 text-muted-foreground/60 mb-3" />
                   <p className="text-sm text-muted-foreground">暂无成就</p>
                 </div>
               ) : (

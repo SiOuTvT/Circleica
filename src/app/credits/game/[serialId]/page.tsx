@@ -64,7 +64,7 @@ export default async function GameParticipantsPage({
             <ChevronLeft className="h-4 w-4" strokeWidth={2} />
             创作者图鉴
           </Link>
-          <span className="text-muted-foreground/40">/</span>
+          <span className="text-muted-foreground/60">/</span>
           <span className="truncate text-foreground">{data.title}</span>
         </nav>
       }

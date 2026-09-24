@@ -56,7 +56,7 @@ export function HomeFeaturedGames({ games }: HomeFeaturedGamesProps) {
       {/* Label */}
       <div className="flex items-center gap-3 mb-3">
         <span className="h-px flex-1 bg-border/40" />
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/25 flex-shrink-0">
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/60 flex-shrink-0">
           Featured
         </p>
         <span className="h-px flex-1 bg-border/40" />
