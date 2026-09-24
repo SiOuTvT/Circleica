@@ -431,7 +431,7 @@ main > * {
   --tab-trough:     #111113;           /* 底槽色，纯中性灰 */
   --tab-active:     color-mix(in srgb, var(--primary) 16%, transparent);  /* 选中方块：主题色软着色（不再死黑） */
   --tab-active-text: var(--primary);  /* 选中文字：主题色 */
-  --tab-inactive-text:#71717a;         /* 未选中文字：灰 */
+  --tab-inactive-text:#8f8f9a;         /* 未选中文字：灰（调亮保对比 ≥4.5:1） */
   --tab-hover-text: #a1a1aa;           /* 悬停提亮 */
 }
 
