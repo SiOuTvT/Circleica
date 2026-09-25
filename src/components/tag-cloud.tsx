@@ -38,7 +38,7 @@ export function TagCloud({
   /** 生成标签样式 - 使用 CSS 变量实现动态颜色 */
   const getTagStyle = (color: string, isActive: boolean): React.CSSProperties => ({
     '--tag-color': color,
-    color: color,
+    color: `color-mix(in srgb, ${color} 82%, var(--foreground))`,
     background: isActive ? `${color}20` : `${color}10`,
     borderColor: isActive ? color : `${color}30`,
   } as React.CSSProperties)

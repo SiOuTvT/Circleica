@@ -105,7 +105,7 @@ function tagColorStyle(color?: string, variant?: TagVariant, scale?: TagScale): 
   if (variant === "badge") {
     return {
       backgroundColor: withAlpha(12.5),
-      color: `color-mix(in srgb, ${color} 85%, #000)`,
+      color: `color-mix(in srgb, ${color} 85%, var(--foreground))`,
     }
   }
   // 详情页 pill：组色底 16% / 描边 32%；默认仍是全站原值 9% / 19%
@@ -113,7 +113,7 @@ function tagColorStyle(color?: string, variant?: TagVariant, scale?: TagScale): 
   const borderPct = scale === "detail" ? 32 : 19
   return {
     backgroundColor: withAlpha(bgPct),
-    color: `color-mix(in srgb, ${color} 80%, #000)`,
+    color: `color-mix(in srgb, ${color} 82%, var(--foreground))`,
     border: `1px solid ${withAlpha(borderPct)}`,
   }
 }

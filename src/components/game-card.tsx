@@ -191,7 +191,7 @@ export const GameCard = memo(function GameCard({
                   tag.color
                     ? {
                         backgroundColor: `${tag.color}1f`,
-                        color: tag.color,
+                        color: `color-mix(in srgb, ${tag.color} 82%, var(--foreground))`,
                         borderColor: `${tag.color}40`,
                       }
                     : undefined
@@ -412,7 +412,7 @@ export const GameListRow = memo(function GameListRow({ game }: { game: GameCardD
                   tag.color
                     ? {
                         backgroundColor: `${tag.color}1f`,
-                        color: tag.color,
+                        color: `color-mix(in srgb, ${tag.color} 82%, var(--foreground))`,
                         borderColor: `${tag.color}40`,
                       }
                     : undefined
