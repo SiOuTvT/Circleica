@@ -152,12 +152,12 @@ export function HomeAnnounceBar({ announcements, activities, stats, randomDiscov
           </div>
           <div className="flex gap-3">
             {stats.map((stat, i) => (
-              <div key={i} className="flex-1 rounded-xl bg-card border border-border px-3.5 py-3 text-center shadow-sm">
+              <div key={i} className="flex-1 rounded-xl bg-card border border-border px-3.5 py-2 text-center shadow-sm">
                 <span className="text-2xl font-bold text-foreground tabular-nums">{typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}</span>
-                <p className="text-xs text-muted-foreground mt-2.5 font-medium">{stat.label}</p>
+                <p className="text-xs text-muted-foreground mt-1.5 font-medium">{stat.label}</p>
               </div>
             ))}
-            <div key="reserved" className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-3 text-center">
+            <div key="reserved" className="flex-1 rounded-xl bg-card/50 border border-dashed border-border/40 px-3.5 py-2 text-center">
               <span className="text-2xl font-bold text-muted-foreground/60">—</span>
               <p className="text-xs text-muted-foreground/60 mt-1 font-medium">预留</p>
             </div>
