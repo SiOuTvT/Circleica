@@ -4,7 +4,7 @@ import { cache as reactCache } from "react"
 import { WorkGrid } from "@/components/galvelica/work-card"
 import { Pager } from "@/components/galvelica/pager"
 import { GalvelicaSearch } from "@/components/galvelica/galvelica-search"
-import { listWorks, getPopularTags, getNsfwMode, getStaffBrief, type GalvelicaSort } from "@/lib/galvelica"
+import { listWorks, getPopularTags, getNsfwMode, getCommercialHidden, getStaffBrief, type GalvelicaSort } from "@/lib/galvelica"
 import { cached, cacheKey } from "@/lib/redis"
 
 export const dynamic = "force-dynamic"
@@ -88,16 +88,18 @@ export default async function GalvelicaWorks({ searchParams }: { searchParams: P
   // 列表与热门标签走缓存（force-dynamic 下避免每次导航全打库）。
   // 列表按完整筛选条件做 key；⚠️ NSFW 过滤模式必须进 key（防跨用户缓存泄漏）。
   const nsfwMode = await getNsfwMode()
+  // 商业作开关必须进缓存 key：否则「隐藏商业作 / 显示商业作」两种口径会共用一份缓存而串号
+  const commercialHidden = await getCommercialHidden()
   const [result, popularTags] = await Promise.all([
     cached(
       cacheKey(
         "galvelica:works",
-        JSON.stringify({ tags, year, studio, search, staff, sort, page, mode: nsfwMode }),
+        JSON.stringify({ tags, year, studio, search, staff, sort, page, mode: nsfwMode, commercial: commercialHidden }),
       ),
       () => listWorks({ tags, year, studio, search, staff, sort, page }),
       60,
     ),
-    cached(cacheKey("galvelica:popularTags", 12), () => getPopularTags(12), 300),
+    cached(cacheKey("galvelica:popularTags", 12, commercialHidden ? "hide" : "show"), () => getPopularTags(12), 300),
   ])
 
   // 当前筛选状态（用于构造链接）

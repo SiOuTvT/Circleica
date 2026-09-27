@@ -13,6 +13,7 @@ import {
   getNsfwMode,
   getWorksByIds,
   getTotalWorkCount,
+  getCommercialHidden,
   type GalvelicaWorkCard,
 } from "@/lib/galvelica"
 import { auth } from "@/lib/auth"
@@ -43,10 +44,12 @@ export const metadata: Metadata = {
 
 export default async function GalvelicaHome() {
   const nsfwMode = await getNsfwMode().catch(() => "safe")
+  // 商业作开关必须进缓存 key：编辑精选/每日推荐的抽取池随该开关变化，否则两种口径共用缓存而串号
+  const commercialHidden = await getCommercialHidden()
 
   const [editorPicks, daily, years, tags, workTotal] = await Promise.all([
-    cached(cacheKey("galvelica:home:editorPicks", nsfwMode, 8), () => getEditorPicks(8), 300).catch(() => [] as GalvelicaWorkCard[]),
-    cached(cacheKey("galvelica:home:daily", nsfwMode, new Date().toISOString().slice(0, 10)), () => getDailyPick(), 300).catch(() => null),
+    cached(cacheKey("galvelica:home:editorPicks", nsfwMode, commercialHidden ? "hide" : "show", 8), () => getEditorPicks(8), 300).catch(() => [] as GalvelicaWorkCard[]),
+    cached(cacheKey("galvelica:home:daily", nsfwMode, commercialHidden ? "hide" : "show", new Date().toISOString().slice(0, 10)), () => getDailyPick(), 300).catch(() => null),
     getYears(),
     getPopularTags(10),
     // 全库总数（含商业作）：区块头「N 部里挑出 8 部」的 N，跟库里实际数据走

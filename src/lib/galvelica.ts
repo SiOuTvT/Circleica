@@ -35,14 +35,70 @@ export async function getNsfwMode(): Promise<GalNsfwMode> {
   return resolveNsfwMode()
 }
 
-/** 真人实拍/写实3D 过滤：cookie `gal_realfilter`（1=显示 / 缺省或0=隐藏）。默认隐藏（用户偏好：不喜欢真人 3D）。 */
-async function showRealisticEnabled(): Promise<boolean> {
+/** 商业作过滤开关：cookie `gal_commercial`（0=隐藏 / 缺省或1=显示）。
+ *  默认显示 —— 默认走全库口径，是否排除商业作由用户手动开（不替用户预先过滤）。 */
+async function commercialHiddenEnabled(): Promise<boolean> {
   try {
     const store = await cookies()
-    return store.get("gal_realfilter")?.value === "1"
+    return store.get("gal_commercial")?.value === "0"
   } catch {
     return false
   }
+}
+
+/* ── 「不好看」作品降权（不删除、不过滤，只降低在推荐/随机场景的出现概率）────────────
+ * 需求口径：真人实拍/写实 3D 与无封面作品「看着不好看」，应降低出现率，
+ *           但它们仍属于资料馆（作品库可正常翻到），不做过滤、不移除。
+ * 判据：contentFlags 含 LIVE_ACTION（真人实拍/写实 3D）或 coverImage 为空（无封面）。
+ * 方式：以 (1 - UNATTRACTIVE_SHARE) 的概率从「好看」池抽样，其余从全池抽样 ——
+ *       不好看作品始终保留出现机会，只是概率大幅降低。
+ */
+const UNATTRACTIVE_SHARE = 0.15
+
+/** 「好看」池：非真人写实 3D 且有封面 */
+function attractiveWhere(base: Prisma.WorkWhereInput): Prisma.WorkWhereInput {
+  return {
+    AND: [
+      base,
+      { NOT: { contentFlags: { has: "LIVE_ACTION" } } },
+      { NOT: { coverImage: "" } },
+    ],
+  }
+}
+
+/** 按降权策略选池：大概率走「好看」池；不好看作品由小概率的全池抽样兜底（不是过滤） */
+async function poolWhere(base: Prisma.WorkWhereInput, rPool: number): Promise<Prisma.WorkWhereInput> {
+  if (rPool <= UNATTRACTIVE_SHARE) return base
+  const good = attractiveWhere(base)
+  try {
+    const n = await prisma.work.count({ where: good })
+    return n > 0 ? good : base
+  } catch {
+    return base
+  }
+}
+
+/** 基准池（列表/统计/抽取共用）：商业作按开关 + NSFW 三段。
+ *  真人降权不在这里做 —— 列表必须能看到全库，降权只作用于推荐/随机抽取（poolWhere）。 */
+async function basePoolWhere(): Promise<Prisma.WorkWhereInput> {
+  const and: Prisma.WorkWhereInput[] = []
+  if (await commercialHiddenEnabled()) and.push({ isCommercial: false })
+  const nsfw = await nsfwModeWhere()
+  if (nsfw && Object.keys(nsfw).length > 0) and.push(nsfw)
+  return and.length ? { AND: and } : {}
+}
+
+/** 仅含商业作开关的条件（不含 NSFW）。
+ *  用于原本就不过 NSFW 的统计/详情查询（年份、社团、标签计数、详情、姊妹作等），
+ *  使它们的口径随「隐藏商业作」开关一起变化，避免与作品库总数对不上。 */
+async function commercialWhere(): Promise<Prisma.WorkWhereInput> {
+  return (await commercialHiddenEnabled()) ? { isCommercial: false } : {}
+}
+
+/** 导出给页面缓存 key 使用：商业作开关必须进缓存 key，否则共享缓存会跨用户串号
+ *  （用户 A 隐藏商业作的结果被用户 B 显示商业作时命中）。 */
+export async function getCommercialHidden(): Promise<boolean> {
+  return commercialHiddenEnabled()
 }
 
 /**
@@ -278,16 +334,12 @@ async function nsfwModeWhere(): Promise<Prisma.WorkWhereInput> {
 }
 
 async function workWhere(q: GalvelicaListQuery): Promise<Prisma.WorkWhereInput> {
-  const and: Prisma.WorkWhereInput[] = [
-    // 同人资料馆不变式：商业系列作品一律不展示
-    { isCommercial: false },
-  ]
-  // 真人实拍/写实3D：默认隐藏（可开关显示）
-  if (!(await showRealisticEnabled())) {
-    and.push({ NOT: { contentFlags: { has: "LIVE_ACTION" } } })
-  }
-  // NSFW 三段过滤（直接过滤游戏本体）
-  and.push(await nsfwModeWhere())
+  const and: Prisma.WorkWhereInput[] = []
+  // 基准池：商业作按开关 + NSFW 三段。
+  // 真人实拍/写实 3D 与无封面作品在此不做过滤 —— 它们仍属于资料馆，作品库可正常翻到，
+  // 仅在推荐/随机抽取场景降权（见 poolWhere / UNATTRACTIVE_SHARE）。
+  const base = await basePoolWhere()
+  if (Object.keys(base).length > 0) and.push(base)
   if (q.tags && q.tags.length > 0) {
     and.push(...q.tags.map((tagId) => ({ tags: { some: { tagId } } })))
   }
@@ -389,14 +441,14 @@ export async function getWorkBySerialId(serialId: number): Promise<GalvelicaWork
 
 export async function getWorkBySlug(slug: string): Promise<GalvelicaWorkDetail | null> {
   if (!(await archiveReady())) return null
-  const work = await prisma.work.findFirst({ where: { slug, isCommercial: false }, select: { id: true } })
+  const work = await prisma.work.findFirst({ where: { slug, ...(await commercialWhere()) }, select: { id: true } })
   if (!work) return null
   return buildDetailFromWork(work.id, null)
 }
 
 async function buildDetailFromWork(workId: string, fallbackGameId: string | null): Promise<GalvelicaWorkDetail | null> {
   const work = await prisma.work.findFirst({
-    where: { id: workId, isCommercial: false },
+    where: { id: workId, ...(await commercialWhere()) },
     include: {
       game: { select: { serialId: true } },
       sources: { select: { source: true, externalId: true } },
@@ -415,7 +467,7 @@ async function buildDetailFromWork(workId: string, fallbackGameId: string | null
   const tagNames = work.tags.map((t) => t.tag.name)
   const siblings = tagNames.length
     ? await prisma.work.findMany({
-        where: { id: { not: work.id }, isCommercial: false, ...(await nsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
+        where: { id: { not: work.id }, ...(await commercialWhere()), ...(await nsfwModeWhere()), tags: { some: { tag: { name: { in: tagNames } } } } },
         select: workCardSelect(),
         orderBy: { favoriteCount: "desc" },
         take: 6,
@@ -474,8 +526,8 @@ export async function getPopularTags(limit = 300): Promise<GalvelicaTag[]> {
 
   const rows = await prisma.tag.findMany({
     // 只统计仍被「非商业同人作品」使用的标签（商业系列已从 WorkTag 清理，显式过滤双保险）
-    where: { source: "galvelica", works: { some: { work: { isCommercial: false } } } },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
+    where: { source: "galvelica", works: { some: { work: await commercialWhere() } } },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: await commercialWhere() } } } } },
     orderBy: { sortOrder: "desc" },
     take: 600,
   })
@@ -500,7 +552,7 @@ export async function getYears(): Promise<{ year: number; count: number }[]> {
   const cached = await cache.get<{ year: number; count: number }[]>(key)
   if (cached) return cached
 
-  const rows = await prisma.work.findMany({ where: { NOT: { releaseDate: null }, isCommercial: false }, select: { releaseDate: true } })
+  const rows = await prisma.work.findMany({ where: { NOT: { releaseDate: null }, ...(await commercialWhere()) }, select: { releaseDate: true } })
   const map = new Map<number, number>()
   for (const r of rows) {
     if (!r.releaseDate) continue
@@ -523,7 +575,7 @@ export async function getStudios(): Promise<{ name: string; count: number }[]> {
   const cached = await cache.get<{ name: string; count: number }[]>(key)
   if (cached) return cached
 
-  const rows = await prisma.work.findMany({ where: { NOT: { studioName: "" }, isCommercial: false }, select: { studioName: true } })
+  const rows = await prisma.work.findMany({ where: { NOT: { studioName: "" }, ...(await commercialWhere()) }, select: { studioName: true } })
   const map = new Map<string, number>()
   for (const r of rows) {
     if (!r.studioName) continue
@@ -557,7 +609,7 @@ export async function getStaffBrief(ids: string[]): Promise<GalvelicaStaffBrief[
     archive
       ? prisma.workCreator.groupBy({
           by: ["creatorId"],
-          where: { creatorId: { in: uniq }, work: { isCommercial: false } },
+          where: { creatorId: { in: uniq }, work: await commercialWhere() },
           _count: { _all: true },
         })
       : prisma.gameCreator.groupBy({
@@ -577,7 +629,7 @@ export async function getTagWorkCounts(tagIds: string[]): Promise<Record<string,
   if (!(await archiveReady())) return {}
   const rows = await prisma.workTag.groupBy({
     by: ["tagId"],
-    where: { tagId: { in: uniq }, work: { isCommercial: false } },
+    where: { tagId: { in: uniq }, work: await commercialWhere() },
     _count: { _all: true },
   })
   const out: Record<string, number> = {}
@@ -588,11 +640,12 @@ export async function getTagWorkCounts(tagIds: string[]): Promise<Record<string,
 /**
  * 全库作品总数（含商业作）—— 首页「编辑精选」区块头「N 部里挑出 8 部」的那个 N。
  *
- * ⚠️ 口径与左栏导航「作品库」的计数不同：那边走 listWorks().total，除了只收同人作
- * （isCommercial: false），还要过 workWhere 的另外两条过滤 —— 真人实拍/写实 3D 默认隐藏、
- * NSFW 三段模式（未登录强制 sfw，排除露骨封面）。所以两个数字的差值是「同人馆不变式 +
- * 默认过滤」共同造成的，且 NSFW 那条随登录状态与浏览模式变化；不是商业作单项
- * （实测：全库 20928，其中商业作仅 173）。
+ * ⚠️ 口径说明（改版后）：本函数返回全库总数（含商业作、含真人实拍/无封面作品）。
+ * 与作品库 listWorks().total 的差异现在只剩 NSFW 三段模式（未登录强制 sfw，排除露骨封面）——
+ * 即已登录 all 模式下两者一致；未登录因合规强制 sfw 会少掉露骨作品那部分。
+ * 商业作与「不好看」作品都不再默认过滤：商业作由用户开关决定（默认显示），
+ * 真人实拍/写实 3D 与无封面作品只做降权（推荐/随机场景降低出现率），列表里仍可正常翻到。
+ * （实测：全库 20928，其中商业作仅 173）
  * 副站归档未就绪时回退到主站 Game 总数，与 getEditorPicks 等函数的回退策略一致。
  */
 export async function getTotalWorkCount(): Promise<number> {
@@ -627,7 +680,7 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
     if (collection) {
       const workIds = collection.games.map((cg) => cg.game.galvelicaWork?.id).filter(Boolean) as string[]
       if (workIds.length) {
-        const works = await prisma.work.findMany({ where: { id: { in: workIds }, isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect() })
+        const works = await prisma.work.findMany({ where: { id: { in: workIds }, ...(await basePoolWhere()) }, select: workCardSelect() })
         items = works.map(mapWorkCard)
       }
     }
@@ -636,7 +689,12 @@ export async function getEditorPicks(limit = 8): Promise<GalvelicaWorkCard[]> {
   }
 
   if (!items.length) {
-    const rows = await prisma.work.findMany({ where: { isCommercial: false, ...(await nsfwModeWhere()) }, select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
+    // 兜底走「好看」池（编辑精选本就该挑好看的）；好看池为空的极端情况才回退全池
+    const base = await basePoolWhere()
+    let rows = await prisma.work.findMany({ where: attractiveWhere(base), select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
+    if (!rows.length) {
+      rows = await prisma.work.findMany({ where: base, select: workCardSelect(), orderBy: { favoriteCount: "desc" }, take: limit })
+    }
     items = rows.map(mapWorkCard)
   }
   await cache.set(key, items, GAL_CACHE_TTL)
@@ -673,7 +731,8 @@ export async function getRandomWorkSerialId(): Promise<string | null> {
 
 async function pickRandomWorkOnce(): Promise<string | null> {
   if (!(await archiveReady())) return getRandomWorkSerialIdFromGame()
-  const where = { isCommercial: false, ...(await nsfwModeWhere()) }
+  const base = await basePoolWhere()
+  const where = await poolWhere(base, Math.random())
   const count = await prisma.work.count({ where })
   if (!count) return null
   const skip = Math.floor(Math.random() * count)
@@ -693,7 +752,7 @@ export async function getTagById(tagId: string): Promise<GalvelicaTag | null> {
   if (!(await archiveReady())) return getTagByIdFromGame(tagId)
   const t = await prisma.tag.findFirst({
     where: { id: tagId, source: "galvelica" },
-    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: { isCommercial: false } } } } } },
+    select: { id: true, name: true, color: true, group: { select: { name: true, color: true } }, _count: { select: { works: { where: { work: await commercialWhere() } } } } },
   })
   if (!t) return null
   return {
@@ -712,14 +771,18 @@ export async function getDailyPick(): Promise<GalvelicaWorkCard | null> {
   const cached = await cache.get<GalvelicaWorkCard | null>(key)
   if (cached) return cached
 
-  const modeWhere = await nsfwModeWhere()
-  const count = await prisma.work.count({ where: { isCommercial: false, ...modeWhere } })
+  const base = await basePoolWhere()
+  // 同一天所有人看到同一部：池选择与索引都由日期 hash 派生（确定性）。
+  // 走降权池 —— 不好看作品仍可能被抽中，只是概率大幅降低。
+  const h = hashString(dateKeyOf(new Date()))
+  const where = await poolWhere(base, (h % 1000) / 1000)
+  const count = await prisma.work.count({ where })
   if (!count) {
     await cache.set(key, null, GAL_CACHE_TTL)
     return null
   }
-  const idx = hashString(dateKeyOf(new Date())) % count
-  const w = await prisma.work.findFirst({ where: { isCommercial: false, ...modeWhere }, select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
+  const idx = h % count
+  const w = await prisma.work.findFirst({ where, select: workCardSelect(), orderBy: { createdAt: "asc" }, skip: idx, take: 1 })
   const item = w ? mapWorkCard(w as unknown as WorkCardSource) : null
   await cache.set(key, item, GAL_CACHE_TTL)
   if (!item) return null

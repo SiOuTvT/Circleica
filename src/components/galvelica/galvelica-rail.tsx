@@ -6,7 +6,7 @@ import { GalvelicaSearch } from "./galvelica-search"
 import { GalvelicaRandomLink } from "./galvelica-random-link"
 import { ThemeModeToggle } from "./theme-mode-toggle"
 import { GalvelicaNsfwToggle } from "./galvelica-nsfw-toggle"
-import { GalvelicaRealFilterToggle } from "./galvelica-real-filter-toggle"
+import { GalvelicaCommercialToggle } from "./galvelica-commercial-toggle"
 import { GalvelicaBackLink } from "./back-link"
 
 const NAV_ITEMS = [
@@ -62,7 +62,7 @@ export function GalvelicaRail({ counts }: { counts: RailCounts }) {
       <div className="galvelica-rail-switches">
         <ThemeModeToggle />
         <GalvelicaNsfwToggle />
-        <GalvelicaRealFilterToggle />
+        <GalvelicaCommercialToggle />
         <GalvelicaBackLink site />
       </div>
     </aside>

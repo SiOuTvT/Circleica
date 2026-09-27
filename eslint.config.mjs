@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     // 含 Next 自动生成的 .ts 类型文件（250+ 个，内里大量 any），是编译产物不是源码，
     // 一旦被 lint 扫到会灌入数千条 no-explicit-any 噪声。.gitignore 已用 /.next-* 忽略。
     ".next-build/**",
+    // jest --coverage 生成的覆盖率报告产物（含第三方 lcov-report 资产），是构建产物不是源码，
+    // 其中的 eslint-disable 会报 "Unused eslint-disable directive" 噪声。
+    "coverage/**",
     // 根目录临时脚本（保留的诊断/工具脚本，CommonJS require 写法，非应用源码）
     "tmp-tagcolor-cascade.cjs",
     // 调试时把 .next 改名留下的构建产物残留（.next_bak_*/.next_bak2_* 等）。
