@@ -14,6 +14,7 @@ import {
   getWorksByIds,
   getTotalWorkCount,
   getCommercialHidden,
+  listWorks,
   type GalvelicaWorkCard,
 } from "@/lib/galvelica"
 import { auth } from "@/lib/auth"
@@ -47,14 +48,17 @@ export default async function GalvelicaHome() {
   // 商业作开关必须进缓存 key：编辑精选/每日推荐的抽取池随该开关变化，否则两种口径共用缓存而串号
   const commercialHidden = await getCommercialHidden()
 
-  const [editorPicks, daily, years, tags, workTotal] = await Promise.all([
+  const [editorPicks, daily, years, tags, workTotal, worksRes] = await Promise.all([
     cached(cacheKey("galvelica:home:editorPicks", nsfwMode, commercialHidden ? "hide" : "show", 8), () => getEditorPicks(8), 300).catch(() => [] as GalvelicaWorkCard[]),
     cached(cacheKey("galvelica:home:daily", nsfwMode, commercialHidden ? "hide" : "show", new Date().toISOString().slice(0, 10)), () => getDailyPick(), 300).catch(() => null),
     getYears(),
     getPopularTags(10),
-    // 全库总数（含商业作）：区块头「N 部里挑出 8 部」的 N，跟库里实际数据走
+    // 全库总数（含商业作）：收录总量，无过滤
     getTotalWorkCount().catch(() => 0),
+    // 当前浏览模式下实际可见的作品数（与左栏「作品库」同源），供区块头同时给出两个口径
+    listWorks({ pageSize: 1 }).catch(() => null),
   ])
+  const visibleTotal = worksRes?.total ?? 0
 
   let recentWorks: GalvelicaWorkCard[] = []
   const session = await auth()
@@ -103,11 +107,15 @@ export default async function GalvelicaHome() {
           <GalvelicaSectionHead
             title="编辑精选"
             // 跟着库里实际数据走：总数是全库口径（含商业作），挑出的部数按实际取到的条目数
-            count={workTotal > 0 ? `${workTotal} 部里挑出 ${editorPicks.length} 部` : undefined}
-            // 口径说明：这边的部数走 getTotalWorkCount（全库口径）；左栏「作品库」计数走
-            // listWorks().total，除了只收同人作，还默认过滤真人作品与露骨内容、并随浏览模式变化，
-            // 所以两个数字必然差一截 —— 是口径不同，不是数据错误。
-            note="这里的部数是全库口径；左栏「作品库」只收同人作，并按当前浏览模式过滤（露骨内容与真人作品默认不显示）。"
+            count={
+              workTotal > 0
+                ? `当前可见 ${visibleTotal} 部里挑出 ${editorPicks.length} 部，全库 ${workTotal} 部`
+                : undefined
+            }
+            // 口径说明：全库 = getTotalWorkCount（收录总量，无过滤）；
+            // 当前可见 = listWorks().total，随浏览模式变化（未登录按合规要求不显示露骨封面）。
+            // 真人实拍/写实 3D 与无封面作品只降权不过滤，商业作默认显示，故两者之差只剩露骨作品。
+            note="全库是资料馆的收录总量，当前可见数量会随浏览模式变化，未登录时按合规要求不显示露骨封面的作品。"
             href="/galvelica/works"
             hrefLabel="全部作品"
           />
