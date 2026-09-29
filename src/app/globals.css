@@ -2247,6 +2247,8 @@ body[data-has-bottom-nav="true"] {
   padding-left: 7px;
 }
 .galvelica-rail-nav .num {
+  /* 移动端导航转为横排后每项宽度=内容宽，space-between 失效，靠 margin 保证标签与计数不贴死 */
+  margin-left: 6px;
   font-size: var(--gal-fs-count);
   font-variant-numeric: tabular-nums;
   color: var(--muted-foreground);
@@ -2992,9 +2994,10 @@ a.galvelica-pager-nav:hover {
     padding: 20px;
   }
   .galvelica-rail-nav {
+    /* 换行而非横向滚动：横向滚动会遮掉后面的项（如「社团 8996」只剩「社团 8」），
+       用户也未必知道可以横向滑。换行后全部可见。 */
     flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex-wrap: wrap;
     gap: 4px 0;
   }
   .galvelica-rail-nav a,

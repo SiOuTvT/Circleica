@@ -50,7 +50,7 @@ export function GalvelicaCommercialToggle({ className }: { className?: string })
           }
         >
           <Store className="h-4 w-4" strokeWidth={2} />
-          <span className="hidden sm:inline">{label}</span>
+          <span>{label}</span>
         </button>
       </TooltipTrigger>
       <TooltipContent>商业系列作品过滤：默认显示（全库口径），点击可隐藏商业作（无需登录）</TooltipContent>

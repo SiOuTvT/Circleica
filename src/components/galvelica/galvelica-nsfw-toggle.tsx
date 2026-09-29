@@ -76,7 +76,7 @@ export function GalvelicaNsfwToggle({ className }: { className?: string }) {
             }
           >
             {mode === "sfw" ? <EyeOff className="h-4 w-4" strokeWidth={2} /> : <Eye className="h-4 w-4" strokeWidth={2} />}
-            <span className="hidden sm:inline">{cur.label}</span>
+            <span>{cur.label}</span>
             {status === "authenticated" ? (
               <ChevronDown className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
             ) : (
