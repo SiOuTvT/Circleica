@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { apiFetchSafe } from "@/lib/api-client"
@@ -15,6 +16,7 @@ import { apiFetchSafe } from "@/lib/api-client"
  */
 export function useGameFavorite(gameId: string) {
   const { status } = useSession()
+  const router = useRouter()
   const isLoggedIn = status === "authenticated"
   const [fav, setFav] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -63,6 +65,8 @@ export function useGameFavorite(gameId: string) {
         setFav(false)
         window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: false } }))
         toast.success("已取消收藏")
+        // 重取服务端数据：收藏数由服务端渲染，不刷新就一直停在旧值
+        router.refresh()
       }
     } finally {
       setUnfavoriting(false)
@@ -73,6 +77,8 @@ export function useGameFavorite(gameId: string) {
     setFav(true)
     window.dispatchEvent(new CustomEvent("game-fav-change", { detail: { isFav: true } }))
     toast.success("已收藏")
+    // 同上：刷新以更新服务端渲染的收藏数
+    router.refresh()
   }
 
   return {
