@@ -82,7 +82,8 @@ export function SiteSettingsClient() {
       if (!ok) {
         toast.error("保存失败")
       } else {
-        toast.success("已保存")
+        // 站点设置会影响全站（注册开关、邮箱验证、主题等），保存后需重取服务端数据
+      toast.success("已保存"); router.refresh()
       }
     } catch {
       toast.error("保存失败")

@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
 import { GripVertical, Loader2, Pencil, Plus, Save, Search, Trash2, ArrowUp, ArrowDown, X } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api-client"
@@ -60,6 +61,7 @@ interface GameSearchResult {
 }
 
 export function CollectionsClient() {
+  const router = useRouter()
   const [collections, setCollections] = useState<CollectionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<CollectionDetail | null>(null)
@@ -124,7 +126,7 @@ export function CollectionsClient() {
     if (!deleteId) return
     try {
       await api.delete(`/api/admin/curated-collections/${deleteId}`)
-      toast.success("已删除")
+      toast.success("已删除"); router.refresh()
       fetchCollections(pageRef.current, searchRef.current)
     } catch {
       toast.error("删除失败")
@@ -248,6 +250,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
   onClose: () => void
   onSaved: () => void
 }) {
+  const router = useRouter()
   const [name, setName] = useState(collection?.name || "")
   const [description, setDescription] = useState(collection?.description || "")
   const [published, setPublished] = useState(collection?.published ?? true)
@@ -311,7 +314,7 @@ function CollectionDialog({ collection, onClose, onSaved }: {
       } else {
         await api.post(url, payload)
       }
-      toast.success(collection ? "合集已更新" : "合集已创建")
+      toast.success(collection ? "合集已更新" : "合集已创建"); router.refresh()
       onSaved()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
