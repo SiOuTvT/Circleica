@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import { GalvelicaRail } from "./galvelica-rail"
 import { getGalvelicaThemeSettings } from "@/lib/site-settings"
 import { computeContrastFg, hexToRgb } from "@/lib/theme-colors-shared"
-import { getYears, getStudios, getPopularTags, listWorks } from "@/lib/galvelica"
+import { getYears, getStudios, getPopularTags, listWorks, getTotalWorkCount } from "@/lib/galvelica"
 
 /**
  * Galvelica 子站外壳：左栏（品牌 / 检索 / 导航 / 开关区）+ 右内容两栏。
@@ -41,11 +41,14 @@ export async function GalvelicaShell({ children }: { children: ReactNode }) {
     getPopularTags(500),
     listWorks({ pageSize: 1 }),
   ])
+  // 全库总数（无过滤）：供左栏显示「已过滤 N 部」，让开关的实际影响可见
+  const total = await getTotalWorkCount().catch(() => 0)
   const counts = {
     works: worksRes.total,
     tags: tags.length,
     years: years.length,
     studios: studios.length,
+    total,
   }
 
   return (
