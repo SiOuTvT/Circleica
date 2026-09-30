@@ -1,6 +1,7 @@
 "use client"
 
 import { useEmotionalMessages } from "@/hooks/use-emotional-messages"
+import { useRouter } from "next/navigation"
 import { Loader2, UserMinus, UserPlus } from "lucide-react"
 import { EmotionalIcon } from "@/components/emotional-icon"
 import { useState } from "react"
@@ -17,6 +18,7 @@ interface Props {
 const followMsgKeys = ["follow_success", "unfollow_success"]
 
 export function FollowButton({ targetUserId, initialFollowing, size = "md", onChange }: Props) {
+  const router = useRouter()
   const [following, setFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
   const { messages: followMsgs } = useEmotionalMessages(followMsgKeys)
@@ -30,6 +32,8 @@ export function FollowButton({ targetUserId, initialFollowing, size = "md", onCh
         const next = !following
         setFollowing(next)
         onChange?.(next)
+        // 重取服务端数据：粉丝数 / 关注列表由服务端渲染，不刷新的话这些数字不会变
+        router.refresh()
         toast.success(following
           ? (followMsgs.unfollow_success ? followMsgs.unfollow_success.title : "已取消关注")
           : (followMsgs.follow_success ? followMsgs.follow_success.title : "关注成功"), {

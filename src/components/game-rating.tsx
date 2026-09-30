@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -23,6 +24,7 @@ interface RatingData {
  */
 export function GameRating({ gameId }: { gameId: string }) {
   const { status } = useSession()
+  const router = useRouter()
   const [userScore, setUserScore] = useState<number | null>(null)
   const [avg, setAvg] = useState<number | null>(null)
   const [count, setCount] = useState(0)
@@ -66,6 +68,9 @@ export function GameRating({ gameId }: { gameId: string }) {
         setAvg(inner.stats._avg?.score ?? null)
         setCount(typeof inner.stats._count === "object" ? (inner.stats._count?.score ?? 0) : (inner.stats._count ?? 0))
         toast.success(`已评 ${score} 星`)
+        // 重取服务端数据：排行榜与列表页的评分来自服务端渲染，
+        // 只改本地 state 的话那些位置仍是旧值，要手动刷新才看得到变化。
+        router.refresh()
       } else {
         setUserScore(prev)
         toast.error("评分失败，请稍后重试")
