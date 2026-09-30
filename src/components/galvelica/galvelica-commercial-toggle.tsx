@@ -33,7 +33,9 @@ export function GalvelicaCommercialToggle({ className }: { className?: string })
     router.refresh()
   }
 
-  const label = mounted ? (hidden ? "隐藏商业作" : "显示商业作") : "商业作"
+  // 文案必须是「当前状态」而不是「点击后的动作」：默认就是显示商业作，
+  // 若写成「显示商业作」会被读成「点了才显示」，实际那一下是切到隐藏（总数反而变少）。
+  const label = mounted ? (hidden ? "商业作 已隐藏" : "商业作 已显示") : "商业作"
 
   return (
     <Tooltip>
@@ -53,7 +55,9 @@ export function GalvelicaCommercialToggle({ className }: { className?: string })
           <span>{label}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent>商业系列作品过滤：默认显示（全库口径），点击可隐藏商业作（无需登录）</TooltipContent>
+      <TooltipContent>
+        商业作过滤：当前{hidden ? "已隐藏" : "已显示"}，点击切换（默认显示，无需登录）
+      </TooltipContent>
     </Tooltip>
   )
 }
