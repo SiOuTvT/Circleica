@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { apiFetchSafe } from "@/lib/api-client"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,6 +14,7 @@ interface ImportResult {
 }
 
 export function VNDBImportManager() {
+  const router = useRouter()
   const [vndbIds, setVndbIds] = useState("")
   const [importing, setImporting] = useState(false)
   const [results, setResults] = useState<ImportResult[]>([])
@@ -46,6 +48,8 @@ export function VNDBImportManager() {
         setMessage(data?.data?.message ?? "")
         setResults(data?.data?.results ?? [])
         setVndbIds("")
+        // 导入会新增作品，重取服务端数据让它们出现在列表与缓存中
+        router.refresh()
       } else {
         setMessage(error || "导入失败")
       }

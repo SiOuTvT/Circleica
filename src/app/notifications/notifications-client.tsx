@@ -9,6 +9,7 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useCallback, useState } from "react"
 import { api } from "@/lib/api-client"
 
@@ -99,6 +100,7 @@ export default function NotificationsClient({
   initialNotifications: NotificationItem[]
   initialUnreadCount: number
 }) {
+  const router = useRouter()
   const [notifications, setNotifications] = useState(initialNotifications)
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -125,6 +127,7 @@ export default function NotificationsClient({
       await api.put("/api/notifications", { ids })
       setNotifications((prev) => prev.map((n) => ids.includes(n.id) ? { ...n, isRead: true } : n))
       setUnreadCount((c) => Math.max(0, c - ids.length))
+      router.refresh()
     } catch { toast.error("标记已读失败，请稍后再试") }
   }
 
@@ -134,6 +137,7 @@ export default function NotificationsClient({
       await api.put("/api/notifications", {})
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
       setUnreadCount(0)
+      router.refresh()
     } catch { toast.error("全部已读失败，请稍后再试") }
   }
 
@@ -145,6 +149,7 @@ export default function NotificationsClient({
         const deletedUnread = notifications.filter(n => ids.includes(n.id) && !n.isRead).length
         return Math.max(0, c - deletedUnread)
       })
+      router.refresh()
     } catch { toast.error("删除通知失败，请稍后再试") }
   }
 
@@ -153,6 +158,7 @@ export default function NotificationsClient({
       // 删除全部已读（含未加载的分页），由后端按 isRead 过滤
       await api.delete("/api/notifications", { body: {} })
       setNotifications((prev) => prev.filter((n) => !n.isRead))
+      router.refresh()
     } catch {
       toast.error("清除已读通知失败，请稍后再试")
     }
@@ -163,6 +169,7 @@ export default function NotificationsClient({
       await api.delete("/api/notifications", { body: {} })
       setNotifications([])
       setUnreadCount(0)
+      router.refresh()
     } catch { toast.error("清空通知失败，请稍后再试") }
   }
 
