@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback, useRef } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { MessageSquare, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmDialog } from "../ui/confirm-dialog"
@@ -43,6 +43,7 @@ export function ForumClient({
   totalPages: initialTotalPages,
 }: ForumClientProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   // 帖子列表状态
   const [posts, setPosts] = useState(initialPosts)
@@ -169,7 +170,8 @@ export function ForumClient({
       const data = await res.json()
       if (res.ok) {
         setPosts(p => [data.data, ...p])
-        toast.success("发帖成功")
+        // 帖子列表由服务端渲染（initialPosts），发帖后需重取
+      toast.success("发帖成功"); router.refresh()
       } else {
         toast.error(data.error || "发帖失败，请稍后再试")
       }
