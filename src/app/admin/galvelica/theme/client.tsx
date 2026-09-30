@@ -4,6 +4,7 @@
  * 副站主题页 client 壳：读取服务端传入的初始设置，保存时 POST /api/admin/site-settings
  * （body 全部为 galvelica: 独立命名空间键，复用现有路由原样 upsert，绝不触碰主站 themeColor 等）。
  */
+import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -11,6 +12,7 @@ import { GalvelicaThemeEditor } from "@/components/admin/galvelica-theme-editor"
 import type { GalvelicaThemeSettings } from "@/lib/site-settings"
 
 export function GalvelicaThemeClient({ initialSettings }: { initialSettings: GalvelicaThemeSettings }) {
+  const router = useRouter()
   const handleSave = useCallback(async (settings: GalvelicaThemeSettings) => {
     const { ok } = await apiFetchSafe("/api/admin/site-settings", {
       method: "POST",
@@ -23,7 +25,9 @@ export function GalvelicaThemeClient({ initialSettings }: { initialSettings: Gal
     })
     if (!ok) throw new Error("Save failed")
     toast.success("副站主题已保存")
-  }, [])
+    // 副站主题由服务端渲染注入，保存后需重取
+    router.refresh()
+  }, [router])
 
   return <GalvelicaThemeEditor initialSettings={initialSettings} onSave={handleSave} />
 }

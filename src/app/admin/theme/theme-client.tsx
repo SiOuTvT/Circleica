@@ -2,11 +2,13 @@
 
 import { ThemeEditor } from "@/components/theme-editor"
 import { useThemeSettings, type FullThemeSettings } from "@/components/theme-provider"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
 
 export function ThemeSettingsClient() {
+  const router = useRouter()
   const { settings: ctxSettings, applyAll } = useThemeSettings()
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
@@ -19,10 +21,12 @@ export function ThemeSettingsClient() {
     if (ok) {
       applyAll(settingsToSave)
       toast.success("主题已保存")
+      // 主题由服务端渲染注入（initialSettings），保存后需重取
+      router.refresh()
     } else {
       throw new Error("Save failed")
     }
-  }, [applyAll])
+  }, [applyAll, router])
 
   if (!mounted) return <div className="h-96 animate-pulse rounded-xl bg-muted" />
 
