@@ -179,7 +179,7 @@ export function ForumClient({
       logger.forum.error("Failed to create post", error)
       toast.error("网络错误，请稍后再试")
     }
-  }, [])
+  }, [router])
 
   // 删除确认
   const handleDeletePost = useCallback((id: string) => {

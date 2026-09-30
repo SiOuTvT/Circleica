@@ -89,7 +89,7 @@ export function ResourceTagsClient() {
     } finally {
       setSaving(false)
     }
-  }, [groups, changedGroups])
+  }, [groups, changedGroups, router])
 
   const hasChanges = changedGroups.size > 0
 

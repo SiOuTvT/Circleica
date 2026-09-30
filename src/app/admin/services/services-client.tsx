@@ -160,7 +160,7 @@ export function ServicesClient() {
     } finally {
       setSaving(false)
     }
-  }, [config])
+  }, [config, router])
 
   const handleTest = useCallback(async (service: "r2" | "redis") => {
     setTesting(service)

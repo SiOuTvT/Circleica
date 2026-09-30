@@ -90,7 +90,7 @@ export function SiteSettingsClient() {
     } finally {
       setSaving(false)
     }
-  }, [placeholderUrl, siteName, siteDescription, logoUrl, logoMode, registrationEnabled, emailVerificationEnabled, emailVerificationRequiredForLogin, sendWelcomeEmail])
+  }, [placeholderUrl, siteName, siteDescription, logoUrl, logoMode, registrationEnabled, emailVerificationEnabled, emailVerificationRequiredForLogin, sendWelcomeEmail, router])
 
   const handleUpload = useCallback(async (file: File) => {
     setUploading(true)
