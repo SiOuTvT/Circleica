@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { AdminDataTable } from "@/components/admin/admin-data-table"
 import { AdminEmptyNext } from "@/components/admin/admin-empty-next"
+import { useRouter } from "next/navigation"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Plus, Trash2, Eye, EyeOff, Music, Loader2, Play, Pause, Pencil, Upload, X, ListMusic } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
@@ -16,6 +17,7 @@ interface MusicItem { id: string; title: string; url: string; filename: string; 
 interface PlaylistItem { id: string; name: string; _count: { music: number } }
 
 export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
+  const router = useRouter()
   const [list, setList]   = useState(initialMusic)
   const [playlists, setPlaylists] = useState<PlaylistItem[]>([])
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>("")
@@ -170,7 +172,8 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     if (ok) {
       setList(p => p.map(m => m.id === id ? { ...m, title: data?.data?.title ?? editTitle, url: data?.data?.url ?? editUrl } : m))
       setEditingId(null)
-      toast.success("已更新")
+      // 音乐列表由服务端渲染，更新后需重取
+      toast.success("已更新"); router.refresh()
     }
   }
 
@@ -178,7 +181,7 @@ export function MusicManager({ initialMusic }: { initialMusic: MusicItem[] }) {
     if (!deleteId) return
     const { ok } = await apiFetchSafe(`/api/admin/music/${deleteId}`, { method: "DELETE" })
     if (ok) {
-      toast.success("音乐已删除")
+      toast.success("音乐已删除"); router.refresh()
       setList(p => p.filter(m => m.id !== deleteId))
     } else {
       toast.error("删除失败")

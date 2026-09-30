@@ -3,6 +3,7 @@
 import { RichTextContent } from "@/components/rich-text-content-wrapper"
 import { EmptyState } from "@/components/ui/empty-state"
 import { FileText, Loader2, Pencil, Save, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function PagesManager({ initial }: Props) {
+  const router = useRouter()
   const [contents, setContents] = useState(initial)
   const [editingKey, setEditingKey] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
@@ -44,7 +46,8 @@ export function PagesManager({ initial }: Props) {
       })
       if (ok) {
         setContents(prev => ({ ...prev, [key]: draft }))
-        toast.success("已保存")
+        // 页面内容对外可见（服务端渲染），保存后需重取
+      toast.success("已保存"); router.refresh()
         cancelEdit()
       } else {
         toast.error("保存失败")

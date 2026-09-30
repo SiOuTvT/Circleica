@@ -10,6 +10,7 @@ import Image from "next/image"
 import { useAutoSaveDraft } from "@/hooks/use-auto-save-draft"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Megaphone, Pencil, Pin, Plus, Trash2, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState, useId } from "react"
 import { formatMonthDay } from "@/lib/date"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -45,6 +46,7 @@ interface Ann {
 }
 
 export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
+  const router = useRouter()
   const [anns, setAnns] = useState(initialAnns)
   const [title, setTitle] = useState("")
   const [summary, setSummary] = useState("")
@@ -119,10 +121,10 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
 
     if (isEditing) {
       setAnns(prev => prev.map(a => a.id === editingId ? { ...a, ...data?.data } : a))
-      toast.success("公告已更新"); cancelEdit()
+      toast.success("公告已更新"); cancelEdit(); router.refresh()
     } else {
       setAnns(prev => [(data?.data ?? data) as Ann, ...prev])
-      clearDraft(); clearForm(); toast.success("公告已创建")
+      clearDraft(); clearForm(); toast.success("公告已创建"); router.refresh()
     }
   }
 
@@ -139,13 +141,13 @@ export function AnnouncementsManager({ initialAnns }: { initialAnns: Ann[] }) {
     })
     if (ok) {
       setAnns(prev => prev.map(a => a.id === id ? { ...a, status: newStatus, isActive: newStatus !== "hidden" } : a))
-      toast.success(`已${STATUS_LABELS[newStatus]}`)
+      toast.success(`已${STATUS_LABELS[newStatus]}`); router.refresh()
     }
   }
 
   async function deleteAnn(id: string) {
     const { ok, error } = await apiFetchSafe(`/api/admin/announcements/${id}`, { method: "DELETE" })
-    if (ok) { toast.success("公告已删除"); setAnns(prev => prev.filter(a => a.id !== id)) }
+    if (ok) { toast.success("公告已删除"); setAnns(prev => prev.filter(a => a.id !== id)); router.refresh() }
     else { toast.error(error || "删除失败"); throw new Error("删除失败") }
   }
 

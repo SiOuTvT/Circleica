@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ROLE_META, type UserRole } from "@/lib/permissions"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -21,6 +22,7 @@ interface UserItem {
 // 角色展示统一使用 @/lib/permissions 的 ROLE_META
 
 export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
+  const router = useRouter()
   const [users, setUsers] = useState(initialUsers)
   const [resetId, setResetId] = useState<string | null>(null)
   const [newPwd, setNewPwd] = useState("")
@@ -75,7 +77,8 @@ export function UsersManager({ initialUsers }: { initialUsers: UserItem[] }) {
       })
       if (ok) {
         setUsers(p => p.map(u => u.id === id ? { ...u, role } : u))
-        toast.success(`已${role === "ADMIN" ? "设为管理员" : "撤销管理员"}`)
+        // 角色变更影响权限与列表展示（服务端渲染），需重取
+    toast.success(`已${role === "ADMIN" ? "设为管理员" : "撤销管理员"}`); router.refresh()
       } else {
         toast.error(error || "操作失败")
       }
