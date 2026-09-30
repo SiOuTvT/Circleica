@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { AdminPageContainer } from "@/components/admin-page-container"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ChevronUp, Loader2, Plus, Save, Tags, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { apiFetchSafe } from "@/lib/api-client"
@@ -19,6 +20,7 @@ interface TagGroup {
 }
 
 export function ResourceTagsClient() {
+  const router = useRouter()
   const [groups, setGroups] = useState<TagGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -79,7 +81,8 @@ export function ResourceTagsClient() {
           return
         }
       }
-      toast.success("资源标签已保存")
+      // 资源标签对外展示由服务端渲染，保存后需重取
+      toast.success("资源标签已保存"); router.refresh()
       setChangedGroups(new Set())
     } catch {
       toast.error("保存失败")

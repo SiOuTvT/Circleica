@@ -153,7 +153,8 @@ export function ServicesClient() {
       // reloadServiceConfig() 只更新 service-config 的内存配置：邮件与 Redis 每次调用都重新读，
       // R2 的 S3Client 在 getStorage() 里是单例、构造一次后不再变，改 R2 必须重启进程。
       // 热重载失败时后端会带 message，优先显示它
-      toast.success(data?.data?.message || "配置已保存；邮件与 Redis 立即生效，R2 需重启应用后生效")
+      // 服务配置影响邮件、Redis、对象存储等全站行为，保存后重取服务端数据
+      toast.success(data?.data?.message || "配置已保存；邮件与 Redis 立即生效，R2 需重启应用后生效"); router.refresh()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "保存失败")
     } finally {
