@@ -51,9 +51,12 @@ async function commercialHiddenEnabled(): Promise<boolean> {
  *           但它们仍属于资料馆（作品库可正常翻到），不做过滤、不移除。
  * 判据：contentFlags 含 LIVE_ACTION（真人实拍/写实 3D）或 coverImage 为空（无封面）。
  * 方式：以 (1 - UNATTRACTIVE_SHARE) 的概率从「好看」池抽样，其余从全池抽样 ——
- *       不好看作品始终保留出现机会，只是概率大幅降低。
+ *       不好看作品始终保留出现机会（概率不为 0），所以是降权而非过滤。
+ * 取值：0.05 → 出现率降到约 1/20。实测全库不好看作品占 1.90%（398/20928），
+ *       降权后推荐/随机场景的出现率约 0.095%，即首页、每日、随机几乎都看不到，
+ *       但数学上仍保留出现的可能；它们在作品库里则完全不受影响，照常可翻到。
  */
-const UNATTRACTIVE_SHARE = 0.15
+const UNATTRACTIVE_SHARE = 0.05
 
 /** 「好看」池：非真人写实 3D 且有封面 */
 function attractiveWhere(base: Prisma.WorkWhereInput): Prisma.WorkWhereInput {

@@ -9,11 +9,20 @@
  *
  * 跑法：npx tsx scripts/verify-downrank.ts
  */
+import { readFileSync } from "node:fs"
+
 // 复用项目单例：Prisma 7 强制走 PrismaPg driver adapter，自行 new PrismaClient 会报错
 import { prisma } from "../src/lib/prisma"
 
-/** 与 galvelica.ts 保持一致 */
-const UNATTRACTIVE_SHARE = 0.15
+/** 直接从源码解析当前降权参数，避免脚本里的常量与 galvelica.ts 脱节 */
+const UNATTRACTIVE_SHARE = Number(
+  readFileSync(new URL("../src/lib/galvelica.ts", import.meta.url), "utf8").match(
+    /const UNATTRACTIVE_SHARE = ([\d.]+)/,
+  )?.[1] ?? NaN,
+)
+if (!Number.isFinite(UNATTRACTIVE_SHARE)) {
+  throw new Error("未能从 src/lib/galvelica.ts 解析出 UNATTRACTIVE_SHARE")
+}
 
 const IS_UGLY = {
   OR: [{ contentFlags: { has: "LIVE_ACTION" } }, { coverImage: "" }],
@@ -41,7 +50,11 @@ async function main() {
   console.log("不好看（真人3D 或 无封面）= ", ugly, `(${beforeRatio.toFixed(2)}%)`)
   console.log("好看池（非真人 且 有封面）= ", good, `(${(100 - beforeRatio).toFixed(2)}%)`)
   console.log("---")
-  console.log("降权设置 UNATTRACTIVE_SHARE =", UNATTRACTIVE_SHARE, "（85% 走好看池，15% 全池兜底）")
+  console.log(
+    "降权设置 UNATTRACTIVE_SHARE =",
+    UNATTRACTIVE_SHARE,
+    `（${((1 - UNATTRACTIVE_SHARE) * 100).toFixed(0)}% 走好看池，${(UNATTRACTIVE_SHARE * 100).toFixed(0)}% 全池兜底）`,
+  )
   console.log("降权前：推荐里不好看的期望占比 =", beforeRatio.toFixed(2) + "%")
   console.log("降权后：推荐里不好看的期望占比 =", afterRatio.toFixed(2) + "%")
   console.log(
