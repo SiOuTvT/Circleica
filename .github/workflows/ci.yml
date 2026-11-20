@@ -10,7 +10,7 @@ jobs:
   # ── 质量门禁：每次 PR 自动跑，无需运行时环境 ──
   quality:
     name: Lint / Typecheck / Unit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       # 本地 CI 占位 DATABASE_URL：prisma generate 仅解析 datasource 配置、不连库，
       # 故无需 postgres 服务；与 build/e2e 同模式，严禁注入任何生产库连接串。
@@ -45,7 +45,7 @@ jobs:
   #     切勿把生产库连接串放进普通 PR CI 的 Secrets（避免测试污染/误连生产库）。
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: quality
     services:
       postgres:
@@ -80,7 +80,7 @@ jobs:
   # ── 端到端：内置 Postgres 服务 + Playwright，验证关键链路 ──
   e2e:
     name: E2E (Playwright)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     services:
       postgres:

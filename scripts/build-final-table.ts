@@ -14,7 +14,8 @@
  *    限速 6.6s/次，结果落盘缓存，可断点续跑
  *  - 国家表：完整语言码→国家/地区；并新增「有中文版」列
  */
-import { readFileSync, existsSync } from "node:fs"
+import { readFileSync, existsSync, writeFileSync } from "node:fs"
+import { chromium } from "playwright"
 
 // 显式加载 .env：独立脚本运行时不会走 Next 的环境加载，
 // 否则 Prisma 会退回 placeholder 连接串（28P01 认证失败）。
@@ -23,7 +24,7 @@ for (const line of (existsSync(".env") ? readFileSync(".env", "utf8") : "").spli
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "")
 }
 
-const { realPrisma: prisma } = await import("../src/lib/prisma.ts")
+const { realPrisma: prisma } = await import("../src/lib/prisma")
 const XLSX = await import("xlsx")
 
 const BASE = "http://localhost:3000"
@@ -246,6 +247,7 @@ async function main() {
       封面: w.coverImage ? "有" : "无",
       题材标签: tagNames.slice(0, 5).join("、"),
       slug: String(w.slug ?? ""),
+      中文译名: "",
     }
   })
 
@@ -278,11 +280,11 @@ async function main() {
   // 登录
   await page.goto(BASE + "/login", { waitUntil: "domcontentloaded", timeout: 120000 })
   await page.waitForTimeout(4000)
-  const inputInfo = await page.$$eval("input", (els) =>
-    els.map((e) => ({ type: e.type, ph: e.placeholder ?? "" })),
+  const inputInfo = await page.$$eval("input", (els: any[]) =>
+    els.map((e: any) => ({ type: e.type, ph: e.placeholder ?? "" })),
   )
-  const pwdIdx = inputInfo.findIndex((i) => i.type === "password" || /密码|password/i.test(i.ph))
-  const userIdx = inputInfo.findIndex((i, idx) => idx !== pwdIdx && i.type !== "hidden")
+  const pwdIdx = inputInfo.findIndex((i: any) => i.type === "password" || /密码|password/i.test(i.ph))
+  const userIdx = inputInfo.findIndex((i: any, idx: number) => idx !== pwdIdx && i.type !== "hidden")
   await page.locator("input").nth(userIdx).fill(process.env.TEST_USER ?? "")
   await page.locator("input").nth(pwdIdx).fill(process.env.TEST_PASS ?? "")
   await page.locator("input").nth(pwdIdx).press("Enter")
@@ -293,11 +295,11 @@ async function main() {
   for (const r of targets) {
     const t = String(r.中文名)
     if (cache[t]) {
-      r.中文译名 = cache[t]
+      r["中文译名"] = cache[t]
       continue
     }
     try {
-      const out = await page.evaluate(async (text) => {
+      const out = await page.evaluate(async (text: string) => {
         const res = await fetch("/api/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -308,7 +310,7 @@ async function main() {
       const tr = out?.data?.data?.translated
       if (tr) {
         cache[t] = tr
-        r.中文译名 = tr
+        r["中文译名"] = tr
         done += 1
       }
     } catch {

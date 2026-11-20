@@ -163,13 +163,14 @@ async function main() {
     ? JSON.parse(readFileSync(TRANS_CACHE, "utf8"))
     : {}
   // 以 _ 开头的键是说明文字，不是作品 ID，统计和使用时都要排除
-  const curated: Record<string, string> = existsSync(CURATED)
-    ? Object.fromEntries(
-        Object.entries(JSON.parse(readFileSync(CURATED, "utf8"))).filter(
-          ([k, v]) => !k.startsWith("_") && typeof v === "string" && v.trim() !== "",
-        ),
-      )
+  const curatedRaw = existsSync(CURATED)
+    ? JSON.parse(readFileSync(CURATED, "utf8")) as Record<string, unknown>
     : {}
+  const curated: Record<string, string> = Object.fromEntries(
+    Object.entries(curatedRaw).filter(
+      ([k, v]) => !k.startsWith("_") && typeof v === "string" && v.trim() !== "",
+    ),
+  ) as Record<string, string>
   const reviews: Record<string, { cnScore?: string; egsScore?: number; summary?: string; source?: string }> =
     existsSync(REVIEWS) ? JSON.parse(readFileSync(REVIEWS, "utf8")) : {}
   const stores: Record<
